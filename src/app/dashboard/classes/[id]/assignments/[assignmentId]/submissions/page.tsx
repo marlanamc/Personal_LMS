@@ -64,14 +64,14 @@ export default async function SubmissionsPage({ params }: Props) {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <header className="bg-white shadow">
+            <header className="bg-bg-secondary/90 shadow">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
                     <div>
                         <BackButton href={`/dashboard/classes/${id}`} className="mb-2">Back to Class</BackButton>
-                        <h1 className="text-2xl font-bold text-gray-900">
+                        <h1 className="text-2xl font-bold text-text">
                             Submissions: {assignment.title || assignment.activity.title}
                         </h1>
-                        <p className="text-gray-600 text-sm mt-1">
+                        <p className="text-text-muted text-sm mt-1">
                             {assignment.submissions.length} submission{assignment.submissions.length !== 1 ? "s" : ""}
                         </p>
                     </div>

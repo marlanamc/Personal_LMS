@@ -67,11 +67,11 @@ export default function CreateAssignmentForm({ classId, activities }: Props) {
     const selectedActivity = activities.find((a) => a.id === activityId);
 
     return (
-        <div className="bg-white shadow sm:rounded-lg">
+        <div className="bg-bg-secondary/90 shadow sm:rounded-lg">
             <div className="px-4 py-5 sm:p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label htmlFor="activityId" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="activityId" className="block text-sm font-medium text-text">
                             Select Activity *
                         </label>
                         <select
@@ -84,7 +84,7 @@ export default function CreateAssignmentForm({ classId, activities }: Props) {
                                     setTitle(activity.title);
                                 }
                             }}
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                            className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                             required
                         >
                             <option value="">Choose an activity…</option>
@@ -96,12 +96,12 @@ export default function CreateAssignmentForm({ classId, activities }: Props) {
                             ))}
                         </select>
                         {selectedActivity && (
-                            <p className="mt-2 text-sm text-gray-500">{selectedActivity.description}</p>
+                            <p className="mt-2 text-sm text-text-muted">{selectedActivity.description}</p>
                         )}
                     </div>
 
                     <div>
-                        <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="title" className="block text-sm font-medium text-text">
                             Assignment Title
                         </label>
                         <input
@@ -110,12 +110,12 @@ export default function CreateAssignmentForm({ classId, activities }: Props) {
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Leave empty to use activity title"
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                            className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="instructions" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="instructions" className="block text-sm font-medium text-text">
                             Instructions
                         </label>
                         <textarea
@@ -124,12 +124,12 @@ export default function CreateAssignmentForm({ classId, activities }: Props) {
                             onChange={(e) => setInstructions(e.target.value)}
                             rows={4}
                             placeholder="Additional instructions for students…"
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                            className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="dueDate" className="block text-sm font-medium text-text">
                             Due Date (Optional)
                         </label>
                         <input
@@ -137,7 +137,7 @@ export default function CreateAssignmentForm({ classId, activities }: Props) {
                             id="dueDate"
                             value={dueDate}
                             onChange={(e) => setDueDate(e.target.value)}
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                            className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                         />
                     </div>
 
@@ -151,14 +151,14 @@ export default function CreateAssignmentForm({ classId, activities }: Props) {
                         <button
                             type="button"
                             onClick={() => router.back()}
-                            className="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                            className="px-4 py-2 border border-border shadow-sm text-sm font-medium rounded-md text-text bg-bg-secondary/90 hover:bg-bg-tertiary/70"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                            className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/40 disabled:opacity-50"
                         >
                             {isLoading ? "Creating…" : "Create Assignment"}
                         </button>

@@ -18,14 +18,14 @@ export default function Home() {
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
                         <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
                         <p className="text-xs sm:text-sm uppercase tracking-[0.15em] text-primary-dark font-semibold">
-                            ESOL Learning Platform
+                            Personal Learning Platform
                         </p>
                     </div>
 
                     <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight text-text">
-                        <span className="inline-block">Class</span>{" "}
+                        <span className="inline-block">Marlie</span>{" "}
                         <span className="inline-block relative">
-                            Companion
+                            LMS
                             <svg className="absolute -bottom-2 left-0 w-full" height="12" viewBox="0 0 300 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M2 10C52 4 148 -2 298 10" stroke="#e9c46a" strokeWidth="4" strokeLinecap="round" />
                             </svg>
@@ -48,4 +48,3 @@ export default function Home() {
         </div>
     );
 }
-

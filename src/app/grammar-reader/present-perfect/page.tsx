@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Present Perfect - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Present Perfect - Interactive Grammar Guide | Marlie LMS",
     description:
         "Complete interactive guide to Present Perfect tense with exercises, examples, and practice. Learn when and how to use Present Perfect correctly.",
 };

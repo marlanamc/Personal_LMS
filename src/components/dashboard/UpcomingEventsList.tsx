@@ -61,7 +61,7 @@ export default function UpcomingEventsList({ events, allowDelete = true, showSyn
                         const canDelete = allowDelete && Boolean(ev.id);
 
                         return (
-                            <div key={`${ev.title}-${idx}`} className="flex items-center text-sm border border-border/40 rounded-lg px-3 py-2 bg-white/60 gap-3">
+                            <div key={`${ev.title}-${idx}`} className="flex items-center text-sm border border-border/40 rounded-lg px-3 py-2 bg-bg-secondary/60 gap-3">
                                 <div className="flex items-center gap-2 min-w-0">
                                     <span
                                         className={`w-2 h-2 rounded-full ${ev.type === "quiz"

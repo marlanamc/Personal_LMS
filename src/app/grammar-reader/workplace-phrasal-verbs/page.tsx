@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Workplace Phrasal Verbs - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Workplace Phrasal Verbs - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master essential workplace phrasal verbs: clock in/out, fill out forms, call back, cover for, and more. Learn the secret language of professional communication.",
 };

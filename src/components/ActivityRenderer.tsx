@@ -226,7 +226,7 @@ function QuizRenderer({
             <h3 className="text-xl font-semibold mb-4">Quiz Questions</h3>
             {questions.map((q: QuizQuestion, index: number) => (
                 <div key={q.id || index} className="border-l-4 border-indigo-500 pl-4 py-2">
-                    <p className="font-medium text-gray-900 mb-2">
+                    <p className="font-medium text-text mb-2">
                         {index + 1}. {q.question}
                     </p>
                     {q.options && (
@@ -239,14 +239,14 @@ function QuizRenderer({
                                         className="mr-2"
                                         disabled
                                     />
-                                    <span className="text-gray-700">{option}</span>
+                                    <span className="text-text">{option}</span>
                                 </label>
                             ))}
                         </div>
                     )}
                     {q.type === "text" && (
                         <textarea
-                            className="w-full mt-2 border border-gray-300 rounded-md px-3 py-2"
+                            className="w-full mt-2 border border-border rounded-md px-3 py-2"
                             placeholder="Your answer…"
                             disabled
                         />
@@ -266,15 +266,15 @@ function WorksheetRenderer({ content }: { content: WorksheetContent }) {
                         <h4 className="text-lg font-semibold mb-2">{section.title}</h4>
                     )}
                     {section.instructions && (
-                        <p className="text-gray-600 mb-3">{section.instructions}</p>
+                        <p className="text-text-muted mb-3">{section.instructions}</p>
                     )}
                     {section.content && (
-                        <div className="whitespace-pre-wrap text-gray-700">{section.content}</div>
+                        <div className="whitespace-pre-wrap text-text">{section.content}</div>
                     )}
                 </div>
             ))}
             {content.content && (
-                <div className="whitespace-pre-wrap text-gray-700">{content.content}</div>
+                <div className="whitespace-pre-wrap text-text">{content.content}</div>
             )}
         </div>
     );
@@ -285,7 +285,7 @@ function SlidesRenderer({ content }: { content: SlidesContent }) {
 
     return (
         <div className="space-y-4">
-            <p className="text-gray-600 mb-4">
+            <p className="text-text-muted mb-4">
                 This is a slide presentation with {slides.length} slide{slides.length !== 1 ? "s" : ""}.
             </p>
             <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
@@ -305,11 +305,11 @@ function GuideRenderer({ content }: { content: GuideContent }) {
             {content.sections?.map((section, index: number) => (
                 <div key={index} className="mb-6">
                     <h4 className="text-lg font-semibold mb-2">{section.heading}</h4>
-                    <p className="text-gray-700">{section.content}</p>
+                    <p className="text-text">{section.content}</p>
                 </div>
             ))}
             {content.content && (
-                <div className="whitespace-pre-wrap text-gray-700">{content.content}</div>
+                <div className="whitespace-pre-wrap text-text">{content.content}</div>
             )}
         </div>
     );
@@ -394,7 +394,7 @@ function LegacyGuideRenderer({ originalFile }: { originalFile: string }) {
 
     if (!html) {
         return (
-            <div className="text-gray-600">
+            <div className="text-text-muted">
                 Loading guide...
             </div>
         );
@@ -403,11 +403,11 @@ function LegacyGuideRenderer({ originalFile }: { originalFile: string }) {
     return (
         <div className="legacy-guide-wrapper">
             {sections.length > 0 && (
-                <div className="bg-white border border-gray-200 rounded-md shadow-sm p-4 mb-4 flex flex-wrap gap-3 items-center">
-                    <div className="text-sm font-semibold text-gray-800">Jump to section:</div>
+                <div className="bg-bg-secondary/90 border border-border rounded-md shadow-sm p-4 mb-4 flex flex-wrap gap-3 items-center">
+                    <div className="text-sm font-semibold text-text">Jump to section:</div>
                     <select
                         onChange={(e) => e.target.value && handleJump(e.target.value)}
-                        className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
+                        className="border border-border rounded-md px-3 py-2 text-sm text-text"
                         defaultValue=""
                     >
                         <option value="" disabled>Select a section</option>
@@ -440,7 +440,7 @@ function ExternalUrlRedirect({ url }: { url: string }) {
         <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Redirecting to activity...</p>
+                <p className="text-text-muted">Redirecting to activity...</p>
             </div>
         </div>
     );
@@ -449,7 +449,7 @@ function ExternalUrlRedirect({ url }: { url: string }) {
 function DefaultRenderer({ content }: { content: ActivityContent }) {
     return (
         <div className="prose max-w-none">
-            <pre className="bg-gray-100 p-4 rounded overflow-auto text-sm">
+            <pre className="bg-bg-tertiary/80 p-4 rounded overflow-auto text-sm">
                 {JSON.stringify(content, null, 2)}
             </pre>
         </div>
@@ -480,7 +480,7 @@ function ResourceRenderer({
     if (!entries || entries.length === 0) {
         return (
             <div className="prose max-w-none">
-                <div className="whitespace-pre-wrap text-gray-700">{contentStr}</div>
+                <div className="whitespace-pre-wrap text-text">{contentStr}</div>
             </div>
         );
     }
@@ -490,12 +490,12 @@ function ResourceRenderer({
             {entries.map((entry, idx) => (
                 <div
                     key={`${entry.term}-${idx}`}
-                    className="group relative overflow-hidden rounded-xl bg-white border border-border/60 p-6 shadow-sm transition-[box-shadow,border-color,transform] duration-300 hover:shadow-xl hover:border-primary/30 hover:-translate-y-1"
+                    className="group relative overflow-hidden rounded-xl bg-bg-secondary/90 border border-border/60 p-6 shadow-sm transition-[box-shadow,border-color,transform] duration-300 hover:shadow-xl hover:border-primary/30 hover:-translate-y-1"
                 >
                     {/* Decorative Background Elements */}
                     <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-primary/5 transition-transform duration-500 group-hover:scale-150" />
                     <div className="absolute top-0 right-0 p-6 flex justify-end">
-                        <span className="text-5xl font-black text-gray-100 transition-colors group-hover:text-primary/10 select-none">
+                        <span className="text-5xl font-black text-text-light/30 transition-colors group-hover:text-primary/10 select-none">
                             {String(idx + 1).padStart(2, '0')}
                         </span>
                     </div>
@@ -503,7 +503,7 @@ function ResourceRenderer({
                     <div className="relative z-10">
                         {/* Term & POS */}
                         <div className="flex items-baseline gap-3 mb-2 flex-wrap">
-                            <h3 className="text-2xl font-bold text-gray-900 font-display tracking-tight group-hover:text-primary transition-colors">
+                            <h3 className="text-2xl font-bold text-text font-display tracking-tight group-hover:text-primary transition-colors">
                                 {entry.term}
                             </h3>
                             {entry.pos && (
@@ -515,26 +515,26 @@ function ResourceRenderer({
 
                         {/* Definition */}
                         <div className="mb-6">
-                            <p className="text-gray-600 leading-relaxed font-medium">
+                            <p className="text-text-muted leading-relaxed font-medium">
                                 {entry.definition}
                             </p>
                         </div>
 
                         {/* Example Box */}
                         {entry.example && (
-                            <div className="rounded-lg bg-orange-50 border border-orange-100 p-4 transition-colors group-hover:bg-orange-50/80">
+                            <div className="rounded-lg bg-primary/10 border border-primary/20 p-4 transition-colors group-hover:bg-primary/20">
                                 <div className="flex gap-3">
-                                    <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 text-orange-600 text-xs">
+                                    <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-xs">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
                                             <path d="M10 2a6 6 0 00-6 6c0 1.887.454 3.665 1.257 5.234a.5.5 0 01.444.276L7.11 16.44a4.5 4.5 0 004.89 2.232 4.5 4.5 0 003.29-3.29 4.5 4.5 0 002.231-4.89.5.5 0 01.277-.444C19.546 8.335 20 6.557 20 5a6 6 0 00-6-6zm0 2a4 4 0 014 4c0 .87-.245 1.691-.68 2.399a.5.5 0 00-.095.53l.97 2.43a2.5 2.5 0 01-2.91 3.42 2.5 2.5 0 01-1.39-1.91l-.22-1.31a.5.5 0 00-.492-.417l-1.31-.22a2.5 2.5 0 01-1.91-1.39 2.5 2.5 0 013.42-2.91l2.43.97a.5.5 0 00.53-.095A3.996 3.996 0 0110 4z" />
                                             <path fillRule="evenodd" d="M10 12a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                                         </svg>
                                     </span>
                                     <div>
-                                        <p className="text-xs font-bold text-orange-800 uppercase tracking-wide mb-1 opacity-70">
+                                        <p className="text-xs font-bold text-primary uppercase tracking-wide mb-1 opacity-70">
                                             Usage Example
                                         </p>
-                                        <p className="text-sm text-gray-700 italic">
+                                        <p className="text-sm text-text italic">
                                             "{entry.example}"
                                         </p>
                                     </div>

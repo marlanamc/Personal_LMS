@@ -18,7 +18,7 @@ export function ComparisonTable({ comparison }: ComparisonTableProps) {
             {/* Mobile Card View */}
             <div className="md:hidden space-y-4">
                 {comparison.rows.map((row, index) => (
-                    <div key={index} className="bg-white rounded-lg shadow-sm border border-border overflow-hidden">
+                    <div key={index} className="bg-bg-light rounded-lg shadow-sm border border-border overflow-hidden">
                         <div className="bg-bg-light border-b border-border px-4 py-2">
                             <div className="text-sm font-semibold text-text">{row.label}</div>
                         </div>
@@ -45,10 +45,10 @@ export function ComparisonTable({ comparison }: ComparisonTableProps) {
             {/* Desktop Table View with Scroll Indicator */}
             <div className="hidden md:block relative">
                 <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm">
+                    <table className="w-full border-collapse bg-bg-light rounded-lg overflow-hidden shadow-sm">
                         <thead>
                             <tr>
-                                <th className="bg-bg-light border border-border p-3 text-left text-sm font-semibold text-text min-w-[120px]">
+                                <th className="bg-bg-secondary border border-border p-3 text-left text-sm font-semibold text-text min-w-[120px]">
                                     Category
                                 </th>
                                 <th className="bg-warning/10 border border-border p-3 text-left text-sm font-semibold text-warning min-w-[200px]">

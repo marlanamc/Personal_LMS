@@ -43,14 +43,14 @@ export const ExplanationPanel = React.memo(function ExplanationPanel({
 
     return (
         <div
-            className={`explanation-panel bg-white ${
+            className={`explanation-panel bg-transparent ${
                 isFull 
                     ? "p-4 sm:p-8 md:p-12 min-h-[300px] sm:min-h-[500px]" 
                     : "p-4 sm:p-8 overflow-y-auto max-h-[50vh] lg:max-h-[600px] border-r border-border"
             } ${className}`}
         >
             {/* Center content when in full mode or no exercises */}
-            <div className={`prose prose-lg ${
+            <div className={`prose prose-invert prose-lg ${
                 isFull 
                     ? "max-w-4xl mx-auto" 
                     : !hasExercises 

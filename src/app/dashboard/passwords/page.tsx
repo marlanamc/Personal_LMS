@@ -60,7 +60,7 @@ export default async function PasswordsPage() {
 
     return (
         <div className="min-h-screen bg-bg">
-            <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
+            <header className="sticky top-0 bg-bg-secondary/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
                 <div className="container mx-auto max-w-[1800px] py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <div>
                         <BackButton href="/dashboard" className="mb-1">Back to Dashboard</BackButton>
@@ -79,7 +79,7 @@ export default async function PasswordsPage() {
             </header>
 
             <main className="container mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 py-8 pb-24 space-y-6">
-                <div className="border rounded-2xl bg-white p-4 sm:p-6 shadow-sm">
+                <div className="border rounded-2xl bg-bg-secondary/90 p-4 sm:p-6 shadow-sm">
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                         <div>
                             <p className="text-xs uppercase tracking-wide text-primary font-semibold">
@@ -97,7 +97,7 @@ export default async function PasswordsPage() {
 
                     <div className="mt-4">
                         {students.length === 0 ? (
-                            <div className="border border-dashed border-border/50 rounded-xl p-6 text-center text-sm text-text-muted bg-white/60">
+                            <div className="border border-dashed border-border/50 rounded-xl p-6 text-center text-sm text-text-muted bg-bg-secondary/60">
                                 No students yet. Add students to your classes to manage their passwords.
                             </div>
                         ) : (

@@ -100,15 +100,15 @@ export default function CreateActivityForm() {
     };
 
     return (
-        <div className="bg-white shadow sm:rounded-lg">
+        <div className="bg-bg-secondary/90 shadow sm:rounded-lg">
             <div className="px-4 py-5 sm:p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Basic Info */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
+                        <h3 className="text-lg font-medium text-text">Basic Information</h3>
                         
                         <div>
-                            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="title" className="block text-sm font-medium text-text">
                                 Title *
                             </label>
                             <input
@@ -118,13 +118,13 @@ export default function CreateActivityForm() {
                                 autoComplete="off"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                 required
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="description" className="block text-sm font-medium text-text">
                                 Description
                             </label>
                             <textarea
@@ -134,20 +134,20 @@ export default function CreateActivityForm() {
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 rows={3}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                             />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="type" className="block text-sm font-medium text-text">
                                     Type *
                                 </label>
                                 <select
                                     id="type"
                                     value={type}
                                     onChange={(e) => setType(e.target.value)}
-                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                    className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                     required
                                 >
                                     <option value="worksheet">Worksheet</option>
@@ -160,14 +160,14 @@ export default function CreateActivityForm() {
                             </div>
 
                             <div>
-                                <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="category" className="block text-sm font-medium text-text">
                                     Category
                                 </label>
                                 <select
                                     id="category"
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
-                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                    className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                 >
                                     <option value="">Select category</option>
                                     <option value="grammar">Grammar</option>
@@ -178,14 +178,14 @@ export default function CreateActivityForm() {
                             </div>
 
                             <div>
-                                <label htmlFor="level" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="level" className="block text-sm font-medium text-text">
                                     Level
                                 </label>
                                 <select
                                     id="level"
                                     value={level}
                                     onChange={(e) => setLevel(e.target.value)}
-                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                    className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                 >
                                     <option value="">Select level</option>
                                     <option value="beginner">Beginner</option>
@@ -198,9 +198,9 @@ export default function CreateActivityForm() {
 
                     {/* Content Type */}
                     <div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">Content</h3>
+                        <h3 className="text-lg font-medium text-text mb-4">Content</h3>
                         <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-text mb-2">
                                 Content Format
                             </label>
                             <div className="flex gap-4">
@@ -232,9 +232,9 @@ export default function CreateActivityForm() {
                         {contentType === "quiz" ? (
                             <div className="space-y-4">
                                 {quizQuestions.map((question, index) => (
-                                    <div key={question.id} className="border border-gray-200 rounded-lg p-4">
+                                    <div key={question.id} className="border border-border rounded-lg p-4">
                                         <div className="flex justify-between items-start mb-3">
-                                            <h4 className="font-medium text-gray-900">Question {index + 1}</h4>
+                                            <h4 className="font-medium text-text">Question {index + 1}</h4>
                                             {quizQuestions.length > 1 && (
                                                 <button
                                                     type="button"
@@ -247,19 +247,19 @@ export default function CreateActivityForm() {
                                         </div>
                                         <div className="space-y-3">
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                <label className="block text-sm font-medium text-text mb-1">
                                                     Question
                                                 </label>
                                                 <input
                                                     type="text"
                                                     value={question.question}
                                                     onChange={(e) => updateQuizQuestion(index, "question", e.target.value)}
-                                                    className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                                    className="w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                                     placeholder="Enter question…"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                <label className="block text-sm font-medium text-text mb-1">
                                                     Question Type
                                                 </label>
                                                 <select
@@ -273,7 +273,7 @@ export default function CreateActivityForm() {
                                                             updateQuizQuestion(index, "options", []);
                                                         }
                                                     }}
-                                                    className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                                    className="w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                                 >
                                                     <option value="text">Text Answer</option>
                                                     <option value="single">Single Choice</option>
@@ -282,7 +282,7 @@ export default function CreateActivityForm() {
                                             </div>
                                             {(question.type === "single" || question.type === "multiple") && (
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    <label className="block text-sm font-medium text-text mb-1">
                                                         Options
                                                     </label>
                                                     {question.options.map((option, optIndex) => (
@@ -295,7 +295,7 @@ export default function CreateActivityForm() {
                                                                 newOptions[optIndex] = e.target.value;
                                                                 updateQuizQuestion(index, "options", newOptions);
                                                             }}
-                                                            className="w-full mb-2 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                                            className="w-full mb-2 rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                                             placeholder={`Option ${optIndex + 1}`}
                                                         />
                                                     ))}
@@ -307,14 +307,14 @@ export default function CreateActivityForm() {
                                 <button
                                     type="button"
                                     onClick={addQuizQuestion}
-                                    className="w-full px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                    className="w-full px-4 py-2 border border-border shadow-sm text-sm font-medium rounded-md text-text bg-bg-secondary/90 hover:bg-bg-tertiary/70"
                                 >
                                     + Add Question
                                 </button>
                             </div>
                         ) : (
                             <div>
-                                <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+                                <label htmlFor="content" className="block text-sm font-medium text-text mb-1">
                                     Content *
                                 </label>
                                 <textarea
@@ -322,11 +322,11 @@ export default function CreateActivityForm() {
                                     value={content}
                                     onChange={(e) => setContent(e.target.value)}
                                     rows={12}
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900 font-mono text-sm"
+                                    className="w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text font-mono text-sm"
                                     placeholder="Enter activity content…"
                                     required={contentType === "simple"}
                                 />
-                                <p className="mt-2 text-sm text-gray-500">
+                                <p className="mt-2 text-sm text-text-muted">
                                     You can use markdown-style formatting or plain text.
                                 </p>
                             </div>
@@ -343,14 +343,14 @@ export default function CreateActivityForm() {
                         <button
                             type="button"
                             onClick={() => router.back()}
-                            className="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                            className="px-4 py-2 border border-border shadow-sm text-sm font-medium rounded-md text-text bg-bg-secondary/90 hover:bg-bg-tertiary/70"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                            className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/40 disabled:opacity-50"
                         >
                             {isLoading ? "Creating…" : "Create Activity"}
                         </button>

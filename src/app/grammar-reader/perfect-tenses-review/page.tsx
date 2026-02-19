@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Perfect Tenses Review - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Perfect Tenses Review - Interactive Grammar Guide | Marlie LMS",
     description:
         "Comprehensive review of Present Perfect, Past Perfect, and Future Perfect tenses with commonly confused tense comparisons and practice exercises.",
 };

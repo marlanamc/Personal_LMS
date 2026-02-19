@@ -906,6 +906,38 @@ const SPEAKING_TEXTURES: Record<SpeakingFamily, ActivityTexture> = {
 };
 
 // -----------------------------------------------------------------------------
+// PERSONAL LEARNING TEXTURES
+// -----------------------------------------------------------------------------
+type PersonalFamily = 'spanish' | 'coding' | 'personal-other';
+
+const PERSONAL_TEXTURES: Record<PersonalFamily, ActivityTexture> = {
+    spanish: {
+        id: 'spanish',
+        color: '#d946ef',           // Pink/Fuchsia - vibrant, culture
+        bgColor: 'rgba(217, 70, 239, 0.04)',
+        gradient: 'linear-gradient(135deg, rgba(217, 70, 239, 0.06) 0%, transparent 100%)',
+        pattern: 'pulse',
+        icon: '🇪🇸',
+    },
+    coding: {
+        id: 'coding',
+        color: '#0ea5e9',           // Sky blue - tech, logic
+        bgColor: 'rgba(14, 165, 233, 0.04)',
+        gradient: 'linear-gradient(135deg, rgba(14, 165, 233, 0.06) 0%, transparent 100%)',
+        pattern: 'grid',
+        icon: '💻',
+    },
+    'personal-other': {
+        id: 'personal-other',
+        color: '#ec4899',           // Pink
+        bgColor: 'rgba(236, 72, 153, 0.04)',
+        gradient: 'linear-gradient(135deg, rgba(236, 72, 153, 0.04) 0%, transparent 100%)',
+        pattern: 'solid',
+        icon: '✨',
+    },
+};
+
+// -----------------------------------------------------------------------------
 // WRITING TEXTURES
 // Visual metaphors for composition and expression
 // -----------------------------------------------------------------------------
@@ -1014,6 +1046,14 @@ const detectWritingType = (title: string): WritingFamily => {
     return 'writing-other';
 };
 
+// Detect personal type
+const detectPersonalType = (title: string): PersonalFamily => {
+    const t = title.toLowerCase();
+    if (t.includes('spanish')) return 'spanish';
+    if (t.includes('coding') || t.includes('js') || t.includes('ts') || t.includes('javascript') || t.includes('typescript')) return 'coding';
+    return 'personal-other';
+};
+
 // Master function to get texture for any activity
 const getActivityTexture = (activity: Activity, sectionLabel?: string): ActivityTexture | undefined => {
     const category = activity.category?.toLowerCase() || '';
@@ -1065,6 +1105,12 @@ const getActivityTexture = (activity: Activity, sectionLabel?: string): Activity
         return WRITING_TEXTURES[writingType];
     }
 
+    // Personal Learning activities
+    if (category === 'personal') {
+        const personalType = detectPersonalType(activity.title);
+        return PERSONAL_TEXTURES[personalType];
+    }
+
     return undefined;
 };
 
@@ -1095,6 +1141,13 @@ const getSectionTexture = (sectionLabel: string, filterCategory?: string): Activ
     if (filterCategory === 'quizzes') {
         if (label.includes('week')) return QUIZ_TEXTURES['weekly-quiz'];
         return QUIZ_TEXTURES['quiz-other'];
+    }
+
+    // Personal Learning section textures
+    if (filterCategory === 'personal') {
+        if (label.includes('spanish')) return PERSONAL_TEXTURES.spanish;
+        if (label.includes('coding')) return PERSONAL_TEXTURES.coding;
+        return PERSONAL_TEXTURES['personal-other'];
     }
 
     return undefined;
@@ -1170,7 +1223,7 @@ const ActivityCard = React.memo(function ActivityCard({
 
     return (
         <div
-            className={`group relative block rounded-xl border bg-white p-4 transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 overflow-hidden
+            className={`group relative block rounded-xl border bg-bg-secondary/90 p-4 transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 overflow-hidden
                 ${isCompleted
                     ? 'border-secondary/30 shadow-sm'
                     : hasProgress
@@ -1441,13 +1494,13 @@ const ActivityCard = React.memo(function ActivityCard({
                                         {VOCAB_CHIP_CONFIG[vocabType].icon} {VOCAB_CHIP_CONFIG[vocabType].label}
                                     </span>
                                 ) : (
-                                    <span className="px-2 py-0.5 bg-gray-100 text-gray-600 font-semibold rounded-full text-[10px] uppercase tracking-wide">
+                                    <span className="px-2 py-0.5 bg-bg-tertiary/80 text-text-muted font-semibold rounded-full text-[10px] uppercase tracking-wide">
                                         {activity.type}
                                     </span>
                                 )
                             )}
                             {points !== undefined && points > 0 && !isCompleted && (
-                                <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold text-[11px]">
+                                <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold text-[11px]">
                                     +{points} pts
                                 </span>
                             )}
@@ -1463,7 +1516,7 @@ const ActivityCard = React.memo(function ActivityCard({
 
             {/* Progress bar - now more subtle and integrated */}
             {hasProgress && (
-                <div className="mt-3 h-1 bg-gray-100 rounded-full overflow-hidden relative z-10">
+                <div className="mt-3 h-1 bg-bg-tertiary/80 rounded-full overflow-hidden relative z-10">
                     <div
                         className="h-full bg-primary/70 rounded-full transition-all duration-500"
                         style={{ width: `${Math.min(progressValue, 100)}%` }}
@@ -1801,6 +1854,16 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                         };
                         return getWeekNum(a.title || '') - getWeekNum(b.title || '');
                     })
+            },
+            {
+                name: 'Spanish',
+                color: '#ec4899', // pink
+                activities: activities.filter((a: Activity) => a.category === 'personal' && a.title.toLowerCase().includes('spanish'))
+            },
+            {
+                name: 'Coding',
+                color: '#0ea5e9', // sky blue
+                activities: activities.filter((a: Activity) => a.category === 'personal' && (a.title.toLowerCase().includes('coding') || a.title.toLowerCase().includes('js') || a.title.toLowerCase().includes('ts')))
             }
         ], [activities, buildGrammarSubCategories]);
 
@@ -2015,7 +2078,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                 return (
                     <div
                         key={category.name}
-                        className="bg-white rounded-xl border-2 overflow-hidden shadow-sm hover:shadow-md transition-[box-shadow] duration-300"
+                        className="bg-bg-secondary/90 rounded-xl border-2 overflow-hidden shadow-sm hover:shadow-md transition-[box-shadow] duration-300"
                         style={{
                             borderColor: `${category.color}40`,
                             animationDelay: `${idx * 50}ms`
@@ -2062,7 +2125,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                                 <div key={subKey}>
                                                     <button
                                                         onClick={() => toggleSubCategory(subKey)}
-                                                        className="w-full flex items-center justify-between p-4 pl-6 hover:bg-white/50 transition-colors group cursor-pointer touch-manipulation"
+                                                        className="w-full flex items-center justify-between p-4 pl-6 hover:bg-bg-secondary/50 transition-colors group cursor-pointer touch-manipulation"
                                                         style={{
                                                             touchAction: 'manipulation'
                                                         }}
@@ -2071,7 +2134,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                                             {subCategory.name}
                                                         </span>
                                                         <div className="flex items-center gap-2 shrink-0">
-                                                            <span className="text-xs text-text-muted font-medium bg-white px-2 py-1 rounded-full pointer-events-none">
+                                                            <span className="text-xs text-text-muted font-medium bg-bg-secondary/90 px-2 py-1 rounded-full pointer-events-none">
                                                                 {getSubCategoryCount(subCategory)}
                                                             </span>
                                                             <svg
@@ -2100,7 +2163,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                                                                 <div key={subSubKey}>
                                                                                     <button
                                                                                         onClick={() => toggleSubCategory(subSubKey)}
-                                                                                        className="w-full flex items-center justify-between p-3 pl-16 hover:bg-white/30 transition-colors group cursor-pointer touch-manipulation"
+                                                                                        className="w-full flex items-center justify-between p-3 pl-16 hover:bg-bg-secondary/30 transition-colors group cursor-pointer touch-manipulation"
                                                                                         style={{
                                                                                             touchAction: 'manipulation'
                                                                                         }}
@@ -2109,7 +2172,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                                                                             <span className="text-sm font-bold text-text group-hover:text-primary transition-colors pointer-events-none">
                                                                                                 {subSubCategory.name}
                                                                                             </span>
-                                                                                            <span className="text-xs text-text-muted font-medium bg-white px-2 py-0.5 rounded-full pointer-events-none">
+                                                                                            <span className="text-xs text-text-muted font-medium bg-bg-secondary/90 px-2 py-0.5 rounded-full pointer-events-none">
                                                                                                 {subSubCategory.activities.length}
                                                                                             </span>
                                                                                         </div>
@@ -2144,7 +2207,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                                                             <div key={subSubKey}>
                                                                                 <button
                                                                                     onClick={() => toggleSubCategory(subSubKey)}
-                                                                                    className="w-full flex items-center justify-between p-3 pl-10 hover:bg-white/30 transition-colors group cursor-pointer touch-manipulation"
+                                                                                    className="w-full flex items-center justify-between p-3 pl-10 hover:bg-bg-secondary/30 transition-colors group cursor-pointer touch-manipulation"
                                                                                     style={{
                                                                                         touchAction: 'manipulation'
                                                                                     }}
@@ -2153,7 +2216,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                                                                         {subSubCategory.name}
                                                                                     </span>
                                                                                     <div className="flex items-center gap-2 shrink-0">
-                                                                                        <span className="text-xs text-text-muted font-medium bg-white px-2 py-0.5 rounded-full pointer-events-none">
+                                                                                        <span className="text-xs text-text-muted font-medium bg-bg-secondary/90 px-2 py-0.5 rounded-full pointer-events-none">
                                                                                             {subSubCategory.activities.length}
                                                                                         </span>
                                                                                         <svg

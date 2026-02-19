@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "All Verb Tenses Overview - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "All Verb Tenses Overview - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master all 12 English verb tenses with a complete timeline and usage guide. Perfect for comprehensive review and final presentations.",
 };

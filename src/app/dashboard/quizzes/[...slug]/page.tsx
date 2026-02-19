@@ -49,7 +49,7 @@ export default async function VerbQuizResultsPage({
     if (isNaN(weekNumber) || weekNumber < 1 || weekNumber > 20) {
         return (
             <div className="min-h-screen bg-bg">
-                <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
+                <header className="sticky top-0 bg-bg-secondary/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
                     <div className="container mx-auto max-w-[1000px] py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                         <div>
                             <BackButton href="/dashboard/stats" className="mb-1">Back to Stats</BackButton>
@@ -75,7 +75,7 @@ export default async function VerbQuizResultsPage({
     if (!activity) {
         return (
             <div className="min-h-screen bg-bg">
-                <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
+                <header className="sticky top-0 bg-bg-secondary/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
                     <div className="container mx-auto max-w-[1000px] py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                         <div>
                             <BackButton href="/dashboard/stats" className="mb-1">Back to Stats</BackButton>
@@ -112,7 +112,7 @@ export default async function VerbQuizResultsPage({
 
     return (
         <div className="min-h-screen bg-bg">
-            <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
+            <header className="sticky top-0 bg-bg-secondary/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
                 <div className="container mx-auto max-w-[1000px] py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <div>
                         <BackButton href="/dashboard/stats" className="mb-1">Back to Stats</BackButton>
@@ -129,11 +129,11 @@ export default async function VerbQuizResultsPage({
 
             <main className="container mx-auto max-w-[1000px] px-4 sm:px-6 lg:px-8 py-8 space-y-6">
                 {total === 0 ? (
-                    <div className="border border-dashed border-border/50 rounded-xl p-6 bg-white/70 text-text-muted text-sm">
+                    <div className="border border-dashed border-border/50 rounded-xl p-6 bg-bg-secondary/70 text-text-muted text-sm">
                         No submissions yet.
                     </div>
                 ) : (
-                    <div className="bg-white rounded-2xl border border-border/40 shadow-sm overflow-hidden">
+                    <div className="bg-bg-secondary/90 rounded-2xl border border-border/40 shadow-sm overflow-hidden">
                         <div className="divide-y divide-border/20">
                             {submissions.map((submission: SubmissionRow) => (
                                 <div key={submission.id} className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

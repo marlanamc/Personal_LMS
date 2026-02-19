@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Present Simple - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Present Simple - Interactive Grammar Guide | Marlie LMS",
     description:
         "Complete interactive guide to Present Simple tense with exercises, examples, and practice. Learn when and how to use Present Simple correctly.",
 };

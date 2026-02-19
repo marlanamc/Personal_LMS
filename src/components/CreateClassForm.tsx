@@ -48,11 +48,11 @@ export default function CreateClassForm() {
     };
 
     return (
-        <div className="bg-white shadow sm:rounded-lg">
+        <div className="bg-bg-secondary/90 shadow sm:rounded-lg">
             <div className="px-4 py-5 sm:p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="name" className="block text-sm font-medium text-text">
                             Class Name *
                         </label>
                         <input
@@ -62,13 +62,13 @@ export default function CreateClassForm() {
                             autoComplete="off"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                            className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                             required
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="description" className="block text-sm font-medium text-text">
                             Description
                         </label>
                         <textarea
@@ -78,12 +78,12 @@ export default function CreateClassForm() {
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             rows={3}
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                            className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                         />
                     </div>
 
                     <div>
-                        <label htmlFor="code" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="code" className="block text-sm font-medium text-text">
                             Class Code
                         </label>
                         <div className="mt-1 flex gap-2">
@@ -94,17 +94,17 @@ export default function CreateClassForm() {
                                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                                 placeholder="Leave empty to auto-generate"
                                 maxLength={10}
-                                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                className="block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                             />
                             <button
                                 type="button"
                                 onClick={generateCode}
-                                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                className="inline-flex items-center px-4 py-2 border border-border shadow-sm text-sm font-medium rounded-md text-text bg-bg-secondary/90 hover:bg-bg-tertiary/70"
                             >
                                 Generate
                             </button>
                         </div>
-                        <p className="mt-2 text-sm text-gray-500">
+                        <p className="mt-2 text-sm text-text-muted">
                             Students will use this code to join your class
                         </p>
                     </div>
@@ -119,14 +119,14 @@ export default function CreateClassForm() {
                         <button
                             type="button"
                             onClick={() => router.back()}
-                            className="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                            className="px-4 py-2 border border-border shadow-sm text-sm font-medium rounded-md text-text bg-bg-secondary/90 hover:bg-bg-tertiary/70"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                            className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/40 disabled:opacity-50"
                         >
                             {isLoading ? "Creating…" : "Create Class"}
                         </button>

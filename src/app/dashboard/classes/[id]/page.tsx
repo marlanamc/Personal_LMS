@@ -58,13 +58,13 @@ export default async function ClassDetailPage({ params }: Props) {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <header className="bg-white shadow">
+            <header className="bg-bg-secondary/90 shadow">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <div>
                         <BackButton href="/dashboard" className="mb-2">Back to Dashboard</BackButton>
-                        <h1 className="text-3xl font-bold text-gray-900">{classItem.name}</h1>
+                        <h1 className="text-3xl font-bold text-text">{classItem.name}</h1>
                         {classItem.description && (
-                            <p className="text-gray-600 mt-1">{classItem.description}</p>
+                            <p className="text-text-muted mt-1">{classItem.description}</p>
                         )}
                     </div>
                     <LogoutButton />
@@ -80,7 +80,7 @@ export default async function ClassDetailPage({ params }: Props) {
                     )}
 
                     {/* Class Info */}
-                    <section className="bg-white shadow rounded-lg p-6">
+                    <section className="bg-bg-secondary/90 shadow rounded-lg p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-semibold">Class Information</h2>
                             {isTeacher && (
@@ -91,15 +91,15 @@ export default async function ClassDetailPage({ params }: Props) {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <p className="text-sm text-gray-500">Students</p>
+                                <p className="text-sm text-text-muted">Students</p>
                                 <p className="text-2xl font-bold">{classItem.enrollments.length}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500">Assignments</p>
+                                <p className="text-sm text-text-muted">Assignments</p>
                                 <p className="text-2xl font-bold">{classItem.assignments.length}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500">Teacher</p>
+                                <p className="text-sm text-text-muted">Teacher</p>
                                 <p className="text-lg font-medium">{classItem.teacher.name}</p>
                             </div>
                         </div>
@@ -110,29 +110,29 @@ export default async function ClassDetailPage({ params }: Props) {
                         <section>
                             <h2 className="text-xl font-semibold mb-4">Students</h2>
                             {classItem.enrollments.length === 0 ? (
-                                <div className="bg-white shadow rounded-lg p-6 text-center">
-                                    <p className="text-gray-500">No students enrolled yet.</p>
-                                    <p className="text-sm text-gray-400 mt-2">
+                                <div className="bg-bg-secondary/90 shadow rounded-lg p-6 text-center">
+                                    <p className="text-text-muted">No students enrolled yet.</p>
+                                    <p className="text-sm text-text-light mt-2">
                                         Share the class code <strong>{classItem.code}</strong> with students to join.
                                     </p>
                                 </div>
                             ) : (
-                                <div className="bg-white shadow rounded-lg overflow-hidden">
-                                    <table className="min-w-full divide-y divide-gray-200">
+                                <div className="bg-bg-secondary/90 shadow rounded-lg overflow-hidden">
+                                    <table className="min-w-full divide-y divide-border">
                                         <thead className="bg-gray-50">
                                             <tr>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                                                     Name
                                                 </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                                                     Username
                                                 </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                                                     Joined
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody className="bg-white divide-y divide-gray-200">
+                                        <tbody className="bg-bg-secondary/90 divide-y divide-border">
                                             {classItem.enrollments.map((enrollment: {
                                                 id: string;
                                                 student: {
@@ -144,8 +144,8 @@ export default async function ClassDetailPage({ params }: Props) {
                                                 };
                                                 joinedAt: Date;
                                             }) => (
-                                                <tr key={enrollment.id} className="hover:bg-gray-50">
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <tr key={enrollment.id} className="hover:bg-bg-tertiary/70">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text">
                                                         <Link
                                                             href={`/dashboard/students/${enrollment.student.id}`}
                                                             className="text-indigo-600 hover:text-indigo-900 hover:underline"
@@ -153,10 +153,10 @@ export default async function ClassDetailPage({ params }: Props) {
                                                             {enrollment.student.name || "No name"}
                                                         </Link>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">
                                                         {enrollment.student.username}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">
                                                         {new Date(enrollment.joinedAt).toLocaleDateString()}
                                                     </td>
                                                 </tr>
@@ -182,8 +182,8 @@ export default async function ClassDetailPage({ params }: Props) {
                             )}
                         </div>
                         {classItem.assignments.length === 0 ? (
-                            <div className="bg-white shadow rounded-lg p-6 text-center">
-                                <p className="text-gray-500">No assignments yet.</p>
+                            <div className="bg-bg-secondary/90 shadow rounded-lg p-6 text-center">
+                                <p className="text-text-muted">No assignments yet.</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
@@ -199,25 +199,25 @@ export default async function ClassDetailPage({ params }: Props) {
                                     isFeatured: boolean;
                                     dueDate: Date | null;
                                 }) => (
-                                    <div key={assignment.id} className="bg-white shadow rounded-lg p-6">
+                                    <div key={assignment.id} className="bg-bg-secondary/90 shadow rounded-lg p-6">
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
-                                                <h3 className="text-lg font-medium text-gray-900">
+                                                <h3 className="text-lg font-medium text-text">
                                                     {assignment.title || assignment.activity.title}
                                                 </h3>
-                                                <p className="text-sm text-gray-500 mt-1">
+                                                <p className="text-sm text-text-muted mt-1">
                                                     {assignment.activity.description}
                                                 </p>
                                                 <div className="flex items-center gap-4 mt-2">
                                                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                                         assignment.activity.type === 'quiz' ? 'bg-purple-100 text-purple-800' :
                                                         assignment.activity.type === 'worksheet' ? 'bg-green-100 text-green-800' :
-                                                        'bg-gray-100 text-gray-800'
+                                                        'bg-bg-tertiary/80 text-text'
                                                     }`}>
                                                         {assignment.activity.type}
                                                     </span>
                                                     {assignment.dueDate && (
-                                                        <span className="text-xs text-gray-500">
+                                                        <span className="text-xs text-text-muted">
                                                             Due: {new Date(assignment.dueDate).toLocaleDateString()}
                                                         </span>
                                                     )}
@@ -238,7 +238,7 @@ export default async function ClassDetailPage({ params }: Props) {
                                                         />
                                                         <Link
                                                             href={`/dashboard/classes/${id}/assignments/${assignment.id}/submissions`}
-                                                            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50"
+                                                            className="inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md shadow-sm text-text bg-bg-secondary/90 hover:bg-bg-tertiary/70"
                                                         >
                                                             Submissions
                                                         </Link>

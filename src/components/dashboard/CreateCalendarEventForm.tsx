@@ -68,7 +68,7 @@ export default function CreateCalendarEventForm({ classes }: Props) {
     };
 
     return (
-        <div className="bg-white border border-border/50 rounded-xl shadow-sm p-4">
+        <div className="bg-bg-secondary/90 border border-border/50 rounded-xl shadow-sm p-4">
             <h3 className="text-sm font-bold text-text mb-3">Add to Calendar</h3>
             {classes.length === 0 && (
                 <p className="text-xs text-text-muted mb-3">Create a class first to share dates.</p>

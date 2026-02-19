@@ -218,7 +218,7 @@ const getVerbQuizOrder = (title: string): number => {
 
 const getScoreBadgeClasses = (score: number): string => {
     if (score >= 80) return "bg-emerald-100 text-emerald-800 border-emerald-200";
-    if (score >= 60) return "bg-amber-100 text-amber-800 border-amber-200";
+    if (score >= 60) return "bg-primary/15 text-primary border-primary/30";
     return "bg-rose-100 text-rose-800 border-rose-200";
 };
 
@@ -632,7 +632,7 @@ export default async function ProfilePage() {
                             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                                 <div className="flex-shrink-0 relative group">
                                     <div className="absolute -inset-1 bg-gradient-to-br from-primary via-accent to-secondary rounded-full opacity-70 blur group-hover:opacity-100 transition-opacity duration-500"></div>
-                                    <div className="relative bg-white p-1 rounded-full">
+                                    <div className="relative bg-bg-secondary/90 p-1 rounded-full">
                                         <ClickableAvatarDisplay size="lg" />
                                     </div>
                                 </div>
@@ -656,7 +656,7 @@ export default async function ProfilePage() {
                                         </div>
                                     </div>
                                     <div className="w-px h-10 bg-border/60" />
-                                    <div className="flex items-center gap-2 text-amber-500">
+                                    <div className="flex items-center gap-2 text-primary">
                                         <Flame className="w-5 h-5" />
                                         <div className="text-right">
                                             <p className="text-xl font-bold leading-tight">{effectiveCurrentStreak}</p>
@@ -684,7 +684,7 @@ export default async function ProfilePage() {
                                     <p className="text-xs text-text-muted">Points</p>
                                 </div>
                                 <div className="flex flex-col items-center text-center border-x border-border/40">
-                                    <div className="flex items-center gap-1.5 text-amber-500 mb-1">
+                                    <div className="flex items-center gap-1.5 text-primary mb-1">
                                         <Flame className="w-4 h-4" />
                                         <span className="text-lg sm:text-xl font-bold">{effectiveCurrentStreak}</span>
                                     </div>
@@ -702,9 +702,9 @@ export default async function ProfilePage() {
                     </div>
 
                     {/* Mini Quiz Certificates - Medal Collection */}
-                    <div id="mini-quiz-certificates" className="mb-10 rounded-2xl border border-amber-200/60 bg-gradient-to-br from-amber-50/50 via-white to-amber-50/30 p-6 shadow-sm animate-fade-in-up delay-300">
+                    <div id="mini-quiz-certificates" className="mb-10 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 via-bg-secondary to-secondary/20 p-6 shadow-sm animate-fade-in-up delay-300">
                         <div className="mb-6 flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-100 to-amber-50 text-amber-600 shadow-inner">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-secondary/20 text-primary shadow-inner">
                                 <Award className="h-6 w-6" />
                             </div>
                             <div>
@@ -760,7 +760,7 @@ export default async function ProfilePage() {
                     <div className="mb-10 space-y-8">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             {/* Calendar */}
-                            <div className="bg-white/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm animate-fade-in-up delay-200">
+                            <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm animate-fade-in-up delay-200">
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
                                         <Calendar className="w-5 h-5 text-success" />
@@ -777,7 +777,7 @@ export default async function ProfilePage() {
                             </div>
 
                             {/* Released Quiz Grades */}
-                            <div className="bg-white/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm animate-fade-in-up delay-300">
+                            <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm animate-fade-in-up delay-300">
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                                         <BookOpen className="w-5 h-5 text-primary" />
@@ -818,7 +818,7 @@ export default async function ProfilePage() {
                                                                 {quiz.score}%
                                                             </span>
                                                         ) : (
-                                                            <span className="shrink-0 rounded-full border border-border/60 bg-white px-2.5 py-1 text-xs font-medium text-text-muted">
+                                                            <span className="shrink-0 rounded-full border border-border/60 bg-bg-secondary/90 px-2.5 py-1 text-xs font-medium text-text-muted">
                                                                 Not submitted
                                                             </span>
                                                         )}
@@ -856,7 +856,7 @@ export default async function ProfilePage() {
                                                                 {quiz.score}%
                                                             </span>
                                                         ) : (
-                                                            <span className="shrink-0 rounded-full border border-border/60 bg-white px-2.5 py-1 text-xs font-medium text-text-muted">
+                                                            <span className="shrink-0 rounded-full border border-border/60 bg-bg-secondary/90 px-2.5 py-1 text-xs font-medium text-text-muted">
                                                                 Not submitted
                                                             </span>
                                                         )}
@@ -871,7 +871,7 @@ export default async function ProfilePage() {
                         </div>
 
                         {/* Recent Activity */}
-                        <div className="bg-white/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm animate-fade-in-up delay-400">
+                        <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm animate-fade-in-up delay-400">
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
@@ -893,7 +893,7 @@ export default async function ProfilePage() {
 
                         {/* Achievements - Show only if exists */}
                         {user.achievements.length > 0 && (
-                            <div className="bg-white/80 backdrop-blur-md border border-border/60 rounded-2xl p-8 shadow-sm animate-fade-in-up delay-500">
+                            <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-8 shadow-sm animate-fade-in-up delay-500">
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center shadow-lg shadow-accent/20 text-white">
                                         <Award className="w-6 h-6" />
@@ -908,9 +908,9 @@ export default async function ProfilePage() {
                                     {user.achievements.map((userAchievement) => (
                                         <div
                                             key={userAchievement.id}
-                                            className="flex items-center gap-4 p-4 bg-gradient-to-br from-amber-50 to-orange-50/30 border border-amber-100/50 rounded-xl hover:shadow-md transition-shadow"
+                                            className="flex items-center gap-4 p-4 bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/20 rounded-xl hover:shadow-md transition-shadow"
                                         >
-                                            <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-2xl shrink-0">
+                                            <div className="w-12 h-12 rounded-full bg-bg-secondary/90 shadow-sm flex items-center justify-center text-2xl shrink-0">
                                                 {userAchievement.achievement.icon}
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -929,7 +929,7 @@ export default async function ProfilePage() {
                     items={[
                         { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
                         { href: "/dashboard/activities", label: "Activities", icon: <BookIcon /> },
-                        { href: "/dashboard/leaderboard", label: "Leaderboard", icon: <TrophyIcon /> },
+                        { href: "/grammar-map", label: "Map", icon: <TrophyIcon /> },
                         { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
                     ]}
                 />
@@ -979,7 +979,7 @@ export default async function ProfilePage() {
                 </div>
 
                 {/* Quick Links */}
-                <div className="bg-white/95 backdrop-blur-sm border border-border/60 rounded-xl p-6 shadow-md">
+                <div className="bg-bg-secondary/95 backdrop-blur-sm border border-border/60 rounded-xl p-6 shadow-md">
                     <h2 className="text-xl font-bold text-text mb-4">Quick Actions</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Link

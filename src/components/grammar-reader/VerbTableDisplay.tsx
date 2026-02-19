@@ -10,7 +10,7 @@ export function VerbTableDisplay({ table }: VerbTableDisplayProps) {
         <div className="verb-table-display my-6">
             <h4 className="text-base font-bold text-text mb-4">{table.title}</h4>
             <div className="overflow-x-auto">
-                <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm">
+                <table className="w-full border-collapse bg-bg-light rounded-lg overflow-hidden shadow-sm">
                     <thead>
                         <tr>
                             {table.headers.map((header, index) => (

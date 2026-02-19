@@ -32,7 +32,7 @@ export default function VerbQuizResults({ content, submission, onRetake }: VerbQ
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-2xl shadow-lg border border-sage/20 p-8 text-center"
+        className="bg-bg-secondary/90 rounded-2xl shadow-lg border border-sage/20 p-8 text-center"
       >
         <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${
           isPerfect ? 'bg-terracotta/10' : isExcellent ? 'bg-sage/10' : 'bg-gold/10'
@@ -65,7 +65,7 @@ export default function VerbQuizResults({ content, submission, onRetake }: VerbQ
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-white rounded-2xl shadow-lg border border-sage/20 p-6"
+        className="bg-bg-secondary/90 rounded-2xl shadow-lg border border-sage/20 p-6"
       >
         <h3 className="text-xl font-display font-bold text-terracotta mb-4">
           Detailed Results
@@ -88,7 +88,7 @@ export default function VerbQuizResults({ content, submission, onRetake }: VerbQ
                 className={`rounded-xl border-2 p-4 ${
                   isVerbPerfect
                     ? 'border-green-300 bg-green-50'
-                    : 'border-neutral-200 bg-neutral-50/50'
+                    : 'border-neutral-200 bg-bg-tertiary/50'
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">

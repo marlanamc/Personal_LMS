@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { BottomNav } from "@/components/ui";
 import { DashboardHeader } from "@/components/dashboard";
-import { HomeIcon, BookOpenIcon, TrophyIcon, CalendarIcon } from "@/components/icons/Icons";
+import { HomeIcon, BookOpenIcon, StarIcon, CalendarIcon } from "@/components/icons/Icons";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
     const session = await getServerSession(authOptions);
@@ -19,7 +19,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
                     { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
                     { href: "/dashboard/activities", label: "Activities", icon: <BookOpenIcon /> },
                     { href: "/dashboard/calendar", label: "Calendar", icon: <CalendarIcon /> },
-                    { href: "/dashboard/leaderboard", label: "Leaderboard", icon: <TrophyIcon /> },
+                    { href: "/dashboard/profile", label: "Profile", icon: <StarIcon /> },
                 ]}
             />
         </div>

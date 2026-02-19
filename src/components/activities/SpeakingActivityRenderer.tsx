@@ -91,15 +91,15 @@ function WarmupModeRenderer({ content, activityId, assignmentId }: Props) {
         />
       )}
       {/* Header */}
-      <header className="sticky lg:relative top-0 flex-none px-4 sm:px-6 py-4 sm:py-5 border-b border-border/60 bg-white/90 backdrop-blur-md z-10">
+      <header className="sticky lg:relative top-0 flex-none px-4 sm:px-6 py-4 sm:py-5 border-b border-border/60 bg-bg-secondary/90 backdrop-blur-md z-10">
         <div className="flex items-start gap-3 sm:gap-4">
           <BackButton onClick={() => router.back()} className="flex-shrink-0 mt-1 sm:mt-1.5" />
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1.5 sm:mb-2 font-display leading-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-text mb-1.5 sm:mb-2 font-display leading-tight">
               {content.title}
             </h1>
             {content.description && (
-              <p className="text-sm sm:text-base text-gray-600">{content.description}</p>
+              <p className="text-sm sm:text-base text-text-muted">{content.description}</p>
             )}
           </div>
         </div>
@@ -117,16 +117,16 @@ function WarmupModeRenderer({ content, activityId, assignmentId }: Props) {
 
           {/* Key Phrases */}
           {content.keyPhrases && content.keyPhrases.length > 0 && (
-            <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-bg-secondary/90 border border-border rounded-lg p-4 sm:p-6">
+              <h3 className="text-lg font-semibold text-text mb-4 flex items-center gap-2">
                 🗣️ Key Phrases to Practice
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                 {content.keyPhrases.map((phrase, index) => (
-                  <div key={index} className="text-sm text-gray-700 p-3 bg-gray-50 rounded-lg border-l-4 border-primary">
+                  <div key={index} className="text-sm text-text p-3 bg-gray-50 rounded-lg border-l-4 border-primary">
                     {phrase.phrase}
                     {phrase.example && (
-                      <div className="text-xs text-gray-500 mt-1 italic">
+                      <div className="text-xs text-text-muted mt-1 italic">
                         "{phrase.example}"
                       </div>
                     )}
@@ -138,25 +138,25 @@ function WarmupModeRenderer({ content, activityId, assignmentId }: Props) {
 
           {/* Speaking Prompts */}
           {content.prompts && content.prompts.length > 0 && (
-            <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-bg-secondary/90 border border-border rounded-lg p-4 sm:p-6">
+              <h3 className="text-lg font-semibold text-text mb-4 flex items-center gap-2">
                 💬 Speaking Prompts
               </h3>
-              <p className="text-sm text-gray-600 mb-4">Choose any that interest you</p>
+              <p className="text-sm text-text-muted mb-4">Choose any that interest you</p>
               <div className="space-y-3">
                 {content.prompts.map((prompt) => (
-                  <div key={prompt.id} className="border border-gray-200 rounded-lg p-4">
+                  <div key={prompt.id} className="border border-border rounded-lg p-4">
                     <div className="flex items-start gap-3">
                       <input
                         type="checkbox"
-                        className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
                         // Optional: could track selected prompts for engagement metrics
                       />
                       <div className="flex-1">
-                        <div className="font-medium text-gray-900 mb-2">
+                        <div className="font-medium text-text mb-2">
                           {prompt.text}
                         </div>
-                        <div className="text-sm text-gray-600 space-y-1">
+                        <div className="text-sm text-text-muted space-y-1">
                           <div>
                             <strong>Solo:</strong> {prompt.soloInstructions || "Think through what you'd say"}
                           </div>
@@ -173,28 +173,28 @@ function WarmupModeRenderer({ content, activityId, assignmentId }: Props) {
           )}
 
           {/* Quick Practice (Optional) */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <div className="bg-bg-secondary/90 border border-border rounded-lg p-4 sm:p-6">
+            <h3 className="text-lg font-semibold text-text mb-4 flex items-center gap-2">
               ✏️ Quick Practice (Optional)
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-text mb-2">
                   Write one sentence using today's phrases:
                 </label>
                 <textarea
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   rows={2}
                   placeholder="Example: I have a headache so I need to see a doctor."
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-text mb-2">
                   Think of a follow-up question:
                 </label>
                 <input
                   type="text"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="Example: Can you recommend a good doctor?"
                 />
               </div>
@@ -214,7 +214,7 @@ function WarmupModeRenderer({ content, activityId, assignmentId }: Props) {
               </div>
               <div className="flex flex-col items-end gap-2">
                 {isLoading ? (
-                  <div className="text-sm text-gray-600">Checking status...</div>
+                  <div className="text-sm text-text-muted">Checking status...</div>
                 ) : !isCompleted ? (
                   <button
                     onClick={handleComplete}
@@ -527,7 +527,7 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
   if (!soloMode || !speakingMode) {
     return (
       <div className="p-6">
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-text">
           This speaking warm-up needs to be configured with the new two-phase structure.
         </p>
       </div>
@@ -543,15 +543,15 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
           onComplete={() => setPointsToast(null)}
         />
       )}
-      <header className="sticky lg:relative top-0 flex-none px-4 sm:px-6 py-4 sm:py-5 border-b border-border/60 bg-white/90 backdrop-blur-md z-10">
+      <header className="sticky lg:relative top-0 flex-none px-4 sm:px-6 py-4 sm:py-5 border-b border-border/60 bg-bg-secondary/90 backdrop-blur-md z-10">
         <div className="flex items-start gap-3 sm:gap-4">
           <BackButton onClick={() => router.back()} className="flex-shrink-0 mt-1 sm:mt-1.5" />
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1.5 sm:mb-2 font-display leading-tight">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-text mb-1.5 sm:mb-2 font-display leading-tight">
               {content.title}
             </h1>
             {content.description && (
-              <p className="text-sm sm:text-base text-gray-600">{content.description}</p>
+              <p className="text-sm sm:text-base text-text-muted">{content.description}</p>
             )}
           </div>
         </div>
@@ -568,10 +568,10 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                   1
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-1">
+                  <h2 className="text-base sm:text-lg font-bold text-text mb-1">
                     Step 1: Prepare to Speak (about 10 min)
                   </h2>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-text">
                     Do this first. You can work alone or with a partner if someone is here.
                   </p>
                 </div>
@@ -581,10 +581,10 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                   2
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-1">
+                  <h2 className="text-base sm:text-lg font-bold text-text mb-1">
                     Step 2: Practice Speaking (about 10 min)
                   </h2>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-text">
                     When you have a partner, practice speaking together. If you're alone, keep working on Step 1.
                   </p>
                 </div>
@@ -594,30 +594,30 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
 
           {/* Step 1: Key Phrases */}
           {content.keyPhrases && content.keyPhrases.length > 0 && (
-            <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm">
+            <div className="bg-bg-secondary/90 border-2 border-border rounded-lg shadow-sm">
               <button
                 onClick={() => setShowKeyPhrases(!showKeyPhrases)}
-                className="w-full p-4 sm:p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                className="w-full p-4 sm:p-6 flex items-center justify-between hover:bg-bg-tertiary/70 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                    step1Complete ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-700'
+                    step1Complete ? 'bg-green-500 text-white' : 'bg-gray-300 text-text'
                   }`}>
                     {step1Complete ? <CheckCircle2 className="w-5 h-5" /> : '1'}
                   </div>
                   <div className="text-left">
-                    <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                    <h2 className="text-base sm:text-lg font-bold text-text">
                       Step 1: Study Key Phrases
               </h2>
-                    <p className="text-xs sm:text-sm text-gray-600 mt-0.5">
+                    <p className="text-xs sm:text-sm text-text-muted mt-0.5">
                       {showKeyPhrases ? 'Click to hide' : `${content.keyPhrases.length} key phrases`}
                     </p>
                   </div>
                 </div>
                 {showKeyPhrases ? (
-                  <ChevronUp className="w-5 h-5 text-gray-500" />
+                  <ChevronUp className="w-5 h-5 text-text-muted" />
                 ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                  <ChevronDown className="w-5 h-5 text-text-muted" />
                 )}
               </button>
               <AnimatePresence>
@@ -629,18 +629,18 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                     transition={{ duration: 0.25 }}
                     className="px-4 sm:px-6 pb-4 sm:pb-6"
                   >
-                    <div className="pt-4 border-t border-gray-200">
-              <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
+                    <div className="pt-4 border-t border-border">
+              <p className="text-xs sm:text-sm text-text-muted mb-3 sm:mb-4">
                 Study these phrases before practicing your speaking prompts.
               </p>
               <div className="grid gap-2.5 sm:gap-3">
                 {content.keyPhrases.map((phrase, index) => (
-                  <div key={index} className="bg-orange-50 border border-orange-200 rounded-lg p-3 sm:p-4">
-                    <p className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
+                  <div key={index} className="bg-primary/10 border border-primary/30 rounded-lg p-3 sm:p-4">
+                    <p className="font-semibold text-text mb-1 text-sm sm:text-base">
                       {phrase.phrase}
                     </p>
                     {phrase.example && (
-                      <p className="text-xs sm:text-sm text-gray-600 italic leading-relaxed">
+                      <p className="text-xs sm:text-sm text-text-muted italic leading-relaxed">
                         Example: "{phrase.example}"
                       </p>
                     )}
@@ -655,8 +655,8 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
           )}
 
           {/* Step 2: Prepare to Speak */}
-          <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm">
-            <div className="p-4 sm:p-6 border-b border-gray-200">
+          <div className="bg-bg-secondary/90 border-2 border-border rounded-lg shadow-sm">
+            <div className="p-4 sm:p-6 border-b border-border">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
@@ -665,10 +665,10 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                     {step2Complete ? <CheckCircle2 className="w-5 h-5" /> : '1'}
                   </div>
                   <div>
-                    <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                    <h2 className="text-base sm:text-lg font-bold text-text">
                       Step 1: Prepare to Speak
                     </h2>
-                    <p className="text-xs sm:text-sm text-gray-600">
+                    <p className="text-xs sm:text-sm text-text-muted">
                       Work on your own or with a partner if someone is here. This helps you get ready to speak.
                     </p>
                   </div>
@@ -683,8 +683,8 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
               {/* Sub-step 1a: Choose Prompts */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">1a</span>
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-900">
+                  <span className="text-xs font-semibold text-text-muted uppercase tracking-wide">1a</span>
+                  <h3 className="text-sm sm:text-base font-semibold text-text">
                     Choose at least {minPrompts} prompt{minPrompts > 1 ? "s" : ""} to practice
                   </h3>
                 </div>
@@ -701,7 +701,7 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                     className={`block border-2 rounded-lg p-3 sm:p-5 cursor-pointer transition-[border-color,background-color,box-shadow] touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${
                       selectedPrompts.has(prompt.id)
                         ? "border-primary bg-primary/5 shadow-sm"
-                        : "border-gray-200 active:border-primary/50 active:bg-gray-50"
+                        : "border-border active:border-primary/50 active:bg-gray-50"
                     }`}
                   >
                     <div className="flex items-start gap-3 sm:gap-4">
@@ -709,15 +709,15 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                         type="checkbox"
                         checked={selectedPrompts.has(prompt.id)}
                         onChange={() => handlePromptToggle(prompt.id)}
-                        className="mt-1 sm:mt-1.5 h-5 w-5 sm:h-6 sm:w-6 rounded border-gray-300 text-primary focus:ring-primary flex-shrink-0"
+                        className="mt-1 sm:mt-1.5 h-5 w-5 sm:h-6 sm:w-6 rounded border-border text-primary focus:ring-primary flex-shrink-0"
                       />
                       <div className="flex-1 space-y-2 sm:space-y-3 min-w-0">
                         {prompt.level && (
-                          <span className="inline-block text-[10px] sm:text-xs font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 text-gray-700 uppercase tracking-wide">
+                          <span className="inline-block text-[10px] sm:text-xs font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 text-text uppercase tracking-wide">
                             {prompt.level}
                           </span>
                         )}
-                        <p className="text-base sm:text-lg font-semibold text-gray-900 leading-snug sm:leading-relaxed">
+                        <p className="text-base sm:text-lg font-semibold text-text leading-snug sm:leading-relaxed">
                           {prompt.text}
                         </p>
                         {prompt.context && (
@@ -761,7 +761,7 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                                     💡 Tips & Examples
                                   </p>
                                   {hasMultipleParts ? (
-                                    <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-gray-700">
+                                    <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-text">
                                       {prompt.context.split(".").filter((sentence) => sentence.trim().length > 10).map((sentence, idx) => (
                                         <li key={idx} className="flex gap-2">
                                           <span className="text-blue-500 font-bold flex-shrink-0 mt-0.5">•</span>
@@ -770,7 +770,7 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                                       ))}
                                     </ul>
                                   ) : (
-                                    <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
+                                    <p className="text-xs sm:text-sm text-text leading-relaxed">
                                       {prompt.context}
                                     </p>
                                   )}
@@ -785,19 +785,19 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                 );
               })}
             </div>
-                <div className="text-sm text-gray-600 pt-2">
+                <div className="text-sm text-text-muted pt-2">
               Selected: {selectedPromptsCount} / {minPrompts} prompt{minPrompts > 1 ? "s" : ""}
                 </div>
               </div>
 
               {/* Visual Separator */}
-              <div className="border-t border-gray-200"></div>
+              <div className="border-t border-border"></div>
 
               {/* Sub-step 1b: Complete Checklist */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">1b</span>
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-900">
+                  <span className="text-xs font-semibold text-text-muted uppercase tracking-wide">1b</span>
+                  <h3 className="text-sm sm:text-base font-semibold text-text">
                     Complete the checklist
                   </h3>
                 </div>
@@ -810,17 +810,17 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                         className={`flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-[border-color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${
                           isCompleted
                             ? "border-green-200 bg-green-50/50"
-                            : "border-gray-200 hover:bg-gray-50"
+                            : "border-border hover:bg-bg-tertiary/70"
                         }`}
                       >
                         <input
                           type="checkbox"
                           checked={isCompleted}
                           onChange={() => handleSoloStepToggle(step.id)}
-                          className="mt-0.5 h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary flex-shrink-0"
+                          className="mt-0.5 h-5 w-5 rounded border-border text-primary focus:ring-primary flex-shrink-0"
                         />
                         <span className={`text-sm sm:text-base leading-relaxed flex-1 ${
-                          isCompleted ? "text-gray-600 line-through" : "text-gray-700"
+                          isCompleted ? "text-text-muted line-through" : "text-text"
                         }`}>
                           {step.text}
                           {step.required && <span className="text-red-500 ml-1">*</span>}
@@ -835,26 +835,26 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
               </div>
 
               {/* Visual Separator */}
-              <div className="border-t border-gray-200"></div>
+              <div className="border-t border-border"></div>
 
               {/* Sub-step 1c: Write Sentences */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">1c</span>
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-900">
+                  <span className="text-xs font-semibold text-text-muted uppercase tracking-wide">1c</span>
+                  <h3 className="text-sm sm:text-base font-semibold text-text">
                     Write 3 sentences using the Key Phrases
                   </h3>
                 </div>
                 {[0, 1, 2].map((index) => (
                   <div key={index}>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-text mb-1">
                       Sentence {index + 1}
                     </label>
                     <textarea
                       value={soloData.sentences[index]}
                       onChange={(e) => handleSentenceChange(index, e.target.value)}
                       placeholder="Write your sentence using the Key Phrases…"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none"
                       rows={2}
                     />
                   </div>
@@ -862,19 +862,19 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
               </div>
 
               {/* Visual Separator */}
-              <div className="border-t border-gray-200"></div>
+              <div className="border-t border-border"></div>
 
               {/* Sub-step 1d: Write Follow-up Questions */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">1d</span>
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-900">
+                  <span className="text-xs font-semibold text-text-muted uppercase tracking-wide">1d</span>
+                  <h3 className="text-sm sm:text-base font-semibold text-text">
                     Write 2 follow-up questions you can ask a partner
                   </h3>
                 </div>
                 {[0, 1].map((index) => (
                   <div key={index}>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-text mb-1">
                       Question {index + 1}
                     </label>
                     <input
@@ -882,7 +882,7 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                       value={soloData.followUpQuestions[index]}
                       onChange={(e) => handleQuestionChange(index, e.target.value)}
                       placeholder="Write a question you can ask a partner…"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                     />
                   </div>
                 ))}
@@ -890,7 +890,7 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
 
               {/* Help Section */}
               {soloMode.help && (
-                <div className="border-t border-gray-200 pt-4">
+                <div className="border-t border-border pt-4">
                   <button
                     type="button"
                     onClick={() => setShowSoloHelp((prev) => !prev)}
@@ -974,8 +974,8 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
           </div>
 
           {/* Step 3: Practice Speaking */}
-          <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm">
-            <div className="p-4 sm:p-6 border-b border-gray-200 bg-green-50/50">
+          <div className="bg-bg-secondary/90 border-2 border-border rounded-lg shadow-sm">
+            <div className="p-4 sm:p-6 border-b border-border bg-green-50/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
@@ -984,10 +984,10 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                     {step3Complete ? <CheckCircle2 className="w-5 h-5" /> : '2'}
                   </div>
                   <div>
-                    <h2 className="text-base sm:text-lg font-bold text-gray-900">
+                    <h2 className="text-base sm:text-lg font-bold text-text">
                       Step 2: Practice Speaking with a Partner
                     </h2>
-                    <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-2">
+                    <p className="text-xs sm:text-sm text-text-muted flex items-center gap-2">
                       <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
                       Do this when you have a partner. If you're alone, keep working on Step 1.
                     </p>
@@ -1003,8 +1003,8 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
               {/* Sub-step 2a: Complete Speaking Checklist */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">2a</span>
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-900">
+                  <span className="text-xs font-semibold text-text-muted uppercase tracking-wide">2a</span>
+                  <h3 className="text-sm sm:text-base font-semibold text-text">
                     Complete the speaking checklist
                   </h3>
                 </div>
@@ -1017,17 +1017,17 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                         className={`flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-[border-color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${
                           isCompleted
                             ? "border-green-200 bg-green-50/50"
-                            : "border-gray-200 hover:bg-gray-50"
+                            : "border-border hover:bg-bg-tertiary/70"
                         }`}
                 >
                   <input
                     type="checkbox"
                           checked={isCompleted}
                     onChange={() => handleSpeakingStepToggle(step.id)}
-                    className="mt-0.5 h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary flex-shrink-0"
+                    className="mt-0.5 h-5 w-5 rounded border-border text-primary focus:ring-primary flex-shrink-0"
                   />
                         <span className={`text-sm sm:text-base leading-relaxed flex-1 ${
-                          isCompleted ? "text-gray-600 line-through" : "text-gray-700"
+                          isCompleted ? "text-text-muted line-through" : "text-text"
                         }`}>
                     {step.text}
                     {step.required && <span className="text-red-500 ml-1">*</span>}
@@ -1042,19 +1042,19 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
             </div>
 
               {/* Visual Separator */}
-              <div className="border-t border-gray-200"></div>
+              <div className="border-t border-border"></div>
 
               {/* Sub-step 2b: Write Best Sentence */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">2b</span>
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-900">
+                  <span className="text-xs font-semibold text-text-muted uppercase tracking-wide">2b</span>
+                  <h3 className="text-sm sm:text-base font-semibold text-text">
                     Write ONE best sentence you said (or heard)
                   </h3>
                 </div>
               {speakingMode.inputs.map((input) => (
                 <div key={input.id}>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-text mb-1">
                     {input.label}
                   </label>
                   {input.type === "textarea" ? (
@@ -1062,7 +1062,7 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                       value={speakingData.bestSentence}
                       onChange={(e) => handleBestSentenceChange(e.target.value)}
                       placeholder="Share the best sentence you heard or said during practice…"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none"
                       rows={3}
                     />
                   ) : (
@@ -1071,7 +1071,7 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                       value={speakingData.bestSentence}
                       onChange={(e) => handleBestSentenceChange(e.target.value)}
                       placeholder="Share the best sentence you heard or said during practice…"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                     />
                   )}
                 </div>
@@ -1079,7 +1079,7 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
             </div>
 
             {speakingMode.noPartnerNote && (
-              <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-xs sm:text-sm text-gray-600">
+              <div className="px-4 py-3 bg-gray-50 border border-border rounded-lg text-xs sm:text-sm text-text-muted">
                 {speakingMode.noPartnerNote}
               </div>
             )}
@@ -1087,13 +1087,13 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
           </div>
 
           {content.reflectionPrompt && (
-            <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+            <div className="bg-bg-secondary/90 border border-border rounded-lg p-4 sm:p-6 shadow-sm">
+              <h2 className="text-lg sm:text-xl font-bold text-text mb-3 sm:mb-4 flex items-center gap-2">
                 <span className="text-xl sm:text-2xl">🤔</span>
                 <span>Quick Reflection</span>
               </h2>
-              <p className="text-sm sm:text-base text-gray-700 mb-4">{content.reflectionPrompt}</p>
-              <p className="text-xs sm:text-sm text-gray-600">
+              <p className="text-sm sm:text-base text-text mb-4">{content.reflectionPrompt}</p>
+              <p className="text-xs sm:text-sm text-text-muted">
                 Minimum {content.reflectionMinLength || 20} characters
               </p>
             </div>
@@ -1101,11 +1101,11 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
         </div>
       </div>
 
-      <div className="sticky bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-lg p-4 sm:p-6 z-20">
+      <div className="sticky bottom-0 left-0 right-0 bg-bg-secondary/90 border-t-2 border-border shadow-lg p-4 sm:p-6 z-20">
         <div className="max-w-5xl mx-auto">
           {/* Requirements Checklist */}
-          <div className="mb-4 pb-4 border-b border-gray-200">
-            <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2">
+          <div className="mb-4 pb-4 border-b border-border">
+            <p className="text-xs font-semibold text-text uppercase tracking-wide mb-2">
               Ready to Submit? Check all requirements:
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm">
@@ -1113,9 +1113,9 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                 {selectedPromptsCount >= minPrompts ? (
                   <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
                 ) : (
-                  <span className="w-4 h-4 rounded-full border-2 border-gray-300 flex-shrink-0"></span>
+                  <span className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0"></span>
                 )}
-                <span className={selectedPromptsCount >= minPrompts ? "text-gray-600" : "text-gray-400"}>
+                <span className={selectedPromptsCount >= minPrompts ? "text-text-muted" : "text-text-light"}>
                   {selectedPromptsCount} / {minPrompts} prompt{minPrompts > 1 ? "s" : ""} selected
                 </span>
               </div>
@@ -1123,9 +1123,9 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                 {soloChecklistReady ? (
                   <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
                 ) : (
-                  <span className="w-4 h-4 rounded-full border-2 border-gray-300 flex-shrink-0"></span>
+                  <span className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0"></span>
                 )}
-                <span className={soloChecklistReady ? "text-gray-600" : "text-gray-400"}>
+                <span className={soloChecklistReady ? "text-text-muted" : "text-text-light"}>
                   Solo checklist complete ({soloCompletedCount}/{soloChecklistLength})
                 </span>
               </div>
@@ -1133,9 +1133,9 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                 {validSentences ? (
                   <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
                 ) : (
-                  <span className="w-4 h-4 rounded-full border-2 border-gray-300 flex-shrink-0"></span>
+                  <span className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0"></span>
                 )}
-                <span className={validSentences ? "text-gray-600" : "text-gray-400"}>
+                <span className={validSentences ? "text-text-muted" : "text-text-light"}>
                   3 sentences written
                 </span>
               </div>
@@ -1143,9 +1143,9 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                 {validFollowUps ? (
                   <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
                 ) : (
-                  <span className="w-4 h-4 rounded-full border-2 border-gray-300 flex-shrink-0"></span>
+                  <span className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0"></span>
                 )}
-                <span className={validFollowUps ? "text-gray-600" : "text-gray-400"}>
+                <span className={validFollowUps ? "text-text-muted" : "text-text-light"}>
                   2 follow-up questions written
                 </span>
               </div>
@@ -1153,9 +1153,9 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                 {speakingChecklistReady ? (
                   <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
                 ) : (
-                  <span className="w-4 h-4 rounded-full border-2 border-gray-300 flex-shrink-0"></span>
+                  <span className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0"></span>
                 )}
-                <span className={speakingChecklistReady ? "text-gray-600" : "text-gray-400"}>
+                <span className={speakingChecklistReady ? "text-text-muted" : "text-text-light"}>
                   Speaking checklist complete ({speakingCompletedCount}/{speakingChecklistLength})
                 </span>
               </div>
@@ -1163,9 +1163,9 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
                 {validBestSentence ? (
                   <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
                 ) : (
-                  <span className="w-4 h-4 rounded-full border-2 border-gray-300 flex-shrink-0"></span>
+                  <span className="w-4 h-4 rounded-full border-2 border-border flex-shrink-0"></span>
                 )}
-                <span className={validBestSentence ? "text-gray-600" : "text-gray-400"}>
+                <span className={validBestSentence ? "text-text-muted" : "text-text-light"}>
                   Best sentence written
                 </span>
               </div>
@@ -1179,12 +1179,12 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
               <p className="text-xs text-red-600">{submissionError}</p>
             )}
             {submittedAt && (
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-text-muted">
                 Last submitted: {new Date(submittedAt).toLocaleString()}
               </p>
             )}
               {submissionStatus === "submitted" && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-text-muted">
                   Resubmitting will overwrite your previous response.
                 </p>
               )}
@@ -1195,7 +1195,7 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
               className={`px-6 py-3 rounded-lg transition-colors duration-200 text-sm sm:text-base font-medium ${
                 canSubmit && !isSubmitting
                   ? "bg-primary text-white hover:bg-primary/90 shadow-md"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-300 text-text-muted cursor-not-allowed"
               }`}
             >
               {isSubmitting

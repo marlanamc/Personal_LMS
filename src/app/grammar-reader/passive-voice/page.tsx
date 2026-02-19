@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Passive Voice - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Passive Voice - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master passive voice (is/are/was/were + past participle) for understanding medical instructions, clinic procedures, and formal communication.",
 };

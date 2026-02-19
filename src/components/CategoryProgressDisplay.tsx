@@ -53,7 +53,7 @@ export function CategoryProgressDisplay({ activityId, categoryNames, initialCate
     }, [activityId, initialCategoryData]);
 
     if (loading) {
-        return <div className="text-sm text-gray-500">Loading progress...</div>;
+        return <div className="text-sm text-text-muted">Loading progress...</div>;
     }
 
     const completedCount = categoryNames.filter(cat => categoryData[cat]?.completed).length;
@@ -64,10 +64,10 @@ export function CategoryProgressDisplay({ activityId, categoryNames, initialCate
     }
 
     return (
-        <div className="space-y-4 bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <div className="space-y-4 bg-bg-secondary/90 border border-border rounded-xl p-6 shadow-sm">
             <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900">Category Progress</h3>
-                <span className="text-sm text-gray-600">
+                <h3 className="font-semibold text-text">Category Progress</h3>
+                <span className="text-sm text-text-muted">
                     {completedCount} of {categoryNames.length} completed
                 </span>
             </div>
@@ -85,11 +85,11 @@ export function CategoryProgressDisplay({ activityId, categoryNames, initialCate
                             className={`p-3 rounded-lg border-2 transition-[border-color,background-color] ${
                                 isCompleted
                                     ? 'bg-green-50 border-green-200'
-                                    : 'bg-gray-50 border-gray-200'
+                                    : 'bg-gray-50 border-border'
                             }`}
                         >
                             <div className="flex items-start justify-between gap-2">
-                                <span className="text-sm font-medium text-gray-900 flex-1">
+                                <span className="text-sm font-medium text-text flex-1">
                                     {category}
                                 </span>
                                 {isCompleted && (
@@ -100,11 +100,11 @@ export function CategoryProgressDisplay({ activityId, categoryNames, initialCate
                             </div>
                             {progress?.accuracy !== undefined && (
                                 <div className="mt-2 flex items-center gap-2">
-                                    <div className="text-xs text-gray-600">
+                                    <div className="text-xs text-text-muted">
                                         Accuracy: {progress.accuracy}%
                                     </div>
                                     {progress.attempts && progress.attempts > 1 && (
-                                        <div className="text-xs text-gray-500">
+                                        <div className="text-xs text-text-muted">
                                             • {progress.attempts} attempt{progress.attempts > 1 ? 's' : ''}
                                         </div>
                                     )}

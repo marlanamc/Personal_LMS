@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Past Perfect Continuous - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Past Perfect Continuous - Interactive Grammar Guide | Marlie LMS",
     description:
         "Complete interactive guide to Past Perfect Continuous tense with exercises, examples, and practice. Learn when and how to use Past Perfect Continuous correctly.",
 };

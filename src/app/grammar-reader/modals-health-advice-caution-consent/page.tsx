@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Modals for Health: Advice, Caution & Consent - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Modals for Health: Advice, Caution & Consent - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master health modals: should/shouldn't (advice), must/must not (caution), can/may/are allowed to (consent). Learn to follow medical instructions, understand warnings, and exercise patient rights.",
 };

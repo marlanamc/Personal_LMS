@@ -27,14 +27,14 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: "Class Companion - ESOL Learning Hub",
+  title: "Marlie LMS",
   description:
-    "An interactive classroom companion for ESOL students and teachers. Practice grammar, build vocabulary, compete with classmates, and track your progress.",
+    "A personal learning management system for tracking your own learning, planning classes, and mastering new skills.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Class Companion",
+    title: "Marlie LMS",
   },
   icons: {
     icon: [
@@ -53,7 +53,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: "cover",
-  themeColor: "#d97757",
+  themeColor: "#ff6b9d",
 };
 
 export default function RootLayout({

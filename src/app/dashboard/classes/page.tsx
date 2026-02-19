@@ -31,10 +31,10 @@ export default async function ClassesIndexPage() {
 
     return (
         <div className="min-h-screen bg-bg">
-            <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
+            <header className="sticky top-0 bg-bg-secondary/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
                 <div className="container mx-auto py-4 px-4 flex justify-between items-center">
                     <div>
-                        <p className="text-xs font-bold text-primary tracking-widest uppercase">Class Companion</p>
+                        <p className="text-xs font-bold text-primary tracking-widest uppercase">Marlie LMS</p>
                         <h1 className="text-2xl font-display font-bold text-text">Your Classes</h1>
                     </div>
                     <div className="flex items-center gap-3">
@@ -56,7 +56,7 @@ export default async function ClassesIndexPage() {
 
             <main className="container mx-auto px-4 py-8 pb-24 md:pb-12 space-y-6">
                 {classes.length === 0 ? (
-                    <div className="border-2 border-dashed border-border/40 rounded-2xl bg-white/60 p-8 text-center">
+                    <div className="border-2 border-dashed border-border/40 rounded-2xl bg-bg-secondary/60 p-8 text-center">
                         <p className="text-text-muted mb-3">No classes yet.</p>
                         <Link
                             href="/dashboard/classes/new"
@@ -74,7 +74,7 @@ export default async function ClassesIndexPage() {
                             enrollments: { id: string }[];
                             assignments: { id: string }[];
                         }) => (
-                            <Card key={cls.id} className="p-4 border border-border/40 shadow-sm bg-white/80">
+                            <Card key={cls.id} className="p-4 border border-border/40 shadow-sm bg-bg-secondary/80">
                                 <div className="flex items-center justify-between mb-2">
                                     <h2 className="text-lg font-bold text-text">{cls.name}</h2>
                                     <Link
@@ -110,4 +110,3 @@ export default async function ClassesIndexPage() {
         </div>
     );
 }
-

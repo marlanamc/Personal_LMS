@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { PenLine, Gamepad2, BookOpen, ClipboardList, Mic, PenTool, Volume2 } from 'lucide-react';
+import { PenLine, Gamepad2, BookOpen, ClipboardList, Mic, PenTool, Volume2, Code } from 'lucide-react';
 
 // Re-use the Activity type shape from ActivityCategories
 interface Activity {
@@ -81,6 +81,22 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
         bgColor: '#d7ccc8',
         iconColor: '#5d4037',
     },
+    {
+        key: 'spanish',
+        name: 'Spanish',
+        subtitle: 'Vocabulary · Grammar',
+        icon: <span className="text-3xl sm:text-4xl">🇪🇸</span>,
+        bgColor: '#fdf2f8',
+        iconColor: '#9d174d',
+    },
+    {
+        key: 'coding',
+        name: 'Coding',
+        subtitle: 'JS · TS · React',
+        icon: <Code className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={1.5} />,
+        bgColor: '#e0f2fe',
+        iconColor: '#0369a1',
+    },
 ];
 
 interface ActivityCategoryPickerProps {
@@ -156,6 +172,20 @@ export function ActivityCategoryPicker({
         map['pronunciation'] = activities.some(
             (a) => a.category === 'pronunciation' || a.ui === 'ed-pronunciation' || a.ui === 'minimal-pairs'
         );
+        
+        // Spanish
+        map['spanish'] = activities.some((a) => 
+            a.category === 'personal' && a.title.toLowerCase().includes('spanish')
+        );
+
+        // Coding
+        map['coding'] = activities.some((a) => 
+            a.category === 'personal' && (
+                a.title.toLowerCase().includes('coding') || 
+                a.title.toLowerCase().includes('js') || 
+                a.title.toLowerCase().includes('ts')
+            )
+        );
 
         return map;
     }, [activities]);
@@ -177,7 +207,7 @@ export function ActivityCategoryPicker({
                         <button
                             key={card.key}
                             onClick={() => setSelectedCategory(card.key)}
-                            className="category-card group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-200/60 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 cursor-pointer"
+                            className="category-card group flex flex-col rounded-2xl overflow-hidden bg-bg-secondary/90 border border-border/60 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 cursor-pointer"
                             style={{
                                 animationDelay: `${idx * 80}ms`,
                             }}
@@ -198,7 +228,7 @@ export function ActivityCategoryPicker({
                             </div>
 
                             {/* Label area - white background */}
-                            <div className="flex flex-col items-center gap-1 py-3 sm:py-4 px-2 bg-white">
+                            <div className="flex flex-col items-center gap-1 py-3 sm:py-4 px-2 bg-bg-secondary/90">
                                 <span className="text-base sm:text-lg font-bold font-display text-text">
                                     {card.name}
                                 </span>

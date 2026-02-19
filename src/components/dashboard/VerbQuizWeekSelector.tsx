@@ -24,7 +24,7 @@ export default function VerbQuizWeekSelector() {
                 id="week-select"
                 value={selectedWeek}
                 onChange={handleWeekChange}
-                className="rounded-lg border border-border/40 px-3 py-2 text-sm font-semibold bg-white text-text shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="rounded-lg border border-border/40 px-3 py-2 text-sm font-semibold bg-bg-secondary/90 text-text shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
                 {Array.from({ length: 20 }, (_, i) => i + 1).map((week) => (
                     <option key={week} value={week}>

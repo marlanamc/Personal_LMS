@@ -8,12 +8,12 @@ interface FormulaBoxProps {
 }
 
 const colorMap = {
-    subject: "bg-blue-50 text-blue-900 border-blue-200",
-    verb: "bg-amber-50 text-amber-900 border-amber-200",
-    ing: "bg-orange-50 text-orange-900 border-orange-200",
-    helper: "bg-purple-50 text-purple-900 border-purple-200",
-    object: "bg-emerald-50 text-emerald-900 border-emerald-200",
-    other: "bg-slate-50 text-slate-800 border-slate-200",
+    subject: "bg-blue-900/40 text-blue-200 border-blue-500/50",
+    verb: "bg-amber-900/40 text-amber-200 border-amber-500/50",
+    ing: "bg-orange-900/40 text-orange-200 border-orange-500/50",
+    helper: "bg-purple-900/40 text-purple-200 border-purple-500/50",
+    object: "bg-emerald-900/40 text-emerald-200 border-emerald-500/50",
+    other: "bg-slate-800/40 text-slate-200 border-slate-500/50",
 };
 
 const isHelperVerb = (text: string, type?: FormulaPart["type"]) => {
@@ -31,7 +31,7 @@ const isSeparator = (text: string) => {
 export function FormulaBox({ parts }: FormulaBoxProps) {
     return (
         <motion.div
-            className="formula-box bg-white/90 border-2 border-primary/25 rounded-2xl px-4 py-5 sm:px-8 sm:py-7 my-6 text-center shadow-lg backdrop-blur min-w-0 overflow-hidden"
+            className="formula-box bg-bg-elevated/80 border-2 border-primary/25 rounded-2xl px-4 py-5 sm:px-8 sm:py-7 my-6 text-center shadow-lg backdrop-blur min-w-0 overflow-hidden"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: "-100px" }}

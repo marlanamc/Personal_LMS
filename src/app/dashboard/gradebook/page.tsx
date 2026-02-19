@@ -161,7 +161,7 @@ export default async function GradebookPage({
 
     return (
         <div className="min-h-screen bg-bg">
-            <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
+            <header className="sticky top-0 bg-bg-secondary/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
                 <div className="container mx-auto max-w-[1400px] py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <div>
                         <BackButton href="/dashboard/stats" className="mb-1">Back to Stats</BackButton>

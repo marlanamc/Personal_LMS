@@ -427,7 +427,7 @@ export function TeacherCalendar({
           <div>
             <h2 className="text-2xl font-display font-semibold text-text">Teaching Schedule</h2>
             <p className="text-sm text-text/80 mt-1">
-              ESOL Level 3 — Jan–Jun 2026 | Tue/Thu 6:00–8:15pm
+              Marlie LMS Schedule
             </p>
           </div>
 
@@ -596,8 +596,8 @@ export function TeacherCalendar({
 
                 <div className="bg-secondary/5 rounded-lg p-4 space-y-3">
                   {currentWeek.thursday.quiz && (
-                    <div className="pb-3 border-b border-orange-300">
-                      <div className="text-xs font-medium text-orange-800 uppercase mb-1">⚠️ Unit Quiz</div>
+                    <div className="pb-3 border-b border-primary/40">
+                      <div className="text-xs font-medium text-primary uppercase mb-1">⚠️ Unit Quiz</div>
                       <div className="font-medium text-text">{currentWeek.thursday.quiz}</div>
                     </div>
                   )}

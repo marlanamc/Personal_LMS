@@ -67,13 +67,13 @@ export function DiagnosticReport({
         if (percent >= 80)
             return "text-emerald-700 bg-emerald-50 border-emerald-200";
         if (percent >= 60)
-            return "text-amber-700 bg-amber-50 border-amber-200";
+            return "text-primary bg-primary/10 border-primary/30";
         return "text-rose-700 bg-rose-50 border-rose-200";
     };
 
     const getProgressBarColor = (percent: number) => {
         if (percent >= 80) return "bg-emerald-500";
-        if (percent >= 60) return "bg-amber-500";
+        if (percent >= 60) return "bg-primary/100";
         return "bg-rose-500";
     };
 
@@ -84,7 +84,7 @@ export function DiagnosticReport({
     const skillsNeedingReview = skills.filter((s) => s.percentCorrect < 60);
 
     return (
-        <div className="bg-white rounded-xl border border-border shadow-lg overflow-hidden">
+        <div className="bg-bg-secondary/90 rounded-xl border border-border shadow-lg overflow-hidden">
             {/* Header */}
             <div className="p-6 border-b border-border bg-bg-light">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -100,7 +100,7 @@ export function DiagnosticReport({
                     <select
                         value={difficulty}
                         onChange={(e) => setDifficulty(e.target.value)}
-                        className="px-4 py-2 rounded-lg border border-border bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                        className="px-4 py-2 rounded-lg border border-border bg-bg-secondary/90 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                     >
                         <option value="all">All Difficulties</option>
                         <option value="easy">Easy Only</option>
@@ -112,7 +112,7 @@ export function DiagnosticReport({
                 {/* Summary Stats */}
                 {!loading && skills.length > 0 && (
                     <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        <div className="bg-white rounded-lg p-3 border border-border">
+                        <div className="bg-bg-secondary/90 rounded-lg p-3 border border-border">
                             <div className="text-2xl font-bold text-text">
                                 {skills.length}
                             </div>
@@ -120,7 +120,7 @@ export function DiagnosticReport({
                                 Skills Tracked
                             </div>
                         </div>
-                        <div className="bg-white rounded-lg p-3 border border-border">
+                        <div className="bg-bg-secondary/90 rounded-lg p-3 border border-border">
                             <div className="text-2xl font-bold text-rose-600">
                                 {skillsNeedingReview.length}
                             </div>
@@ -128,8 +128,8 @@ export function DiagnosticReport({
                                 Need Review (&lt;60%)
                             </div>
                         </div>
-                        <div className="bg-white rounded-lg p-3 border border-border col-span-2 sm:col-span-1">
-                            <div className="text-2xl font-bold text-amber-600">
+                        <div className="bg-bg-secondary/90 rounded-lg p-3 border border-border col-span-2 sm:col-span-1">
+                            <div className="text-2xl font-bold text-primary">
                                 {strugglingCount}
                             </div>
                             <div className="text-xs text-text-muted">
@@ -221,7 +221,7 @@ export function DiagnosticReport({
                                 </div>
 
                                 {/* Progress Bar */}
-                                <div className="w-full h-3 bg-white/60 rounded-full mb-3 overflow-hidden">
+                                <div className="w-full h-3 bg-bg-secondary/60 rounded-full mb-3 overflow-hidden">
                                     <div
                                         className={`h-full ${getProgressBarColor(
                                             skill.percentCorrect
@@ -264,7 +264,7 @@ export function DiagnosticReport({
                             <span>Mastered (80%+)</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-amber-500"></div>
+                            <div className="w-4 h-4 rounded bg-primary/100"></div>
                             <span>Developing (60-79%)</span>
                         </div>
                         <div className="flex items-center gap-2">

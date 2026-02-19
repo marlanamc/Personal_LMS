@@ -153,7 +153,7 @@ const ActivityCard = React.memo(function ActivityCard({
 
     return (
         <div
-            className={`block bg-white rounded-lg p-4 hover:shadow-md transition-[box-shadow] duration-200 border group relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${isFeatured ? 'border-accent/60 bg-accent/5' : 'border-border/40'
+            className={`block bg-bg-secondary/90 rounded-lg p-4 hover:shadow-md transition-[box-shadow] duration-200 border group relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${isFeatured ? 'border-accent/60 bg-accent/5' : 'border-border/40'
                 }`}
         >
             {isFeatured && (
@@ -192,7 +192,7 @@ const ActivityCard = React.memo(function ActivityCard({
                     <div className="flex gap-2">
                         <Link
                             href={`/activity/${activity.id}`}
-                            className="px-4 py-2 text-sm font-semibold transition-[transform,box-shadow] rounded-full border border-border/50 text-text bg-white shadow-sm hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                            className="px-4 py-2 text-sm font-semibold transition-[transform,box-shadow] rounded-full border border-border/50 text-text bg-bg-secondary/90 shadow-sm hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                         >
                             Open
                         </Link>
@@ -743,7 +743,7 @@ export const TeacherActivityCategories = React.memo(function TeacherActivityCate
                 return (
                     <div
                         key={category.name}
-                        className="bg-white rounded-xl border-2 overflow-hidden shadow-sm hover:shadow-md transition-[box-shadow] duration-300"
+                        className="bg-bg-secondary/90 rounded-xl border-2 overflow-hidden shadow-sm hover:shadow-md transition-[box-shadow] duration-300"
                         style={{
                             borderColor: `${category.color}40`,
                             animationDelay: `${idx * 50}ms`
@@ -787,7 +787,7 @@ export const TeacherActivityCategories = React.memo(function TeacherActivityCate
                                                 <div key={subKey}>
                                                     <button
                                                         onClick={() => toggleSubCategory(subKey)}
-                                                        className="w-full flex items-center justify-between p-4 pl-8 hover:bg-white/50 transition-colors group cursor-pointer touch-manipulation"
+                                                        className="w-full flex items-center justify-between p-4 pl-8 hover:bg-bg-secondary/50 transition-colors group cursor-pointer touch-manipulation"
                                                         style={{
                                                             touchAction: 'manipulation'
                                                         }}
@@ -796,7 +796,7 @@ export const TeacherActivityCategories = React.memo(function TeacherActivityCate
                                                             <span className="text-base font-semibold text-text group-hover:text-primary transition-colors pointer-events-none">
                                                                 {subCategory.name}
                                                             </span>
-                                                            <span className="text-xs text-text-muted font-medium bg-white px-2 py-1 rounded-full pointer-events-none">
+                                                            <span className="text-xs text-text-muted font-medium bg-bg-secondary/90 px-2 py-1 rounded-full pointer-events-none">
                                                                 {getSubCategoryCount(subCategory)}
                                                             </span>
                                                         </div>
@@ -822,7 +822,7 @@ export const TeacherActivityCategories = React.memo(function TeacherActivityCate
                                                                         <div key={subSubKey}>
                                                                             <button
                                                                                 onClick={() => toggleSubCategory(subSubKey)}
-                                                                                className="w-full flex items-center justify-between p-3 pl-16 hover:bg-white/30 transition-colors group cursor-pointer touch-manipulation"
+                                                                                className="w-full flex items-center justify-between p-3 pl-16 hover:bg-bg-secondary/30 transition-colors group cursor-pointer touch-manipulation"
                                                                                 style={{
                                                                                     touchAction: 'manipulation'
                                                                                 }}
@@ -831,7 +831,7 @@ export const TeacherActivityCategories = React.memo(function TeacherActivityCate
                                                                                     <span className="text-sm font-medium text-text group-hover:text-primary transition-colors pointer-events-none">
                                                                                         {subSubCategory.name}
                                                                                     </span>
-                                                                                    <span className="text-xs text-text-muted font-medium bg-white px-2 py-0.5 rounded-full pointer-events-none">
+                                                                                    <span className="text-xs text-text-muted font-medium bg-bg-secondary/90 px-2 py-0.5 rounded-full pointer-events-none">
                                                                                         {subSubCategory.activities.length}
                                                                                     </span>
                                                                                 </div>

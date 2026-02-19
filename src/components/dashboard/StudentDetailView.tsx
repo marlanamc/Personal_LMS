@@ -133,7 +133,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
             {/* Engagement Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Current Streak */}
-                <div className="bg-white rounded-lg border border-border p-4">
+                <div className="bg-bg-secondary/90 rounded-lg border border-border p-4">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-text-muted">Current Streak</span>
                         <span className="text-2xl">🔥</span>
@@ -147,7 +147,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                 </div>
 
                 {/* Total Points */}
-                <div className="bg-white rounded-lg border border-border p-4">
+                <div className="bg-bg-secondary/90 rounded-lg border border-border p-4">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-text-muted">Total Points</span>
                         <span className="text-2xl">⭐</span>
@@ -161,7 +161,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                 </div>
 
                 {/* Activities Completed */}
-                <div className="bg-white rounded-lg border border-border p-4">
+                <div className="bg-bg-secondary/90 rounded-lg border border-border p-4">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-text-muted">Completed</span>
                         <span className="text-2xl">✅</span>
@@ -175,7 +175,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                 </div>
 
                 {/* Days Active */}
-                <div className="bg-white rounded-lg border border-border p-4">
+                <div className="bg-bg-secondary/90 rounded-lg border border-border p-4">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm text-text-muted">Days Active</span>
                         <span className="text-2xl">📅</span>
@@ -194,7 +194,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                 {/* Left Column - Favorite Activities & Progress */}
                 <div className="lg:col-span-2 space-y-6">
                     {/* Favorite Activities */}
-                    <div className="bg-white rounded-lg border border-border p-6">
+                    <div className="bg-bg-secondary/90 rounded-lg border border-border p-6">
                         <h2 className="text-xl font-semibold text-text mb-4 flex items-center gap-2">
                             <span>❤️</span>
                             Favorite Activities
@@ -236,7 +236,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                     </div>
 
                     {/* Grammar Guide Quiz Results */}
-                    <div className="bg-white rounded-lg border border-border p-6 shadow-sm">
+                    <div className="bg-bg-secondary/90 rounded-lg border border-border p-6 shadow-sm">
                         <h2 className="text-xl font-semibold text-text mb-4 flex items-center gap-2">
                             <span className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,7 +260,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                                                 ? quiz.score !== null && quiz.score >= 80
                                                     ? 'bg-emerald-50/50 border-emerald-100 hover:bg-emerald-50'
                                                     : quiz.score !== null && quiz.score >= 60
-                                                    ? 'bg-amber-50/50 border-amber-100 hover:bg-amber-50'
+                                                    ? 'bg-primary/10 border-primary/20 hover:bg-primary/10'
                                                     : 'bg-rose-50/50 border-rose-100 hover:bg-rose-50'
                                                 : 'bg-bg border-border/40'
                                         }`}
@@ -284,7 +284,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                                                     <div className="text-right">
                                                         <div className={`text-2xl font-black ${
                                                             quiz.score >= 80 ? 'text-emerald-700' :
-                                                            quiz.score >= 60 ? 'text-amber-700' :
+                                                            quiz.score >= 60 ? 'text-primary' :
                                                             'text-rose-700'
                                                         }`}>
                                                             {quiz.score}%
@@ -292,14 +292,14 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                                                     </div>
                                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
                                                         quiz.score >= 80 ? 'bg-emerald-200 text-emerald-800' :
-                                                        quiz.score >= 60 ? 'bg-amber-200 text-amber-800' :
+                                                        quiz.score >= 60 ? 'bg-primary/20 text-primary' :
                                                         'bg-rose-200 text-rose-800'
                                                     }`}>
                                                         {quiz.score >= 80 ? 'A' : quiz.score >= 60 ? 'B' : 'C'}
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <span className="text-xs font-medium text-text-muted bg-white/50 px-2 py-1 rounded border border-border/40">Not Started</span>
+                                                <span className="text-xs font-medium text-text-muted bg-bg-secondary/50 px-2 py-1 rounded border border-border/40">Not Started</span>
                                             )}
                                         </div>
                                     </div>
@@ -309,9 +309,9 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                     </div>
 
                     {/* Verb Quiz Results */}
-                    <div className="bg-white rounded-lg border border-border p-6 shadow-sm">
+                    <div className="bg-bg-secondary/90 rounded-lg border border-border p-6 shadow-sm">
                         <h2 className="text-xl font-semibold text-text mb-4 flex items-center gap-2">
-                            <span className="p-2 bg-amber-50 rounded-lg text-amber-600">
+                            <span className="p-2 bg-primary/10 rounded-lg text-primary">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
@@ -330,7 +330,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                                                 ? quiz.score !== null && quiz.score >= 80
                                                     ? 'bg-green-50/50 border-green-100'
                                                     : quiz.score !== null && quiz.score >= 60
-                                                    ? 'bg-yellow-50/50 border-yellow-100'
+                                                    ? 'bg-primary/10 border-primary/20'
                                                     : 'bg-red-50/50 border-red-100'
                                                 : 'bg-bg border-border/40'
                                         }`}
@@ -351,7 +351,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                                                     <div className="text-right">
                                                         <div className={`text-lg font-bold ${
                                                             quiz.score >= 80 ? 'text-green-700' :
-                                                            quiz.score >= 60 ? 'text-yellow-700' :
+                                                            quiz.score >= 60 ? 'text-primary' :
                                                             'text-red-700'
                                                         }`}>
                                                             {quiz.score}%
@@ -369,7 +369,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                     </div>
 
                     {/* Progress by Category */}
-                    <div className="bg-white rounded-lg border border-border p-6">
+                    <div className="bg-bg-secondary/90 rounded-lg border border-border p-6">
                         <h2 className="text-xl font-semibold text-text mb-4 flex items-center gap-2">
                             <span>📊</span>
                             Progress by Category
@@ -438,7 +438,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
 
                 {/* Right Column - Recent Activity Timeline */}
                 <div className="space-y-6">
-                    <div className="bg-white rounded-lg border border-border p-6">
+                    <div className="bg-bg-secondary/90 rounded-lg border border-border p-6">
                         <h2 className="text-xl font-semibold text-text mb-4 flex items-center gap-2">
                             <span>⏱️</span>
                             Recent Activity

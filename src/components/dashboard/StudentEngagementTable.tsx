@@ -125,7 +125,7 @@ export default function StudentEngagementTable({ students }: StudentEngagementTa
     };
 
     return (
-        <div className="bg-white rounded-lg border border-border overflow-hidden">
+        <div className="bg-bg-secondary/90 rounded-lg border border-border overflow-hidden">
             {/* Search Bar */}
             <div className="p-4 border-b border-border bg-bg-light">
                 <input
@@ -174,11 +174,11 @@ export default function StudentEngagementTable({ students }: StudentEngagementTa
                                                 ✓ Active
                                             </span>
                                         ) : inactive ? (
-                                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-medium">
+                                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
                                                 ⚠️ Inactive
                                             </span>
                                         ) : (
-                                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-50 text-gray-700 text-xs font-medium">
+                                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-50 text-text text-xs font-medium">
                                                 • Idle
                                             </span>
                                         )}
@@ -189,7 +189,7 @@ export default function StudentEngagementTable({ students }: StudentEngagementTa
                                     <div className="flex items-center justify-between px-3 py-2 bg-bg-light rounded-md">
                                         <span className="text-text-muted text-xs">Streak</span>
                                         <div className="flex items-center gap-1">
-                                            <span className={`font-semibold ${hasStreak ? 'text-orange-600' : 'text-text'}`}>
+                                            <span className={`font-semibold ${hasStreak ? 'text-primary' : 'text-text'}`}>
                                                 {student.currentStreak || 0}
                                             </span>
                                             {hasStreak && <span>🔥</span>}
@@ -282,7 +282,7 @@ export default function StudentEngagementTable({ students }: StudentEngagementTa
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <span className={`font-semibold ${hasStreak ? 'text-orange-600' : 'text-text'}`}>
+                                                <span className={`font-semibold ${hasStreak ? 'text-primary' : 'text-text'}`}>
                                                     {student.currentStreak || 0}
                                                 </span>
                                                 {hasStreak && <span>🔥</span>}
@@ -312,11 +312,11 @@ export default function StudentEngagementTable({ students }: StudentEngagementTa
                                                     ✓ Active
                                                 </span>
                                             ) : inactive ? (
-                                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-medium">
+                                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
                                                     ⚠️ Inactive
                                                 </span>
                                             ) : (
-                                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-50 text-gray-700 text-xs font-medium">
+                                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-50 text-text text-xs font-medium">
                                                     • Idle
                                                 </span>
                                             )}

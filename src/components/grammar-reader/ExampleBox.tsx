@@ -14,7 +14,7 @@ interface ExampleBoxProps {
 export function ExampleBox({ examples, formulaParts }: ExampleBoxProps) {
     return (
         <motion.div
-            className="example-box relative bg-gradient-to-br from-success/5 to-primary/5 border-2 border-success/20 rounded-2xl p-6 my-6 overflow-hidden"
+            className="example-box relative bg-gradient-to-br from-success/10 to-primary/10 border-2 border-success/30 rounded-2xl p-6 my-6 overflow-hidden"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -52,7 +52,7 @@ export function ExampleBox({ examples, formulaParts }: ExampleBoxProps) {
                             ease: [0.22, 1, 0.36, 1]
                         }}
                     >
-                        <div className="example-item relative bg-white px-4 py-3.5 rounded-xl border-l-4 border-success shadow-sm hover:shadow-md transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5">
+                        <div className="example-item relative bg-bg-elevated px-4 py-3.5 rounded-xl border-l-4 border-success shadow-sm hover:shadow-md transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5">
                             {/* Checkmark indicator */}
                             <div className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/item:opacity-100 transition-opacity">
                                 <Check className="w-4 h-4 text-success" />

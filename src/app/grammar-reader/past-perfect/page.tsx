@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Past Perfect - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Past Perfect - Interactive Grammar Guide | Marlie LMS",
     description:
         "Complete interactive guide to Past Perfect tense with exercises, examples, and practice. Master the time machine for understanding sequences of past events with real-world examples from housing, travel, and everyday life.",
 };

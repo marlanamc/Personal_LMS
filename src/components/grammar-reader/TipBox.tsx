@@ -83,7 +83,7 @@ export function TipBox({ tip }: TipBoxProps) {
                         ease: "easeInOut"
                     }}
                 >
-                    <Lightbulb className="w-5 h-5 text-white" />
+                    <Lightbulb className="w-5 h-5 text-bg-primary" />
                 </motion.div>
 
                 <div className="flex-1">

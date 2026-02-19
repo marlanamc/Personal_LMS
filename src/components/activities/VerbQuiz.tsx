@@ -75,7 +75,7 @@ export default function VerbQuiz({ content, activityId, activityTitle, onComplet
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-lg border border-sage/20 p-6"
+        className="bg-bg-secondary/90 rounded-2xl shadow-lg border border-sage/20 p-6"
       >
         <h2 className="text-2xl font-display font-bold text-terracotta mb-2">
           {headerTitle}
@@ -98,7 +98,7 @@ export default function VerbQuiz({ content, activityId, activityTitle, onComplet
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="hidden md:block bg-white rounded-2xl shadow-lg border border-sage/20 overflow-hidden"
+        className="hidden md:block bg-bg-secondary/90 rounded-2xl shadow-lg border border-sage/20 overflow-hidden"
       >
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -117,7 +117,7 @@ export default function VerbQuiz({ content, activityId, activityTitle, onComplet
                 <tr
                   key={verb}
                   className={`border-b border-neutral-100 hover:bg-sage/5 transition-colors ${
-                    idx % 2 === 0 ? 'bg-white' : 'bg-neutral-50/50'
+                    idx % 2 === 0 ? 'bg-bg-secondary/90' : 'bg-bg-tertiary/50'
                   }`}
                 >
                   <td className="px-6 py-4 font-medium text-neutral-800 capitalize">To {verb}</td>
@@ -177,12 +177,12 @@ export default function VerbQuiz({ content, activityId, activityTitle, onComplet
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 + idx * 0.05 }}
-            className="bg-white rounded-2xl shadow-lg border border-sage/20 p-4"
+            className="bg-bg-secondary/90 rounded-2xl shadow-lg border border-sage/20 p-4"
           >
             <h3 className="text-lg font-bold text-terracotta mb-3 capitalize">To {verb}</h3>
 
             <div className="space-y-3">
-              <div className="bg-neutral-50 rounded-lg p-3">
+              <div className="bg-bg-tertiary/70 rounded-lg p-3">
                 <label className="text-xs font-semibold text-neutral-600 mb-1 block">
                   V1 (Base Form)
                 </label>

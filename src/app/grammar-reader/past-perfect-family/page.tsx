@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Past Perfect Family Guide | ESOL Teacher Resources",
+    title: "Past Perfect Family Guide | Marlie LMS",
     description:
         "Short guide that pairs Past Perfect Simple with Past Perfect Continuous to show which action happened first and how long it lasted.",
 };

@@ -46,7 +46,7 @@ export default async function DiagnosticsPage({
     return (
         <div className="min-h-screen bg-bg">
             {/* Header */}
-            <header className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
+            <header className="sticky top-0 bg-bg-secondary/95 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
                 <div className="container mx-auto py-4 px-6">
                     <BackButton href="/dashboard/gradebook" className="mb-3">Back to Gradebook</BackButton>
                     <div className="flex items-center gap-3">
@@ -74,7 +74,7 @@ export default async function DiagnosticsPage({
                 />
 
                 {/* Help Text */}
-                <div className="mt-8 p-6 bg-white rounded-xl border border-border">
+                <div className="mt-8 p-6 bg-bg-secondary/90 rounded-xl border border-border">
                     <h3 className="font-semibold text-text mb-3">
                         Understanding the Diagnostic Report
                     </h3>

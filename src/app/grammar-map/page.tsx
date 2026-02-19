@@ -8,7 +8,7 @@ import { MapIcon } from '@/components/icons/Icons';
 import { grammarTopics } from '@/data/grammar-map';
 
 export const metadata = {
-    title: 'Grammar Map | Class Companion',
+    title: 'Grammar Map | Marlie LMS',
     description: 'Visual map of all Level 3 grammar topics showing your progress and how concepts connect',
 };
 

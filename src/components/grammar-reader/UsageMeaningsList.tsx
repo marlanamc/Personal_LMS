@@ -108,7 +108,7 @@ export function UsageMeaningsList({ meanings }: UsageMeaningsListProps) {
                                         whileHover={{ scale: 1.05 }}
                                         transition={{ type: "spring", stiffness: 400, damping: 10 }}
                                     >
-                                        <Icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                                        <Icon className="w-4 h-4 md:w-5 md:h-5 text-bg-primary" />
                                     </motion.div>
                                     {/* Number badge */}
                                     <div className={`absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full border-2 ${colorScheme.accent} flex items-center justify-center`}>
@@ -142,7 +142,7 @@ export function UsageMeaningsList({ meanings }: UsageMeaningsListProps) {
                                         }}
                                     >
                                         {/* Example card with hover effect */}
-                                        <div className={`relative bg-white rounded-lg p-2.5 md:p-3 border-l-3 ${colorScheme.accent} shadow-sm hover:shadow-md transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5`}>
+                                        <div className={`relative bg-bg-elevated rounded-lg p-2.5 md:p-3 border-l-3 ${colorScheme.accent} shadow-sm hover:shadow-md transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5`}>
                                             <div className="pl-1.5 md:pl-3.5">
                                                 <p
                                                     className="text-sm md:text-base text-text font-medium leading-relaxed"

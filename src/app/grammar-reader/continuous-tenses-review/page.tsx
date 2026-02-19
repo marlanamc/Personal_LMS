@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Continuous Tenses Review - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Continuous Tenses Review - Interactive Grammar Guide | Marlie LMS",
     description:
         "Complete interactive guide to Continuous Tenses Review tense with exercises, examples, and practice. Learn when and how to use Continuous Tenses Review correctly.",
 };

@@ -48,7 +48,7 @@ export default async function StudentStatsPage() {
 
     return (
         <div className="min-h-screen bg-bg">
-            <header className="sticky top-0 backdrop-blur-md border-b z-50 bg-white/80 border-white/40 shadow-sm transition-all">
+            <header className="sticky top-0 backdrop-blur-md border-b z-50 bg-bg-secondary/80 border-white/40 shadow-sm transition-all">
                 <div className="max-w-[1200px] mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <div>
                         <BackButton href="/dashboard" className="mb-1">Back to Dashboard</BackButton>
@@ -76,7 +76,7 @@ export default async function StudentStatsPage() {
                 items={[
                     { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
                     { href: "/dashboard/activities", label: "Activities", icon: <BookOpenIcon /> },
-                    { href: "/dashboard/leaderboard", label: "Leaderboard", icon: <TrophyIcon /> },
+                    { href: "/grammar-map", label: "Map", icon: <TrophyIcon /> },
                     { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
                 ]}
             />

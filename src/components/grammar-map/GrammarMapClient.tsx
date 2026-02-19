@@ -329,7 +329,7 @@ export default function GrammarMapClient({ progressMap, topics }: GrammarMapClie
                 </div>
                 {progress && (
                     <div className="mt-2">
-                        <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                        <div className="flex items-center justify-between text-xs text-text-muted mb-1">
                             <span>{progress.completionPercentage}% complete</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -377,14 +377,14 @@ export default function GrammarMapClient({ progressMap, topics }: GrammarMapClie
     return (
         <div className="w-full">
             {/* Controls Bar */}
-            <div className="mb-4 flex items-center justify-between gap-4 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="mb-4 flex items-center justify-between gap-4 p-4 bg-bg-secondary/90 rounded-lg shadow-sm border border-border">
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setViewMode('graph')}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                             viewMode === 'graph'
                                 ? 'bg-[var(--primary)] text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                : 'bg-bg-tertiary/80 text-text hover:bg-bg-tertiary/80'
                         }`}
                     >
                         <Maximize2 className="w-4 h-4" />
@@ -395,7 +395,7 @@ export default function GrammarMapClient({ progressMap, topics }: GrammarMapClie
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                             viewMode === 'list'
                                 ? 'bg-[var(--primary)] text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                : 'bg-bg-tertiary/80 text-text hover:bg-bg-tertiary/80'
                         }`}
                     >
                         <List className="w-4 h-4" />
@@ -405,24 +405,24 @@ export default function GrammarMapClient({ progressMap, topics }: GrammarMapClie
 
                 {viewMode === 'graph' && (
                     <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600 mr-2">Zoom: {Math.round(zoom * 100)}%</span>
+                        <span className="text-sm text-text-muted mr-2">Zoom: {Math.round(zoom * 100)}%</span>
                         <button
                             onClick={handleZoomOut}
-                            className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                            className="p-2 rounded-lg bg-bg-tertiary/80 hover:bg-bg-tertiary/80 transition-colors"
                             title="Zoom Out"
                         >
                             <ZoomOut className="w-4 h-4" />
                         </button>
                         <button
                             onClick={handleZoomReset}
-                            className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                            className="p-2 rounded-lg bg-bg-tertiary/80 hover:bg-bg-tertiary/80 transition-colors"
                             title="Reset Zoom"
                         >
                             <Maximize2 className="w-4 h-4" />
                         </button>
                         <button
                             onClick={handleZoomIn}
-                            className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                            className="p-2 rounded-lg bg-bg-tertiary/80 hover:bg-bg-tertiary/80 transition-colors"
                             title="Zoom In"
                         >
                             <ZoomIn className="w-4 h-4" />
@@ -433,14 +433,14 @@ export default function GrammarMapClient({ progressMap, topics }: GrammarMapClie
 
             {/* Legend - Only show in graph view */}
             {viewMode === 'graph' && (
-                <div className="mb-4 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="mb-4 p-4 bg-bg-secondary/90 rounded-lg shadow-sm border border-border">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full bg-green-500"></div>
                             <span className="text-sm">Completed</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                            <div className="w-3 h-3 rounded-full bg-primary/100"></div>
                             <span className="text-sm">In Progress</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -457,7 +457,7 @@ export default function GrammarMapClient({ progressMap, topics }: GrammarMapClie
 
             {/* List View */}
             {viewMode === 'list' && (
-                <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
+                <div className="bg-bg-secondary/90 rounded-lg shadow-lg border border-border p-6">
                     {CATEGORY_ORDER.map(category => {
                         const topicsInCategory = topics.filter(t => t.category === category);
                         if (topicsInCategory.length === 0) return null;
@@ -485,7 +485,7 @@ export default function GrammarMapClient({ progressMap, topics }: GrammarMapClie
                                             return (
                                                 <div key={subcategory}>
                                                     <div className="flex items-baseline gap-3 mb-2">
-                                                        <h4 className="text-sm font-bold text-gray-700 tracking-wide uppercase">
+                                                        <h4 className="text-sm font-bold text-text tracking-wide uppercase">
                                                             {tenseSubcategoryLabels[subcategory]}
                                                         </h4>
                                                     </div>
@@ -507,7 +507,7 @@ export default function GrammarMapClient({ progressMap, topics }: GrammarMapClie
                                         {topicsInCategory.some((t) => t.id === 'all-verb-tenses-overview') && (
                                             <div className="pt-2">
                                                 <div className="flex items-baseline justify-between gap-3 mb-2">
-                                                    <h4 className="text-sm font-bold text-gray-700 tracking-wide uppercase">
+                                                    <h4 className="text-sm font-bold text-text tracking-wide uppercase">
                                                         Big Picture
                                                     </h4>
                                                 </div>
@@ -542,11 +542,11 @@ export default function GrammarMapClient({ progressMap, topics }: GrammarMapClie
             {viewMode === 'graph' && (
                 <div
                     ref={containerRef}
-                    className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-auto relative"
+                    className="bg-bg-secondary/90 rounded-lg shadow-lg border border-border overflow-auto relative"
                     style={{ height: 'calc(100vh - 400px)', minHeight: '500px' }}
                 >
                     {/* Scroll hint */}
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-md text-sm text-gray-600 pointer-events-none">
+                    <div className="absolute top-4 right-4 bg-bg-secondary/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-md text-sm text-text-muted pointer-events-none">
                         💡 Scroll to explore • Click topics to learn
                     </div>
 
@@ -747,7 +747,7 @@ export default function GrammarMapClient({ progressMap, topics }: GrammarMapClie
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-6 p-6 bg-white rounded-lg shadow-lg border border-gray-200"
+                    className="mt-6 p-6 bg-bg-secondary/90 rounded-lg shadow-lg border border-border"
                 >
                     {(() => {
                         const topic = topics.find(t => t.id === selectedTopic);

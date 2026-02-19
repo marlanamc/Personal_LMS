@@ -1,6 +1,6 @@
-# Class Companion - ESOL Learning Hub
+# Marlie LMS
 
-An interactive classroom companion for ESOL (English for Speakers of Other Languages) teachers and students. Features gamification, progress tracking, and a warm educational design system.
+A personal learning management system with class management, assignments, submissions, and gamification.
 
 ## Features
 
@@ -30,7 +30,7 @@ An interactive classroom companion for ESOL (English for Speakers of Other Langu
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd ESOL_Teacher_Resources
+cd Personal_LMS
 ```
 
 2. Install dependencies:
@@ -41,8 +41,7 @@ npm install
 3. Set up the database:
 ```bash
 npx prisma migrate dev
-npx prisma db seed
-npx tsx prisma/seed-achievements.ts  # Seed gamification achievements
+npm run db:seed
 ```
 
 4. Run the development server:
@@ -57,12 +56,12 @@ npm run dev
 After seeding, you can log in with:
 
 **Teacher Account:**
-- Email: `teacher@example.com`
-- Password: `teacher123`
+- Username: `teacher`
+- Password: `password123`
 
 **Student Account:**
-- Email: `student@example.com`
-- Password: `student123`
+- Username: `student`
+- Password: `password123`
 
 ## Project Structure
 
@@ -195,7 +194,7 @@ Students earn points for:
 
 ## Legacy Content
 
-**Note:** Legacy HTML activities have been moved to `/Users/marlanacreed/Downloads/Projects/Old Work/ESOL_legacy/`
+**Note:** Legacy HTML activities can be archived in `/Users/marlanacreed/Downloads/Projects/Old Work/`.
 
 The legacy folder contains 82 HTML-based teaching resources including:
 - 40+ grammar guides (all tenses, sentence structure)

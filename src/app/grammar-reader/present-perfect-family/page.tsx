@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Present Perfect Family Guide | ESOL Teacher Resources",
+    title: "Present Perfect Family Guide | Marlie LMS",
     description:
         "Streamlined guide that pairs Present Perfect Simple and Continuous for quick comparison and practice.",
 };

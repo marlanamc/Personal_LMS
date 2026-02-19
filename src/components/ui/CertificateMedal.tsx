@@ -63,7 +63,8 @@ export function CertificateMedal({
                 className={`
                     relative rounded-full flex items-center justify-center
                     ${animated ? "animate-medal-reveal" : ""}
-                    ${interactive ? "transition-transform duration-300 hover:scale-105 cursor-pointer" : ""}
+                    ${interactive ? "transition-all duration-300 hover:scale-110 hover:rotate-3 cursor-pointer" : ""}
+                    ${interactive ? "animate-medal-float animate-medal-glow" : ""}
                 `}
                 style={{
                     width: dimensions.outer,
@@ -86,7 +87,8 @@ export function CertificateMedal({
                     className={`
                         medal-body medal-${tier}
                         ${isPlatinum ? "animate-rainbow-shimmer" : ""}
-                        ${interactive ? "animate-medal-glow" : ""}
+                        ${interactive ? "animate-medal-glow animate-medal-shine" : ""}
+                        shadow-lg
                     `}
                     style={{
                         width: dimensions.inner,

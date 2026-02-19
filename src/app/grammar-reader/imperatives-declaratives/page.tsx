@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Imperatives vs Declaratives - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Imperatives vs Declaratives - Interactive Grammar Guide | Marlie LMS",
     description:
         "Understand the difference between commands (imperatives) and statements (declaratives). Master tone and politeness in medical and professional communication.",
 };

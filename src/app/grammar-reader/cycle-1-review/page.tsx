@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Cycle 1 Review - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Cycle 1 Review - Interactive Grammar Guide | Marlie LMS",
     description:
         "A gentle flow through Cycle 1 grammar: simple, continuous, parts of speech, frequency, comparatives, and connectors with a final mini-quiz.",
 };

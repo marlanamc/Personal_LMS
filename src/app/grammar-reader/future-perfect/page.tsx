@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Future Perfect - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Future Perfect - Interactive Grammar Guide | Marlie LMS",
     description:
         "Complete interactive guide to Future Perfect tense with exercises, examples, and practice. Learn when and how to use Future Perfect correctly.",
 };

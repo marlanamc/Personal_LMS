@@ -227,7 +227,7 @@ export default function LeaderboardPage() {
                       <LeaderboardAvatar avatar={entry.avatar} avatarColor={entry.avatarColor} size="sm" />
                     ) : (
                       <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-gray-400 text-sm font-semibold">
+                        <span className="text-text-light text-sm font-semibold">
                           {entry.name.charAt(0).toUpperCase()}
                         </span>
                       </div>

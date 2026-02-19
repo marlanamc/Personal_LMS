@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Gerunds & Infinitives Patterns | ESOL Teacher Resources",
+    title: "Gerunds & Infinitives Patterns | Marlie LMS",
     description:
         "Master the six core gerund and infinitive patterns with guided explanations, examples, and practice questions to avoid common mistakes.",
 };

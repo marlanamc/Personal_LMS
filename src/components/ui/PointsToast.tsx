@@ -10,8 +10,18 @@ interface PointsToastProps {
 export function PointsToast({ points, onComplete }: PointsToastProps) {
     const [isVisible, setIsVisible] = useState(false);
     const [isLeaving, setIsLeaving] = useState(false);
+    const [particles, setParticles] = useState<Array<{ id: number; x: number; delay: number }>>([]);
 
     useEffect(() => {
+        // Generate floating particles
+        const particleCount = 6;
+        const newParticles = Array.from({ length: particleCount }).map((_, i) => ({
+            id: i,
+            x: (Math.random() - 0.5) * 40,
+            delay: i * 100,
+        }));
+        setParticles(newParticles);
+
         // Trigger entrance animation
         const showTimer = setTimeout(() => setIsVisible(true), 50);
 
@@ -44,10 +54,27 @@ export function PointsToast({ points, onComplete }: PointsToastProps) {
             role="status"
             aria-live="polite"
         >
-            <div className="bg-gradient-to-r from-accent to-yellow-400 text-text px-6 py-3 rounded-full shadow-lg flex items-center gap-2 font-bold">
-                <span className="text-2xl">+{points}</span>
-                <span className="text-sm">points!</span>
+            {/* Glow background */}
+            <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl opacity-0 animate-pulse" />
+
+            {/* Main toast card */}
+            <div className="relative backdrop-blur-md bg-white/10 border border-primary/30 text-text px-8 py-4 rounded-full shadow-glow-pink flex items-center gap-3 font-bold">
+                <span className="text-3xl font-mono animate-glow-pulse">+{points}</span>
+                <span className="text-sm uppercase tracking-wider opacity-80">points!</span>
             </div>
+
+            {/* Floating particles */}
+            {particles.map((particle) => (
+                <div
+                    key={particle.id}
+                    className="absolute top-1/2 left-1/2 w-2 h-2 rounded-full bg-primary pointer-events-none animate-float-up"
+                    style={{
+                        transform: `translateX(${particle.x}px)`,
+                        animationDelay: `${particle.delay}ms`,
+                        opacity: 0.6,
+                    }}
+                />
+            ))}
         </div>
     );
 }

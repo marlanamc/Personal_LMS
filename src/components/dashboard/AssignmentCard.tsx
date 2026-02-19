@@ -33,7 +33,7 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, inde
 
     return (
         <div
-            className={`relative bg-white/95 backdrop-blur-sm rounded-xl p-0 transition-[box-shadow,transform] duration-300 hover:shadow-xl hover:-translate-y-0.5 group border border-border/80 shadow-md flex flex-col sm:flex-row items-stretch overflow-hidden`}
+            className={`relative bg-bg-secondary/95 backdrop-blur-sm rounded-xl p-0 transition-[box-shadow,transform] duration-300 hover:shadow-xl hover:-translate-y-0.5 group border border-border/80 shadow-md flex flex-col sm:flex-row items-stretch overflow-hidden`}
             style={{
                 animationDelay: `${index * 100}ms`
             }}
@@ -79,7 +79,7 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, inde
             </div>
 
             {/* Action Area (Right) */}
-            <div className="p-4 sm:p-6 sm:pl-0 flex flex-col justify-center gap-2 z-10 sm:border-l border-border/40 shrink-0 bg-white/30">
+            <div className="p-4 sm:p-6 sm:pl-0 flex flex-col justify-center gap-2 z-10 sm:border-l border-border/40 shrink-0 bg-bg-secondary/30">
                 <Link
                     href={`/activity/${assignment.activityId}?assignment=${assignment.id}`}
                     className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold transition-[background-color,box-shadow,transform] hover:shadow-lg active:scale-95 rounded-lg bg-text text-white hover:bg-primary whitespace-nowrap min-w-[120px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"

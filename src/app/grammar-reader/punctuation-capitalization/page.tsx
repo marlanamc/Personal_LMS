@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Punctuation & Capitalization - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Punctuation & Capitalization - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master punctuation and capitalization rules for professional writing. Learn commas, apostrophes, quotation marks, and capital letters.",
 };

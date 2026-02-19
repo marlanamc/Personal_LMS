@@ -23,12 +23,12 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        display: ["var(--font-display)", "serif"],
+        display: ["var(--font-display)", "sans-serif"],
         body: ["var(--font-body)", "sans-serif"],
-        handwritten: ["var(--font-handwritten)", "cursive"],
+        mono: ["var(--font-mono)", "monospace"],
       },
       colors: {
-        // Warm Educational Palette - Dynamic Variables
+        // Midnight Learning Sanctuary - Pastel Dark Theme
         primary: {
           DEFAULT: "var(--color-primary)",
           dark: "var(--color-primary-dark)",
@@ -54,9 +54,10 @@ const config: Config = {
           light: "var(--color-text-light)",
         },
         bg: {
-          DEFAULT: "var(--color-bg)",
-          light: "var(--color-bg-light)",
-          gray: "var(--color-bg-gray)",
+          primary: "var(--color-bg-primary)",
+          secondary: "var(--color-bg-secondary)",
+          tertiary: "var(--color-bg-tertiary)",
+          elevated: "var(--color-bg-elevated)",
         },
         border: {
           DEFAULT: "var(--color-border)",
@@ -72,11 +73,19 @@ const config: Config = {
         full: "9999px",
       },
       boxShadow: {
-        sm: "0 1px 3px rgba(43, 58, 74, 0.08), 0 1px 2px rgba(43, 58, 74, 0.04)",
-        DEFAULT: "0 4px 12px rgba(43, 58, 74, 0.1), 0 2px 4px rgba(43, 58, 74, 0.06)",
-        md: "0 4px 12px rgba(43, 58, 74, 0.12), 0 2px 4px rgba(43, 58, 74, 0.08)",
-        lg: "0 10px 30px rgba(43, 58, 74, 0.15), 0 4px 10px rgba(43, 58, 74, 0.1)",
-        xl: "0 20px 50px rgba(43, 58, 74, 0.18), 0 8px 20px rgba(43, 58, 74, 0.12)",
+        sm: "0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)",
+        DEFAULT: "0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)",
+        md: "0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3)",
+        lg: "0 10px 30px rgba(0, 0, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.3)",
+        xl: "0 20px 50px rgba(0, 0, 0, 0.5), 0 8px 20px rgba(0, 0, 0, 0.4)",
+        "glow-pink": "0 0 20px var(--glow-pink)",
+        "glow-mint": "0 0 20px var(--glow-mint)",
+        "glow-lavender": "0 0 20px var(--glow-lavender)",
+        "glow-aqua": "0 0 20px var(--glow-aqua)",
+        "glow-peach": "0 0 20px var(--glow-peach)",
+        "glow-pink-lg": "0 0 30px var(--glow-pink)",
+        "glow-mint-lg": "0 0 30px var(--glow-mint)",
+        "glow-lavender-lg": "0 0 30px var(--glow-lavender)",
       },
       transitionDuration: {
         fast: "150ms",

@@ -14,7 +14,7 @@ export function TimelineVisual({ timeline }: TimelineVisualProps) {
     const sortedEvents = [...timeline.events].sort((a, b) => a.order - b.order);
 
     return (
-        <div className="timeline-visual bg-white border-2 border-primary rounded-lg p-6 my-6">
+        <div className="timeline-visual bg-bg-elevated border-2 border-primary rounded-lg p-6 my-6">
             <h4 className="text-base font-bold text-text mb-2">{timeline.title}</h4>
             <p className="text-sm text-text-muted mb-4">{timeline.description}</p>
 
@@ -35,7 +35,7 @@ export function TimelineVisual({ timeline }: TimelineVisualProps) {
                             className={`w-16 h-16 rounded-full border-4 ${index === 0
                                     ? "border-warning bg-warning/10 text-warning"
                                     : "border-success bg-success/10 text-success"
-                                } flex items-center justify-center font-bold text-lg bg-white shadow-md`}
+                                } flex items-center justify-center font-bold text-lg bg-bg-light shadow-md`}
                         >
                             {event.order}
                         </div>

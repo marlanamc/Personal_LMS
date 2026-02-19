@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Paragraph Format - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Paragraph Format - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master paragraph structure: topic sentence, supporting details, and conclusion. Essential for academic and professional writing.",
 };

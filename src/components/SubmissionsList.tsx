@@ -91,33 +91,33 @@ export default function SubmissionsList({ assignment, students }: Props) {
             <section>
                 <h2 className="text-xl font-semibold mb-4">Submitted Work</h2>
                 {assignment.submissions.length === 0 ? (
-                    <div className="bg-white shadow rounded-lg p-6 text-center">
-                        <p className="text-gray-500">No submissions yet.</p>
+                    <div className="bg-bg-secondary/90 shadow rounded-lg p-6 text-center">
+                        <p className="text-text-muted">No submissions yet.</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {assignment.submissions.map((submission) => (
-                            <div key={submission.id} className="bg-white shadow rounded-lg p-6">
+                            <div key={submission.id} className="bg-bg-secondary/90 shadow rounded-lg p-6">
                                 <div className="flex items-start justify-between mb-4">
                                     <div>
-                                        <h3 className="text-lg font-medium text-gray-900">
+                                        <h3 className="text-lg font-medium text-text">
                                             {submission.user.name || submission.user.username}
                                         </h3>
-                                        <p className="text-sm text-gray-500">
+                                        <p className="text-sm text-text-muted">
                                             Submitted: {new Date(submission.createdAt).toLocaleString()}
                                         </p>
                                     </div>
                                     <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
                                         submission.status === 'graded' ? 'bg-green-100 text-green-800' :
                                         submission.status === 'submitted' ? 'bg-blue-100 text-blue-800' :
-                                        'bg-yellow-100 text-yellow-800'
+                                        'bg-primary/20 text-primary'
                                     }`}>
                                         {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
                                     </span>
                                 </div>
 
                                 <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                                    <p className="text-gray-700 whitespace-pre-wrap">
+                                    <p className="text-text whitespace-pre-wrap">
                                         {parseContent(submission.content)}
                                     </p>
                                 </div>
@@ -140,7 +140,7 @@ export default function SubmissionsList({ assignment, students }: Props) {
                                         {gradingSubmission === submission.id ? (
                                             <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    <label className="block text-sm font-medium text-text mb-1">
                                                         Score (0-100)
                                                     </label>
                                                     <input
@@ -149,19 +149,19 @@ export default function SubmissionsList({ assignment, students }: Props) {
                                                         max="100"
                                                         value={score}
                                                         onChange={(e) => setScore(e.target.value)}
-                                                        className="w-32 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                                        className="w-32 rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                                         placeholder="Score"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    <label className="block text-sm font-medium text-text mb-1">
                                                         Feedback
                                                     </label>
                                                     <textarea
                                                         value={feedback}
                                                         onChange={(e) => setFeedback(e.target.value)}
                                                         rows={3}
-                                                        className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                                        className="w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                                         placeholder="Provide feedback…"
                                                     />
                                                 </div>
@@ -185,7 +185,7 @@ export default function SubmissionsList({ assignment, students }: Props) {
                                                             setFeedback("");
                                                             setError("");
                                                         }}
-                                                        className="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                                                        className="px-4 py-2 border border-border shadow-sm text-sm font-medium rounded-md text-text bg-bg-secondary/90 hover:bg-bg-tertiary/70"
                                                     >
                                                         Cancel
                                                     </button>
@@ -217,10 +217,10 @@ export default function SubmissionsList({ assignment, students }: Props) {
                     <h2 className="text-xl font-semibold mb-4">
                         Missing Submissions ({missingSubmissions.length})
                     </h2>
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                    <div className="bg-primary/10 border border-primary/30 rounded-lg p-6">
                         <ul className="space-y-2">
                             {missingSubmissions.map((student) => (
-                                <li key={student.id} className="text-gray-700">
+                                <li key={student.id} className="text-text">
                                     {student.name || student.username}
                                 </li>
                             ))}

@@ -27,20 +27,22 @@ export const Badge: React.FC<BadgeProps & { size?: 'sm' | 'md' | 'lg' }> = ({
   size = 'md',
   className = ''
 }) => {
+  // Dark theme with pastel colors and glows
   const variantClasses: Record<BadgeVariant, string> = {
-    default: 'bg-bg-gray text-text border-border/40',
-    primary: 'bg-primary/15 text-primary border-primary/30 font-semibold',
-    secondary: 'bg-secondary/15 text-secondary border-secondary/30 font-semibold',
-    success: 'bg-success/15 text-success border-success/30 font-semibold',
-    warning: 'bg-warning/15 text-warning border-warning/30 font-semibold',
-    error: 'bg-error/15 text-error border-error/30 font-semibold',
-    quiz: 'bg-warning/15 text-warning border-warning/30 font-semibold',
-    worksheet: 'bg-primary/15 text-primary border-primary/30 font-semibold',
-    slides: 'bg-accent/20 text-accent-dark border-accent/40 font-semibold',
-    guide: 'bg-success/15 text-success border-success/30 font-semibold',
-    game: 'bg-warning/15 text-warning border-warning/30 font-semibold',
-    resource: 'bg-info/15 text-info border-info/30 font-semibold',
-    speaking: 'bg-secondary/15 text-secondary border-secondary/30 font-semibold',
+    default: 'bg-white/10 text-text border-white/20 hover:border-white/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]',
+    primary: 'bg-primary/20 text-primary border-primary/40 font-semibold hover:shadow-glow-pink',
+    secondary: 'bg-secondary/20 text-secondary border-secondary/40 font-semibold hover:shadow-glow-mint',
+    success: 'bg-success/20 text-success border-success/40 font-semibold hover:shadow-[0_0_15px_rgba(149,225,211,0.5)]',
+    warning: 'bg-warning/20 text-warning border-warning/40 font-semibold hover:shadow-glow-peach',
+    error: 'bg-error/20 text-error border-error/40 font-semibold hover:shadow-[0_0_15px_rgba(255,158,170,0.5)]',
+    // Activity type badges with distinct colors
+    quiz: 'bg-warning/20 text-warning border-warning/40 font-semibold hover:shadow-glow-peach',
+    worksheet: 'bg-primary/20 text-primary border-primary/40 font-semibold hover:shadow-glow-pink',
+    slides: 'bg-accent/20 text-accent border-accent/40 font-semibold hover:shadow-glow-lavender',
+    guide: 'bg-secondary/20 text-secondary border-secondary/40 font-semibold hover:shadow-glow-mint',
+    game: 'bg-success/20 text-success border-success/40 font-semibold hover:shadow-[0_0_15px_rgba(149,225,211,0.5)]',
+    resource: 'bg-accent/20 text-accent border-accent/40 font-semibold hover:shadow-glow-lavender',
+    speaking: 'bg-secondary/20 text-secondary border-secondary/40 font-semibold hover:shadow-glow-mint',
   };
 
   const sizeStyles = {
@@ -53,7 +55,7 @@ export const Badge: React.FC<BadgeProps & { size?: 'sm' | 'md' | 'lg' }> = ({
 
   return (
     <span
-      className={`inline-flex items-center font-semibold rounded-lg border transition-[colors,box-shadow] duration-200 shadow-sm ${styles} ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center font-semibold rounded-full border transition-[colors,box-shadow,border-color] duration-200 shadow-sm ${styles} ${sizeStyles[size]} ${className}`}
     >
       {children}
     </span>

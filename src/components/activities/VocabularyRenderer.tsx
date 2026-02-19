@@ -25,11 +25,11 @@ const VOCAB_CONFIG = {
         icon: "📄",
         name: "Word List",
         description: "Review all vocabulary words",
-        gradient: "from-amber-50 to-orange-50",
-        accentColor: "bg-amber-500",
-        iconBg: "bg-amber-100",
-        borderHover: "hover:border-amber-300",
-        ringColor: "focus-visible:ring-amber-400",
+        gradient: "from-primary/20 to-secondary/20",
+        accentColor: "bg-primary/100",
+        iconBg: "bg-primary/15",
+        borderHover: "hover:border-primary/40",
+        ringColor: "focus-visible:ring-primary/40",
     },
     flashcards: {
         icon: "🎴",
@@ -190,7 +190,7 @@ function SelectionMode({ activityId, assignmentId, refreshToken, onSelectType }:
     return (
         <div className="fixed inset-0 bg-[var(--color-bg)] flex flex-col touch-manipulation md:static md:h-auto md:min-h-0 md:bg-transparent">
             {/* Mobile Header - Back + Progress */}
-            <div className="flex-shrink-0 bg-white border-b-2 border-[var(--color-border)] px-4 py-3 md:hidden">
+            <div className="flex-shrink-0 bg-bg-secondary/90 border-b-2 border-[var(--color-border)] px-4 py-3 md:hidden">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <BackButton href="/dashboard" className="shrink-0" />
@@ -284,7 +284,7 @@ function SelectionMode({ activityId, assignmentId, refreshToken, onSelectType }:
                                         {/* Progress Section - show checkmark when complete */}
                                         {!isCompleted && (
                                             <div className="mt-3 md:mt-4 space-y-1 md:space-y-2">
-                                                <div className="relative w-full h-1.5 md:h-2 bg-white/60 rounded-full overflow-hidden">
+                                                <div className="relative w-full h-1.5 md:h-2 bg-bg-secondary/60 rounded-full overflow-hidden">
                                                     <div
                                                         className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-out ${config.accentColor}`}
                                                         style={{ width: `${Math.max(progress, 2)}%` }}
@@ -312,22 +312,22 @@ function SelectionMode({ activityId, assignmentId, refreshToken, onSelectType }:
                             <div className="absolute -bottom-4 -right-4 w-20 h-20 rounded-full bg-accent/20 blur-xl" />
                             <div className="relative flex flex-row items-center gap-3">
                                 <div className="flex flex-shrink-0 w-8 h-8 rounded-lg bg-accent/30 items-center justify-center">
-                                    <svg className="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                                     </svg>
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm text-text font-medium">
-                                        <span className="text-amber-700 font-semibold">Complete all 4</span> activities to finish this vocabulary unit.
+                                        <span className="text-primary font-semibold">Complete all 4</span> activities to finish this vocabulary unit.
                                     </p>
                                     <div className="mt-2 flex items-center gap-2">
-                                        <div className="flex-1 h-1.5 bg-white/50 rounded-full overflow-hidden">
+                                        <div className="flex-1 h-1.5 bg-bg-secondary/50 rounded-full overflow-hidden">
                                             <div
-                                                className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-500"
+                                                className="h-full bg-gradient-to-r from-primary/40 to-secondary rounded-full transition-all duration-500"
                                                 style={{ width: `${overallProgress}%` }}
                                             />
                                         </div>
-                                        <span className="text-xs font-semibold text-amber-700 tabular-nums flex-shrink-0">
+                                        <span className="text-xs font-semibold text-primary tabular-nums flex-shrink-0">
                                             {completedCount}/4
                                         </span>
                                     </div>
@@ -339,15 +339,15 @@ function SelectionMode({ activityId, assignmentId, refreshToken, onSelectType }:
             </div>
 
             {/* Mobile Bottom Bar - Progress Tip */}
-            <div className="flex-shrink-0 bg-white border-t-2 border-[var(--color-border)] px-4 py-3 md:hidden">
+            <div className="flex-shrink-0 bg-bg-secondary/90 border-t-2 border-[var(--color-border)] px-4 py-3 md:hidden">
                 <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
-                        <svg className="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+                        <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                     </div>
                     <p className="text-sm text-text flex-1">
-                        <span className="text-amber-700 font-semibold">Complete all 4</span> to finish!
+                        <span className="text-primary font-semibold">Complete all 4</span> to finish!
                     </p>
                 </div>
             </div>
@@ -513,12 +513,12 @@ function WordListRenderer({ content, activityId, assignmentId, vocabType }: Word
             {entries.map((entry, idx) => (
                 <div
                     key={`${entry.term}-${idx}`}
-                    className="group relative overflow-hidden rounded-lg md:rounded-xl bg-white border border-border p-3 md:p-6 shadow-sm transition-[box-shadow,border-color,transform] duration-300 hover:shadow-xl hover:border-border-dark md:hover:-translate-y-1"
+                    className="group relative overflow-hidden rounded-lg md:rounded-xl bg-bg-secondary/90 border border-border p-3 md:p-6 shadow-sm transition-[box-shadow,border-color,transform] duration-300 hover:shadow-xl hover:border-border-dark md:hover:-translate-y-1"
                 >
                     {/* Decorative Background Elements - hidden on mobile */}
                     <div className="hidden md:block absolute -top-12 -right-12 h-32 w-32 rounded-full bg-blue-100/20 transition-transform duration-500 group-hover:scale-150" />
                     <div className="hidden md:flex absolute top-0 right-0 p-6 justify-end">
-                        <span className="text-5xl font-black text-gray-100 transition-colors group-hover:text-blue-100 select-none">
+                        <span className="text-5xl font-black text-text-light/30 transition-colors group-hover:text-primary/20 select-none">
                             {String(idx + 1).padStart(2, '0')}
                         </span>
                     </div>
@@ -547,7 +547,7 @@ function WordListRenderer({ content, activityId, assignmentId, vocabType }: Word
                         {entry.example && (
                             <div className="rounded-md md:rounded-lg bg-accent-light/30 border border-accent/20 p-2 md:p-4">
                                 <p className="text-xs md:text-sm text-text-muted italic">
-                                    <span className="not-italic font-semibold text-amber-700 mr-1">Ex:</span>
+                                    <span className="not-italic font-semibold text-primary mr-1">Ex:</span>
                                     "{entry.example}"
                                 </p>
                             </div>

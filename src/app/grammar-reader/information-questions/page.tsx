@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Information Questions - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Information Questions - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master WH-questions in English: who, what, when, where, why, how. Learn question word order, how much vs how many, and essential housing and workplace questions for real-life situations.",
 };

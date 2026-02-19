@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Used To & Would Rather - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Used To & Would Rather - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master past habits with 'used to' and 'would', and express preferences with 'would rather'. Essential for discussing health changes, work history, and lifestyle goals.",
 };

@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Prepositions of Time & Place - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Prepositions of Time & Place - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master time and place prepositions for housing, transportation, and health contexts so directions and schedules stay clear.",
 };

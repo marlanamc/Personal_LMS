@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 const DEFAULT_PASSWORD = 'password123';
+const ENABLE_LEGACY_ESOL_SEED = process.env.ENABLE_LEGACY_ESOL_SEED === 'true';
 const studentNames = [
     'Ricardo',
     'Andrea',
@@ -53,7 +54,48 @@ async function upsertUser(username, name, role = 'student', mustChangePassword =
     });
 }
 
+async function seedMarlieBaseWorkspace() {
+    const teacher = await upsertUser('teacher', 'Marlie', 'teacher', true);
+    const demoStudent = await upsertUser('student', 'Marlie', 'student');
+
+    const marlieClass = await prisma.class.upsert({
+        where: { code: 'MARLIE101' },
+        update: {
+            name: 'Marlie LMS',
+            description: 'Default class for Marlie LMS',
+            teacherId: teacher.id,
+        },
+        create: {
+            name: 'Marlie LMS',
+            description: 'Default class for Marlie LMS',
+            code: 'MARLIE101',
+            teacherId: teacher.id,
+        },
+    });
+
+    await prisma.classEnrollment.upsert({
+        where: {
+            classId_studentId: {
+                classId: marlieClass.id,
+                studentId: demoStudent.id,
+            },
+        },
+        update: {},
+        create: {
+            classId: marlieClass.id,
+            studentId: demoStudent.id,
+        },
+    });
+
+    console.log('✅ Seeded Marlie LMS base workspace (teacher, demo student, and default class).');
+}
+
 async function main() {
+    if (!ENABLE_LEGACY_ESOL_SEED) {
+        await seedMarlieBaseWorkspace();
+        return;
+    }
+
     // Create teacher (with mustChangePassword = true)
     const teacher = await upsertUser('teacher', 'Teacher User', 'teacher', true);
 
@@ -65,30 +107,30 @@ async function main() {
         students.push(student);
     }
 
-    // Create ESOL 3 class
-    const esol3Class = await prisma.class.upsert({
-        where: { code: 'ESOL3' },
+    // Create default class
+    const marlieClass = await prisma.class.upsert({
+        where: { code: 'MARLIE101' },
         update: {},
         create: {
-            name: 'ESOL 3',
-            description: 'ESOL Level 3 - Your Class',
-            code: 'ESOL3',
+            name: 'Marlie LMS',
+            description: 'Default class for Marlie LMS',
+            code: 'MARLIE101',
             teacherId: teacher.id,
         },
     });
 
-    // Enroll all students in ESOL 3
+    // Enroll all students in default class
     for (const student of students) {
         await prisma.classEnrollment.upsert({
             where: {
                 classId_studentId: {
-                    classId: esol3Class.id,
+                    classId: marlieClass.id,
                     studentId: student.id,
                 },
             },
             update: {},
             create: {
-                classId: esol3Class.id,
+                classId: marlieClass.id,
                 studentId: student.id,
             },
         });
@@ -1093,7 +1135,7 @@ async function main() {
     });
     console.log('🎮 Numbers Game added:', numbersGame.title);
 
-    console.log('✅ Seeded database with teacher, ESOL 3 class, students, and grammar guides');
+    console.log('✅ Seeded database with teacher, default class, students, and grammar guides');
     console.log('👥 Students added:', students.length);
     console.log('📚 Note: Tense guides are seeded separately with full content (not stub URLs)');
 }

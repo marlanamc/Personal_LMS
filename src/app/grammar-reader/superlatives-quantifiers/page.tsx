@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Superlatives & Quantifiers - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Superlatives & Quantifiers - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master comparisons and quantities in English: superlatives (most/least/-est), quantifiers (many/much, few/little, fewer/less). Learn to compare apartments, jobs, and make better decisions with clear examples.",
 };

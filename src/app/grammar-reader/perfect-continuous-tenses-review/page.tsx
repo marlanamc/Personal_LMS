@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Perfect Continuous Tenses Review - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Perfect Continuous Tenses Review - Interactive Grammar Guide | Marlie LMS",
     description:
         "Comprehensive review of Present Perfect Continuous, Past Perfect Continuous, and Future Perfect Continuous tenses with practice exercises.",
 };

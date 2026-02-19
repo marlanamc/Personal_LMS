@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Modals for Obligation & Permission - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Modals for Obligation & Permission - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master workplace modals: must, have to, can, may, could, should. Learn politeness levels for professional requests, permission, and obligations with real workplace examples.",
 };

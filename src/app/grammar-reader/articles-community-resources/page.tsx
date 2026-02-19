@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Articles & References for Community Resources - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Articles & References for Community Resources - Interactive Grammar Guide | Marlie LMS",
     description:
         "Clarify general vs specific resources with a/an/the and zero article to describe East Boston housing, job, and health services confidently.",
 };

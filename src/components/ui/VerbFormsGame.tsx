@@ -696,7 +696,7 @@ export default function VerbFormsGame({ contentStr, activityId }: Props) {
           {!state.validation ? (
               <button
                 onClick={checkAnswer}
-                className="bg-neutral-800 text-white px-16 py-5 rounded-full font-bold text-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all disabled:opacity-30 disabled:hover:translate-y-0"
+                className="bg-gradient-to-r from-[#ff6b9d] to-[#fca5a5] text-white px-16 py-5 rounded-full font-bold text-xl shadow-[0_0_20px_rgba(255,107,157,0.3)] hover:shadow-[0_0_30px_rgba(255,107,157,0.6)] hover:-translate-y-1 transition-all active:scale-95 disabled:opacity-30 disabled:hover:translate-y-0 disabled:shadow-none"
                 disabled={Object.keys(state.inputs).some(k => state.hiddenFields[state.currentIndex]?.includes(k as keyof GameState['inputs']) && !state.inputs[k as keyof GameState['inputs']])}
               >
               Verify Forms
@@ -704,7 +704,7 @@ export default function VerbFormsGame({ contentStr, activityId }: Props) {
           ) : (
             <button
               onClick={nextVerb}
-              className="bg-terracotta text-white px-16 py-5 rounded-full font-bold text-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-3"
+              className="bg-gradient-to-r from-[#89d4cf] to-[#a7f3d0] text-text-primary px-16 py-5 rounded-full font-bold text-xl shadow-[0_0_20px_rgba(137,212,207,0.3)] hover:shadow-[0_0_30px_rgba(137,212,207,0.6)] hover:-translate-y-1 transition-all flex items-center gap-3 active:scale-95"
             >
               {state.currentIndex < state.verbs.length - 1 ? 'Next Verb' : 'Show Results'}
               <ChevronRight className="w-6 h-6" />

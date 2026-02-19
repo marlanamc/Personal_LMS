@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Parts of Speech - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Parts of Speech - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master the building blocks of English: nouns, verbs, adjectives, and adverbs. Learn to identify and use parts of speech with color-coding and real-world examples for adult learners.",
 };

@@ -39,9 +39,9 @@ function getUnitLabel(activity: ActivityStat) {
 }
 
 function statusClasses(progress: number) {
-    if (progress >= 100) return "bg-green-50 text-green-800 border-green-200";
-    if (progress > 0) return "bg-orange-50 text-orange-800 border-orange-200";
-    return "bg-gray-100 text-gray-600 border-gray-200";
+    if (progress >= 100) return "bg-success/20 text-success border border-success/40 shadow-[0_0_12px_rgba(149,225,211,0.3)]";
+    if (progress > 0) return "bg-warning/20 text-warning border border-warning/40 shadow-[0_0_12px_rgba(255,180,162,0.3)]";
+    return "bg-bg-tertiary text-text-tertiary border border-border/40";
 }
 
 function statusLabel(progress: number) {
@@ -110,7 +110,7 @@ export function StudentStatsView({ activities }: Props) {
         return (
             <div
                 key={activity.id}
-                className="flex items-center justify-between bg-white border border-border/50 rounded-lg px-4 py-3 shadow-sm hover:shadow-md transition"
+                className="flex items-center justify-between bg-bg-secondary/90 border border-border/50 rounded-lg px-4 py-3 shadow-sm hover:shadow-md transition"
             >
                 <div className="flex items-center gap-3">
                     <span className="px-3 py-1 bg-secondary/10 text-secondary text-xs font-bold rounded-full uppercase">
@@ -131,7 +131,7 @@ export function StudentStatsView({ activities }: Props) {
     };
 
     const emptyState = (
-        <div className="border-2 border-dashed border-border/40 rounded-xl bg-white/60 p-6 text-center text-text-muted">
+        <div className="border-2 border-dashed border-border/40 rounded-xl bg-bg-secondary/60 p-6 text-center text-text-muted">
             No activities found yet.
         </div>
     );
@@ -146,7 +146,7 @@ export function StudentStatsView({ activities }: Props) {
                         className={`px-4 py-2 rounded-full border text-sm font-semibold transition ${
                             tab === key
                                 ? "bg-primary text-white border-primary shadow-sm"
-                                : "bg-white text-text border-border/60 hover:border-primary/60"
+                                : "bg-bg-secondary/90 text-text border-border/60 hover:border-primary/60"
                         }`}
                     >
                         {label}
@@ -159,7 +159,7 @@ export function StudentStatsView({ activities }: Props) {
                     {vocabUnits.length === 0
                         ? emptyState
                         : vocabUnits.map((unit) => (
-                              <div key={unit.unitLabel} className="bg-white rounded-xl border border-border/40 shadow-sm p-4 space-y-3">
+                              <div key={unit.unitLabel} className="bg-bg-secondary/90 rounded-xl border border-border/40 shadow-sm p-4 space-y-3">
                                   <div className="flex items-center justify-between">
                                       <h3 className="text-lg font-bold text-text">{unit.unitLabel}</h3>
                                       <span className="text-xs text-text-muted">

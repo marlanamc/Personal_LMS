@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Future Perfect Family Guide | ESOL Teacher Resources",
+    title: "Future Perfect Family Guide | Marlie LMS",
     description:
         "Concise comparison of Future Perfect Simple and Continuous to help learners spot the result vs duration clues.",
 };

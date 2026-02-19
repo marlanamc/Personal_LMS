@@ -28,7 +28,7 @@ export default async function TeachingSchedulePage() {
 
     return (
         <div className="min-h-screen bg-bg">
-            <header className="sticky top-0 backdrop-blur-md border-b z-50 bg-white/90 border-white/60 shadow-sm">
+            <header className="sticky top-0 backdrop-blur-md border-b z-50 bg-bg-secondary/90 border-border shadow-sm">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-start justify-between gap-4">
                     <div>
                         <p className="text-xs font-semibold text-primary tracking-widest uppercase">Teacher</p>

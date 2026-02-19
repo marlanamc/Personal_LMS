@@ -100,14 +100,14 @@ export default function EditActivityForm({ activity }: Props) {
     };
 
     return (
-        <div className="bg-white shadow sm:rounded-lg">
+        <div className="bg-bg-secondary/90 shadow sm:rounded-lg">
             <div className="px-4 py-5 sm:p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-4">
-                        <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
+                        <h3 className="text-lg font-medium text-text">Basic Information</h3>
                         
                         <div>
-                            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="title" className="block text-sm font-medium text-text">
                                 Title *
                             </label>
                             <input
@@ -115,13 +115,13 @@ export default function EditActivityForm({ activity }: Props) {
                                 id="title"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                 required
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="description" className="block text-sm font-medium text-text">
                                 Description
                             </label>
                             <textarea
@@ -129,20 +129,20 @@ export default function EditActivityForm({ activity }: Props) {
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 rows={3}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                             />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="type" className="block text-sm font-medium text-text">
                                     Type *
                                 </label>
                                 <select
                                     id="type"
                                     value={type}
                                     onChange={(e) => setType(e.target.value)}
-                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                    className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                     required
                                 >
                                     <option value="worksheet">Worksheet</option>
@@ -155,14 +155,14 @@ export default function EditActivityForm({ activity }: Props) {
                             </div>
 
                             <div>
-                                <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="category" className="block text-sm font-medium text-text">
                                     Category
                                 </label>
                                 <select
                                     id="category"
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
-                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                    className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                 >
                                     <option value="">Select category</option>
                                     <option value="grammar">Grammar</option>
@@ -173,14 +173,14 @@ export default function EditActivityForm({ activity }: Props) {
                             </div>
 
                             <div>
-                                <label htmlFor="level" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="level" className="block text-sm font-medium text-text">
                                     Level
                                 </label>
                                 <select
                                     id="level"
                                     value={level}
                                     onChange={(e) => setLevel(e.target.value)}
-                                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900"
+                                    className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                                 >
                                     <option value="">Select level</option>
                                     <option value="beginner">Beginner</option>
@@ -192,9 +192,9 @@ export default function EditActivityForm({ activity }: Props) {
                     </div>
 
                     <div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">Content</h3>
+                        <h3 className="text-lg font-medium text-text mb-4">Content</h3>
                         <div>
-                            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="content" className="block text-sm font-medium text-text mb-1">
                                 Content *
                             </label>
                             <textarea
@@ -202,10 +202,10 @@ export default function EditActivityForm({ activity }: Props) {
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
                                 rows={15}
-                                className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-gray-900 font-mono text-sm"
+                                className="w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text font-mono text-sm"
                                 required
                             />
-                            <p className="mt-2 text-sm text-gray-500">
+                            <p className="mt-2 text-sm text-text-muted">
                                 Edit the activity content. For JSON-based activities, maintain the JSON structure.
                             </p>
                         </div>
@@ -221,14 +221,14 @@ export default function EditActivityForm({ activity }: Props) {
                         <button
                             type="button"
                             onClick={() => router.back()}
-                            className="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                            className="px-4 py-2 border border-border shadow-sm text-sm font-medium rounded-md text-text bg-bg-secondary/90 hover:bg-bg-tertiary/70"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                            className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/40 disabled:opacity-50"
                         >
                             {isLoading ? "Saving…" : "Save Changes"}
                         </button>

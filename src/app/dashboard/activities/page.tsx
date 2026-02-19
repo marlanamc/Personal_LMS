@@ -224,7 +224,7 @@ export default async function ActivitiesPage({ searchParams }: Props) {
 
         return (
             <div className="min-h-screen bg-bg">
-                <header className="sticky top-0 backdrop-blur-md border-b z-40 bg-white/90 border-white/60 shadow-sm">
+                <header className="sticky top-0 backdrop-blur-md border-b z-40 bg-bg-secondary/90 border-border shadow-sm">
                     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
                         <p className="text-xs font-semibold text-secondary tracking-widest uppercase">Browse</p>
                         <h1 className="text-3xl font-display font-bold text-text">All Activities</h1>
@@ -262,7 +262,7 @@ export default async function ActivitiesPage({ searchParams }: Props) {
 
     return (
         <div className="min-h-screen bg-bg">
-            <header className="sticky top-0 backdrop-blur-md border-b z-40 bg-white/90 border-white/60 shadow-sm">
+            <header className="sticky top-0 backdrop-blur-md border-b z-40 bg-bg-secondary/90 border-border shadow-sm">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
                     <h1 className="text-2xl sm:text-3xl font-display font-bold text-text text-center">
                         What do you want to{" "}

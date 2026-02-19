@@ -108,7 +108,7 @@ export default async function MiniQuizCertificatePage({ searchParams }: Certific
         <div className="min-h-screen pb-24">
             {/* Back button positioned over the showcase */}
             <div className="absolute top-4 left-4 z-20">
-                <BackButton href={guideHref} variant="home" className="bg-white/90 backdrop-blur shadow-lg" />
+                <BackButton href={guideHref} variant="home" className="bg-bg-secondary/90 backdrop-blur shadow-lg" />
             </div>
 
             {/* Certificate Showcase */}
@@ -126,7 +126,7 @@ export default async function MiniQuizCertificatePage({ searchParams }: Certific
                 items={[
                     { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
                     { href: "/dashboard/activities", label: "Activities", icon: <BookIcon /> },
-                    { href: "/dashboard/leaderboard", label: "Leaderboard", icon: <TrophyIcon /> },
+                    { href: "/grammar-map", label: "Map", icon: <TrophyIcon /> },
                     { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
                 ]}
             />

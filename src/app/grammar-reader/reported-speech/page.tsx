@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
-    title: "Reported Speech - Interactive Grammar Guide | ESOL Teacher Resources",
+    title: "Reported Speech - Interactive Grammar Guide | Marlie LMS",
     description:
         "Master reported speech (indirect speech) for communicating messages from MyChart, phone calls, and medical appointments. Learn say vs tell and tense backshifting.",
 };

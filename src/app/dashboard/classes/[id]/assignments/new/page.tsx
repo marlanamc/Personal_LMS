@@ -48,11 +48,11 @@ export default async function NewAssignmentPage({ params }: Props) {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <header className="bg-white shadow">
+            <header className="bg-bg-secondary/90 shadow">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     <BackButton href={`/dashboard/classes/${id}`} className="mb-4">Back to Class</BackButton>
-                    <h1 className="text-3xl font-bold text-gray-900">Create Assignment</h1>
-                    <p className="text-gray-600 mt-1">Class: {classItem.name}</p>
+                    <h1 className="text-3xl font-bold text-text">Create Assignment</h1>
+                    <p className="text-text-muted mt-1">Class: {classItem.name}</p>
                 </div>
             </header>
             <main className="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">

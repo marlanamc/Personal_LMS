@@ -54,7 +54,7 @@ export const TodaysAssignments: React.FC<Props> = ({
     variant = 'cards',
     actions,
 }) => {
-    const featuredNewBadgeClassName = "inline-flex items-center gap-1 rounded-full border border-amber-300 bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 text-amber-950 shadow-[0_2px_8px_rgba(245,158,11,0.25)]";
+    const featuredNewBadgeClassName = "inline-flex items-center gap-1 rounded-full border border-primary/40 bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/25 text-text shadow-[0_2px_8px_rgba(245,158,11,0.25)]";
     const [assignments, setAssignments] = useState<FeaturedAssignment[]>(initialAssignments || []);
     const [loading, setLoading] = useState(true);
 
@@ -96,9 +96,9 @@ export const TodaysAssignments: React.FC<Props> = ({
     if (loading) {
         return (
             <div className="mb-8">
-                <div className="bg-white rounded-2xl border border-border/40 shadow-lg overflow-hidden">
+                <div className="bg-bg-secondary/90 rounded-2xl border border-border/40 shadow-lg overflow-hidden">
                     {/* Skeleton header */}
-                    <div className="p-4 border-b border-border/30 bg-gradient-to-br from-white via-white to-bg-light/30">
+                    <div className="p-4 border-b border-border/30 bg-gradient-to-br from-white via-bg-secondary to-bg-light/30">
                         <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-xl skeleton"></div>
@@ -137,9 +137,9 @@ export const TodaysAssignments: React.FC<Props> = ({
     if (assignments.length === 0) {
         return (
             <div className="mb-8">
-                <div className="bg-white rounded-2xl border border-border/40 shadow-lg overflow-hidden">
+                <div className="bg-bg-secondary/90 rounded-2xl border border-border/40 shadow-lg overflow-hidden">
                     {/* Header matching the normal checklist */}
-                    <div className="px-4 py-3 border-b border-border/10 bg-white flex items-center gap-3">
+                    <div className="px-4 py-3 border-b border-border/10 bg-bg-secondary/90 flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-lg">
                             📋
                         </div>
@@ -202,25 +202,28 @@ export const TodaysAssignments: React.FC<Props> = ({
     const getCategoryStyle = (category?: string | null) => {
         const categoryKey = (category || '').toLowerCase();
         const categoryStyles: Record<string, { label: string; bg: string; text: string; accent: string }> = {
-            vocab: { label: 'VOCAB', bg: '#e3f2fd', text: '#1565c0', accent: '#90caf9' },
-            vocabulary: { label: 'VOCAB', bg: '#e3f2fd', text: '#1565c0', accent: '#90caf9' },
-            grammar: { label: 'GRAMMAR', bg: '#e8f5e9', text: '#2e7d32', accent: '#a5d6a7' },
-            numbers: { label: 'NUMBERS', bg: '#e3f2fd', text: '#1e5aa8', accent: '#4a90e2' },
-            number: { label: 'NUMBERS', bg: '#e3f2fd', text: '#1e5aa8', accent: '#4a90e2' },
-            reading: { label: 'READING', bg: '#e8f6f3', text: '#217f72', accent: '#2a9d8f' },
-            writing: { label: 'WRITING', bg: '#eef6ee', text: '#4f7b55', accent: '#7ba884' },
-            pronunciation: { label: 'PRONUNCIATION', bg: '#f1e9f7', text: '#5b3c86', accent: '#6a4c93' },
-            speaking: { label: 'SPEAKING', bg: '#fff3e6', text: '#c4681a', accent: '#f5a524' },
-            listening: { label: 'LISTENING', bg: '#e8f7f6', text: '#1b7d73', accent: '#2a9d8f' },
-            quizzes: { label: 'QUIZ', bg: '#ffebee', text: '#c62828', accent: '#ef9a9a' },
-            default: { label: 'ACTIVITY', bg: '#ede7f6', text: '#4527a0', accent: '#b39ddb' },
+            vocab: { label: 'VOCAB', bg: '#1e293b', text: '#60a5fa', accent: '#3b82f6' },
+            vocabulary: { label: 'VOCAB', bg: '#1e293b', text: '#60a5fa', accent: '#3b82f6' },
+            grammar: { label: 'GRAMMAR', bg: '#064e3b', text: '#34d399', accent: '#10b981' },
+            numbers: { label: 'NUMBERS', bg: '#0c4a6e', text: '#38bdf8', accent: '#0ea5e9' },
+            number: { label: 'NUMBERS', bg: '#0c4a6e', text: '#38bdf8', accent: '#0ea5e9' },
+            reading: { label: 'READING', bg: '#134e4a', text: '#2dd4bf', accent: '#14b8a6' },
+            writing: { label: 'WRITING', bg: '#14532d', text: '#4ade80', accent: '#22c55e' },
+            pronunciation: { label: 'PRONUNCIATION', bg: '#4c1d95', text: '#a78bfa', accent: '#8b5cf6' },
+            speaking: { label: 'SPEAKING', bg: '#78350f', text: '#fbbf24', accent: '#f59e0b' },
+            listening: { label: 'LISTENING', bg: '#164e63', text: '#22d3ee', accent: '#06b6d4' },
+            quizzes: { label: 'QUIZ', bg: '#7f1d1d', text: '#f87171', accent: '#ef4444' },
+            personal: { label: 'PERSONAL', bg: '#701a75', text: '#f472b6', accent: '#ec4899' },
+            spanish: { label: 'SPANISH', bg: '#701a75', text: '#f472b6', accent: '#ec4899' },
+            coding: { label: 'CODING', bg: '#0c4a6e', text: '#38bdf8', accent: '#0ea5e9' },
+            default: { label: 'ACTIVITY', bg: '#1e1b4b', text: '#818cf8', accent: '#6366f1' },
         };
         return categoryStyles[categoryKey] || categoryStyles.default;
     };
 
     const isGameCategory = (category?: string | null): boolean => {
         const key = (category || '').toLowerCase();
-        return !['quiz', 'quizzes', 'grammar', 'vocab', 'vocabulary'].includes(key);
+        return !['quiz', 'quizzes', 'grammar', 'vocab', 'vocabulary', 'personal'].includes(key);
     };
 
     const withHexAlpha = (hex: string, alphaHex: string): string => {
@@ -259,6 +262,7 @@ export const TodaysAssignments: React.FC<Props> = ({
             if (key === 'quiz' || key === 'quizzes') return 0;
             if (key === 'grammar') return 2;
             if (key === 'vocab' || key === 'vocabulary') return 3;
+            if (key === 'personal') return 4;
             return 1; // Activity (default) and everything else
         };
 
@@ -299,21 +303,56 @@ export const TodaysAssignments: React.FC<Props> = ({
         const percent = checklistRows.length ? Math.round((completedCount / checklistRows.length) * 100) : 0;
         const isFullyComplete = percent === 100;
 
-        // Group sorted rows by category - using Lucide icons instead of emojis
         const CHECKLIST_GROUPS: Array<{
             key: string;
             label: string;
             icon: React.ReactNode;
-            match: (c: string) => boolean;
+            match: (category: string, title: string) => boolean;
         }> = [
-            { key: 'grammar', label: 'Grammar', icon: <PenLine className="w-5 h-5" />, match: (c: string) => c === 'grammar' },
-            { key: 'activity', label: 'Games', icon: <Gamepad2 className="w-5 h-5" />, match: (c: string) => !['quiz','quizzes','grammar','vocab','vocabulary'].includes(c) },
-            { key: 'vocabulary', label: 'Vocabulary', icon: <BookOpen className="w-5 h-5" />, match: (c: string) => c === 'vocab' || c === 'vocabulary' },
-            { key: 'quizzes', label: 'Quizzes', icon: <ClipboardList className="w-5 h-5" />, match: (c: string) => c === 'quiz' || c === 'quizzes' },
+            { 
+                key: 'spanish', 
+                label: 'Spanish', 
+                icon: <span className="text-xl">🇪🇸</span>, 
+                match: (c, t) => c === 'spanish' || c === 'personal' && t.toLowerCase().includes('spanish') 
+            },
+            { 
+                key: 'coding', 
+                label: 'Coding', 
+                icon: <Gamepad2 className="w-5 h-5" />, 
+                match: (c, t) => c === 'coding' || c === 'personal' && (t.toLowerCase().includes('js') || t.toLowerCase().includes('ts') || t.toLowerCase().includes('coding')) 
+            },
+            { 
+                key: 'grammar', 
+                label: 'Grammar', 
+                icon: <PenLine className="w-5 h-5" />, 
+                match: (c) => c === 'grammar' 
+            },
+            { 
+                key: 'vocabulary', 
+                label: 'Vocabulary', 
+                icon: <BookOpen className="w-5 h-5" />, 
+                match: (c) => c === 'vocab' || c === 'vocabulary' 
+            },
+            { 
+                key: 'quizzes', 
+                label: 'Quizzes', 
+                icon: <ClipboardList className="w-5 h-5" />, 
+                match: (c) => c === 'quiz' || c === 'quizzes' 
+            },
+            { 
+                key: 'activity', 
+                label: 'Games', 
+                icon: <Sparkles className="w-5 h-5" />, 
+                match: (c) => !['quiz','quizzes','grammar','vocab','vocabulary', 'personal', 'spanish', 'coding'].includes(c) 
+            },
         ];
 
         const groups = CHECKLIST_GROUPS.map(group => {
-            const items = sortedRows.filter(r => group.match((r.assignment.activity.category || '').toLowerCase()));
+            const items = sortedRows.filter(r => {
+                const cat = (r.assignment.activity.category || '').toLowerCase();
+                const title = (r.assignment.title || r.assignment.activity.title || '').toLowerCase();
+                return group.match(cat, title);
+            });
             const doneInGroup = items.filter(r => r.isCompleted).length;
             const isGameGroup = group.key === 'activity';
             return { ...group, items, doneInGroup, allDone: !isGameGroup && items.length > 0 && doneInGroup === items.length, isGameGroup };
@@ -326,7 +365,7 @@ export const TodaysAssignments: React.FC<Props> = ({
             isGameGroup = false,
             categoryStyle: { text: string; accent: string }
         ) => (
-            <div key={assignment.id} className="relative group/row pl-3 pr-2 py-3 sm:px-4 flex items-center gap-3 transition-all duration-200 hover:bg-white/60 border-b border-border/10 last:border-0">
+            <div key={assignment.id} className="relative group/row pl-3 pr-2 py-3 sm:px-4 flex items-center gap-3 transition-all duration-200 hover:bg-bg-secondary/60 border-b border-border/10 last:border-0">
 
                 {/* Checkbox (or Game Icon placeholder) */}
                 <div className="shrink-0 pt-0.5 self-start sm:self-center">
@@ -338,7 +377,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                         <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
                             isCompleted
                                 ? 'bg-secondary/10 border-secondary/20 text-secondary'
-                                : 'bg-white border-border/40 text-transparent'
+                                : 'bg-bg-secondary/90 border-border/40 text-transparent'
                         }`}>
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                         </div>
@@ -364,9 +403,9 @@ export const TodaysAssignments: React.FC<Props> = ({
 
                         {isNew && (
                             <span className={`${featuredNewBadgeClassName} px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide`}>
-                                <Sparkles className="h-2.5 w-2.5 text-amber-600 animate-pulse" aria-hidden />
+                                <Sparkles className="h-2.5 w-2.5 text-primary animate-pulse" aria-hidden />
                                 New!
-                                <Sparkles className="h-2.5 w-2.5 text-yellow-500 animate-pulse [animation-delay:180ms]" aria-hidden />
+                                <Sparkles className="h-2.5 w-2.5 text-primary animate-pulse [animation-delay:180ms]" aria-hidden />
                             </span>
                         )}
 
@@ -391,12 +430,12 @@ export const TodaysAssignments: React.FC<Props> = ({
                         if (vocabProgress && vocabProgress.completed < vocabProgress.total) {
                             return (
                                 <div className="flex items-center gap-2 mt-1.5">
-                                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60 shadow-sm">
+                                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-primary/10 text-primary border border-primary/30 shadow-sm">
                                         <span className="tracking-tight">{vocabProgress.completed} / {vocabProgress.total}</span>
                                         <div className="flex items-center gap-1">
                                             {vocabProgress.types.map(type => {
                                                 const isComplete = vocabProgress.categoryData[type]?.completed;
-                                                return <div key={type} className={`w-1.5 h-1.5 rounded-full ${isComplete ? 'bg-amber-600' : 'bg-amber-200'}`} />;
+                                                return <div key={type} className={`w-1.5 h-1.5 rounded-full ${isComplete ? 'bg-primary' : 'bg-primary/20'}`} />;
                                             })}
                                         </div>
                                     </div>
@@ -467,7 +506,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                             <div className="flex items-center gap-2 text-xs font-bold text-text/70">
                                 {actions && <div className="mr-2">{actions}</div>}
                                 <span className="hidden sm:inline-block px-2 py-1 rounded-md bg-bg-light border border-border/50">{completedCount}/{checklistRows.length} done</span>
-                                <span className={`px-2 py-1 rounded-md border ${isFullyComplete ? 'bg-accent/10 border-accent/30 text-amber-700' : 'bg-bg-light border-border/50'}`}>{percent}%</span>
+                                <span className={`px-2 py-1 rounded-md border ${isFullyComplete ? 'bg-accent/10 border-accent/30 text-primary' : 'bg-bg-light border-border/50'}`}>{percent}%</span>
                             </div>
                         </div>
                         <div className="w-full bg-bg-light rounded-full h-2 overflow-hidden">
@@ -485,14 +524,14 @@ export const TodaysAssignments: React.FC<Props> = ({
                                 return (
                                     <div
                                         key={group.key}
-                                        className="checklist-group bg-white rounded-xl border border-border/30 overflow-hidden shadow-sm"
+                                        className="checklist-group bg-bg-secondary/90 rounded-xl border border-border/30 overflow-hidden shadow-sm"
                                         style={{ animationDelay: `${groupIdx * 100}ms` }}
                                     >
                                         <div
                                             className="w-full px-3 py-2.5 border-b border-border/15 flex items-center justify-between"
                                             style={{
                                                 borderLeft: `4px solid ${groupStyle.accent}`,
-                                                background: `linear-gradient(90deg, ${bannerStart} 0%, ${bannerEnd} 68%, #ffffff 100%)`,
+                                                background: `linear-gradient(90deg, ${bannerStart} 0%, ${bannerEnd} 100%)`,
                                             }}
                                         >
                                             <div className="flex items-center gap-2">
@@ -504,7 +543,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                                                 >
                                                     {group.label}
                                                 </Link>
-                                                <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-white/70 border border-white/80" style={{ color: groupStyle.text }}>
+                                                <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-bg-secondary/70 border border-white/80" style={{ color: groupStyle.text }}>
                                                     {group.isGameGroup ? `${group.items.length}` : `${group.doneInGroup}/${group.items.length}`}
                                                 </span>
                                             </div>
@@ -530,7 +569,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                 <span className="w-1 h-6 rounded-full bg-primary"></span>
                 {title}
             </h2>
-            <div className="bg-gradient-to-br from-orange-50/40 via-amber-50/30 to-yellow-50/20 rounded-2xl p-5 border border-orange-100/50 shadow-sm">
+            <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-secondary/20 rounded-2xl p-5 border border-primary/20 shadow-sm">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                     {assignments.map((assignment, index) => {
                     const submission = assignment.submissions[0];
@@ -543,7 +582,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                     return (
                         <div
                             key={assignment.id}
-                            className="relative bg-white rounded-xl border border-border/20 hover:border-border/40 shadow-sm hover:shadow-md transition-[border-color,box-shadow] duration-200 overflow-hidden group"
+                            className="relative bg-bg-secondary/90 rounded-xl border border-border/20 hover:border-border/40 shadow-sm hover:shadow-md transition-[border-color,box-shadow] duration-200 overflow-hidden group"
                             style={{
                                 animationDelay: `${index * 80}ms`
                             }}
@@ -571,9 +610,9 @@ export const TodaysAssignments: React.FC<Props> = ({
 
                                         {isNew && (
                                             <span className={`${featuredNewBadgeClassName} px-2 py-0.5 text-[10px] font-black uppercase tracking-wide`}>
-                                                <Sparkles className="h-2.5 w-2.5 text-amber-600 animate-pulse" aria-hidden />
+                                                <Sparkles className="h-2.5 w-2.5 text-primary animate-pulse" aria-hidden />
                                                 New!
-                                                <Sparkles className="h-2.5 w-2.5 text-yellow-500 animate-pulse [animation-delay:180ms]" aria-hidden />
+                                                <Sparkles className="h-2.5 w-2.5 text-primary animate-pulse [animation-delay:180ms]" aria-hidden />
                                             </span>
                                         )}
 

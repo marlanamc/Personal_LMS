@@ -77,15 +77,19 @@ export const StreakCalendar: React.FC<StreakCalendarProps> = ({
   const getColorClass = (level: number): string => {
     switch (level) {
       case 0:
-        return 'bg-gray-100 border border-gray-200';
+        // Empty days: very subtle mint with minimal opacity
+        return 'bg-secondary/5 border border-secondary/10';
       case 1:
-        return 'bg-primary/20 border border-primary/30';
+        // Low activity: light mint glow
+        return 'bg-secondary/15 border border-secondary/30 shadow-sm';
       case 2:
-        return 'bg-primary/50 border border-primary/60';
+        // Medium activity: stronger mint glow
+        return 'bg-secondary/35 border border-secondary/50 shadow-[0_0_12px_rgba(137,212,207,0.3)]';
       case 3:
-        return 'bg-primary border border-primary';
+        // High activity: intense mint glow with full opacity
+        return 'bg-secondary/70 border border-secondary/80 shadow-[0_0_20px_rgba(137,212,207,0.5)] animate-glow-pulse';
       default:
-        return 'bg-gray-100 border border-gray-200';
+        return 'bg-secondary/5 border border-secondary/10';
     }
   };
 
@@ -145,11 +149,11 @@ export const StreakCalendar: React.FC<StreakCalendarProps> = ({
                       <div
                         key={dayIndex}
                         className={`
-                          w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 rounded-sm transition-[background-color,opacity] duration-200
+                          w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 rounded-sm transition-all duration-300
                           ${getColorClass(level)}
-                          ${isToday ? 'ring-2 ring-primary ring-offset-1' : ''}
-                          hover:ring-2 hover:ring-gray-400 hover:ring-offset-1
-                          cursor-pointer
+                          ${isToday ? 'ring-2 ring-primary ring-offset-1 shadow-[0_0_12px_rgba(255,107,157,0.5)]' : ''}
+                          hover:scale-110 hover:shadow-[0_0_15px_rgba(137,212,207,0.6)] hover:ring-1 hover:ring-secondary
+                          cursor-pointer active:scale-95
                         `}
                         title={`${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}: ${activityCount} ${activityCount === 1 ? 'activity' : 'activities'}`}
                       />
@@ -164,16 +168,17 @@ export const StreakCalendar: React.FC<StreakCalendarProps> = ({
 
       {/* Legend */}
       <div className="flex items-center gap-2 md:gap-3 mt-4 md:mt-6 text-xs md:text-sm text-text-muted">
-        <span>Less</span>
+        <span className="text-text-tertiary">Less</span>
         <div className="flex gap-1 md:gap-1.5">
           {[0, 1, 2, 3].map(level => (
             <div
               key={level}
-              className={`w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-sm ${getColorClass(level)}`}
+              className={`w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-sm transition-shadow duration-300 ${getColorClass(level)}`}
+              title={['No activity', 'Low activity', 'Medium activity', 'High activity'][level]}
             />
           ))}
         </div>
-        <span>More</span>
+        <span className="text-text-tertiary">More</span>
       </div>
     </div>
   );

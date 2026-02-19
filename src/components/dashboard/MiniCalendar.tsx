@@ -71,7 +71,7 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
     });
 
     return (
-        <div className="bg-white p-5 rounded-xl shadow-sm border border-border/60 w-72 backdrop-blur-sm">
+        <div className="bg-bg-secondary/90 p-5 rounded-xl shadow-sm border border-border/60 w-72 backdrop-blur-sm">
             <div className="flex flex-col items-center gap-2 mb-3">
                 <h3 className="text-sm font-bold text-primary font-display text-center">
                     {monthNames[viewMonth]} {viewYear}

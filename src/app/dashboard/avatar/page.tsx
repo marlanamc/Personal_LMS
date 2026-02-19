@@ -97,7 +97,7 @@ export default function AvatarPage() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-bg to-bg-light">
             {/* Premium Header */}
-            <div className="sticky top-0 z-10 backdrop-blur-md bg-white/80 border-b border-border/50">
+            <div className="sticky top-0 z-10 backdrop-blur-md bg-bg-secondary/80 border-b border-border/50">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center justify-between">
                         <BackButton onClick={() => router.back()}>
@@ -163,7 +163,7 @@ export default function AvatarPage() {
                                 "
                             >
                                 {/* Shine effect */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-bg-secondary/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                                 
                                 <span className="relative flex items-center gap-2">
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,12 +183,12 @@ export default function AvatarPage() {
             </div>
 
             {/* Bottom Navigation */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-border/30 md:hidden">
+            <div className="fixed bottom-0 left-0 right-0 bg-bg-secondary/95 backdrop-blur-sm border-t border-border/30 md:hidden">
                 <BottomNav
                     items={[
                         { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
                         { href: "/dashboard/activities", label: "Activities", icon: <BookOpenIcon /> },
-                        { href: "/dashboard/leaderboard", label: "Leaderboard", icon: <TrophyIcon /> },
+                        { href: "/grammar-map", label: "Map", icon: <TrophyIcon /> },
                         { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
                     ]}
                 />

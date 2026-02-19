@@ -76,7 +76,7 @@ export default function PWAInstallPrompt() {
         <div className="flex items-start gap-4">
           <div className="flex-1">
             <h3 className="font-display font-bold text-lg text-text mb-1">
-              Install Class Companion
+              Install Marlie LMS
             </h3>
             <p className="text-sm text-text-muted mb-4">
               Add to your home screen for quick access and offline use.
@@ -110,5 +110,4 @@ export default function PWAInstallPrompt() {
     </div>
   );
 }
-
 
