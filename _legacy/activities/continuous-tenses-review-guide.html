@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Continuous Tenses Review Guide | ESOL Teacher Resources</title>
+  <meta name="description" content="Comprehensive review guide mixing Present, Past, and Future Continuous tenses with practice exercises for intermediate learners.">
+  <meta name="activity-type" content="guide">
+  <meta name="activity-level" content="intermediate">
+  <meta name="activity-category" content="grammar">
+  <link rel="stylesheet" href="../../../assets/css/main.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .grammar-guide {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .step-section {
+      background: white;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-xl);
+      margin: var(--spacing-2xl) 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .step-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid #8b5cf6;
+    }
+    
+    .step-title {
+      color: #1e293b;
+      font-size: var(--font-size-xl);
+      margin: 0;
+    }
+    
+    .tense-card {
+      background: white;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-md) 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .tense-card.present {
+      border-left: 4px solid #6366f1;
+    }
+    
+    .tense-card.past {
+      border-left: 4px solid #f97316;
+    }
+    
+    .tense-card.future {
+      border-left: 4px solid #06b6d4;
+    }
+    
+    .tense-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .tense-name {
+      font-size: var(--font-size-xl);
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .tense-name.present {
+      color: #6366f1;
+    }
+    
+    .tense-name.past {
+      color: #f97316;
+    }
+    
+    .tense-name.future {
+      color: #06b6d4;
+    }
+    
+    .formula-box {
+      background: var(--color-bg-light);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+      text-align: center;
+    }
+    
+    .formula-part {
+      display: inline-block;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      margin: 2px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      border: 1px solid var(--color-border);
+    }
+    
+    .subject-part {
+      background: rgba(139, 92, 246, 0.1);
+      color: #1e293b;
+    }
+    
+    .verb-part {
+      background: rgba(236, 72, 153, 0.1);
+      color: #ec4899;
+    }
+    
+    .example-box {
+      background: var(--color-bg-light);
+      padding: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+    }
+    
+    .example-box .example {
+      margin: var(--spacing-xs) 0;
+      padding: var(--spacing-xs);
+    }
+    
+    .exercise-section {
+      background: var(--color-bg-light);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+    }
+    
+    .exercise-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      color: #1e293b;
+      margin-bottom: var(--spacing-md);
+      font-size: var(--font-size-lg);
+    }
+    
+    .exercise-instructions {
+      color: var(--color-text-muted);
+      margin-bottom: var(--spacing-md);
+      font-style: italic;
+    }
+    
+    .exercise-item {
+      margin: var(--spacing-md) 0;
+      padding: var(--spacing-md);
+      background: white;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+    }
+    
+    .exercise-item label {
+      display: block;
+      margin-bottom: var(--spacing-xs);
+      font-weight: 500;
+    }
+    
+    .exercise-item input[type="text"],
+    .exercise-item select {
+      width: 100%;
+      padding: var(--spacing-sm);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-base);
+      font-family: inherit;
+    }
+    
+    .exercise-item input[type="text"]:focus,
+    .exercise-item select:focus {
+      outline: none;
+      border-color: #1e293b;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+    
+    .exercise-item input[type="text"].question-input {
+      width: auto;
+      min-width: 80px;
+      max-width: 150px;
+      display: inline-block;
+    }
+    
+    .exercise-item input[type="radio"] {
+      margin-right: var(--spacing-sm);
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      accent-color: #1e293b;
+    }
+    
+    .exercise-item label {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: var(--spacing-xs);
+      border-radius: var(--radius-sm);
+      transition: background-color 0.2s;
+    }
+    
+    .exercise-item label:hover {
+      background-color: rgba(139, 92, 246, 0.05);
+    }
+    
+    .exercise-item label:has(input[type="radio"]:checked) {
+      background-color: rgba(139, 92, 246, 0.1);
+    }
+    
+    .fill-blank-sentence {
+      display: flex;
+      align-items: baseline;
+      gap: var(--spacing-xs);
+      margin: 0;
+      font-weight: 500;
+      flex-wrap: wrap;
+    }
+    
+    .fill-blank-sentence .number {
+      min-width: 1.75rem;
+      font-weight: 600;
+    }
+    
+    .fill-blank-clause {
+      display: flex;
+      align-items: baseline;
+      gap: var(--spacing-xs);
+      flex-wrap: nowrap;
+      white-space: nowrap;
+    }
+    
+    .fill-blank-input {
+      width: 110px;
+      max-width: 40vw;
+      display: inline-block;
+    }
+    
+    .fill-blank-text {
+      flex: 1 1 auto;
+    }
+    
+    .check-button {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+      color: white;
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-base);
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: var(--spacing-md);
+    }
+    
+    .check-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+    
+    .check-button:active {
+      transform: translateY(0);
+    }
+    
+    .feedback {
+      margin-top: var(--spacing-md);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      display: none;
+    }
+    
+    .feedback.correct {
+      background: rgba(16, 185, 129, 0.1);
+      border: 2px solid #10b981;
+      color: #059669;
+    }
+    
+    .feedback.incorrect {
+      background: rgba(239, 68, 68, 0.1);
+      border: 2px solid #ef4444;
+      color: #dc2626;
+    }
+    
+    .highlight {
+      background: rgba(139, 92, 246, 0.2);
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    
+    .tip-box {
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+    
+    .tip-box strong {
+      color: #f59e0b;
+    }
+    
+    .warning-box {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+    
+    .warning-box strong {
+      color: #dc2626;
+    }
+    
+    .time-expression-hint {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      font-style: italic;
+      margin-top: var(--spacing-xs);
+    }
+    
+    .print-button {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+      color: white;
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .print-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+    
+    .print-header {
+      display: none;
+    }
+    
+    @media print {
+      @page {
+        margin: 0.4in 0.5in;
+      }
+      
+      * {
+        box-sizing: border-box;
+      }
+      
+      body {
+        background: white;
+        color: black;
+        font-size: 10pt;
+        line-height: 1.3;
+      }
+      
+      .site-header,
+      .breadcrumbs,
+      .check-button,
+      .theme-toggle,
+      .mobile-menu-toggle,
+      .nav,
+      footer,
+      .print-button,
+      i[data-lucide] {
+        display: none !important;
+      }
+      
+      .print-header {
+        display: block;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #000;
+      }
+      
+      .print-header .name-line {
+        font-size: 11pt;
+        margin-bottom: 4px;
+      }
+      
+      .print-header .blank-line {
+        border-bottom: 1px solid #000;
+        display: inline-block;
+        min-width: 250px;
+        margin-left: 4px;
+        height: 14px;
+      }
+      
+      .print-header .date-line {
+        font-size: 10pt;
+        margin-top: 4px;
+      }
+      
+      .activity-header {
+        margin-bottom: 8px;
+      }
+      
+      .activity-title {
+        font-size: 16pt;
+        color: #000;
+        margin-bottom: 4px;
+      }
+      
+      .activity-meta {
+        display: none;
+      }
+      
+      .step-section {
+        border: 1px solid #ccc;
+        margin: 8px 0;
+        padding: 8px;
+        background: white;
+        box-shadow: none;
+        page-break-inside: auto;
+      }
+      
+      .tense-card {
+        border: 1px solid #ccc;
+        margin: 6px 0;
+        padding: 6px;
+      }
+      
+      .exercise-section {
+        background: white;
+        border: 1px solid #ddd;
+        padding: 6px;
+        margin: 6px 0;
+        page-break-inside: auto;
+      }
+      
+      .exercise-item {
+        margin: 3px 0;
+        padding: 2px;
+        background: white;
+        border: none;
+        font-size: 9pt;
+      }
+      
+      .exercise-item input[type="text"],
+      .exercise-item select {
+        border: none;
+        border-bottom: 1px solid #000;
+        background: transparent;
+        padding: 2px 0;
+        width: 100%;
+        font-size: 9pt;
+      }
+      
+      .exercise-item input[type="radio"] {
+        margin-right: 4px;
+        width: 12px;
+        height: 12px;
+      }
+      
+      .feedback {
+        display: none !important;
+      }
+      
+      .tip-box,
+      .warning-box {
+        background: #fff9e6;
+        border: 1px solid #ddd;
+        padding: 4px;
+        margin: 4px 0;
+        font-size: 8pt;
+      }
+      
+      h1, h2, h3, h4 {
+        margin: 4px 0;
+        page-break-after: avoid;
+      }
+      
+      p {
+        margin: 3px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-content">
+        <a href="../../../index.html" class="site-logo">ESOL Teacher Resources</a>
+        <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <button class="theme-toggle" aria-label="Toggle dark mode" type="button">
+            <i data-lucide="moon" class="icon"></i>
+          </button>
+          <button class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false" type="button">
+            <i data-lucide="menu" class="icon"></i>
+          </button>
+        </div>
+        <nav class="nav">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="../index.html" class="nav-link">GRAMMAR</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../writing-reading/index.html" class="nav-link">WRITING/READING</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../speaking/index.html" class="nav-link">SPEAKING</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../vocab/index.html" class="nav-link">VOCAB</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <div class="breadcrumbs">
+          <a href="../../../index.html">Home</a>
+          <span class="breadcrumbs-separator">/</span>
+          <a href="../index.html">Grammar</a>
+          <span class="breadcrumbs-separator">/</span>
+          <a href="../index.html#verb-tenses">Verb Tenses</a>
+          <span class="breadcrumbs-separator">/</span>
+          <span>Continuous Tenses Review</span>
+        </div>
+
+        <div class="activity-header">
+          <h1 class="activity-title">Continuous Tenses Review Guide</h1>
+          <div class="activity-meta">
+            <span class="activity-badge badge-guide">Review Guide</span>
+            <span class="activity-level">Intermediate</span>
+          </div>
+          <button class="print-button" onclick="window.print()">
+            <i data-lucide="printer" style="width: 18px; height: 18px;"></i>
+            Print Worksheet
+          </button>
+        </div>
+
+        <!-- Print Header (only visible when printing) -->
+        <div class="print-header">
+          <div class="name-line">
+            <strong>Name:</strong> <span class="blank-line"></span>
+          </div>
+          <div class="date-line">
+            <strong>Date:</strong> <span class="blank-line"></span>
+          </div>
+        </div>
+
+        <div class="grammar-guide">
+          
+          <!-- Introduction -->
+          <div class="step-section" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%); border-color: #1e293b;">
+            <h2 style="color: #1e293b; margin-top: 0;">
+              <i data-lucide="book-open" style="width: 20px; height: 20px; display: inline-block; vertical-align: middle;"></i>
+              Welcome to Continuous Tenses Review!
+            </h2>
+            <p>This guide will help you review and practice all three Continuous Tenses: <strong>Present Continuous</strong>, <strong>Past Continuous</strong>, and <strong>Future Continuous</strong>. The exercises mix all three tenses together to test your understanding!</p>
+            <p><strong>What you'll practice:</strong></p>
+            <ul style="margin: var(--spacing-sm) 0; padding-left: var(--spacing-lg);">
+              <li>✅ Choosing the correct continuous tense based on time expressions</li>
+              <li>✅ Forming positive, negative, and question sentences</li>
+              <li>✅ Understanding when to use continuous vs simple tenses</li>
+              <li>✅ Avoiding common mistakes (like using continuous with state verbs)</li>
+              <li>✅ Mixed exercises with all three continuous tenses</li>
+            </ul>
+          </div>
+
+          <!-- COMMON CONFUSIONS SECTION -->
+          <div class="step-section" style="background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.3);">
+            <div class="step-header">
+              <h2 class="step-title" style="color: #dc2626;">⚠️ Common Confusions to Avoid</h2>
+            </div>
+            
+            <div class="warning-box">
+              <strong>❌ Don't Use Continuous with State Verbs!</strong>
+              <p style="margin: var(--spacing-xs) 0 0 0;">State verbs describe <strong>states, feelings, thoughts, and senses</strong> - they are NOT actions. You CANNOT use continuous forms with them!</p>
+              <p style="margin: var(--spacing-xs) 0 0 0;"><strong>Common state verbs:</strong> like, love, hate, want, need, know, understand, believe, remember, forget, see, hear, smell, taste, feel (emotion), be, have (possess), own, belong</p>
+              <p style="margin: var(--spacing-xs) 0 0 0;"><strong>❌ Wrong:</strong> "I am liking pizza" | "She is knowing the answer" | "They are wanting coffee"</p>
+              <p style="margin: var(--spacing-xs) 0 0 0;"><strong>✅ Correct:</strong> "I like pizza" | "She knows the answer" | "They want coffee"</p>
+            </div>
+
+            <div class="tip-box">
+              <strong>💡 Continuous vs Simple Tenses:</strong>
+              <ul style="margin: var(--spacing-xs) 0; padding-left: var(--spacing-lg);">
+                <li><strong>Continuous:</strong> Actions happening NOW, temporarily, or at a specific time → "I am studying" (right now)</li>
+                <li><strong>Simple:</strong> Habits, routines, facts, permanent situations → "I study every day" (habit)</li>
+                <li><strong>Remember:</strong> Continuous = temporary/in progress | Simple = permanent/habitual</li>
+              </ul>
+            </div>
+
+            <div class="tip-box">
+              <strong>💡 Present Continuous for Future:</strong>
+              <p style="margin: var(--spacing-xs) 0 0 0;">Present Continuous can be used for <strong>planned future arrangements</strong> (like appointments or scheduled events).</p>
+              <p style="margin: var(--spacing-xs) 0 0 0;"><strong>Example:</strong> "I'm meeting John tomorrow" (we have a plan/arrangement)</p>
+              <p style="margin: var(--spacing-xs) 0 0 0;">This is different from Future Continuous, which describes what <strong>will be happening</strong> at a specific future time.</p>
+            </div>
+
+            <div class="tip-box">
+              <strong>💡 Past Continuous + Past Simple:</strong>
+              <p style="margin: var(--spacing-xs) 0 0 0;">When one action interrupts another, use <strong>Past Continuous</strong> for the longer action and <strong>Past Simple</strong> for the interruption.</p>
+              <p style="margin: var(--spacing-xs) 0 0 0;"><strong>Example:</strong> "I was studying when the phone rang." (studying = longer action, rang = interruption)</p>
+            </div>
+          </div>
+
+          <!-- QUICK REFERENCE SECTION -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Quick Reference: The Three Continuous Tenses</h2>
+            </div>
+
+            <!-- Present Continuous Card -->
+            <div class="tense-card present">
+              <div class="tense-header">
+                <h3 class="tense-name present">Present Continuous</h3>
+              </div>
+              <p><strong>When to use:</strong> Actions happening now, temporary situations, future arrangements</p>
+              <div class="formula-box">
+                <div style="margin-bottom: var(--spacing-xs);">
+                  <span class="formula-part subject-part">Subject</span>
+                  <span style="margin: 0 var(--spacing-xs);">+</span>
+                  <span class="formula-part verb-part">am/is/are</span>
+                  <span style="margin: 0 var(--spacing-xs);">+</span>
+                  <span class="formula-part verb-part">verb-ing</span>
+                </div>
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                  I: am | He/She/It: is | You/We/They: are
+                </div>
+              </div>
+              <div class="example-box">
+                <strong>Examples:</strong>
+                <div class="example">I <span class="highlight">am studying</span> right now.</div>
+                <div class="example">She <span class="highlight">is working</span> at the moment.</div>
+                <div class="example">They <span class="highlight">aren't sleeping</span> now.</div>
+                <div class="example"><span class="highlight">Are</span> you <span class="highlight">coming</span> to the party tomorrow? (future arrangement)</div>
+              </div>
+              <p style="margin-top: var(--spacing-sm);"><strong>Time expressions:</strong> now, right now, at the moment, currently, today, this week, tonight, tomorrow (arrangements)</p>
+            </div>
+
+            <!-- Past Continuous Card -->
+            <div class="tense-card past">
+              <div class="tense-header">
+                <h3 class="tense-name past">Past Continuous</h3>
+              </div>
+              <p><strong>When to use:</strong> Actions in progress at a specific time in the past, interrupted actions, parallel actions</p>
+              <div class="formula-box">
+                <div style="margin-bottom: var(--spacing-xs);">
+                  <span class="formula-part subject-part">Subject</span>
+                  <span style="margin: 0 var(--spacing-xs);">+</span>
+                  <span class="formula-part verb-part">was/were</span>
+                  <span style="margin: 0 var(--spacing-xs);">+</span>
+                  <span class="formula-part verb-part">verb-ing</span>
+                </div>
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                  I/He/She/It: was | You/We/They: were
+                </div>
+              </div>
+              <div class="example-box">
+                <strong>Examples:</strong>
+                <div class="example">I <span class="highlight">was studying</span> at 3 PM yesterday.</div>
+                <div class="example">She <span class="highlight">was working</span> when I called.</div>
+                <div class="example">They <span class="highlight">weren't sleeping</span> at midnight.</div>
+                <div class="example"><span class="highlight">Were</span> you <span class="highlight">watching</span> TV when I arrived?</div>
+              </div>
+              <p style="margin-top: var(--spacing-sm);"><strong>Time expressions:</strong> at 3 PM yesterday, while, when, during, at that time, all morning/afternoon</p>
+            </div>
+
+            <!-- Future Continuous Card -->
+            <div class="tense-card future">
+              <div class="tense-header">
+                <h3 class="tense-name future">Future Continuous</h3>
+              </div>
+              <p><strong>When to use:</strong> Actions that will be in progress at a specific future time</p>
+              <div class="formula-box">
+                <div style="margin-bottom: var(--spacing-xs);">
+                  <span class="formula-part subject-part">Subject</span>
+                  <span style="margin: 0 var(--spacing-xs);">+</span>
+                  <span class="formula-part verb-part">will be</span>
+                  <span style="margin: 0 var(--spacing-xs);">+</span>
+                  <span class="formula-part verb-part">verb-ing</span>
+                </div>
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                  All subjects use will be/won't be
+                </div>
+              </div>
+              <div class="example-box">
+                <strong>Examples:</strong>
+                <div class="example">I <span class="highlight">will be studying</span> at 3 PM tomorrow.</div>
+                <div class="example">She <span class="highlight">will be working</span> when you arrive.</div>
+                <div class="example">They <span class="highlight">won't be sleeping</span> at midnight.</div>
+                <div class="example"><span class="highlight">Will</span> you <span class="highlight">be waiting</span> for me?</div>
+              </div>
+              <p style="margin-top: var(--spacing-sm);"><strong>Time expressions:</strong> at 3 PM tomorrow, when you arrive, at that time, this time next week</p>
+            </div>
+
+            <div class="tip-box">
+              <strong>💡 Key Tip:</strong> Look at the <strong>time expressions</strong> and <strong>context</strong>! Continuous tenses show actions <strong>in progress</strong> at a specific time. Also remember: <strong>NO continuous forms with state verbs!</strong>
+            </div>
+          </div>
+
+          <!-- EXERCISE 1: Choose the Correct Tense -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Exercise 1: Choose the Correct Tense</h2>
+            </div>
+            <p class="exercise-instructions">Read each sentence and choose the correct continuous tense. Look at the time expressions and think about the meaning!</p>
+
+            <div class="exercise-section">
+              <div class="exercise-item">
+                <label>1. I _____ to my friend right now.</label>
+                <select id="ex1-1">
+                  <option value="">Choose...</option>
+                  <option value="am talking">am talking (Present Continuous)</option>
+                  <option value="was talking">was talking (Past Continuous)</option>
+                  <option value="will be talking">will be talking (Future Continuous)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "right now" = happening now</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. She _____ TV at 8 PM yesterday.</label>
+                <select id="ex1-2">
+                  <option value="">Choose...</option>
+                  <option value="is watching">is watching (Present Continuous)</option>
+                  <option value="was watching">was watching (Past Continuous)</option>
+                  <option value="will be watching">will be watching (Future Continuous)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "at 8 PM yesterday" = specific past time</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. They _____ at the airport at 3 PM tomorrow.</label>
+                <select id="ex1-3">
+                  <option value="">Choose...</option>
+                  <option value="are arriving">are arriving (Present Continuous)</option>
+                  <option value="were arriving">were arriving (Past Continuous)</option>
+                  <option value="will be arriving">will be arriving (Future Continuous)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "at 3 PM tomorrow" = specific future time</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. We _____ dinner when the phone rang.</label>
+                <select id="ex1-4">
+                  <option value="">Choose...</option>
+                  <option value="are eating">are eating (Present Continuous)</option>
+                  <option value="were eating">were eating (Past Continuous)</option>
+                  <option value="will be eating">will be eating (Future Continuous)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "when the phone rang" = interrupted action in past</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. He _____ to the meeting tomorrow at 2 PM.</label>
+                <select id="ex1-5">
+                  <option value="">Choose...</option>
+                  <option value="is going">is going (Present Continuous - future arrangement)</option>
+                  <option value="was going">was going (Past Continuous)</option>
+                  <option value="will be going">will be going (Future Continuous)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "tomorrow" = future arrangement OR what will be happening</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>6. I _____ my homework while you were watching TV.</label>
+                <select id="ex1-6">
+                  <option value="">Choose...</option>
+                  <option value="am doing">am doing (Present Continuous)</option>
+                  <option value="was doing">was doing (Past Continuous)</option>
+                  <option value="will be doing">will be doing (Future Continuous)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "while" = parallel actions in past</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>7. She _____ for her exam this time next week.</label>
+                <select id="ex1-7">
+                  <option value="">Choose...</option>
+                  <option value="is studying">is studying (Present Continuous)</option>
+                  <option value="was studying">was studying (Past Continuous)</option>
+                  <option value="will be studying">will be studying (Future Continuous)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "this time next week" = specific future time</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>8. They _____ at the moment.</label>
+                <select id="ex1-8">
+                  <option value="">Choose...</option>
+                  <option value="are working">are working (Present Continuous)</option>
+                  <option value="were working">were working (Past Continuous)</option>
+                  <option value="will be working">will be working (Future Continuous)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "at the moment" = happening now</div>
+              </div>
+
+              <button class="check-button" onclick="checkExercise1()">
+                <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                Check My Answers
+              </button>
+              <div id="feedback1" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- EXERCISE 2: Fill in the Blank (Mixed Tenses) -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Exercise 2: Fill in the Blank (Mixed Tenses)</h2>
+            </div>
+            <p class="exercise-instructions">Complete each sentence with the correct form of the verb. Pay attention to the time expressions!</p>
+
+            <div class="exercise-section">
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">1.</span>
+                  <span class="fill-blank-clause">
+                    <span>I</span>
+                    <input type="text" id="ex2-1" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">right now. (<strong>study</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">2.</span>
+                  <span class="fill-blank-clause">
+                    <span>She</span>
+                    <input type="text" id="ex2-2" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">dinner when I arrived. (<strong>cook</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">3.</span>
+                  <span class="fill-blank-clause">
+                    <span>We</span>
+                    <input type="text" id="ex2-3" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">to Paris this time next month. (<strong>travel</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">4.</span>
+                  <span class="fill-blank-clause">
+                    <span>They</span>
+                    <input type="text" id="ex2-4" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">to the teacher at the moment. (<strong>not listen</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">5.</span>
+                  <span class="fill-blank-clause">
+                    <span>He</span>
+                    <input type="text" id="ex2-5" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">when you called. (<strong>not sleep</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">6.</span>
+                  <span class="fill-blank-clause">
+                    <span>I</span>
+                    <input type="text" id="ex2-6" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">at 5 PM tomorrow. (<strong>not work</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">7.</span>
+                  <span class="fill-blank-clause">
+                    <span>She</span>
+                    <input type="text" id="ex2-7" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">her friend tomorrow. (<strong>meet</strong>) (arrangement)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">8.</span>
+                  <span class="fill-blank-clause">
+                    <span>We</span>
+                    <input type="text" id="ex2-8" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">soccer while it was raining. (<strong>play</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">9.</span>
+                  <span class="fill-blank-clause">
+                    <span>They</span>
+                    <input type="text" id="ex2-9" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">for you when you arrive. (<strong>wait</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">10.</span>
+                  <span class="fill-blank-clause">
+                    <span>He</span>
+                    <input type="text" id="ex2-10" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">a book currently. (<strong>read</strong>)</span>
+                </p>
+              </div>
+
+              <button class="check-button" onclick="checkExercise2()">
+                <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                Check My Answers
+              </button>
+              <div id="feedback2" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- EXERCISE 3: State Verbs - Correct or Incorrect -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Exercise 3: State Verbs - Correct or Incorrect?</h2>
+            </div>
+            <p class="exercise-instructions">Decide if each sentence is correct or incorrect. Remember: state verbs CANNOT use continuous forms!</p>
+
+            <div class="exercise-section">
+              <div class="exercise-item">
+                <label>1. "I am liking pizza."</label>
+                <label>
+                  <input type="radio" name="ex3-1" value="correct">
+                  Correct
+                </label>
+                <label>
+                  <input type="radio" name="ex3-1" value="incorrect">
+                  Incorrect (should be "I like pizza")
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. "She is knowing the answer."</label>
+                <label>
+                  <input type="radio" name="ex3-2" value="correct">
+                  Correct
+                </label>
+                <label>
+                  <input type="radio" name="ex3-2" value="incorrect">
+                  Incorrect (should be "She knows the answer")
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. "They are studying English."</label>
+                <label>
+                  <input type="radio" name="ex3-3" value="correct">
+                  Correct
+                </label>
+                <label>
+                  <input type="radio" name="ex3-3" value="incorrect">
+                  Incorrect
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. "He is wanting a new car."</label>
+                <label>
+                  <input type="radio" name="ex3-4" value="correct">
+                  Correct
+                </label>
+                <label>
+                  <input type="radio" name="ex3-4" value="incorrect">
+                  Incorrect (should be "He wants a new car")
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. "We are understanding the lesson."</label>
+                <label>
+                  <input type="radio" name="ex3-5" value="correct">
+                  Correct
+                </label>
+                <label>
+                  <input type="radio" name="ex3-5" value="incorrect">
+                  Incorrect (should be "We understand the lesson")
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>6. "I am reading a book."</label>
+                <label>
+                  <input type="radio" name="ex3-6" value="correct">
+                  Correct
+                </label>
+                <label>
+                  <input type="radio" name="ex3-6" value="incorrect">
+                  Incorrect
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>7. "She is having a shower." (having = taking)</label>
+                <label>
+                  <input type="radio" name="ex3-7" value="correct">
+                  Correct (having = action here)
+                </label>
+                <label>
+                  <input type="radio" name="ex3-7" value="incorrect">
+                  Incorrect
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>8. "They are believing in ghosts."</label>
+                <label>
+                  <input type="radio" name="ex3-8" value="correct">
+                  Correct
+                </label>
+                <label>
+                  <input type="radio" name="ex3-8" value="incorrect">
+                  Incorrect (should be "They believe in ghosts")
+                </label>
+              </div>
+
+              <button class="check-button" onclick="checkExercise3()">
+                <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                Check My Answers
+              </button>
+              <div id="feedback3" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- EXERCISE 4: Questions (Mixed Tenses) -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Exercise 4: Form Questions (Mixed Tenses)</h2>
+            </div>
+            <p class="exercise-instructions">Write the correct question form. Remember: Present Continuous uses am/is/are, Past Continuous uses was/were, Future Continuous uses will be!</p>
+
+            <div class="exercise-section">
+              <div class="exercise-item">
+                <label>1. <input type="text" id="ex4-1" class="question-input" placeholder="verb" autocomplete="off"> studying right now? (<strong>you</strong>, Present Continuous)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. <input type="text" id="ex4-2" class="question-input" placeholder="verb" autocomplete="off"> working when you called? (<strong>she</strong>, Past Continuous)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. <input type="text" id="ex4-3" class="question-input" placeholder="verb" autocomplete="off"> be waiting for us? (<strong>they</strong>, Future Continuous)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. <input type="text" id="ex4-4" class="question-input" placeholder="verb" autocomplete="off"> coming to the party tomorrow? (<strong>he</strong>, Present Continuous)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. <input type="text" id="ex4-5" class="question-input" placeholder="verb" autocomplete="off"> sleeping at midnight? (<strong>you</strong>, Past Continuous)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>6. <input type="text" id="ex4-6" class="question-input" placeholder="verb" autocomplete="off"> be working at 3 PM? (<strong>she</strong>, Future Continuous)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>7. <input type="text" id="ex4-7" class="question-input" placeholder="verb" autocomplete="off"> listening to music? (<strong>they</strong>, Present Continuous)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>8. <input type="text" id="ex4-8" class="question-input" placeholder="verb" autocomplete="off"> be traveling this time next year? (<strong>we</strong>, Future Continuous)</label>
+              </div>
+
+              <button class="check-button" onclick="checkExercise4()">
+                <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                Check My Answers
+              </button>
+              <div id="feedback4" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- EXERCISE 5: Complete the Sentences (Mixed Context) -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Exercise 5: Complete the Sentences (Mixed Context)</h2>
+            </div>
+            <p class="exercise-instructions">Complete each sentence with the correct continuous tense. Think carefully about the context and time!</p>
+
+            <div class="exercise-section">
+              <div class="exercise-item">
+                <label>1. Right now, I <input type="text" id="ex5-1" class="question-input" placeholder="verb" autocomplete="off"> an email. (<strong>write</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. Yesterday at 3 PM, she <input type="text" id="ex5-2" class="question-input" placeholder="verb" autocomplete="off"> for her exam. (<strong>study</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. Tomorrow at 2 PM, we <input type="text" id="ex5-3" class="question-input" placeholder="verb" autocomplete="off"> a meeting. (<strong>have</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. I <input type="text" id="ex5-4" class="question-input" placeholder="verb" autocomplete="off"> my friend tomorrow. (<strong>meet</strong>) (arrangement)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. They <input type="text" id="ex5-5" class="question-input" placeholder="verb" autocomplete="off"> soccer when it started raining. (<strong>play</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>6. This time next week, I <input type="text" id="ex5-6" class="question-input" placeholder="verb" autocomplete="off"> to Japan. (<strong>travel</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>7. He <input type="text" id="ex5-7" class="question-input" placeholder="verb" autocomplete="off"> on a project at the moment. (<strong>work</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>8. While I was cooking, my sister <input type="text" id="ex5-8" class="question-input" placeholder="verb" autocomplete="off"> the table. (<strong>set</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>9. When you arrive tomorrow, I <input type="text" id="ex5-9" class="question-input" placeholder="verb" autocomplete="off"> for you. (<strong>wait</strong>)</label>
+              </div>
+
+              <button class="check-button" onclick="checkExercise5()">
+                <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                Check My Answers
+              </button>
+              <div id="feedback5" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- EXERCISE 6: Multiple Choice - Identify the Tense -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Exercise 6: Identify the Tense</h2>
+            </div>
+            <p class="exercise-instructions">Read each sentence and identify which continuous tense it uses.</p>
+
+            <div class="exercise-section">
+              <div class="exercise-item">
+                <label>1. "I am studying right now."</label>
+                <label>
+                  <input type="radio" name="ex6-1" value="present">
+                  Present Continuous
+                </label>
+                <label>
+                  <input type="radio" name="ex6-1" value="past">
+                  Past Continuous
+                </label>
+                <label>
+                  <input type="radio" name="ex6-1" value="future">
+                  Future Continuous
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. "She was working when I called."</label>
+                <label>
+                  <input type="radio" name="ex6-2" value="present">
+                  Present Continuous
+                </label>
+                <label>
+                  <input type="radio" name="ex6-2" value="past">
+                  Past Continuous
+                </label>
+                <label>
+                  <input type="radio" name="ex6-2" value="future">
+                  Future Continuous
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. "They will be arriving at 3 PM tomorrow."</label>
+                <label>
+                  <input type="radio" name="ex6-3" value="present">
+                  Present Continuous
+                </label>
+                <label>
+                  <input type="radio" name="ex6-3" value="past">
+                  Past Continuous
+                </label>
+                <label>
+                  <input type="radio" name="ex6-3" value="future">
+                  Future Continuous
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. "We are meeting tomorrow." (arrangement)</label>
+                <label>
+                  <input type="radio" name="ex6-4" value="present">
+                  Present Continuous (for future)
+                </label>
+                <label>
+                  <input type="radio" name="ex6-4" value="past">
+                  Past Continuous
+                </label>
+                <label>
+                  <input type="radio" name="ex6-4" value="future">
+                  Future Continuous
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. "I was sleeping when the alarm went off."</label>
+                <label>
+                  <input type="radio" name="ex6-5" value="present">
+                  Present Continuous
+                </label>
+                <label>
+                  <input type="radio" name="ex6-5" value="past">
+                  Past Continuous
+                </label>
+                <label>
+                  <input type="radio" name="ex6-5" value="future">
+                  Future Continuous
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>6. "He will be working at that time."</label>
+                <label>
+                  <input type="radio" name="ex6-6" value="present">
+                  Present Continuous
+                </label>
+                <label>
+                  <input type="radio" name="ex6-6" value="past">
+                  Past Continuous
+                </label>
+                <label>
+                  <input type="radio" name="ex6-6" value="future">
+                  Future Continuous
+                </label>
+              </div>
+
+              <button class="check-button" onclick="checkExercise6()">
+                <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                Check My Answers
+              </button>
+              <div id="feedback6" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- Summary Box -->
+          <div class="step-section" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%); border-color: rgba(16, 185, 129, 0.3);">
+            <h3 style="color: #10b981; margin-top: 0;">
+              <i data-lucide="award" style="width: 20px; height: 20px; display: inline-block; vertical-align: middle;"></i>
+              Great Job! You've Completed the Review!
+            </h3>
+            <p><strong>Remember the key differences:</strong></p>
+            <ul style="margin: var(--spacing-sm) 0; padding-left: var(--spacing-lg);">
+              <li>✅ <strong>Present Continuous:</strong> Actions happening now/temporarily OR future arrangements → Look for: now, right now, at the moment, tomorrow (arrangements)</li>
+              <li>✅ <strong>Past Continuous:</strong> Actions in progress at specific past time OR interrupted actions → Look for: at 3 PM yesterday, when, while, was/were + verb-ing</li>
+              <li>✅ <strong>Future Continuous:</strong> Actions that will be in progress at specific future time → Look for: at 3 PM tomorrow, this time next week, will be + verb-ing</li>
+            </ul>
+            <div class="warning-box" style="margin-top: var(--spacing-md);">
+              <strong>⚠️ Most Important Rule:</strong> NEVER use continuous forms with state verbs (like, know, want, understand, believe, etc.)! Use simple tenses instead.
+            </div>
+            <p style="margin-top: var(--spacing-md);"><strong>Keep practicing!</strong> The more you use these tenses, the easier it becomes to choose the correct one and avoid common mistakes.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../../../assets/js/main.js"></script>
+  <script>
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+
+    // Answer keys
+    const answers = {
+      ex1: ['am talking', 'was watching', 'will be arriving', 'were eating', 'is going', 'was doing', 'will be studying', 'are working'],
+      ex2: ['am studying', 'was cooking', 'will be traveling', "aren't listening", "wasn't sleeping", "won't be working", 'is meeting', 'were playing', 'will be waiting', 'is reading'],
+      ex3: ['incorrect', 'incorrect', 'correct', 'incorrect', 'incorrect', 'correct', 'correct', 'incorrect'],
+      ex4: ['Are you', 'Was she', 'Will they', 'Is he', 'Were you', 'Will she', 'Are they', 'Will we'],
+      ex5: {
+        'ex5-1': 'am writing',
+        'ex5-2': 'was studying',
+        'ex5-3': 'will be having',
+        'ex5-4': 'am meeting',
+        'ex5-5': 'were playing',
+        'ex5-6': 'will be traveling',
+        'ex5-7': 'is working',
+        'ex5-8': 'was setting',
+        'ex5-9': 'will be waiting'
+      },
+      ex6: ['present', 'past', 'future', 'present', 'past', 'future']
+    };
+
+    function normalizeAnswer(answer) {
+      return answer.toLowerCase().trim().replace(/\s+/g, ' ').replace(/[.,!?]/g, '');
+    }
+
+    function checkExercise1() {
+      const feedback = document.getElementById('feedback1');
+      let correct = 0;
+      let total = 8;
+      
+      answers.ex1.forEach((answer, index) => {
+        const select = document.getElementById(`ex1-${index + 1}`);
+        const userAnswer = normalizeAnswer(select.value);
+        const correctAnswer = normalizeAnswer(answer);
+        
+        if (userAnswer === correctAnswer) {
+          correct++;
+          select.style.borderColor = '#10b981';
+          select.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else if (select.value) {
+          select.style.borderColor = '#ef4444';
+          select.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! Great job choosing the correct continuous tenses!`
+        : `You got ${correct} out of ${total} correct. Remember to look at the time expressions and think about the meaning!`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise2() {
+      const feedback = document.getElementById('feedback2');
+      let correct = 0;
+      let total = 10;
+      
+      answers.ex2.forEach((answer, index) => {
+        const input = document.getElementById(`ex2-${index + 1}`);
+        const userAnswer = normalizeAnswer(input.value);
+        const correctAnswer = normalizeAnswer(answer);
+        
+        if (userAnswer === correctAnswer) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! Excellent work with mixed continuous tenses!`
+        : `You got ${correct} out of ${total} correct. Keep practicing! Remember: Present Continuous (am/is/are + verb-ing), Past Continuous (was/were + verb-ing), Future Continuous (will be + verb-ing)!`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise3() {
+      const feedback = document.getElementById('feedback3');
+      let correct = 0;
+      let total = 8;
+      
+      answers.ex3.forEach((answer, index) => {
+        const questionNum = index + 1;
+        const selected = document.querySelector(`input[name="ex3-${questionNum}"]:checked`);
+        
+        if (selected && selected.value === answer) {
+          correct++;
+          const label = selected.closest('label');
+          if (label) {
+            label.style.color = '#10b981';
+            label.style.fontWeight = '600';
+          }
+        } else {
+          if (selected) {
+            const label = selected.closest('label');
+            if (label) {
+              label.style.color = '#ef4444';
+            }
+          }
+          const correctRadio = document.querySelector(`input[name="ex3-${questionNum}"][value="${answer}"]`);
+          if (correctRadio) {
+            const correctLabel = correctRadio.closest('label');
+            if (correctLabel) {
+              correctLabel.style.color = '#10b981';
+              correctLabel.style.fontWeight = '600';
+            }
+          }
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! You understand state verbs perfectly!`
+        : `You got ${correct} out of ${total} correct. Remember: State verbs (like, know, want, understand, believe) CANNOT use continuous forms! Use simple tenses instead.`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise4() {
+      const feedback = document.getElementById('feedback4');
+      let correct = 0;
+      let total = 8;
+      
+      answers.ex4.forEach((answer, index) => {
+        const input = document.getElementById(`ex4-${index + 1}`);
+        const userAnswer = normalizeAnswer(input.value);
+        const correctAnswer = normalizeAnswer(answer);
+        
+        if (userAnswer === correctAnswer) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! Great job forming questions!`
+        : `You got ${correct} out of ${total} correct. Remember: Present Continuous uses am/is/are, Past Continuous uses was/were, Future Continuous uses will be!`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise5() {
+      const feedback = document.getElementById('feedback5');
+      let correct = 0;
+      let total = 0;
+      
+      Object.keys(answers.ex5).forEach((key) => {
+        total++;
+        const input = document.getElementById(key);
+        const userAnswer = normalizeAnswer(input.value);
+        const correctAnswer = normalizeAnswer(answers.ex5[key]);
+        
+        if (userAnswer === correctAnswer) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! Excellent understanding of all three continuous tenses!`
+        : `You got ${correct} out of ${total} correct. Keep practicing! Think about the context and time expressions.`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise6() {
+      const feedback = document.getElementById('feedback6');
+      let correct = 0;
+      let total = 6;
+      
+      answers.ex6.forEach((answer, index) => {
+        const questionNum = index + 1;
+        const selected = document.querySelector(`input[name="ex6-${questionNum}"]:checked`);
+        
+        if (selected && selected.value === answer) {
+          correct++;
+          const label = selected.closest('label');
+          if (label) {
+            label.style.color = '#10b981';
+            label.style.fontWeight = '600';
+          }
+        } else {
+          if (selected) {
+            const label = selected.closest('label');
+            if (label) {
+              label.style.color = '#ef4444';
+            }
+          }
+          const correctRadio = document.querySelector(`input[name="ex6-${questionNum}"][value="${answer}"]`);
+          if (correctRadio) {
+            const correctLabel = correctRadio.closest('label');
+            if (correctLabel) {
+              correctLabel.style.color = '#10b981';
+              correctLabel.style.fontWeight = '600';
+            }
+          }
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! You can identify continuous tenses perfectly!`
+        : `You got ${correct} out of ${total} correct. Keep practicing! Look for time expressions and verb forms (am/is/are, was/were, will be) to identify the tense.`;
+      feedback.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
+

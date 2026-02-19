@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Tenses Review Guide | ESOL Teacher Resources</title>
+  <meta name="description" content="Comprehensive review guide mixing Present, Past, and Future Simple tenses with practice exercises for intermediate learners.">
+  <meta name="activity-type" content="guide">
+  <meta name="activity-level" content="intermediate">
+  <meta name="activity-category" content="grammar">
+  <link rel="stylesheet" href="../../../assets/css/main.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .grammar-guide {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .step-section {
+      background: white;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-xl);
+      margin: var(--spacing-2xl) 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .step-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid #8b5cf6;
+    }
+    
+    .step-title {
+      color: #1e293b;
+      font-size: var(--font-size-xl);
+      margin: 0;
+    }
+    
+    .tense-card {
+      background: white;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-md) 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .tense-card.present {
+      border-left: 4px solid #6366f1;
+    }
+    
+    .tense-card.past {
+      border-left: 4px solid #f97316;
+    }
+    
+    .tense-card.future {
+      border-left: 4px solid #06b6d4;
+    }
+    
+    .tense-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .tense-name {
+      font-size: var(--font-size-xl);
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .tense-name.present {
+      color: #6366f1;
+    }
+    
+    .tense-name.past {
+      color: #f97316;
+    }
+    
+    .tense-name.future {
+      color: #06b6d4;
+    }
+    
+    .formula-box {
+      background: var(--color-bg-light);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+      text-align: center;
+    }
+    
+    .formula-part {
+      display: inline-block;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      margin: 2px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      border: 1px solid var(--color-border);
+    }
+    
+    .subject-part {
+      background: rgba(139, 92, 246, 0.1);
+      color: #1e293b;
+    }
+    
+    .verb-part {
+      background: rgba(236, 72, 153, 0.1);
+      color: #ec4899;
+    }
+    
+    .example-box {
+      background: var(--color-bg-light);
+      padding: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+    }
+    
+    .example-box .example {
+      margin: var(--spacing-xs) 0;
+      padding: var(--spacing-xs);
+    }
+    
+    .exercise-section {
+      background: var(--color-bg-light);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+    }
+    
+    .exercise-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      color: #1e293b;
+      margin-bottom: var(--spacing-md);
+      font-size: var(--font-size-lg);
+    }
+    
+    .exercise-instructions {
+      color: var(--color-text-muted);
+      margin-bottom: var(--spacing-md);
+      font-style: italic;
+    }
+    
+    .exercise-item {
+      margin: var(--spacing-md) 0;
+      padding: var(--spacing-md);
+      background: white;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+    }
+    
+    .exercise-item label {
+      display: block;
+      margin-bottom: var(--spacing-xs);
+      font-weight: 500;
+    }
+    
+    .exercise-item input[type="text"],
+    .exercise-item select {
+      width: 100%;
+      padding: var(--spacing-sm);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-base);
+      font-family: inherit;
+    }
+    
+    .exercise-item input[type="text"]:focus,
+    .exercise-item select:focus {
+      outline: none;
+      border-color: #1e293b;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+    
+    .exercise-item input[type="text"].question-input {
+      width: auto;
+      min-width: 80px;
+      max-width: 150px;
+      display: inline-block;
+    }
+    
+    .exercise-item input[type="radio"] {
+      margin-right: var(--spacing-sm);
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      accent-color: #1e293b;
+    }
+    
+    .exercise-item label.radio-option {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: var(--spacing-xs);
+      border-radius: var(--radius-sm);
+      transition: background-color 0.2s;
+    }
+    
+    .exercise-item label.radio-option:hover {
+      background-color: rgba(139, 92, 246, 0.05);
+    }
+    
+    .exercise-item label.radio-option:has(input[type="radio"]:checked) {
+      background-color: rgba(139, 92, 246, 0.1);
+    }
+    .fill-blank-sentence {
+      display: flex;
+      align-items: baseline;
+      gap: var(--spacing-xs);
+      margin: 0;
+      font-weight: 500;
+      flex-wrap: wrap;
+    }
+    
+    .fill-blank-sentence .number {
+      min-width: 1.75rem;
+      font-weight: 600;
+    }
+    
+    .fill-blank-clause {
+      display: flex;
+      align-items: baseline;
+      gap: var(--spacing-xs);
+      flex-wrap: nowrap;
+      white-space: nowrap;
+    }
+    
+    .fill-blank-input {
+      width: 110px;
+      max-width: 40vw;
+      display: inline-block;
+    }
+    
+    .fill-blank-text {
+      flex: 1 1 auto;
+    }
+    
+    .check-button {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+      color: white;
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-base);
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: var(--spacing-md);
+    }
+    
+    .check-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+    
+    .check-button:active {
+      transform: translateY(0);
+    }
+    
+    .feedback {
+      margin-top: var(--spacing-md);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      display: none;
+    }
+    
+    .feedback.correct {
+      background: rgba(16, 185, 129, 0.1);
+      border: 2px solid #10b981;
+      color: #059669;
+    }
+    
+    .feedback.incorrect {
+      background: rgba(239, 68, 68, 0.1);
+      border: 2px solid #ef4444;
+      color: #dc2626;
+    }
+    
+    .highlight {
+      background: rgba(139, 92, 246, 0.2);
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    
+    .tip-box {
+      background: rgba(255, 193, 7, 0.1);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin: var(--spacing-md) 0;
+    }
+    
+    .tip-box strong {
+      color: #f59e0b;
+    }
+    
+    .time-expression-hint {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      font-style: italic;
+      margin-top: var(--spacing-xs);
+    }
+    
+    .print-button {
+      background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+      color: white;
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .print-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+    
+    .print-header {
+      display: none;
+    }
+    
+    @media print {
+      @page {
+        margin: 0.4in 0.5in;
+      }
+      
+      * {
+        box-sizing: border-box;
+      }
+      
+      body {
+        background: white;
+        color: black;
+        font-size: 10pt;
+        line-height: 1.3;
+      }
+      
+      .site-header,
+      .breadcrumbs,
+      .check-button,
+      .theme-toggle,
+      .mobile-menu-toggle,
+      .nav,
+      footer,
+      .print-button,
+      i[data-lucide] {
+        display: none !important;
+      }
+      
+      .print-header {
+        display: block;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #000;
+      }
+      
+      .print-header .name-line {
+        font-size: 11pt;
+        margin-bottom: 4px;
+      }
+      
+      .print-header .blank-line {
+        border-bottom: 1px solid #000;
+        display: inline-block;
+        min-width: 250px;
+        margin-left: 4px;
+        height: 14px;
+      }
+      
+      .print-header .date-line {
+        font-size: 10pt;
+        margin-top: 4px;
+      }
+      
+      .activity-header {
+        margin-bottom: 8px;
+      }
+      
+      .activity-title {
+        font-size: 16pt;
+        color: #000;
+        margin-bottom: 4px;
+      }
+      
+      .activity-meta {
+        display: none;
+      }
+      
+      .step-section {
+        border: 1px solid #ccc;
+        margin: 8px 0;
+        padding: 8px;
+        background: white;
+        box-shadow: none;
+        page-break-inside: auto;
+      }
+      
+      .tense-card {
+        border: 1px solid #ccc;
+        margin: 6px 0;
+        padding: 6px;
+      }
+      
+      .exercise-section {
+        background: white;
+        border: 1px solid #ddd;
+        padding: 6px;
+        margin: 6px 0;
+        page-break-inside: auto;
+      }
+      
+      .exercise-item {
+        margin: 3px 0;
+        padding: 2px;
+        background: white;
+        border: none;
+        font-size: 9pt;
+      }
+      
+      .exercise-item input[type="text"],
+      .exercise-item select {
+        border: none;
+        border-bottom: 1px solid #000;
+        background: transparent;
+        padding: 2px 0;
+        width: 100%;
+        font-size: 9pt;
+      }
+      
+      .exercise-item input[type="radio"] {
+        margin-right: 4px;
+        width: 12px;
+        height: 12px;
+      }
+      
+      .feedback {
+        display: none !important;
+      }
+      
+      .tip-box {
+        background: #fff9e6;
+        border: 1px solid #ddd;
+        padding: 4px;
+        margin: 4px 0;
+        font-size: 8pt;
+      }
+      
+      h1, h2, h3, h4 {
+        margin: 4px 0;
+        page-break-after: avoid;
+      }
+      
+      p {
+        margin: 3px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-content">
+        <a href="../../../index.html" class="site-logo">ESOL Teacher Resources</a>
+        <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <button class="theme-toggle" aria-label="Toggle dark mode" type="button">
+            <i data-lucide="moon" class="icon"></i>
+          </button>
+          <button class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false" type="button">
+            <i data-lucide="menu" class="icon"></i>
+          </button>
+        </div>
+        <nav class="nav">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="../index.html" class="nav-link">GRAMMAR</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../writing-reading/index.html" class="nav-link">WRITING/READING</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../speaking/index.html" class="nav-link">SPEAKING</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../vocab/index.html" class="nav-link">VOCAB</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <div class="breadcrumbs">
+          <a href="../../../index.html">Home</a>
+          <span class="breadcrumbs-separator">/</span>
+          <a href="../index.html">Grammar</a>
+          <span class="breadcrumbs-separator">/</span>
+          <a href="../index.html#verb-tenses">Verb Tenses</a>
+          <span class="breadcrumbs-separator">/</span>
+          <span>Simple Tenses Review</span>
+        </div>
+
+        <div class="activity-header">
+          <h1 class="activity-title">Simple Tenses Review Guide</h1>
+          <div class="activity-meta">
+            <span class="activity-badge badge-guide">Review Guide</span>
+            <span class="activity-level">Intermediate</span>
+          </div>
+          <button class="print-button" onclick="window.print()">
+            <i data-lucide="printer" style="width: 18px; height: 18px;"></i>
+            Print Worksheet
+          </button>
+        </div>
+
+        <!-- Print Header (only visible when printing) -->
+        <div class="print-header">
+          <div class="name-line">
+            <strong>Name:</strong> <span class="blank-line"></span>
+          </div>
+          <div class="date-line">
+            <strong>Date:</strong> <span class="blank-line"></span>
+          </div>
+        </div>
+
+        <div class="grammar-guide">
+          
+          <!-- Introduction -->
+          <div class="step-section" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%); border-color: #1e293b;">
+            <h2 style="color: #1e293b; margin-top: 0;">
+              <i data-lucide="book-open" style="width: 20px; height: 20px; display: inline-block; vertical-align: middle;"></i>
+              Welcome to Simple Tenses Review!
+            </h2>
+            <p>This guide will help you review and practice all three Simple Tenses: <strong>Present Simple</strong>, <strong>Past Simple</strong>, and <strong>Future Simple</strong>. The exercises mix all three tenses together to test your understanding!</p>
+            <p><strong>What you'll practice:</strong></p>
+            <ul style="margin: var(--spacing-sm) 0; padding-left: var(--spacing-lg);">
+              <li>✅ Choosing the correct tense based on time expressions</li>
+              <li>✅ Forming positive, negative, and question sentences</li>
+              <li>✅ Understanding when to use each tense</li>
+              <li>✅ Mixed exercises with all three tenses</li>
+            </ul>
+          </div>
+
+          <!-- QUICK REFERENCE SECTION -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Quick Reference: The Three Simple Tenses</h2>
+            </div>
+
+            <!-- Present Simple Card -->
+            <div class="tense-card present">
+              <div class="tense-header">
+                <h3 class="tense-name present">Present Simple</h3>
+              </div>
+              <p><strong>When to use:</strong> Habits, routines, facts, general truths</p>
+              <div class="formula-box">
+                <div style="margin-bottom: var(--spacing-xs);">
+                  <span class="formula-part subject-part">Subject</span>
+                  <span style="margin: 0 var(--spacing-xs);">+</span>
+                  <span class="formula-part verb-part">verb (base/s/es)</span>
+                </div>
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                  He/She/It: verb + s/es | I/You/We/They: base verb
+                </div>
+              </div>
+              <div class="example-box">
+                <strong>Examples:</strong>
+                <div class="example">I <span class="highlight">work</span> every day.</div>
+                <div class="example">She <span class="highlight">works</span> at a hospital.</div>
+                <div class="example">They <span class="highlight">don't like</span> coffee.</div>
+                <div class="example"><span class="highlight">Do</span> you <span class="highlight">speak</span> English?</div>
+              </div>
+              <p style="margin-top: var(--spacing-sm);"><strong>Time expressions:</strong> every day, always, usually, often, sometimes, never, on Mondays</p>
+            </div>
+
+            <!-- Past Simple Card -->
+            <div class="tense-card past">
+              <div class="tense-header">
+                <h3 class="tense-name past">Past Simple</h3>
+              </div>
+              <p><strong>When to use:</strong> Finished actions in the past, past habits</p>
+              <div class="formula-box">
+                <div style="margin-bottom: var(--spacing-xs);">
+                  <span class="formula-part subject-part">Subject</span>
+                  <span style="margin: 0 var(--spacing-xs);">+</span>
+                  <span class="formula-part verb-part">verb (past form)</span>
+                </div>
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                  Regular: verb + ed | Irregular: past form (went, saw, etc.)
+                </div>
+              </div>
+              <div class="example-box">
+                <strong>Examples:</strong>
+                <div class="example">I <span class="highlight">worked</span> yesterday.</div>
+                <div class="example">She <span class="highlight">went</span> to Paris last year.</div>
+                <div class="example">They <span class="highlight">didn't see</span> the movie.</div>
+                <div class="example"><span class="highlight">Did</span> you <span class="highlight">call</span> him?</div>
+              </div>
+              <p style="margin-top: var(--spacing-sm);"><strong>Time expressions:</strong> yesterday, last week/month/year, ago, in 2020, when I was young</p>
+            </div>
+
+            <!-- Future Simple Card -->
+            <div class="tense-card future">
+              <div class="tense-header">
+                <h3 class="tense-name future">Future Simple</h3>
+              </div>
+              <p><strong>When to use:</strong> Predictions, spontaneous decisions, promises, offers</p>
+              <div class="formula-box">
+                <div style="margin-bottom: var(--spacing-xs);">
+                  <span class="formula-part subject-part">Subject</span>
+                  <span style="margin: 0 var(--spacing-xs);">+</span>
+                  <span class="formula-part verb-part">will/won't</span>
+                  <span style="margin: 0 var(--spacing-xs);">+</span>
+                  <span class="formula-part verb-part">base verb</span>
+                </div>
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                  All subjects use will/won't + base verb
+                </div>
+              </div>
+              <div class="example-box">
+                <strong>Examples:</strong>
+                <div class="example">I <span class="highlight">will go</span> to the store tomorrow.</div>
+                <div class="example">She <span class="highlight">won't call</span> you.</div>
+                <div class="example"><span class="highlight">Will</span> you <span class="highlight">help</span> me?</div>
+              </div>
+              <p style="margin-top: var(--spacing-sm);"><strong>Time expressions:</strong> tomorrow, next week/month/year, soon, later, in 2025</p>
+            </div>
+
+            <div class="tip-box">
+              <strong>💡 Key Tip:</strong> Look at the <strong>time expressions</strong> in the sentence - they tell you which tense to use! Also think about the <strong>meaning</strong>: is it a habit (Present), finished action (Past), or future action (Future)?
+            </div>
+          </div>
+
+          <!-- EXERCISE 1: Choose the Correct Tense -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Exercise 1: Choose the Correct Tense</h2>
+            </div>
+            <p class="exercise-instructions">Read each sentence and choose the correct tense. Look at the time expressions and think about the meaning!</p>
+
+            <div class="exercise-section">
+              <div class="exercise-item">
+                <label>1. I _____ to work every morning at 8 AM.</label>
+                <select id="ex1-1">
+                  <option value="">Choose...</option>
+                  <option value="go">go (Present Simple)</option>
+                  <option value="went">went (Past Simple)</option>
+                  <option value="will go">will go (Future Simple)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "every morning" = habit</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. She _____ her homework yesterday evening.</label>
+                <select id="ex1-2">
+                  <option value="">Choose...</option>
+                  <option value="finishes">finishes (Present Simple)</option>
+                  <option value="finished">finished (Past Simple)</option>
+                  <option value="will finish">will finish (Future Simple)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "yesterday" = past</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. They _____ Paris next summer.</label>
+                <select id="ex1-3">
+                  <option value="">Choose...</option>
+                  <option value="visit">visit (Present Simple)</option>
+                  <option value="visited">visited (Past Simple)</option>
+                  <option value="will visit">will visit (Future Simple)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "next summer" = future</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. He _____ English very well.</label>
+                <select id="ex1-4">
+                  <option value="">Choose...</option>
+                  <option value="speaks">speaks (Present Simple)</option>
+                  <option value="spoke">spoke (Past Simple)</option>
+                  <option value="will speak">will speak (Future Simple)</option>
+                </select>
+                <div class="time-expression-hint">Hint: General ability/fact</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. We _____ to the cinema last weekend.</label>
+                <select id="ex1-5">
+                  <option value="">Choose...</option>
+                  <option value="go">go (Present Simple)</option>
+                  <option value="went">went (Past Simple)</option>
+                  <option value="will go">will go (Future Simple)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "last weekend" = past</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>6. I _____ help you with your homework.</label>
+                <select id="ex1-6">
+                  <option value="">Choose...</option>
+                  <option value="help">help (Present Simple)</option>
+                  <option value="helped">helped (Past Simple)</option>
+                  <option value="will help">will help (Future Simple)</option>
+                </select>
+                <div class="time-expression-hint">Hint: Promise/offer</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>7. She usually _____ coffee in the morning.</label>
+                <select id="ex1-7">
+                  <option value="">Choose...</option>
+                  <option value="drinks">drinks (Present Simple)</option>
+                  <option value="drank">drank (Past Simple)</option>
+                  <option value="will drink">will drink (Future Simple)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "usually" = habit</div>
+              </div>
+
+              <div class="exercise-item">
+                <label>8. They _____ at 3 PM tomorrow.</label>
+                <select id="ex1-8">
+                  <option value="">Choose...</option>
+                  <option value="arrive">arrive (Present Simple)</option>
+                  <option value="arrived">arrived (Past Simple)</option>
+                  <option value="will arrive">will arrive (Future Simple)</option>
+                </select>
+                <div class="time-expression-hint">Hint: "tomorrow" = future</div>
+              </div>
+
+              <button class="check-button" onclick="checkExercise1()">
+                <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                Check My Answers
+              </button>
+              <div id="feedback1" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- EXERCISE 2: Fill in the Blank (Mixed Tenses) -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Exercise 2: Fill in the Blank (Mixed Tenses)</h2>
+            </div>
+            <p class="exercise-instructions">Complete each sentence with the correct form of the verb. Pay attention to the time expressions!</p>
+
+            <div class="exercise-section">
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">1.</span>
+                  <span class="fill-blank-clause">
+                    <span>I</span>
+                    <input type="text" id="ex2-1" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">every day from Monday to Friday. (<strong>work</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">2.</span>
+                  <span class="fill-blank-clause">
+                    <span>She</span>
+                    <input type="text" id="ex2-2" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">to the store yesterday. (<strong>go</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">3.</span>
+                  <span class="fill-blank-clause">
+                    <span>We</span>
+                    <input type="text" id="ex2-3" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">you tomorrow. (<strong>call</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">4.</span>
+                  <span class="fill-blank-clause">
+                    <span>He</span>
+                    <input type="text" id="ex2-4" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">vegetables. (<strong>not like</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">5.</span>
+                  <span class="fill-blank-clause">
+                    <span>They</span>
+                    <input type="text" id="ex2-5" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">the movie last night. (<strong>not see</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">6.</span>
+                  <span class="fill-blank-clause">
+                    <span>I</span>
+                    <input type="text" id="ex2-6" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">late for the meeting. (<strong>not be</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">7.</span>
+                  <span class="fill-blank-clause">
+                    <span>She always</span>
+                    <input type="text" id="ex2-7" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">up at 7 AM. (<strong>wake</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">8.</span>
+                  <span class="fill-blank-clause">
+                    <span>We</span>
+                    <input type="text" id="ex2-8" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">the project next week. (<strong>finish</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">9.</span>
+                  <span class="fill-blank-clause">
+                    <span>He</span>
+                    <input type="text" id="ex2-9" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">English for three years. (<strong>study</strong>)</span>
+                </p>
+              </div>
+
+              <div class="exercise-item">
+                <p class="fill-blank-sentence">
+                  <span class="number">10.</span>
+                  <span class="fill-blank-clause">
+                    <span>They</span>
+                    <input type="text" id="ex2-10" class="fill-blank-input" placeholder="verb" autocomplete="off">
+                  </span>
+                  <span class="fill-blank-text">soccer on Sundays. (<strong>not play</strong>)</span>
+                </p>
+              </div>
+
+              <button class="check-button" onclick="checkExercise2()">
+                <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                Check My Answers
+              </button>
+              <div id="feedback2" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- EXERCISE 3: Questions (Mixed Tenses) -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Exercise 3: Form Questions (Mixed Tenses)</h2>
+            </div>
+            <p class="exercise-instructions">Write the correct question form. Remember: Present Simple uses Do/Does, Past Simple uses Did, Future Simple uses Will!</p>
+
+            <div class="exercise-section">
+              <div class="exercise-item">
+                <label>1. <input type="text" id="ex3-1" class="question-input" placeholder="verb" autocomplete="off"> speak Spanish? (<strong>you</strong>, Present Simple)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. <input type="text" id="ex3-2" class="question-input" placeholder="verb" autocomplete="off"> go to the party? (<strong>she</strong>, Past Simple)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. <input type="text" id="ex3-3" class="question-input" placeholder="verb" autocomplete="off"> arrive tomorrow? (<strong>they</strong>, Future Simple)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. <input type="text" id="ex3-4" class="question-input" placeholder="verb" autocomplete="off"> like coffee? (<strong>he</strong>, Present Simple)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. <input type="text" id="ex3-5" class="question-input" placeholder="verb" autocomplete="off"> finish your homework? (<strong>you</strong>, Past Simple)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>6. <input type="text" id="ex3-6" class="question-input" placeholder="verb" autocomplete="off"> help us? (<strong>she</strong>, Future Simple)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>7. <input type="text" id="ex3-7" class="question-input" placeholder="verb" autocomplete="off"> work here? (<strong>they</strong>, Present Simple)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>8. <input type="text" id="ex3-8" class="question-input" placeholder="verb" autocomplete="off"> see you next week? (<strong>we</strong>, Future Simple)</label>
+              </div>
+
+              <button class="check-button" onclick="checkExercise3()">
+                <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                Check My Answers
+              </button>
+              <div id="feedback3" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- EXERCISE 4: Complete the Sentences (Mixed Context) -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Exercise 4: Complete the Sentences (Mixed Context)</h2>
+            </div>
+            <p class="exercise-instructions">Complete each sentence with the correct tense. Think carefully about the context and time!</p>
+
+            <div class="exercise-section">
+              <div class="exercise-item">
+                <label>1. Every morning, I <input type="text" id="ex4-1" class="question-input" placeholder="verb" autocomplete="off"> coffee and <input type="text" id="ex4-2" class="question-input" placeholder="verb" autocomplete="off"> the newspaper. (<strong>drink</strong>, <strong>read</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. Last year, she <input type="text" id="ex4-3" class="question-input" placeholder="verb" autocomplete="off"> five different countries. (<strong>visit</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. Tomorrow, we <input type="text" id="ex4-4" class="question-input" placeholder="verb" autocomplete="off"> a meeting at 2 PM. (<strong>have</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. He <input type="text" id="ex4-5" class="question-input" placeholder="verb" autocomplete="off"> meat because he's vegetarian. (<strong>eat</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. They <input type="text" id="ex4-6" class="question-input" placeholder="verb" autocomplete="off"> to class yesterday because they were sick. (<strong>come</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>6. I promise I <input type="text" id="ex4-7" class="question-input" placeholder="verb" autocomplete="off"> you later tonight. (<strong>call</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>7. She usually <input type="text" id="ex4-8" class="question-input" placeholder="verb" autocomplete="off"> to the gym three times a week. (<strong>go</strong>)</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>8. We <input type="text" id="ex4-9" class="question-input" placeholder="verb" autocomplete="off"> our new project next month. (<strong>start</strong>)</label>
+              </div>
+
+              <button class="check-button" onclick="checkExercise4()">
+                <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                Check My Answers
+              </button>
+              <div id="feedback4" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- EXERCISE 5: Multiple Choice - Identify the Tense -->
+          <div class="step-section">
+            <div class="step-header">
+              <h2 class="step-title">Exercise 5: Identify the Tense</h2>
+            </div>
+            <p class="exercise-instructions">Read each sentence and identify which tense it uses.</p>
+
+            <div class="exercise-section">
+              <div class="exercise-item">
+                <label>1. "I work at a hospital."</label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-1" value="present">
+                  Present Simple
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-1" value="past">
+                  Past Simple
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-1" value="future">
+                  Future Simple
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. "She went to Paris last summer."</label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-2" value="present">
+                  Present Simple
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-2" value="past">
+                  Past Simple
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-2" value="future">
+                  Future Simple
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. "They will arrive tomorrow."</label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-3" value="present">
+                  Present Simple
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-3" value="past">
+                  Past Simple
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-3" value="future">
+                  Future Simple
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. "He doesn't like vegetables."</label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-4" value="present">
+                  Present Simple
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-4" value="past">
+                  Past Simple
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-4" value="future">
+                  Future Simple
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. "We didn't see the movie."</label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-5" value="present">
+                  Present Simple
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-5" value="past">
+                  Past Simple
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-5" value="future">
+                  Future Simple
+                </label>
+              </div>
+
+              <div class="exercise-item">
+                <label>6. "I will help you with that."</label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-6" value="present">
+                  Present Simple
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-6" value="past">
+                  Past Simple
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="ex5-6" value="future">
+                  Future Simple
+                </label>
+              </div>
+
+              <button class="check-button" onclick="checkExercise5()">
+                <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                Check My Answers
+              </button>
+              <div id="feedback5" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- Summary Box -->
+          <div class="step-section" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%); border-color: rgba(16, 185, 129, 0.3);">
+            <h3 style="color: #10b981; margin-top: 0;">
+              <i data-lucide="award" style="width: 20px; height: 20px; display: inline-block; vertical-align: middle;"></i>
+              Great Job! You've Completed the Review!
+            </h3>
+            <p><strong>Remember the key differences:</strong></p>
+            <ul style="margin: var(--spacing-sm) 0; padding-left: var(--spacing-lg);">
+              <li>✅ <strong>Present Simple:</strong> Habits, routines, facts → Look for: every day, always, usually</li>
+              <li>✅ <strong>Past Simple:</strong> Finished actions → Look for: yesterday, last week, ago</li>
+              <li>✅ <strong>Future Simple:</strong> Predictions, promises, future actions → Look for: tomorrow, next week, will</li>
+            </ul>
+            <p style="margin-top: var(--spacing-md);"><strong>Keep practicing!</strong> The more you use these tenses, the easier it becomes to choose the correct one.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../../../assets/js/main.js"></script>
+  <script>
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+
+    // Answer keys
+    const answers = {
+      ex1: ['go', 'finished', 'will visit', 'speaks', 'went', 'will help', 'drinks', 'will arrive'],
+      ex2: ['work', 'went', 'will call', "doesn't like", "didn't see", "won't be", 'wakes', 'will finish', 'studied', "don't play"],
+      ex3: ['Do you', 'Did she', 'Will they', 'Does he', 'Did you', 'Will she', 'Do they', 'Will we'],
+      ex4: {
+        'ex4-1': 'drink',
+        'ex4-2': 'read',
+        'ex4-3': 'visited',
+        'ex4-4': 'will have',
+        'ex4-5': "doesn't eat",
+        'ex4-6': "didn't come",
+        'ex4-7': 'will call',
+        'ex4-8': 'goes',
+        'ex4-9': 'will start'
+      },
+      ex5: ['present', 'past', 'future', 'present', 'past', 'future']
+    };
+
+    function normalizeAnswer(answer) {
+      return answer.toLowerCase().trim().replace(/\s+/g, ' ').replace(/[.,!?]/g, '');
+    }
+
+    function checkExercise1() {
+      const feedback = document.getElementById('feedback1');
+      let correct = 0;
+      let total = 8;
+      
+      answers.ex1.forEach((answer, index) => {
+        const select = document.getElementById(`ex1-${index + 1}`);
+        const userAnswer = normalizeAnswer(select.value);
+        const correctAnswer = normalizeAnswer(answer);
+        
+        if (userAnswer === correctAnswer) {
+          correct++;
+          select.style.borderColor = '#10b981';
+          select.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else if (select.value) {
+          select.style.borderColor = '#ef4444';
+          select.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! Great job choosing the correct tenses!`
+        : `You got ${correct} out of ${total} correct. Remember to look at the time expressions and think about the meaning!`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise2() {
+      const feedback = document.getElementById('feedback2');
+      let correct = 0;
+      let total = 10;
+      
+      answers.ex2.forEach((answer, index) => {
+        const input = document.getElementById(`ex2-${index + 1}`);
+        const userAnswer = normalizeAnswer(input.value);
+        const correctAnswer = normalizeAnswer(answer);
+        
+        if (userAnswer === correctAnswer) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! Excellent work with mixed tenses!`
+        : `You got ${correct} out of ${total} correct. Keep practicing! Remember: Present Simple (work/works), Past Simple (worked/went), Future Simple (will work)!`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise3() {
+      const feedback = document.getElementById('feedback3');
+      let correct = 0;
+      let total = 8;
+      
+      answers.ex3.forEach((answer, index) => {
+        const input = document.getElementById(`ex3-${index + 1}`);
+        const userAnswer = normalizeAnswer(input.value);
+        const correctAnswer = normalizeAnswer(answer);
+        
+        if (userAnswer === correctAnswer) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! Great job forming questions!`
+        : `You got ${correct} out of ${total} correct. Remember: Present Simple uses Do/Does, Past Simple uses Did, Future Simple uses Will!`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise4() {
+      const feedback = document.getElementById('feedback4');
+      let correct = 0;
+      let total = 0;
+      
+      Object.keys(answers.ex4).forEach((key) => {
+        total++;
+        const input = document.getElementById(key);
+        const userAnswer = normalizeAnswer(input.value);
+        const correctAnswer = normalizeAnswer(answers.ex4[key]);
+        
+        if (userAnswer === correctAnswer) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! Excellent understanding of all three tenses!`
+        : `You got ${correct} out of ${total} correct. Keep practicing! Think about the context and time expressions.`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise5() {
+      const feedback = document.getElementById('feedback5');
+      let correct = 0;
+      let total = 6;
+      
+      answers.ex5.forEach((answer, index) => {
+        const questionNum = index + 1;
+        const selected = document.querySelector(`input[name="ex5-${questionNum}"]:checked`);
+        
+        if (selected && selected.value === answer) {
+          correct++;
+          const label = selected.closest('label');
+          if (label) {
+            label.style.color = '#10b981';
+            label.style.fontWeight = '600';
+          }
+        } else {
+          if (selected) {
+            const label = selected.closest('label');
+            if (label) {
+              label.style.color = '#ef4444';
+            }
+          }
+          const correctRadio = document.querySelector(`input[name="ex5-${questionNum}"][value="${answer}"]`);
+          if (correctRadio) {
+            const correctLabel = correctRadio.closest('label');
+            if (correctLabel) {
+              correctLabel.style.color = '#10b981';
+              correctLabel.style.fontWeight = '600';
+            }
+          }
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! You can identify tenses perfectly!`
+        : `You got ${correct} out of ${total} correct. Keep practicing! Look for time expressions and verb forms to identify the tense.`;
+      feedback.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
+

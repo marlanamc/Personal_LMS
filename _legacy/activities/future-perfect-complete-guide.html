@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Future Perfect - Complete Guide & Practice | ESOL Teacher Resources</title>
+  <meta name="description" content="Complete step-by-step guide to Future Perfect tense focusing on actions that will be completed before a specific point in the future.">
+  <meta name="activity-type" content="guide">
+  <meta name="activity-level" content="intermediate">
+  <meta name="activity-category" content="grammar">
+  <link rel="stylesheet" href="../../../assets/css/main.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .grammar-guide {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .step-section {
+      background: white;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-xl);
+      margin: var(--spacing-2xl) 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: var(--font-size-lg);
+      margin-right: var(--spacing-md);
+    }
+    
+    .step-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid #6366f1;
+    }
+    
+    .step-title {
+      color: #6366f1;
+      font-size: var(--font-size-xl);
+      margin: 0;
+    }
+    
+    .explanation-box {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+      border-radius: var(--radius-md);
+    }
+    
+    .formula-box {
+      background: white;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+      text-align: center;
+    }
+    
+    .formula-part {
+      display: inline-block;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      margin: 2px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      border: 1px solid var(--color-border);
+    }
+    
+    .subject-part {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+      color: #6366f1;
+    }
+    
+    .verb-part {
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(236, 72, 153, 0.05) 100%);
+      color: #ec4899;
+    }
+    
+    .object-part {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+      color: #10b981;
+    }
+    
+    .example-box {
+      background: var(--color-bg-light);
+      padding: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+    
+    .example-box .example {
+      margin: var(--spacing-xs) 0;
+      padding: var(--spacing-xs);
+    }
+    
+    .exercise-section {
+      background: var(--color-bg-light);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+    }
+    
+    .exercise-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      color: #6366f1;
+      margin-bottom: var(--spacing-md);
+      font-size: var(--font-size-lg);
+    }
+    
+    .exercise-instructions {
+      color: var(--color-text-muted);
+      margin-bottom: var(--spacing-md);
+      font-style: italic;
+    }
+    
+    .exercise-item {
+      margin: var(--spacing-md) 0;
+      padding: var(--spacing-md);
+      background: white;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+    }
+    
+    .exercise-item label {
+      display: block;
+      margin-bottom: var(--spacing-xs);
+      font-weight: 500;
+    }
+    
+    .exercise-item input[type="text"],
+    .exercise-item select {
+      width: 100%;
+      padding: var(--spacing-sm);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-base);
+      font-family: inherit;
+    }
+    
+    .exercise-item input[type="text"]:focus,
+    .exercise-item select:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    .exercise-item input[type="text"].question-input {
+      width: auto;
+      min-width: 80px;
+      max-width: 150px;
+      display: inline-block;
+    }
+    
+    .exercise-item input[type="radio"] {
+      margin-right: var(--spacing-sm);
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      accent-color: #6366f1;
+    }
+    
+    .exercise-item label {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: var(--spacing-xs);
+      border-radius: var(--radius-sm);
+      transition: background-color 0.2s;
+    }
+    
+    .exercise-item label:hover {
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+    
+    .exercise-item label:has(input[type="radio"]:checked) {
+      background-color: rgba(99, 102, 241, 0.1);
+    }
+    
+    @supports not selector(:has(*)) {
+      .exercise-item input[type="radio"]:checked + span {
+        background-color: rgba(99, 102, 241, 0.1);
+      }
+    }
+    
+    .check-button {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: var(--spacing-md);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    
+    .check-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    
+    .feedback {
+      margin-top: var(--spacing-md);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      display: none;
+    }
+    
+    .feedback.correct {
+      background: rgba(16, 185, 129, 0.1);
+      border-left: 3px solid #10b981;
+      color: #10b981;
+    }
+    
+    .feedback.incorrect {
+      background: rgba(239, 68, 68, 0.1);
+      border-left: 3px solid #ef4444;
+      color: #ef4444;
+    }
+    
+    .usage-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .usage-list li {
+      padding: var(--spacing-sm);
+      margin: var(--spacing-xs) 0;
+      background: var(--color-bg-light);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+    
+    .usage-list li strong {
+      color: #6366f1;
+    }
+    
+    .highlight {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    
+    .highlight-future-perfect {
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(236, 72, 153, 0.15) 100%);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+      color: #ec4899;
+    }
+    
+    .highlight-future-simple {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.15) 100%);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+      color: #10b981;
+    }
+    
+    .tip-box {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+      padding: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    
+    .tip-box strong {
+      color: #f59e0b;
+    }
+    
+    .timeline-box {
+      background: white;
+      border: 2px solid #6366f1;
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+      position: relative;
+    }
+    
+    .timeline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: var(--spacing-md) 0;
+      position: relative;
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to right, #ec4899, #10b981);
+      z-index: 0;
+    }
+    
+    .timeline-event {
+      background: white;
+      border: 2px solid;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .timeline-event.first {
+      border-color: #ec4899;
+      color: #ec4899;
+    }
+    
+    .timeline-event.second {
+      border-color: #10b981;
+      color: #10b981;
+    }
+    
+    .timeline-label {
+      position: absolute;
+      top: -30px;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    
+    .timeline-event.first .timeline-label {
+      color: #ec4899;
+    }
+    
+    .timeline-event.second .timeline-label {
+      color: #10b981;
+    }
+    
+    .print-button {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      margin: var(--spacing-md) 0;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      font-size: var(--font-size-base);
+    }
+    
+    .print-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    
+    .print-header {
+      display: none;
+    }
+    
+    @media print {
+      @page {
+        margin: 0.4in 0.5in;
+      }
+      
+      * {
+        box-sizing: border-box;
+      }
+      
+      body {
+        background: white;
+        color: black;
+        font-size: 10pt;
+        line-height: 1.3;
+      }
+      
+      .site-header,
+      .breadcrumbs,
+      .check-button,
+      .theme-toggle,
+      .mobile-menu-toggle,
+      .nav,
+      footer,
+      .print-button,
+      i[data-lucide] {
+        display: none !important;
+      }
+      
+      .print-header {
+        display: block;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #000;
+      }
+      
+      .print-header .name-line {
+        font-size: 11pt;
+        margin-bottom: 4px;
+      }
+      
+      .print-header .blank-line {
+        border-bottom: 1px solid #000;
+        display: inline-block;
+        min-width: 250px;
+        margin-left: 4px;
+        height: 14px;
+      }
+      
+      .print-header .date-line {
+        font-size: 10pt;
+        margin-top: 4px;
+      }
+      
+      .step-section {
+        border: 1px solid #ccc;
+        margin: 8px 0;
+        padding: 8px;
+        background: white;
+        box-shadow: none;
+        page-break-inside: auto;
+      }
+      
+      .step-header {
+        border-bottom: 1px solid #000;
+        margin-bottom: 6px;
+        padding-bottom: 4px;
+      }
+      
+      .step-title {
+        color: #000;
+        font-size: 12pt;
+        margin: 0;
+      }
+      
+      .step-number {
+        background: #000;
+        color: white;
+        width: 24px;
+        height: 24px;
+        font-size: 10pt;
+        margin-right: 6px;
+      }
+      
+      .explanation-box {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 6px;
+        margin: 6px 0;
+      }
+      
+      .exercise-section {
+        background: white;
+        border: 1px solid #ddd;
+        padding: 6px;
+        margin: 6px 0;
+        page-break-inside: auto;
+      }
+      
+      .highlight {
+        background: #e0e0e0;
+        padding: 1px 3px;
+      }
+      
+      h1, h2, h3, h4 {
+        margin: 4px 0;
+        page-break-after: avoid;
+      }
+      
+      p {
+        margin: 3px 0;
+      }
+      
+      ul, ol {
+        margin: 4px 0;
+        padding-left: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-content">
+        <a href="../../../index.html" class="site-logo">ESOL Teacher Resources</a>
+        <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <button class="theme-toggle" aria-label="Toggle dark mode" type="button">
+            <i data-lucide="moon" class="icon"></i>
+          </button>
+          <button class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false" type="button">
+            <i data-lucide="menu" class="icon"></i>
+          </button>
+        </div>
+        <nav class="nav">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="../index.html" class="nav-link">GRAMMAR</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../writing-reading/index.html" class="nav-link">WRITING/READING</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../speaking/index.html" class="nav-link">SPEAKING</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../vocab/index.html" class="nav-link">VOCAB</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <div class="breadcrumbs">
+          <a href="../../../index.html">Home</a>
+          <span class="breadcrumbs-separator">/</span>
+          <a href="../index.html">Grammar</a>
+          <span class="breadcrumbs-separator">/</span>
+          <a href="../index.html#verb-tenses">Verb Tenses</a>
+          <span class="breadcrumbs-separator">/</span>
+          <span>Future Perfect</span>
+        </div>
+
+        <div class="activity-header">
+          <h1 class="activity-title">Future Perfect - Complete Step-by-Step Guide</h1>
+          <div class="activity-meta">
+            <span class="activity-badge badge-guide">Complete Guide</span>
+            <span class="activity-level">Intermediate</span>
+          </div>
+          <button class="print-button" onclick="window.print()">
+            <i data-lucide="printer" style="width: 18px; height: 18px;"></i>
+            Print Worksheet
+          </button>
+        </div>
+
+        <!-- Print Header (only visible when printing) -->
+        <div class="print-header">
+          <div class="name-line">
+            <strong>Name:</strong> <span class="blank-line"></span>
+          </div>
+          <div class="date-line">
+            <strong>Date:</strong> <span class="blank-line"></span>
+          </div>
+        </div>
+
+        <div class="grammar-guide">
+          
+          <!-- Introduction -->
+          <div class="explanation-box">
+            <h2 style="color: #1e293b; margin-top: 0;">
+              <i data-lucide="book-open" style="width: 20px; height: 20px; display: inline-block; vertical-align: middle;"></i>
+              Welcome! Let's Learn Future Perfect Together
+            </h2>
+            <p>We're going to learn Future Perfect step by step. The most important thing to remember is that <strong>Future Perfect is used to show that an action will be COMPLETED before a specific point in the future</strong>.</p>
+            <p><strong>What is Future Perfect?</strong> It's used to talk about actions that will be finished before another future action or before a specific time in the future. We use it to show completion before a future point.</p>
+          </div>
+
+          <!-- MEANING & USAGE SECTION -->
+          <div class="step-section" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); border-color: #6366f1;">
+            <div class="step-header">
+              <span class="step-number" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">★</span>
+              <h2 class="step-title">When Do We Use Future Perfect? Understanding the Meaning</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">Why is meaning important?</h3>
+              <p>Future Perfect is used to show that an action <strong>will be completed</strong> before a specific point in the future. This point can be another future action or a specific time.</p>
+              
+              <div style="margin: var(--spacing-lg) 0;">
+                <h4 style="color: #1e293b; margin-bottom: var(--spacing-md);">📌 Future Perfect is used for:</h4>
+                
+                <div class="usage-list" style="margin-top: var(--spacing-md);">
+                  <li>
+                    <strong>1. Completion Before Another Future Action</strong> - When you have TWO future actions, Future Perfect shows the action that will be COMPLETED FIRST
+                    <div class="example-box" style="margin-top: var(--spacing-xs); margin-left: var(--spacing-md);">
+                      <div class="example">By the time you <span class="highlight-future-simple">arrive</span>, I <span class="highlight-future-perfect">will have finished</span> my homework.</div>
+                      <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic;">
+                        💡 First: I will finish homework (Future Perfect - completed). Second: you arrive (Future Simple).
+                      </p>
+                      <div class="example" style="margin-top: var(--spacing-sm);">When she <span class="highlight-future-simple">gets</span> home, dinner <span class="highlight-future-perfect">will have been</span> ready for an hour.</div>
+                      <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic;">
+                        💡 First: dinner will be ready (Future Perfect - completed). Second: she gets home (Future Simple).
+                      </p>
+                    </div>
+                  </li>
+                  
+                  <li style="margin-top: var(--spacing-md);">
+                    <strong>2. Completion Before a Specific Future Time</strong> - Using Future Perfect with time expressions
+                    <div class="example-box" style="margin-top: var(--spacing-xs); margin-left: var(--spacing-md);">
+                      <div class="example">By 5 PM tomorrow, I <span class="highlight-future-perfect">will have completed</span> the project.</div>
+                      <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic;">
+                        💡 The project will be finished before 5 PM tomorrow.
+                      </p>
+                      <div class="example" style="margin-top: var(--spacing-sm);">By next year, she <span class="highlight-future-perfect">will have lived</span> here for 10 years.</div>
+                      <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic;">
+                        💡 She will complete 10 years of living here before next year.
+                      </p>
+                    </div>
+                  </li>
+                  
+                  <li style="margin-top: var(--spacing-md);">
+                    <strong>3. Duration Up to a Future Point</strong> - Showing how long something will have lasted by a future time
+                    <div class="example-box" style="margin-top: var(--spacing-xs); margin-left: var(--spacing-md);">
+                      <div class="example">By the end of this month, I <span class="highlight-future-perfect">will have worked</span> here for 5 years.</div>
+                      <div class="example">By next week, they <span class="highlight-future-perfect">will have been</span> traveling for 3 months.</div>
+                      <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic;">
+                        💡 These show duration that will be completed by a future point.
+                      </p>
+                    </div>
+                  </li>
+                  
+                  <li style="margin-top: var(--spacing-md);">
+                    <strong>4. With Time Expressions</strong> - Often used with "by the time", "by", "before", "when"
+                    <div class="example-box" style="margin-top: var(--spacing-xs); margin-left: var(--spacing-md);">
+                      <div class="example">By the time you <span class="highlight-future-simple">call</span>, I <span class="highlight-future-perfect">will have left</span>.</div>
+                      <div class="example">Before she <span class="highlight-future-simple">arrives</span>, we <span class="highlight-future-perfect">will have prepared</span> everything.</div>
+                      <div class="example">By next Friday, I <span class="highlight-future-perfect">will have finished</span> reading this book.</div>
+                      <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic;">
+                        💡 These time words help show completion before a future point.
+                      </p>
+                    </div>
+                  </li>
+                </div>
+              </div>
+
+              <div class="tip-box" style="margin-top: var(--spacing-lg);">
+                <strong>💡 Key Rule:</strong> 
+                <p style="margin: var(--spacing-xs) 0 0 0;">Future Perfect = the action that will be <strong>COMPLETED FIRST</strong> (before another future action or time)</p>
+                <p style="margin: var(--spacing-xs) 0 0 0;">Future Simple = the action that happens <strong>SECOND</strong> (later in the future) or the reference point</p>
+              </div>
+
+              <!-- Timeline Example -->
+              <div class="timeline-box" style="margin-top: var(--spacing-lg);">
+                <h4 style="color: #1e293b; margin-top: 0;">📊 Visual Example:</h4>
+                <p style="margin-bottom: var(--spacing-md);"><strong>Example:</strong> "By the time you arrive, I will have finished my homework."</p>
+                <div class="timeline">
+                  <div class="timeline-event first">
+                    <span class="timeline-label">I finish homework<br>(Future Perfect)</span>
+                    1
+                  </div>
+                  <div class="timeline-event second">
+                    <span class="timeline-label">You arrive<br>(Future Simple)</span>
+                    2
+                  </div>
+                </div>
+                <p style="margin-top: var(--spacing-md); font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                  The pink circle (1) shows the action that will be COMPLETED FIRST (Future Perfect). The green circle (2) shows the reference point or second action (Future Simple).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FORM SECTION -->
+          <div class="step-section">
+            <div class="step-header">
+              <span class="step-number">1</span>
+              <h2 class="step-title">How to Form Future Perfect</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">The Formula</h3>
+              <p>Future Perfect is formed with: <strong>will have + past participle</strong></p>
+              
+              <div class="formula-box">
+                <div style="margin-bottom: var(--spacing-sm);">
+                  <span class="formula-part subject-part">Subject</span>
+                  <span class="formula-part verb-part">will have</span>
+                  <span class="formula-part verb-part">past participle</span>
+                </div>
+              </div>
+
+              <div class="example-box">
+                <strong style="color: #1e293b;">Look at these examples:</strong>
+                <div class="example">I <span class="highlight">will have finished</span> my homework. (I + will have + past participle)</div>
+                <div class="example">She <span class="highlight">will have arrived</span> by then. (She + will have + past participle)</div>
+                <div class="example">They <span class="highlight">will have left</span> before we get there. (They + will have + past participle)</div>
+                <div class="example">He <span class="highlight">will have completed</span> the project. (He + will have + past participle)</div>
+                <div class="example">We <span class="highlight">will have been</span> here for 2 hours. (We + will have + past participle)</div>
+              </div>
+
+              <div class="tip-box">
+                <strong>💡 Remember:</strong> 
+                <ul style="margin: var(--spacing-xs) 0; padding-left: var(--spacing-lg);">
+                  <li>For ALL subjects (I, you, he, she, it, we, they) → use <strong>will have</strong> + past participle</li>
+                  <li>The form is the same for everyone - no changes needed!</li>
+                  <li>Remember to use the <strong>past participle</strong> form of the verb (finished, arrived, left, completed, been, etc.)</li>
+                  <li>Regular verbs: add <strong>-ed</strong> (finish → finished)</li>
+                  <li>Irregular verbs: memorize them! (go → gone, see → seen, leave → left, be → been)</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Practice Exercise 1 -->
+            <div class="exercise-section">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 1: Forming Future Perfect
+              </div>
+              <p class="exercise-instructions">Complete each sentence with the correct form of Future Perfect. Use "will have" + the past participle.</p>
+              
+              <div class="exercise-item">
+                <label>1. I <input type="text" id="ex1-1" placeholder="will have + past participle"> (finish) my work by 5 PM.</label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>2. She <input type="text" id="ex1-2" placeholder="will have + past participle"> (leave) by the time we arrive.</label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>3. They <input type="text" id="ex1-3" placeholder="will have + past participle"> (complete) the project by next week.</label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>4. He <input type="text" id="ex1-4" placeholder="will have + past participle"> (read) that book three times by then.</label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>5. We <input type="text" id="ex1-5" placeholder="will have + past participle"> (study) English for 2 years by next month.</label>
+              </div>
+              
+              <button class="check-button" onclick="checkExercise1()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback1" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- TWO VERBS SECTION -->
+          <div class="step-section" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%); border-color: #ec4899;">
+            <div class="step-header">
+              <span class="step-number" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">2</span>
+              <h2 class="step-title">Using Future Perfect with Future Actions</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">This is the MOST IMPORTANT part!</h3>
+              <p>Future Perfect is often used with another future action or time reference. The Future Perfect action will be <strong>COMPLETED</strong> before the other future action happens or before the time reference.</p>
+              
+              <div style="margin: var(--spacing-lg) 0;">
+                <h4 style="color: #1e293b; margin-bottom: var(--spacing-md);">📌 How to identify which action will be completed first:</h4>
+                
+                <div class="example-box" style="margin-top: var(--spacing-md);">
+                  <div style="border-left: 4px solid #ec4899; padding-left: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                    <h4 style="color: #ec4899; margin-top: 0;">Future Perfect = Action that will be COMPLETED FIRST</h4>
+                    <div class="example">By the time you <span class="highlight-future-simple">arrive</span>, I <span class="highlight-future-perfect">will have finished</span> my homework.</div>
+                    <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                      💡 "will have finished" = FIRST action (homework will be completed before you arrive)
+                    </p>
+                  </div>
+
+                  <div style="border-left: 4px solid #10b981; padding-left: var(--spacing-md);">
+                    <h4 style="color: #10b981; margin-top: 0;">Future Simple = Reference point or SECOND action</h4>
+                    <div class="example">By the time you <span class="highlight-future-simple">arrive</span>, I will have finished my homework.</div>
+                    <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                      💡 "arrive" = Reference point (you arrive after homework is finished)
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin: var(--spacing-lg) 0;">
+                <h4 style="color: #1e293b; margin-bottom: var(--spacing-md);">📝 Common Sentence Patterns:</h4>
+                
+                <div class="example-box">
+                  <div style="margin-bottom: var(--spacing-md);">
+                    <strong style="color: #1e293b;">Pattern 1: "By the time" + Future Simple, Future Perfect</strong>
+                    <div class="example">By the time you <span class="highlight-future-simple">get</span> home, I <span class="highlight-future-perfect">will have cooked</span> dinner.</div>
+                    <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                      First: dinner will be cooked (completed). Second: you get home.
+                    </p>
+                  </div>
+                  
+                  <div style="margin-bottom: var(--spacing-md);">
+                    <strong style="color: #1e293b;">Pattern 2: Future Perfect + "before" + Future Simple</strong>
+                    <div class="example">I <span class="highlight-future-perfect">will have finished</span> my homework before you <span class="highlight-future-simple">arrive</span>.</div>
+                    <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                      First: homework will be finished (completed). Second: you arrive.
+                    </p>
+                  </div>
+                  
+                  <div style="margin-bottom: var(--spacing-md);">
+                    <strong style="color: #1e293b;">Pattern 3: "Before" + Future Simple, Future Perfect</strong>
+                    <div class="example">Before she <span class="highlight-future-simple">comes</span>, we <span class="highlight-future-perfect">will have prepared</span> everything.</div>
+                    <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                      First: everything will be prepared (completed). Second: she comes.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <strong style="color: #1e293b;">Pattern 4: "By" + Time Expression, Future Perfect</strong>
+                    <div class="example">By next Friday, I <span class="highlight-future-perfect">will have finished</span> reading this book.</div>
+                    <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                      The book will be finished (completed) before next Friday.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tip-box">
+                <strong>💡 Quick Test:</strong> 
+                <p style="margin: var(--spacing-xs) 0 0 0;">Ask yourself: <strong>"Which action will be COMPLETED first?"</strong></p>
+                <ul style="margin: var(--spacing-xs) 0; padding-left: var(--spacing-lg);">
+                  <li>The action that will be COMPLETED FIRST → <strong>Future Perfect</strong> (will have + past participle)</li>
+                  <li>The reference point or SECOND action → <strong>Future Simple</strong> (will + base form)</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Practice Exercise 2 -->
+            <div class="exercise-section">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 2: Identifying Which Action Will Be Completed First
+              </div>
+              <p class="exercise-instructions">Read each sentence and identify which action will be COMPLETED FIRST. Choose Future Perfect or Future Simple.</p>
+              
+              <div class="exercise-item">
+                <label>1. By the time you arrive, I will have finished my homework.</label>
+                <label style="margin-top: var(--spacing-xs);">
+                  <input type="radio" name="ex2-1" value="future-perfect">
+                  <span>"will have finished" will be completed first (Future Perfect)</span>
+                </label>
+                <label>
+                  <input type="radio" name="ex2-1" value="future-simple">
+                  <span>"arrive" will happen first (Future Simple)</span>
+                </label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>2. I will have finished my homework before you arrive.</label>
+                <label style="margin-top: var(--spacing-xs);">
+                  <input type="radio" name="ex2-2" value="future-perfect">
+                  <span>"will have finished" will be completed first (Future Perfect)</span>
+                </label>
+                <label>
+                  <input type="radio" name="ex2-2" value="future-simple">
+                  <span>"arrive" will happen first (Future Simple)</span>
+                </label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>3. By next week, they will have completed the project.</label>
+                <label style="margin-top: var(--spacing-xs);">
+                  <input type="radio" name="ex2-3" value="future-perfect">
+                  <span>"will have completed" will be finished before next week (Future Perfect)</span>
+                </label>
+                <label>
+                  <input type="radio" name="ex2-3" value="future-simple">
+                  <span>This sentence doesn't have two actions</span>
+                </label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>4. Before she comes, we will have prepared everything.</label>
+                <label style="margin-top: var(--spacing-xs);">
+                  <input type="radio" name="ex2-4" value="future-perfect">
+                  <span>"will have prepared" will be completed first (Future Perfect)</span>
+                </label>
+                <label>
+                  <input type="radio" name="ex2-4" value="future-simple">
+                  <span>"comes" will happen first (Future Simple)</span>
+                </label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>5. By the end of this year, I will have worked here for 5 years.</label>
+                <label style="margin-top: var(--spacing-xs);">
+                  <input type="radio" name="ex2-5" value="future-perfect">
+                  <span>"will have worked" shows completion before the end of the year (Future Perfect)</span>
+                </label>
+                <label>
+                  <input type="radio" name="ex2-5" value="future-simple">
+                  <span>This sentence doesn't have two actions</span>
+                </label>
+              </div>
+              
+              <button class="check-button" onclick="checkExercise2()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback2" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- NEGATIVE & QUESTIONS SECTION -->
+          <div class="step-section">
+            <div class="step-header">
+              <span class="step-number">3</span>
+              <h2 class="step-title">Negative and Question Forms</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">Negative Form</h3>
+              <p>To make Future Perfect negative, add <strong>"not"</strong> after "will":</p>
+              
+              <div class="formula-box">
+                <div style="margin-bottom: var(--spacing-sm);">
+                  <span class="formula-part subject-part">Subject</span>
+                  <span class="formula-part verb-part">will</span>
+                  <span class="formula-part verb-part">not have</span>
+                  <span class="formula-part verb-part">past participle</span>
+                </div>
+                <div style="margin-top: var(--spacing-sm); font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                  Short form: <strong>won't have</strong>
+                </div>
+              </div>
+
+              <div class="example-box">
+                <div class="example">I <span class="highlight">won't have finished</span> my homework by 5 PM.</div>
+                <div class="example">She <span class="highlight">will not have arrived</span> by then.</div>
+                <div class="example">They <span class="highlight">won't have left</span> before we get there.</div>
+              </div>
+
+              <h3 style="color: #1e293b; margin-top: var(--spacing-lg);">Question Form</h3>
+              <p>To make Future Perfect questions, put <strong>"will"</strong> before the subject:</p>
+              
+              <div class="formula-box">
+                <div style="margin-bottom: var(--spacing-sm);">
+                  <span class="formula-part verb-part">Will</span>
+                  <span class="formula-part subject-part">Subject</span>
+                  <span class="formula-part verb-part">have</span>
+                  <span class="formula-part verb-part">past participle</span>
+                </div>
+              </div>
+
+              <div class="example-box">
+                <div class="example"><span class="highlight">Will</span> you <span class="highlight">have finished</span> your homework by 5 PM?</div>
+                <div class="example"><span class="highlight">Will</span> she <span class="highlight">have arrived</span> by the time we get there?</div>
+                <div class="example"><span class="highlight">Will</span> they <span class="highlight">have completed</span> the project by next week?</div>
+              </div>
+
+              <div class="tip-box">
+                <strong>💡 Remember:</strong> 
+                <ul style="margin: var(--spacing-xs) 0; padding-left: var(--spacing-lg);">
+                  <li>Negative: <strong>will not have + past participle</strong> (or <strong>won't have + past participle</strong>)</li>
+                  <li>Question: <strong>Will + subject + have + past participle?</strong></li>
+                  <li>In questions with two actions, you still need to show which will be completed first!</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Practice Exercise 3 -->
+            <div class="exercise-section">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 3: Negative and Questions
+              </div>
+              <p class="exercise-instructions">Complete each sentence with the correct form (positive, negative, or question).</p>
+              
+              <div class="exercise-item">
+                <label>1. I <input type="text" id="ex3-1" placeholder="will/won't have + past participle"> (not finish) my work by 5 PM.</label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>2. <input type="text" id="ex3-2" placeholder="Will + subject"> you <input type="text" id="ex3-3" placeholder="have + past participle"> (complete) the project by next week?</label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>3. She <input type="text" id="ex3-4" placeholder="will/won't have + past participle"> (not arrive) by the time we get there.</label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>4. <input type="text" id="ex3-5" placeholder="Will + subject"> they <input type="text" id="ex3-6" placeholder="have + past participle"> (finish) dinner before the movie starts?</label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>5. He <input type="text" id="ex3-7" placeholder="will/won't have + past participle"> (not study) English for 2 years by next month.</label>
+              </div>
+              
+              <button class="check-button" onclick="checkExercise3()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback3" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- COMPLETE PRACTICE SECTION -->
+          <div class="step-section" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%); border-color: #10b981;">
+            <div class="step-header">
+              <span class="step-number" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">4</span>
+              <h2 class="step-title">Complete Practice: Using Future Perfect</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">Put it all together!</h3>
+              <p>Now let's practice using Future Perfect correctly. Remember: the action that will be COMPLETED FIRST uses Future Perfect, the reference point or second action uses Future Simple.</p>
+            </div>
+
+            <!-- Practice Exercise 4 -->
+            <div class="exercise-section">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 4: Complete the Sentences
+              </div>
+              <p class="exercise-instructions">Complete each sentence with Future Perfect or Future Simple. Think about which action will be COMPLETED FIRST!</p>
+              
+              <div class="exercise-item">
+                <label>1. By the time you <input type="text" id="ex4-1" placeholder="Future Simple"> (arrive), I <input type="text" id="ex4-2" placeholder="Future Perfect"> (finish) my homework.</label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>2. I <input type="text" id="ex4-3" placeholder="Future Perfect"> (finish) my homework before you <input type="text" id="ex4-4" placeholder="Future Simple"> (arrive).</label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>3. By next week, they <input type="text" id="ex4-5" placeholder="Future Perfect"> (complete) the project.</label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>4. Before she <input type="text" id="ex4-6" placeholder="Future Simple"> (come), we <input type="text" id="ex4-7" placeholder="Future Perfect"> (prepare) everything.</label>
+              </div>
+              
+              <div class="exercise-item">
+                <label>5. By the end of this year, I <input type="text" id="ex4-8" placeholder="Future Perfect"> (work) here for 5 years.</label>
+              </div>
+              
+              <button class="check-button" onclick="checkExercise4()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback4" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- SUMMARY SECTION -->
+          <div class="step-section" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); border-color: #6366f1;">
+            <div class="step-header">
+              <span class="step-number" style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);">✓</span>
+              <h2 class="step-title">Summary: Key Points to Remember</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">What You've Learned</h3>
+              
+              <div class="usage-list">
+                <li>
+                  <strong>1. Form:</strong> Future Perfect = <strong>will have + past participle</strong>
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    Example: I will have finished, She will have arrived, They will have completed
+                  </p>
+                </li>
+                
+                <li style="margin-top: var(--spacing-md);">
+                  <strong>2. Most Important Rule:</strong> Future Perfect shows actions that will be <strong>COMPLETED</strong> before a future point
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    The action that will be COMPLETED FIRST = Future Perfect (will have + past participle)<br>
+                    The reference point or SECOND action = Future Simple (will + base form)
+                  </p>
+                </li>
+                
+                <li style="margin-top: var(--spacing-md);">
+                  <strong>3. When to Use:</strong> To show completion before another future action or before a specific time
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    Example: By the time you arrive, I will have finished. (I finish FIRST, then you arrive)
+                  </p>
+                </li>
+                
+                <li style="margin-top: var(--spacing-md);">
+                  <strong>4. Common Time Words:</strong> by the time, by, before, when, by next week/month/year
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    These words help show completion before a future point
+                  </p>
+                </li>
+                
+                <li style="margin-top: var(--spacing-md);">
+                  <strong>5. Negative:</strong> won't have + past participle (or will not have + past participle)
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    Example: I won't have finished my work by 5 PM.
+                  </p>
+                </li>
+                
+                <li style="margin-top: var(--spacing-md);">
+                  <strong>6. Questions:</strong> Will + subject + have + past participle?
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    Example: Will you have finished your homework by 5 PM?
+                  </p>
+                </li>
+              </div>
+
+              <div class="tip-box" style="margin-top: var(--spacing-lg);">
+                <strong>💡 Final Tip:</strong> 
+                <p style="margin: var(--spacing-xs) 0 0 0;">Always ask yourself: <strong>"Which action will be COMPLETED FIRST?"</strong> That action needs Future Perfect!</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2024 ESOL Teacher Resources. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+
+    // Exercise answers
+    const answers = {
+      ex1: ['will have finished', 'will have left', 'will have completed', 'will have read', 'will have studied'],
+      ex2: ['future-perfect', 'future-perfect', 'future-perfect', 'future-perfect', 'future-perfect'],
+      ex3: {
+        1: "won't have finished",
+        2: "Will",
+        3: "have completed",
+        4: "won't have arrived",
+        5: "Will",
+        6: "have finished",
+        7: "won't have studied"
+      },
+      ex4: {
+        1: 'arrive',
+        2: 'will have finished',
+        3: 'will have finished',
+        4: 'arrive',
+        5: 'will have completed',
+        6: 'comes',
+        7: 'will have prepared',
+        8: 'will have worked'
+      }
+    };
+
+    function normalizeAnswer(answer) {
+      return answer.toLowerCase().trim().replace(/[.,!?]/g, '');
+    }
+
+    function checkExercise1() {
+      const feedback = document.getElementById('feedback1');
+      let correct = 0;
+      let total = 5;
+      
+      answers.ex1.forEach((answer, index) => {
+        const input = document.getElementById(`ex1-${index + 1}`);
+        const userAnswer = normalizeAnswer(input.value);
+        const expectedAnswer = normalizeAnswer(answer);
+        
+        if (userAnswer === expectedAnswer || (userAnswer.includes('will') && userAnswer.includes('have') && userAnswer.includes(expectedAnswer.split(' ')[2]))) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Excellent! You got all ${total} correct!`
+        : `You got ${correct} out of ${total} correct. Remember: use "will have" + past participle!`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise2() {
+      const feedback = document.getElementById('feedback2');
+      let correct = 0;
+      let total = 5;
+      
+      answers.ex2.forEach((answer, index) => {
+        const radios = document.querySelectorAll(`input[name="ex2-${index + 1}"]`);
+        let selected = false;
+        radios.forEach(radio => {
+          if (radio.checked && radio.value === answer) {
+            correct++;
+            selected = true;
+          }
+        });
+        
+        radios.forEach(radio => {
+          if (radio.checked) {
+            const label = radio.closest('label');
+            if (selected && radio.value === answer) {
+              label.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+              label.style.borderLeft = '3px solid #10b981';
+            } else {
+              label.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+              label.style.borderLeft = '3px solid #ef4444';
+            }
+          }
+        });
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! You understand which action will be completed first!`
+        : `You got ${correct} out of ${total} correct. Remember: Future Perfect shows the action that will be COMPLETED FIRST!`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise3() {
+      const feedback = document.getElementById('feedback3');
+      let correct = 0;
+      let total = 7;
+      
+      const checks = [
+        { id: 'ex3-1', answer: "won't have finished" },
+        { id: 'ex3-2', answer: 'Will' },
+        { id: 'ex3-3', answer: 'have completed' },
+        { id: 'ex3-4', answer: "won't have arrived" },
+        { id: 'ex3-5', answer: 'Will' },
+        { id: 'ex3-6', answer: 'have finished' },
+        { id: 'ex3-7', answer: "won't have studied" }
+      ];
+      
+      checks.forEach((check) => {
+        const input = document.getElementById(check.id);
+        if (!input) return;
+        const userAnswer = normalizeAnswer(input.value);
+        const expectedAnswer = normalizeAnswer(check.answer);
+        
+        if (userAnswer === expectedAnswer || 
+            (check.id === 'ex3-1' && (userAnswer.includes("won't") || userAnswer.includes("will not")) && userAnswer.includes('finish')) ||
+            (check.id === 'ex3-3' && userAnswer.includes('have') && userAnswer.includes('complet')) ||
+            (check.id === 'ex3-4' && (userAnswer.includes("won't") || userAnswer.includes("will not")) && userAnswer.includes('arriv')) ||
+            (check.id === 'ex3-6' && userAnswer.includes('have') && userAnswer.includes('finish')) ||
+            (check.id === 'ex3-7' && (userAnswer.includes("won't") || userAnswer.includes("will not")) && userAnswer.includes('studi'))) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! You've mastered negative and question forms!`
+        : `You got ${correct} out of ${total} correct. Think about whether it's positive, negative, or a question!`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise4() {
+      const feedback = document.getElementById('feedback4');
+      let correct = 0;
+      let total = 8;
+      
+      const checks = [
+        { id: 'ex4-1', answer: 'arrive' },
+        { id: 'ex4-2', answer: 'will have finished' },
+        { id: 'ex4-3', answer: 'will have finished' },
+        { id: 'ex4-4', answer: 'arrive' },
+        { id: 'ex4-5', answer: 'will have completed' },
+        { id: 'ex4-6', answer: 'comes' },
+        { id: 'ex4-7', answer: 'will have prepared' },
+        { id: 'ex4-8', answer: 'will have worked' }
+      ];
+      
+      checks.forEach((check) => {
+        const input = document.getElementById(check.id);
+        if (!input) return;
+        const userAnswer = normalizeAnswer(input.value);
+        const expectedAnswer = normalizeAnswer(check.answer);
+        
+        // More flexible matching
+        let isCorrect = false;
+        if (userAnswer === expectedAnswer) {
+          isCorrect = true;
+        } else if (check.id === 'ex4-1' || check.id === 'ex4-4') {
+          // Future Simple answers
+          if (userAnswer.includes('arriv')) isCorrect = true;
+        } else if (check.id === 'ex4-6') {
+          // Future Simple
+          if (userAnswer.includes('come')) isCorrect = true;
+        } else {
+          // Future Perfect answers - check for "will have" + verb
+          if (userAnswer.includes('will') && userAnswer.includes('have')) {
+            const verbPart = expectedAnswer.split(' ').slice(2).join(' ');
+            if (userAnswer.includes(verbPart.split(' ')[verbPart.split(' ').length - 1])) {
+              isCorrect = true;
+            }
+          }
+        }
+        
+        if (isCorrect) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+      
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total 
+        ? `✅ Perfect! You got all ${total} correct! You've mastered Future Perfect! 🎉`
+        : `You got ${correct} out of ${total} correct. Remember: action completed FIRST = Future Perfect, reference point = Future Simple!`;
+      feedback.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
+

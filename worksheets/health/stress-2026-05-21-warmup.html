@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stress Solutions (ESOL Level 3)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink: #1a1a1a; --gray: #444; --light: #666; --line: #333; }
+    body { font-family: Georgia, 'Times New Roman', serif; color: var(--ink); background: #f5f5f5; padding: 20px; line-height: 1.45; font-size: 14px; }
+    .sheet { max-width: 8in; margin: 0 auto; background: #fff; padding: 0.45in 0.55in; }
+    .header {
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .header-fields {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      font-size: 13px;
+    }
+    .field { display: flex; align-items: baseline; gap: 5px; }
+    .field label { font-weight: bold; }
+    .field-line { border-bottom: 1px solid var(--ink); width: 100px; height: 16px; }
+    .date-value { font-weight: normal; }
+    .section { margin-bottom: 18px; }
+    .section-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--ink); padding-bottom: 3px; margin-bottom: 10px; }
+    .section-title { text-align: center; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+    .section-time { font-size: 12px; color: var(--light); font-style: italic; }
+    .vocab-matching { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 40px; font-size: 14px; }
+    .vocab-word { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 0; }
+    .vocab-word .num { font-weight: bold; min-width: 20px; }
+    .vocab-word .word { flex: 1; }
+    .vocab-word .blank { border-bottom: 1px solid var(--line); width: 30px; margin-right: 2px; }
+    .vocab-def { padding: 3px 0; }
+    .vocab-def .letter { font-weight: bold; margin-right: 6px; }
+    .phrase { margin-bottom: 14px; }
+    .phrase-starter { font-weight: bold; font-size: 14px; margin-bottom: 3px; }
+    .examples { margin-left: 14px; font-size: 13px; color: var(--gray); margin-bottom: 4px; }
+    .examples li { margin-bottom: 1px; list-style: none; }
+    .examples li::before { content: "• "; color: var(--ink); }
+    .your-turn { display: flex; align-items: baseline; gap: 6px; font-size: 13px; margin-left: 14px; }
+    .your-turn-label { font-style: italic; color: var(--light); white-space: nowrap; }
+    .writing-line { border-bottom: 1px solid var(--line); flex: 1; height: 20px; }
+    .instruction { font-size: 12px; color: var(--light); font-style: italic; margin-bottom: 12px; }
+    .level-up { font-size: 12px; font-style: italic; color: var(--light); margin-top: 6px; padding-left: 14px; }
+    .round { margin-bottom: 8px; font-size: 13px; }
+    .round-header { font-weight: bold; }
+    .round-content { margin-left: 8px; color: var(--gray); }
+    .help-note { font-size: 12px; font-style: italic; color: var(--light); margin-top: 8px; }
+    .reading-text { font-size: 14px; line-height: 1.55; margin-bottom: 14px; }
+    .section:has(.reading-text) { margin-bottom: 36px; }
+    .reading-text p { margin-bottom: 8px; text-align: justify; }
+    .question { margin-bottom: 12px; }
+    .question-text { font-size: 13px; margin-bottom: 4px; }
+    .question-text b { font-weight: bold; }
+    .answer-line { border-bottom: 1px solid var(--line); height: 20px; }
+    .writing-prompt { font-size: 13px; margin-bottom: 10px; }
+    .requirements { font-size: 12px; margin-bottom: 12px; padding-left: 16px; color: var(--gray); }
+    .requirements li { margin-bottom: 1px; }
+    .writing-lines { margin-top: 10px; }
+    .homework-line { border-bottom: 1px solid var(--line); height: 26px; }
+    .optional-note { font-size: 11px; font-style: italic; color: var(--light); margin-top: 10px; }
+    .front-page { margin-bottom: 24px; }
+    @media print {
+      @page { size: letter; margin: 0.45in; }
+      body { background: #fff; padding: 0; }
+      .sheet { padding: 0; max-width: none; }
+      .page-break { page-break-before: always; }
+    }
+      .pron { font-size: 11px; color: var(--light); font-style: italic; margin-left: 4px; }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="front-page">
+      <header class="header">
+      <h1>Stress Solutions</h1>
+      <div class="header-fields">
+        <div class="field">
+          <label>Name</label>
+          <div class="field-line" style="width: 160px;"></div>
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <span class="date-value">May 21, 2026</span>
+        </div>
+      </div>
+    </header>
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Part A: Vocabulary</h2>
+          <span class="section-time">3 min</span>
+        </div>
+        <p class="instruction">Match each word to its meaning. Write the letter on the line.</p>
+        <div class="vocab-matching">
+          <div class="vocab-words">
+            <div class="vocab-word"><span class="num">1.</span> <span class="blank"></span> <span class="word">addiction</span></div>
+            <div class="vocab-word"><span class="num">2.</span> <span class="blank"></span> <span class="word">self-esteem</span></div>
+            <div class="vocab-word"><span class="num">3.</span> <span class="blank"></span> <span class="word">balance</span> <span class="pron">(BAL-unts)</span></div>
+            <div class="vocab-word"><span class="num">4.</span> <span class="blank"></span> <span class="word">recharge</span></div>
+            <div class="vocab-word"><span class="num">5.</span> <span class="blank"></span> <span class="word">mindful</span></div>
+            <div class="vocab-word"><span class="num">6.</span> <span class="blank"></span> <span class="word">restore</span></div>
+          </div>
+          <div class="vocab-defs">
+            <div class="vocab-def"><span class="letter">a.</span> not being able to stop doing or using something harmful</div>
+            <div class="vocab-def"><span class="letter">b.</span> how you feel about yourself</div>
+            <div class="vocab-def"><span class="letter">c.</span> healthy mix of activities and rest</div>
+            <div class="vocab-def"><span class="letter">d.</span> to regain energy</div>
+            <div class="vocab-def"><span class="letter">e.</span> aware and present in the moment</div>
+            <div class="vocab-def"><span class="letter">f.</span> to bring back to good condition</div>
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Part B: Phrases</h2>
+          <span class="section-time">8 min</span>
+        </div>
+        <p class="instruction">Read the examples. Practice using imperatives (commands) and declaratives (statements) for stress solutions and self-care. Try to use vocabulary from Part A.</p>
+        <div class="phrase">
+          <div class="phrase-starter">1) Imperatives: Self-Care Commands</div>
+          <ul class="examples">
+            <li>Take breaks throughout the day.</li>
+            <li>Practice deep breathing exercises.</li>
+            <li>Set boundaries with work and others.</li>
+          </ul>
+          <div class="your-turn">
+            <span class="your-turn-label">Your turn:</span>
+            <div class="writing-line"></div>
+          </div>
+        </div>
+        <div class="phrase">
+          <div class="phrase-starter">2) Declaratives: Self-Care Facts</div>
+          <ul class="examples">
+            <li>Self-care is essential for mental health.</li>
+            <li>Breaks help restore your energy.</li>
+            <li>Boundaries protect your well-being.</li>
+          </ul>
+          <div class="your-turn">
+            <span class="your-turn-label">Your turn:</span>
+            <div class="writing-line"></div>
+          </div>
+        </div>
+        <div class="phrase">
+          <div class="phrase-starter">3) Negative Imperatives: Don't...</div>
+          <ul class="examples">
+            <li>Don't ignore your body's signals.</li>
+            <li>Don't work without breaks.</li>
+            <li>Don't forget to recharge.</li>
+          </ul>
+          <div class="your-turn">
+            <span class="your-turn-label">Your turn:</span>
+            <div class="writing-line"></div>
+          </div>
+        </div>
+        <div class="phrase">
+          <div class="phrase-starter">4) Mixed: Imperative + Declarative</div>
+          <ul class="examples">
+            <li>Be mindful of your stress levels. Mindfulness helps you notice problems early.</li>
+            <li>Rest when you need to. Rest restores your body and mind.</li>
+          </ul>
+          <div class="your-turn">
+            <span class="your-turn-label">Your turn:</span>
+            <div class="writing-line"></div>
+          </div>
+        </div>
+        <p class="level-up">Level up: Remember: Imperatives give commands (Take breaks). Declaratives state facts (Breaks are important).</p>
+      </section>
+      
+    </div>
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Reading</h2>
+      </div>
+      <div class="reading-text">
+        <p>Stress solutions are ways to manage stress and protect your well-being. Imperatives give you clear instructions: "Take breaks. Practice breathing. Set boundaries." These commands tell you what actions to take. Declaratives explain the benefits: "Breaks restore your energy. Breathing reduces stress. Boundaries protect your well-being."</p>
+        <p>Self-care routines help you maintain balance and lower stress. Start with simple imperatives: "Be mindful of your stress. Rest when you need to. Recharge regularly." Then understand why with declaratives: "Mindfulness helps you notice stress early. Rest restores your body. Recharging prevents burnout."</p>
+        <p>Remember: Imperatives are commands (Do this). Declaratives are facts (This is true). Use both to create effective stress solutions and self-care routines.</p>
+      </div>
+      <div class="question">
+        <div class="question-text"><b>1)</b> What is the difference between an imperative and a declarative sentence?</div>
+        <div class="answer-line"></div>
+      </div>
+      <div class="question">
+        <div class="question-text"><b>2)</b> Give one example of an imperative and one example of a declarative from the reading.</div>
+        <div class="answer-line"></div>
+      </div>
+      <div class="question">
+        <div class="question-text"><b>3)</b> Why is it helpful to use both imperatives and declaratives when creating a self-care routine?</div>
+        <div class="answer-line"></div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Writing Homework</h2>
+        <span class="section-time">6–8 sentences</span>
+      </div>
+      <div class="writing-prompt">
+        <b>Prompt:</b> Write about your stress solutions or self-care routine using imperatives and declaratives. Include 3-4 imperatives (commands) about what you do to manage stress or take care of yourself, and 3-4 declaratives (statements) explaining why these practices are important for your well-being.
+      </div>
+      
+      <div class="writing-lines">
+        <div class="homework-line"></div>
+        <div class="homework-line"></div>
+        <div class="homework-line"></div>
+        <div class="homework-line"></div>
+        <div class="homework-line"></div>
+        <div class="homework-line"></div>
+        <div class="homework-line"></div>
+        <div class="homework-line"></div>
+      </div>
+      <p class="optional-note">Optional challenge: Use negative imperatives (Don't...) to explain what you avoid doing for self-care.</p>
+    </section>
+  </div>
+
+  <script>
+    // Shuffle vocab definitions on page load for randomized matching exercises
+    (function() {
+      const defsContainer = document.querySelector('.vocab-defs');
+      if (!defsContainer) return;
+
+      const defs = Array.from(defsContainer.querySelectorAll('.vocab-def'));
+      if (defs.length === 0) return;
+
+      // Fisher-Yates shuffle
+      for (let i = defs.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [defs[i], defs[j]] = [defs[j], defs[i]];
+      }
+
+      // Re-assign letters after shuffling
+      const letters = 'abcdefghijklmnopqrstuvwxyz';
+      defs.forEach((def, idx) => {
+        const letterSpan = def.querySelector('.letter');
+        if (letterSpan) {
+          letterSpan.textContent = letters[idx] + '.';
+        }
+      });
+
+      // Clear and re-append in shuffled order
+      defsContainer.innerHTML = '';
+      defs.forEach(def => defsContainer.appendChild(def));
+    })();
+  </script>
+</body>
+</html>

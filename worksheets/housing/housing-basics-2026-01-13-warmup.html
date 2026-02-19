@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Housing Basics – Describing Your Home (ESOL Level 3)</title>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #1a1a1a;
+      --gray: #444;
+      --light: #666;
+      --line: #333;
+    }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      color: var(--ink);
+      background: #f5f5f5;
+      padding: 20px;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .sheet {
+      max-width: 8in;
+      margin: 0 auto;
+      background: #fff;
+      padding: 0.45in 0.55in;
+    }
+
+    /* Header */
+    .header {
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    .header h1 {
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .header-left .subtitle {
+      font-size: 12px;
+      color: var(--gray);
+    }
+
+    .header-fields {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .field {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+
+    .field label {
+      font-weight: bold;
+    }
+
+    .field-line {
+      border-bottom: 1px solid var(--ink);
+      width: 100px;
+      height: 16px;
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: 18px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 3px;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 14px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .section-time {
+      font-size: 12px;
+      color: var(--light);
+      font-style: italic;
+    }
+
+    /* Vocabulary Matching */
+    .vocab-matching {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 40px;
+      font-size: 14px;
+    }
+
+    .vocab-word {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 3px 0;
+    }
+
+    .vocab-word .num {
+      font-weight: bold;
+      min-width: 20px;
+    }
+
+    .vocab-word .word {
+      flex: 1;
+    }
+
+    .vocab-word .blank {
+      border-bottom: 1px solid var(--line);
+      width: 30px;
+      margin-right: 2px;
+    }
+
+    .vocab-def {
+      padding: 3px 0;
+    }
+
+    .vocab-def .letter {
+      font-weight: bold;
+      margin-right: 6px;
+    }
+
+    /* Phrases */
+    .phrase {
+      margin-bottom: 14px;
+    }
+
+    .phrase-starter {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+
+    .examples {
+      margin-left: 14px;
+      font-size: 13px;
+      color: var(--gray);
+      margin-bottom: 4px;
+    }
+
+    .examples li {
+      margin-bottom: 1px;
+      list-style: none;
+    }
+
+    .examples li::before {
+      content: "• ";
+      color: var(--ink);
+    }
+
+    .your-turn {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: 13px;
+      margin-left: 14px;
+    }
+
+    .your-turn-label {
+      font-style: italic;
+      color: var(--light);
+      white-space: nowrap;
+    }
+
+    .writing-line {
+      border-bottom: 1px solid var(--line);
+      flex: 1;
+      height: 20px;
+    }
+
+    .instruction {
+      font-size: 12px;
+      color: var(--light);
+      font-style: italic;
+      margin-bottom: 12px;
+    }
+
+    .level-up {
+      font-size: 12px;
+      font-style: italic;
+      color: var(--light);
+      margin-top: 6px;
+      padding-left: 14px;
+    }
+
+    /* Partner Practice */
+    .round {
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .round-header {
+      font-weight: bold;
+    }
+
+    .round-content {
+      margin-left: 8px;
+      color: var(--gray);
+    }
+
+    .help-note {
+      font-size: 12px;
+      font-style: italic;
+      color: var(--light);
+      margin-top: 8px;
+    }
+
+    /* Reading */
+    .reading-text {
+      font-size: 14px;
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+    .section:has(.reading-text) { margin-bottom: 36px; }
+
+    .reading-text p {
+      margin-bottom: 8px;
+      text-align: justify;
+    }
+
+    /* Questions */
+    .question {
+      margin-bottom: 12px;
+    }
+
+    .question-text {
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .question-text b {
+      font-weight: bold;
+    }
+
+    .answer-line {
+      border-bottom: 1px solid var(--line);
+      height: 20px;
+    }
+
+    /* Writing */
+    .writing-prompt {
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .requirements {
+      font-size: 12px;
+      margin-bottom: 12px;
+      padding-left: 16px;
+      color: var(--gray);
+    }
+
+    .requirements li {
+      margin-bottom: 1px;
+    }
+
+    .writing-lines {
+      margin-top: 10px;
+    }
+
+    .homework-line {
+      border-bottom: 1px solid var(--line);
+      height: 26px;
+    }
+
+    .optional-note {
+      font-size: 11px;
+      font-style: italic;
+      color: var(--light);
+      margin-top: 10px;
+    }
+
+    /* Page sections */
+    .front-page {
+      margin-bottom: 24px;
+    }
+
+    /* Print styles */
+    @media print {
+      @page {
+        size: letter;
+        margin: 0.45in;
+      }
+
+      body {
+        background: #fff;
+        padding: 0;
+      }
+
+      .sheet {
+        padding: 0;
+        max-width: none;
+      }
+    }
+      .pron { font-size: 11px; color: var(--light); font-style: italic; margin-left: 4px; }
+  </style>
+</head>
+
+<body>
+  <div class="sheet">
+    <!-- FRONT PAGE -->
+    <div class="front-page">
+      <header class="header">
+      <h1>Housing Basics: Describing Your Home</h1>
+      <div class="header-fields">
+        <div class="field">
+          <label>Name</label>
+          <div class="field-line" style="width: 160px;"></div>
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <span class="date-value">January 13, 2026</span>
+        </div>
+      </div>
+    </header>
+
+      <!-- PART A: VOCABULARY (first!) -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Part A: Vocabulary</h2>
+          <span class="section-time">3 min</span>
+        </div>
+
+        <p class="instruction">Match each word to its meaning. Write the letter on the line.</p>
+
+        <div class="vocab-matching">
+          <div class="vocab-words">
+            <div class="vocab-word"><span class="num">1.</span> <span class="blank"></span> <span class="word">lease</span> <span class="pron">(LEES)</span></div>
+            <div class="vocab-word"><span class="num">2.</span> <span class="blank"></span> <span class="word">deposit</span> <span class="pron">(dih-POZ-it)</span></div>
+            <div class="vocab-word"><span class="num">3.</span> <span class="blank"></span> <span class="word">utilities</span> <span class="pron">(yoo-TIL-ih-teez)</span></div>
+            <div class="vocab-word"><span class="num">4.</span> <span class="blank"></span> <span class="word">rent</span></div>
+            <div class="vocab-word"><span class="num">5.</span> <span class="blank"></span> <span class="word">landlord</span> <span class="pron">(LAND-lord)</span></div>
+            <div class="vocab-word"><span class="num">6.</span> <span class="blank"></span> <span class="word">maintenance</span> <span class="pron">(MAYN-tuh-nunts)</span></div>
+          </div>
+          <div class="vocab-defs">
+            <div class="vocab-def"><span class="letter">a.</span> money you pay each month for your home</div>
+            <div class="vocab-def"><span class="letter">b.</span> a person who owns the building</div>
+            <div class="vocab-def"><span class="letter">c.</span> a written contract for renting</div>
+            <div class="vocab-def"><span class="letter">d.</span> money you pay before moving in (you may get it back)</div>
+            <div class="vocab-def"><span class="letter">e.</span> repairs and upkeep of a building</div>
+            <div class="vocab-def"><span class="letter">f.</span> electricity, gas, water, internet</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PART B: PHRASES + PRODUCTION -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Part B: Phrases</h2>
+          <span class="section-time">8 min</span>
+        </div>
+
+        <p class="instruction">Read the examples. Then write your own sentence. Try to use vocabulary from Part A.</p>
+
+        <div class="phrase">
+          <div class="phrase-starter">1) I live in a…</div>
+          <ul class="examples">
+            <li>I live in a small apartment near downtown.</li>
+            <li>I've been living in a two-bedroom with my family for three years.</li>
+          </ul>
+          <div class="your-turn">
+            <span class="your-turn-label">Your turn:</span>
+            <div class="writing-line"></div>
+          </div>
+        </div>
+
+        <div class="phrase">
+          <div class="phrase-starter">2) My home has…</div>
+          <ul class="examples">
+            <li>My home has two bedrooms and one bathroom.</li>
+            <li>My home has a big kitchen, but the living room is small.</li>
+          </ul>
+          <div class="your-turn">
+            <span class="your-turn-label">Your turn:</span>
+            <div class="writing-line"></div>
+          </div>
+        </div>
+
+        <div class="phrase">
+          <div class="phrase-starter">3) The rent is… / I pay…</div>
+          <ul class="examples">
+            <li>The rent is $1,400 per month.</li>
+            <li>I pay $950 a month, and utilities are included.</li>
+          </ul>
+          <div class="your-turn">
+            <span class="your-turn-label">Your turn:</span>
+            <div class="writing-line"></div>
+          </div>
+        </div>
+
+        <div class="phrase">
+          <div class="phrase-starter">4) One problem is…</div>
+          <ul class="examples">
+            <li>One problem is the noise from the street.</li>
+            <li>One problem is the landlord is slow with repairs.</li>
+          </ul>
+          <div class="your-turn">
+            <span class="your-turn-label">Your turn:</span>
+            <div class="writing-line"></div>
+          </div>
+        </div>
+
+        <div class="phrase">
+          <div class="phrase-starter">5) I like my home because…</div>
+          <ul class="examples">
+            <li>I like my home because it's close to the bus.</li>
+            <li>Even though it's small, the neighborhood is safe.</li>
+          </ul>
+          <div class="your-turn">
+            <span class="your-turn-label">Your turn:</span>
+            <div class="writing-line"></div>
+          </div>
+        </div>
+
+        <p class="level-up">Level up: Add a reason (because, so) or contrast (even though, however).</p>
+      </section>
+
+      <!-- PART C: PARTNER PRACTICE -->
+      
+    </div>
+
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Reading</h2>
+        </div>
+
+        <div class="reading-text">
+          <p>In many cities, rent costs more now. Many families must make hard choices. Some people live with roommates. Some move farther from the subway. Some share bedrooms. When you look for housing, think about your priorities: price, location, safety, and space.</p>
+          <p>Ask clear questions before you sign a lease. For example: What utilities are included? Is heat included? How long is the lease? What is the policy for repairs? Asking questions can prevent problems later.</p>
+        </div>
+
+        <div class="question">
+          <div class="question-text"><b>1)</b> Name <b>two ways</b> people save money on housing.</div>
+          <div class="answer-line"></div>
+        </div>
+
+        <div class="question">
+          <div class="question-text"><b>2)</b> What are <b>two priorities</b> you think about when choosing housing?</div>
+          <div class="answer-line"></div>
+        </div>
+
+        <div class="question">
+          <div class="question-text"><b>3)</b> Write <b>one question</b> you should ask before signing a lease.</div>
+          <div class="answer-line"></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Writing Homework</h2>
+          <span class="section-time">6–8 sentences</span>
+        </div>
+
+        <div class="writing-prompt">
+          <b>Prompt:</b> Describe your home now. Then describe your ideal home. What is different? Why do you want the change?
+        </div>
+
+        
+
+        <div class="writing-lines">
+          <div class="homework-line"></div>
+          <div class="homework-line"></div>
+          <div class="homework-line"></div>
+          <div class="homework-line"></div>
+          <div class="homework-line"></div>
+          <div class="homework-line"></div>
+          <div class="homework-line"></div>
+          <div class="homework-line"></div>
+        </div>
+
+        <p class="optional-note">Optional challenge: Use present perfect (I've lived…) and a contrast phrase (even though, however).</p>
+      </section>
+  </div>
+
+  <script>
+    // Shuffle vocab definitions on page load for randomized matching exercises
+    (function() {
+      const defsContainer = document.querySelector('.vocab-defs');
+      if (!defsContainer) return;
+
+      const defs = Array.from(defsContainer.querySelectorAll('.vocab-def'));
+      if (defs.length === 0) return;
+
+      // Fisher-Yates shuffle
+      for (let i = defs.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [defs[i], defs[j]] = [defs[j], defs[i]];
+      }
+
+      // Re-assign letters after shuffling
+      const letters = 'abcdefghijklmnopqrstuvwxyz';
+      defs.forEach((def, idx) => {
+        const letterSpan = def.querySelector('.letter');
+        if (letterSpan) {
+          letterSpan.textContent = letters[idx] + '.';
+        }
+      });
+
+      // Clear and re-append in shuffled order
+      defsContainer.innerHTML = '';
+      defs.forEach(def => defsContainer.appendChild(def));
+    })();
+  </script>
+</body>
+</html>

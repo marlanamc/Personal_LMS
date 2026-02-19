@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model User {
+  id                    String               @id @default(cuid())
+  username              String               @unique
+  name                  String?
+  password              String
+  role                  String               @default("student")
+  mustChangePassword    Boolean              @default(true)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  points                Int                  @default(0)
+  currentStreak         Int                  @default(0)
+  longestStreak         Int                  @default(0)
+  lastActivityDate      DateTime?
+  weeklyPoints          Int                  @default(0)
+  lastWeekRank          Int?
+  avatar                String?
+  avatarColor           String?
+  activityProgress      ActivityProgress[]
+  calendarEventsCreated CalendarEvent[]
+  createdClasses        Class[]              @relation("ClassTeacher")
+  classes               ClassEnrollment[]
+  pointsLedger          PointsLedger[]
+  quizResponses         QuizResponse[]
+  speakingSubmissions   SpeakingSubmission[]
+  submissions           Submission[]
+  achievements          UserAchievement[]
+
+  @@index([role])
+  @@index([weeklyPoints])
+  @@index([role, weeklyPoints])
+}
+
+model Class {
+  id             String            @id @default(cuid())
+  name           String
+  description    String?
+  announcement   String?
+  code           String            @unique
+  teacherId      String
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  assignments    Assignment[]
+  calendarEvents CalendarEvent[]
+  teacher        User              @relation("ClassTeacher", fields: [teacherId], references: [id])
+  enrollments    ClassEnrollment[]
+
+  @@index([teacherId])
+}
+
+model ClassEnrollment {
+  id        String   @id @default(cuid())
+  classId   String
+  studentId String
+  joinedAt  DateTime @default(now())
+  class     Class    @relation(fields: [classId], references: [id])
+  student   User     @relation(fields: [studentId], references: [id])
+
+  @@unique([classId, studentId])
+}
+
+model Activity {
+  id                  String               @id @default(cuid())
+  title               String
+  description         String?
+  type                String
+  category            String?
+  level               String?
+  content             String
+  createdBy           String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  deletedAt           DateTime?
+  ui                  String?
+  isReleased          Boolean              @default(false)
+  progress            ActivityProgress[]
+  assignments         Assignment[]
+  quizResponses       QuizResponse[]
+  speakingSubmissions SpeakingSubmission[]
+  submissions         Submission[]
+
+  @@index([isReleased])
+  @@index([type, category, isReleased])
+  @@index([deletedAt])
+}
+
+model ActivityProgress {
+  id           String      @id @default(cuid())
+  userId       String
+  activityId   String
+  progress     Int         @default(0)
+  status       String      @default("in_progress")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  categoryData String?
+  assignmentId String?
+  activity     Activity    @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  assignment   Assignment? @relation(fields: [assignmentId], references: [id])
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, activityId, assignmentId])
+}
+
+model SpeakingSubmission {
+  id                       String      @id @default(cuid())
+  userId                   String
+  activityId               String
+  assignmentId             String?
+  selectedPromptIds        String[]
+  soloSentences            String[]
+  soloFollowUpQuestions    String[]
+  soloCompletedStepIds     String[]
+  speakingBestSentence     String
+  speakingCompletedStepIds String[]
+  submittedAt              DateTime    @default(now())
+  status                   String      @default("submitted")
+  activity                 Activity    @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  assignment               Assignment? @relation(fields: [assignmentId], references: [id])
+  user                     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, activityId, assignmentId])
+}
+
+model PointsLedger {
+  id        String   @id @default(cuid())
+  userId    String
+  points    Int
+  reason    String?
+  source    String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([createdAt])
+  @@index([userId])
+  @@index([source])
+  @@index([userId, createdAt])
+}
+
+model Assignment {
+  id                  String               @id @default(cuid())
+  classId             String
+  activityId          String
+  title               String?
+  instructions        String?
+  dueDate             DateTime?
+  isFeatured          Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  activityProgress    ActivityProgress[]
+  activity            Activity             @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  class               Class                @relation(fields: [classId], references: [id], onDelete: Cascade)
+  quizResponses       QuizResponse[]
+  speakingSubmissions SpeakingSubmission[]
+  submissions         Submission[]
+
+  @@index([classId])
+  @@index([isFeatured])
+  @@index([dueDate])
+}
+
+model Submission {
+  id            String      @id @default(cuid())
+  userId        String
+  activityId    String
+  assignmentId  String?
+  content       String
+  score         Int?
+  feedback      String?
+  status        String      @default("pending")
+  pointsAwarded Int         @default(0)
+  completedAt   DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  activity      Activity    @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  assignment    Assignment? @relation(fields: [assignmentId], references: [id])
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, activityId, assignmentId])
+  @@index([userId])
+  @@index([status])
+  @@index([assignmentId])
+}
+
+model Achievement {
+  id               String            @id @default(cuid())
+  name             String
+  description      String
+  icon             String
+  type             String
+  requirement      Int
+  points           Int               @default(0)
+  createdAt        DateTime          @default(now())
+  userAchievements UserAchievement[]
+}
+
+model CalendarEvent {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  endDate     DateTime?
+  type        String    @default("holiday")
+  classId     String
+  createdById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  class       Class     @relation(fields: [classId], references: [id])
+  createdBy   User?     @relation(fields: [createdById], references: [id])
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime    @default(now())
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
+
+  @@unique([userId, achievementId])
+}
+
+model QuizResponse {
+  id           String      @id @default(cuid())
+  userId       String
+  activityId   String
+  assignmentId String?
+  questionId   String
+  userAnswer   String
+  isCorrect    Boolean
+  skillTag     String?
+  difficulty   String?
+  topic        String?
+  createdAt    DateTime    @default(now())
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity   Activity    @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  assignment Assignment? @relation(fields: [assignmentId], references: [id])
+
+  @@index([userId])
+  @@index([activityId])
+  @@index([skillTag])
+  @@index([userId, activityId])
+  @@index([activityId, skillTag])
+}

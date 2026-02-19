@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Present Perfect - Complete Guide & Practice | ESOL Teacher Resources</title>
+  <meta name="description"
+    content="Complete step-by-step guide to Present Perfect tense with numbered sections for easy navigation and focused practice on each concept.">
+  <meta name="activity-type" content="guide">
+  <meta name="activity-level" content="intermediate">
+  <meta name="activity-category" content="grammar">
+  <link rel="stylesheet" href="../../../assets/css/main.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .grammar-guide {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .step-section {
+      background: white;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-xl);
+      margin: var(--spacing-2xl) 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: var(--font-size-lg);
+      margin-right: var(--spacing-md);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid #6366f1;
+    }
+
+    .step-title {
+      color: #6366f1;
+      font-size: var(--font-size-xl);
+      margin: 0;
+    }
+
+    .explanation-box {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+      border-radius: var(--radius-md);
+    }
+
+    .formula-box {
+      background: white;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+      text-align: center;
+    }
+
+    .formula-part {
+      display: inline-block;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      margin: 2px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      border: 1px solid var(--color-border);
+    }
+
+    .subject-part {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+      color: #6366f1;
+    }
+
+    .verb-part {
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(236, 72, 153, 0.05) 100%);
+      color: #ec4899;
+    }
+
+    .object-part {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+      color: #10b981;
+    }
+
+    .example-box {
+      background: var(--color-bg-light);
+      padding: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .example-box .example {
+      margin: var(--spacing-xs) 0;
+      padding: var(--spacing-xs);
+    }
+
+    .exercise-section {
+      background: var(--color-bg-light);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+    }
+
+    .exercise-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      color: #6366f1;
+      margin-bottom: var(--spacing-md);
+      font-size: var(--font-size-lg);
+    }
+
+    .exercise-instructions {
+      color: var(--color-text-muted);
+      margin-bottom: var(--spacing-md);
+      font-style: italic;
+    }
+
+    .exercise-item {
+      margin: var(--spacing-md) 0;
+      padding: var(--spacing-md);
+      background: white;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+    }
+
+    .exercise-item label {
+      display: block;
+      margin-bottom: var(--spacing-xs);
+      font-weight: 500;
+    }
+
+    .exercise-item input[type="text"],
+    .exercise-item select {
+      width: 100%;
+      padding: var(--spacing-sm);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-base);
+      font-family: inherit;
+    }
+
+    .exercise-item input[type="text"]:focus,
+    .exercise-item select:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .check-button {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: var(--spacing-md);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+
+    .check-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .feedback {
+      margin-top: var(--spacing-md);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-sm);
+      display: none;
+    }
+
+    .feedback.correct {
+      background: rgba(16, 185, 129, 0.1);
+      border-left: 3px solid #10b981;
+      color: #10b981;
+    }
+
+    .feedback.incorrect {
+      background: rgba(239, 68, 68, 0.1);
+      border-left: 3px solid #ef4444;
+      color: #ef4444;
+    }
+
+    .usage-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .usage-list li {
+      padding: var(--spacing-sm);
+      margin: var(--spacing-xs) 0;
+      background: var(--color-bg-light);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .usage-list li strong {
+      color: #6366f1;
+    }
+
+    .highlight {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
+    .tip-box {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+      padding: var(--spacing-md);
+      margin: var(--spacing-md) 0;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .tip-box strong {
+      color: #f59e0b;
+    }
+
+    .show-practice-button {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: var(--spacing-lg);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      font-size: var(--font-size-base);
+    }
+
+    .show-practice-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .exercise-section {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: all 0.4s ease;
+      pointer-events: none;
+    }
+
+    .step-section:hover .exercise-section,
+    .exercise-section.visible {
+      max-height: 2000px;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .show-practice-button.hidden {
+      display: none;
+    }
+
+    .print-button {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border: none;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      margin: var(--spacing-md) 0;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      font-size: var(--font-size-base);
+    }
+
+    .print-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .print-header {
+      display: none;
+    }
+
+    @media print {
+      @page {
+        margin: 0.4in 0.5in;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background: white;
+        color: black;
+        font-size: 10pt;
+        line-height: 1.3;
+      }
+
+      .site-header,
+      .breadcrumbs,
+      .check-button,
+      .theme-toggle,
+      .mobile-menu-toggle,
+      .nav,
+      footer,
+      .print-button,
+      .show-practice-button,
+      i[data-lucide] {
+        display: none !important;
+      }
+
+      .exercise-section {
+        display: block !important;
+      }
+
+      .print-header {
+        display: block;
+        margin-bottom: 8px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #000;
+      }
+
+      .print-header .name-line {
+        font-size: 11pt;
+        margin-bottom: 4px;
+      }
+
+      .print-header .blank-line {
+        border-bottom: 1px solid #000;
+        display: inline-block;
+        min-width: 250px;
+        margin-left: 4px;
+        height: 14px;
+      }
+
+      .print-header .date-line {
+        font-size: 10pt;
+        margin-top: 4px;
+      }
+
+      .step-section {
+        border: 1px solid #ccc;
+        margin: 8px 0;
+        padding: 8px;
+        background: white;
+        box-shadow: none;
+        page-break-inside: auto;
+      }
+
+      .step-header {
+        border-bottom: 1px solid #000;
+        margin-bottom: 6px;
+        padding-bottom: 4px;
+      }
+
+      .step-title {
+        color: #000;
+        font-size: 12pt;
+        margin: 0;
+      }
+
+      .step-number {
+        background: #000;
+        color: white;
+        width: 24px;
+        height: 24px;
+        font-size: 10pt;
+        margin-right: 6px;
+      }
+
+      .explanation-box {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 6px;
+        margin: 6px 0;
+      }
+
+      .exercise-section {
+        background: white;
+        border: 1px solid #ddd;
+        padding: 6px;
+        margin: 6px 0;
+        page-break-inside: auto;
+      }
+
+      .highlight {
+        background: #e0e0e0;
+        padding: 1px 3px;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        margin: 4px 0;
+        page-break-after: avoid;
+      }
+
+      p {
+        margin: 3px 0;
+      }
+
+      ul,
+      ol {
+        margin: 4px 0;
+        padding-left: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-content">
+        <a href="../../../index.html" class="site-logo">ESOL Teacher Resources</a>
+        <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+          <button class="theme-toggle" aria-label="Toggle dark mode" type="button">
+            <i data-lucide="moon" class="icon"></i>
+          </button>
+          <button class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false" type="button">
+            <i data-lucide="menu" class="icon"></i>
+          </button>
+        </div>
+        <nav class="nav">
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="../index.html" class="nav-link">GRAMMAR</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../writing-reading/index.html" class="nav-link">WRITING/READING</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../speaking/index.html" class="nav-link">SPEAKING</a>
+            </li>
+            <li class="nav-item">
+              <a href="../../vocab/index.html" class="nav-link">VOCAB</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <div class="breadcrumbs">
+          <a href="../../../index.html">Home</a>
+          <span class="breadcrumbs-separator">/</span>
+          <a href="../index.html">Grammar</a>
+          <span class="breadcrumbs-separator">/</span>
+          <a href="../index.html#verb-tenses">Verb Tenses</a>
+          <span class="breadcrumbs-separator">/</span>
+          <span>Present Perfect</span>
+        </div>
+
+        <div class="activity-header">
+          <h1 class="activity-title">Present Perfect - Complete Step-by-Step Guide</h1>
+          <div class="activity-meta">
+            <span class="activity-badge badge-guide">Complete Guide</span>
+            <span class="activity-level">Intermediate</span>
+          </div>
+          <button class="print-button" onclick="window.print()">
+            <i data-lucide="printer" style="width: 18px; height: 18px;"></i>
+            Print Worksheet
+          </button>
+        </div>
+
+        <!-- Print Header (only visible when printing) -->
+        <div class="print-header">
+          <div class="name-line">
+            <strong>Name:</strong> <span class="blank-line"></span>
+          </div>
+          <div class="date-line">
+            <strong>Date:</strong> <span class="blank-line"></span>
+          </div>
+        </div>
+
+        <div class="grammar-guide">
+
+          <!-- Introduction -->
+          <div class="explanation-box">
+            <h2 style="color: #1e293b; margin-top: 0;">
+              <i data-lucide="book-open"
+                style="width: 20px; height: 20px; display: inline-block; vertical-align: middle;"></i>
+              Welcome! Let's Learn Present Perfect Together
+            </h2>
+            <p>We're going to learn Present Perfect step by step. This guide has numbered sections so you can easily navigate and say "go to section 3" or "let's work on section 5."</p>
+            <p><strong>What is Present Perfect?</strong> It connects the past to the present. We use it for past actions that have a connection to now.</p>
+          </div>
+
+          <!-- SECTION 1: MEANING & USAGE -->
+          <div class="step-section"
+            style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); border-color: #6366f1;">
+            <div class="step-header">
+              <span class="step-number">1</span>
+              <h2 class="step-title">Section 1: When Do We Use Present Perfect?</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">Understanding the meaning first</h3>
+              <p>Present Perfect connects <strong>the past to the present</strong>. It's used when something happened in the past, but we care about it NOW.</p>
+
+              <div style="margin: var(--spacing-lg) 0;">
+                <h4 style="color: #1e293b; margin-bottom: var(--spacing-md);">Present Perfect is used for:</h4>
+
+                <div class="usage-list" style="margin-top: var(--spacing-md);">
+                  <li>
+                    <strong>1. Life Experiences</strong> - Things you have done in your life (up to now)
+                    <div class="example-box" style="margin-top: var(--spacing-xs); margin-left: var(--spacing-md);">
+                      <div class="example">I <span class="highlight">have visited</span> Paris.</div>
+                      <div class="example">She <span class="highlight">has tried</span> sushi before.</div>
+                      <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic;">
+                        The exact time doesn't matter - it's about the experience you have now.
+                      </p>
+                    </div>
+                  </li>
+
+                  <li style="margin-top: var(--spacing-md);">
+                    <strong>2. Recent Actions with Results Now</strong> - Something just happened and affects the present
+                    <div class="example-box" style="margin-top: var(--spacing-xs); margin-left: var(--spacing-md);">
+                      <div class="example">I <span class="highlight">have lost</span> my keys. (I don't have them NOW)</div>
+                      <div class="example">She <span class="highlight">has finished</span> her homework. (It's done NOW)</div>
+                      <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic;">
+                        The action happened in the past, but the result is important NOW.
+                      </p>
+                    </div>
+                  </li>
+
+                  <li style="margin-top: var(--spacing-md);">
+                    <strong>3. Unfinished Time Periods</strong> - Actions in a time period that isn't finished yet
+                    <div class="example-box" style="margin-top: var(--spacing-xs); margin-left: var(--spacing-md);">
+                      <div class="example">I <span class="highlight">have studied</span> English for 3 years. (still studying)</div>
+                      <div class="example">We <span class="highlight">have lived</span> here since 2020. (still living here)</div>
+                      <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic;">
+                        The time period continues to NOW.
+                      </p>
+                    </div>
+                  </li>
+                </div>
+              </div>
+
+              <div class="tip-box" style="margin-top: var(--spacing-lg);">
+                <strong>Key Idea:</strong>
+                <p style="margin: var(--spacing-xs) 0 0 0;">Present Perfect connects PAST actions to the PRESENT moment. Think: "How does this past action matter NOW?"</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 2: PAST PARTICIPLES -->
+          <div class="step-section">
+            <div class="step-header">
+              <span class="step-number">2</span>
+              <h2 class="step-title">Section 2: Understanding Past Participles</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">What is a Past Participle?</h3>
+              <p>Before we learn the formula, we need to understand <strong>past participles</strong>. These are special verb forms we use with "have" and "has".</p>
+
+              <div style="margin: var(--spacing-lg) 0;">
+                <h4 style="color: #1e293b; margin-bottom: var(--spacing-md);">Two Types:</h4>
+
+                <div class="example-box">
+                  <strong style="color: #1e293b;">Regular Verbs (add -ed):</strong>
+                  <div class="example">work → worked</div>
+                  <div class="example">play → played</div>
+                  <div class="example">visit → visited</div>
+                  <div class="example">finish → finished</div>
+                </div>
+
+                <div class="example-box" style="margin-top: var(--spacing-md);">
+                  <strong style="color: #1e293b;">Irregular Verbs (must memorize):</strong>
+                  <div class="example">go → gone</div>
+                  <div class="example">see → seen</div>
+                  <div class="example">eat → eaten</div>
+                  <div class="example">be → been</div>
+                  <div class="example">have → had</div>
+                  <div class="example">do → done</div>
+                  <div class="example">make → made</div>
+                  <div class="example">take → taken</div>
+                </div>
+              </div>
+
+              <div class="tip-box">
+                <strong>Remember:</strong>
+                <ul style="margin: var(--spacing-xs) 0; padding-left: var(--spacing-lg);">
+                  <li>Regular verbs: add <strong>-ed</strong> (work → worked)</li>
+                  <li>Irregular verbs: you need to <strong>memorize</strong> them</li>
+                  <li>The past participle looks the same as past simple for regular verbs</li>
+                  <li>But for irregular verbs, it's often different (went vs. gone)</li>
+                </ul>
+              </div>
+            </div>
+
+            <button class="show-practice-button" onclick="showExercise('ex1')">
+              <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+              Show Practice Exercise
+            </button>
+
+            <!-- Practice Exercise 1 -->
+            <div class="exercise-section" id="exercise-ex1">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 1: Identifying Past Participles
+              </div>
+              <p class="exercise-instructions">Write the past participle of each verb.</p>
+
+              <div class="exercise-item">
+                <label>1. finish → <input type="text" id="ex1-1" placeholder="past participle"></label>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. go → <input type="text" id="ex1-2" placeholder="past participle"></label>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. see → <input type="text" id="ex1-3" placeholder="past participle"></label>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. eat → <input type="text" id="ex1-4" placeholder="past participle"></label>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. study → <input type="text" id="ex1-5" placeholder="past participle"></label>
+              </div>
+
+              <button class="check-button" onclick="checkExercise1()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback1" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- SECTION 3: PRESENT PERFECT VS PAST SIMPLE -->
+          <div class="step-section"
+            style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%); border-color: #ec4899;">
+            <div class="step-header">
+              <span class="step-number">3</span>
+              <h2 class="step-title">Section 3: Present Perfect vs. Past Simple</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">When to use each?</h3>
+              <p>This is one of the most important things to understand!</p>
+
+              <div style="margin: var(--spacing-lg) 0;">
+                <div class="example-box">
+                  <h4 style="color: #ec4899; margin-top: 0;">Present Perfect = Connection to NOW</h4>
+                  <div class="example">I <span class="highlight">have lost</span> my keys. (I still don't have them)</div>
+                  <div class="example">She <span class="highlight">has lived</span> here for 5 years. (She still lives here)</div>
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic;">
+                    We care about the present situation, not the exact time in the past.
+                  </p>
+                </div>
+
+                <div class="example-box" style="margin-top: var(--spacing-md);">
+                  <h4 style="color: #10b981; margin-top: 0;">Past Simple = Finished time in the past</h4>
+                  <div class="example">I <span class="highlight">lost</span> my keys yesterday. (specific past time)</div>
+                  <div class="example">She <span class="highlight">lived</span> there in 2015. (finished time period)</div>
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted); font-style: italic;">
+                    We know exactly when it happened, and it's finished.
+                  </p>
+                </div>
+              </div>
+
+              <div class="tip-box">
+                <strong>Quick Test:</strong>
+                <p style="margin: var(--spacing-xs) 0 0 0;">Can you say WHEN it happened (yesterday, last week, in 2020)?</p>
+                <ul style="margin: var(--spacing-xs) 0; padding-left: var(--spacing-lg);">
+                  <li>YES → Use <strong>Past Simple</strong></li>
+                  <li>NO (or it doesn't matter) → Use <strong>Present Perfect</strong></li>
+                </ul>
+              </div>
+            </div>
+
+            <button class="show-practice-button" onclick="showExercise('ex2')">
+              <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+              Show Practice Exercise
+            </button>
+
+            <!-- Practice Exercise 2 -->
+            <div class="exercise-section" id="exercise-ex2">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 2: Present Perfect or Past Simple?
+              </div>
+              <p class="exercise-instructions">Choose the correct tense for each sentence.</p>
+
+              <div class="exercise-item">
+                <label>1. I _____ (visit) Paris last year.</label>
+                <select id="ex2-1">
+                  <option value="">Choose...</option>
+                  <option value="have visited">have visited (Present Perfect)</option>
+                  <option value="visited">visited (Past Simple)</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. She _____ (live) in New York for 3 years. (She still lives there)</label>
+                <select id="ex2-2">
+                  <option value="">Choose...</option>
+                  <option value="has lived">has lived (Present Perfect)</option>
+                  <option value="lived">lived (Past Simple)</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. They _____ (eat) dinner two hours ago.</label>
+                <select id="ex2-3">
+                  <option value="">Choose...</option>
+                  <option value="have eaten">have eaten (Present Perfect)</option>
+                  <option value="ate">ate (Past Simple)</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. I _____ (see) that movie before, but I don't remember when.</label>
+                <select id="ex2-4">
+                  <option value="">Choose...</option>
+                  <option value="have seen">have seen (Present Perfect)</option>
+                  <option value="saw">saw (Past Simple)</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. We _____ (go) to the beach yesterday.</label>
+                <select id="ex2-5">
+                  <option value="">Choose...</option>
+                  <option value="have gone">have gone (Present Perfect)</option>
+                  <option value="went">went (Past Simple)</option>
+                </select>
+              </div>
+
+              <button class="check-button" onclick="checkExercise2()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback2" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- SECTION 4: POSITIVE FORM -->
+          <div class="step-section">
+            <div class="step-header">
+              <span class="step-number">4</span>
+              <h2 class="step-title">Section 4: Positive Form (Statements)</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">How to form Present Perfect statements</h3>
+              <p>Now let's learn the formula for making positive sentences in Present Perfect.</p>
+
+              <div class="formula-box">
+                <div style="margin-bottom: var(--spacing-sm);">
+                  <span class="formula-part subject-part">Subject</span>
+                  <span class="formula-part verb-part">have/has</span>
+                  <span class="formula-part verb-part">past participle</span>
+                </div>
+              </div>
+
+              <div style="margin: var(--spacing-lg) 0;">
+                <h4 style="color: #1e293b; margin-bottom: var(--spacing-md);">When to use "have" vs "has":</h4>
+                <div class="example-box">
+                  <strong style="color: #1e293b;">Use "have" with: I, you, we, they</strong>
+                  <div class="example">I <span class="highlight">have worked</span> here for 5 years.</div>
+                  <div class="example">You <span class="highlight">have done</span> a great job.</div>
+                  <div class="example">We <span class="highlight">have seen</span> that movie.</div>
+                  <div class="example">They <span class="highlight">have visited</span> Paris.</div>
+                </div>
+
+                <div class="example-box" style="margin-top: var(--spacing-md);">
+                  <strong style="color: #1e293b;">Use "has" with: he, she, it</strong>
+                  <div class="example">He <span class="highlight">has finished</span> his homework.</div>
+                  <div class="example">She <span class="highlight">has lived</span> here since 2020.</div>
+                  <div class="example">It <span class="highlight">has been</span> a long day.</div>
+                </div>
+              </div>
+
+              <div class="tip-box">
+                <strong>Remember:</strong>
+                <p style="margin: var(--spacing-xs) 0 0 0;">The formula is always: Subject + have/has + past participle</p>
+              </div>
+            </div>
+
+            <button class="show-practice-button" onclick="showExercise('ex3')">
+              <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+              Show Practice Exercise
+            </button>
+
+            <!-- Practice Exercise 3 -->
+            <div class="exercise-section" id="exercise-ex3">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 3: Forming Positive Sentences
+              </div>
+              <p class="exercise-instructions">Complete each sentence with the correct form of Present Perfect.</p>
+
+              <div class="exercise-item">
+                <label>1. I <input type="text" id="ex3-1" placeholder="have/has + past participle"> (finish) my homework.</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. She <input type="text" id="ex3-2" placeholder="have/has + past participle"> (visit) Japan three times.</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. They <input type="text" id="ex3-3" placeholder="have/has + past participle"> (live) here for 10 years.</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. He <input type="text" id="ex3-4" placeholder="have/has + past participle"> (see) that movie before.</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. We <input type="text" id="ex3-5" placeholder="have/has + past participle"> (eat) at that restaurant many times.</label>
+              </div>
+
+              <button class="check-button" onclick="checkExercise3()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback3" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- SECTION 5: NEGATIVE FORM -->
+          <div class="step-section">
+            <div class="step-header">
+              <span class="step-number">5</span>
+              <h2 class="step-title">Section 5: Negative Form</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">How to make negative sentences</h3>
+              <p>To make Present Perfect negative, add <strong>"not"</strong> after have/has.</p>
+
+              <div class="formula-box">
+                <div style="margin-bottom: var(--spacing-sm);">
+                  <span class="formula-part subject-part">Subject</span>
+                  <span class="formula-part verb-part">have/has</span>
+                  <span class="formula-part verb-part">not</span>
+                  <span class="formula-part verb-part">past participle</span>
+                </div>
+                <div style="margin-top: var(--spacing-sm); font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                  Short forms: <strong>haven't</strong> and <strong>hasn't</strong>
+                </div>
+              </div>
+
+              <div class="example-box">
+                <strong style="color: #1e293b;">Examples with contractions:</strong>
+                <div class="example">I <span class="highlight">haven't finished</span> my homework yet.</div>
+                <div class="example">She <span class="highlight">hasn't visited</span> Japan.</div>
+                <div class="example">They <span class="highlight">haven't seen</span> that movie.</div>
+                <div class="example">He <span class="highlight">hasn't been</span> to Paris.</div>
+                <div class="example">We <span class="highlight">haven't eaten</span> lunch yet.</div>
+              </div>
+
+              <div class="tip-box">
+                <strong>Remember:</strong>
+                <ul style="margin: var(--spacing-xs) 0; padding-left: var(--spacing-lg);">
+                  <li>haven't = have not</li>
+                  <li>hasn't = has not</li>
+                  <li>We usually use contractions in speaking and informal writing</li>
+                </ul>
+              </div>
+            </div>
+
+            <button class="show-practice-button" onclick="showExercise('ex4')">
+              <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+              Show Practice Exercise
+            </button>
+
+            <!-- Practice Exercise 4 -->
+            <div class="exercise-section" id="exercise-ex4">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 4: Forming Negative Sentences
+              </div>
+              <p class="exercise-instructions">Complete each sentence with the negative form of Present Perfect.</p>
+
+              <div class="exercise-item">
+                <label>1. I <input type="text" id="ex4-1" placeholder="haven't/hasn't + past participle"> (finish) my work yet.</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. She <input type="text" id="ex4-2" placeholder="haven't/hasn't + past participle"> (see) that movie.</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. They <input type="text" id="ex4-3" placeholder="haven't/hasn't + past participle"> (visit) New York.</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. He <input type="text" id="ex4-4" placeholder="haven't/hasn't + past participle"> (eat) sushi before.</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. We <input type="text" id="ex4-5" placeholder="haven't/hasn't + past participle"> (be) to that restaurant.</label>
+              </div>
+
+              <button class="check-button" onclick="checkExercise4()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback4" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- SECTION 6: QUESTION FORM -->
+          <div class="step-section">
+            <div class="step-header">
+              <span class="step-number">6</span>
+              <h2 class="step-title">Section 6: Question Form</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">How to make questions</h3>
+              <p>To make Present Perfect questions, put <strong>have/has</strong> before the subject.</p>
+
+              <div class="formula-box">
+                <div style="margin-bottom: var(--spacing-sm);">
+                  <span class="formula-part verb-part">Have/Has</span>
+                  <span class="formula-part subject-part">subject</span>
+                  <span class="formula-part verb-part">past participle</span>
+                  <span class="formula-part object-part">?</span>
+                </div>
+              </div>
+
+              <div class="example-box">
+                <strong style="color: #1e293b;">Yes/No Questions:</strong>
+                <div class="example"><span class="highlight">Have</span> you <span class="highlight">finished</span> your homework?</div>
+                <div class="example"><span class="highlight">Has</span> she <span class="highlight">visited</span> Japan?</div>
+                <div class="example"><span class="highlight">Have</span> they <span class="highlight">seen</span> that movie?</div>
+                <div class="example"><span class="highlight">Has</span> he <span class="highlight">been</span> to Paris?</div>
+              </div>
+
+              <div class="example-box" style="margin-top: var(--spacing-md);">
+                <strong style="color: #1e293b;">Short Answers:</strong>
+                <div class="example">Yes, I have. / No, I haven't.</div>
+                <div class="example">Yes, she has. / No, she hasn't.</div>
+                <div class="example">Yes, they have. / No, they haven't.</div>
+              </div>
+
+              <div class="tip-box">
+                <strong>Remember:</strong>
+                <p style="margin: var(--spacing-xs) 0 0 0;">Questions follow the pattern: Have/Has + subject + past participle + ?</p>
+              </div>
+            </div>
+
+            <button class="show-practice-button" onclick="showExercise('ex5')">
+              <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+              Show Practice Exercise
+            </button>
+
+            <!-- Practice Exercise 5 -->
+            <div class="exercise-section" id="exercise-ex5">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 5: Forming Questions
+              </div>
+              <p class="exercise-instructions">Complete each question with the correct form.</p>
+
+              <div class="exercise-item">
+                <label>1. <input type="text" id="ex5-1" placeholder="Have/Has" style="width: 80px;"> you <input type="text" id="ex5-2" placeholder="past participle" style="width: 120px;"> (see) that movie?</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. <input type="text" id="ex5-3" placeholder="Have/Has" style="width: 80px;"> she <input type="text" id="ex5-4" placeholder="past participle" style="width: 120px;"> (finish) her work?</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. <input type="text" id="ex5-5" placeholder="Have/Has" style="width: 80px;"> they <input type="text" id="ex5-6" placeholder="past participle" style="width: 120px;"> (visit) Paris?</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. <input type="text" id="ex5-7" placeholder="Have/Has" style="width: 80px;"> he <input type="text" id="ex5-8" placeholder="past participle" style="width: 120px;"> (eat) lunch yet?</label>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. <input type="text" id="ex5-9" placeholder="Have/Has" style="width: 80px;"> we <input type="text" id="ex5-10" placeholder="past participle" style="width: 120px;"> (meet) before?</label>
+              </div>
+
+              <button class="check-button" onclick="checkExercise5()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback5" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- SECTION 7: FOR & SINCE -->
+          <div class="step-section"
+            style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); border-color: #6366f1;">
+            <div class="step-header">
+              <span class="step-number">7</span>
+              <h2 class="step-title">Section 7: For & Since</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">Using "for" and "since" with Present Perfect</h3>
+              <p>These words tell us HOW LONG something has continued.</p>
+
+              <div style="margin: var(--spacing-lg) 0;">
+                <div class="example-box">
+                  <h4 style="color: #ec4899; margin-top: 0;">FOR = a period of time</h4>
+                  <p>Use "for" when you say how many days, weeks, months, years, etc.</p>
+                  <div class="example">I have lived here <span class="highlight">for 3 years</span>.</div>
+                  <div class="example">She has worked there <span class="highlight">for 6 months</span>.</div>
+                  <div class="example">They have known each other <span class="highlight">for a long time</span>.</div>
+                </div>
+
+                <div class="example-box" style="margin-top: var(--spacing-md);">
+                  <h4 style="color: #10b981; margin-top: 0;">SINCE = a starting point</h4>
+                  <p>Use "since" when you say when something started (a specific time).</p>
+                  <div class="example">I have lived here <span class="highlight">since 2020</span>.</div>
+                  <div class="example">She has worked there <span class="highlight">since January</span>.</div>
+                  <div class="example">They have known each other <span class="highlight">since high school</span>.</div>
+                </div>
+              </div>
+
+              <div class="tip-box">
+                <strong>Quick Test:</strong>
+                <ul style="margin: var(--spacing-xs) 0; padding-left: var(--spacing-lg);">
+                  <li>Can you count it? (3 years, 2 months) → Use <strong>FOR</strong></li>
+                  <li>Is it a specific time point? (2020, Monday, breakfast) → Use <strong>SINCE</strong></li>
+                </ul>
+              </div>
+            </div>
+
+            <button class="show-practice-button" onclick="showExercise('ex6')">
+              <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+              Show Practice Exercise
+            </button>
+
+            <!-- Practice Exercise 6 -->
+            <div class="exercise-section" id="exercise-ex6">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 6: For or Since?
+              </div>
+              <p class="exercise-instructions">Choose "for" or "since" for each sentence.</p>
+
+              <div class="exercise-item">
+                <label>1. I have lived here _____ 2015.</label>
+                <select id="ex6-1">
+                  <option value="">Choose...</option>
+                  <option value="for">for</option>
+                  <option value="since">since</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. She has studied English _____ 5 years.</label>
+                <select id="ex6-2">
+                  <option value="">Choose...</option>
+                  <option value="for">for</option>
+                  <option value="since">since</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. They have been married _____ last summer.</label>
+                <select id="ex6-3">
+                  <option value="">Choose...</option>
+                  <option value="for">for</option>
+                  <option value="since">since</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. He has worked there _____ three months.</label>
+                <select id="ex6-4">
+                  <option value="">Choose...</option>
+                  <option value="for">for</option>
+                  <option value="since">since</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. We have known each other _____ we were children.</label>
+                <select id="ex6-5">
+                  <option value="">Choose...</option>
+                  <option value="for">for</option>
+                  <option value="since">since</option>
+                </select>
+              </div>
+
+              <button class="check-button" onclick="checkExercise6()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback6" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- SECTION 8: ALREADY, YET & JUST -->
+          <div class="step-section"
+            style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%); border-color: #ec4899;">
+            <div class="step-header">
+              <span class="step-number">8</span>
+              <h2 class="step-title">Section 8: Already, Yet & Just</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">Time words for recent actions</h3>
+              <p>These words tell us about the timing of recent actions.</p>
+
+              <div style="margin: var(--spacing-lg) 0;">
+                <div class="example-box">
+                  <h4 style="color: #6366f1; margin-top: 0;">ALREADY = sooner than expected</h4>
+                  <p>Use in positive sentences. Goes before the past participle OR at the end.</p>
+                  <div class="example">I have <span class="highlight">already</span> finished my homework.</div>
+                  <div class="example">She has finished her homework <span class="highlight">already</span>.</div>
+                </div>
+
+                <div class="example-box" style="margin-top: var(--spacing-md);">
+                  <h4 style="color: #ec4899; margin-top: 0;">YET = up to now (expecting it to happen)</h4>
+                  <p>Use in negative sentences and questions. Goes at the end.</p>
+                  <div class="example">I haven't finished my homework <span class="highlight">yet</span>.</div>
+                  <div class="example">Have you finished your homework <span class="highlight">yet</span>?</div>
+                </div>
+
+                <div class="example-box" style="margin-top: var(--spacing-md);">
+                  <h4 style="color: #10b981; margin-top: 0;">JUST = a very short time ago</h4>
+                  <p>Use in positive sentences. Goes before the past participle.</p>
+                  <div class="example">I have <span class="highlight">just</span> finished my homework.</div>
+                  <div class="example">She has <span class="highlight">just</span> arrived.</div>
+                </div>
+              </div>
+
+              <div class="tip-box">
+                <strong>Quick Reference:</strong>
+                <ul style="margin: var(--spacing-xs) 0; padding-left: var(--spacing-lg);">
+                  <li><strong>Already</strong> = positive sentences (done sooner than expected)</li>
+                  <li><strong>Yet</strong> = negative sentences & questions (still waiting)</li>
+                  <li><strong>Just</strong> = positive sentences (very recently)</li>
+                </ul>
+              </div>
+            </div>
+
+            <button class="show-practice-button" onclick="showExercise('ex7')">
+              <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+              Show Practice Exercise
+            </button>
+
+            <!-- Practice Exercise 7 -->
+            <div class="exercise-section" id="exercise-ex7">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 7: Already, Yet, or Just?
+              </div>
+              <p class="exercise-instructions">Complete each sentence with "already," "yet," or "just."</p>
+
+              <div class="exercise-item">
+                <label>1. I have _____ finished my lunch. (a minute ago)</label>
+                <select id="ex7-1">
+                  <option value="">Choose...</option>
+                  <option value="already">already</option>
+                  <option value="yet">yet</option>
+                  <option value="just">just</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. Have you done your homework _____? (question)</label>
+                <select id="ex7-2">
+                  <option value="">Choose...</option>
+                  <option value="already">already</option>
+                  <option value="yet">yet</option>
+                  <option value="just">just</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. She has _____ finished, even though she started late. (sooner than expected)</label>
+                <select id="ex7-3">
+                  <option value="">Choose...</option>
+                  <option value="already">already</option>
+                  <option value="yet">yet</option>
+                  <option value="just">just</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. They haven't arrived _____. (negative, still waiting)</label>
+                <select id="ex7-4">
+                  <option value="">Choose...</option>
+                  <option value="already">already</option>
+                  <option value="yet">yet</option>
+                  <option value="just">just</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. We have _____ heard the news. (very recently)</label>
+                <select id="ex7-5">
+                  <option value="">Choose...</option>
+                  <option value="already">already</option>
+                  <option value="yet">yet</option>
+                  <option value="just">just</option>
+                </select>
+              </div>
+
+              <button class="check-button" onclick="checkExercise7()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback7" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- SECTION 9: EVER & NEVER -->
+          <div class="step-section">
+            <div class="step-header">
+              <span class="step-number">9</span>
+              <h2 class="step-title">Section 9: Ever & Never</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">Talking about life experiences</h3>
+              <p>Use "ever" and "never" when talking about experiences in your whole life.</p>
+
+              <div style="margin: var(--spacing-lg) 0;">
+                <div class="example-box">
+                  <h4 style="color: #6366f1; margin-top: 0;">EVER = at any time in your life</h4>
+                  <p>Use in questions. Goes before the past participle.</p>
+                  <div class="example">Have you <span class="highlight">ever</span> visited Paris?</div>
+                  <div class="example">Has she <span class="highlight">ever</span> tried sushi?</div>
+                  <div class="example">Have they <span class="highlight">ever</span> been to Japan?</div>
+                </div>
+
+                <div class="example-box" style="margin-top: var(--spacing-md);">
+                  <h4 style="color: #ec4899; margin-top: 0;">NEVER = not at any time in your life</h4>
+                  <p>Use in positive sentences (never is already negative). Goes before the past participle.</p>
+                  <div class="example">I have <span class="highlight">never</span> visited Paris.</div>
+                  <div class="example">She has <span class="highlight">never</span> tried sushi.</div>
+                  <div class="example">They have <span class="highlight">never</span> been to Japan.</div>
+                </div>
+              </div>
+
+              <div class="tip-box">
+                <strong>Important:</strong>
+                <ul style="margin: var(--spacing-xs) 0; padding-left: var(--spacing-lg);">
+                  <li><strong>Ever</strong> is usually used in questions</li>
+                  <li><strong>Never</strong> is used in positive sentence structure (because "never" is already negative)</li>
+                  <li>Don't say: "I haven't never..." (double negative) ✗</li>
+                  <li>Say: "I have never..." ✓</li>
+                </ul>
+              </div>
+            </div>
+
+            <button class="show-practice-button" onclick="showExercise('ex8')">
+              <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+              Show Practice Exercise
+            </button>
+
+            <!-- Practice Exercise 8 -->
+            <div class="exercise-section" id="exercise-ex8">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 8: Ever or Never?
+              </div>
+              <p class="exercise-instructions">Complete each sentence with "ever" or "never."</p>
+
+              <div class="exercise-item">
+                <label>1. Have you _____ been to New York?</label>
+                <select id="ex8-1">
+                  <option value="">Choose...</option>
+                  <option value="ever">ever</option>
+                  <option value="never">never</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. I have _____ seen snow. (negative)</label>
+                <select id="ex8-2">
+                  <option value="">Choose...</option>
+                  <option value="ever">ever</option>
+                  <option value="never">never</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. Has she _____ tried Thai food?</label>
+                <select id="ex8-3">
+                  <option value="">Choose...</option>
+                  <option value="ever">ever</option>
+                  <option value="never">never</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. They have _____ traveled outside their country.</label>
+                <select id="ex8-4">
+                  <option value="">Choose...</option>
+                  <option value="ever">ever</option>
+                  <option value="never">never</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. Have you _____ met a famous person?</label>
+                <select id="ex8-5">
+                  <option value="">Choose...</option>
+                  <option value="ever">ever</option>
+                  <option value="never">never</option>
+                </select>
+              </div>
+
+              <button class="check-button" onclick="checkExercise8()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback8" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- SECTION 10: MIXED PRACTICE -->
+          <div class="step-section"
+            style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%); border-color: #10b981;">
+            <div class="step-header">
+              <span class="step-number">10</span>
+              <h2 class="step-title">Section 10: Mixed Practice</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">Put it all together!</h3>
+              <p>Now practice using everything you've learned: forms, time expressions, and choosing the right tense.</p>
+            </div>
+
+            <button class="show-practice-button" onclick="showExercise('ex9')">
+              <i data-lucide="book-open" style="width: 18px; height: 18px;"></i>
+              Show Practice Exercise
+            </button>
+
+            <!-- Practice Exercise 9 -->
+            <div class="exercise-section" id="exercise-ex9">
+              <div class="exercise-title">
+                <i data-lucide="pencil" style="width: 20px; height: 20px;"></i>
+                Practice Exercise 9: Complete Mixed Practice
+              </div>
+              <p class="exercise-instructions">Complete each sentence with the correct form and time word.</p>
+
+              <div class="exercise-item">
+                <label>1. I have lived here _____ 2018.</label>
+                <select id="ex9-1">
+                  <option value="">Choose...</option>
+                  <option value="for">for</option>
+                  <option value="since">since</option>
+                  <option value="already">already</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>2. She has _____ finished her homework. (very recently)</label>
+                <select id="ex9-2">
+                  <option value="">Choose...</option>
+                  <option value="yet">yet</option>
+                  <option value="just">just</option>
+                  <option value="never">never</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>3. Have you _____ been to Italy?</label>
+                <select id="ex9-3">
+                  <option value="">Choose...</option>
+                  <option value="already">already</option>
+                  <option value="ever">ever</option>
+                  <option value="just">just</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>4. They haven't called me _____. (still waiting)</label>
+                <select id="ex9-4">
+                  <option value="">Choose...</option>
+                  <option value="already">already</option>
+                  <option value="yet">yet</option>
+                  <option value="never">never</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>5. He has worked there _____ six months.</label>
+                <select id="ex9-5">
+                  <option value="">Choose...</option>
+                  <option value="for">for</option>
+                  <option value="since">since</option>
+                  <option value="ever">ever</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>6. I have _____ eaten octopus. (not in my whole life)</label>
+                <select id="ex9-6">
+                  <option value="">Choose...</option>
+                  <option value="ever">ever</option>
+                  <option value="never">never</option>
+                  <option value="yet">yet</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>7. We have _____ seen that movie. (sooner than expected)</label>
+                <select id="ex9-7">
+                  <option value="">Choose...</option>
+                  <option value="already">already</option>
+                  <option value="yet">yet</option>
+                  <option value="for">for</option>
+                </select>
+              </div>
+
+              <div class="exercise-item">
+                <label>8. Has she lived here _____ a long time?</label>
+                <select id="ex9-8">
+                  <option value="">Choose...</option>
+                  <option value="for">for</option>
+                  <option value="since">since</option>
+                  <option value="yet">yet</option>
+                </select>
+              </div>
+
+              <button class="check-button" onclick="checkExercise9()">
+                <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                Check Answers
+              </button>
+              <div id="feedback9" class="feedback"></div>
+            </div>
+          </div>
+
+          <!-- SECTION 11: SUMMARY -->
+          <div class="step-section"
+            style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); border-color: #6366f1;">
+            <div class="step-header">
+              <span class="step-number">11</span>
+              <h2 class="step-title">Section 11: Summary - What You've Learned</h2>
+            </div>
+
+            <div class="explanation-box" style="background: white;">
+              <h3 style="color: #1e293b; margin-top: 0;">Key Points to Remember</h3>
+
+              <div class="usage-list">
+                <li>
+                  <strong>Form:</strong> Subject + have/has + past participle
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    Example: I have finished, She has seen
+                  </p>
+                </li>
+
+                <li style="margin-top: var(--spacing-md);">
+                  <strong>Meaning:</strong> Connects the past to the present
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    Use when the past action matters NOW
+                  </p>
+                </li>
+
+                <li style="margin-top: var(--spacing-md);">
+                  <strong>For vs. Since:</strong>
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    FOR = period of time (3 years)<br>
+                    SINCE = starting point (2020)
+                  </p>
+                </li>
+
+                <li style="margin-top: var(--spacing-md);">
+                  <strong>Already / Yet / Just:</strong>
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    ALREADY = sooner than expected (positive)<br>
+                    YET = still waiting (negative & questions)<br>
+                    JUST = very recently (positive)
+                  </p>
+                </li>
+
+                <li style="margin-top: var(--spacing-md);">
+                  <strong>Ever / Never:</strong>
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    EVER = in questions about life experiences<br>
+                    NEVER = in positive sentences (already negative)
+                  </p>
+                </li>
+
+                <li style="margin-top: var(--spacing-md);">
+                  <strong>Negative:</strong> have/has + not + past participle
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    Example: I haven't finished, She hasn't seen
+                  </p>
+                </li>
+
+                <li style="margin-top: var(--spacing-md);">
+                  <strong>Questions:</strong> Have/Has + subject + past participle?
+                  <p style="margin: var(--spacing-xs) 0 0 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                    Example: Have you finished? Has she seen?
+                  </p>
+                </li>
+              </div>
+
+              <div class="tip-box" style="margin-top: var(--spacing-lg);">
+                <strong>Final Tip:</strong>
+                <p style="margin: var(--spacing-xs) 0 0 0;">Always ask yourself: "Does this past action connect to NOW?" If yes, use Present Perfect!</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2024 ESOL Teacher Resources. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="../../../assets/js/main.js"></script>
+  <script>
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+
+    // Exercise answers
+    const answers = {
+      ex1: ['finished', 'gone', 'seen', 'eaten', 'studied'],
+      ex2: ['visited', 'has lived', 'ate', 'have seen', 'went'],
+      ex3: ['have finished', 'has visited', 'have lived', 'has seen', 'have eaten'],
+      ex4: ["haven't finished", "hasn't seen", "haven't visited", "hasn't eaten", "haven't been"],
+      ex5: ['Have', 'seen', 'Has', 'finished', 'Have', 'visited', 'Has', 'eaten', 'Have', 'met'],
+      ex6: ['since', 'for', 'since', 'for', 'since'],
+      ex7: ['just', 'yet', 'already', 'yet', 'just'],
+      ex8: ['ever', 'never', 'ever', 'never', 'ever'],
+      ex9: ['since', 'just', 'ever', 'yet', 'for', 'never', 'already', 'for']
+    };
+
+    function normalizeAnswer(answer) {
+      return answer.toLowerCase().trim().replace(/[.,!?]/g, '');
+    }
+
+    function showExercise(exerciseId) {
+      const exerciseSection = document.getElementById(`exercise-${exerciseId}`);
+      const button = event.target.closest('.show-practice-button');
+
+      if (exerciseSection) {
+        exerciseSection.classList.add('visible');
+        if (button) {
+          button.classList.add('hidden');
+        }
+        // Re-initialize icons for newly shown content
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }
+    }
+
+    function checkExercise1() {
+      const feedback = document.getElementById('feedback1');
+      let correct = 0;
+      let total = 5;
+
+      answers.ex1.forEach((answer, index) => {
+        const input = document.getElementById(`ex1-${index + 1}`);
+        const userAnswer = normalizeAnswer(input.value);
+        const expectedAnswer = normalizeAnswer(answer);
+
+        if (userAnswer === expectedAnswer) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total
+        ? `Excellent! You got all ${total} correct!`
+        : `You got ${correct} out of ${total} correct. Review the past participle forms!`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise2() {
+      const feedback = document.getElementById('feedback2');
+      let correct = 0;
+      let total = 5;
+
+      answers.ex2.forEach((answer, index) => {
+        const select = document.getElementById(`ex2-${index + 1}`);
+        const userAnswer = normalizeAnswer(select.value);
+        const expectedAnswer = normalizeAnswer(answer);
+
+        if (userAnswer === expectedAnswer) {
+          correct++;
+          select.style.borderColor = '#10b981';
+          select.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          select.style.borderColor = '#ef4444';
+          select.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total
+        ? `Perfect! You got all ${total} correct! You understand the difference!`
+        : `You got ${correct} out of ${total} correct. Think about whether the time is finished or not!`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise3() {
+      const feedback = document.getElementById('feedback3');
+      let correct = 0;
+      let total = 5;
+
+      answers.ex3.forEach((answer, index) => {
+        const input = document.getElementById(`ex3-${index + 1}`);
+        const userAnswer = normalizeAnswer(input.value);
+        const expectedAnswer = normalizeAnswer(answer);
+
+        if (userAnswer === expectedAnswer) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total
+        ? `Excellent! You got all ${total} correct!`
+        : `You got ${correct} out of ${total} correct. Remember: have/has + past participle`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise4() {
+      const feedback = document.getElementById('feedback4');
+      let correct = 0;
+      let total = 5;
+
+      answers.ex4.forEach((answer, index) => {
+        const input = document.getElementById(`ex4-${index + 1}`);
+        const userAnswer = normalizeAnswer(input.value);
+        const expectedAnswer = normalizeAnswer(answer);
+
+        if (userAnswer === expectedAnswer) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total
+        ? `Perfect! You got all ${total} correct!`
+        : `You got ${correct} out of ${total} correct. Remember: haven't/hasn't + past participle`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise5() {
+      const feedback = document.getElementById('feedback5');
+      let correct = 0;
+      let total = 10;
+
+      answers.ex5.forEach((answer, index) => {
+        const input = document.getElementById(`ex5-${index + 1}`);
+        const userAnswer = normalizeAnswer(input.value);
+        const expectedAnswer = normalizeAnswer(answer);
+
+        if (userAnswer === expectedAnswer) {
+          correct++;
+          input.style.borderColor = '#10b981';
+          input.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          input.style.borderColor = '#ef4444';
+          input.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total
+        ? `Amazing! You got all ${total} correct!`
+        : `You got ${correct} out of ${total} correct. Remember: Have/Has + subject + past participle?`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise6() {
+      const feedback = document.getElementById('feedback6');
+      let correct = 0;
+      let total = 5;
+
+      answers.ex6.forEach((answer, index) => {
+        const select = document.getElementById(`ex6-${index + 1}`);
+        const userAnswer = normalizeAnswer(select.value);
+        const expectedAnswer = normalizeAnswer(answer);
+
+        if (userAnswer === expectedAnswer) {
+          correct++;
+          select.style.borderColor = '#10b981';
+          select.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          select.style.borderColor = '#ef4444';
+          select.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total
+        ? `Perfect! You got all ${total} correct!`
+        : `You got ${correct} out of ${total} correct. Remember: FOR = period, SINCE = starting point`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise7() {
+      const feedback = document.getElementById('feedback7');
+      let correct = 0;
+      let total = 5;
+
+      answers.ex7.forEach((answer, index) => {
+        const select = document.getElementById(`ex7-${index + 1}`);
+        const userAnswer = normalizeAnswer(select.value);
+        const expectedAnswer = normalizeAnswer(answer);
+
+        if (userAnswer === expectedAnswer) {
+          correct++;
+          select.style.borderColor = '#10b981';
+          select.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          select.style.borderColor = '#ef4444';
+          select.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total
+        ? `Excellent! You got all ${total} correct!`
+        : `You got ${correct} out of ${total} correct. Review when to use already, yet, and just!`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise8() {
+      const feedback = document.getElementById('feedback8');
+      let correct = 0;
+      let total = 5;
+
+      answers.ex8.forEach((answer, index) => {
+        const select = document.getElementById(`ex8-${index + 1}`);
+        const userAnswer = normalizeAnswer(select.value);
+        const expectedAnswer = normalizeAnswer(answer);
+
+        if (userAnswer === expectedAnswer) {
+          correct++;
+          select.style.borderColor = '#10b981';
+          select.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          select.style.borderColor = '#ef4444';
+          select.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total
+        ? `Perfect! You got all ${total} correct!`
+        : `You got ${correct} out of ${total} correct. Remember: EVER = questions, NEVER = negative meaning`;
+      feedback.style.display = 'block';
+    }
+
+    function checkExercise9() {
+      const feedback = document.getElementById('feedback9');
+      let correct = 0;
+      let total = 8;
+
+      answers.ex9.forEach((answer, index) => {
+        const select = document.getElementById(`ex9-${index + 1}`);
+        const userAnswer = normalizeAnswer(select.value);
+        const expectedAnswer = normalizeAnswer(answer);
+
+        if (userAnswer === expectedAnswer) {
+          correct++;
+          select.style.borderColor = '#10b981';
+          select.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        } else {
+          select.style.borderColor = '#ef4444';
+          select.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        }
+      });
+
+      feedback.className = `feedback ${correct === total ? 'correct' : 'incorrect'}`;
+      feedback.innerHTML = correct === total
+        ? `Outstanding! You got all ${total} correct! You've mastered Present Perfect!`
+        : `You got ${correct} out of ${total} correct. Review the different time expressions!`;
+      feedback.style.display = 'block';
+    }
+  </script>
+</body>
+
+</html>

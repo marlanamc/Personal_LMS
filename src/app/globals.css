@@ -1,0 +1,1643 @@
+@import "tailwindcss";
+
+/* ============================================
+   ESOL Class Companion - Design System
+   Warm Educational Modernism (Tailwind v4)
+   ============================================ */
+
+/* Tailwind v4 Theme - Define all design tokens */
+@theme {
+  /* Colors - Primary (Academic Terracotta - deeper, richer) */
+  --color-primary: #b05740;
+  --color-primary-dark: #8e4432;
+  --color-primary-light: #d08b78;
+
+  /* Colors - Secondary (Library Sage - lighter and more vibrant) */
+  --color-secondary: #6a8d73;
+  --color-secondary-dark: #4d6b53;
+  --color-secondary-light: #8da693;
+
+  /* Colors - Accent (Parchment Gold) */
+  --color-accent: #e9c46a;
+  --color-accent-dark: #cba342;
+  --color-accent-light: #f4e4a8;
+
+  /* Semantic Colors */
+  --color-success: #4d6b53;
+  --color-warning: #ca5c43;
+  --color-error: #d64045;
+  --color-info: #4a8ca0;
+
+  /* Text Colors - High Contrast Academic */
+  --color-text: #1a202c;
+  /* Slate-900 */
+  --color-text-muted: #5e6b7d;
+  /* Slate-500 mixed with blue */
+  --color-text-light: #94a3b8;
+
+  /* Background Colors - Premium Paper */
+  --color-bg: #fdfbf7;
+  /* Very subtle warm white "Isabelline" */
+  --color-bg-light: #f4f1ea;
+  --color-bg-gray: #e9e6df;
+
+  /* Border Colors - Crisp and defined */
+  --color-border: #e2ddd5;
+  --color-border-dark: #c8c2b7;
+
+  /* White for buttons */
+  --color-white: #ffffff;
+
+  /* Font Families - will be set by Next.js */
+  /* Include emoji-capable fallbacks to avoid "?" tofu glyphs for emoji in titles/content. */
+  --font-display:
+    var(--font-fraunces), ui-serif, Georgia, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", serif;
+  --font-body:
+    var(--font-dm-sans), ui-sans-serif, system-ui, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
+  --font-handwritten:
+    var(--font-caveat), cursive, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Border Radius - Sophisticated (slightly tighter) */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows - Premium Elevation */
+  --shadow-sm: 0 1px 2px rgba(26, 32, 44, 0.05);
+  --shadow-md:
+    0 4px 6px -1px rgba(26, 32, 44, 0.05), 0 2px 4px -1px rgba(26, 32, 44, 0.03);
+  --shadow-lg:
+    0 10px 15px -3px rgba(26, 32, 44, 0.05),
+    0 4px 6px -2px rgba(26, 32, 44, 0.025);
+  --shadow-xl:
+    0 20px 25px -5px rgba(26, 32, 44, 0.05),
+    0 10px 10px -5px rgba(26, 32, 44, 0.02);
+
+  /* Z-Index Layers */
+  --z-fixed: 100;
+  /* Bottom nav and other fixed UI elements */
+
+  /* Layout */
+  --bottom-nav-height: 64px;
+  /* Height of mobile bottom navigation (h-16 = 64px) */
+}
+
+:root {
+  /* No changes needed here, using @theme */
+}
+
+/* Subtle paper texture overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: -1;
+  opacity: 1;
+}
+
+/* ========== Typography ========== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+/* Removed fixed font-size declarations to allow Tailwind classes to work */
+/* Use Tailwind utility classes (text-xl, text-2xl, etc.) for sizing */
+
+p {
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
+  line-height: var(--line-height-base);
+}
+
+a:not([class]) {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:not([class]):hover {
+  color: var(--color-primary-dark);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+strong,
+b {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+em,
+i {
+  font-style: italic;
+}
+
+/* ========== Mobile-Optimized Touch Targets ========== */
+/* Apply minimum touch target to buttons and form controls for accessibility */
+button:not(.icon-button),
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input:not([type="button"]):not([type="submit"]):not([type="reset"]),
+select,
+textarea {
+  min-height: 44px;
+}
+
+/* Only apply min-width to button-like elements */
+button:not(.icon-button),
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  min-width: 44px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Preserve borders and backgrounds for buttons that explicitly have them */
+button[class*="border-"] {
+  border: inherit;
+  background: inherit;
+}
+
+button[class*="bg-"] {
+  background: inherit;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+}
+
+/* ========== Animations ========== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-3deg);
+  }
+
+  75% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes progressShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes gentlePulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(255, 150, 50, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(255, 150, 50, 0.5);
+  }
+}
+
+@keyframes checkDraw {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes celebrateShimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s ease-out forwards;
+}
+
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+/* Staggered checklist row animations */
+.checklist-row {
+  animation: slideInFromLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+/* Vocabulary activity card animations */
+@keyframes vocabCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.vocab-activity-card {
+  animation: vocabCardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* Category picker card animations */
+@keyframes categoryCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.category-card {
+  animation: categoryCardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* Checklist group card animations */
+.checklist-group {
+  animation: categoryCardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.checklist-row:nth-child(1) {
+  animation-delay: 0ms;
+}
+.checklist-row:nth-child(2) {
+  animation-delay: 60ms;
+}
+.checklist-row:nth-child(3) {
+  animation-delay: 120ms;
+}
+.checklist-row:nth-child(4) {
+  animation-delay: 180ms;
+}
+.checklist-row:nth-child(5) {
+  animation-delay: 240ms;
+}
+.checklist-row:nth-child(6) {
+  animation-delay: 300ms;
+}
+.checklist-row:nth-child(7) {
+  animation-delay: 360ms;
+}
+.checklist-row:nth-child(8) {
+  animation-delay: 420ms;
+}
+.checklist-row:nth-child(9) {
+  animation-delay: 480ms;
+}
+.checklist-row:nth-child(10) {
+  animation-delay: 540ms;
+}
+
+/* Progress bar shimmer animation */
+.progress-bar-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-secondary) 0%,
+    var(--color-primary) 25%,
+    var(--color-accent) 50%,
+    var(--color-primary) 75%,
+    var(--color-secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: progressShimmer 3s ease-in-out infinite;
+}
+
+/* Streak fire glow effect */
+.streak-glow {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.streak-icon-pulse {
+  animation: gentlePulse 2s ease-in-out infinite;
+}
+
+/* Stats card glow backgrounds */
+.stat-glow-orange {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 150, 50, 0.15) 0%,
+    transparent 70%
+  );
+}
+
+.stat-glow-gold {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(233, 196, 106, 0.2) 0%,
+    transparent 70%
+  );
+}
+
+.stat-glow-sage {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(106, 141, 115, 0.15) 0%,
+    transparent 70%
+  );
+}
+
+/* Glass morphism effect */
+.glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.7) 100%
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 8px 32px rgba(176, 87, 64, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.glass-card:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
+  box-shadow:
+    0 12px 40px rgba(176, 87, 64, 0.15),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+/* Celebration shimmer for 100% completion */
+.celebrate-complete {
+  position: relative;
+  overflow: hidden;
+}
+
+.celebrate-complete::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(233, 196, 106, 0.3) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: celebrateShimmer 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Custom checkbox styling */
+.custom-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--color-border-dark);
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.custom-checkbox:checked {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+}
+
+.custom-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+
+/* Hover effect for checklist rows */
+.checklist-row-hover {
+  transition: all 0.2s ease;
+}
+
+.checklist-row-hover:hover {
+  background-color: rgba(253, 251, 247, 0.8);
+  padding-left: calc(1rem + 4px);
+}
+
+/* Arrow animation for CTA */
+.arrow-animate {
+  transition: transform 0.2s ease;
+}
+
+.group:hover .arrow-animate {
+  transform: translateX(4px);
+}
+
+/* Quick link hover effect */
+.quick-link {
+  position: relative;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.quick-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-primary-light) 100%
+  );
+  border-radius: inherit;
+  transition: width 0.2s ease;
+  z-index: 0;
+}
+
+.quick-link:hover::before {
+  width: 3px;
+}
+
+.quick-link:hover {
+  background-color: var(--color-bg-light);
+  border-color: var(--color-border-dark);
+  padding-left: 1rem;
+}
+
+.quick-link > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ========== Card Depth System ========== */
+/* Elevated card - subtle lift for primary containers */
+.card-elevated {
+  background: linear-gradient(180deg, #ffffff 0%, rgba(253, 251, 247, 0.7) 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 2px 8px rgba(26, 32, 44, 0.03),
+    0 1px 2px rgba(26, 32, 44, 0.04);
+  border: 1px solid rgba(226, 221, 213, 0.45);
+}
+
+/* Recessed card - for nested category groups */
+.card-recessed {
+  background: rgba(253, 251, 247, 0.4);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset;
+  border: 1px solid rgba(226, 221, 213, 0.3);
+}
+
+/* ========== Utility Classes ========== */
+.handwritten {
+  font-family: var(--font-handwritten);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.underline-accent {
+  position: relative;
+  display: inline-block;
+}
+
+.underline-accent::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: -4px;
+  right: -4px;
+  height: 10px;
+  background: var(--color-accent);
+  opacity: 0.5;
+  z-index: -1;
+  transform: rotate(-1deg);
+  border-radius: 2px;
+}
+
+/* Container styles are now handled by Tailwind's container utility */
+/* Configured in tailwind.config.ts */
+
+/* Utility to push CTA to the bottom inside flex columns */
+.mt-auto {
+  margin-top: auto;
+}
+
+/* ========== Mobile Bottom Navigation ========== */
+.bottom-nav-spacer {
+  height: var(--bottom-nav-height);
+}
+
+/* ========== Loading States ========== */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-gray) 0%,
+    var(--color-bg-light) 50%,
+    var(--color-bg-gray) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ========== Accessibility ========== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Skip to main content link */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--color-primary);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-decoration: none;
+  z-index: 9999;
+  border-radius: 0 0 var(--radius-md) 0;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+/* ========== Focus Visible Styles ========== */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ========== Grammar Reader Styles ========== */
+
+/* Prose content for explanation panels */
+.prose {
+  max-width: 65ch;
+}
+
+.prose h3 {
+  font-size: inherit; /* Let Tailwind text utilities control size */
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-text);
+}
+
+.prose h4 {
+  font-size: inherit; /* Let Tailwind text utilities control size */
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+}
+
+.prose p {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose li {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.prose strong {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* Scrollbar styling for grammar reader panels */
+.explanation-panel::-webkit-scrollbar,
+.practice-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.explanation-panel::-webkit-scrollbar-track,
+.practice-panel::-webkit-scrollbar-track {
+  background: var(--color-bg-light);
+}
+
+.explanation-panel::-webkit-scrollbar-thumb,
+.practice-panel::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-dark);
+  border-radius: 4px;
+}
+
+.explanation-panel::-webkit-scrollbar-thumb:hover,
+.practice-panel::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-primary);
+}
+
+/* ========== Grammar Reader: cleaner explanation content ========== */
+.grammar-reader-container .explanation-content {
+  color: var(--color-text);
+  background: transparent;
+}
+
+.grammar-reader-container .explanation-content h1,
+.grammar-reader-container .explanation-content h2,
+.grammar-reader-container .explanation-content h3,
+.grammar-reader-container .explanation-content h4 {
+  color: var(--color-text);
+  margin-bottom: 0.35em;
+}
+
+.grammar-reader-container .explanation-content p {
+  margin: 0.65em 0;
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+.grammar-reader-container .explanation-content mark {
+  background: rgba(244, 211, 94, 0.35);
+  color: var(--color-text);
+  padding: 0 0.3em;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(244, 211, 94, 0.7);
+}
+
+.grammar-reader-container .explanation-content strong {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* Make "highlighted word" in exercises actually pop */
+.grammar-reader-container .exercise-section strong {
+  background: rgba(244, 211, 94, 0.5);
+  color: var(--color-text);
+  padding: 0.05em 0.25em;
+  border-radius: 0.35em;
+  box-shadow: inset 0 0 0 1px rgba(244, 211, 94, 0.9);
+}
+
+.grammar-reader-container .explanation-content table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 14px rgba(217, 119, 87, 0.08);
+}
+
+.grammar-reader-container .explanation-content th,
+.grammar-reader-container .explanation-content td {
+  border: 1px solid var(--color-border);
+  padding: 0.85rem 0.9rem;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.grammar-reader-container .explanation-content th {
+  background: rgba(217, 119, 87, 0.08);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.grammar-reader-container .explanation-content hr {
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  margin: 1.25rem 0;
+}
+
+.grammar-reader-container .explanation-content ul,
+.grammar-reader-container .explanation-content ol {
+  margin: 0.75em 0 0.75em 1.25em;
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+/* Pull in a bit of the old “book” feel */
+.grammar-reader-container .grammar-reader-split-screen {
+  border: 1px solid var(--color-border);
+  box-shadow: 0 14px 38px rgba(217, 119, 87, 0.12);
+}
+
+.grammar-reader-container .explanation-panel {
+  background: #ffffff;
+}
+
+.grammar-reader-container .practice-panel {
+  background: var(--color-bg-light);
+}
+
+.grammar-reader-container .explanation-content h1,
+.grammar-reader-container .explanation-content h2 {
+  color: var(--color-primary);
+}
+
+.grammar-reader-container .explanation-content h3,
+.grammar-reader-container .explanation-content h4 {
+  color: var(--color-text);
+}
+
+/* Mobile readability for inline HTML diagrams in grammar guides */
+@media (max-width: 768px) {
+  .grammar-reader-container .explanation-content [style*="grid-template-columns: 1fr 1fr"],
+  .grammar-reader-container .explanation-content [style*="grid-template-columns:1fr 1fr"],
+  .grammar-reader-container .explanation-content [style*="grid-template-columns: 1fr 1fr 1fr"],
+  .grammar-reader-container .explanation-content [style*="grid-template-columns:1fr 1fr 1fr"],
+  .grammar-reader-container .explanation-content [style*="grid-template-columns: repeat(2"],
+  .grammar-reader-container .explanation-content [style*="grid-template-columns:repeat(2"],
+  .grammar-reader-container .explanation-content [style*="grid-template-columns: repeat(3"],
+  .grammar-reader-container .explanation-content [style*="grid-template-columns:repeat(3"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+}
+
+/* Enhanced kbd styling for keyboard shortcuts */
+kbd {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  color: var(--color-text);
+  background-color: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Floating navigation buttons - responsive adjustments */
+@media (max-width: 1024px) {
+  /* On tablets and smaller, move buttons slightly inward to avoid edge interference */
+  .grammar-reader-container button.fixed {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .grammar-reader-container button.fixed svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  /* On mobile, make buttons smaller */
+  .grammar-reader-container button.fixed {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+
+  .grammar-reader-container button.fixed svg {
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+
+  /* Hide tooltips on mobile (touch devices) */
+  .grammar-reader-container button.fixed .absolute {
+    display: none !important;
+  }
+}
+
+/* ========== Reduced Motion ========== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========== Print Styles ========== */
+@media print {
+  body::before {
+    display: none;
+  }
+
+  @page {
+    margin: 1cm;
+  }
+
+  * {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* ========== Celebration Animations ========== */
+@keyframes fall {
+  0% {
+    transform: translateY(-100px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes star-burst {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.5) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-fall {
+  animation: fall 3s linear forwards;
+}
+
+.animate-star-burst {
+  animation: star-burst 2s ease-out forwards;
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+/* ========== Certificate Medal System ========== */
+
+/* Medal Tier Color Variables */
+:root {
+  /* Bronze Tier (0-59%) */
+  --medal-bronze-primary: #cd7f32;
+  --medal-bronze-dark: #8b5a2b;
+  --medal-bronze-light: #daa06d;
+  --medal-bronze-glow: rgba(205, 127, 50, 0.4);
+
+  /* Silver Tier (60-79%) */
+  --medal-silver-primary: #c0c0c0;
+  --medal-silver-dark: #808080;
+  --medal-silver-light: #e8e8e8;
+  --medal-silver-glow: rgba(192, 192, 192, 0.5);
+
+  /* Gold Tier (80-99%) */
+  --medal-gold-primary: #e9c46a;
+  --medal-gold-dark: #cba342;
+  --medal-gold-light: #f4e4a8;
+  --medal-gold-glow: rgba(233, 196, 106, 0.5);
+
+  /* Platinum Tier (100%) */
+  --medal-platinum-primary: #e5e4e2;
+  --medal-platinum-dark: #b8b8b8;
+  --medal-platinum-light: #ffffff;
+  --medal-platinum-glow: rgba(185, 242, 255, 0.6);
+}
+
+/* Medal Keyframe Animations */
+@keyframes medalReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotateY(-180deg);
+  }
+  60% {
+    transform: scale(1.1) rotateY(10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateY(0);
+  }
+}
+
+@keyframes medalShine {
+  0% {
+    transform: translateX(-150%) rotate(25deg);
+  }
+  100% {
+    transform: translateX(150%) rotate(25deg);
+  }
+}
+
+@keyframes medalFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes medalGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--medal-glow-color, rgba(233, 196, 106, 0.4));
+  }
+  50% {
+    box-shadow: 0 0 40px var(--medal-glow-color, rgba(233, 196, 106, 0.6));
+  }
+}
+
+@keyframes rainbowShimmer {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes ribbonSway {
+  0%, 100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+/* Medal Animation Classes */
+.animate-medal-reveal {
+  animation: medalReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-medal-shine {
+  animation: medalShine 3s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+.animate-medal-float {
+  animation: medalFloat 3s ease-in-out infinite;
+}
+
+.animate-medal-glow {
+  animation: medalGlow 2s ease-in-out infinite;
+}
+
+.animate-rainbow-shimmer {
+  animation: rainbowShimmer 3s linear infinite;
+}
+
+.animate-ribbon-sway {
+  animation: ribbonSway 4s ease-in-out infinite;
+}
+
+/* Medal Base Styles */
+.medal-ring {
+  position: relative;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.medal-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  padding: 4px;
+  background: conic-gradient(
+    from 45deg,
+    var(--medal-dark) 0%,
+    var(--medal-light) 25%,
+    var(--medal-dark) 50%,
+    var(--medal-light) 75%,
+    var(--medal-dark) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.medal-body {
+  position: relative;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.medal-shine-overlay {
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Medal Tier Styles */
+.medal-bronze {
+  --medal-primary: var(--medal-bronze-primary);
+  --medal-dark: var(--medal-bronze-dark);
+  --medal-light: var(--medal-bronze-light);
+  --medal-glow-color: var(--medal-bronze-glow);
+  background: linear-gradient(145deg, var(--medal-bronze-light), var(--medal-bronze-dark));
+  box-shadow:
+    0 -2px 4px rgba(255, 255, 255, 0.3),
+    inset 0 4px 8px rgba(0, 0, 0, 0.2),
+    0 8px 24px rgba(139, 90, 43, 0.3),
+    0 0 30px var(--medal-bronze-glow);
+}
+
+.medal-silver {
+  --medal-primary: var(--medal-silver-primary);
+  --medal-dark: var(--medal-silver-dark);
+  --medal-light: var(--medal-silver-light);
+  --medal-glow-color: var(--medal-silver-glow);
+  background: linear-gradient(145deg, var(--medal-silver-light), var(--medal-silver-dark));
+  box-shadow:
+    0 -2px 4px rgba(255, 255, 255, 0.5),
+    inset 0 4px 8px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(128, 128, 128, 0.3),
+    0 0 30px var(--medal-silver-glow);
+}
+
+.medal-gold {
+  --medal-primary: var(--medal-gold-primary);
+  --medal-dark: var(--medal-gold-dark);
+  --medal-light: var(--medal-gold-light);
+  --medal-glow-color: var(--medal-gold-glow);
+  background: linear-gradient(145deg, var(--medal-gold-light), var(--medal-gold-dark));
+  box-shadow:
+    0 -2px 4px rgba(255, 255, 255, 0.4),
+    inset 0 4px 8px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(203, 163, 66, 0.35),
+    0 0 30px var(--medal-gold-glow);
+}
+
+.medal-platinum {
+  --medal-primary: var(--medal-platinum-primary);
+  --medal-dark: var(--medal-platinum-dark);
+  --medal-light: var(--medal-platinum-light);
+  --medal-glow-color: var(--medal-platinum-glow);
+  background: linear-gradient(
+    145deg,
+    var(--medal-platinum-light),
+    var(--medal-platinum-primary),
+    #b9f2ff,
+    var(--medal-platinum-light)
+  );
+  box-shadow:
+    0 -2px 6px rgba(255, 255, 255, 0.7),
+    inset 0 4px 8px rgba(0, 0, 0, 0.1),
+    0 8px 24px rgba(185, 242, 255, 0.4),
+    0 0 40px var(--medal-platinum-glow);
+}
+
+/* Ribbon Styles */
+.medal-ribbon {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+}
+
+.medal-ribbon-left,
+.medal-ribbon-right {
+  position: absolute;
+  top: 100%;
+  width: 18px;
+  height: 40px;
+  border-radius: 0 0 4px 4px;
+}
+
+.medal-ribbon-left {
+  left: 50%;
+  transform: translateX(-120%) rotate(-8deg);
+  transform-origin: top center;
+}
+
+.medal-ribbon-right {
+  right: 50%;
+  transform: translateX(120%) rotate(8deg);
+  transform-origin: top center;
+}
+
+.ribbon-bronze {
+  background: linear-gradient(180deg, #8b5a2b 0%, #6b4423 100%);
+}
+
+.ribbon-silver {
+  background: linear-gradient(180deg, #a8a8a8 0%, #808080 100%);
+}
+
+.ribbon-gold {
+  background: linear-gradient(180deg, #cba342 0%, #a88734 100%);
+}
+
+.ribbon-platinum {
+  background: linear-gradient(180deg, #b8b8b8 0%, #9090a0 100%);
+}
+
+/* Certificate Showcase Background */
+.certificate-showcase-bg {
+  background:
+    radial-gradient(ellipse at center, var(--medal-glow-color, rgba(233, 196, 106, 0.3)) 0%, transparent 50%),
+    linear-gradient(180deg, var(--color-bg) 0%, #1a1a2e 100%);
+}
+
+/* Certificate Plaque Styles */
+.certificate-plaque {
+  background: linear-gradient(
+    135deg,
+    rgba(253, 251, 247, 0.95) 0%,
+    rgba(244, 228, 168, 0.3) 50%,
+    rgba(253, 251, 247, 0.95) 100%
+  );
+  border: 2px solid var(--medal-gold-dark);
+  box-shadow:
+    0 4px 16px rgba(203, 163, 66, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* ========== Responsive Typography ========== */
+@media (min-width: 640px) {
+  :root {
+    --font-size-base: 17px;
+    --font-size-xl: 24px;
+    --font-size-2xl: 32px;
+    --font-size-3xl: 42px;
+    --font-size-4xl: 56px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --font-size-xl: 26px;
+    --font-size-2xl: 38px;
+    --font-size-3xl: 56px;
+    --font-size-4xl: 72px;
+  }
+}
+
+/* ========== Safe Area Insets (iOS notches, etc.) ========== */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+
+  .bottom-nav {
+    padding-bottom: max(var(--spacing-md), env(safe-area-inset-bottom));
+  }
+}
+/* ========== Interactive Guide Rich Content ========== */
+
+.explanation-box {
+  background: white;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.tip-box {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.1) 0%,
+    rgba(245, 158, 11, 0.05) 100%
+  );
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: var(--color-text);
+}
+
+.tip-box strong {
+  color: #d97706; /* amber-600 */
+  display: block;
+  margin-bottom: var(--spacing-xs);
+}
+
+.highlight {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.15) 0%,
+    rgba(139, 92, 246, 0.15) 100%
+  );
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #4f46e5; /* indigo-600 */
+}
+
+.highlight-past-perfect {
+  background: linear-gradient(
+    135deg,
+    rgba(236, 72, 153, 0.15) 0%,
+    rgba(236, 72, 153, 0.1) 100%
+  );
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #db2777; /* pink-600 */
+}
+
+.highlight-past-simple {
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.15) 0%,
+    rgba(16, 185, 129, 0.1) 100%
+  );
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #059669; /* emerald-600 */
+}
+
+.example-box {
+  background: var(--color-bg-light);
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+.example-box .example {
+  margin: var(--spacing-xs) 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: white;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Grammar highlighting classes - used in examples and exercises */
+.example-box .eg-subject,
+.eg-subject {
+  color: #1e40af; /* blue-800 */
+  font-weight: 700;
+}
+
+.example-box .eg-helper,
+.eg-helper {
+  color: #6d28d9; /* purple-700 - modals, helper verbs */
+  font-weight: 700;
+}
+
+.example-box .eg-verb,
+.eg-verb {
+  color: #c2410c; /* orange-700 - main verbs */
+  font-weight: 700;
+}
+
+/* New grammar-specific emphasis classes */
+.eg-superlative {
+  color: #d97706; /* amber-600 - superlative forms */
+  font-weight: 700;
+}
+
+.eg-quantifier {
+  color: #059669; /* emerald-600 - quantifiers */
+  font-weight: 700;
+}
+
+.eg-comparative {
+  color: #0891b2; /* cyan-600 - comparative forms */
+  font-weight: 700;
+}
+
+.eg-punctuation {
+  color: #0f766e; /* teal-700 - punctuation marks */
+  font-weight: 800;
+}
+
+.eg-capital {
+  color: #be123c; /* rose-700 - capitalization targets */
+  font-weight: 800;
+}
+
+.formula-box {
+  background: white;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  margin: var(--spacing-lg) 0;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.formula-part {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-md);
+  margin: 4px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  border: 1px solid var(--color-border);
+  font-family: var(--font-display);
+}
+
+.formula-part.subject-part {
+  background: #eff6ff; /* blue-50 */
+  color: #1e40af; /* blue-800 */
+  border-color: #dbeafe;
+}
+
+.formula-part.verb-part {
+  background: #fef2f2; /* red-50 */
+  color: #991b1b; /* red-800 */
+  border-color: #fee2e2;
+}
+
+.formula-part.object-part {
+  background: #f0fdf4; /* green-50 */
+  color: #166534; /* green-800 */
+  border-color: #dcfce7;
+}
+
+.usage-list {
+  list-style: none;
+  padding: 0;
+  counter-reset: usage-counter;
+}
+
+.usage-list li {
+  position: relative;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-md)
+    var(--spacing-xl);
+  margin: var(--spacing-md) 0;
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.usage-list li::before {
+  counter-increment: usage-counter;
+  content: counter(usage-counter);
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Override prose h4 font-size for usage meanings list */
+.usage-meaning h4,
+.prose .usage-meaning h4 {
+  font-size: 1.125rem !important; /* text-lg - was text-2xl */
+  line-height: 1.5 !important;
+}
+
+@media (min-width: 768px) {
+  .usage-meaning h4,
+  .prose .usage-meaning h4 {
+    font-size: 1.25rem !important; /* text-xl - was text-3xl */
+  }
+}
+
+@media (min-width: 1024px) {
+  .usage-meaning h4,
+  .prose .usage-meaning h4 {
+    font-size: 1.5rem !important; /* text-2xl - was text-4xl */
+  }
+}
+
+.announcement-markdown p {
+  margin: 0.25rem 0;
+}
+
+.announcement-markdown ul {
+  margin: 0.35rem 0;
+  padding-left: 1.15rem;
+  list-style: disc;
+}
+
+.announcement-markdown code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.85em;
+  background: rgba(120, 53, 15, 0.1);
+  padding: 0.05rem 0.3rem;
+  border-radius: 0.3rem;
+}
+
+.announcement-markdown a {
+  color: #92400e;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 600;
+}

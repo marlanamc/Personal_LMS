@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superlatives & Quantifiers Worksheet (ESOL)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink: #1a1a1a; --gray: #444; --light: #666; --line: #333; }
+    body { font-family: Georgia, 'Times New Roman', serif; color: var(--ink); background: #f5f5f5; padding: 20px; line-height: 1.5; font-size: 13px; }
+    .sheet { max-width: 8in; margin: 0 auto; background: #fff; padding: 0.4in 0.5in; }
+    .header {
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+    }
+    .header h1 {
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .header-fields {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .field { display: flex; align-items: baseline; gap: 5px; }
+    .field label { font-weight: bold; }
+    .field-line { border-bottom: 1px solid var(--ink); width: 120px; height: 16px; }
+    .section { margin-bottom: 16px; }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 3px;
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .section-time {
+      font-size: 11px;
+      color: var(--light);
+      font-style: italic;
+    }
+    .instruction {
+      font-size: 11px;
+      color: var(--light);
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+    .question-list {
+      list-style: none;
+      padding: 0;
+    }
+    .question-item {
+      margin-bottom: 6px;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .q-num {
+      font-weight: bold;
+      min-width: 20px;
+    }
+    .q-text {
+      flex: 1;
+    }
+    .blank {
+      display: inline-block;
+      border-bottom: 1px solid var(--line);
+      min-width: 80px;
+      height: 16px;
+      margin: 0 2px;
+    }
+    .blank-short {
+      min-width: 50px;
+    }
+    .options {
+      display: flex;
+      gap: 16px;
+      margin-left: 26px;
+      margin-top: 3px;
+      font-size: 12px;
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .option input[type="radio"] {
+      margin: 0;
+    }
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 24px;
+      margin-left: 26px;
+      margin-top: 3px;
+      font-size: 12px;
+    }
+    .vocab-matching {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 32px;
+      font-size: 12px;
+    }
+    .vocab-word {
+      display: flex;
+      align-items: baseline;
+      padding: 2px 0;
+    }
+    .vocab-word .num {
+      font-weight: bold;
+      min-width: 18px;
+    }
+    .vocab-word .match-blank {
+      border-bottom: 1px solid var(--line);
+      width: 24px;
+      margin-right: 6px;
+    }
+    .vocab-def {
+      padding: 2px 0;
+    }
+    .vocab-def .letter {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    .writing-line {
+      border-bottom: 1px solid var(--line);
+      height: 22px;
+      margin-bottom: 2px;
+    }
+    .tip-box {
+      background: #f9f9f9;
+      border-left: 3px solid #7ba884;
+      padding: 8px 10px;
+      margin: 10px 0;
+      font-size: 11px;
+    }
+    .tip-box strong {
+      color: #7ba884;
+    }
+    .reference-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin: 8px 0;
+    }
+    .reference-table th {
+      background: #f0f0f0;
+      padding: 5px 8px;
+      text-align: left;
+      border: 1px solid #ddd;
+      font-weight: bold;
+    }
+    .reference-table td {
+      padding: 4px 8px;
+      border: 1px solid #ddd;
+    }
+    .quiz-section {
+      background: #fafafa;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .quiz-question {
+      margin-bottom: 10px;
+    }
+    .quiz-question .q-text {
+      margin-bottom: 4px;
+    }
+    .quiz-options {
+      margin-left: 20px;
+      font-size: 12px;
+    }
+    .quiz-options label {
+      display: block;
+      padding: 2px 0;
+    }
+    .page-break {
+      page-break-before: always;
+    }
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .column-box {
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .column-box h4 {
+      font-size: 12px;
+      margin-bottom: 6px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #eee;
+    }
+    .column-box ul {
+      margin-left: 16px;
+      margin-bottom: 0;
+    }
+    .column-box li {
+      margin-bottom: 2px;
+    }
+    .fill-in-section .question-item {
+      margin-bottom: 8px;
+    }
+    @media print {
+      @page { size: letter; margin: 0.4in; }
+      body { background: #fff; padding: 0; font-size: 12px; }
+      .sheet { padding: 0; max-width: none; }
+      .page-break { page-break-before: always; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <!-- Page 1 -->
+    <header class="header">
+      <h1>Superlatives & Quantifiers Worksheet</h1>
+      <div class="header-fields">
+        <div class="field">
+          <label>Name</label>
+          <div class="field-line" style="width: 160px;"></div>
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <div class="field-line" style="width: 100px;"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Quick Reference -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Quick Reference</h2>
+      </div>
+      <table class="reference-table">
+        <thead>
+          <tr>
+            <th>Quantifier</th>
+            <th>Use With</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>many</strong></td>
+            <td>Countable nouns</td>
+            <td>many hours, many jobs</td>
+          </tr>
+          <tr>
+            <td><strong>much</strong></td>
+            <td>Uncountable nouns</td>
+            <td>much time, much money</td>
+          </tr>
+          <tr>
+            <td><strong>few / a few</strong></td>
+            <td>Countable (not enough / some)</td>
+            <td>few options, a few friends</td>
+          </tr>
+          <tr>
+            <td><strong>little / a little</strong></td>
+            <td>Uncountable (not enough / some)</td>
+            <td>little hope, a little time</td>
+          </tr>
+          <tr>
+            <td><strong>fewer</strong></td>
+            <td>Countable (comparison)</td>
+            <td>fewer hours, fewer problems</td>
+          </tr>
+          <tr>
+            <td><strong>less</strong></td>
+            <td>Uncountable (comparison)</td>
+            <td>less stress, less time</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="tip-box">
+        <strong>Tip:</strong> Can you say "one ___"? If yes, it's countable (use many/few/fewer). If no, it's uncountable (use much/little/less).
+      </div>
+    </section>
+
+    <!-- Part A: Vocabulary Matching -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Part A: Countable or Uncountable?</h2>
+        <span class="section-time">3 min</span>
+      </div>
+      <p class="instruction">Write C for countable or U for uncountable next to each word.</p>
+      <div class="vocab-matching">
+        <div>
+          <div class="vocab-word"><span class="num">1.</span> <span class="match-blank"></span> jobs</div>
+          <div class="vocab-word"><span class="num">2.</span> <span class="match-blank"></span> money</div>
+          <div class="vocab-word"><span class="num">3.</span> <span class="match-blank"></span> hours</div>
+          <div class="vocab-word"><span class="num">4.</span> <span class="match-blank"></span> experience</div>
+          <div class="vocab-word"><span class="num">5.</span> <span class="match-blank"></span> apartments</div>
+        </div>
+        <div>
+          <div class="vocab-word"><span class="num">6.</span> <span class="match-blank"></span> time</div>
+          <div class="vocab-word"><span class="num">7.</span> <span class="match-blank"></span> bedrooms</div>
+          <div class="vocab-word"><span class="num">8.</span> <span class="match-blank"></span> traffic</div>
+          <div class="vocab-word"><span class="num">9.</span> <span class="match-blank"></span> benefits</div>
+          <div class="vocab-word"><span class="num">10.</span> <span class="match-blank"></span> stress</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Part B: Many vs Much -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Part B: Many or Much?</h2>
+        <span class="section-time">4 min</span>
+      </div>
+      <p class="instruction">Circle the correct answer.</p>
+      <ol class="question-list">
+        <li class="question-item">
+          <span class="q-num">1.</span>
+          <span class="q-text">How ( many / much ) vacation days do you get per year?</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">2.</span>
+          <span class="q-text">I don't have ( many / much ) experience with computers.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">3.</span>
+          <span class="q-text">There aren't ( many / much ) affordable apartments available.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">4.</span>
+          <span class="q-text">This job requires too ( many / much ) travel.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">5.</span>
+          <span class="q-text">How ( many / much ) hours do you work per week?</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">6.</span>
+          <span class="q-text">She has ( many / much ) responsibilities at work.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Part C: Few/Little and Fewer/Less -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Part C: Few/Little and Fewer/Less</h2>
+        <span class="section-time">4 min</span>
+      </div>
+      <p class="instruction">Fill in the blank with the correct word: few, little, fewer, or less.</p>
+      <ol class="question-list fill-in-section">
+        <li class="question-item">
+          <span class="q-num">1.</span>
+          <span class="q-text">There are very <span class="blank blank-short"></span> good apartments in my budget.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">2.</span>
+          <span class="q-text">I have very <span class="blank blank-short"></span> patience for rude customers.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">3.</span>
+          <span class="q-text">This job offers <span class="blank blank-short"></span> vacation days than my last one.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">4.</span>
+          <span class="q-text">I want a job with <span class="blank blank-short"></span> responsibility.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">5.</span>
+          <span class="q-text">The new apartment has <span class="blank blank-short"></span> bedrooms than our old one.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">6.</span>
+          <span class="q-text">Working night shift means <span class="blank blank-short"></span> traffic on my commute.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Part D: Superlatives -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Part D: Form the Superlative</h2>
+        <span class="section-time">5 min</span>
+      </div>
+      <p class="instruction">Complete each sentence with the correct superlative form of the word in parentheses.</p>
+      <ol class="question-list fill-in-section">
+        <li class="question-item">
+          <span class="q-num">1.</span>
+          <span class="q-text">This is <span class="blank"></span> (cheap) apartment I can afford.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">2.</span>
+          <span class="q-text">Monday is <span class="blank"></span> (busy) day of the week at the restaurant.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">3.</span>
+          <span class="q-text">She's <span class="blank"></span> (experienced) worker on our team.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">4.</span>
+          <span class="q-text">That was <span class="blank"></span> (good) interview I've ever had!</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">5.</span>
+          <span class="q-text">This is <span class="blank"></span> (expensive) restaurant in the city.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">6.</span>
+          <span class="q-text">He's <span class="blank"></span> (bad) boss I've ever worked for.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Page Break -->
+    <div class="page-break"></div>
+
+    <!-- Page 2 Header -->
+    <header class="header">
+      <h1>Superlatives & Quantifiers Worksheet (Page 2)</h1>
+    </header>
+
+    <!-- Part E: Real-Life Comparisons -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Part E: Real-Life Comparisons</h2>
+        <span class="section-time">5 min</span>
+      </div>
+      <p class="instruction">Complete these sentences about comparing options. Use the most, the least, the fewest, or the best.</p>
+      <ol class="question-list fill-in-section">
+        <li class="question-item">
+          <span class="q-num">1.</span>
+          <span class="q-text">I looked at three apartments: A has 2 bedrooms, B has 3 bedrooms, and C has 1 bedroom. Apartment C has <span class="blank"></span> bedrooms.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">2.</span>
+          <span class="q-text">I received three job offers: Job A pays $15/hour, Job B pays $18/hour, and Job C pays $20/hour. Job C pays <span class="blank"></span> money.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">3.</span>
+          <span class="q-text">Of all my coworkers, Maria has <span class="blank"></span> experience because she's been working here for 10 years.</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">4.</span>
+          <span class="q-text">I compared three neighborhoods: Downtown has heavy traffic, Midtown has moderate traffic, and Riverside has almost no traffic. Riverside has <span class="blank"></span> traffic.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Part F: A Few vs Few / A Little vs Little -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Part F: Positive or Negative Meaning?</h2>
+        <span class="section-time">4 min</span>
+      </div>
+      <p class="instruction">Choose the correct answer based on the meaning in parentheses.</p>
+      <ol class="question-list">
+        <li class="question-item">
+          <span class="q-num">1.</span>
+          <span class="q-text">I have ( few / a few ) friends here, so I'm happy. (positive - I do have some friends)</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">2.</span>
+          <span class="q-text">There are ( few / a few ) good restaurants near my apartment. (negative - almost none)</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">3.</span>
+          <span class="q-text">I need ( little / a little ) help with this project. (positive - some help)</span>
+        </li>
+        <li class="question-item">
+          <span class="q-num">4.</span>
+          <span class="q-text">I have ( little / a little ) patience for rude customers. (negative - almost none)</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Mini Quiz -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Mini Quiz: Test Your Knowledge</h2>
+        <span class="section-time">8 min</span>
+      </div>
+      <div class="quiz-section">
+        <p class="instruction">Circle the best answer for each question.</p>
+
+        <div class="quiz-question">
+          <div class="q-text"><strong>1.</strong> Which sentence is correct?</div>
+          <div class="quiz-options">
+            <label>a) This is the most cheap apartment in the building.</label>
+            <label>b) This is the cheaper apartment in the building.</label>
+            <label>c) This is the cheapest apartment in the building.</label>
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <div class="q-text"><strong>2.</strong> Choose the correct quantifier: "How ___ experience do you have?"</div>
+          <div class="quiz-options">
+            <label>a) many</label>
+            <label>b) much</label>
+            <label>c) few</label>
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <div class="q-text"><strong>3.</strong> Which is correct? "My new job has ___ hours than my old one."</div>
+          <div class="quiz-options">
+            <label>a) fewer</label>
+            <label>b) less</label>
+            <label>c) few</label>
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <div class="q-text"><strong>4.</strong> What's the best completion? "I have very ___ time before my shift starts."</div>
+          <div class="quiz-options">
+            <label>a) few</label>
+            <label>b) little</label>
+            <label>c) less</label>
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <div class="q-text"><strong>5.</strong> Which sentence correctly uses superlatives AND quantifiers?</div>
+          <div class="quiz-options">
+            <label>a) This apartment has the most space and the fewer problems.</label>
+            <label>b) This apartment has the most space and the fewest problems.</label>
+            <label>c) This apartment has the much space and the least problems.</label>
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <div class="q-text"><strong>6.</strong> What's wrong with this sentence? "This job has less benefits than my last one."</div>
+          <div class="quiz-options">
+            <label>a) Nothing - it's correct</label>
+            <label>b) Should be "fewer benefits" (benefits are countable)</label>
+            <label>c) Should be "little benefits"</label>
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <div class="q-text"><strong>7.</strong> What's the superlative form of "good"?</div>
+          <div class="quiz-options">
+            <label>a) the goodest</label>
+            <label>b) the most good</label>
+            <label>c) the best</label>
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <div class="q-text"><strong>8.</strong> Which is correct? "Of all three neighborhoods, this one has ___ crime."</div>
+          <div class="quiz-options">
+            <label>a) the fewest</label>
+            <label>b) the least</label>
+            <label>c) fewer</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Writing Section -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Writing Practice</h2>
+        <span class="section-time">5 min</span>
+      </div>
+      <p class="instruction">Write 3-4 sentences comparing two jobs OR two apartments. Use at least one superlative and two quantifiers (many/much, few/little, fewer/less).</p>
+      <div style="margin-top: 8px;">
+        <div class="writing-line"></div>
+        <div class="writing-line"></div>
+        <div class="writing-line"></div>
+        <div class="writing-line"></div>
+        <div class="writing-line"></div>
+        <div class="writing-line"></div>
+      </div>
+    </section>
+
+
+
+  </div>
+</body>
+</html>

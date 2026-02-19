@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 31 Plan - May 5–7, 2026</title>
+    <style>
+        :root {
+            --ink: #111;
+            --muted: #444;
+            --paper: #fff;
+            --shade: #f3f3f3;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 18px;
+            font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+            color: var(--ink);
+            background: var(--paper);
+            line-height: 1.35;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            border: 2px solid var(--ink);
+            background: var(--paper);
+        }
+
+        .header {
+            padding: 14px 18px;
+            border-bottom: 2px solid var(--ink);
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            letter-spacing: -0.01em;
+        }
+
+        .week-info {
+            margin-top: 4px;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .content {
+            padding: 16px 18px 18px;
+        }
+
+        .why-box {
+            border: 1px solid var(--ink);
+            padding: 10px 12px;
+            margin-bottom: 14px;
+        }
+
+        .why-box p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .section-title {
+            margin: 0 0 10px 0;
+            font-size: 1.15rem;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 6px;
+        }
+
+        .day-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .day-column {
+            border: 1px solid var(--ink);
+        }
+
+        .day-header {
+            background: var(--shade);
+            padding: 8px 10px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--ink);
+        }
+
+        .day-content {
+            padding: 10px 10px 12px;
+            font-size: 0.95rem;
+        }
+
+        .meta-line {
+            margin: 0 0 8px 0;
+        }
+
+        .after-class {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 2px solid var(--ink);
+        }
+
+        .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .checklist-item .checklist-cb {
+            margin-top: 4px;
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .checklist-item label {
+            cursor: pointer;
+        }
+
+        .goals-section {
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--ink);
+        }
+
+        .goals-section h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.15rem;
+        }
+
+        .goal-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .goal-item input[type="checkbox"] {
+            margin-top: 3px;
+            width: 14px;
+            height: 14px;
+        }
+
+        .goal-item label {
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .quizzes-section {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 2px solid var(--ink);
+        }
+
+        .quizzes-card {
+            border: 2px solid var(--ink);
+            padding: 12px;
+        }
+
+        .quizzes-heading {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .quizzes-eyebrow {
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            border: 1px solid var(--ink);
+            padding: 2px 8px;
+        }
+
+        .quizzes-card h2 {
+            margin: 0;
+            font-size: 1.35rem;
+        }
+
+        .quiz-item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            padding: 10px;
+            background: var(--shade);
+            border-left: 4px solid var(--ink);
+            margin-bottom: 10px;
+        }
+
+        .quiz-item input[type="checkbox"] {
+            margin-top: 4px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .quiz-meta {
+            margin-top: 3px;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        .quiz-none {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .verb-practice {
+            border: 1px solid var(--ink);
+            padding: 10px;
+            background: var(--paper);
+        }
+
+        .verb-practice h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.05rem;
+        }
+
+        .verb-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .verb-table th,
+        .verb-table td {
+            border: 2px solid var(--ink);
+            padding: 10px 8px;
+            text-align: center;
+        }
+
+        .verb-table th {
+            background: var(--shade);
+            font-weight: 800;
+        }
+
+        .verb-table td.verb-v1 {
+            text-align: left;
+            font-weight: 700;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                border: none;
+            }
+
+            .day-column {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .quizzes-section {
+                break-before: page;
+                page-break-before: always;
+            }
+
+            .quizzes-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .day-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Your Week 31 Plan</h1>
+            <div class="week-info">May 5–7, 2026 • Medical Instructions: Modals, Imperatives &amp; Declaratives</div>
+        </div>
+
+        <div class="content">
+            <div class="why-box">
+                <p><strong>Why this matters for you:</strong> You'll practice clear, polite ways to give and follow health instructions. This helps at the clinic and in daily care. Also, used to helps you talk about past habits and changes. Would rather helps you express preferences politely. These are useful for work and daily life.</p>
+            </div>
+
+            <div class="goals-section">
+                <h2>Your goals this week</h2>
+                <div class="goal-item">
+                    <input type="checkbox" id="goal-1">
+                    <label for="goal-1">Practice using MyChart and talking to the office</label>
+                </div>
+                <div class="goal-item">
+                    <input type="checkbox" id="goal-2">
+                    <label for="goal-2">Practice talking about health habits with used to</label>
+                </div>
+                <div class="goal-item">
+                    <input type="checkbox" id="goal-3">
+                    <label for="goal-3">Give advice and instructions politely</label>
+                </div>
+                <div class="goal-item">
+                    <input type="checkbox" id="goal-4">
+                    <label for="goal-4">Understand the difference between commands and suggestions</label>
+                </div>
+                <div class="goal-item">
+                    <input type="checkbox" id="goal-5">
+                    <label for="goal-5">Describe symptoms and ask for help clearly</label>
+                </div>
+
+            </div>
+
+            <h2 class="section-title">This week</h2>
+
+            <div class="day-columns">
+                <div class="day-column">
+                    <div class="day-header">Tuesday, May 5</div>
+                    <div class="day-content">
+                        <p class="meta-line"><strong>Warmup:</strong> Healthcare Communication: Advice Modals &amp; MyChart</p>
+                        <p class="meta-line"><strong>Grammar:</strong> Medical Instructions: Modals, Imperatives &amp; Declaratives</p>
+                    </div>
+                </div>
+
+                <div class="day-column">
+                    <div class="day-header">Thursday, May 7</div>
+                    <div class="day-content">
+                        <p class="meta-line"><strong>Warmup:</strong> Health Habits: Used To / Be Used To / Would Rather</p>
+                        
+                        <p class="meta-line"><strong>Grammar:</strong> Medical Instructions: Modals, Imperatives &amp; Declaratives</p>
+                    </div>
+                </div>
+            </div>
+
+                        <div class="after-class">
+                <h2 class="section-title">After class</h2>
+                <div class="checklist">
+                <div class="checklist-item">
+                    <input type="checkbox" id="after-writing-31" class="checklist-cb">
+                    <label for="after-writing-31">Writing Homework</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="after-vocab-31" class="checklist-cb">
+                    <label for="after-vocab-31">Review May 5-7 Vocabulary Flash Cards</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="after-guide-31" class="checklist-cb">
+                    <label for="after-guide-31">Review Medical Instructions: Modals, Imperatives &amp; Declaratives Guide</label>
+                </div>
+
+                <div class="checklist-item">
+                    <input type="checkbox" id="after-verb-quiz-31" class="checklist-cb">
+                    <label for="after-verb-quiz-31">Take Verb Quiz 16</label>
+                </div>
+                </div>
+            </div>
+
+
+            
+            <section class="quizzes-section">
+                <div class="quizzes-card">
+                    <div class="quizzes-heading">
+                        <div class="quizzes-eyebrow">Don't forget</div>
+                        <h2>Quizzes and due dates</h2>
+                    </div>
+                    <div class="quiz-item">
+                        <input type="checkbox" id="verb-quiz-31">
+                        <div class="quiz-text">
+                            <label for="verb-quiz-31"><strong>Verb Quiz 16</strong></label>
+                            <div class="quiz-meta">Due Tuesday, May 12 • Online, 5 verbs, ~5 minutes</div>
+                        </div>
+                    </div>
+                    <div class="verb-practice">
+                        <h3>Verb practice (fill in the blank columns)</h3>
+                        <table class="verb-table">
+                            <thead>
+                                <tr><th scope="col">V1</th><th scope="col">V1-3rd</th><th scope="col">V1-ing</th><th scope="col">V2</th><th scope="col">V3</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="verb-v1">book</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="verb-v1">cancel</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="verb-v1">reschedule</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="verb-v1">register</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td class="verb-v1">update</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</body>
+</html>

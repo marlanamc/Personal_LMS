@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print All Grammar Guides</title>
+    <style>
+        @media print {
+            body {
+                margin: 0;
+                padding: 20px;
+            }
+            .no-print {
+                display: none;
+            }
+            a {
+                color: #000;
+                text-decoration: none;
+            }
+            .guide-item {
+                page-break-inside: avoid;
+                margin-bottom: 10px;
+            }
+        }
+        @media screen {
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 800px;
+                margin: 40px auto;
+                padding: 20px;
+                background: #f5f5f5;
+            }
+            .header {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .controls {
+                background: white;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            button {
+                background: #3b82f6;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                margin-right: 10px;
+                font-size: 14px;
+            }
+            button:hover {
+                background: #2563eb;
+            }
+            .guide-list {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .guide-item {
+                padding: 10px;
+                border-bottom: 1px solid #e5e5e5;
+            }
+            .guide-item:last-child {
+                border-bottom: none;
+            }
+            a {
+                color: #3b82f6;
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+            .category {
+                font-weight: bold;
+                color: #666;
+                margin-top: 20px;
+                margin-bottom: 10px;
+                padding-top: 10px;
+                border-top: 2px solid #e5e5e5;
+            }
+            .category:first-child {
+                border-top: none;
+                margin-top: 0;
+            }
+            .guide-title {
+                font-weight: 500;
+            }
+            .guide-path {
+                font-size: 10px;
+                color: #999;
+                margin-left: 8px;
+                font-family: monospace;
+            }
+        }
+        @media print {
+            .guide-path {
+                font-size: 9px;
+                color: #666;
+            }
+        }
+        h1 {
+            margin: 0 0 10px 0;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ESOL Level 3 Grammar Guides</h1>
+        <p class="subtitle">Total: 38 grammar guides</p>
+    </div>
+
+    <div class="controls no-print">
+        <label for="baseUrl" style="display: block; margin-bottom: 5px; font-size: 14px;">Base URL (e.g., http://localhost:3000 or your deployed URL):</label>
+        <input type="text" id="baseUrl" placeholder="http://localhost:3000" value="http://localhost:3000" style="width: 300px; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
+        <div style="margin-top: 10px;">
+            <button onclick="window.print()">Print This Page</button>
+            <button onclick="openAllGuides()">Open All Guides in New Tabs</button>
+            <button onclick="updateAllLinks()">Update Links</button>
+        </div>
+    </div>
+
+    <div class="guide-list">
+        <div class="category">Foundation</div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/parts-of-speech/print" target="_blank" data-path="/grammar-reader/parts-of-speech/print"><span class="guide-title">Parts of Speech</span><span class="guide-path">(parts-of-speech)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/information-questions/print" target="_blank" data-path="/grammar-reader/information-questions/print"><span class="guide-title">Information Questions (Wh- Questions)</span><span class="guide-path">(information-questions)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/superlatives-quantifiers/print" target="_blank" data-path="/grammar-reader/superlatives-quantifiers/print"><span class="guide-title">Superlatives & Quantifiers</span><span class="guide-path">(superlatives-quantifiers)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/imperatives-declaratives/print" target="_blank" data-path="/grammar-reader/imperatives-declaratives/print"><span class="guide-title">Imperatives & Declaratives</span><span class="guide-path">(imperatives-declaratives)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/articles-community-resources/print" target="_blank" data-path="/grammar-reader/articles-community-resources/print"><span class="guide-title">Articles & References for Community Resources</span><span class="guide-path">(articles-community-resources)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/prepositions-time-place/print" target="_blank" data-path="/grammar-reader/prepositions-time-place/print"><span class="guide-title">Prepositions of Time & Place</span><span class="guide-path">(prepositions-time-place)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/cycle-1-review/print" target="_blank" data-path="/grammar-reader/cycle-1-review/print"><span class="guide-title">Cycle 1 Review</span><span class="guide-path">(cycle-1-review)</span></a></div>
+
+        <div class="category">Simple Tenses</div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/present-simple/print" target="_blank" data-path="/grammar-reader/present-simple/print"><span class="guide-title">Present Simple</span><span class="guide-path">(present-simple)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/past-simple/print" target="_blank" data-path="/grammar-reader/past-simple/print"><span class="guide-title">Past Simple</span><span class="guide-path">(past-simple)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/future-simple/print" target="_blank" data-path="/grammar-reader/future-simple/print"><span class="guide-title">Future Simple</span><span class="guide-path">(future-simple)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/simple-tenses-review/print" target="_blank" data-path="/grammar-reader/simple-tenses-review/print"><span class="guide-title">Simple Tenses Review</span><span class="guide-path">(simple-tenses-review)</span></a></div>
+
+        <div class="category">Continuous Tenses</div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/present-continuous/print" target="_blank" data-path="/grammar-reader/present-continuous/print"><span class="guide-title">Present Continuous</span><span class="guide-path">(present-continuous)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/past-continuous/print" target="_blank" data-path="/grammar-reader/past-continuous/print"><span class="guide-title">Past Continuous</span><span class="guide-path">(past-continuous)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/future-continuous/print" target="_blank" data-path="/grammar-reader/future-continuous/print"><span class="guide-title">Future Continuous</span><span class="guide-path">(future-continuous)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/continuous-tenses-review/print" target="_blank" data-path="/grammar-reader/continuous-tenses-review/print"><span class="guide-title">Continuous Tenses Review</span><span class="guide-path">(continuous-tenses-review)</span></a></div>
+
+        <div class="category">Perfect Tenses</div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/present-perfect/print" target="_blank" data-path="/grammar-reader/present-perfect/print"><span class="guide-title">Present Perfect</span><span class="guide-path">(present-perfect)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/past-perfect/print" target="_blank" data-path="/grammar-reader/past-perfect/print"><span class="guide-title">Past Perfect</span><span class="guide-path">(past-perfect)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/future-perfect/print" target="_blank" data-path="/grammar-reader/future-perfect/print"><span class="guide-title">Future Perfect</span><span class="guide-path">(future-perfect)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/perfect-tenses-review/print" target="_blank" data-path="/grammar-reader/perfect-tenses-review/print"><span class="guide-title">Perfect Tenses Review</span><span class="guide-path">(perfect-tenses-review)</span></a></div>
+
+        <div class="category">Perfect Continuous Tenses</div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/present-perfect-continuous/print" target="_blank" data-path="/grammar-reader/present-perfect-continuous/print"><span class="guide-title">Present Perfect Continuous</span><span class="guide-path">(present-perfect-continuous)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/past-perfect-continuous/print" target="_blank" data-path="/grammar-reader/past-perfect-continuous/print"><span class="guide-title">Past Perfect Continuous</span><span class="guide-path">(past-perfect-continuous)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/future-perfect-continuous/print" target="_blank" data-path="/grammar-reader/future-perfect-continuous/print"><span class="guide-title">Future Perfect Continuous</span><span class="guide-path">(future-perfect-continuous)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/perfect-continuous-tenses-review/print" target="_blank" data-path="/grammar-reader/perfect-continuous-tenses-review/print"><span class="guide-title">Perfect Continuous Tenses Review</span><span class="guide-path">(perfect-continuous-tenses-review)</span></a></div>
+
+        <div class="category">Gerunds & Infinitives</div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/infinitives-vs-gerunds/print" target="_blank" data-path="/grammar-reader/infinitives-vs-gerunds/print"><span class="guide-title">Infinitives vs Gerunds (6 Patterns)</span><span class="guide-path">(infinitives-vs-gerunds)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/verbs-plus-gerunds/print" target="_blank" data-path="/grammar-reader/verbs-plus-gerunds/print"><span class="guide-title">Verbs + Gerunds (Pattern 2)</span><span class="guide-path">(verbs-plus-gerunds)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/gerunds-prepositions/print" target="_blank" data-path="/grammar-reader/gerunds-prepositions/print"><span class="guide-title">Preposition + Gerunds (Pattern 3)</span><span class="guide-path">(gerunds-prepositions)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/gerunds-infinitives-jobs/print" target="_blank" data-path="/grammar-reader/gerunds-infinitives-jobs/print"><span class="guide-title">Gerunds & Infinitives: Jobs - Skills & Qualifications</span><span class="guide-path">(gerunds-infinitives-jobs)</span></a></div>
+
+        <div class="category">Modals</div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/modals-obligation-permission/print" target="_blank" data-path="/grammar-reader/modals-obligation-permission/print"><span class="guide-title">Modals: Obligation & Permission</span><span class="guide-path">(modals-obligation-permission)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/modals-health-advice-caution-consent/print" target="_blank" data-path="/grammar-reader/modals-health-advice-caution-consent/print"><span class="guide-title">Modals for Health: Advice, Caution & Consent</span><span class="guide-path">(modals-health-advice-caution-consent)</span></a></div>
+
+        <div class="category">Conditionals</div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/conditionals-zero-first-jobs/print" target="_blank" data-path="/grammar-reader/conditionals-zero-first-jobs/print"><span class="guide-title">Zero & First Conditionals: Jobs - Rules & Expectations</span><span class="guide-path">(conditionals-zero-first-jobs)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/conditionals-second-third-jobs/print" target="_blank" data-path="/grammar-reader/conditionals-second-third-jobs/print"><span class="guide-title">Second & Third Conditionals: Jobs - Advice, Risk & Reflection</span><span class="guide-path">(conditionals-second-third-jobs)</span></a></div>
+
+        <div class="category">Advanced Grammar</div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/passive-voice/print" target="_blank" data-path="/grammar-reader/passive-voice/print"><span class="guide-title">Passive Voice</span><span class="guide-path">(passive-voice)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/reported-speech/print" target="_blank" data-path="/grammar-reader/reported-speech/print"><span class="guide-title">Reported Speech</span><span class="guide-path">(reported-speech)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/used-to-would-rather/print" target="_blank" data-path="/grammar-reader/used-to-would-rather/print"><span class="guide-title">Used To & Would Rather</span><span class="guide-path">(used-to-would-rather)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/workplace-phrasal-verbs/print" target="_blank" data-path="/grammar-reader/workplace-phrasal-verbs/print"><span class="guide-title">Workplace Phrasal Verbs</span><span class="guide-path">(workplace-phrasal-verbs)</span></a></div>
+
+        <div class="category">Writing</div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/punctuation-capitalization/print" target="_blank" data-path="/grammar-reader/punctuation-capitalization/print"><span class="guide-title">Punctuation & Capitalization</span><span class="guide-path">(punctuation-capitalization)</span></a></div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/paragraph-format/print" target="_blank" data-path="/grammar-reader/paragraph-format/print"><span class="guide-title">Paragraph Format</span><span class="guide-path">(paragraph-format)</span></a></div>
+
+        <div class="category">Comprehensive Review</div>
+        <div class="guide-item"><a href="http://localhost:3000/grammar-reader/all-verb-tenses-overview/print" target="_blank" data-path="/grammar-reader/all-verb-tenses-overview/print"><span class="guide-title">All Verb Tenses Overview</span><span class="guide-path">(all-verb-tenses-overview)</span></a></div>
+    </div>
+
+    <script>
+        function getBaseUrl() {
+            const input = document.getElementById('baseUrl');
+            return input ? input.value.trim() : 'http://localhost:3000';
+        }
+
+        function updateAllLinks() {
+            const baseUrl = getBaseUrl();
+            const links = document.querySelectorAll('.guide-item a[data-path]');
+            links.forEach(link => {
+                const path = link.getAttribute('data-path');
+                link.href = baseUrl + path;
+                // Update the guide-path span if it exists, or create it if it doesn't
+                let pathSpan = link.querySelector('.guide-path');
+                if (!pathSpan) {
+                    // Extract slug from path
+                    const slug = path.replace('/grammar-reader/', '').replace('/print', '');
+                    pathSpan = document.createElement('span');
+                    pathSpan.className = 'guide-path';
+                    pathSpan.textContent = `(${slug})`;
+                    link.appendChild(pathSpan);
+                }
+            });
+            // Also update links without data-path (for backwards compatibility)
+            const allLinks = document.querySelectorAll('.guide-item a');
+            allLinks.forEach(link => {
+                if (!link.hasAttribute('data-path') && link.href.startsWith('http://localhost:3000')) {
+                    const path = new URL(link.href).pathname;
+                    link.setAttribute('data-path', path);
+                    link.href = baseUrl + path;
+                    // Ensure guide-path span exists
+                    if (!link.querySelector('.guide-path')) {
+                        const slug = path.replace('/grammar-reader/', '').replace('/print', '');
+                        const pathSpan = document.createElement('span');
+                        pathSpan.className = 'guide-path';
+                        pathSpan.textContent = `(${slug})`;
+                        link.appendChild(pathSpan);
+                    }
+                }
+            });
+        }
+
+        function openAllGuides() {
+            const baseUrl = getBaseUrl();
+            const links = document.querySelectorAll('.guide-item a[data-path]');
+            links.forEach((link, index) => {
+                const path = link.getAttribute('data-path');
+                const fullUrl = baseUrl + path;
+                setTimeout(() => {
+                    window.open(fullUrl, '_blank');
+                }, index * 200); // Stagger opens to avoid browser blocking
+            });
+        }
+
+        // Update links on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            updateAllLinks();
+        });
+
+        // Print instructions
+        console.log('To print all guides:');
+        console.log('1. Make sure your Next.js app is running (npm run dev)');
+        console.log('2. Update the base URL if needed (default: http://localhost:3000)');
+        console.log('3. Click "Open All Guides in New Tabs" button');
+        console.log('4. Wait for all tabs to load');
+        console.log('5. In each tab, press Cmd+P (Mac) or Ctrl+P (Windows) to print');
+    </script>
+</body>
+</html>

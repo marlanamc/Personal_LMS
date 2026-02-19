@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "generatedAt": "2026-02-13T23:46:39.836Z",
+  "scope": "src/content/grammar/**/*.ts",
+  "settings": {
+    "tolerance": 0.03,
+    "minQuestions": 10,
+    "maxNewFileFirstRate": 0.5
+  },
+  "global": {
+    "totalBlocks": 1500,
+    "analyzedBlocks": 1374,
+    "skippedNonChoiceBlocks": 126,
+    "first": 519,
+    "second": 502,
+    "thirdPlus": 353,
+    "missingMappings": 0,
+    "firstRate": 0.377729
+  },
+  "files": {
+    "src/content/grammar/all-verb-tenses-overview.ts": {
+      "totalBlocks": 17,
+      "analyzedBlocks": 17,
+      "skippedNonChoiceBlocks": 0,
+      "first": 5,
+      "second": 6,
+      "thirdPlus": 6,
+      "missingMappings": 0,
+      "firstRate": 0.294118
+    },
+    "src/content/grammar/articles-community-resources.ts": {
+      "totalBlocks": 16,
+      "analyzedBlocks": 16,
+      "skippedNonChoiceBlocks": 0,
+      "first": 5,
+      "second": 6,
+      "thirdPlus": 5,
+      "missingMappings": 0,
+      "firstRate": 0.3125
+    },
+    "src/content/grammar/conditionals-second-third.ts": {
+      "totalBlocks": 27,
+      "analyzedBlocks": 22,
+      "skippedNonChoiceBlocks": 5,
+      "first": 10,
+      "second": 8,
+      "thirdPlus": 4,
+      "missingMappings": 0,
+      "firstRate": 0.454545
+    },
+    "src/content/grammar/conditionals-zero-first.ts": {
+      "totalBlocks": 31,
+      "analyzedBlocks": 29,
+      "skippedNonChoiceBlocks": 2,
+      "first": 11,
+      "second": 12,
+      "thirdPlus": 6,
+      "missingMappings": 0,
+      "firstRate": 0.37931
+    },
+    "src/content/grammar/continuous-tenses-review.ts": {
+      "totalBlocks": 54,
+      "analyzedBlocks": 54,
+      "skippedNonChoiceBlocks": 0,
+      "first": 20,
+      "second": 18,
+      "thirdPlus": 16,
+      "missingMappings": 0,
+      "firstRate": 0.37037
+    },
+    "src/content/grammar/cycle-1-review.ts": {
+      "totalBlocks": 65,
+      "analyzedBlocks": 50,
+      "skippedNonChoiceBlocks": 15,
+      "first": 17,
+      "second": 22,
+      "thirdPlus": 11,
+      "missingMappings": 0,
+      "firstRate": 0.34
+    },
+    "src/content/grammar/future-continuous.ts": {
+      "totalBlocks": 43,
+      "analyzedBlocks": 43,
+      "skippedNonChoiceBlocks": 0,
+      "first": 14,
+      "second": 15,
+      "thirdPlus": 14,
+      "missingMappings": 0,
+      "firstRate": 0.325581
+    },
+    "src/content/grammar/future-perfect-continuous.ts": {
+      "totalBlocks": 25,
+      "analyzedBlocks": 24,
+      "skippedNonChoiceBlocks": 1,
+      "first": 8,
+      "second": 8,
+      "thirdPlus": 8,
+      "missingMappings": 0,
+      "firstRate": 0.333333
+    },
+    "src/content/grammar/future-perfect-family.ts": {
+      "totalBlocks": 34,
+      "analyzedBlocks": 34,
+      "skippedNonChoiceBlocks": 0,
+      "first": 15,
+      "second": 14,
+      "thirdPlus": 5,
+      "missingMappings": 0,
+      "firstRate": 0.441176
+    },
+    "src/content/grammar/future-perfect.ts": {
+      "totalBlocks": 21,
+      "analyzedBlocks": 21,
+      "skippedNonChoiceBlocks": 0,
+      "first": 7,
+      "second": 8,
+      "thirdPlus": 6,
+      "missingMappings": 0,
+      "firstRate": 0.333333
+    },
+    "src/content/grammar/future-simple.ts": {
+      "totalBlocks": 21,
+      "analyzedBlocks": 21,
+      "skippedNonChoiceBlocks": 0,
+      "first": 7,
+      "second": 8,
+      "thirdPlus": 6,
+      "missingMappings": 0,
+      "firstRate": 0.333333
+    },
+    "src/content/grammar/gerunds-infinitives.ts": {
+      "totalBlocks": 37,
+      "analyzedBlocks": 19,
+      "skippedNonChoiceBlocks": 18,
+      "first": 7,
+      "second": 7,
+      "thirdPlus": 5,
+      "missingMappings": 0,
+      "firstRate": 0.368421
+    },
+    "src/content/grammar/imperatives-declaratives.ts": {
+      "totalBlocks": 51,
+      "analyzedBlocks": 49,
+      "skippedNonChoiceBlocks": 2,
+      "first": 33,
+      "second": 9,
+      "thirdPlus": 7,
+      "missingMappings": 0,
+      "firstRate": 0.673469
+    },
+    "src/content/grammar/information-questions.ts": {
+      "totalBlocks": 53,
+      "analyzedBlocks": 48,
+      "skippedNonChoiceBlocks": 5,
+      "first": 16,
+      "second": 16,
+      "thirdPlus": 16,
+      "missingMappings": 0,
+      "firstRate": 0.333333
+    },
+    "src/content/grammar/medical-instructions-complete.ts": {
+      "totalBlocks": 46,
+      "analyzedBlocks": 46,
+      "skippedNonChoiceBlocks": 0,
+      "first": 17,
+      "second": 17,
+      "thirdPlus": 12,
+      "missingMappings": 0,
+      "firstRate": 0.369565
+    },
+    "src/content/grammar/modals-health-advice-caution-consent.ts": {
+      "totalBlocks": 33,
+      "analyzedBlocks": 30,
+      "skippedNonChoiceBlocks": 3,
+      "first": 8,
+      "second": 15,
+      "thirdPlus": 7,
+      "missingMappings": 0,
+      "firstRate": 0.266667
+    },
+    "src/content/grammar/modals-obligation-permission.ts": {
+      "totalBlocks": 31,
+      "analyzedBlocks": 29,
+      "skippedNonChoiceBlocks": 2,
+      "first": 10,
+      "second": 11,
+      "thirdPlus": 8,
+      "missingMappings": 0,
+      "firstRate": 0.344828
+    },
+    "src/content/grammar/paragraph-format.ts": {
+      "totalBlocks": 52,
+      "analyzedBlocks": 48,
+      "skippedNonChoiceBlocks": 4,
+      "first": 15,
+      "second": 18,
+      "thirdPlus": 15,
+      "missingMappings": 0,
+      "firstRate": 0.3125
+    },
+    "src/content/grammar/parts-of-speech.ts": {
+      "totalBlocks": 17,
+      "analyzedBlocks": 17,
+      "skippedNonChoiceBlocks": 0,
+      "first": 4,
+      "second": 5,
+      "thirdPlus": 8,
+      "missingMappings": 0,
+      "firstRate": 0.235294
+    },
+    "src/content/grammar/passive-voice.ts": {
+      "totalBlocks": 49,
+      "analyzedBlocks": 44,
+      "skippedNonChoiceBlocks": 5,
+      "first": 17,
+      "second": 15,
+      "thirdPlus": 12,
+      "missingMappings": 0,
+      "firstRate": 0.386364
+    },
+    "src/content/grammar/past-continuous.ts": {
+      "totalBlocks": 36,
+      "analyzedBlocks": 36,
+      "skippedNonChoiceBlocks": 0,
+      "first": 13,
+      "second": 12,
+      "thirdPlus": 11,
+      "missingMappings": 0,
+      "firstRate": 0.361111
+    },
+    "src/content/grammar/past-perfect-continuous.ts": {
+      "totalBlocks": 30,
+      "analyzedBlocks": 30,
+      "skippedNonChoiceBlocks": 0,
+      "first": 10,
+      "second": 11,
+      "thirdPlus": 9,
+      "missingMappings": 0,
+      "firstRate": 0.333333
+    },
+    "src/content/grammar/past-perfect-family.ts": {
+      "totalBlocks": 37,
+      "analyzedBlocks": 37,
+      "skippedNonChoiceBlocks": 0,
+      "first": 16,
+      "second": 16,
+      "thirdPlus": 5,
+      "missingMappings": 0,
+      "firstRate": 0.432432
+    },
+    "src/content/grammar/past-perfect.ts": {
+      "totalBlocks": 50,
+      "analyzedBlocks": 50,
+      "skippedNonChoiceBlocks": 0,
+      "first": 23,
+      "second": 22,
+      "thirdPlus": 5,
+      "missingMappings": 0,
+      "firstRate": 0.46
+    },
+    "src/content/grammar/past-simple.ts": {
+      "totalBlocks": 28,
+      "analyzedBlocks": 26,
+      "skippedNonChoiceBlocks": 2,
+      "first": 8,
+      "second": 9,
+      "thirdPlus": 9,
+      "missingMappings": 0,
+      "firstRate": 0.307692
+    },
+    "src/content/grammar/perfect-continuous-tenses-review.ts": {
+      "totalBlocks": 28,
+      "analyzedBlocks": 28,
+      "skippedNonChoiceBlocks": 0,
+      "first": 10,
+      "second": 11,
+      "thirdPlus": 7,
+      "missingMappings": 0,
+      "firstRate": 0.357143
+    },
+    "src/content/grammar/perfect-tenses-review.ts": {
+      "totalBlocks": 47,
+      "analyzedBlocks": 47,
+      "skippedNonChoiceBlocks": 0,
+      "first": 18,
+      "second": 20,
+      "thirdPlus": 9,
+      "missingMappings": 0,
+      "firstRate": 0.382979
+    },
+    "src/content/grammar/prepositions-time-place.ts": {
+      "totalBlocks": 29,
+      "analyzedBlocks": 29,
+      "skippedNonChoiceBlocks": 0,
+      "first": 9,
+      "second": 10,
+      "thirdPlus": 10,
+      "missingMappings": 0,
+      "firstRate": 0.310345
+    },
+    "src/content/grammar/present-continuous.ts": {
+      "totalBlocks": 39,
+      "analyzedBlocks": 39,
+      "skippedNonChoiceBlocks": 0,
+      "first": 15,
+      "second": 15,
+      "thirdPlus": 9,
+      "missingMappings": 0,
+      "firstRate": 0.384615
+    },
+    "src/content/grammar/present-perfect-continuous.ts": {
+      "totalBlocks": 30,
+      "analyzedBlocks": 29,
+      "skippedNonChoiceBlocks": 1,
+      "first": 10,
+      "second": 11,
+      "thirdPlus": 8,
+      "missingMappings": 0,
+      "firstRate": 0.344828
+    },
+    "src/content/grammar/present-perfect-family.ts": {
+      "totalBlocks": 50,
+      "analyzedBlocks": 46,
+      "skippedNonChoiceBlocks": 4,
+      "first": 21,
+      "second": 20,
+      "thirdPlus": 5,
+      "missingMappings": 0,
+      "firstRate": 0.456522
+    },
+    "src/content/grammar/present-perfect.ts": {
+      "totalBlocks": 51,
+      "analyzedBlocks": 35,
+      "skippedNonChoiceBlocks": 16,
+      "first": 12,
+      "second": 14,
+      "thirdPlus": 9,
+      "missingMappings": 0,
+      "firstRate": 0.342857
+    },
+    "src/content/grammar/present-simple.ts": {
+      "totalBlocks": 26,
+      "analyzedBlocks": 26,
+      "skippedNonChoiceBlocks": 0,
+      "first": 9,
+      "second": 9,
+      "thirdPlus": 8,
+      "missingMappings": 0,
+      "firstRate": 0.346154
+    },
+    "src/content/grammar/punctuation-capitalization.ts": {
+      "totalBlocks": 50,
+      "analyzedBlocks": 50,
+      "skippedNonChoiceBlocks": 0,
+      "first": 26,
+      "second": 12,
+      "thirdPlus": 12,
+      "missingMappings": 0,
+      "firstRate": 0.52
+    },
+    "src/content/grammar/reported-speech.ts": {
+      "totalBlocks": 54,
+      "analyzedBlocks": 54,
+      "skippedNonChoiceBlocks": 0,
+      "first": 18,
+      "second": 19,
+      "thirdPlus": 17,
+      "missingMappings": 0,
+      "firstRate": 0.333333
+    },
+    "src/content/grammar/simple-tenses-review.ts": {
+      "totalBlocks": 39,
+      "analyzedBlocks": 39,
+      "skippedNonChoiceBlocks": 0,
+      "first": 13,
+      "second": 13,
+      "thirdPlus": 13,
+      "missingMappings": 0,
+      "firstRate": 0.333333
+    },
+    "src/content/grammar/superlatives-quantifiers.ts": {
+      "totalBlocks": 39,
+      "analyzedBlocks": 39,
+      "skippedNonChoiceBlocks": 0,
+      "first": 18,
+      "second": 15,
+      "thirdPlus": 6,
+      "missingMappings": 0,
+      "firstRate": 0.461538
+    },
+    "src/content/grammar/used-to-would-rather.ts": {
+      "totalBlocks": 53,
+      "analyzedBlocks": 44,
+      "skippedNonChoiceBlocks": 9,
+      "first": 15,
+      "second": 15,
+      "thirdPlus": 14,
+      "missingMappings": 0,
+      "firstRate": 0.340909
+    },
+    "src/content/grammar/workplace-phrasal-verbs.ts": {
+      "totalBlocks": 61,
+      "analyzedBlocks": 29,
+      "skippedNonChoiceBlocks": 32,
+      "first": 9,
+      "second": 10,
+      "thirdPlus": 10,
+      "missingMappings": 0,
+      "firstRate": 0.310345
+    }
+  }
+}

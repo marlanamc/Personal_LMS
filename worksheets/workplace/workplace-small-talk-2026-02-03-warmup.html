@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Workplace Small Talk (ESOL Level 3)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink: #1a1a1a; --gray: #444; --light: #666; --line: #333; }
+    body { font-family: Georgia, 'Times New Roman', serif; color: var(--ink); background: #f5f5f5; padding: 20px; line-height: 1.45; font-size: 14px; }
+    .sheet { max-width: 8in; margin: 0 auto; background: #fff; padding: 0.45in 0.55in; }
+    .header {
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .header-fields {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      font-size: 13px;
+    }
+    .field { display: flex; align-items: baseline; gap: 5px; }
+    .field label { font-weight: bold; }
+    .field-line { border-bottom: 1px solid var(--ink); width: 160px; height: 16px; }
+    .date-value { font-weight: normal; }
+    .section { margin-bottom: 18px; }
+    .section-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--ink); padding-bottom: 3px; margin-bottom: 10px; }
+    .section-title { text-align: center; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+    .section-time { font-size: 12px; color: var(--light); font-style: italic; }
+    .vocab-matching { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 40px; font-size: 14px; }
+    .vocab-word { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 0; }
+    .vocab-word .num { font-weight: bold; min-width: 20px; }
+    .vocab-word .word { flex: 1; }
+    .vocab-word .blank { border-bottom: 1px solid var(--line); width: 30px; margin-right: 2px; }
+    .vocab-def { padding: 3px 0; }
+    .vocab-def .letter { font-weight: bold; margin-right: 6px; }
+    .phrase { margin-bottom: 14px; }
+    .phrase-starter { font-weight: bold; font-size: 14px; margin-bottom: 3px; }
+    .examples { margin-left: 14px; font-size: 13px; color: var(--gray); margin-bottom: 4px; }
+    .examples li { margin-bottom: 1px; list-style: none; }
+    .examples li::before { content: "• "; color: var(--ink); }
+    .your-turn { display: flex; align-items: baseline; gap: 6px; font-size: 13px; margin-left: 14px; }
+    .your-turn-label { font-style: italic; color: var(--light); white-space: nowrap; }
+    .writing-line { border-bottom: 1px solid var(--line); flex: 1; height: 20px; }
+    .instruction { font-size: 12px; color: var(--light); font-style: italic; margin-bottom: 12px; }
+    .level-up { font-size: 12px; font-style: italic; color: var(--light); margin-top: 6px; padding-left: 14px; }
+    .round { margin-bottom: 8px; font-size: 13px; }
+    .round-header { font-weight: bold; }
+    .round-content { margin-left: 8px; color: var(--gray); }
+    .help-note { font-size: 12px; font-style: italic; color: var(--light); margin-top: 8px; }
+    .reading-text { font-size: 14px; line-height: 1.55; margin-bottom: 14px; }
+    .section:has(.reading-text) { margin-bottom: 36px; }
+    .reading-text p { margin-bottom: 8px; text-align: justify; }
+    .question { margin-bottom: 12px; }
+    .question-text { font-size: 13px; margin-bottom: 4px; }
+    .question-text b { font-weight: bold; }
+    .answer-line { border-bottom: 1px solid var(--line); height: 20px; }
+    .writing-prompt { font-size: 13px; margin-bottom: 10px; }
+    .requirements { font-size: 12px; margin-bottom: 12px; padding-left: 16px; color: var(--gray); }
+    .requirements li { margin-bottom: 1px; }
+    .writing-lines { margin-top: 10px; }
+    .homework-line { border-bottom: 1px solid var(--line); height: 26px; }
+    .optional-note { font-size: 11px; font-style: italic; color: var(--light); margin-top: 10px; }
+    .dialogue-complete { margin-top: 12px; }
+    .dialogue-line { margin-bottom: 14px; font-size: 13px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
+    .dialogue-line .speaker { font-weight: bold; min-width: 75px; }
+    .dialogue-line .response-line { border-bottom: 1px solid var(--line); flex: 1; min-width: 180px; height: 22px; }
+    .front-page { margin-bottom: 24px; }
+    @media print { @page { size: letter; margin: 0.45in; } body { background: #fff; padding: 0; } .sheet { padding: 0; max-width: none; }
+      .page-break { page-break-before: always; } }
+      .pron { font-size: 11px; color: var(--light); font-style: italic; margin-left: 4px; }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="front-page">
+      <header class="header">
+      <h1>Workplace Small Talk</h1>
+      <div class="header-fields">
+        <div class="field">
+          <label>Name</label>
+          <div class="field-line" style="width: 160px;"></div>
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <span class="date-value">February 3, 2026</span>
+        </div>
+      </div>
+    </header>
+
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Part A: Vocabulary</h2>
+          <span class="section-time">3 min</span>
+        </div>
+        <p class="instruction">Match each word to its meaning. Write the letter on the line.</p>
+        <div class="vocab-matching">
+          <div class="vocab-words">
+            <div class="vocab-word"><span class="num">1.</span> <span class="blank"></span> <span class="word">time off</span></div>
+            <div class="vocab-word"><span class="num">2.</span> <span class="blank"></span> <span class="word">environment</span> <span class="pron">(en-VY-run-ment)</span></div>
+            <div class="vocab-word"><span class="num">3.</span> <span class="blank"></span> <span class="word">break</span></div>
+            <div class="vocab-word"><span class="num">4.</span> <span class="blank"></span> <span class="word">role</span></div>
+            <div class="vocab-word"><span class="num">5.</span> <span class="blank"></span> <span class="word">team</span></div>
+            <div class="vocab-word"><span class="num">6.</span> <span class="blank"></span> <span class="word">schedule</span> <span class="pron">(SKEJ-ool)</span></div>
+          </div>
+          <div class="vocab-defs">
+            <div class="vocab-def"><span class="letter">a.</span> days when you don't work (e.g. Saturday, Sunday, vacation)</div>
+            <div class="vocab-def"><span class="letter">b.</span> a short rest from work</div>
+            <div class="vocab-def"><span class="letter">c.</span> the place or situation around you</div>
+            <div class="vocab-def"><span class="letter">d.</span> a job or position someone has</div>
+            <div class="vocab-def"><span class="letter">e.</span> the group of people you work with</div>
+            <div class="vocab-def"><span class="letter">f.</span> your plan for the day or week</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Part B: Phrases</h2>
+          <span class="section-time">8 min</span>
+        </div>
+        <p class="instruction">Read the examples. Then write your own sentence. Use simple present, past, or present continuous (Cycle 1 review).</p>
+
+        <div class="phrase">
+          <div class="phrase-starter">1) How was your time off? / What did you do?</div>
+          <ul class="examples">
+            <li>How was your time off? I stayed home and rested.</li>
+            <li>What did you do yesterday? I went to the store.</li>
+          </ul>
+          <div class="your-turn"><span class="your-turn-label">Your turn:</span><div class="writing-line"></div></div>
+        </div>
+
+        <div class="phrase">
+          <div class="phrase-starter">2) I usually ___ at work. (Simple present—routine)</div>
+          <ul class="examples">
+            <li>I usually take a break at 10am.</li>
+            <li>I usually take a break with my colleagues.</li>
+          </ul>
+          <div class="your-turn"><span class="your-turn-label">Your turn:</span><div class="writing-line"></div></div>
+        </div>
+
+        <div class="phrase">
+          <div class="phrase-starter">3) Are you busy? / What are you doing right now?</div>
+          <ul class="examples">
+            <li>Are you busy? I am finishing a report.</li>
+            <li>What are you doing? I am waiting for a meeting.</li>
+          </ul>
+          <div class="your-turn"><span class="your-turn-label">Your turn:</span><div class="writing-line"></div></div>
+        </div>
+
+        <div class="phrase">
+          <div class="phrase-starter">4) Do you have plans for…? (time off / tonight)</div>
+          <ul class="examples">
+            <li>Do you have plans for your time off? Yes, I will visit my family.</li>
+            <li>Do you have plans for tonight? Not yet.</li>
+          </ul>
+          <div class="your-turn"><span class="your-turn-label">Your turn:</span><div class="writing-line"></div></div>
+        </div>
+
+        <div class="phrase">
+          <div class="phrase-starter">5) Nice to see you! / See you later.</div>
+          <ul class="examples">
+            <li>Nice to see you! I have to go back to my desk. See you later!</li>
+          </ul>
+          <div class="your-turn"><span class="your-turn-label">Your turn:</span><div class="writing-line"></div></div>
+        </div>
+      </section>
+
+      <section class="section page-break">
+        <div class="section-header">
+          <h2 class="section-title">Part C: Common Errors — Find and Fix</h2>
+          <span class="section-time">5 min</span>
+        </div>
+        <p class="instruction">Each sentence has <strong>one error</strong> (grammar, tense, or word). Find the error and write the correct sentence on the line.</p>
+        <div class="phrase">
+          <div class="phrase-starter">1) How was your time off? I stay home and rested.</div>
+          <div class="your-turn"><span class="your-turn-label">Corrected:</span><div class="writing-line"></div></div>
+        </div>
+        <div class="phrase">
+          <div class="phrase-starter">2) I usually taking a break at 10am.</div>
+          <div class="your-turn"><span class="your-turn-label">Corrected:</span><div class="writing-line"></div></div>
+        </div>
+        <div class="phrase">
+          <div class="phrase-starter">3) Do you have plans for tonight? Yes, I will visiting my family.</div>
+          <div class="your-turn"><span class="your-turn-label">Corrected:</span><div class="writing-line"></div></div>
+        </div>
+      </section>
+
+      
+    </div>
+
+    <section class="section">
+      <div class="section-header"><h2 class="section-title">Reading</h2></div>
+      <div class="reading-text">
+        <p>Small talk is casual, friendly conversation at work. It helps you build a connection with colleagues. Safe topics include the weather, time off, and your schedule. Avoid politics, religion, or very personal topics.</p>
+        <p>Use simple questions: "How was your time off?" "What are you working on?" "Do you have plans for tonight?" Listen and ask one follow-up question. Then you can say "Nice talking to you!" or "I should get back to work."</p>
+      </div>
+      <div class="question">
+        <div class="question-text"><b>1)</b> What is small talk?</div>
+        <div class="answer-line"></div>
+      </div>
+      <div class="question">
+        <div class="question-text"><b>2)</b> Name two safe topics for workplace small talk.</div>
+        <div class="answer-line"></div>
+      </div>
+      <div class="question">
+        <div class="question-text"><b>3)</b> What can you say to end a small talk conversation politely?</div>
+        <div class="answer-line"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Writing Homework</h2>
+        <span class="section-time">Complete the conversation</span>
+      </div>
+      <p class="instruction">Person A has already spoken. Write what Person B says in response. Use the vocabulary and phrases from Part A and B. Use simple present and simple past when you can.</p>
+      
+      <div class="dialogue-complete">
+        <div class="dialogue-line">
+          <span class="speaker">Person A:</span> Hey! Nice to see you. How was your <b>time off</b>?
+        </div>
+        <div class="dialogue-line">
+          <span class="speaker">Person B:</span> <div class="response-line"></div>
+        </div>
+        <div class="dialogue-line">
+          <span class="speaker">Person A:</span> Sounds nice! Are you busy right now? What are you working on?
+        </div>
+        <div class="dialogue-line">
+          <span class="speaker">Person B:</span> <div class="response-line"></div>
+        </div>
+        <div class="dialogue-line">
+          <span class="speaker">Person A:</span> I usually take a <b>break</b> at 10am. Do you have plans for tonight?
+        </div>
+        <div class="dialogue-line">
+          <span class="speaker">Person B:</span> <div class="response-line"></div>
+        </div>
+        <div class="dialogue-line">
+          <span class="speaker">Person A:</span> Nice talking to you! I should get back to my desk. See you later!
+        </div>
+        <div class="dialogue-line">
+          <span class="speaker">Person B:</span> <div class="response-line"></div>
+        </div>
+      </div>
+      <p class="optional-note">Optional challenge: Use one present perfect sentence in your responses (e.g., "I have already had two meetings today").</p>
+    </section>
+  </div>
+
+  <script>
+    // Shuffle vocab definitions on page load for randomized matching exercises
+    (function() {
+      const defsContainer = document.querySelector('.vocab-defs');
+      if (!defsContainer) return;
+
+      const defs = Array.from(defsContainer.querySelectorAll('.vocab-def'));
+      if (defs.length === 0) return;
+
+      // Fisher-Yates shuffle
+      for (let i = defs.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [defs[i], defs[j]] = [defs[j], defs[i]];
+      }
+
+      // Re-assign letters after shuffling
+      const letters = 'abcdefghijklmnopqrstuvwxyz';
+      defs.forEach((def, idx) => {
+        const letterSpan = def.querySelector('.letter');
+        if (letterSpan) {
+          letterSpan.textContent = letters[idx] + '.';
+        }
+      });
+
+      // Clear and re-append in shuffled order
+      defsContainer.innerHTML = '';
+      defs.forEach(def => defsContainer.appendChild(def));
+    })();
+  </script>
+</body>
+</html>

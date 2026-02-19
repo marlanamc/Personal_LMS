@@ -1,0 +1,285 @@
+/* Guide Presentation Mode CSS */
+
+/* Presentation Button */
+.presentation-trigger-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 999;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.presentation-trigger-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+}
+
+.presentation-trigger-btn .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Fullscreen Container */
+.presentation-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #f8fafc;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.presentation-container.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Header/Controls */
+.presentation-header {
+  height: 60px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  flex-shrink: 0;
+}
+
+.presentation-title {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 1.1rem;
+}
+
+.presentation-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.presentation-progress {
+  font-variant-numeric: tabular-nums;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.control-btn {
+  background: transparent;
+  border: none;
+  color: #475569;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.control-btn.close-btn {
+  color: #ef4444;
+}
+
+.control-btn.close-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Slide Content Area */
+.presentation-content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.guide-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  transform: translateX(20px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.guide-slide.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+/* Book Layout (Split Screen) */
+.book-layout {
+  display: flex;
+  width: 100%;
+  max-width: 1400px;
+  height: 90%;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.book-page {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.book-page.left {
+  border-right: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.book-page.right {
+  background: #f8fafc;
+}
+
+/* Scrollbar styling for pages */
+.book-page::-webkit-scrollbar {
+  width: 8px;
+}
+
+.book-page::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.book-page::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* Content Styling within Slides */
+.book-page h2 {
+  color: #6366f1;
+  margin-top: 0;
+  font-size: 1.8rem;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 15px;
+  margin-bottom: 25px;
+}
+
+.book-page h3 {
+  color: #1e293b;
+  font-size: 1.4rem;
+  margin-top: 20px;
+}
+
+/* Adjustments for specific elements in slide mode */
+.book-page .step-number {
+  display: none; /* Hide step number in slide mode as we have progress */
+}
+
+.book-page .explanation-box {
+  margin-top: 0;
+}
+
+/* Navigation Buttons (Floating) */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.nav-btn:hover {
+  background: #6366f1;
+  color: white;
+  border-color: #6366f1;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.nav-btn.prev {
+  left: 20px;
+}
+
+.nav-btn.next {
+  right: 20px;
+}
+
+.nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .book-layout {
+    flex-direction: column;
+    height: 100%;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
+
+  .book-page {
+    padding: 20px;
+    overflow-y: visible; /* Let the container scroll */
+  }
+
+  .book-page.left {
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .guide-slide {
+    overflow-y: auto;
+    align-items: flex-start;
+    padding: 0;
+  }
+
+  .nav-btn {
+    display: none; /* Hide floating nav on mobile, rely on swipe or bottom controls if added */
+  }
+}
