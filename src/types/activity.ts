@@ -401,6 +401,13 @@ export type ActivityContent =
     | VocabularyContent
     | EdPronunciationContent
     | MinimalPairsContent
+    | SpanishVocabularyContent
+    | SpanishNumbersContent
+    | SpanishVerbGameContent
+    | OutputPredictionContent
+    | BugHuntContent
+    | CodeCompletionContent
+    | ConceptMatchContent
     | Record<string, unknown>;
 
 export interface LegacyGuideResponse {
@@ -457,4 +464,187 @@ export function isMinimalPairsContent(value: unknown): value is MinimalPairsCont
     if (!value || typeof value !== "object") return false;
     const candidate = value as Record<string, unknown>;
     return candidate["type"] === "minimal-pairs";
+}
+
+// ============================================================================
+// SPANISH LEARNING TYPES
+// ============================================================================
+
+export interface SpanishVocabularyCard {
+    id: string;
+    spanish: string;
+    english: string;
+    pronunciation?: string;
+    example: { spanish: string; english: string };
+    gender?: "masculine" | "feminine" | null;
+    difficulty: "beginner" | "intermediate" | "advanced";
+    category?: string;
+}
+
+export interface SpanishVocabularyContent {
+    type: "spanish-vocabulary";
+    title: string;
+    cards: SpanishVocabularyCard[];
+    mode?: "flashcard" | "quiz" | "matching";
+}
+
+export interface SpanishNumbersContent {
+    type: "spanish-numbers-game";
+    difficulty: "easy" | "medium" | "hard" | "mixed";
+    timedMode?: boolean;
+    timeLimit?: number; // seconds
+}
+
+export interface SpanishVerbConjugation {
+    infinitive: string;
+    english: string;
+    type: "ar" | "er" | "ir" | "irregular";
+    present: {
+        yo: string;
+        tu: string;
+        el: string;
+        nosotros: string;
+        ellos: string;
+    };
+    preterite?: {
+        yo: string;
+        tu: string;
+        el: string;
+        nosotros: string;
+        ellos: string;
+    };
+    irregularNote?: string;
+}
+
+export interface SpanishVerbGameContent {
+    type: "spanish-verb-game";
+    tense: "present" | "preterite" | "mixed";
+    verbTypes: ("ar" | "er" | "ir" | "irregular")[];
+    verbs: SpanishVerbConjugation[];
+    timedMode?: boolean;
+    timeLimit?: number;
+}
+
+export function isSpanishVocabularyContent(value: unknown): value is SpanishVocabularyContent {
+    if (!value || typeof value !== "object") return false;
+    const candidate = value as Record<string, unknown>;
+    return candidate["type"] === "spanish-vocabulary" && Array.isArray(candidate["cards"]);
+}
+
+export function isSpanishNumbersContent(value: unknown): value is SpanishNumbersContent {
+    if (!value || typeof value !== "object") return false;
+    const candidate = value as Record<string, unknown>;
+    return candidate["type"] === "spanish-numbers-game";
+}
+
+export function isSpanishVerbGameContent(value: unknown): value is SpanishVerbGameContent {
+    if (!value || typeof value !== "object") return false;
+    const candidate = value as Record<string, unknown>;
+    return candidate["type"] === "spanish-verb-game" && Array.isArray(candidate["verbs"]);
+}
+
+// ============================================================================
+// CODING CHALLENGE TYPES
+// ============================================================================
+
+export interface OutputPredictionChallenge {
+    id: string;
+    code: string;
+    question: string;
+    options: string[];
+    correctAnswer: string;
+    explanation: string;
+    difficulty: "easy" | "medium" | "hard";
+    topic: string;
+}
+
+export interface OutputPredictionContent {
+    type: "output-prediction";
+    title: string;
+    category: string;
+    challenges: OutputPredictionChallenge[];
+    timedMode?: boolean;
+    timeLimit?: number;
+}
+
+export interface BugHuntChallenge {
+    id: string;
+    title: string;
+    buggyCode: string;
+    bugLine: number;
+    bugDescription: string;
+    fixOptions: string[];
+    correctFix: string;
+    explanation: string;
+    difficulty: "easy" | "medium" | "hard";
+    bugType: "syntax" | "logic" | "type" | "runtime";
+    hints: string[];
+}
+
+export interface BugHuntContent {
+    type: "bug-hunt";
+    title: string;
+    category: "syntax" | "logic" | "type" | "mixed";
+    challenges: BugHuntChallenge[];
+    timedMode?: boolean;
+}
+
+export interface CodeCompletionBlank {
+    index: number;
+    answer: string;
+    options?: string[];
+    hint?: string;
+}
+
+export interface CodeCompletionChallenge {
+    id: string;
+    description: string;
+    codeWithBlanks: string;
+    blanks: CodeCompletionBlank[];
+    explanation: string;
+    difficulty: "easy" | "medium" | "hard";
+}
+
+export interface CodeCompletionContent {
+    type: "code-completion";
+    title: string;
+    challenges: CodeCompletionChallenge[];
+}
+
+export interface ConceptMatchPair {
+    id: string;
+    concept: string;
+    definition: string;
+    example?: string;
+}
+
+export interface ConceptMatchContent {
+    type: "concept-match";
+    title: string;
+    category: string;
+    pairs: ConceptMatchPair[];
+}
+
+export function isOutputPredictionContent(value: unknown): value is OutputPredictionContent {
+    if (!value || typeof value !== "object") return false;
+    const candidate = value as Record<string, unknown>;
+    return candidate["type"] === "output-prediction" && Array.isArray(candidate["challenges"]);
+}
+
+export function isBugHuntContent(value: unknown): value is BugHuntContent {
+    if (!value || typeof value !== "object") return false;
+    const candidate = value as Record<string, unknown>;
+    return candidate["type"] === "bug-hunt" && Array.isArray(candidate["challenges"]);
+}
+
+export function isCodeCompletionContent(value: unknown): value is CodeCompletionContent {
+    if (!value || typeof value !== "object") return false;
+    const candidate = value as Record<string, unknown>;
+    return candidate["type"] === "code-completion" && Array.isArray(candidate["challenges"]);
+}
+
+export function isConceptMatchContent(value: unknown): value is ConceptMatchContent {
+    if (!value || typeof value !== "object") return false;
+    const candidate = value as Record<string, unknown>;
+    return candidate["type"] === "concept-match" && Array.isArray(candidate["pairs"]);
 }

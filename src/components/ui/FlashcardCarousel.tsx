@@ -13,6 +13,10 @@ interface FlashcardData {
     term: string;
     definition: string;
     example?: string;
+    // Spanish-specific fields
+    pronunciation?: string;
+    gender?: "masculine" | "feminine" | null;
+    category?: string;
 }
 
 interface FlashcardCarouselProps {
@@ -20,11 +24,13 @@ interface FlashcardCarouselProps {
     activityId?: string;
     assignmentId?: string | null;
     vocabType?: string;
+    /** Spanish mode enables pronunciation display and gender indicators */
+    spanishMode?: boolean;
 }
 
 type CardMode = "term-first" | "def-first";
 
-export default function FlashcardCarousel({ cards, activityId, assignmentId, vocabType }: FlashcardCarouselProps) {
+export default function FlashcardCarousel({ cards, activityId, assignmentId, vocabType, spanishMode = false }: FlashcardCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [order, setOrder] = useState(cards.map((_, i) => i));
@@ -49,15 +55,19 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
 
         if (isTermSide) {
             return {
-                type: "Term",
+                type: spanishMode ? "Español" : "Term",
                 text: currentCard.term,
-                example: null
+                example: null,
+                pronunciation: spanishMode ? currentCard.pronunciation : undefined,
+                gender: spanishMode ? currentCard.gender : undefined,
             };
         } else {
             return {
-                type: "Definition",
+                type: spanishMode ? "English" : "Definition",
                 text: currentCard.definition,
-                example: showExample ? currentCard.example : null
+                example: showExample ? currentCard.example : null,
+                pronunciation: undefined,
+                gender: undefined,
             };
         }
     };
@@ -395,7 +405,15 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
 }
 
 // Subcomponent for Card Face to reduce duplication
-function CardFace({ content, variant, theme }: { content: { type: string; text: string; example?: string | null }; variant: "front" | "back"; theme: "light" | "colored" }) {
+interface CardFaceContent {
+    type: string;
+    text: string;
+    example?: string | null;
+    pronunciation?: string;
+    gender?: "masculine" | "feminine" | null;
+}
+
+function CardFace({ content, variant, theme }: { content: CardFaceContent; variant: "front" | "back"; theme: "light" | "colored" }) {
 
     // Theme classes based on user request for "oranges, greens, etc"
     // Using globals: --color-bg (whiteish), --color-primary (terracotta), --color-secondary (sage)
@@ -414,13 +432,25 @@ function CardFace({ content, variant, theme }: { content: { type: string; text: 
         ? "text-[#f4fffd] drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
         : "text-[var(--color-text)]";
 
+    // Gender badge colors
+    const genderBadgeClasses = content.gender === "masculine"
+        ? "bg-blue-100 text-blue-700 border-blue-200"
+        : content.gender === "feminine"
+        ? "bg-pink-100 text-pink-700 border-pink-200"
+        : "";
+
     return (
         <div className={`h-full w-full rounded-3xl flex flex-col items-center justify-center p-6 sm:p-10 md:p-12 transition-[opacity,transform] ${containerClasses}`}>
-            {/* Top Label */}
-            <div className="absolute top-4 sm:top-6 left-4 sm:left-6">
+            {/* Top Label and Gender Badge */}
+            <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex items-center gap-2">
                 <span className={`px-3 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-xl shadow-sm ${labelClasses}`}>
                     {content.type}
                 </span>
+                {content.gender && (
+                    <span className={`px-2 py-1 text-[10px] sm:text-xs font-bold rounded-lg border ${genderBadgeClasses}`}>
+                        {content.gender === "masculine" ? "el" : "la"}
+                    </span>
+                )}
             </div>
 
             {/* Content */}
@@ -428,6 +458,13 @@ function CardFace({ content, variant, theme }: { content: { type: string; text: 
                 <h3 className={`text-2xl sm:text-4xl md:text-5xl font-bold leading-tight font-display ${titleClasses}`}>
                     {content.text}
                 </h3>
+
+                {/* Pronunciation (Spanish mode) */}
+                {content.pronunciation && (
+                    <p className={`text-lg sm:text-xl ${theme === "colored" ? "text-[#b8f0e8]" : "text-gray-500"}`}>
+                        /{content.pronunciation}/
+                    </p>
+                )}
 
                 {/* Example Section */}
                 {content.example && (

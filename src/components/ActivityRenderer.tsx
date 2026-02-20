@@ -9,13 +9,19 @@ import type {
     QuizContent,
     QuizQuestion,
     SlidesContent,
-    WorksheetContent
+    WorksheetContent,
+    SpanishVocabularyContent,
+    SpanishNumbersContent,
+    SpanishVerbGameContent,
 } from "@/types/activity";
 import {
     isInteractiveGuideContent,
     isLegacyGuideContent,
     parseActivityContent,
     isVocabularyContent,
+    isSpanishVocabularyContent,
+    isSpanishNumbersContent,
+    isSpanishVerbGameContent,
     type VocabularyContent
 } from "@/types/activity";
 import InteractiveGuideViewer from "./InteractiveGuideViewer";
@@ -38,6 +44,8 @@ import VocabularyRenderer from "./activities/VocabularyRenderer";
 import { completionKeyFromActivityTitle } from "@/utils/completionKey";
 import { saveActivityProgress } from "@/lib/activityProgress";
 import { resolveActivityGameUi } from "@/lib/gamification/activity-points";
+import SpanishNumbersGame from "./ui/SpanishNumbersGame";
+import VerbConjugationGame from "./ui/VerbConjugationGame";
 
 interface Props {
     activity: {
@@ -132,6 +140,54 @@ export default function ActivityRenderer({ activity, assignmentId, existingSubmi
                 }
                 return <div className="p-4 text-red-500 bg-red-50 rounded-lg">Invalid vocabulary activity content.</div>;
             case "game": {
+                // Check for Spanish-specific game types first
+                if (isSpanishNumbersContent(content)) {
+                    const spanishContent = content as SpanishNumbersContent;
+                    return (
+                        <SpanishNumbersGame
+                            difficulty={spanishContent.difficulty}
+                            timedMode={spanishContent.timedMode}
+                            timeLimit={spanishContent.timeLimit}
+                            activityId={activity.id}
+                            assignmentId={assignmentId}
+                        />
+                    );
+                }
+                if (isSpanishVerbGameContent(content)) {
+                    const verbContent = content as SpanishVerbGameContent;
+                    return (
+                        <VerbConjugationGame
+                            tense={verbContent.tense}
+                            verbTypes={verbContent.verbTypes}
+                            timedMode={verbContent.timedMode}
+                            timeLimit={verbContent.timeLimit}
+                            activityId={activity.id}
+                            assignmentId={assignmentId}
+                        />
+                    );
+                }
+                if (isSpanishVocabularyContent(content)) {
+                    const vocabContent = content as SpanishVocabularyContent;
+                    // Transform Spanish vocabulary cards to FlashcardCarousel format
+                    const flashcards = vocabContent.cards.map((card) => ({
+                        id: card.id,
+                        term: card.spanish,
+                        definition: card.english,
+                        example: card.example.spanish,
+                        pronunciation: card.pronunciation,
+                        gender: card.gender,
+                        category: card.category,
+                    }));
+                    return (
+                        <FlashcardCarousel
+                            cards={flashcards}
+                            activityId={activity.id}
+                            assignmentId={assignmentId}
+                            spanishMode={true}
+                        />
+                    );
+                }
+
                 const gameUi = resolveActivityGameUi(activity);
                 switch (gameUi) {
                     case "numbers":
