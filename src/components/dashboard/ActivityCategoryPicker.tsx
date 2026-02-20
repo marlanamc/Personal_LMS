@@ -171,7 +171,9 @@ export function ActivityCategoryPicker({
                 a.id === 'countable-uncountable-nouns' ||
                 a.ui === 'verb-forms' ||
                 a.ui === 'verbforms' ||
-                a.category === 'games'
+                a.category === 'games' ||
+                isSpanishActivity(a) ||
+                isCodingActivity(a)
             );
         });
 

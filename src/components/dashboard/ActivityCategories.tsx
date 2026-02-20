@@ -2056,6 +2056,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                 (a: Activity) =>
                                     isInPersonalTrackCategory(a, 'spanish') &&
                                     isSpanishActivity(a) &&
+                                    a.type === 'guide' &&
                                     a.id !== 'spanish-refresher' &&
                                     a.id !== 'spanish-present-tense-guide'
                             ),
@@ -2063,6 +2064,36 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                 'spanish-ser-vs-estar-guide',
                                 'spanish-adjective-agreement-guide',
                                 'spanish-preterite-tense-guide'
+                            ]
+                        )
+                    },
+                    {
+                        name: 'Spanish Games & Practice',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    isTrackGameActivity(a) && isSpanishActivity(a)
+                            ),
+                            [
+                                'spanish-vocab-greetings',
+                                'spanish-vocab-numbers',
+                                'spanish-vocab-colors',
+                                'spanish-vocab-family',
+                                'spanish-vocab-verbs',
+                                'spanish-numbers-game-easy',
+                                'spanish-numbers-game-medium',
+                                'spanish-numbers-game-timed',
+                                'spanish-verb-game-present-ar',
+                                'spanish-verb-game-present-er-ir',
+                                'spanish-verb-game-present-irregular',
+                                'spanish-verb-game-preterite',
+                                'spanish-verb-game-mixed',
+                                'spanish-verb-race',
+                                'spanish-common-verbs-flashcards',
+                                'spanish-numbers-flashcards',
+                                'spanish-adjectives-flashcards',
+                                'spanish-verb-conjugation-matching',
+                                'spanish-ser-estar-fill-blank',
                             ]
                         )
                     }
