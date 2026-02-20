@@ -97,7 +97,7 @@ export default function ActivityRenderer({ activity, assignmentId, existingSubmi
                     return <LegacyGuideRenderer originalFile={content.metadata.originalFile} />;
                 }
                 if (isInteractiveGuideContent(content)) {
-                    if (activity.category === "grammar") {
+                    if (activity.category === "grammar" || activity.category === "personal") {
                         return (
                             <GrammarReader
                                 content={content as InteractiveGuideContent}
