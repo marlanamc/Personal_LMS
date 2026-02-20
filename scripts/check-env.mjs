@@ -4,7 +4,7 @@ const isVercel = Boolean(process.env.VERCEL);
 const isProd = process.env.NODE_ENV === "production";
 
 if (isVercel || isProd) {
-  required.push("POSTGRES_URL|STORAGE_POSTGRES_URL|STORAGE_PRISMA_DATABASE_URL");
+  required.push("POSTGRES_URL|DATABASE_URL|STORAGE_POSTGRES_URL|STORAGE_PRISMA_DATABASE_URL");
   required.push("NEXTAUTH_SECRET|AUTH_SECRET|STORAGE_NEXTAUTH_SECRET");
   required.push("NEXTAUTH_URL|VERCEL_URL|STORAGE_NEXTAUTH_URL");
 }
@@ -27,4 +27,3 @@ if (missing.length > 0) {
   console.error([header, ...lines, "", "Fix this in Vercel → Project Settings → Environment Variables."].join("\n"));
   process.exit(1);
 }
-

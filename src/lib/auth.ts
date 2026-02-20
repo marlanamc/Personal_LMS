@@ -16,9 +16,12 @@ function isMobileUserAgent(userAgent: string | null): boolean {
 }
 
 // SECURITY: Validate authentication secret on module load
-const authSecret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
+const authSecret =
+    process.env.NEXTAUTH_SECRET ||
+    process.env.AUTH_SECRET ||
+    process.env.STORAGE_NEXTAUTH_SECRET;
 if (!authSecret) {
-    throw new Error('CRITICAL: NEXTAUTH_SECRET or AUTH_SECRET must be set in environment variables');
+    throw new Error('CRITICAL: NEXTAUTH_SECRET, AUTH_SECRET, or STORAGE_NEXTAUTH_SECRET must be set in environment variables');
 }
 
 if (authSecret.length < 32) {

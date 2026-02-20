@@ -7,7 +7,11 @@ export const prisma =
     new PrismaClient({
         datasources: {
             db: {
-                url: process.env.POSTGRES_URL || process.env.STORAGE_POSTGRES_URL || process.env.STORAGE_PRISMA_DATABASE_URL,
+                url:
+                    process.env.POSTGRES_URL ||
+                    process.env.DATABASE_URL ||
+                    process.env.STORAGE_POSTGRES_URL ||
+                    process.env.STORAGE_PRISMA_DATABASE_URL,
             },
         },
         log: process.env.NODE_ENV === "development" ? ["query"] : [],

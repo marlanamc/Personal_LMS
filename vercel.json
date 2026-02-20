@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run deploy",
   "crons": [
     {
       "path": "/api/cron/reset-weekly-points",

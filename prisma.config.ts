@@ -11,6 +11,11 @@ export default defineConfig({
   },
   engine: "classic",
   datasource: {
-    url: process.env.POSTGRES_URL || process.env.STORAGE_POSTGRES_URL || process.env.STORAGE_PRISMA_DATABASE_URL || "file:./dev.db",
+    url:
+      process.env.POSTGRES_URL ||
+      process.env.DATABASE_URL ||
+      process.env.STORAGE_POSTGRES_URL ||
+      process.env.STORAGE_PRISMA_DATABASE_URL ||
+      "file:./dev.db",
   },
 });
