@@ -71,6 +71,12 @@ const isInPersonalTrackCategory = (activity: Activity, track: 'spanish' | 'codin
     return category === 'personal' || category === 'coding';
 };
 
+const isTrackGameActivity = (activity: Activity): boolean => {
+    if (activity.type !== "game") return false;
+    if (activity.id?.startsWith("vocab-")) return false;
+    return true;
+};
+
 const sortBySuggestedOrder = (activities: Activity[], orderedIds: string[]): Activity[] => {
     const orderIndex = new Map<string, number>(orderedIds.map((id, index) => [id, index]));
     return [...activities].sort((a, b) => {
@@ -1919,20 +1925,56 @@ export const ActivityCategories = React.memo(function ActivityCategories({
             {
                 name: 'Games',
                 color: '#f97316', // orange
-                activities: activities.filter((a: Activity) => {
-                    if (a.type !== 'game') return false;
-                    if (a.id?.startsWith('vocab-')) return false;
-                    
-                    // Show specific established games or anything explicitly tagged as a game UI
-                    return a.id === 'numbers-game' || 
-                           a.id === 'countable-uncountable-nouns' || 
-                           a.ui === 'verb-forms' || 
-                           a.ui === 'verbforms' ||
-                           a.category === 'games';
-                }).sort((a, b) => {
-                    // Sort by title for better organization
-                    return (a.title || '').localeCompare(b.title || '');
-                })
+                subCategories: [
+                    {
+                        name: 'Spanish Games',
+                        activities: sortBySuggestedOrder(
+                            activities
+                                .filter((a: Activity) => isTrackGameActivity(a) && isSpanishActivity(a))
+                                .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
+                            [
+                                'spanish-common-verbs-flashcards',
+                                'spanish-numbers-flashcards',
+                                'spanish-adjectives-flashcards',
+                                'spanish-verb-conjugation-matching',
+                                'spanish-ser-estar-fill-blank',
+                            ]
+                        )
+                    },
+                    {
+                        name: 'Coding Games',
+                        activities: sortBySuggestedOrder(
+                            activities
+                                .filter((a: Activity) => isTrackGameActivity(a) && isCodingActivity(a))
+                                .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
+                            [
+                                'coding-concepts-flashcards',
+                                'coding-operators-flashcards',
+                                'coding-keywords-matching',
+                                'coding-array-methods-matching',
+                                'coding-syntax-fill-blank',
+                            ]
+                        )
+                    },
+                    {
+                        name: 'Core Practice Games',
+                        activities: sortBySuggestedOrder(
+                            activities
+                                .filter(
+                                    (a: Activity) =>
+                                        isTrackGameActivity(a) &&
+                                        !isSpanishActivity(a) &&
+                                        !isCodingActivity(a)
+                                )
+                                .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
+                            [
+                                'numbers-game',
+                                'countable-uncountable-nouns',
+                            ]
+                        )
+                    }
+                ],
+                activities: []
             },
             {
                 name: 'Reading',

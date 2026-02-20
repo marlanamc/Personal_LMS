@@ -401,17 +401,17 @@ function CardFace({ content, variant, theme }: { content: { type: string; text: 
     // Using globals: --color-bg (whiteish), --color-primary (terracotta), --color-secondary (sage)
 
     const containerClasses = theme === "colored"
-        // Back/Colored theme (Sage Green Background - lighter opacity)
-        ? "bg-[var(--color-secondary)]/90 text-white shadow-2xl border-2 border-[var(--color-secondary)]/90"
+        // Back/Colored theme (higher-contrast mint palette for readability)
+        ? "bg-gradient-to-br from-[#2f7f7a] to-[#2a6f6b] text-[#f4fffd] shadow-2xl border-2 border-[#4fc2b9]"
         // Front/Light theme (White Background)
         : "bg-white text-[var(--color-text)] shadow-2xl border-2 border-[var(--color-border)]";
 
     const labelClasses = theme === "colored"
-        ? "bg-white/25 text-white backdrop-blur-sm border border-white/40"
+        ? "bg-black/20 text-[#f4fffd] backdrop-blur-sm border border-white/30"
         : "bg-[var(--color-bg-light)] text-[var(--color-text-muted)] border border-[var(--color-border)]";
 
     const titleClasses = theme === "colored"
-        ? "text-white"
+        ? "text-[#f4fffd] drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
         : "text-[var(--color-text)]";
 
     return (
@@ -431,8 +431,8 @@ function CardFace({ content, variant, theme }: { content: { type: string; text: 
 
                 {/* Example Section */}
                 {content.example && (
-                    <div className={`mt-2 sm:mt-4 pt-4 sm:pt-6 border-t-2 ${theme === "colored" ? "border-white/30" : "border-[var(--color-border)]"}`}>
-                        <p className={`text-base sm:text-lg md:text-xl italic leading-relaxed ${theme === "colored" ? "text-white/95" : "text-[var(--color-text-muted)]"}`}>
+                    <div className={`mt-2 sm:mt-4 pt-4 sm:pt-6 border-t-2 ${theme === "colored" ? "border-white/35" : "border-[var(--color-border)]"}`}>
+                        <p className={`text-base sm:text-lg md:text-xl italic leading-relaxed ${theme === "colored" ? "text-[#e8fffb]" : "text-[var(--color-text-muted)]"}`}>
                             "{content.example}"
                         </p>
                     </div>

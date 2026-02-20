@@ -12,6 +12,7 @@ import { GrammarReader } from "@/components/grammar-reader/GrammarReader";
 import { completionKeyFromActivityTitle } from "@/utils/completionKey";
 import { grammarTopics } from "@/data/grammar-map";
 import { numbersGameCategoryNames } from "@/data/numbersGameCategories";
+import { resolveActivityGameUi } from "@/lib/gamification/activity-points";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -288,6 +289,20 @@ export default async function ActivityPage({ params, searchParams }: Props) {
 
                 {/* Load presentation mode scripts */}
                 <Script src="/assets/js/guide-presentation.js" strategy="afterInteractive" />
+            </div>
+        );
+    }
+
+    // Flashcard games render as fixed/fullscreen UIs, so avoid nesting them in the
+    // standard activity shell to prevent overlapping duplicate-looking headers.
+    if (activity.type === "game" && resolveActivityGameUi(activity) === "flashcards") {
+        return (
+            <div className="min-h-screen bg-bg">
+                <ActivityRenderer
+                    activity={{ ...activity, ui: ui || activity.ui }}
+                    assignmentId={assignmentId}
+                    existingSubmission={submission}
+                />
             </div>
         );
     }
