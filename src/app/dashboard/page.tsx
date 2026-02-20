@@ -355,7 +355,7 @@ export default async function DashboardPage() {
                     </p>
                   </div>
                   <Link
-                    href="/grammar-map"
+                    href="/dashboard/activities"
                     className="shrink-0 px-5 py-2.5 rounded-xl bg-primary text-white hover:brightness-110 transition-all font-bold text-sm shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
                   >
                     See All Activities

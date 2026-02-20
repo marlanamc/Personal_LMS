@@ -33,7 +33,6 @@ async function main() {
         type: 'guide',
         category: 'personal',
         level: activity.level,
-        isReleased: true,
         content: JSON.stringify(activity.content),
       },
       create: {
@@ -43,7 +42,6 @@ async function main() {
         type: 'guide',
         category: 'personal',
         level: activity.level,
-        isReleased: true,
         content: JSON.stringify(activity.content),
       },
     });
