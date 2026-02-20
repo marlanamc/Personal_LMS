@@ -13,8 +13,6 @@ async function upsertUser(username: string, name: string, role = 'student', must
     update: {
       name,
       role,
-      // For the main admin account, we force the password during seeding to ensure access
-      ...(username === 'marlie' ? { password: passwordHash, mustChangePassword: false } : {}),
     },
     create: {
       username,
@@ -30,7 +28,7 @@ async function main() {
   console.log('👥 Upserting users (does NOT affect student progress)...\n');
 
   // Create the main personal account (as teacher)
-  const marlie = await upsertUser('marlie', 'Marlie', 'teacher', false);
+  const marlie = await upsertUser('marlie', 'Marlie', 'teacher', true);
   console.log('  ✅ Personal Admin (Teacher):', marlie.username);
 
   // Preserve the 'teacher' username for backward compatibility if needed, but 'marlie' is the main one
