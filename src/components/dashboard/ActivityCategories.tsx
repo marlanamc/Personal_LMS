@@ -65,6 +65,12 @@ const isCodingActivity = (activity: Activity): boolean => {
     );
 };
 
+const isInPersonalTrackCategory = (activity: Activity, track: 'spanish' | 'coding'): boolean => {
+    const category = (activity.category || '').toLowerCase();
+    if (track === 'spanish') return category === 'personal' || category === 'spanish';
+    return category === 'personal' || category === 'coding';
+};
+
 const sortBySuggestedOrder = (activities: Activity[], orderedIds: string[]): Activity[] => {
     const orderIndex = new Map<string, number>(orderedIds.map((id, index) => [id, index]));
     return [...activities].sort((a, b) => {
@@ -1175,7 +1181,7 @@ const getSectionTexture = (sectionLabel: string, filterCategory?: string): Activ
     }
 
     // Personal Learning section textures
-    if (filterCategory === 'personal') {
+    if (filterCategory === 'personal' || filterCategory === 'spanish' || filterCategory === 'coding') {
         if (label.includes('spanish')) return PERSONAL_TEXTURES.spanish;
         if (label.includes('coding')) return PERSONAL_TEXTURES.coding;
         return PERSONAL_TEXTURES['personal-other'];
@@ -1994,7 +2000,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                         activities: sortBySuggestedOrder(
                             activities.filter(
                                 (a: Activity) =>
-                                    a.category === 'personal' &&
+                                    isInPersonalTrackCategory(a, 'spanish') &&
                                     isSpanishActivity(a) &&
                                     (a.id === 'spanish-refresher' || a.id === 'spanish-present-tense-guide')
                             ),
@@ -2006,7 +2012,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                         activities: sortBySuggestedOrder(
                             activities.filter(
                                 (a: Activity) =>
-                                    a.category === 'personal' &&
+                                    isInPersonalTrackCategory(a, 'spanish') &&
                                     isSpanishActivity(a) &&
                                     a.id !== 'spanish-refresher' &&
                                     a.id !== 'spanish-present-tense-guide'
@@ -2030,7 +2036,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                         activities: sortBySuggestedOrder(
                             activities.filter(
                                 (a: Activity) =>
-                                    a.category === 'personal' &&
+                                    isInPersonalTrackCategory(a, 'coding') &&
                                     isCodingActivity(a) &&
                                     (a.id === 'coding-js-ts' || a.id === 'coding-variables-types' || a.id === 'coding-functions-parameters')
                             ),
@@ -2042,7 +2048,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                         activities: sortBySuggestedOrder(
                             activities.filter(
                                 (a: Activity) =>
-                                    a.category === 'personal' &&
+                                    isInPersonalTrackCategory(a, 'coding') &&
                                     isCodingActivity(a) &&
                                     a.id !== 'coding-js-ts' &&
                                     a.id !== 'coding-variables-types' &&
@@ -2216,7 +2222,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                         return (
                             <div key={section.rawLabel || section.label || sIdx} className="space-y-3">
                                 {section.label && (
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/10 px-3 py-1.5">
                                         {/* Category icon indicator */}
                                         {sectionTexture ? (
                                             <span
@@ -2233,8 +2239,8 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                             />
                                         )}
                                         <p
-                                            className="text-xs font-bold uppercase tracking-widest"
-                                            style={{ color: sectionTexture ? sectionTexture.color : 'rgba(43, 58, 74, 0.7)' }}
+                                            className="text-sm font-extrabold uppercase tracking-[0.18em]"
+                                            style={{ color: sectionTexture ? sectionTexture.color : 'var(--color-text)' }}
                                         >
                                             {section.label}
                                         </p>
