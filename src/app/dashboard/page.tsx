@@ -348,17 +348,17 @@ export default async function DashboardPage() {
                       Journey
                     </p>
                     <h2 className="text-2xl font-bold font-display text-text mt-2">
-                      Grammar Map
+                      All Activities
                     </h2>
                     <p className="text-sm text-text/70 mt-2 max-w-2xl leading-relaxed">
-                      Visualize your learning path and see how topics connect.
+                      Browse every activity in your workspace.
                     </p>
                   </div>
                   <Link
                     href="/grammar-map"
                     className="shrink-0 px-5 py-2.5 rounded-xl bg-primary text-white hover:brightness-110 transition-all font-bold text-sm shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
                   >
-                    Open Map
+                    See All Activities
                     <span className="arrow-animate">→</span>
                   </Link>
                 </div>
