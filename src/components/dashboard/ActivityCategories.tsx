@@ -65,6 +65,16 @@ const isCodingActivity = (activity: Activity): boolean => {
     );
 };
 
+const sortBySuggestedOrder = (activities: Activity[], orderedIds: string[]): Activity[] => {
+    const orderIndex = new Map<string, number>(orderedIds.map((id, index) => [id, index]));
+    return [...activities].sort((a, b) => {
+        const aIdx = orderIndex.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+        const bIdx = orderIndex.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+        if (aIdx !== bIdx) return aIdx - bIdx;
+        return (a.title || '').localeCompare(b.title || '');
+    });
+};
+
 const vocabCycle1 = [
     { id: 'september', label: 'Unit 1: September' },
     { id: 'october', label: 'Unit 2: October' },
@@ -1978,16 +1988,71 @@ export const ActivityCategories = React.memo(function ActivityCategories({
             {
                 name: 'Spanish',
                 color: '#ec4899', // pink
-                activities: activities.filter(
-                    (a: Activity) => a.category === 'personal' && isSpanishActivity(a)
-                )
+                subCategories: [
+                    {
+                        name: 'Intro to Spanish',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    a.category === 'personal' &&
+                                    isSpanishActivity(a) &&
+                                    (a.id === 'spanish-refresher' || a.id === 'spanish-present-tense-guide')
+                            ),
+                            ['spanish-refresher', 'spanish-present-tense-guide']
+                        )
+                    },
+                    {
+                        name: 'Core Spanish Grammar',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    a.category === 'personal' &&
+                                    isSpanishActivity(a) &&
+                                    a.id !== 'spanish-refresher' &&
+                                    a.id !== 'spanish-present-tense-guide'
+                            ),
+                            [
+                                'spanish-ser-vs-estar-guide',
+                                'spanish-adjective-agreement-guide',
+                                'spanish-preterite-tense-guide'
+                            ]
+                        )
+                    }
+                ],
+                activities: []
             },
             {
                 name: 'Coding',
                 color: '#0ea5e9', // sky blue
-                activities: activities.filter(
-                    (a: Activity) => a.category === 'personal' && isCodingActivity(a)
-                )
+                subCategories: [
+                    {
+                        name: 'Intro to Coding',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    a.category === 'personal' &&
+                                    isCodingActivity(a) &&
+                                    (a.id === 'coding-js-ts' || a.id === 'coding-variables-types' || a.id === 'coding-functions-parameters')
+                            ),
+                            ['coding-js-ts', 'coding-variables-types', 'coding-functions-parameters']
+                        )
+                    },
+                    {
+                        name: 'Core Coding Skills',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    a.category === 'personal' &&
+                                    isCodingActivity(a) &&
+                                    a.id !== 'coding-js-ts' &&
+                                    a.id !== 'coding-variables-types' &&
+                                    a.id !== 'coding-functions-parameters'
+                            ),
+                            ['coding-loops-control-flow', 'coding-arrays-objects', 'coding-async-promises']
+                        )
+                    }
+                ],
+                activities: []
             }
         ], [activities, buildGrammarSubCategories]);
 
