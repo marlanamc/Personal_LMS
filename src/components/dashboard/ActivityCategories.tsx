@@ -44,6 +44,23 @@ interface ActivityCategoriesProps {
     filterCategory?: string;
 }
 
+const isSpanishActivity = (activity: Activity): boolean => {
+    const title = (activity.title || '').toLowerCase();
+    return activity.id.startsWith('spanish-') || title.includes('spanish');
+};
+
+const isCodingActivity = (activity: Activity): boolean => {
+    const title = (activity.title || '').toLowerCase();
+    return (
+        activity.id.startsWith('coding-') ||
+        title.includes('coding') ||
+        title.includes('javascript') ||
+        title.includes('typescript') ||
+        title.includes('js') ||
+        title.includes('ts')
+    );
+};
+
 const vocabCycle1 = [
     { id: 'september', label: 'Unit 1: September' },
     { id: 'october', label: 'Unit 2: October' },
@@ -1862,12 +1879,16 @@ export const ActivityCategories = React.memo(function ActivityCategories({
             {
                 name: 'Spanish',
                 color: '#ec4899', // pink
-                activities: activities.filter((a: Activity) => a.category === 'personal' && a.title.toLowerCase().includes('spanish'))
+                activities: activities.filter(
+                    (a: Activity) => (a.category === 'personal' || a.category === 'grammar') && isSpanishActivity(a)
+                )
             },
             {
                 name: 'Coding',
                 color: '#0ea5e9', // sky blue
-                activities: activities.filter((a: Activity) => a.category === 'personal' && (a.title.toLowerCase().includes('coding') || a.title.toLowerCase().includes('js') || a.title.toLowerCase().includes('ts')))
+                activities: activities.filter(
+                    (a: Activity) => a.category === 'personal' && isCodingActivity(a)
+                )
             }
         ], [activities, buildGrammarSubCategories]);
 

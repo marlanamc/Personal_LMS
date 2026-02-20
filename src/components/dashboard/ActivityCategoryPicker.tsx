@@ -15,6 +15,25 @@ interface Activity {
     content?: string;
 }
 
+const isSpanishActivity = (activity: Activity): boolean => {
+    if (!activity.id || !activity.title) return false;
+    const title = activity.title.toLowerCase();
+    return activity.id.startsWith('spanish-') || title.includes('spanish');
+};
+
+const isCodingActivity = (activity: Activity): boolean => {
+    if (!activity.id || !activity.title) return false;
+    const title = activity.title.toLowerCase();
+    return (
+        activity.id.startsWith('coding-') ||
+        title.includes('coding') ||
+        title.includes('javascript') ||
+        title.includes('typescript') ||
+        title.includes('js') ||
+        title.includes('ts')
+    );
+};
+
 interface CategoryCardDef {
     key: string;
     name: string;
@@ -178,17 +197,13 @@ export function ActivityCategoryPicker({
         );
         
         // Spanish
-        map['spanish'] = activities.some((a) => 
-            a.category === 'personal' && a.title.toLowerCase().includes('spanish')
+        map['spanish'] = activities.some((a) =>
+            (a.category === 'personal' || a.category === 'grammar') && isSpanishActivity(a)
         );
 
         // Coding
-        map['coding'] = activities.some((a) => 
-            a.category === 'personal' && (
-                a.title.toLowerCase().includes('coding') || 
-                a.title.toLowerCase().includes('js') || 
-                a.title.toLowerCase().includes('ts')
-            )
+        map['coding'] = activities.some((a) =>
+            a.category === 'personal' && isCodingActivity(a)
         );
 
         return map;
