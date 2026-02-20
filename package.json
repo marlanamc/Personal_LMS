@@ -28,6 +28,7 @@
     "db:seed:weekly-vocab": "node scripts/seed-weekly-vocab.js",
     "db:seed:quizzes": "npm run import:countable-uncountable && npm run import:verb-quizzes",
     "db:seed:full": "npx tsx prisma/seed-full-reset.ts && npx tsx prisma/seed-users-only.ts && npx tsx prisma/seed-grammar-only.ts && ENABLE_LEGACY_ESOL_SEED=true node prisma/seed.js && npm run db:seed:vocab && npm run db:seed:quizzes",
+    "db:seed:personal": "npx tsx prisma/seed-full-reset.ts && npx tsx prisma/seed-users-only.ts && npx tsx prisma/seed-grammar-only.ts && ENABLE_LEGACY_ESOL_SEED=false node prisma/seed.js",
     "db:seed:legacy-esol": "npm run db:seed:grammar && npm run db:seed:vocab && npm run db:seed:quizzes",
     "db:backup:safe": "npx tsx scripts/db/backup-database-safe.ts",
     "db:backup:check": "npx tsx scripts/check-backups.ts",
