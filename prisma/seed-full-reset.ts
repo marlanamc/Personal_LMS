@@ -43,18 +43,24 @@ async function main() {
   const speakingCount = await prisma.speakingSubmission.count();
   const pointsCount = await prisma.pointsLedger.count();
   const achievementCount = await prisma.userAchievement.count();
+  const quizResponseCount = await prisma.quizResponse.count();
+  const assignmentCount = await prisma.assignment.count();
 
   await prisma.activityProgress.deleteMany({});
   await prisma.submission.deleteMany({});
   await prisma.speakingSubmission.deleteMany({});
   await prisma.pointsLedger.deleteMany({});
   await prisma.userAchievement.deleteMany({});
+  await prisma.quizResponse.deleteMany({});
+  await prisma.assignment.deleteMany({});
 
   console.log(`  ✅ Deleted ${progressCount} ActivityProgress records`);
   console.log(`  ✅ Deleted ${submissionCount} Submission records`);
   console.log(`  ✅ Deleted ${speakingCount} SpeakingSubmission records`);
   console.log(`  ✅ Deleted ${pointsCount} PointsLedger records`);
   console.log(`  ✅ Deleted ${achievementCount} UserAchievement records`);
+  console.log(`  ✅ Deleted ${quizResponseCount} QuizResponse records`);
+  console.log(`  ✅ Deleted ${assignmentCount} Assignment records`);
 
   // Reset user points and streaks
   await prisma.user.updateMany({

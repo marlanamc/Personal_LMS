@@ -2,9 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
     return (
-        <div className="min-h-screen relative overflow-hidden" style={{
-            background: "linear-gradient(135deg, #fdfbf7 0%, #f4f1ea 50%, #e9e6df 100%)"
-        }}>
+        <div className="min-h-screen relative overflow-hidden bg-bg-primary">
             {/* Decorative elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: "4s" }}></div>
@@ -15,14 +13,14 @@ export default function Home() {
             <div className="relative max-w-6xl mx-auto px-6 py-12 sm:py-20 flex flex-col items-center justify-center min-h-screen">
                 {/* Header */}
                 <header className="text-center space-y-8 animate-fade-in-up">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-                        <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                        <p className="text-xs sm:text-sm uppercase tracking-[0.15em] text-primary-dark font-semibold">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 backdrop-blur-sm">
+                        <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-glow-pink"></div>
+                        <p className="text-xs sm:text-sm uppercase tracking-[0.15em] text-primary-light font-bold">
                             Personal Learning Platform
                         </p>
                     </div>
 
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight text-text">
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold leading-tight text-white drop-shadow-lg">
                         <span className="inline-block">Marlie</span>{" "}
                         <span className="inline-block relative">
                             LMS
