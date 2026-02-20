@@ -11,9 +11,10 @@ async function upsertUser(username: string, name: string, role = 'student', must
   return prisma.user.upsert({
     where: { username },
     update: {
-      // Don't overwrite existing passwords or mustChangePassword flags
       name,
       role,
+      // For the main admin account, we force the password during seeding to ensure access
+      ...(username === 'marlie' ? { password: passwordHash, mustChangePassword: false } : {}),
     },
     create: {
       username,
