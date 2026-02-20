@@ -56,32 +56,32 @@ export const codingArraysObjectsContent: InteractiveGuideContent = {
                 <h3>What Are Arrays?</h3>
                 <p>Arrays store multiple values in a specific order. Access elements by their index (position).</p>
 
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1.5rem 0; color: white;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1.5rem 0; color: #ffffff; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16);">
                     <h4 style="margin: 0 0 1rem 0; text-align: center;">Array Index Visualization</h4>
                     <div style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;">
                         <div style="text-align: center;">
-                            <div style="background: rgba(255,255,255,0.3); padding: 1rem; border-radius: 0.5rem; width: 80px;">
+                            <div style="background: rgba(255,255,255,0.86); color: #1c1642; padding: 1rem; border-radius: 0.5rem; width: 80px; box-shadow: 0 2px 10px rgba(16, 10, 34, 0.2);">
                                 <div style="font-size: 1.5rem; font-weight: bold;">🔴</div>
-                                <div style="font-size: 0.8rem; margin-top: 0.5rem;">red</div>
+                                <div style="font-size: 0.875rem; margin-top: 0.5rem; font-weight: 600;">red</div>
                             </div>
-                            <div style="font-size: 0.75rem; margin-top: 0.5rem; background: rgba(255,255,255,0.2); padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin-left: auto; margin-right: auto;">Index 0</div>
+                            <div style="font-size: 0.8125rem; margin-top: 0.5rem; background: rgba(15, 9, 31, 0.4); color: #ffffff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin-left: auto; margin-right: auto; font-weight: 600;">Index 0</div>
                         </div>
                         <div style="text-align: center;">
-                            <div style="background: rgba(255,255,255,0.3); padding: 1rem; border-radius: 0.5rem; width: 80px;">
+                            <div style="background: rgba(255,255,255,0.86); color: #1c1642; padding: 1rem; border-radius: 0.5rem; width: 80px; box-shadow: 0 2px 10px rgba(16, 10, 34, 0.2);">
                                 <div style="font-size: 1.5rem; font-weight: bold;">🟢</div>
-                                <div style="font-size: 0.8rem; margin-top: 0.5rem;">green</div>
+                                <div style="font-size: 0.875rem; margin-top: 0.5rem; font-weight: 600;">green</div>
                             </div>
-                            <div style="font-size: 0.75rem; margin-top: 0.5rem; background: rgba(255,255,255,0.2); padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin-left: auto; margin-right: auto;">Index 1</div>
+                            <div style="font-size: 0.8125rem; margin-top: 0.5rem; background: rgba(15, 9, 31, 0.4); color: #ffffff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin-left: auto; margin-right: auto; font-weight: 600;">Index 1</div>
                         </div>
                         <div style="text-align: center;">
-                            <div style="background: rgba(255,255,255,0.3); padding: 1rem; border-radius: 0.5rem; width: 80px;">
+                            <div style="background: rgba(255,255,255,0.86); color: #1c1642; padding: 1rem; border-radius: 0.5rem; width: 80px; box-shadow: 0 2px 10px rgba(16, 10, 34, 0.2);">
                                 <div style="font-size: 1.5rem; font-weight: bold;">🔵</div>
-                                <div style="font-size: 0.8rem; margin-top: 0.5rem;">blue</div>
+                                <div style="font-size: 0.875rem; margin-top: 0.5rem; font-weight: 600;">blue</div>
                             </div>
-                            <div style="font-size: 0.75rem; margin-top: 0.5rem; background: rgba(255,255,255,0.2); padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin-left: auto; margin-right: auto;">Index 2</div>
+                            <div style="font-size: 0.8125rem; margin-top: 0.5rem; background: rgba(15, 9, 31, 0.4); color: #ffffff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin-left: auto; margin-right: auto; font-weight: 600;">Index 2</div>
                         </div>
                     </div>
-                    <p style="margin: 1rem 0 0 0; text-align: center; font-size: 0.9rem;">💡 First item is always index 0!</p>
+                    <p style="margin: 1rem 0 0 0; text-align: center; font-size: 0.95rem; font-weight: 600;">💡 First item is always index 0!</p>
                 </div>
             `,
             usageMeanings: [
@@ -250,23 +250,23 @@ arr[arr.length - 1] = ?`,
                 <h3>What Are Objects?</h3>
                 <p>Objects store data as key-value pairs. Use keys to access values by name instead of position.</p>
 
-                <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1.5rem 0; color: white;">
+                <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1.5rem 0; color: #0a3a33; box-shadow: inset 0 0 0 1px rgba(5, 71, 60, 0.18);">
                     <h4 style="margin: 0 0 1rem 0; text-align: center;">Object Structure</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 0.5rem;">
-                            <h5 style="margin: 0 0 0.75rem 0; font-size: 0.9rem;">Key (Property)</h5>
-                            <div style="background: rgba(255,255,255,0.3); padding: 0.75rem; border-radius: 0.25rem; font-size: 0.9rem;">name</div>
-                            <div style="background: rgba(255,255,255,0.3); padding: 0.75rem; border-radius: 0.25rem; font-size: 0.9rem; margin-top: 0.5rem;">age</div>
-                            <div style="background: rgba(255,255,255,0.3); padding: 0.75rem; border-radius: 0.25rem; font-size: 0.9rem; margin-top: 0.5rem;">email</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                        <div style="background: rgba(4, 77, 67, 0.34); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.2);">
+                            <h5 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: #f1fffb;">Key (Property)</h5>
+                            <div style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600;">name</div>
+                            <div style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem;">age</div>
+                            <div style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem;">email</div>
                         </div>
-                        <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 0.5rem;">
-                            <h5 style="margin: 0 0 0.75rem 0; font-size: 0.9rem;">Value (Data)</h5>
-                            <div style="background: rgba(255,255,255,0.3); padding: 0.75rem; border-radius: 0.25rem; font-size: 0.9rem;">'Alice'</div>
-                            <div style="background: rgba(255,255,255,0.3); padding: 0.75rem; border-radius: 0.25rem; font-size: 0.9rem; margin-top: 0.5rem;">25</div>
-                            <div style="background: rgba(255,255,255,0.3); padding: 0.75rem; border-radius: 0.25rem; font-size: 0.9rem; margin-top: 0.5rem;">alice@email.com</div>
+                        <div style="background: rgba(4, 77, 67, 0.34); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.2);">
+                            <h5 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: #f1fffb;">Value (Data)</h5>
+                            <div style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600;">'Alice'</div>
+                            <div style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem;">25</div>
+                            <div style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem;">alice@email.com</div>
                         </div>
                     </div>
-                    <p style="margin: 1rem 0 0 0; text-align: center; font-size: 0.9rem;">💡 Access by key name, not position!</p>
+                    <p style="margin: 1rem 0 0 0; text-align: center; font-size: 0.95rem; font-weight: 700;">💡 Access by key name, not position!</p>
                 </div>
             `,
             usageMeanings: [

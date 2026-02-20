@@ -33,6 +33,13 @@ interface QuizGradeRow {
     submittedAt: Date | null;
 }
 
+interface LmsTrackActivityRow {
+    id: string;
+    title: string;
+    category: string | null;
+    createdAt: Date;
+}
+
 interface MiniQuizCertificateBanner {
     activityId: string;
     slug: string;
@@ -210,11 +217,6 @@ const getOrderedGrammarGuidesForActivities = <T extends { title: string }>(guide
     ];
 };
 
-const getVerbQuizOrder = (title: string): number => {
-    const weekMatch = title.match(/(\d+)/);
-    return weekMatch ? Number(weekMatch[1]) : Number.MAX_SAFE_INTEGER;
-};
-
 const getScoreBadgeClasses = (score: number): string => {
     if (score >= 80) return "bg-emerald-100 text-emerald-800 border-emerald-200";
     if (score >= 60) return "bg-primary/15 text-primary border-primary/30";
@@ -304,10 +306,10 @@ export default async function ProfilePage() {
         recentPointsLedger,
         pointsLedgerDates,
         activityProgressDates,
-        releasedVerbQuizActivitiesRaw,
         releasedGrammarGuideActivities,
-        verbQuizSubmissions,
         grammarQuizSubmissions,
+        lmsTrackActivities,
+        lmsTrackSubmissions,
     ] = await Promise.all([
         // Get activity progress for category stats
         prisma.activityProgress.findMany({
@@ -338,22 +340,6 @@ export default async function ProfilePage() {
         }),
         prisma.activity.findMany({
             where: {
-                type: "quiz",
-                category: "quizzes",
-                content: {
-                    contains: "\"type\":\"verb-quiz\"",
-                },
-            },
-            select: {
-                id: true,
-                title: true,
-                content: true,
-                createdAt: true,
-            },
-            orderBy: { createdAt: "asc" },
-        }),
-        prisma.activity.findMany({
-            where: {
                 type: "guide",
                 category: "grammar",
                 isReleased: true,
@@ -364,25 +350,6 @@ export default async function ProfilePage() {
                 content: true,
             },
             orderBy: { createdAt: "desc" },
-        }),
-        prisma.submission.findMany({
-            where: {
-                userId,
-                score: { not: null },
-                activity: {
-                    type: "quiz",
-                    category: "quizzes",
-                    content: {
-                        contains: "\"type\":\"verb-quiz\"",
-                    },
-                },
-            },
-            select: {
-                activityId: true,
-                score: true,
-                updatedAt: true,
-            },
-            orderBy: { updatedAt: "desc" },
         }),
         prisma.submission.findMany({
             where: {
@@ -402,6 +369,39 @@ export default async function ProfilePage() {
                         title: true,
                     },
                 },
+            },
+            orderBy: { updatedAt: "desc" },
+        }),
+        prisma.activity.findMany({
+            where: {
+                deletedAt: null,
+                category: {
+                    in: ["Spanish", "Coding"],
+                },
+            },
+            select: {
+                id: true,
+                title: true,
+                category: true,
+                createdAt: true,
+            },
+            orderBy: { createdAt: "asc" },
+        }),
+        prisma.submission.findMany({
+            where: {
+                userId,
+                score: { not: null },
+                activity: {
+                    deletedAt: null,
+                    category: {
+                        in: ["Spanish", "Coding"],
+                    },
+                },
+            },
+            select: {
+                activityId: true,
+                score: true,
+                updatedAt: true,
             },
             orderBy: { updatedAt: "desc" },
         }),
@@ -514,32 +514,6 @@ export default async function ProfilePage() {
             };
         });
 
-    const releasedVerbQuizActivities = releasedVerbQuizActivitiesRaw
-        .filter((activity) => parseActivityContent(activity.content)?.released === true)
-        .sort((a, b) => getVerbQuizOrder(a.title) - getVerbQuizOrder(b.title));
-
-    const latestVerbSubmissionByActivityId = new Map<string, { score: number; submittedAt: Date }>();
-    for (const submission of verbQuizSubmissions) {
-        if (submission.score === null) continue;
-        const existing = latestVerbSubmissionByActivityId.get(submission.activityId);
-        if (!existing || submission.updatedAt > existing.submittedAt) {
-            latestVerbSubmissionByActivityId.set(submission.activityId, {
-                score: submission.score,
-                submittedAt: submission.updatedAt,
-            });
-        }
-    }
-
-    const verbQuizGrades: QuizGradeRow[] = releasedVerbQuizActivities.map((activity) => {
-        const submission = latestVerbSubmissionByActivityId.get(activity.id);
-        return {
-            id: activity.id,
-            title: activity.title,
-            score: submission?.score ?? null,
-            submittedAt: submission?.submittedAt ?? null,
-        };
-    });
-
     const orderedReleasedGrammarGuideActivities = getOrderedGrammarGuidesForActivities(releasedGrammarGuideActivities);
     const releasedMiniQuizActivities = orderedReleasedGrammarGuideActivities.filter((activity) =>
         hasMiniQuiz(activity.content)
@@ -579,8 +553,45 @@ export default async function ProfilePage() {
         };
     });
 
-    const gradedVerbQuizCount = verbQuizGrades.filter((quiz) => quiz.score !== null).length;
-    const gradedMiniQuizCount = miniQuizGrades.filter((quiz) => quiz.score !== null).length;
+    const latestTrackSubmissionByActivityId = new Map<string, { score: number; submittedAt: Date }>();
+    for (const submission of lmsTrackSubmissions) {
+        if (submission.score === null) continue;
+        const existing = latestTrackSubmissionByActivityId.get(submission.activityId);
+        if (!existing || submission.updatedAt > existing.submittedAt) {
+            latestTrackSubmissionByActivityId.set(submission.activityId, {
+                score: submission.score,
+                submittedAt: submission.updatedAt,
+            });
+        }
+    }
+
+    const trackActivities = lmsTrackActivities as LmsTrackActivityRow[];
+    const spanishQuizGrades: QuizGradeRow[] = trackActivities
+        .filter((activity) => activity.category?.toLowerCase() === "spanish")
+        .map((activity) => {
+            const submission = latestTrackSubmissionByActivityId.get(activity.id);
+            return {
+                id: activity.id,
+                title: activity.title,
+                score: submission?.score ?? null,
+                submittedAt: submission?.submittedAt ?? null,
+            };
+        });
+
+    const codingQuizGrades: QuizGradeRow[] = trackActivities
+        .filter((activity) => activity.category?.toLowerCase() === "coding")
+        .map((activity) => {
+            const submission = latestTrackSubmissionByActivityId.get(activity.id);
+            return {
+                id: activity.id,
+                title: activity.title,
+                score: submission?.score ?? null,
+                submittedAt: submission?.submittedAt ?? null,
+            };
+        });
+
+    const gradedSpanishQuizCount = spanishQuizGrades.filter((quiz) => quiz.score !== null).length;
+    const gradedCodingQuizCount = codingQuizGrades.filter((quiz) => quiz.score !== null).length;
 
     // Split mini quiz results into medals (70%+) and needs improvement (<70%)
     const allMiniQuizResults: MiniQuizCertificateBanner[] = miniQuizGrades
@@ -781,21 +792,21 @@ export default async function ProfilePage() {
                                     <div>
                                         <h2 className="text-xl font-bold text-text">Quiz Grades</h2>
                                         <p className="text-sm text-text-muted">
-                                            Released quizzes: {gradedVerbQuizCount}/{verbQuizGrades.length} Verb · {gradedMiniQuizCount}/{miniQuizGrades.length} Mini
+                                            LMS quizzes: {gradedSpanishQuizCount}/{spanishQuizGrades.length} Spanish · {gradedCodingQuizCount}/{codingQuizGrades.length} Coding
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="space-y-6 max-h-[520px] overflow-y-auto pr-1">
                                     <div>
-                                        <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Verb Quizzes</h3>
-                                        {verbQuizGrades.length === 0 ? (
+                                        <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Spanish Quizzes</h3>
+                                        {spanishQuizGrades.length === 0 ? (
                                             <div className="rounded-lg border border-dashed border-border/60 bg-bg/60 p-3">
-                                                <p className="text-sm text-text-muted">No released verb quizzes yet.</p>
+                                                <p className="text-sm text-text-muted">No Spanish quizzes available yet.</p>
                                             </div>
                                         ) : (
                                             <div className="space-y-2">
-                                                {verbQuizGrades.map((quiz) => (
+                                                {spanishQuizGrades.map((quiz) => (
                                                     <Link
                                                         key={quiz.id}
                                                         href={`/activity/${quiz.id}`}
@@ -826,14 +837,14 @@ export default async function ProfilePage() {
                                     </div>
 
                                     <div>
-                                        <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Mini Quizzes</h3>
-                                        {miniQuizGrades.length === 0 ? (
+                                        <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Coding Quizzes</h3>
+                                        {codingQuizGrades.length === 0 ? (
                                             <div className="rounded-lg border border-dashed border-border/60 bg-bg/60 p-3">
-                                                <p className="text-sm text-text-muted">No released mini quizzes yet.</p>
+                                                <p className="text-sm text-text-muted">No Coding quizzes available yet.</p>
                                             </div>
                                         ) : (
                                             <div className="space-y-2">
-                                                {miniQuizGrades.map((quiz) => (
+                                                {codingQuizGrades.map((quiz) => (
                                                     <Link
                                                         key={quiz.id}
                                                         href={`/activity/${quiz.id}`}
