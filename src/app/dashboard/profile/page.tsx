@@ -9,14 +9,13 @@ import { getVocabTypeFromTitle, parseVocabTypeLabel, stripVocabTypeSuffix, VOCAB
 import { completionKeyFromActivityTitle } from "@/utils/completionKey";
 import Link from "next/link";
 import { BottomNav } from "@/components/ui";
-import { StatCard } from "@/components/ui/StatCard";
 import { StreakCalendar } from "@/components/ui/StreakCalendar";
 import { ActivityTimeline } from "@/components/ui/ActivityTimeline";
 import ClickableAvatarDisplay from "@/components/ui/ClickableAvatarDisplay";
 import { MiniCertificateCard, EmptyCertificateCard, NeedsImprovementCard } from "@/components/ui/MiniCertificateCard";
 import { qualifiesForMedal } from "@/lib/medal-utils";
-import { Trophy, Flame, BookOpen, Target, Calendar, Award, ChevronRight } from "lucide-react";
-import { HomeIcon, BookOpenIcon as BookIcon, TrophyIcon, UsersIcon, UserIcon } from "@/components/icons/Icons";
+import { Trophy, Flame, BookOpen, Calendar, Award, ChevronRight } from "lucide-react";
+import { HomeIcon, BookOpenIcon as BookIcon, TrophyIcon, UserIcon } from "@/components/icons/Icons";
 
 // Force dynamic rendering to show real-time activity data
 export const dynamic = 'force-dynamic';
@@ -260,7 +259,6 @@ export default async function ProfilePage() {
         redirect("/login");
     }
 
-    const userRole = session.user?.role || "student";
     const userId = session.user?.id;
 
     if (!userId) {
@@ -604,16 +602,14 @@ export default async function ProfilePage() {
 
     const effectiveCurrentStreak = getEffectiveStreak(user.currentStreak, user.lastActivityDate);
 
-    // Student view
-    if (userRole === 'student') {
-        const totalCompleted = vocabProgress.completed + grammarProgress.completed + numbersProgress.completed + otherProgress.completed;
-        
-        // Encouraging message based on activity
-        let welcomeMessage = "Let's learn something new today!";
-        if (effectiveCurrentStreak > 3) welcomeMessage = "You're on fire! Keep it up! 🔥";
-        else if (totalCompleted > 0) welcomeMessage = "Great progress so far!";
-        
-        return (
+    const totalCompleted = vocabProgress.completed + grammarProgress.completed + numbersProgress.completed + otherProgress.completed;
+
+    // Encouraging message based on activity
+    let welcomeMessage = "Let's learn something new today!";
+    if (effectiveCurrentStreak > 3) welcomeMessage = "You're on fire! Keep it up! 🔥";
+    else if (totalCompleted > 0) welcomeMessage = "Great progress so far!";
+
+    return (
             <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pb-24">
                 {/* Decorative background elements */}
                 <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
@@ -934,94 +930,5 @@ export default async function ProfilePage() {
                     ]}
                 />
             </div>
-        );
-    }
-
-    // Teacher view - simplified profile
-    const teacherClasses = user.classes.length;
-    const teacherStats = await prisma.activity.count({
-        where: { createdBy: userId },
-    });
-
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24">
-                {/* Header */}
-                <div className="mb-8">
-                    <div>
-                        <h1 className="text-4xl font-bold text-text mb-2">
-                            {user.name || 'Teacher Profile'}
-                        </h1>
-                        <p className="text-text-muted">Your teaching overview</p>
-                    </div>
-                </div>
-
-                {/* Teacher Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <StatCard
-                        label="Your Classes"
-                        value={teacherClasses}
-                        icon={<BookOpen />}
-                        color="primary"
-                    />
-                    <StatCard
-                        label="Activities Created"
-                        value={teacherStats}
-                        icon={<Trophy />}
-                        color="success"
-                    />
-                    <StatCard
-                        label="Total Students"
-                        value={user._count.classes}
-                        icon={<Target />}
-                        color="accent"
-                    />
-                </div>
-
-                {/* Quick Links */}
-                <div className="bg-bg-secondary/95 backdrop-blur-sm border border-border/60 rounded-xl p-6 shadow-md">
-                    <h2 className="text-xl font-bold text-text mb-4">Quick Actions</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Link
-                            href="/dashboard/classes"
-                            className="flex items-center justify-between p-4 bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors group"
-                        >
-                            <span className="font-medium text-text">View All Classes</span>
-                            <ChevronRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                        <Link
-                            href="/dashboard/stats"
-                            className="flex items-center justify-between p-4 bg-success/5 hover:bg-success/10 rounded-lg transition-colors group"
-                        >
-                            <span className="font-medium text-text">View Analytics</span>
-                            <ChevronRight className="w-5 h-5 text-success group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                        <Link
-                            href="/dashboard/activities/new"
-                            className="flex items-center justify-between p-4 bg-accent/5 hover:bg-accent/10 rounded-lg transition-colors group"
-                        >
-                            <span className="font-medium text-text">Create Activity</span>
-                            <ChevronRight className="w-5 h-5 text-accent group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                        <Link
-                            href="/dashboard/passwords"
-                            className="flex items-center justify-between p-4 bg-warning/5 hover:bg-warning/10 rounded-lg transition-colors group"
-                        >
-                            <span className="font-medium text-text">Reset Passwords</span>
-                            <ChevronRight className="w-5 h-5 text-warning group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    </div>
-                </div>
-            </div>
-
-            <BottomNav
-                items={[
-                    { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
-                    { href: "/dashboard/activities", label: "Activities", icon: <BookIcon /> },
-                    { href: "/dashboard/classes", label: "Classes", icon: <UsersIcon /> },
-                    { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
-                ]}
-            />
-        </div>
     );
 }

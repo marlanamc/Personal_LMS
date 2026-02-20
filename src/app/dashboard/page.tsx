@@ -12,8 +12,6 @@ import {
   HomeIcon,
   BookOpenIcon,
   TrophyIcon,
-  UsersIcon,
-  ClipboardIcon,
   CalendarIcon,
   FlameIcon,
   MapIcon,
@@ -227,10 +225,6 @@ export default async function DashboardPage() {
     ),
   ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const pendingReviews = await prisma.submission.count({
-    where: { status: "pending", assignment: { class: { teacherId: userId } } },
-  });
-
   return (
     <div className="min-h-screen bg-bg">
       <main className="container mx-auto pt-6 pb-24 md:pb-12 px-3 sm:px-6 lg:px-8 max-w-full lg:max-w-[1600px]">
@@ -299,28 +293,6 @@ export default async function DashboardPage() {
                     </Link>
                   )}
 
-                  {/* Pending Reviews (Personal Tasks) */}
-                  {pendingReviews > 0 && (
-                    <Link
-                      href="/dashboard/stats"
-                      className="flex items-center gap-2.5 bg-bg-secondary/90 border border-primary/30 rounded-full pl-2.5 pr-4 py-2 shadow-sm hover:shadow-md transition-all"
-                    >
-                      <div className="w-8 h-8 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center">
-                        <ClipboardIcon className="text-primary" size={16} />
-                      </div>
-                      <div>
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-text-muted leading-none">
-                          To Review
-                        </div>
-                        <div className="text-lg font-bold text-text leading-tight">
-                          {pendingReviews}{" "}
-                          <span className="text-xs font-semibold text-text-muted">
-                            new
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  )}
                 </div>
               </div>
             </div>
@@ -333,7 +305,7 @@ export default async function DashboardPage() {
                 ctaLabel="Start"
                 initialAssignments={featuredAssignments}
                 variant="checklist"
-                actions={pendingReviews > 0 ? <ClearFeaturedButton /> : null}
+                actions={<ClearFeaturedButton />}
               />
             </section>
 
@@ -385,7 +357,7 @@ export default async function DashboardPage() {
               />
 
               <div className="pt-4 mt-4 border-t border-border/40 space-y-4">
-                <h3 className="text-sm font-semibold text-text">Quick Links</h3>
+                <h3 className="text-sm font-semibold text-text">Calendar</h3>
                 <div className="flex flex-col gap-1.5">
                   <Link
                     href="/dashboard/calendar/new"
@@ -393,13 +365,6 @@ export default async function DashboardPage() {
                   >
                     <CalendarIcon className="w-4 h-4 shrink-0" />
                     <span className="text-sm font-semibold">New Event</span>
-                  </Link>
-                  <Link
-                    href="/dashboard/classes"
-                    className="quick-link w-full px-3 py-2 text-text border border-border/50 rounded-lg flex items-center gap-2.5"
-                  >
-                    <UsersIcon className="w-4 h-4 shrink-0" />
-                    <span className="text-sm font-semibold">My Classes</span>
                   </Link>
                 </div>
               </div>
