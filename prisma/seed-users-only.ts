@@ -28,9 +28,13 @@ async function upsertUser(username: string, name: string, role = 'student', must
 async function main() {
   console.log('👥 Upserting users (does NOT affect student progress)...\n');
 
-  // Create teacher
-  const teacher = await upsertUser('teacher', 'Marlie', 'teacher', true);
-  console.log('  ✅ Teacher:', teacher.name);
+  // Create the main personal account (as teacher)
+  const marlie = await upsertUser('marlie', 'Marlie', 'teacher', false);
+  console.log('  ✅ Personal Admin (Teacher):', marlie.username);
+
+  // Preserve the 'teacher' username for backward compatibility if needed, but 'marlie' is the main one
+  const teacher = await upsertUser('teacher', 'Teacher', 'teacher', true);
+  console.log('  ✅ Legacy Teacher:', teacher.username);
 
   // Create one optional demo student account
   const demoStudent = await upsertUser('student', 'Marlie', 'student');
