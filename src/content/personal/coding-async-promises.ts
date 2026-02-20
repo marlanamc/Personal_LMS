@@ -55,52 +55,52 @@ export const codingAsyncPromisesContent: InteractiveGuideContent = {
             explanation: `
                 <h3>The Difference</h3>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 1.5rem 0;">
                     <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1.5rem; border-radius: 0.75rem;">
-                        <h4 style="margin-top: 0; color: #d97757;">⏹️ Synchronous</h4>
-                        <p style="margin: 0.5rem 0; font-size: 0.9rem; color: #555;"><strong>Blocking:</strong> Wait for each step</p>
-                        <div style="background: rgba(255,255,255,0.7); padding: 1rem; border-radius: 0.5rem; margin: 0.75rem 0;">
+                        <h4 style="margin-top: 0; color: #7a2a2a;">⏹️ Synchronous</h4>
+                        <p style="margin: 0.5rem 0; font-size: 1rem; color: #2f2f2f;"><strong>Blocking:</strong> Wait for each step</p>
+                        <div style="background: rgba(255,255,255,0.9); padding: 1rem; border-radius: 0.5rem; margin: 0.75rem 0;">
                             <div style="display: flex; align-items: center; margin: 0.5rem 0;">
                                 <div style="background: #ff6b6b; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 1</div>
                                 <div style="flex: 1; height: 2px; background: #ff6b6b; margin: 0 0.5rem;"></div>
-                                <div style="font-size: 0.8rem;">5 seconds ⏳</div>
+                                <div style="font-size: 0.85rem; color: #1f2937;">5 seconds ⏳</div>
                             </div>
                             <div style="display: flex; align-items: center; margin: 0.5rem 0;">
                                 <div style="background: #ff6b6b; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 2</div>
                                 <div style="flex: 1; height: 2px; background: #ff6b6b; margin: 0 0.5rem;"></div>
-                                <div style="font-size: 0.8rem;">3 seconds ⏳</div>
+                                <div style="font-size: 0.85rem; color: #1f2937;">3 seconds ⏳</div>
                             </div>
                             <div style="display: flex; align-items: center; margin: 0.5rem 0;">
                                 <div style="background: #ff6b6b; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 3</div>
                                 <div style="flex: 1; height: 2px; background: #ff6b6b; margin: 0 0.5rem;"></div>
-                                <div style="font-size: 0.8rem;">2 seconds ⏳</div>
+                                <div style="font-size: 0.85rem; color: #1f2937;">2 seconds ⏳</div>
                             </div>
-                            <div style="border-top: 2px dashed #ff6b6b; padding-top: 0.75rem; margin-top: 0.75rem; text-align: center; font-weight: bold; color: #d97757;">⏱️ Total: 10 seconds</div>
+                            <div style="border-top: 2px dashed #ff6b6b; padding-top: 0.75rem; margin-top: 0.75rem; text-align: center; font-weight: bold; color: #8a3b2f;">⏱️ Total: 10 seconds</div>
                         </div>
-                        <p style="margin: 0.5rem 0; font-size: 0.8rem; color: #d97757;">❌ App freezes while waiting!</p>
+                        <p style="margin: 0.5rem 0; font-size: 0.95rem; color: #8a3b2f;">❌ App freezes while waiting!</p>
                     </div>
                     <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.5rem; border-radius: 0.75rem;">
-                        <h4 style="margin-top: 0; color: #0080ff;">⚡ Asynchronous</h4>
-                        <p style="margin: 0.5rem 0; font-size: 0.9rem; color: #333;"><strong>Non-blocking:</strong> Start and continue</p>
-                        <div style="background: rgba(255,255,255,0.7); padding: 1rem; border-radius: 0.5rem; margin: 0.75rem 0;">
+                        <h4 style="margin-top: 0; color: #004ea8;">⚡ Asynchronous</h4>
+                        <p style="margin: 0.5rem 0; font-size: 1rem; color: #1f2937;"><strong>Non-blocking:</strong> Start and continue</p>
+                        <div style="background: rgba(255,255,255,0.9); padding: 1rem; border-radius: 0.5rem; margin: 0.75rem 0;">
                             <div style="display: flex; align-items: center; margin: 0.5rem 0;">
                                 <div style="background: #0080ff; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 1</div>
                                 <div style="flex: 1; height: 2px; background: #0080ff; margin: 0 0.5rem;"></div>
-                                <div style="font-size: 0.8rem;">→ starts</div>
+                                <div style="font-size: 0.85rem; color: #1f2937;">→ starts</div>
                             </div>
                             <div style="display: flex; align-items: center; margin: 0.5rem 0;">
                                 <div style="background: #0080ff; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 2</div>
                                 <div style="flex: 1; height: 2px; background: #0080ff; margin: 0 0.5rem;"></div>
-                                <div style="font-size: 0.8rem;">→ starts</div>
+                                <div style="font-size: 0.85rem; color: #1f2937;">→ starts</div>
                             </div>
                             <div style="display: flex; align-items: center; margin: 0.5rem 0;">
                                 <div style="background: #0080ff; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 3</div>
                                 <div style="flex: 1; height: 2px; background: #0080ff; margin: 0 0.5rem;"></div>
-                                <div style="font-size: 0.8rem;">→ starts</div>
+                                <div style="font-size: 0.85rem; color: #1f2937;">→ starts</div>
                             </div>
-                            <div style="border-top: 2px dashed #0080ff; padding-top: 0.75rem; margin-top: 0.75rem; text-align: center; font-weight: bold; color: #0080ff;">⏱️ Total: 5 seconds (parallel!)</div>
+                            <div style="border-top: 2px dashed #0080ff; padding-top: 0.75rem; margin-top: 0.75rem; text-align: center; font-weight: bold; color: #0057c2;">⏱️ Total: 5 seconds (parallel!)</div>
                         </div>
-                        <p style="margin: 0.5rem 0; font-size: 0.8rem; color: #0080ff;">✅ App keeps working!</p>
+                        <p style="margin: 0.5rem 0; font-size: 0.95rem; color: #0057c2;">✅ App keeps working!</p>
                     </div>
                 </div>
 
