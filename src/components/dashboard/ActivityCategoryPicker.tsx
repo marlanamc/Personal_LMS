@@ -101,7 +101,7 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
 
 interface ActivityCategoryPickerProps {
     activities: Activity[];
-    completedActivityIds?: Set<string>;
+    completedActivityIds?: string[] | Set<string>;
     progressMap?: Record<string, { progress: number; categoryData?: string }>;
     /** Initial category to open (e.g. from ?category=grammar). Must match a CATEGORY_CARDS key. */
     initialCategory?: string | null;
@@ -118,6 +118,10 @@ export function ActivityCategoryPicker({
     progressMap,
     initialCategory = null,
 }: ActivityCategoryPickerProps) {
+    const completedIdSet = useMemo(
+        () => completedActivityIds instanceof Set ? completedActivityIds : new Set(completedActivityIds ?? []),
+        [completedActivityIds]
+    );
     // Determine which categories actually have activities so we can hide empty ones
     const categoryHasActivities = useMemo(() => {
         const map: Record<string, boolean> = {};
@@ -302,7 +306,7 @@ export function ActivityCategoryPicker({
             >
                 <ActivityCategories
                     activities={activities}
-                    completedActivityIds={completedActivityIds}
+                    completedActivityIds={completedIdSet}
                     progressMap={progressMap}
                     filterCategory={selectedCategory}
                 />

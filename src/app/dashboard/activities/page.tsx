@@ -214,7 +214,7 @@ export default async function ActivitiesPage({ searchParams }: Props) {
 
         const allAssignments = classes.flatMap((c) => c.assignments);
         const featuredAssignments = allAssignments.filter((a) => a.isFeatured);
-        const featuredActivityIds = new Set(featuredAssignments.map((a) => a.activityId));
+        const featuredActivityIds = featuredAssignments.map((a) => a.activityId);
         const activityAssignmentMap: Record<string, string> = {};
         featuredAssignments.forEach((assignment) => {
             activityAssignmentMap[assignment.activityId] = assignment.id;
@@ -258,7 +258,7 @@ export default async function ActivitiesPage({ searchParams }: Props) {
         },
         select: { activityId: true }
     });
-    const completedActivityIds = new Set<string>(completedActivities.map((s: { activityId: string }) => s.activityId));
+    const completedActivityIds = completedActivities.map((s: { activityId: string }) => s.activityId);
 
     return (
         <div className="min-h-screen bg-bg">

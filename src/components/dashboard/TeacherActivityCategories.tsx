@@ -37,7 +37,7 @@ interface Category {
 
 interface TeacherActivityCategoriesProps {
     activities: Activity[];
-    featuredActivityIds?: Set<string>;
+    featuredActivityIds?: string[];
     defaultClassId: string | null;
     activityAssignmentMap?: Record<string, string>;
 }
@@ -256,7 +256,7 @@ const ActivityCard = React.memo(function ActivityCard({
 
 export const TeacherActivityCategories = React.memo(function TeacherActivityCategories({
     activities,
-    featuredActivityIds = new Set(),
+    featuredActivityIds = [],
     defaultClassId,
     activityAssignmentMap = {}
 }: TeacherActivityCategoriesProps) {

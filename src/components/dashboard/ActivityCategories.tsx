@@ -38,7 +38,7 @@ interface Category {
 
 interface ActivityCategoriesProps {
     activities: Activity[];
-    completedActivityIds?: Set<string>;
+    completedActivityIds?: Set<string> | string[];
     progressMap?: Record<string, { progress: number; categoryData?: string }>;
     showEmpty?: boolean;
     filterCategory?: string;
@@ -1529,11 +1529,15 @@ const ActivityCard = React.memo(function ActivityCard({
 
 export const ActivityCategories = React.memo(function ActivityCategories({
     activities,
-    completedActivityIds = new Set(),
+    completedActivityIds = [],
     progressMap,
     showEmpty = false,
     filterCategory
 }: ActivityCategoriesProps) {
+    const completedIdSet = useMemo(
+        () => completedActivityIds instanceof Set ? completedActivityIds : new Set(completedActivityIds),
+        [completedActivityIds]
+    );
     const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
     const [expandedSubCategories, setExpandedSubCategories] = useState<Set<string>>(new Set());
 
@@ -1902,7 +1906,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
 
     const renderActivityCard = useCallback((activity: Activity, accentColor?: string, hideTypeChip?: boolean, sectionLabel?: string) => {
         const progressValue = getDisplayProgress(activity, progressMap);
-        const isCompleted = isActivityCompleted(activity, completedActivityIds, progressMap);
+        const isCompleted = isActivityCompleted(activity, completedIdSet, progressMap);
 
         // Get texture for any activity type using the universal texture system
         const texture = getActivityTexture(activity, sectionLabel);
@@ -1922,7 +1926,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                 tenseTexture={texture}
             />
         );
-    }, [completedActivityIds, progressMap]);
+    }, [completedIdSet, progressMap]);
 
     // Soft palette for section accents
     const SECTION_COLORS = ['#A3D9A5', '#A5C9E1', '#C5B3E6', '#F4B0B7', '#89CFF0', '#F0E68C'];
@@ -1971,7 +1975,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
         const allActivities = sections.flatMap(s => s.activities);
         const totalCount = allActivities.length;
         const completedCount = allActivities.filter(a =>
-            isActivityCompleted(a, completedActivityIds, progressMap)
+            isActivityCompleted(a, completedIdSet, progressMap)
         ).length;
 
         return (
@@ -2006,8 +2010,8 @@ export const ActivityCategories = React.memo(function ActivityCategories({
 
                         // Sort: Incomplete first, then completed at the bottom
                         const sortedActivities = [...section.activities].sort((a, b) => {
-                            const aDone = isActivityCompleted(a, completedActivityIds, progressMap);
-                            const bDone = isActivityCompleted(b, completedActivityIds, progressMap);
+                            const aDone = isActivityCompleted(a, completedIdSet, progressMap);
+                            const bDone = isActivityCompleted(b, completedIdSet, progressMap);
                             if (aDone && !bDone) return 1;
                             if (!aDone && bDone) return -1;
                             return 0;
@@ -2015,7 +2019,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
 
                         // Count completed in this section
                         const sectionCompleted = sortedActivities.filter(a =>
-                            isActivityCompleted(a, completedActivityIds, progressMap)
+                            isActivityCompleted(a, completedIdSet, progressMap)
                         ).length;
                         const sectionTotal = sortedActivities.length;
 
