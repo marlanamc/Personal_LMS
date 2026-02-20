@@ -3,7 +3,6 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { collapseEdPronunciationActivities } from "@/lib/activity-list-dedupe";
-import { TeacherActivityCategories } from "@/components/dashboard";
 import { ActivityCategoryPicker } from "@/components/dashboard/ActivityCategoryPicker";
 
 type Props = { searchParams: Promise<{ category?: string }> };
@@ -180,70 +179,14 @@ export default async function ActivitiesPage({ searchParams }: Props) {
     if (!session) redirect("/login");
 
     const userId = session.user?.id;
-    const userRole = session.user?.role;
 
-    // Filter activities by release status for students
+    // Personal LMS uses a unified role experience on activities.
     const activities = await prisma.activity.findMany({
-        where: userRole === "student"
-            ? {
-                deletedAt: null,
-                OR: [
-                    // Released grammar guides only
-                    { type: "guide", category: "grammar", isReleased: true },
-                    // Non-grammar activities (speaking/quiz filtered client-side)
-                    { NOT: { AND: [{ type: "guide" }, { category: "grammar" }] } }
-                ]
-            }
-            : { deletedAt: null },
+        where: { deletedAt: null },
         orderBy: { createdAt: "desc" },
     });
     const visibleActivities = collapseEdPronunciationActivities(activities);
 
-    if (userRole === "teacher") {
-        // Teacher View - Get featured assignments and class info
-        const classes = await prisma.class.findMany({
-            where: { teacherId: userId },
-            include: {
-                assignments: {
-                    include: {
-                        activity: true,
-                    },
-                },
-            },
-        });
-
-        const allAssignments = classes.flatMap((c) => c.assignments);
-        const featuredAssignments = allAssignments.filter((a) => a.isFeatured);
-        const featuredActivityIds = featuredAssignments.map((a) => a.activityId);
-        const activityAssignmentMap: Record<string, string> = {};
-        featuredAssignments.forEach((assignment) => {
-            activityAssignmentMap[assignment.activityId] = assignment.id;
-        });
-
-        const defaultClassId = classes.length > 0 ? classes[0]!.id : null;
-
-        return (
-            <div className="min-h-screen bg-bg">
-                <header className="sticky top-0 backdrop-blur-md border-b z-40 bg-bg-secondary/90 border-border shadow-sm">
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
-                        <p className="text-xs font-semibold text-secondary tracking-widest uppercase">Browse</p>
-                        <h1 className="text-3xl font-display font-bold text-text">All Activities</h1>
-                    </div>
-                </header>
-
-                <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-12">
-                    <TeacherActivityCategories
-                        activities={visibleActivities}
-                        featuredActivityIds={featuredActivityIds}
-                        defaultClassId={defaultClassId}
-                        activityAssignmentMap={activityAssignmentMap}
-                    />
-                </main>
-            </div>
-        );
-    }
-
-    // Student View
     const progressEntries = await prisma.activityProgress.findMany({
         where: { userId },
         select: { activityId: true, progress: true, categoryData: true, updatedAt: true },
