@@ -13,6 +13,8 @@ async function upsertUser(username: string, name: string, role = 'student', must
     update: {
       name,
       role,
+      password: passwordHash,
+      mustChangePassword,
     },
     create: {
       username,
