@@ -204,8 +204,13 @@ export default async function ActivityPage({ params, searchParams }: Props) {
         parsedContent && (isInteractiveGuideContent(parsedContent) || isLegacyGuideContent(parsedContent));
     const shouldShowHeaderProgressBadge = activity.type !== "vocabulary";
 
-    // Grammar interactive guides should use the dedicated GrammarReader (newer UI + correct HTML rendering).
-    if (activity.category === "grammar" && parsedContent && isInteractiveGuideContent(parsedContent)) {
+    // Interactive guides (grammar + personal) should use the dedicated full-screen GrammarReader.
+    // This avoids nesting guide UIs inside the activity shell, which causes mobile scroll/tap issues.
+    if (
+        (activity.category === "grammar" || activity.category === "personal") &&
+        parsedContent &&
+        isInteractiveGuideContent(parsedContent)
+    ) {
         return (
             <div className="min-h-screen bg-bg">
                 <GrammarReader

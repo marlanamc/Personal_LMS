@@ -1,6 +1,6 @@
 // Service Worker for Class Companion PWA
 // Cache version is based on build time - auto-increments on each deployment
-const CACHE_VERSION = '2024-12-17-v1'; // Update this with each deployment
+const CACHE_VERSION = '2026-02-20-v2'; // Bump to force fresh runtime assets
 const CACHE_NAME = `class-companion-${CACHE_VERSION}`;
 
 // Only cache essential shell files - content should be network-first
@@ -28,7 +28,8 @@ self.addEventListener('install', (event) => {
         console.log('[SW] Cache failed:', err);
       })
   );
-  // Don't skip waiting automatically - let user decide when to update
+  // Activate immediately to reduce stale-app sessions in PWA mode.
+  self.skipWaiting();
 });
 
 // Listen for messages from app
@@ -143,5 +144,4 @@ self.addEventListener('fetch', (event) => {
       })
   );
 });
-
 
