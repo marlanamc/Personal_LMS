@@ -179,6 +179,8 @@ export default async function ActivitiesPage({ searchParams }: Props) {
     if (!session) redirect("/login");
 
     const userId = session.user?.id;
+    const userRole = session.user?.role;
+    const canFeatureActivities = userRole === "teacher";
 
     // Personal LMS uses a unified role experience on activities.
     const activities = await prisma.activity.findMany({
@@ -203,6 +205,46 @@ export default async function ActivitiesPage({ searchParams }: Props) {
     });
     const completedActivityIds = completedActivities.map((s: { activityId: string }) => s.activityId);
 
+    const teacherClasses = canFeatureActivities
+        ? await prisma.class.findMany({
+            where: { teacherId: userId },
+            select: { id: true },
+            orderBy: { createdAt: "asc" },
+        })
+        : [];
+    const defaultClassId = teacherClasses[0]?.id ?? null;
+
+    const activityIds = visibleActivities.map((a) => a.id);
+    const assignmentRows =
+        canFeatureActivities && teacherClasses.length > 0 && activityIds.length > 0
+            ? await prisma.assignment.findMany({
+                where: {
+                    classId: { in: teacherClasses.map((c) => c.id) },
+                    activityId: { in: activityIds },
+                },
+                select: {
+                    id: true,
+                    activityId: true,
+                    isFeatured: true,
+                    updatedAt: true,
+                },
+                orderBy: { updatedAt: "desc" },
+            })
+            : [];
+
+    const initialFeatureAssignments = assignmentRows.reduce<Record<string, { assignmentId: string; isFeatured: boolean }>>(
+        (acc, row) => {
+            if (!acc[row.activityId]) {
+                acc[row.activityId] = {
+                    assignmentId: row.id,
+                    isFeatured: row.isFeatured,
+                };
+            }
+            return acc;
+        },
+        {}
+    );
+
     return (
         <div className="min-h-screen bg-bg">
             <header className="sticky top-0 backdrop-blur-md border-b z-40 bg-bg-secondary/90 border-border shadow-sm">
@@ -219,6 +261,9 @@ export default async function ActivitiesPage({ searchParams }: Props) {
                     activities={visibleActivities}
                     completedActivityIds={completedActivityIds}
                     progressMap={progressMap}
+                    canFeatureActivities={canFeatureActivities}
+                    defaultClassId={defaultClassId}
+                    initialFeatureAssignments={initialFeatureAssignments}
                     initialCategory={(await searchParams).category ?? null}
                 />
             </main>

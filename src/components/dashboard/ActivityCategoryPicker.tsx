@@ -15,6 +15,11 @@ interface Activity {
     content?: string;
 }
 
+interface FeatureAssignmentState {
+    assignmentId: string;
+    isFeatured: boolean;
+}
+
 const isSpanishActivity = (activity: Activity): boolean => {
     if (!activity.id || !activity.title) return false;
     const title = activity.title.toLowerCase();
@@ -122,6 +127,9 @@ interface ActivityCategoryPickerProps {
     activities: Activity[];
     completedActivityIds?: string[] | Set<string>;
     progressMap?: Record<string, { progress: number; categoryData?: string }>;
+    canFeatureActivities?: boolean;
+    defaultClassId?: string | null;
+    initialFeatureAssignments?: Record<string, FeatureAssignmentState>;
     /** Initial category to open (e.g. from ?category=grammar). Must match a CATEGORY_CARDS key. */
     initialCategory?: string | null;
 }
@@ -135,6 +143,9 @@ export function ActivityCategoryPicker({
     activities,
     completedActivityIds,
     progressMap,
+    canFeatureActivities = false,
+    defaultClassId = null,
+    initialFeatureAssignments = {},
     initialCategory = null,
 }: ActivityCategoryPickerProps) {
     const completedIdSet = useMemo(
@@ -323,6 +334,9 @@ export function ActivityCategoryPicker({
                     activities={activities}
                     completedActivityIds={completedIdSet}
                     progressMap={progressMap}
+                    canFeatureActivities={canFeatureActivities}
+                    defaultClassId={defaultClassId}
+                    initialFeatureAssignments={initialFeatureAssignments}
                     filterCategory={selectedCategory}
                 />
             </React.Suspense>

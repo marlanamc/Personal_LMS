@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { Star } from 'lucide-react';
 import { VOCAB_WEEKLY_UNITS } from "@/data/weekly-vocab-units";
 import { stripVocabTypeSuffix, getVocabActivityType, VOCAB_CHIP_CONFIG } from '@/lib/vocab-display';
 import { resolveActivityGameUi, getActivityPoints, type GameUi } from '@/lib/gamification/activity-points';
@@ -42,6 +43,9 @@ interface ActivityCategoriesProps {
     progressMap?: Record<string, { progress: number; categoryData?: string }>;
     showEmpty?: boolean;
     filterCategory?: string;
+    canFeatureActivities?: boolean;
+    defaultClassId?: string | null;
+    initialFeatureAssignments?: Record<string, { assignmentId: string; isFeatured: boolean }>;
 }
 
 const isSpanishActivity = (activity: Activity): boolean => {
@@ -1183,6 +1187,10 @@ interface ActivityCardProps {
     gameUi?: GameUi;
     points?: number;
     tenseTexture?: TenseTexture;
+    isFeatured?: boolean;
+    canFeature?: boolean;
+    featureDisabled?: boolean;
+    onToggleFeature?: (activity: Activity) => void;
 }
 
 const getCategoryProgressText = (activityId: string, progressMap?: Record<string, { progress: number; categoryData?: string }>) => {
@@ -1214,7 +1222,11 @@ const ActivityCard = React.memo(function ActivityCard({
     hideTypeChip,
     gameUi,
     points,
-    tenseTexture
+    tenseTexture,
+    isFeatured = false,
+    canFeature = false,
+    featureDisabled = false,
+    onToggleFeature
 }: ActivityCardProps) {
     const progressText = getCategoryProgressText(activity.id, progressMap);
     const vocabType = getVocabActivityType(activity.id);
@@ -1399,8 +1411,25 @@ const ActivityCard = React.memo(function ActivityCard({
                 <div className="absolute inset-0 rounded-xl bg-secondary/[0.04] pointer-events-none" />
             )}
 
+            {canFeature && (
+                <button
+                    type="button"
+                    onClick={() => onToggleFeature?.(activity)}
+                    disabled={featureDisabled}
+                    className={`absolute top-3 right-3 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${
+                        isFeatured
+                            ? 'border-amber-300 bg-amber-50 text-amber-500'
+                            : 'border-border/70 bg-white/90 text-text-muted hover:bg-bg-light'
+                    } ${featureDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                    aria-label={isFeatured ? 'Remove from featured' : 'Mark as featured'}
+                    title={isFeatured ? 'Featured (click to unfeature)' : 'Feature this activity'}
+                >
+                    <Star className={`h-3.5 w-3.5 ${isFeatured ? 'fill-current' : ''}`} />
+                </button>
+            )}
+
             {isCompleted && (
-                <div className="absolute top-3 right-3 z-20">
+                <div className={`absolute top-3 z-20 ${canFeature ? 'right-12' : 'right-3'}`}>
                     <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center shadow-sm">
                         <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -1549,7 +1578,10 @@ export const ActivityCategories = React.memo(function ActivityCategories({
     completedActivityIds = [],
     progressMap,
     showEmpty = false,
-    filterCategory
+    filterCategory,
+    canFeatureActivities = false,
+    defaultClassId = null,
+    initialFeatureAssignments = {}
 }: ActivityCategoriesProps) {
     const completedIdSet = useMemo(
         () => completedActivityIds instanceof Set ? completedActivityIds : new Set(completedActivityIds),
@@ -1557,6 +1589,10 @@ export const ActivityCategories = React.memo(function ActivityCategories({
     );
     const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
     const [expandedSubCategories, setExpandedSubCategories] = useState<Set<string>>(new Set());
+    const [featureAssignments, setFeatureAssignments] = useState<Record<string, { assignmentId: string; isFeatured: boolean }>>(
+        initialFeatureAssignments
+    );
+    const [featurePendingId, setFeaturePendingId] = useState<string | null>(null);
 
     const toggleCategory = useCallback((categoryName: string) => {
         setExpandedCategories(prev => {
@@ -1575,6 +1611,69 @@ export const ActivityCategories = React.memo(function ActivityCategories({
             return next;
         });
     }, []);
+
+    const toggleFeatured = useCallback(async (activity: Activity) => {
+        if (!canFeatureActivities) return;
+        const existing = featureAssignments[activity.id];
+
+        if (!existing && !defaultClassId) {
+            return;
+        }
+
+        setFeaturePendingId(activity.id);
+        try {
+            if (existing) {
+                const response = await fetch('/api/assignments', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        assignmentId: existing.assignmentId,
+                        isFeatured: !existing.isFeatured,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update featured state');
+                }
+
+                const updated = await response.json() as { id: string; isFeatured: boolean };
+                setFeatureAssignments(prev => ({
+                    ...prev,
+                    [activity.id]: {
+                        assignmentId: updated.id,
+                        isFeatured: updated.isFeatured,
+                    },
+                }));
+                return;
+            }
+
+            const response = await fetch('/api/assignments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    classId: defaultClassId,
+                    activityId: activity.id,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create featured assignment');
+            }
+
+            const created = await response.json() as { id: string; isFeatured: boolean };
+            setFeatureAssignments(prev => ({
+                ...prev,
+                [activity.id]: {
+                    assignmentId: created.id,
+                    isFeatured: created.isFeatured ?? true,
+                },
+            }));
+        } catch (error) {
+            console.error('Failed to toggle featured activity', error);
+        } finally {
+            setFeaturePendingId(null);
+        }
+    }, [canFeatureActivities, defaultClassId, featureAssignments]);
 
     const buildGrammarSubCategories = useCallback((): SubCategory[] => {
         const grammarActivities = activities.filter((a: Activity) => a.category === "grammar");
@@ -1928,6 +2027,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
     const renderActivityCard = useCallback((activity: Activity, accentColor?: string, hideTypeChip?: boolean, sectionLabel?: string) => {
         const progressValue = getDisplayProgress(activity, progressMap);
         const isCompleted = isActivityCompleted(activity, completedIdSet, progressMap);
+        const featureState = featureAssignments[activity.id];
 
         // Get texture for any activity type using the universal texture system
         const texture = getActivityTexture(activity, sectionLabel);
@@ -1945,9 +2045,13 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                 gameUi={gameUi}
                 points={activity.type === 'game' ? getActivityPoints(activity.type, activity) : undefined}
                 tenseTexture={texture}
+                isFeatured={featureState?.isFeatured ?? false}
+                canFeature={canFeatureActivities}
+                featureDisabled={featurePendingId === activity.id || (!featureState && !defaultClassId)}
+                onToggleFeature={toggleFeatured}
             />
         );
-    }, [completedIdSet, progressMap]);
+    }, [completedIdSet, progressMap, featureAssignments, canFeatureActivities, featurePendingId, defaultClassId, toggleFeatured]);
 
     // Soft palette for section accents
     const SECTION_COLORS = ['#A3D9A5', '#A5C9E1', '#C5B3E6', '#F4B0B7', '#89CFF0', '#F0E68C'];
