@@ -198,7 +198,7 @@ export function ActivityCategoryPicker({
         
         // Spanish
         map['spanish'] = activities.some((a) =>
-            (a.category === 'personal' || a.category === 'grammar') && isSpanishActivity(a)
+            a.category === 'personal' && isSpanishActivity(a)
         );
 
         // Coding

@@ -38,7 +38,7 @@ const spanishGuides = [
 ];
 
 async function main() {
-  console.log('🇪🇸 Upserting Spanish grammar guides...\n');
+  console.log('🇪🇸 Upserting Spanish personal guides...\n');
 
   for (const guide of spanishGuides) {
     await prisma.activity.upsert({
@@ -47,7 +47,7 @@ async function main() {
         title: guide.title,
         description: guide.description,
         type: 'guide',
-        category: 'grammar',
+        category: 'personal',
         level: guide.level,
         content: JSON.stringify(guide.content),
         isReleased: true,
@@ -57,7 +57,7 @@ async function main() {
         title: guide.title,
         description: guide.description,
         type: 'guide',
-        category: 'grammar',
+        category: 'personal',
         level: guide.level,
         content: JSON.stringify(guide.content),
         isReleased: true,

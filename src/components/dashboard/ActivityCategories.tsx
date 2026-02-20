@@ -1880,7 +1880,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                 name: 'Spanish',
                 color: '#ec4899', // pink
                 activities: activities.filter(
-                    (a: Activity) => (a.category === 'personal' || a.category === 'grammar') && isSpanishActivity(a)
+                    (a: Activity) => a.category === 'personal' && isSpanishActivity(a)
                 )
             },
             {
