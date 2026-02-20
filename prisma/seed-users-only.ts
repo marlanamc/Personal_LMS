@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 const DEFAULT_PASSWORD = 'password123';
 const BCRYPT_ROUNDS = 12;
 
-async function upsertUser(username: string, name: string, role = 'student', mustChangePassword = true) {
+async function upsertUser(username: string, name: string, role = 'student', mustChangePassword = false) {
   const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, BCRYPT_ROUNDS);
   return prisma.user.upsert({
     where: { username },
@@ -25,51 +25,30 @@ async function upsertUser(username: string, name: string, role = 'student', must
 }
 
 async function main() {
-  console.log('👥 Upserting users (does NOT affect student progress)...\n');
+  console.log('👤 Setting up personal LMS account...\n');
 
-  // Create the main personal account (as teacher)
-  const marlie = await upsertUser('marlie', 'Marlie', 'teacher', true);
-  console.log('  ✅ Personal Admin (Teacher):', marlie.username);
+  // Create the single personal account (as teacher for full access)
+  const marlie = await upsertUser('marlie', 'Marlie', 'teacher', false);
+  console.log('  ✅ Account created: marlie');
 
-  // Preserve the 'teacher' username for backward compatibility if needed, but 'marlie' is the main one
-  const teacher = await upsertUser('teacher', 'Teacher', 'teacher', true);
-  console.log('  ✅ Legacy Teacher:', teacher.username);
-
-  // Create one optional demo student account
-  const demoStudent = await upsertUser('student', 'Marlie', 'student');
-  console.log(`  ✅ Student: ${demoStudent.name}`);
-
-  // Create default class
+  // Create default class owned by marlie
   const marlieClass = await prisma.class.upsert({
     where: { code: 'MARLIE101' },
-    update: {},
+    update: {
+      teacherId: marlie.id,
+    },
     create: {
       name: 'Marlie LMS',
-      description: 'Default class for Marlie LMS',
+      description: 'Personal learning workspace',
       code: 'MARLIE101',
-      teacherId: teacher.id,
+      teacherId: marlie.id,
     },
   });
-  console.log('\n  📚 Class:', marlieClass.name);
+  console.log('  📚 Class:', marlieClass.name);
 
-  // Enroll demo student in default class
-  await prisma.classEnrollment.upsert({
-    where: {
-      classId_studentId: {
-        classId: marlieClass.id,
-        studentId: demoStudent.id,
-      },
-    },
-    update: {},
-    create: {
-      classId: marlieClass.id,
-      studentId: demoStudent.id,
-    },
-  });
-
-  console.log(`\n✨ Users seeded successfully!`);
-  console.log('   Teacher: 1 | Students: 1 | Enrollments: 1');
-  console.log('\n💡 Student progress (ActivityProgress, Submissions) was preserved.');
+  console.log(`\n✨ Setup complete!`);
+  console.log('   Username: marlie');
+  console.log('   Password: password123');
 }
 
 main()

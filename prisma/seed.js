@@ -55,39 +55,25 @@ async function upsertUser(username, name, role = 'student', mustChangePassword =
 }
 
 async function seedMarlieBaseWorkspace() {
-    const teacher = await upsertUser('teacher', 'Marlie', 'teacher', true);
-    const demoStudent = await upsertUser('student', 'Marlie', 'student');
+    // Single account for personal LMS
+    const marlie = await upsertUser('marlie', 'Marlie', 'teacher', false);
 
     const marlieClass = await prisma.class.upsert({
         where: { code: 'MARLIE101' },
         update: {
             name: 'Marlie LMS',
-            description: 'Default class for Marlie LMS',
-            teacherId: teacher.id,
+            description: 'Personal learning workspace',
+            teacherId: marlie.id,
         },
         create: {
             name: 'Marlie LMS',
-            description: 'Default class for Marlie LMS',
+            description: 'Personal learning workspace',
             code: 'MARLIE101',
-            teacherId: teacher.id,
+            teacherId: marlie.id,
         },
     });
 
-    await prisma.classEnrollment.upsert({
-        where: {
-            classId_studentId: {
-                classId: marlieClass.id,
-                studentId: demoStudent.id,
-            },
-        },
-        update: {},
-        create: {
-            classId: marlieClass.id,
-            studentId: demoStudent.id,
-        },
-    });
-
-    console.log('✅ Seeded Marlie LMS base workspace (teacher, demo student, and default class).');
+    console.log('✅ Seeded Marlie LMS: username "marlie", password "password123"');
 }
 
 async function main() {
