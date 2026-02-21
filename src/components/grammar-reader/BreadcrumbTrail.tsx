@@ -10,6 +10,9 @@ interface BreadcrumbTrailProps {
     completedSections: Set<string>;
     onJumpToSection: (index: number) => void;
     showQuiz: boolean;
+    categoryName?: string;
+    categoryHref?: string;
+    guideTitle?: string;
 }
 
 export function BreadcrumbTrail({
@@ -18,17 +21,19 @@ export function BreadcrumbTrail({
     completedSections,
     onJumpToSection: _onJumpToSection,
     showQuiz,
+    categoryName = "Grammar",
+    categoryHref = "/dashboard/activities?category=grammar",
+    guideTitle = "Guide",
 }: BreadcrumbTrailProps) {
     void _onJumpToSection;
     const [isDesktop, setIsDesktop] = useState(false);
-    const grammarActivitiesHref = "/dashboard/activities?category=grammar";
 
     // Detect if we're on desktop (md breakpoint: 768px)
     useEffect(() => {
         const checkDesktop = () => {
             setIsDesktop(window.innerWidth >= 768);
         };
-        
+
         checkDesktop();
         window.addEventListener('resize', checkDesktop);
         return () => window.removeEventListener('resize', checkDesktop);
@@ -46,13 +51,13 @@ export function BreadcrumbTrail({
                     </Link>
                     <span className="text-text-muted flex-shrink-0">/</span>
                     <Link
-                        href={grammarActivitiesHref}
+                        href={categoryHref}
                         className="text-primary hover:underline flex-shrink-0"
                     >
-                        Grammar
+                        {categoryName}
                     </Link>
                     <span className="text-text-muted flex-shrink-0">/</span>
-                    <span className="text-text font-medium flex-shrink-0">Present Perfect</span>
+                    <span className="text-text font-medium flex-shrink-0">{guideTitle}</span>
 
                     {!showQuiz && (
                         <>

@@ -61,7 +61,17 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
     const quizSavePromiseRef = useRef<Promise<void> | null>(null);
     const persistedProgressRef = useRef(0);
     const hasSkippedInitialProgressSaveRef = useRef(false);
-    const grammarActivitiesHref = "/dashboard/activities?category=grammar";
+    // Determine the category based on the activity ID
+    const categoryInfo = useMemo(() => {
+        const id = activityId || completionKey || '';
+        if (id.startsWith('spanish-') || id.toLowerCase().includes('spanish')) {
+            return { name: 'Spanish', href: '/dashboard/activities?category=spanish' };
+        }
+        if (id.startsWith('coding-') || id.toLowerCase().includes('coding')) {
+            return { name: 'Coding', href: '/dashboard/activities?category=coding' };
+        }
+        return { name: 'Grammar', href: '/dashboard/activities?category=grammar' };
+    }, [activityId, completionKey]);
     const sectionKeys = useMemo(
         () => content.sections.map((section, index) => section.id || `section-${index}`),
         [content.sections]
@@ -566,10 +576,10 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                                     </Link>
                                     <span className="text-text-muted flex-shrink-0">/</span>
                                     <Link
-                                        href={grammarActivitiesHref}
+                                        href={categoryInfo.href}
                                         className="text-primary hover:underline flex-shrink-0"
                                     >
-                                        Grammar
+                                        {categoryInfo.name}
                                     </Link>
                                     <span className="text-text-muted flex-shrink-0">/</span>
                                     <span className="text-text font-medium flex-shrink-0">{guideTitle}</span>

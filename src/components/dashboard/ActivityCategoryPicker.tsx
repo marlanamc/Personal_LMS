@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { PenLine, Gamepad2, BookOpen, ClipboardList, Mic, PenTool, Volume2, Code } from 'lucide-react';
+import { Gamepad2, Code } from 'lucide-react';
 
 // Re-use the Activity type shape from ActivityCategories
 interface Activity {
@@ -50,65 +50,9 @@ interface CategoryCardDef {
 
 const CATEGORY_CARDS: CategoryCardDef[] = [
     {
-        key: 'grammar',
-        name: 'Grammar',
-        subtitle: 'Sentences · Rules',
-        icon: <PenLine className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={1.5} />,
-        bgColor: '#c8e6c9',  // green (swapped with vocab)
-        iconColor: '#2e7d32',
-    },
-    {
-        key: 'games',
-        name: 'Games',
-        subtitle: 'Practice + fun',
-        icon: <Gamepad2 className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={1.5} />,
-        bgColor: '#d1c4e9',
-        iconColor: '#4527a0',
-    },
-    {
-        key: 'vocabulary',
-        name: 'Vocabulary',
-        subtitle: 'Words · Meaning · Use',
-        icon: <BookOpen className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={1.5} />,
-        bgColor: '#bbdefb',  // blue (swapped with grammar)
-        iconColor: '#1565c0',
-    },
-    {
-        key: 'quizzes',
-        name: 'Quizzes',
-        subtitle: 'Points · Grades',
-        icon: <ClipboardList className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={1.5} />,
-        bgColor: '#ffcdd2',
-        iconColor: '#c62828',
-    },
-    {
-        key: 'speaking',
-        name: 'Speaking',
-        subtitle: 'Say it out loud',
-        icon: <Mic className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={1.5} />,
-        bgColor: '#ffe0b2',
-        iconColor: '#e65100',
-    },
-    {
-        key: 'pronunciation',
-        name: 'Pronunciation',
-        subtitle: 'Sounds · minimal pairs',
-        icon: <Volume2 className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={1.5} />,
-        bgColor: '#fbcfe8',
-        iconColor: '#be185d',
-    },
-    {
-        key: 'writing',
-        name: 'Writing',
-        subtitle: 'Short answers',
-        icon: <PenTool className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={1.5} />,
-        bgColor: '#d7ccc8',
-        iconColor: '#5d4037',
-    },
-    {
         key: 'spanish',
         name: 'Spanish',
-        subtitle: 'Vocabulary · Grammar',
+        subtitle: 'Grammar · Vocabulary · Verbs',
         icon: <span className="text-3xl sm:text-4xl">🇪🇸</span>,
         bgColor: '#fdf2f8',
         iconColor: '#9d174d',
@@ -116,10 +60,18 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
     {
         key: 'coding',
         name: 'Coding',
-        subtitle: 'JS · TS · React',
+        subtitle: 'Basics · Functions · Practice',
         icon: <Code className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={1.5} />,
         bgColor: '#e0f2fe',
         iconColor: '#0369a1',
+    },
+    {
+        key: 'games',
+        name: 'Games',
+        subtitle: 'Quick Practice',
+        icon: <Gamepad2 className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={1.5} />,
+        bgColor: '#d1c4e9',
+        iconColor: '#4527a0',
     },
 ];
 
@@ -156,68 +108,22 @@ export function ActivityCategoryPicker({
     const categoryHasActivities = useMemo(() => {
         const map: Record<string, boolean> = {};
 
-        // Vocabulary: has vocab- prefixed activities
-        map['vocabulary'] = activities.some((a) => a.id?.startsWith('vocab-'));
+        // Spanish: activities with spanish- prefix or Spanish in title
+        map['spanish'] = activities.some((a) =>
+            (a.category === 'personal' || a.category?.toLowerCase() === 'spanish') && isSpanishActivity(a)
+        );
 
-        // Grammar
-        map['grammar'] = activities.some((a) => a.category === 'grammar');
+        // Coding: activities with coding- prefix or coding-related titles
+        map['coding'] = activities.some((a) =>
+            (a.category === 'personal' || a.category?.toLowerCase() === 'coding') && isCodingActivity(a)
+        );
 
-        // Games
+        // Games: all game-type activities from Spanish and Coding
         map['games'] = activities.some((a) => {
             if (a.type !== 'game') return false;
             if (a.id?.startsWith('vocab-')) return false;
-            return (
-                a.id === 'numbers-game' ||
-                a.id === 'countable-uncountable-nouns' ||
-                a.ui === 'verb-forms' ||
-                a.ui === 'verbforms' ||
-                a.category === 'games' ||
-                isSpanishActivity(a) ||
-                isCodingActivity(a)
-            );
+            return isSpanishActivity(a) || isCodingActivity(a);
         });
-
-        // Quizzes
-        map['quizzes'] = activities.some((a) => {
-            if (a.category !== 'quizzes') return false;
-            try {
-                const content = JSON.parse(a.content || '{}');
-                return content.released === true;
-            } catch {
-                return false;
-            }
-        });
-
-        // Speaking
-        map['speaking'] = activities.some((a) => {
-            if (a.category !== 'speaking') return false;
-            try {
-                const content = JSON.parse(a.content || '{}');
-                return content.released === true;
-            } catch {
-                return false;
-            }
-        });
-
-        // Writing
-        map['writing'] = activities.some(
-            (a) => a.category === 'writing' || a.category === 'writing-reading'
-        );
-
-        // Pronunciation
-        map['pronunciation'] = activities.some(
-            (a) => a.category === 'pronunciation' || a.ui === 'ed-pronunciation' || a.ui === 'minimal-pairs'
-        );
-        
-        // Spanish
-        map['spanish'] = activities.some((a) =>
-            a.category === 'personal' && isSpanishActivity(a)
-        );
-
-        // Coding
-        map['coding'] = activities.some((a) =>
-            a.category === 'personal' && isCodingActivity(a)
-        );
 
         return map;
     }, [activities]);

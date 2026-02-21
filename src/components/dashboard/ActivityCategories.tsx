@@ -77,6 +77,16 @@ const isTrackGameActivity = (activity: Activity): boolean => {
     return true;
 };
 
+const isSpanishTrackGame = (activity: Activity): boolean => {
+    const category = (activity.category || "").toLowerCase();
+    return category === "spanish" || (category === "personal" && isSpanishActivity(activity));
+};
+
+const isCodingTrackGame = (activity: Activity): boolean => {
+    const category = (activity.category || "").toLowerCase();
+    return category === "coding" || (category === "personal" && isCodingActivity(activity));
+};
+
 const sortBySuggestedOrder = (activities: Activity[], orderedIds: string[]): Activity[] => {
     const orderIndex = new Map<string, number>(orderedIds.map((id, index) => [id, index]));
     return [...activities].sort((a, b) => {
@@ -1894,32 +1904,168 @@ export const ActivityCategories = React.memo(function ActivityCategories({
 
     const categories = useMemo<Category[]>(() => [
             {
-                name: 'Vocabulary',
-                color: '#f4a261', // warm orange
+                name: 'Spanish',
+                color: '#ec4899', // pink
                 subCategories: [
                     {
-                        name: 'Cycle 1',
-                        activities: vocabCycle1.flatMap(month =>
-                            activities.filter((a: Activity) => a.id === `vocab-${month.id}`)
+                        name: 'Grammar',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    isInPersonalTrackCategory(a, 'spanish') &&
+                                    isSpanishActivity(a) &&
+                                    a.type === 'guide'
+                            ),
+                            [
+                                'spanish-refresher',
+                                'spanish-present-tense-guide',
+                                'spanish-ser-vs-estar-guide',
+                                'spanish-adjective-agreement-guide',
+                                'spanish-preterite-tense-guide'
+                            ]
                         )
                     },
-                    ...vocabUnits.map(unit => {
-                        // Create a sub-category for each unit (6-10) with all week activities flattened
-                        const allUnitActivities = unit.weeks.flatMap(week =>
-                            activities.filter((a: Activity) => a.id === `vocab-${week.id}`)
-                        );
-                        return {
-                            name: unit.label,
-                            activities: allUnitActivities
-                        };
-                    })
+                    {
+                        name: 'Vocabulary',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    isTrackGameActivity(a) &&
+                                    isSpanishActivity(a) &&
+                                    (a.id?.includes('vocab') || a.id?.includes('flashcard'))
+                            ),
+                            [
+                                'spanish-vocab-greetings',
+                                'spanish-vocab-numbers',
+                                'spanish-vocab-colors',
+                                'spanish-vocab-family',
+                                'spanish-vocab-verbs',
+                                'spanish-common-verbs-flashcards',
+                                'spanish-numbers-flashcards',
+                                'spanish-adjectives-flashcards',
+                            ]
+                        )
+                    },
+                    {
+                        name: 'Verbs',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    isTrackGameActivity(a) &&
+                                    isSpanishActivity(a) &&
+                                    (a.id?.includes('verb-game') || a.id?.includes('verb-race') || a.id?.includes('verb-conjugation') || a.id?.includes('ser-estar'))
+                            ),
+                            [
+                                'spanish-verb-game-present-ar',
+                                'spanish-verb-game-present-er-ir',
+                                'spanish-verb-game-present-irregular',
+                                'spanish-verb-game-preterite',
+                                'spanish-verb-game-mixed',
+                                'spanish-verb-race',
+                                'spanish-verb-conjugation-matching',
+                                'spanish-ser-estar-fill-blank',
+                            ]
+                        )
+                    },
+                    {
+                        name: 'Numbers',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    isTrackGameActivity(a) &&
+                                    isSpanishActivity(a) &&
+                                    a.id?.includes('numbers-game')
+                            ),
+                            [
+                                'spanish-numbers-game-easy',
+                                'spanish-numbers-game-medium',
+                                'spanish-numbers-game-timed',
+                            ]
+                        )
+                    }
                 ],
                 activities: []
             },
             {
-                name: 'Grammar',
-                color: '#e76f51', // coral/terracotta
-                subCategories: buildGrammarSubCategories(),
+                name: 'Coding',
+                color: '#0ea5e9', // sky blue
+                subCategories: [
+                    {
+                        name: 'Basics',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    isInPersonalTrackCategory(a, 'coding') &&
+                                    isCodingActivity(a) &&
+                                    (a.id === 'coding-js-ts' || a.id === 'coding-variables-types')
+                            ),
+                            ['coding-js-ts', 'coding-variables-types']
+                        )
+                    },
+                    {
+                        name: 'Functions',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    isInPersonalTrackCategory(a, 'coding') &&
+                                    isCodingActivity(a) &&
+                                    a.id === 'coding-functions-parameters'
+                            ),
+                            ['coding-functions-parameters']
+                        )
+                    },
+                    {
+                        name: 'Control Flow',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    isInPersonalTrackCategory(a, 'coding') &&
+                                    isCodingActivity(a) &&
+                                    a.id === 'coding-loops-control-flow'
+                            ),
+                            ['coding-loops-control-flow']
+                        )
+                    },
+                    {
+                        name: 'Data Structures',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    isInPersonalTrackCategory(a, 'coding') &&
+                                    isCodingActivity(a) &&
+                                    a.id === 'coding-arrays-objects'
+                            ),
+                            ['coding-arrays-objects']
+                        )
+                    },
+                    {
+                        name: 'Advanced',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) =>
+                                    isInPersonalTrackCategory(a, 'coding') &&
+                                    isCodingActivity(a) &&
+                                    a.id === 'coding-async-promises'
+                            ),
+                            ['coding-async-promises']
+                        )
+                    },
+                    {
+                        name: 'Practice',
+                        activities: sortBySuggestedOrder(
+                            activities.filter(
+                                (a: Activity) => isTrackGameActivity(a) && isCodingTrackGame(a)
+                            ),
+                            [
+                                'coding-concepts-flashcards',
+                                'coding-operators-flashcards',
+                                'coding-keywords-matching',
+                                'coding-array-methods-matching',
+                                'coding-syntax-fill-blank',
+                            ]
+                        )
+                    }
+                ],
                 activities: []
             },
             {
@@ -1930,150 +2076,8 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                         name: 'Spanish Games',
                         activities: sortBySuggestedOrder(
                             activities
-                                .filter((a: Activity) => isTrackGameActivity(a) && isSpanishActivity(a))
+                                .filter((a: Activity) => isTrackGameActivity(a) && isSpanishTrackGame(a))
                                 .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
-                            [
-                                'spanish-common-verbs-flashcards',
-                                'spanish-numbers-flashcards',
-                                'spanish-adjectives-flashcards',
-                                'spanish-verb-conjugation-matching',
-                                'spanish-ser-estar-fill-blank',
-                            ]
-                        )
-                    },
-                    {
-                        name: 'Coding Games',
-                        activities: sortBySuggestedOrder(
-                            activities
-                                .filter((a: Activity) => isTrackGameActivity(a) && isCodingActivity(a))
-                                .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
-                            [
-                                'coding-concepts-flashcards',
-                                'coding-operators-flashcards',
-                                'coding-keywords-matching',
-                                'coding-array-methods-matching',
-                                'coding-syntax-fill-blank',
-                            ]
-                        )
-                    },
-                    {
-                        name: 'Core Practice Games',
-                        activities: sortBySuggestedOrder(
-                            activities
-                                .filter(
-                                    (a: Activity) =>
-                                        isTrackGameActivity(a) &&
-                                        !isSpanishActivity(a) &&
-                                        !isCodingActivity(a)
-                                )
-                                .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
-                            [
-                                'numbers-game',
-                                'countable-uncountable-nouns',
-                            ]
-                        )
-                    }
-                ],
-                activities: []
-            },
-            {
-                name: 'Reading',
-                color: '#2a9d8f', // teal
-                activities: activities.filter((a: Activity) => a.category === 'reading' || a.category === 'writing-reading')
-            },
-            {
-                name: 'Writing',
-                color: '#7ba884', // sage green
-                activities: activities.filter((a: Activity) => a.category === 'writing' || a.category === 'writing-reading')
-            },
-            {
-                name: 'Pronunciation',
-                color: '#ec4899', // pink
-                activities: activities.filter((a: Activity) =>
-                    a.category === 'pronunciation' ||
-                    a.ui === 'ed-pronunciation' ||
-                    a.ui === 'minimal-pairs'
-                )
-            },
-            {
-                name: 'Speaking',
-                color: '#e09f3e', // gold/amber
-                activities: activities.filter((a: Activity) => {
-                    if (a.category !== 'speaking') return false;
-
-                    // Only show released speaking activities to students
-                    try {
-                        const content = JSON.parse(a.content || '{}');
-                        return content.released === true;
-                    } catch {
-                        return false;
-                    }
-                }).sort(compareByTitleDateDesc)
-            },
-            {
-                name: 'Quizzes',
-                color: '#c86b51', // terracotta
-                activities: activities.filter((a: Activity) => {
-                    if (a.category !== 'quizzes') return false;
-
-                    // Only show released quizzes to students
-                    try {
-                        const content = JSON.parse(a.content || '{}');
-                        return content.released === true;
-                    } catch {
-                        return false;
-                    }
-                })
-                    .sort((a, b) => {
-                        // Sort by week number (Week 1, Week 2, etc.)
-                        const getWeekNum = (title: string) => {
-                            const match = title.match(/Week (\d+)/);
-                            return match ? parseInt(match[1]) : 999;
-                        };
-                        return getWeekNum(a.title || '') - getWeekNum(b.title || '');
-                    })
-            },
-            {
-                name: 'Spanish',
-                color: '#ec4899', // pink
-                subCategories: [
-                    {
-                        name: 'Intro to Spanish',
-                        activities: sortBySuggestedOrder(
-                            activities.filter(
-                                (a: Activity) =>
-                                    isInPersonalTrackCategory(a, 'spanish') &&
-                                    isSpanishActivity(a) &&
-                                    (a.id === 'spanish-refresher' || a.id === 'spanish-present-tense-guide')
-                            ),
-                            ['spanish-refresher', 'spanish-present-tense-guide']
-                        )
-                    },
-                    {
-                        name: 'Core Spanish Grammar',
-                        activities: sortBySuggestedOrder(
-                            activities.filter(
-                                (a: Activity) =>
-                                    isInPersonalTrackCategory(a, 'spanish') &&
-                                    isSpanishActivity(a) &&
-                                    a.type === 'guide' &&
-                                    a.id !== 'spanish-refresher' &&
-                                    a.id !== 'spanish-present-tense-guide'
-                            ),
-                            [
-                                'spanish-ser-vs-estar-guide',
-                                'spanish-adjective-agreement-guide',
-                                'spanish-preterite-tense-guide'
-                            ]
-                        )
-                    },
-                    {
-                        name: 'Spanish Games & Practice',
-                        activities: sortBySuggestedOrder(
-                            activities.filter(
-                                (a: Activity) =>
-                                    isTrackGameActivity(a) && isSpanishActivity(a)
-                            ),
                             [
                                 'spanish-vocab-greetings',
                                 'spanish-vocab-numbers',
@@ -2096,44 +2100,26 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                 'spanish-ser-estar-fill-blank',
                             ]
                         )
-                    }
-                ],
-                activities: []
-            },
-            {
-                name: 'Coding',
-                color: '#0ea5e9', // sky blue
-                subCategories: [
-                    {
-                        name: 'Intro to Coding',
-                        activities: sortBySuggestedOrder(
-                            activities.filter(
-                                (a: Activity) =>
-                                    isInPersonalTrackCategory(a, 'coding') &&
-                                    isCodingActivity(a) &&
-                                    (a.id === 'coding-js-ts' || a.id === 'coding-variables-types' || a.id === 'coding-functions-parameters')
-                            ),
-                            ['coding-js-ts', 'coding-variables-types', 'coding-functions-parameters']
-                        )
                     },
                     {
-                        name: 'Core Coding Skills',
+                        name: 'Coding Games',
                         activities: sortBySuggestedOrder(
-                            activities.filter(
-                                (a: Activity) =>
-                                    isInPersonalTrackCategory(a, 'coding') &&
-                                    isCodingActivity(a) &&
-                                    a.id !== 'coding-js-ts' &&
-                                    a.id !== 'coding-variables-types' &&
-                                    a.id !== 'coding-functions-parameters'
-                            ),
-                            ['coding-loops-control-flow', 'coding-arrays-objects', 'coding-async-promises']
+                            activities
+                                .filter((a: Activity) => isTrackGameActivity(a) && isCodingTrackGame(a))
+                                .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
+                            [
+                                'coding-concepts-flashcards',
+                                'coding-operators-flashcards',
+                                'coding-keywords-matching',
+                                'coding-array-methods-matching',
+                                'coding-syntax-fill-blank',
+                            ]
                         )
                     }
                 ],
                 activities: []
             }
-        ], [activities, buildGrammarSubCategories]);
+        ], [activities]);
 
     const filteredCategories = useMemo(() => {
         let result = categories;
