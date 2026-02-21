@@ -49,11 +49,13 @@ interface ActivityCategoriesProps {
 }
 
 const isSpanishActivity = (activity: Activity): boolean => {
+    if (!activity.id) return false;
     const title = (activity.title || '').toLowerCase();
     return activity.id.startsWith('spanish-') || title.includes('spanish');
 };
 
 const isCodingActivity = (activity: Activity): boolean => {
+    if (!activity.id) return false;
     const title = (activity.title || '').toLowerCase();
     return (
         activity.id.startsWith('coding-') ||
