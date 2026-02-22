@@ -2075,10 +2075,15 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                 color: '#f97316', // orange
                 subCategories: [
                     {
-                        name: 'Spanish Games',
+                        name: 'Spanish - Vocabulary',
                         activities: sortBySuggestedOrder(
                             activities
-                                .filter((a: Activity) => isTrackGameActivity(a) && isSpanishTrackGame(a))
+                                .filter(
+                                    (a: Activity) =>
+                                        isTrackGameActivity(a) &&
+                                        isSpanishTrackGame(a) &&
+                                        (a.id?.includes('vocab') || a.id?.includes('flashcard'))
+                                )
                                 .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
                             [
                                 'spanish-vocab-greetings',
@@ -2086,20 +2091,50 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                 'spanish-vocab-colors',
                                 'spanish-vocab-family',
                                 'spanish-vocab-verbs',
-                                'spanish-numbers-game-easy',
-                                'spanish-numbers-game-medium',
-                                'spanish-numbers-game-timed',
+                                'spanish-common-verbs-flashcards',
+                                'spanish-numbers-flashcards',
+                                'spanish-adjectives-flashcards',
+                            ]
+                        )
+                    },
+                    {
+                        name: 'Spanish - Verbs',
+                        activities: sortBySuggestedOrder(
+                            activities
+                                .filter(
+                                    (a: Activity) =>
+                                        isTrackGameActivity(a) &&
+                                        isSpanishTrackGame(a) &&
+                                        (a.id?.includes('verb-game') || a.id?.includes('verb-race') || a.id?.includes('verb-conjugation') || a.id?.includes('ser-estar'))
+                                )
+                                .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
+                            [
                                 'spanish-verb-game-present-ar',
                                 'spanish-verb-game-present-er-ir',
                                 'spanish-verb-game-present-irregular',
                                 'spanish-verb-game-preterite',
                                 'spanish-verb-game-mixed',
                                 'spanish-verb-race',
-                                'spanish-common-verbs-flashcards',
-                                'spanish-numbers-flashcards',
-                                'spanish-adjectives-flashcards',
                                 'spanish-verb-conjugation-matching',
                                 'spanish-ser-estar-fill-blank',
+                            ]
+                        )
+                    },
+                    {
+                        name: 'Spanish - Numbers',
+                        activities: sortBySuggestedOrder(
+                            activities
+                                .filter(
+                                    (a: Activity) =>
+                                        isTrackGameActivity(a) &&
+                                        isSpanishTrackGame(a) &&
+                                        a.id?.includes('numbers-game')
+                                )
+                                .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
+                            [
+                                'spanish-numbers-game-easy',
+                                'spanish-numbers-game-medium',
+                                'spanish-numbers-game-timed',
                             ]
                         )
                     },

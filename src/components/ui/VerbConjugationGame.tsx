@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { saveActivityProgress } from "@/lib/activityProgress";
 import { RotateCcw, Clock, Zap, Trophy } from "lucide-react";
 import { BackButton } from "@/components/ui/BackButton";
@@ -87,8 +87,8 @@ export default function VerbConjugationGame({
   const [timeRemaining, setTimeRemaining] = useState(timeLimit);
   const [isTimedActive, setIsTimedActive] = useState(false);
 
-  // Available verbs based on selected types
-  const availableVerbs = getVerbsByType(verbTypes);
+  // Available verbs based on selected types - memoize to prevent infinite loop
+  const availableVerbs = useMemo(() => getVerbsByType(verbTypes), [verbTypes]);
 
   const [gameState, setGameState] = useState<GameState>({
     score: 0,
@@ -140,8 +140,11 @@ export default function VerbConjugationGame({
     inputRef.current?.focus();
   }, [availableVerbs, tense]);
 
-  // Initialize game
+  // Initialize game - only run once on mount
+  const hasInitialized = useRef(false);
   useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
     generateQuestion();
     if (timedMode) {
       setIsTimedActive(true);
