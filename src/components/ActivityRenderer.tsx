@@ -45,6 +45,7 @@ import { saveActivityProgress } from "@/lib/activityProgress";
 import { resolveActivityGameUi } from "@/lib/gamification/activity-points";
 import SpanishNumbersGame from "./ui/SpanishNumbersGame";
 import VerbConjugationGame from "./ui/VerbConjugationGame";
+import { SPANISH_GUIDE_IDS } from "@/content/spanish/registry";
 
 interface Props {
     activity: {
@@ -70,9 +71,26 @@ export default function ActivityRenderer({ activity, assignmentId, existingSubmi
     const categoryRaw = (activity.category || "").toLowerCase();
     const titleLower = (activity.title || "").toLowerCase();
     const idLower = (activity.id || "").toLowerCase();
+    const spanishGuideIds = SPANISH_GUIDE_IDS as readonly string[];
+    const isCodingGuide =
+        activity.type === "guide" &&
+        (
+            categoryRaw === "coding" ||
+            idLower.startsWith("coding-") ||
+            titleLower.includes("coding") ||
+            titleLower.includes("javascript") ||
+            titleLower.includes("typescript") ||
+            titleLower.includes("js/ts")
+        );
     const isSpanishGuide =
         activity.type === "guide" &&
-        (categoryRaw === "spanish" || idLower.startsWith("spanish-") || titleLower.includes("spanish"));
+        (
+            spanishGuideIds.includes(activity.id) ||
+            categoryRaw === "spanish" ||
+            (categoryRaw === "personal" && !isCodingGuide) ||
+            idLower.startsWith("spanish-") ||
+            titleLower.includes("spanish")
+        );
     const isFullHeightGuideLayout =
         activity.type === "guide" &&
         (isInteractiveGuideContent(content) || isLegacyGuideContent(content));

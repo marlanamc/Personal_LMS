@@ -14,6 +14,7 @@
     "analyze:browser": "BUNDLE_ANALYZE=browser ANALYZE=true next build",
     "test:gamification": "node --import tsx scripts/tests/gamification-helpers.test.ts",
     "test:activity-submit": "node --import tsx scripts/tests/activity-submit-assignmentid.test.ts",
+    "test:e2e": "npx playwright test",
     "lint": "eslint",
     "audit:diagram-contrast": "node --import tsx scripts/audit-diagram-contrast.ts",
     "check:nullable-upserts": "node scripts/check-null-assignment-upserts.mjs",
@@ -39,6 +40,7 @@
     "audio:minimal-pairs": "npx tsx scripts/generate-minimal-pairs-audio.ts"
   },
   "dependencies": {
+    "@playwright/test": "^1.58.2",
     "@prisma/client": "^6.19.0",
     "@vercel/analytics": "^1.6.1",
     "bcryptjs": "^3.0.3",
