@@ -14,10 +14,10 @@ export function GrammarReader({ content, activityId }: GrammarReaderProps) {
         <div className="grammar-reader-container min-h-screen bg-bg">
             <InteractiveGuideViewer
                 content={content}
-                showHeader={true}
+                showHeader={false}
                 activityId={activityId}
+                variant="grammar"
             />
         </div>
     );
 }
-

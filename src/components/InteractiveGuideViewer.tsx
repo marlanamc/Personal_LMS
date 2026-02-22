@@ -13,6 +13,7 @@ interface Props {
     showHeader?: boolean;
     activityId?: string;
     assignmentId?: string | null;
+    variant?: "interactive" | "grammar";
 }
 
 export default function InteractiveGuideViewer({
@@ -22,6 +23,7 @@ export default function InteractiveGuideViewer({
     showHeader = true,
     activityId,
     assignmentId = null,
+    variant = "interactive",
 }: Props) {
     const [currentStep, setCurrentStep] = useState(0);
     const [showTOC, setShowTOC] = useState(false);
@@ -124,6 +126,7 @@ export default function InteractiveGuideViewer({
     const containerLayout = showHeader
         ? "relative lg:fixed lg:inset-0 min-h-screen lg:h-screen lg:w-screen"
         : "relative w-full h-full min-h-0";
+    const isGrammarVariant = variant === "grammar";
 
     const jumpToSection = (index: number) => {
         setShowMiniQuiz(false);
@@ -180,7 +183,11 @@ export default function InteractiveGuideViewer({
     );
 
     return (
-        <div className={`interactive-guide-viewer ${containerLayout} z-fixed flex flex-col text-[#e7eeff] font-body selection:bg-primary/30 lg:overflow-hidden bg-gradient-to-br from-[#050914] via-[#08112a] to-[#0a1738]`}>
+        <div
+            className={`interactive-guide-viewer ${containerLayout} z-fixed flex flex-col text-[#e7eeff] font-body selection:bg-primary/30 lg:overflow-hidden bg-gradient-to-br from-[#050914] via-[#08112a] to-[#0a1738] ${
+                isGrammarVariant ? "grammar-reader-variant" : ""
+            }`}
+        >
             {showHeader && (
                 <>
                     {/* Header */}
@@ -277,7 +284,11 @@ export default function InteractiveGuideViewer({
             )}
 
             {/* Main Content Area - Split Screen */}
-            <div className="flex-1 flex relative flex-col min-h-0 lg:flex-row pb-16 lg:pb-0">
+            <div
+                className={`flex-1 flex relative flex-col min-h-0 lg:flex-row pb-16 lg:pb-0 ${
+                    isGrammarVariant ? "grammar-reader-split-screen" : ""
+                }`}
+            >
                 {/* Compact embedded controls */}
                 {!showHeader && !showTOC && headerControlsHost && createPortal(embeddedControls, headerControlsHost)}
                 {!showHeader && !showTOC && !headerControlsHost && (
@@ -310,7 +321,11 @@ export default function InteractiveGuideViewer({
                 {!showMiniQuiz ? (
                     <>
                         {/* Left Panel: Theory/Content */}
-                        <div className="flex-1 min-h-0 w-full lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain p-5 sm:p-7 lg:pl-24 lg:pr-12 flex flex-col lg:justify-start bg-gradient-to-b from-[#111a3d] to-[#0a1330]">
+                        <div
+                            className={`flex-1 min-h-0 w-full lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain p-5 sm:p-7 lg:pl-24 lg:pr-12 flex flex-col lg:justify-start bg-gradient-to-b from-[#111a3d] to-[#0a1330] ${
+                                isGrammarVariant ? "explanation-panel" : ""
+                            }`}
+                        >
                             <div className="w-full lg:max-w-2xl lg:mx-auto animate-fade-in-up space-y-4 sm:space-y-6">
                                 {currentSection.stepNumber && (
                                     <span className="inline-block text-xs font-bold tracking-widest text-[#8db7ff] uppercase mb-4 border-b-2 border-[#8db7ff]/30 pb-1">
@@ -323,7 +338,9 @@ export default function InteractiveGuideViewer({
 
                                 {currentSection.explanation && (
                                     <div
-                                        className="prose prose-lg prose-invert text-[#cdd9f6] leading-relaxed mb-8 max-w-none"
+                                        className={`prose prose-lg text-[#cdd9f6] leading-relaxed mb-8 max-w-none ${
+                                            isGrammarVariant ? "explanation-content" : "prose-invert"
+                                        }`}
                                         dangerouslySetInnerHTML={{ __html: currentSection.explanation }}
                                     />
                                 )}
@@ -354,7 +371,11 @@ export default function InteractiveGuideViewer({
                         </div>
 
                         {/* Right Panel: Practice/Interaction */}
-                        <div className="flex-1 min-h-0 w-full lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain bg-[#0a1028] border-t lg:border-t-0 lg:border-l border-[#243765]/80 p-5 sm:p-7 lg:pr-24 lg:pl-12 flex flex-col lg:justify-start">
+                        <div
+                            className={`flex-1 min-h-0 w-full lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain bg-[#0a1028] border-t lg:border-t-0 lg:border-l border-[#243765]/80 p-5 sm:p-7 lg:pr-24 lg:pl-12 flex flex-col lg:justify-start ${
+                                isGrammarVariant ? "practice-panel" : ""
+                            }`}
+                        >
                             <div className="w-full lg:max-w-2xl lg:mx-auto animate-fade-in-up delay-100 space-y-4 sm:space-y-6">
                                 {currentSection.exercises && currentSection.exercises.length > 0 ? (
                                     <div className="bg-gradient-to-br from-[#121b42] to-[#0f1738] rounded-3xl p-6 sm:p-8 shadow-xl border border-[#304675] relative overflow-hidden">
@@ -370,6 +391,7 @@ export default function InteractiveGuideViewer({
                                                     key={`${currentSection.id || currentStep}-exercise-${idx}`}
                                                     exercise={exercise}
                                                     index={idx}
+                                                    grammarVariant={isGrammarVariant}
                                                 />
                                             ))}
                                         </div>
@@ -588,7 +610,15 @@ function MiniQuizPanel({ questions, onBack }: { questions: MiniQuizQuestion[]; o
     );
 }
 
-function ExerciseGroup({ exercise, index }: { exercise: Exercise, index: number }) {
+function ExerciseGroup({
+    exercise,
+    index,
+    grammarVariant = false,
+}: {
+    exercise: Exercise;
+    index: number;
+    grammarVariant?: boolean;
+}) {
     const [answers, setAnswers] = useState<Record<number, string>>({});
     const [results, setResults] = useState<Record<number, boolean>>({});
     const [checked, setChecked] = useState(false);
@@ -620,7 +650,7 @@ function ExerciseGroup({ exercise, index }: { exercise: Exercise, index: number 
     const correctItems = Object.values(results).filter(Boolean).length;
 
     return (
-        <div className="space-y-6">
+        <div className={`space-y-6 ${grammarVariant ? "exercise-section" : ""}`}>
             {exercise.title && (
                 <p className="text-sm font-semibold text-[#a9bee8] uppercase tracking-wider">{exercise.title}</p>
             )}
