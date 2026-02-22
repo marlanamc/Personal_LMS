@@ -26,6 +26,10 @@ import {
   commonVerbCards,
   verbConjugations,
 } from "../src/content/spanish/vocabulary/common-verbs";
+import {
+  everydayPhrasesVocabulary,
+  everydayPhrasesCards,
+} from "../src/content/spanish/vocabulary/everyday-phrases";
 import { SPANISH_CORE_GAME_IDS } from "../src/content/spanish/registry";
 
 const prisma = new PrismaClient();
@@ -120,6 +124,23 @@ async function main() {
         type: "spanish-vocabulary",
         title: "Common Verbs",
         cards: commonVerbCards,
+        mode: "flashcard",
+      }),
+      type: "game",
+      category: "personal",
+      level: "beginner",
+      ui: "flashcard",
+      isReleased: true,
+    },
+    {
+      id: everydayPhrasesVocabulary.id,
+      title: "Spanish Everyday Phrases",
+      description:
+        "Essential conversational phrases for restaurants, shopping, directions, and daily life",
+      content: JSON.stringify({
+        type: "spanish-vocabulary",
+        title: everydayPhrasesVocabulary.title,
+        cards: everydayPhrasesCards,
         mode: "flashcard",
       }),
       type: "game",
