@@ -11,6 +11,7 @@ import { ActivityProgressBadge } from "@/components/ActivityProgressBadge";
 import { CategoryProgressDisplay } from "@/components/CategoryProgressDisplay";
 import { numbersGameCategoryNames } from "@/data/numbersGameCategories";
 import { resolveActivityGameUi } from "@/lib/gamification/activity-points";
+import { SPANISH_GUIDE_IDS } from "@/content/spanish/registry";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -199,6 +200,29 @@ export default async function ActivityPage({ params, searchParams }: Props) {
         categoryRaw === "spanish" ||
         idLower.startsWith("spanish-") ||
         titleLower.includes("spanish");
+    const spanishGuideIds = SPANISH_GUIDE_IDS as readonly string[];
+    const isCodingGuideLike =
+        activity.type === "guide" &&
+        (
+            categoryRaw === "coding" ||
+            idLower.startsWith("coding-") ||
+            titleLower.includes("coding") ||
+            titleLower.includes("javascript") ||
+            titleLower.includes("typescript") ||
+            titleLower.includes("js/ts")
+        );
+    const isSpanishGuideForGrammarReader =
+        activity.type === "guide" &&
+        (
+            spanishGuideIds.includes(activity.id) ||
+            categoryRaw === "spanish" ||
+            (categoryRaw === "personal" && !isCodingGuideLike) ||
+            idLower.startsWith("spanish-") ||
+            titleLower.includes("spanish")
+        );
+    const shouldUseGrammarReaderShell =
+        Boolean(parsedContent && isInteractiveGuideContent(parsedContent)) &&
+        isSpanishGuideForGrammarReader;
     const activityGameUi = activity.type === "game" ? resolveActivityGameUi(activity) : null;
     const isMatchingGame = activity.type === "game" && activityGameUi === "matching";
 
@@ -231,6 +255,18 @@ export default async function ActivityPage({ params, searchParams }: Props) {
 
     // Full screen layout for interactive guides
     if (isInteractiveGuide) {
+        if (shouldUseGrammarReaderShell) {
+            return (
+                <div className="min-h-screen bg-bg">
+                    <ActivityRenderer
+                        activity={{ ...activity, ui: ui || activity.ui }}
+                        assignmentId={assignmentId}
+                        existingSubmission={submission}
+                    />
+                </div>
+            );
+        }
+
         return (
             <div className="fixed inset-0 bg-[#0a1738] flex flex-col overflow-hidden">
                 {/* Minimal Header */}
