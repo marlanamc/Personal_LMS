@@ -19,6 +19,19 @@ import { CODING_GUIDE_IDS } from '../src/content/coding/registry';
 const prisma = new PrismaClient();
 const removedSampleActivityIds = ['coding-js-ts', 'spanish-refresher'];
 
+async function runOptionalCleanup(label: string, action: () => Promise<unknown>): Promise<void> {
+  try {
+    await action();
+  } catch (error) {
+    const code = (error as { code?: string })?.code;
+    if (code === 'P2021') {
+      console.log(`  ⚠️ Skipping ${label}: table is missing in this database.`);
+      return;
+    }
+    throw error;
+  }
+}
+
 function validateCodingGuideRegistryAlignment(ids: readonly string[], seededIds: string[]): void {
   const missingFromRegistry = seededIds.filter((id) => !ids.includes(id));
   const missingFromSeed = ids.filter((id) => !seededIds.includes(id));
@@ -158,21 +171,25 @@ async function main() {
     },
   });
 
-  await prisma.quizResponse.deleteMany({
-    where: {
-      activityId: {
-        in: removedSampleActivityIds,
+  await runOptionalCleanup('quizResponse cleanup', () =>
+    prisma.quizResponse.deleteMany({
+      where: {
+        activityId: {
+          in: removedSampleActivityIds,
+        },
       },
-    },
-  });
+    })
+  );
 
-  await prisma.speakingSubmission.deleteMany({
-    where: {
-      activityId: {
-        in: removedSampleActivityIds,
+  await runOptionalCleanup('speakingSubmission cleanup', () =>
+    prisma.speakingSubmission.deleteMany({
+      where: {
+        activityId: {
+          in: removedSampleActivityIds,
+        },
       },
-    },
-  });
+    })
+  );
 
   await prisma.submission.deleteMany({
     where: {
