@@ -29,6 +29,11 @@ export {
   checkConjugation,
 } from "./common-verbs";
 
+export {
+  everydayPhrasesCards,
+  everydayPhrasesVocabulary,
+} from "./everyday-phrases";
+
 // All vocabulary sets for easy iteration
 export const allSpanishVocabularySets = [
   { id: "spanish-vocab-greetings", module: () => import("./greetings-basics") },
@@ -36,4 +41,5 @@ export const allSpanishVocabularySets = [
   { id: "spanish-vocab-colors", module: () => import("./colors-shapes") },
   { id: "spanish-vocab-family", module: () => import("./family-relationships") },
   { id: "spanish-vocab-verbs", module: () => import("./common-verbs") },
+  { id: "spanish-vocab-everyday", module: () => import("./everyday-phrases") },
 ];

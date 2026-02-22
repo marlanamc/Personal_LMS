@@ -10,6 +10,7 @@ export const SPANISH_GUIDE_IDS = [
   "spanish-ser-vs-estar-guide",
   "spanish-adjective-agreement-guide",
   "spanish-preterite-tense-guide",
+  "spanish-restaurant-conversations-guide",
 ] as const;
 
 export const SPANISH_VOCAB_ACTIVITY_IDS = [
@@ -18,6 +19,7 @@ export const SPANISH_VOCAB_ACTIVITY_IDS = [
   "spanish-vocab-colors",
   "spanish-vocab-family",
   "spanish-vocab-verbs",
+  "spanish-vocab-everyday",
   "spanish-common-verbs-flashcards",
   "spanish-numbers-flashcards",
   "spanish-adjectives-flashcards",
@@ -54,6 +56,7 @@ export const SPANISH_CORE_GAME_IDS = [
   "spanish-vocab-colors",
   "spanish-vocab-family",
   "spanish-vocab-verbs",
+  "spanish-vocab-everyday",
   "spanish-numbers-game-easy",
   "spanish-numbers-game-medium",
   "spanish-numbers-game-timed",

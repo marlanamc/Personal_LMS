@@ -64,7 +64,6 @@ export const spanishPreteriteTenseContent: InteractiveGuideContent = {
                     ["tú", "hablaste"],
                     ["él/ella/usted", "habló"],
                     ["nosotros/as", "hablamos"],
-                    ["vosotros/as", "hablasteis"],
                     ["ellos/ellas/ustedes", "hablaron"],
                 ],
             },
@@ -99,10 +98,6 @@ export const spanishPreteriteTenseContent: InteractiveGuideContent = {
                         {
                             sentence: "Ellas <strong>trabajaron</strong> todo el día.",
                             explanation: "They worked all day. A specific past action.",
-                        },
-                        {
-                            sentence: "¿<strong>Estudiasteis</strong> para el examen?",
-                            explanation: "Did you (plural) study for the exam?",
                         },
                     ],
                 },
@@ -160,7 +155,6 @@ export const spanishPreteriteTenseContent: InteractiveGuideContent = {
                     ["tú", "comiste", "viviste"],
                     ["él/ella/usted", "comió", "vivió"],
                     ["nosotros/as", "comimos", "vivimos"],
-                    ["vosotros/as", "comisteis", "vivisteis"],
                     ["ellos/ellas/ustedes", "comieron", "vivieron"],
                 ],
             },
@@ -482,8 +476,8 @@ export const spanishPreteriteTenseContent: InteractiveGuideContent = {
             explanation: `
                 <h3>Key Points to Remember</h3>
                 <ul style="font-size: 1.05rem; line-height: 1.8;">
-                    <li><strong>Regular -AR:</strong> -é, -aste, -ó, -amos, -asteis, -aron</li>
-                    <li><strong>Regular -ER/-IR:</strong> -í, -iste, -ió, -imos, -isteis, -ieron</li>
+                    <li><strong>Regular -AR:</strong> -é, -aste, -ó, -amos, -aron</li>
+                    <li><strong>Regular -ER/-IR:</strong> -í, -iste, -ió, -imos, -ieron</li>
                     <li><strong>Use for:</strong> Completed past actions, specific time markers</li>
                     <li><strong>Irregular verbs:</strong> Learn the most common ones (ir/ser, tener, hacer, ver, venir, estar, poder, decir)</li>
                 </ul>
@@ -590,7 +584,7 @@ export const spanishPreteriteTenseContent: InteractiveGuideContent = {
             question: "What is the preterite tú form of 'hablar'?",
             options: [
                 { value: "a", label: "hablaste" },
-                { value: "b", label: "hablasteis" },
+                { value: "b", label: "habló" },
                 { value: "c", label: "hablabas" },
             ],
             correctAnswer: "a",

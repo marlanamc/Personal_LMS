@@ -266,16 +266,7 @@ interface SpeakingFormData {
 export default function SpeakingActivityRenderer({ content, activityId, assignmentId }: Props) {
   const router = useRouter();
 
-  // WARMUP MODE: Simple participation tracking
-  if (content.warmupMode) {
-    return <WarmupModeRenderer content={content} activityId={activityId} assignmentId={assignmentId} />;
-  }
-
-  // LEGACY MODE: Complex two-phase submission system
-  const soloMode = content.soloMode;
-  const speakingMode = content.speakingMode;
-  const minPrompts = content.minPromptsRequired || 1;
-
+  // All hooks must be called unconditionally at the top
   const [selectedPrompts, setSelectedPrompts] = useState<Set<string>>(new Set());
   const [completedSoloSteps, setCompletedSoloSteps] = useState<Set<string>>(new Set());
   const [completedSpeakingSteps, setCompletedSpeakingSteps] = useState<Set<string>>(new Set());
@@ -293,6 +284,11 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
   const [showKeyPhrases, setShowKeyPhrases] = useState(false);
   const [lastSnapshot, setLastSnapshot] = useState<string | null>(null);
   const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
+
+  // LEGACY MODE: Complex two-phase submission system
+  const soloMode = content.soloMode;
+  const speakingMode = content.speakingMode;
+  const minPrompts = content.minPromptsRequired || 1;
 
   const soloChecklistLength = soloMode?.checklist.length ?? 0;
   const speakingChecklistLength = speakingMode?.checklist.length ?? 0;
@@ -341,6 +337,9 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
   }, [currentSnapshot, lastSnapshot]);
 
   useEffect(() => {
+    // Skip effects for warmup mode
+    if (content.warmupMode) return;
+
     let isMounted = true;
 
     const draft = loadDraft(activityId, assignmentId);
@@ -388,9 +387,12 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
     return () => {
       isMounted = false;
     };
-  }, [activityId, assignmentId]);
+  }, [activityId, assignmentId, content.warmupMode]);
 
   useEffect(() => {
+    // Skip effects for warmup mode
+    if (content.warmupMode) return;
+
     saveDraft({
       activityId,
       assignmentId,
@@ -413,7 +415,13 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
     speakingData,
     completedSoloSteps,
     completedSpeakingSteps,
+    content.warmupMode,
   ]);
+
+  // WARMUP MODE: Simple participation tracking
+  if (content.warmupMode) {
+    return <WarmupModeRenderer content={content} activityId={activityId} assignmentId={assignmentId} />;
+  }
 
   const canSubmit =
     selectedPromptsCount >= minPrompts &&

@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Marlie LMS",
   },
   icons: {
@@ -53,7 +53,10 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: "cover",
-  themeColor: "#ff6b9d",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0f0f1e" },
+    { media: "(prefers-color-scheme: light)", color: "#ff6b9d" },
+  ],
 };
 
 export default function RootLayout({
@@ -62,9 +65,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${fraunces.variable} ${dmSans.variable} ${caveat.variable} antialiased`}
+        className={`${fraunces.variable} ${dmSans.variable} ${caveat.variable} bg-bg-primary text-text antialiased`}
       >
         <Providers>{children}</Providers>
         <ServiceWorkerRegistration />

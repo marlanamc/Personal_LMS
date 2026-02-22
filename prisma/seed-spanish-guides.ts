@@ -3,6 +3,7 @@ import { spanishPresentTenseContent } from '../src/content/spanish/guides/spanis
 import { spanishPreteriteTenseContent } from '../src/content/spanish/guides/spanish-preterite-tense';
 import { spanishSerVsEstarContent } from '../src/content/spanish/guides/spanish-ser-vs-estar';
 import { spanishAdjectiveAgreementContent } from '../src/content/spanish/guides/spanish-adjective-agreement';
+import { spanishRestaurantConversationsContent } from '../src/content/spanish/guides/spanish-restaurant-conversations';
 import { SPANISH_GUIDE_IDS } from '../src/content/spanish/registry';
 
 const prisma = new PrismaClient();
@@ -35,6 +36,13 @@ const spanishGuides = [
     description: 'Interactive Spanish guide for gender and number agreement in adjectives.',
     level: 'beginner',
     content: spanishAdjectiveAgreementContent,
+  },
+  {
+    id: 'spanish-restaurant-conversations-guide',
+    title: 'Restaurant Conversations in Spanish',
+    description: 'Learn to order food, ask questions, and pay the bill in Latin American restaurants.',
+    level: 'beginner',
+    content: spanishRestaurantConversationsContent,
   },
 ];
 

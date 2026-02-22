@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* ============================================
    Personal LMS - Design System
@@ -59,6 +60,8 @@
   /* ===== Text Colors - Light for Dark Background ===== */
   --color-text: #e8e8f0;
   /* Soft white */
+  --color-text-dark: #e8e8f0;
+  /* Legacy alias for old text utility references */
   --color-text-muted: #b8b8cc;
   /* Muted lavender gray */
   --color-text-light: #8888a0;
@@ -118,7 +121,8 @@
 }
 
 :root {
-  /* No changes needed here, using @theme */
+  color-scheme: dark;
+  background-color: var(--color-bg-primary);
 }
 
 /* Dark base background */
@@ -197,6 +201,119 @@ body::after {
   pointer-events: none;
   z-index: -1;
   opacity: 0.5;
+}
+
+/* ========== Legacy Utility Compatibility (Dark Mode) ========== */
+/* Remap older light utility classes so existing components stay dark-themed. */
+.dark :where(
+  .bg-white,
+  .bg-gray-50,
+  .bg-gray-100,
+  .bg-slate-50,
+  .bg-slate-100,
+  .bg-neutral-50,
+  .bg-neutral-100
+) {
+  background-color: var(--color-bg-secondary) !important;
+}
+
+.dark :where(.bg-white\/80, .bg-white\/90) {
+  background-color: rgba(26, 26, 46, 0.9) !important;
+}
+
+.dark :where(
+  .text-black,
+  .text-gray-900,
+  .text-slate-900,
+  .text-neutral-900
+) {
+  color: var(--color-text) !important;
+}
+
+.dark :where(
+  .text-gray-800,
+  .text-slate-800,
+  .text-neutral-800,
+  .text-gray-700,
+  .text-slate-700,
+  .text-neutral-700,
+  .text-gray-600,
+  .text-slate-600,
+  .text-neutral-600,
+  .text-gray-500,
+  .text-slate-500,
+  .text-neutral-500,
+  .text-gray-400,
+  .text-slate-400,
+  .text-neutral-400
+) {
+  color: var(--color-text-muted) !important;
+}
+
+.dark :where(
+  .border-gray-100,
+  .border-gray-200,
+  .border-gray-300,
+  .border-slate-100,
+  .border-slate-200,
+  .border-slate-300,
+  .border-neutral-100,
+  .border-neutral-200,
+  .border-neutral-300
+) {
+  border-color: var(--color-border) !important;
+}
+
+.dark :where(
+  .hover\:bg-gray-50:hover,
+  .hover\:bg-slate-50:hover,
+  .hover\:bg-neutral-50:hover,
+  .hover\:bg-gray-100:hover,
+  .hover\:bg-slate-100:hover,
+  .hover\:bg-neutral-100:hover
+) {
+  background-color: var(--color-bg-light) !important;
+}
+
+.dark :is(button, a, input, select, textarea, [role="button"]) {
+  --tw-ring-offset-color: var(--color-bg-primary);
+}
+
+@media (min-width: 768px) {
+  .dark :where(
+    .md\:bg-white,
+    .md\:bg-gray-50,
+    .md\:bg-gray-100,
+    .md\:bg-slate-50,
+    .md\:bg-slate-100,
+    .md\:bg-neutral-50,
+    .md\:bg-neutral-100
+  ) {
+    background-color: var(--color-bg-secondary) !important;
+  }
+
+  .dark :where(
+    .md\:text-black,
+    .md\:text-gray-900,
+    .md\:text-slate-900,
+    .md\:text-neutral-900
+  ) {
+    color: var(--color-text) !important;
+  }
+
+  .dark :where(
+    .md\:border-gray-100,
+    .md\:border-gray-200,
+    .md\:border-gray-300,
+    .md\:border-slate-100,
+    .md\:border-slate-200,
+    .md\:border-slate-300,
+    .md\:border-neutral-100,
+    .md\:border-neutral-200,
+    .md\:border-neutral-300
+  ) {
+    border-color: var(--color-border) !important;
+  }
 }
 
 /* ========== Typography ========== */
