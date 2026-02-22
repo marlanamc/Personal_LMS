@@ -1009,18 +1009,18 @@ function VocabMatchingUI({
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 md:p-6">
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 mb-4">
-                <h2 className="text-lg font-bold text-gray-900 mb-1">Vocabulary Matching</h2>
-                <p className="text-sm text-gray-500 mb-2">Match each word to its definition.</p>
+        <div className="-m-6 bg-gradient-to-br from-[#0b1230] via-[#101b3f] to-[#0a1738] p-4 md:p-6 text-[#dbe7ff]">
+            <div className="bg-[#0f193a] border border-[#304675] rounded-xl shadow-sm p-4 mb-4">
+                <h2 className="text-lg font-bold text-[#eef3ff] mb-1">Vocabulary Matching</h2>
+                <p className="text-sm text-[#9fb0d8] mb-2">Match each word to its definition.</p>
                 <div className="flex items-center gap-2">
-                    <div className="h-2 flex-1 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-2 flex-1 bg-[#1f315f] rounded-full overflow-hidden">
                         <div
                             className="h-full bg-[var(--color-primary)] transition-[width] duration-300"
                             style={{ width: `${progressPercent}%` }}
                         />
                     </div>
-                    <span className="text-sm font-medium text-gray-600 whitespace-nowrap">
+                    <span className="text-sm font-medium text-[#9fb0d8] whitespace-nowrap">
                         {matchedTermIds.size}/{pairs.length}
                     </span>
                 </div>
@@ -1036,19 +1036,19 @@ function VocabMatchingUI({
                 <div className="space-y-6">
                     {/* Mobile: Selected term display */}
                     {selectedTermId && (
-                        <div className="md:hidden bg-blue-50 border-2 border-blue-400 rounded-xl p-4 shadow-sm">
-                            <p className="text-sm text-blue-600 mb-2 font-medium">Selected Word:</p>
-                            <p className="text-xl font-bold text-blue-900">
+                        <div className="md:hidden bg-[#12224a] border-2 border-[#4d6fb9] rounded-xl p-4 shadow-sm">
+                            <p className="text-sm text-[#9fb9ff] mb-2 font-medium">Selected Word:</p>
+                            <p className="text-xl font-bold text-[#eef3ff]">
                                 {pairs.find((p) => p.id === selectedTermId)?.term}
                             </p>
-                            <p className="text-xs text-blue-600 mt-2">Now tap the correct definition below</p>
+                            <p className="text-xs text-[#9fb9ff] mt-2">Now tap the correct definition below</p>
                         </div>
                     )}
 
                     {/* Desktop: Two-column layout */}
                     <div className="hidden md:grid md:grid-cols-2 md:gap-6">
                         <div className="space-y-2">
-                            <p className="text-sm font-medium text-gray-500">Words</p>
+                            <p className="text-sm font-medium text-[#9fb0d8]">Words</p>
                             {shuffledTerms.map((p) => {
                                 const handlers = createTermClickHandler(p.id);
                                 return (
@@ -1058,15 +1058,9 @@ function VocabMatchingUI({
                                         {...handlers}
                                         className={`
                                             w-full text-left px-4 py-3 min-h-[48px] rounded-lg border-2 transition-all touch-manipulation cursor-pointer
-                                            ${matchedTermIds.has(p.id) ? "bg-green-50 border-green-400 text-green-900" : ""}
-                                            ${selectedTermId === p.id ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10" : "border-gray-200 hover:border-gray-300"}
+                                            ${matchedTermIds.has(p.id) ? "bg-emerald-500/15 border-emerald-400 text-emerald-100" : ""}
+                                            ${selectedTermId === p.id ? "border-[#6d8fd8] bg-[#19315d] text-[#f1f6ff]" : "border-[#324b83] bg-[#101b3f] text-[#dbe7ff] hover:border-[#4a67a7] hover:bg-[#152650]"}
                                         `}
-                                        style={{
-                                            borderStyle: 'solid',
-                                            backgroundColor: matchedTermIds.has(p.id) ? '#f0fdf4' : (selectedTermId === p.id ? 'rgba(176, 87, 64, 0.1)' : '#ffffff'),
-                                            borderColor: matchedTermIds.has(p.id) ? '#4ade80' : (selectedTermId === p.id ? 'var(--color-primary)' : '#e5e7eb'),
-                                            borderWidth: '2px'
-                                        }}
                                     >
                                         <span className="font-medium">{p.term}</span>
                                     </button>
@@ -1074,7 +1068,7 @@ function VocabMatchingUI({
                             })}
                         </div>
                         <div className="space-y-2">
-                            <p className="text-sm font-medium text-gray-500">Definitions</p>
+                            <p className="text-sm font-medium text-[#9fb0d8]">Definitions</p>
                             {shuffledDefs.map((p) => {
                                 const handlers = createDefClickHandler(p.id);
                                 return (
@@ -1084,15 +1078,9 @@ function VocabMatchingUI({
                                         {...handlers}
                                         className={`
                                             w-full text-left px-4 py-3 min-h-[48px] rounded-lg border-2 transition-all touch-manipulation cursor-pointer text-sm
-                                            ${matchedTermIds.has(p.id) ? "bg-green-50 border-green-400 text-green-900" : ""}
-                                            ${wrongFlash === p.id ? "border-red-400 bg-red-50 animate-pulse" : "border-gray-200 hover:border-gray-300"}
+                                            ${matchedTermIds.has(p.id) ? "bg-emerald-500/15 border-emerald-400 text-emerald-100" : ""}
+                                            ${wrongFlash === p.id ? "border-rose-400 bg-rose-500/15 text-rose-100 animate-pulse" : "border-[#324b83] bg-[#101b3f] text-[#dbe7ff] hover:border-[#4a67a7] hover:bg-[#152650]"}
                                         `}
-                                        style={{
-                                            borderStyle: 'solid',
-                                            backgroundColor: matchedTermIds.has(p.id) ? '#f0fdf4' : (wrongFlash === p.id ? '#fef2f2' : '#ffffff'),
-                                            borderColor: matchedTermIds.has(p.id) ? '#4ade80' : (wrongFlash === p.id ? '#f87171' : '#e5e7eb'),
-                                            borderWidth: '2px'
-                                        }}
                                     >
                                         <span>{p.definition}</span>
                                     </button>
@@ -1105,7 +1093,7 @@ function VocabMatchingUI({
                     <div className="md:hidden space-y-4">
                         {/* Words to select */}
                         <div className="space-y-2">
-                            <p className="text-sm font-medium text-gray-500">
+                            <p className="text-sm font-medium text-[#9fb0d8]">
                                 {selectedTermId ? "Selected word shown above" : "Tap a word to start:"}
                             </p>
                             {!selectedTermId && shuffledTerms.map((p) => {
@@ -1117,15 +1105,9 @@ function VocabMatchingUI({
                                         {...handlers}
                                         className={`
                                             w-full text-left px-4 py-4 min-h-[60px] rounded-lg border-2 transition-all touch-manipulation cursor-pointer text-base
-                                            ${matchedTermIds.has(p.id) ? "bg-green-50 border-green-400 text-green-900" : ""}
-                                            ${selectedTermId === p.id ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10" : "border-gray-300 hover:border-gray-400"}
+                                            ${matchedTermIds.has(p.id) ? "bg-emerald-500/15 border-emerald-400 text-emerald-100" : ""}
+                                            ${selectedTermId === p.id ? "border-[#6d8fd8] bg-[#19315d] text-[#f1f6ff]" : "border-[#324b83] bg-[#101b3f] text-[#dbe7ff] hover:border-[#4a67a7] hover:bg-[#152650]"}
                                         `}
-                                        style={{
-                                            borderStyle: 'solid',
-                                            backgroundColor: matchedTermIds.has(p.id) ? '#f0fdf4' : (selectedTermId === p.id ? 'rgba(176, 87, 64, 0.1)' : '#ffffff'),
-                                            borderColor: matchedTermIds.has(p.id) ? '#4ade80' : (selectedTermId === p.id ? 'var(--color-primary)' : '#d1d5db'),
-                                            borderWidth: '2px'
-                                        }}
                                     >
                                         <span className="font-medium text-lg">{p.term}</span>
                                     </button>
@@ -1136,7 +1118,7 @@ function VocabMatchingUI({
                         {/* Definitions to match (only show when word is selected) */}
                         {selectedTermId && (
                             <div className="space-y-2">
-                                <p className="text-sm font-medium text-gray-500">Tap the correct definition:</p>
+                                <p className="text-sm font-medium text-[#9fb0d8]">Tap the correct definition:</p>
                                 {shuffledDefs.map((p) => {
                                     const handlers = createDefClickHandler(p.id);
                                     return (
@@ -1146,15 +1128,9 @@ function VocabMatchingUI({
                                             {...handlers}
                                             className={`
                                                 w-full text-left px-4 py-4 min-h-[60px] rounded-lg border-2 transition-all touch-manipulation cursor-pointer text-base
-                                                ${matchedTermIds.has(p.id) ? "bg-green-50 border-green-400 text-green-900" : ""}
-                                                ${wrongFlash === p.id ? "border-red-400 bg-red-50 animate-pulse" : "border-gray-300 hover:border-gray-400"}
+                                                ${matchedTermIds.has(p.id) ? "bg-emerald-500/15 border-emerald-400 text-emerald-100" : ""}
+                                                ${wrongFlash === p.id ? "border-rose-400 bg-rose-500/15 text-rose-100 animate-pulse" : "border-[#324b83] bg-[#101b3f] text-[#dbe7ff] hover:border-[#4a67a7] hover:bg-[#152650]"}
                                             `}
-                                            style={{
-                                                borderStyle: 'solid',
-                                                backgroundColor: matchedTermIds.has(p.id) ? '#f0fdf4' : (wrongFlash === p.id ? '#fef2f2' : '#ffffff'),
-                                                borderColor: matchedTermIds.has(p.id) ? '#4ade80' : (wrongFlash === p.id ? '#f87171' : '#d1d5db'),
-                                                borderWidth: '2px'
-                                            }}
                                         >
                                             <span className="text-base">{p.definition}</span>
                                         </button>

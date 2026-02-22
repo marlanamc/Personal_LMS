@@ -48,7 +48,7 @@ file:./prisma/dev.db
 ### 3. NEXTAUTH_URL (Optional but recommended)
 Your production URL:
 ```
-https://esol-resources-tau.vercel.app
+https://your-app.vercel.app
 ```
 
 ## How to Set Environment Variables in Vercel
@@ -69,7 +69,7 @@ https://esol-resources-tau.vercel.app
 
 5. Add `NEXTAUTH_URL`:
    - **Key**: `NEXTAUTH_URL`
-   - **Value**: `https://esol-resources-tau.vercel.app`
+   - **Value**: `https://your-app.vercel.app`
    - **Environment**: Production (or all if you want)
    - Click **Save**
 
@@ -100,7 +100,7 @@ npm run db:seed
 
 ### 1. Create a Postgres Database in Vercel
 1. Go to https://vercel.com/dashboard
-2. Select your project (esol-resources-tau or similar)
+2. Select your project (your-app or similar)
 3. Click on the **Storage** tab
 4. Click **Create Database**
 5. Select **Postgres**
@@ -118,7 +118,7 @@ Vercel will automatically add the `DATABASE_URL` environment variable to your pr
    - **Environment**: Select all (Production, Preview, Development)
 3. Add `NEXTAUTH_URL`:
    - **Key**: `NEXTAUTH_URL`
-   - **Value**: `https://esol-resources-tau.vercel.app` (or your actual URL)
+   - **Value**: `https://your-app.vercel.app` (or your actual URL)
    - **Environment**: Production
 
 ### 3. Deploy Your Changes

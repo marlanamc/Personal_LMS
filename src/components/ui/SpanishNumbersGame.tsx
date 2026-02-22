@@ -258,7 +258,7 @@ export default function SpanishNumbersGame({
 
   if (isComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col">
         {/* Points Toast */}
         {pointsToast && (
           <PointsToast
@@ -274,33 +274,33 @@ export default function SpanishNumbersGame({
         )}
 
         <div className="flex-1 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-amber-200">
+          <div className="rounded-3xl shadow-2xl p-8 max-w-md w-full text-center border border-slate-700 bg-slate-900/95">
             <div className="text-6xl mb-4">🎉</div>
-            <h2 className="text-3xl font-bold text-amber-800 mb-2">¡Excelente!</h2>
-            <p className="text-lg text-amber-600 mb-6">Round Complete!</p>
+            <h2 className="text-3xl font-bold text-amber-300 mb-2">¡Excelente!</h2>
+            <p className="text-lg text-slate-300 mb-6">Round Complete!</p>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                <div className="text-3xl font-bold text-green-600">{gameState.score}</div>
-                <div className="text-sm text-green-700">Points</div>
+              <div className="rounded-xl p-4 border border-emerald-700 bg-emerald-950/50">
+                <div className="text-3xl font-bold text-emerald-300">{gameState.score}</div>
+                <div className="text-sm text-emerald-200">Points</div>
               </div>
-              <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-                <div className="text-3xl font-bold text-blue-600">{accuracy}%</div>
-                <div className="text-sm text-blue-700">Accuracy</div>
+              <div className="rounded-xl p-4 border border-blue-700 bg-blue-950/50">
+                <div className="text-3xl font-bold text-blue-300">{accuracy}%</div>
+                <div className="text-sm text-blue-200">Accuracy</div>
               </div>
-              <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
-                <div className="text-3xl font-bold text-purple-600">{gameState.maxStreak}</div>
-                <div className="text-sm text-purple-700">Best Streak</div>
+              <div className="rounded-xl p-4 border border-violet-700 bg-violet-950/50">
+                <div className="text-3xl font-bold text-violet-300">{gameState.maxStreak}</div>
+                <div className="text-sm text-violet-200">Best Streak</div>
               </div>
-              <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-                <div className="text-3xl font-bold text-amber-600">{gameState.questionCount}</div>
-                <div className="text-sm text-amber-700">Correct</div>
+              <div className="rounded-xl p-4 border border-amber-700 bg-amber-950/50">
+                <div className="text-3xl font-bold text-amber-300">{gameState.questionCount}</div>
+                <div className="text-sm text-amber-200">Correct</div>
               </div>
             </div>
 
             <button
               onClick={handleRestart}
-              className="w-full py-4 px-6 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+              className="w-full py-4 px-6 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
             >
               <RotateCcw className="w-5 h-5" />
               Play Again
@@ -312,7 +312,7 @@ export default function SpanishNumbersGame({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col">
       {/* Points Toast */}
       {pointsToast && (
         <PointsToast
@@ -328,35 +328,35 @@ export default function SpanishNumbersGame({
       )}
 
       {/* Header */}
-      <div className="bg-white border-b-2 border-amber-200 px-4 py-3 flex items-center justify-between">
+      <div className="bg-slate-950/95 border-b border-slate-700 px-4 py-3 flex items-center justify-between">
         <BackButton onClick={() => window.history.back()} />
 
         <div className="flex items-center gap-4">
           {/* Timer (if timed mode) */}
           {timedMode && (
-            <div className="flex items-center gap-1 bg-amber-100 px-3 py-1.5 rounded-full">
-              <Clock className="w-4 h-4 text-amber-600" />
-              <span className="font-mono font-bold text-amber-800">{timeRemaining}s</span>
+            <div className="flex items-center gap-1 bg-amber-950/60 border border-amber-700 px-3 py-1.5 rounded-full">
+              <Clock className="w-4 h-4 text-amber-300" />
+              <span className="font-mono font-bold text-amber-200">{timeRemaining}s</span>
             </div>
           )}
 
           {/* Combo indicator */}
           {combo.currentCombo >= 3 && (
-            <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-100 to-red-100 ${comboColor}`}>
+            <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full border border-orange-700 bg-gradient-to-r from-orange-950/70 to-red-950/70 ${comboColor}`}>
               <Zap className="w-4 h-4" />
               <span className="font-bold">{comboLabel} x{comboMultiplier}</span>
             </div>
           )}
 
           {/* Score */}
-          <div className="bg-green-100 px-3 py-1.5 rounded-full">
-            <span className="font-bold text-green-800">{gameState.score} pts</span>
+          <div className="bg-emerald-950/60 border border-emerald-700 px-3 py-1.5 rounded-full">
+            <span className="font-bold text-emerald-200">{gameState.score} pts</span>
           </div>
         </div>
       </div>
 
       {/* Progress bar */}
-      <div className="h-2 bg-amber-100">
+      <div className="h-2 bg-slate-800">
         <div
           className="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-300"
           style={{ width: `${progress}%` }}
@@ -365,80 +365,82 @@ export default function SpanishNumbersGame({
 
       {/* Main game area */}
       <div className="flex-1 flex flex-col items-center justify-center p-4">
-        <div className="text-center mb-8">
-          <p className="text-amber-600 mb-2">Write this number in Spanish:</p>
-          <div className="text-8xl font-bold text-amber-800 mb-4 font-mono">
-            {gameState.currentNumber}
+        <div className="w-full max-w-2xl rounded-3xl border border-slate-700 bg-slate-900/92 shadow-2xl backdrop-blur-sm px-6 py-8">
+          <div className="text-center mb-8">
+            <p className="text-slate-300 font-medium mb-2">Write this number in Spanish:</p>
+            <div className="text-8xl font-bold text-amber-300 mb-4 font-mono">
+              {gameState.currentNumber}
+            </div>
+
+            {/* Stats row */}
+            <div className="flex items-center justify-center gap-6 text-sm">
+              <div className="text-amber-200">
+                <span className="font-bold text-amber-100">{gameState.questionsInRound}</span> / {range.questionsPerRound}
+              </div>
+              <div className="text-emerald-200">
+                Streak: <span className="font-bold text-emerald-100">{gameState.streak}</span>
+              </div>
+              <div className="text-blue-200">
+                Accuracy: <span className="font-bold text-blue-100">{accuracy}%</span>
+              </div>
+            </div>
           </div>
 
-          {/* Stats row */}
-          <div className="flex items-center justify-center gap-6 text-sm">
-            <div className="text-amber-600">
-              <span className="font-bold text-amber-800">{gameState.questionsInRound}</span> / {range.questionsPerRound}
-            </div>
-            <div className="text-green-600">
-              Streak: <span className="font-bold text-green-800">{gameState.streak}</span>
-            </div>
-            <div className="text-blue-600">
-              Accuracy: <span className="font-bold text-blue-800">{accuracy}%</span>
-            </div>
+          {/* Input area */}
+          <div className="w-full max-w-md mx-auto">
+            <input
+              ref={inputRef}
+              type="text"
+              value={userAnswer}
+              onChange={(e) => setUserAnswer(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type in Spanish..."
+              disabled={feedback === "correct"}
+              className={`w-full text-2xl p-4 rounded-2xl border-2 text-center font-semibold transition-all outline-none placeholder:text-slate-400
+                ${feedback === "correct"
+                  ? "border-emerald-500 bg-emerald-950/40 text-emerald-100"
+                  : feedback === "incorrect"
+                  ? "border-rose-500 bg-rose-950/40 text-rose-100"
+                  : "border-slate-500 bg-slate-900 text-slate-100 focus:border-amber-400 focus:ring-4 focus:ring-amber-500/25"
+                }
+              `}
+            />
+
+            {/* Feedback */}
+            {feedback === "correct" && (
+              <div className="mt-4 text-center animate-bounce">
+                <span className="text-4xl">✓</span>
+                <p className="text-emerald-300 font-bold">¡Correcto!</p>
+              </div>
+            )}
+
+            {feedback === "incorrect" && showAnswer && (
+              <div className="mt-4 text-center">
+                <p className="text-rose-300 font-medium mb-2">The correct answer was:</p>
+                <p className="text-2xl font-bold text-amber-200">
+                  {getSpanishNumber(gameState.currentNumber!)}
+                </p>
+                <p className="text-sm text-slate-400 mt-2">Press Enter to continue</p>
+              </div>
+            )}
+
+            {/* Submit button */}
+            {!feedback && (
+              <button
+                onClick={checkAnswer}
+                disabled={!userAnswer.trim()}
+                className="w-full mt-4 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed disabled:from-slate-700 disabled:to-slate-600 disabled:text-slate-300"
+              >
+                Check Answer
+              </button>
+            )}
           </div>
-        </div>
-
-        {/* Input area */}
-        <div className="w-full max-w-md">
-          <input
-            ref={inputRef}
-            type="text"
-            value={userAnswer}
-            onChange={(e) => setUserAnswer(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type in Spanish..."
-            disabled={feedback === "correct"}
-            className={`w-full text-2xl p-4 rounded-2xl border-3 text-center font-medium transition-all
-              ${feedback === "correct"
-                ? "border-green-400 bg-green-50 text-green-800"
-                : feedback === "incorrect"
-                ? "border-red-400 bg-red-50 text-red-800"
-                : "border-amber-300 bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-200"
-              }
-            `}
-          />
-
-          {/* Feedback */}
-          {feedback === "correct" && (
-            <div className="mt-4 text-center animate-bounce">
-              <span className="text-4xl">✓</span>
-              <p className="text-green-600 font-bold">¡Correcto!</p>
-            </div>
-          )}
-
-          {feedback === "incorrect" && showAnswer && (
-            <div className="mt-4 text-center">
-              <p className="text-red-600 font-medium mb-2">The correct answer was:</p>
-              <p className="text-2xl font-bold text-amber-800">
-                {getSpanishNumber(gameState.currentNumber!)}
-              </p>
-              <p className="text-sm text-gray-500 mt-2">Press Enter to continue</p>
-            </div>
-          )}
-
-          {/* Submit button */}
-          {!feedback && (
-            <button
-              onClick={checkAnswer}
-              disabled={!userAnswer.trim()}
-              className="w-full mt-4 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Check Answer
-            </button>
-          )}
         </div>
       </div>
 
       {/* Difficulty indicator */}
       <div className="text-center pb-4">
-        <span className="text-xs text-amber-500 uppercase tracking-wider">
+        <span className="text-xs text-amber-300 uppercase tracking-wider font-medium">
           {difficulty} mode • Numbers {range.label}
         </span>
       </div>

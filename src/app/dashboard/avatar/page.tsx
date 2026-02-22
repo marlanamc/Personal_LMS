@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { BackButton, BottomNav } from "@/components/ui";
 import AvatarSelector from "@/components/ui/AvatarSelector";
 import SelectedAvatarDisplay from "@/components/ui/SelectedAvatarDisplay";
-import { HomeIcon, BookOpenIcon, TrophyIcon, UserIcon } from "@/components/icons/Icons";
+import { HomeIcon, BookOpenIcon, UserIcon } from "@/components/icons/Icons";
 import { DEFAULT_AVATAR, DEFAULT_COLOR, AVATARS, COLORS } from "@/lib/avatar-constants";
 
 export default function AvatarPage() {
@@ -188,7 +188,6 @@ export default function AvatarPage() {
                     items={[
                         { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
                         { href: "/dashboard/activities", label: "Activities", icon: <BookOpenIcon /> },
-                        { href: "/grammar-map", label: "Map", icon: <TrophyIcon /> },
                         { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
                     ]}
                 />

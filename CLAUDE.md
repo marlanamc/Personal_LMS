@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Class Companion is an ESOL (English for Speakers of Other Languages) learning platform with gamification features. Built with Next.js 16 (App Router), TypeScript, Prisma, and NextAuth. The app uses PostgreSQL and includes a comprehensive points/achievements/leaderboard system to motivate students.
+Class Companion is a personal learning platform with gamification features. Built with Next.js 16 (App Router), TypeScript, Prisma, and NextAuth. The app uses PostgreSQL and includes a comprehensive points/achievements/leaderboard system to motivate students.
 
 ## Common Development Commands
 

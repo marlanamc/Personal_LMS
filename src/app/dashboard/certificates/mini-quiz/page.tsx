@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { resolveCanonicalGrammarActivityId } from "@/lib/grammar-activity-resolution";
 import { BackButton, BottomNav } from "@/components/ui";
 import { CertificateShowcase } from "@/components/ui/CertificateShowcase";
-import { HomeIcon, BookOpenIcon as BookIcon, TrophyIcon, UserIcon } from "@/components/icons/Icons";
+import { HomeIcon, BookOpenIcon as BookIcon, UserIcon } from "@/components/icons/Icons";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -91,11 +91,9 @@ export default async function MiniQuizCertificatePage({ searchParams }: Certific
     const guideTitle = cleanGuideTitle(resolvedTitle);
     const certificateScore = latestSubmission?.score ?? percentageFromQuery;
     const issuedAt = latestSubmission?.updatedAt ?? new Date();
-    const guideHref = slug
-        ? `/grammar-reader/${slug}${assignmentId ? `?assignment=${encodeURIComponent(assignmentId)}` : ""}`
-        : activityId
-            ? `/activity/${activityId}${assignmentId ? `?assignment=${encodeURIComponent(assignmentId)}` : ""}`
-            : "/dashboard/activities";
+    const guideHref = activityId
+        ? `/activity/${activityId}${assignmentId ? `?assignment=${encodeURIComponent(assignmentId)}` : ""}`
+        : "/dashboard/activities";
 
     const certificateCodeSeed = canonicalActivityId || slug || guideTitle || "grammar";
     const normalizedSeed = certificateCodeSeed.replace(/[^a-z0-9]/gi, "").toUpperCase().slice(0, 8) || "GRAMMAR";
@@ -126,7 +124,6 @@ export default async function MiniQuizCertificatePage({ searchParams }: Certific
                 items={[
                     { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
                     { href: "/dashboard/activities", label: "Activities", icon: <BookIcon /> },
-                    { href: "/grammar-map", label: "Map", icon: <TrophyIcon /> },
                     { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
                 ]}
             />

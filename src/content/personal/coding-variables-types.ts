@@ -57,19 +57,19 @@ export const codingVariablesTypesContent: InteractiveGuideContent = {
                 <p>JavaScript gives you three keywords to declare variables. Modern code prefers <strong>const</strong> and <strong>let</strong>.</p>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 0.75rem; color: white;">
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 0.75rem; color: white;">
                         <h4 style="margin-top: 0; font-size: 1.25rem;">⭐ const</h4>
                         <p style="margin: 0.5rem 0;"><strong>Can Reassign:</strong> ❌ No</p>
                         <p style="margin: 0.5rem 0;"><strong>Block Scope:</strong> ✅ Yes</p>
                         <p style="margin: 0.5rem 0; font-size: 0.9rem;">Use first! Prevents accidents</p>
                     </div>
-                    <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.5rem; border-radius: 0.75rem; color: white;">
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.5rem; border-radius: 0.75rem; color: white;">
                         <h4 style="margin-top: 0; font-size: 1.25rem;">🔄 let</h4>
                         <p style="margin: 0.5rem 0;"><strong>Can Reassign:</strong> ✅ Yes</p>
                         <p style="margin: 0.5rem 0;"><strong>Block Scope:</strong> ✅ Yes</p>
                         <p style="margin: 0.5rem 0; font-size: 0.9rem;">When you need to change values</p>
                     </div>
-                    <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1.5rem; border-radius: 0.75rem; color: #2b3a4a;">
+                    <div class="diagram-surface-light" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1.5rem; border-radius: 0.75rem; color: #2b3a4a;">
                         <h4 style="margin-top: 0; font-size: 1.25rem;">⚠️ var</h4>
                         <p style="margin: 0.5rem 0;"><strong>Can Reassign:</strong> ✅ Yes</p>
                         <p style="margin: 0.5rem 0;"><strong>Block Scope:</strong> ❌ No</p>
@@ -223,27 +223,27 @@ export const codingVariablesTypesContent: InteractiveGuideContent = {
                 <p>JavaScript has 7 primitive types and objects. Understanding which type you're using prevents bugs.</p>
 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1.5rem 0;">
-                    <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
                         <h4 style="margin-top: 0;">🔢 Numbers</h4>
                         <code style="display: block; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 0.25rem; margin: 0.5rem 0;">42, 3.14, Infinity, NaN</code>
                     </div>
-                    <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
                         <h4 style="margin-top: 0;">📝 Strings</h4>
                         <code style="display: block; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 0.25rem; margin: 0.5rem 0;">'hello', "world", \`template\`</code>
                     </div>
-                    <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1.25rem; border-radius: 0.5rem; color: #2b3a4a;">
+                    <div class="diagram-surface-light" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1.25rem; border-radius: 0.5rem; color: #2b3a4a;">
                         <h4 style="margin-top: 0;">✅ Booleans</h4>
                         <code style="display: block; background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 0.25rem; margin: 0.5rem 0;">true, false</code>
                     </div>
-                    <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 1.25rem; border-radius: 0.5rem; color: #2b3a4a;">
+                    <div class="diagram-surface-light" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 1.25rem; border-radius: 0.5rem; color: #2b3a4a;">
                         <h4 style="margin-top: 0;">🚫 null & undefined</h4>
                         <code style="display: block; background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 0.25rem; margin: 0.5rem 0;">null, undefined</code>
                     </div>
-                    <div style="background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
                         <h4 style="margin-top: 0;">🏷️ Symbols</h4>
                         <code style="display: block; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 0.25rem; margin: 0.5rem 0;">Symbol('id')</code>
                     </div>
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
                         <h4 style="margin-top: 0;">📦 Objects & Arrays</h4>
                         <code style="display: block; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 0.25rem; margin: 0.5rem 0;">{}, [], functions</code>
                     </div>
@@ -476,18 +476,18 @@ export const codingVariablesTypesContent: InteractiveGuideContent = {
                 <h3>JavaScript Converts Types (Sometimes Surprisingly!)</h3>
                 <p>JavaScript will try to convert types automatically in certain situations. This can help, but it can also cause bugs!</p>
 
-                <div style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1rem 0;">
+                <div class="diagram-surface-light" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1rem 0; color: #1f2937;">
                     <h4 style="margin-top: 0; color: #d97757;">⚠️ Type Coercion Examples</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div style="background: rgba(255,255,255,0.7); padding: 1rem; border-radius: 0.5rem;">
                             <h5 style="margin: 0 0 0.5rem 0; color: #d97757;">String + Number</h5>
-                            <code style="display: block; background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 0.25rem;">'5' + 3 = '53'</code>
-                            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem;">Result is STRING!</p>
+                            <code style="display: block; background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 0.25rem; color: #1f2937;">'5' + 3 = '53'</code>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #1f2937;">Result is STRING!</p>
                         </div>
                         <div style="background: rgba(255,255,255,0.7); padding: 1rem; border-radius: 0.5rem;">
                             <h5 style="margin: 0 0 0.5rem 0; color: #d97757;">Number - String</h5>
-                            <code style="display: block; background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 0.25rem;">'10' - 3 = 7</code>
-                            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem;">Result is NUMBER!</p>
+                            <code style="display: block; background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 0.25rem; color: #1f2937;">'10' - 3 = 7</code>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #1f2937;">Result is NUMBER!</p>
                         </div>
                     </div>
                 </div>
@@ -766,6 +766,72 @@ export const codingVariablesTypesContent: InteractiveGuideContent = {
             correctAnswer: "b",
             explanation:
                 "null is what you set explicitly. undefined is what JavaScript assigns when you don't give a value. Similar but different!",
+        },
+        {
+            id: "q5",
+            question: "Which is the best first step when code does not work as expected?",
+            options: [
+                { value: "a", label: "Guess and change many things" },
+                { value: "b", label: "Reproduce the issue and inspect inputs/output" },
+                { value: "c", label: "Delete the whole function" },
+            ],
+            correctAnswer: "b",
+            explanation: "A reliable debugging flow starts by reproducing the problem and checking what data is actually flowing through the code.",
+        },
+        {
+            id: "q6",
+            question: "Why are clear variable and function names important?",
+            options: [
+                { value: "a", label: "They make code easier to read and maintain" },
+                { value: "b", label: "They make JavaScript run faster automatically" },
+                { value: "c", label: "They remove the need for testing" },
+            ],
+            correctAnswer: "a",
+            explanation: "Readable naming improves collaboration, reduces mistakes, and makes future edits safer.",
+        },
+        {
+            id: "q7",
+            question: "What should you do before choosing a complex solution?",
+            options: [
+                { value: "a", label: "Start with the simplest working approach" },
+                { value: "b", label: "Use advanced patterns immediately" },
+                { value: "c", label: "Copy code without understanding it" },
+            ],
+            correctAnswer: "a",
+            explanation: "Simple solutions are easier to test, debug, and extend. Complexity should be added only when necessary.",
+        },
+        {
+            id: "q8",
+            question: "Which habit best prevents regressions after code changes?",
+            options: [
+                { value: "a", label: "Run relevant tests or verify key scenarios" },
+                { value: "b", label: "Skip validation to save time" },
+                { value: "c", label: "Only check visual output" },
+            ],
+            correctAnswer: "a",
+            explanation: "Quick validation of critical paths catches breakages early and keeps the codebase stable.",
+        },
+        {
+            id: "q9",
+            question: "When using async code, what is a common reliability practice?",
+            options: [
+                { value: "a", label: "Handle success and failure paths explicitly" },
+                { value: "b", label: "Ignore errors and continue" },
+                { value: "c", label: "Assume all network calls always succeed" },
+            ],
+            correctAnswer: "a",
+            explanation: "Async operations can fail; handling errors explicitly prevents silent failures and confusing behavior.",
+        },
+        {
+            id: "q10",
+            question: "What makes a mini quiz comprehensive for a coding guide?",
+            options: [
+                { value: "a", label: "It checks only definitions" },
+                { value: "b", label: "It checks concepts, usage, and common mistakes" },
+                { value: "c", label: "It contains trick questions only" },
+            ],
+            correctAnswer: "b",
+            explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
         },
     ],
 };

@@ -7,6 +7,19 @@ import { VOCAB_WEEKLY_UNITS } from "@/data/weekly-vocab-units";
 import { stripVocabTypeSuffix, getVocabActivityType, VOCAB_CHIP_CONFIG } from '@/lib/vocab-display';
 import { resolveActivityGameUi, getActivityPoints, type GameUi } from '@/lib/gamification/activity-points';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
+import {
+    SPANISH_GUIDE_IDS,
+    SPANISH_VOCAB_ACTIVITY_IDS,
+    SPANISH_VERB_ACTIVITY_IDS,
+    SPANISH_NUMBERS_ACTIVITY_IDS,
+} from '@/content/spanish/registry';
+import {
+    CODING_FOUNDATIONS_GUIDE_IDS,
+    CODING_FUNCTIONS_CONTROL_FLOW_GUIDE_IDS,
+    CODING_INTERMEDIATE_GUIDE_IDS,
+    CODING_ADVANCED_GUIDE_IDS,
+    CODING_GAME_IDS,
+} from '@/content/coding/registry';
 
 interface Activity {
     id: string;
@@ -602,6 +615,7 @@ const isActivityCompleted = (
     completedActivityIds: Set<string>,
     progressMap?: Record<string, { progress: number; categoryData?: string }>
 ) => {
+    if (activity.type === "game") return false;
     if (isPronunciationPracticeActivity(activity)) return false;
     const progressValue = getDisplayProgress(activity, progressMap);
     return completedActivityIds.has(activity.id) || progressValue >= 100;
@@ -1573,6 +1587,14 @@ const ActivityCard = React.memo(function ActivityCard({
                                     >
                                         {VOCAB_CHIP_CONFIG[vocabType].icon} {VOCAB_CHIP_CONFIG[vocabType].label}
                                     </span>
+                                ) : activity.type === 'guide' ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-md border bg-emerald-50 text-emerald-700 border-emerald-200">
+                                        📖 Guide
+                                    </span>
+                                ) : activity.type === 'game' ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-md border bg-violet-50 text-violet-700 border-violet-200">
+                                        🎮 Game
+                                    </span>
                                 ) : (
                                     <span className="px-2 py-0.5 bg-bg-tertiary/80 text-text-muted font-semibold rounded-full text-[10px] uppercase tracking-wide">
                                         {activity.type}
@@ -1586,7 +1608,7 @@ const ActivityCard = React.memo(function ActivityCard({
                             )}
                         </div>
                         {progressValue > 0 && !isCompleted && (
-                            <span className="ml-auto shrink-0 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold text-[11px]">
+                            <span className="ml-auto shrink-0 mr-8 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold text-[11px]">
                                 {progressChipLabel}
                             </span>
                         )}
@@ -1918,13 +1940,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                     isSpanishActivity(a) &&
                                     a.type === 'guide'
                             ),
-                            [
-                                'spanish-refresher',
-                                'spanish-present-tense-guide',
-                                'spanish-ser-vs-estar-guide',
-                                'spanish-adjective-agreement-guide',
-                                'spanish-preterite-tense-guide'
-                            ]
+                            [...SPANISH_GUIDE_IDS]
                         )
                     },
                     {
@@ -1936,16 +1952,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                     isSpanishActivity(a) &&
                                     (a.id?.includes('vocab') || a.id?.includes('flashcard'))
                             ),
-                            [
-                                'spanish-vocab-greetings',
-                                'spanish-vocab-numbers',
-                                'spanish-vocab-colors',
-                                'spanish-vocab-family',
-                                'spanish-vocab-verbs',
-                                'spanish-common-verbs-flashcards',
-                                'spanish-numbers-flashcards',
-                                'spanish-adjectives-flashcards',
-                            ]
+                            [...SPANISH_VOCAB_ACTIVITY_IDS]
                         )
                     },
                     {
@@ -1957,16 +1964,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                     isSpanishActivity(a) &&
                                     (a.id?.includes('verb-game') || a.id?.includes('verb-race') || a.id?.includes('verb-conjugation') || a.id?.includes('ser-estar'))
                             ),
-                            [
-                                'spanish-verb-game-present-ar',
-                                'spanish-verb-game-present-er-ir',
-                                'spanish-verb-game-present-irregular',
-                                'spanish-verb-game-preterite',
-                                'spanish-verb-game-mixed',
-                                'spanish-verb-race',
-                                'spanish-verb-conjugation-matching',
-                                'spanish-ser-estar-fill-blank',
-                            ]
+                            [...SPANISH_VERB_ACTIVITY_IDS]
                         )
                     },
                     {
@@ -1978,11 +1976,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                     isSpanishActivity(a) &&
                                     a.id?.includes('numbers-game')
                             ),
-                            [
-                                'spanish-numbers-game-easy',
-                                'spanish-numbers-game-medium',
-                                'spanish-numbers-game-timed',
-                            ]
+                            [...SPANISH_NUMBERS_ACTIVITY_IDS]
                         )
                     }
                 ],
@@ -1993,51 +1987,39 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                 color: '#0ea5e9', // sky blue
                 subCategories: [
                     {
-                        name: 'Basics',
+                        name: 'Foundations',
                         activities: sortBySuggestedOrder(
                             activities.filter(
                                 (a: Activity) =>
                                     isInPersonalTrackCategory(a, 'coding') &&
                                     isCodingActivity(a) &&
-                                    (a.id === 'coding-js-ts' || a.id === 'coding-variables-types')
+                                    [...CODING_FOUNDATIONS_GUIDE_IDS].includes(a.id as typeof CODING_FOUNDATIONS_GUIDE_IDS[number])
                             ),
-                            ['coding-js-ts', 'coding-variables-types']
+                            [...CODING_FOUNDATIONS_GUIDE_IDS]
                         )
                     },
                     {
-                        name: 'Functions',
+                        name: 'Functions & Control Flow',
                         activities: sortBySuggestedOrder(
                             activities.filter(
                                 (a: Activity) =>
                                     isInPersonalTrackCategory(a, 'coding') &&
                                     isCodingActivity(a) &&
-                                    a.id === 'coding-functions-parameters'
+                                    [...CODING_FUNCTIONS_CONTROL_FLOW_GUIDE_IDS].includes(a.id as typeof CODING_FUNCTIONS_CONTROL_FLOW_GUIDE_IDS[number])
                             ),
-                            ['coding-functions-parameters']
+                            [...CODING_FUNCTIONS_CONTROL_FLOW_GUIDE_IDS]
                         )
                     },
                     {
-                        name: 'Control Flow',
+                        name: 'Intermediate',
                         activities: sortBySuggestedOrder(
                             activities.filter(
                                 (a: Activity) =>
                                     isInPersonalTrackCategory(a, 'coding') &&
                                     isCodingActivity(a) &&
-                                    a.id === 'coding-loops-control-flow'
+                                    [...CODING_INTERMEDIATE_GUIDE_IDS].includes(a.id as typeof CODING_INTERMEDIATE_GUIDE_IDS[number])
                             ),
-                            ['coding-loops-control-flow']
-                        )
-                    },
-                    {
-                        name: 'Data Structures',
-                        activities: sortBySuggestedOrder(
-                            activities.filter(
-                                (a: Activity) =>
-                                    isInPersonalTrackCategory(a, 'coding') &&
-                                    isCodingActivity(a) &&
-                                    a.id === 'coding-arrays-objects'
-                            ),
-                            ['coding-arrays-objects']
+                            [...CODING_INTERMEDIATE_GUIDE_IDS]
                         )
                     },
                     {
@@ -2047,9 +2029,9 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                 (a: Activity) =>
                                     isInPersonalTrackCategory(a, 'coding') &&
                                     isCodingActivity(a) &&
-                                    a.id === 'coding-async-promises'
+                                    [...CODING_ADVANCED_GUIDE_IDS].includes(a.id as typeof CODING_ADVANCED_GUIDE_IDS[number])
                             ),
-                            ['coding-async-promises']
+                            [...CODING_ADVANCED_GUIDE_IDS]
                         )
                     },
                     {
@@ -2058,13 +2040,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                             activities.filter(
                                 (a: Activity) => isTrackGameActivity(a) && isCodingTrackGame(a)
                             ),
-                            [
-                                'coding-concepts-flashcards',
-                                'coding-operators-flashcards',
-                                'coding-keywords-matching',
-                                'coding-array-methods-matching',
-                                'coding-syntax-fill-blank',
-                            ]
+                            [...CODING_GAME_IDS]
                         )
                     }
                 ],
@@ -2085,16 +2061,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                         (a.id?.includes('vocab') || a.id?.includes('flashcard'))
                                 )
                                 .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
-                            [
-                                'spanish-vocab-greetings',
-                                'spanish-vocab-numbers',
-                                'spanish-vocab-colors',
-                                'spanish-vocab-family',
-                                'spanish-vocab-verbs',
-                                'spanish-common-verbs-flashcards',
-                                'spanish-numbers-flashcards',
-                                'spanish-adjectives-flashcards',
-                            ]
+                            [...SPANISH_VOCAB_ACTIVITY_IDS]
                         )
                     },
                     {
@@ -2108,16 +2075,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                         (a.id?.includes('verb-game') || a.id?.includes('verb-race') || a.id?.includes('verb-conjugation') || a.id?.includes('ser-estar'))
                                 )
                                 .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
-                            [
-                                'spanish-verb-game-present-ar',
-                                'spanish-verb-game-present-er-ir',
-                                'spanish-verb-game-present-irregular',
-                                'spanish-verb-game-preterite',
-                                'spanish-verb-game-mixed',
-                                'spanish-verb-race',
-                                'spanish-verb-conjugation-matching',
-                                'spanish-ser-estar-fill-blank',
-                            ]
+                            [...SPANISH_VERB_ACTIVITY_IDS]
                         )
                     },
                     {
@@ -2131,11 +2089,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                         a.id?.includes('numbers-game')
                                 )
                                 .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
-                            [
-                                'spanish-numbers-game-easy',
-                                'spanish-numbers-game-medium',
-                                'spanish-numbers-game-timed',
-                            ]
+                            [...SPANISH_NUMBERS_ACTIVITY_IDS]
                         )
                     },
                     {
@@ -2144,13 +2098,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                             activities
                                 .filter((a: Activity) => isTrackGameActivity(a) && isCodingTrackGame(a))
                                 .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
-                            [
-                                'coding-concepts-flashcards',
-                                'coding-operators-flashcards',
-                                'coding-keywords-matching',
-                                'coding-array-methods-matching',
-                                'coding-syntax-fill-blank',
-                            ]
+                            [...CODING_GAME_IDS]
                         )
                     }
                 ],
@@ -2355,7 +2303,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                     </div>
                                 )}
                                 <div className={`space-y-2.5 ${filterCategory === 'games' ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 space-y-0' : ''}`}>
-                                    {sortedActivities.map(activity => renderActivityCard(activity, accentColor, true, section.label))}
+                                    {sortedActivities.map(activity => renderActivityCard(activity, accentColor, false, section.label))}
                                 </div>
                             </div>
                         );

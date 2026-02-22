@@ -136,6 +136,15 @@ npx prisma migrate dev --name migration_name
 npm run db:seed
 ```
 
+### Spanish Content Authoring
+
+Use the Spanish content system guide for a clear add-content workflow:
+
+- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/SPANISH_CONTENT_SYSTEM.md`
+- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/CODING_CONTENT_SYSTEM.md`
+- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/CONTENT_CATEGORY_PLAYBOOK.md`
+- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/GUIDE_CREATION_README.md` (required mini quiz standards for grammar and coding guides)
+
 ### Prisma Studio (Database GUI)
 ```bash
 npx prisma studio

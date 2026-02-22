@@ -3,14 +3,12 @@ import { authOptions } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Script from "next/script";
+import Link from "next/link";
 import { BackButton } from "@/components/ui/BackButton";
 import { type ActivityContent, isInteractiveGuideContent, isLegacyGuideContent, isVocabularyContent, parseActivityContent } from "@/types/activity";
 import ActivityRenderer from "@/components/ActivityRenderer";
 import { ActivityProgressBadge } from "@/components/ActivityProgressBadge";
 import { CategoryProgressDisplay } from "@/components/CategoryProgressDisplay";
-import { GrammarReader } from "@/components/grammar-reader/GrammarReader";
-import { completionKeyFromActivityTitle } from "@/utils/completionKey";
-import { grammarTopics } from "@/data/grammar-map";
 import { numbersGameCategoryNames } from "@/data/numbersGameCategories";
 import { resolveActivityGameUi } from "@/lib/gamification/activity-points";
 
@@ -60,23 +58,6 @@ export default async function ActivityPage({ params, searchParams }: Props) {
         } catch {
             // If content is malformed, deny access
             redirect("/dashboard");
-        }
-    }
-
-    // For grammar guides, prefer the dedicated `/grammar-reader/:slug` routes (source-of-truth content).
-    // This avoids stale DB-stored JSON when the guide content is updated in code.
-    if (activity.type === "guide" && activity.category === "grammar") {
-        const slug = completionKeyFromActivityTitle(activity.title);
-        const known = new Set([
-            ...grammarTopics.map((t) => t.id),
-            "present-perfect-family",
-            "past-perfect-family",
-            "future-perfect-family",
-        ]);
-        if (known.has(slug)) {
-            const qs = new URLSearchParams();
-            if (assignmentId) qs.set("assignment", assignmentId);
-            redirect(`/grammar-reader/${slug}${qs.toString() ? `?${qs.toString()}` : ""}`);
         }
     }
 
@@ -204,24 +185,35 @@ export default async function ActivityPage({ params, searchParams }: Props) {
     const isInteractiveGuide =
         parsedContent && (isInteractiveGuideContent(parsedContent) || isLegacyGuideContent(parsedContent));
     const shouldShowHeaderProgressBadge = activity.type !== "vocabulary";
+    const categoryRaw = (activity.category || "").toLowerCase();
+    const titleLower = (activity.title || "").toLowerCase();
+    const idLower = (activity.id || "").toLowerCase();
+    const isCodingLike =
+        categoryRaw === "coding" ||
+        idLower.startsWith("coding-") ||
+        titleLower.includes("coding") ||
+        titleLower.includes("javascript") ||
+        titleLower.includes("typescript") ||
+        titleLower.includes("js/ts");
+    const isSpanishLike =
+        categoryRaw === "spanish" ||
+        idLower.startsWith("spanish-") ||
+        titleLower.includes("spanish");
+    const activityGameUi = activity.type === "game" ? resolveActivityGameUi(activity) : null;
+    const isMatchingGame = activity.type === "game" && activityGameUi === "matching";
 
-    // Interactive guides (grammar + personal) should use the dedicated full-screen GrammarReader.
-    // This avoids nesting guide UIs inside the activity shell, which causes mobile scroll/tap issues.
-    if (
-        (activity.category === "grammar" || activity.category === "personal") &&
-        parsedContent &&
-        isInteractiveGuideContent(parsedContent)
-    ) {
-        return (
-            <div className="min-h-screen bg-bg">
-                <GrammarReader
-                    content={parsedContent}
-                    completionKey={completionKeyFromActivityTitle(activity.title)}
-                    activityId={id}
-                />
-            </div>
-        );
-    }
+    const categoryCrumb = (() => {
+        if (isCodingLike) return { label: "Coding", href: "/dashboard/activities?category=coding" };
+        if (isSpanishLike) return { label: "Spanish", href: "/dashboard/activities?category=spanish" };
+        if (categoryRaw === "grammar") return { label: "Grammar", href: "/dashboard/activities?category=grammar" };
+        if (categoryRaw === "vocab" || categoryRaw === "vocabulary") {
+            return { label: "Vocabulary", href: "/dashboard/activities?category=vocabulary" };
+        }
+        if (categoryRaw === "quiz" || categoryRaw === "quizzes" || activity.type === "quiz") {
+            return { label: "Quizzes", href: "/dashboard/activities?category=quizzes" };
+        }
+        return null;
+    })();
 
     // Vocabulary activities: full-screen only when in activity mode (?ui=xxx)
     // The hub/menu page keeps the standard header with back button
@@ -240,39 +232,61 @@ export default async function ActivityPage({ params, searchParams }: Props) {
     // Full screen layout for interactive guides
     if (isInteractiveGuide) {
         return (
-            <div className="fixed inset-0 bg-gray-50 flex flex-col overflow-hidden">
+            <div className="fixed inset-0 bg-[#0a1738] flex flex-col overflow-hidden">
                 {/* Minimal Header */}
-                <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 z-10 flex-shrink-0">
+                <header className="bg-[#0b1230]/95 border-b border-[#243765]/80 px-4 sm:px-6 py-3 sm:py-4 z-10 flex-shrink-0 backdrop-blur-md">
                     {/* Mobile Layout: Stacked */}
                     <div className="flex flex-col gap-2 sm:hidden">
                         <div className="flex items-center justify-between gap-2">
                             <BackButton href="/dashboard" className="flex-shrink-0" hideOnMobile />
-                            <h1 className="text-lg font-bold text-gray-900 truncate flex-1 min-w-0 text-center px-2">
+                            <h1 className="text-lg font-bold text-[#eef3ff] truncate flex-1 min-w-0 text-center px-2">
                                 {activity.title}
                             </h1>
                             {shouldShowHeaderProgressBadge && (
-                                <ActivityProgressBadge activityId={id} initialProgress={progressValue} userRole={userRole} />
+                                <ActivityProgressBadge
+                                    activityId={id}
+                                    assignmentId={assignmentId ?? null}
+                                    initialProgress={progressValue}
+                                    userRole={userRole}
+                                />
                             )}
                         </div>
-                        {activity.description && (
-                            <p className="text-xs text-gray-600 line-clamp-1">{activity.description}</p>
-                        )}
                     </div>
 
                     {/* Desktop Layout: Horizontal */}
                     <div className="hidden sm:flex items-center justify-between">
                         <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-4 mb-1">
-                                <BackButton href="/dashboard" variant="home" />
-                                <h1 className="text-xl font-bold text-gray-900 truncate">{activity.title}</h1>
-                            </div>
-                            {activity.description && (
-                                <p className="text-sm text-gray-600 ml-0 mt-1 line-clamp-2">{activity.description}</p>
-                            )}
+                            <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-2 text-sm text-[#9fb0d8]">
+                                {isCodingLike && (
+                                    <>
+                                        <Link href="/dashboard" className="hover:text-[#d6e3ff] transition-colors">Home</Link>
+                                        <span aria-hidden>/</span>
+                                    </>
+                                )}
+                                <Link href="/dashboard/activities" className="hover:text-[#d6e3ff] transition-colors">Activities</Link>
+                                {categoryCrumb && (
+                                    <>
+                                        <span aria-hidden>/</span>
+                                        <Link href={categoryCrumb.href} className="hover:text-[#d6e3ff] transition-colors">
+                                            {categoryCrumb.label}
+                                        </Link>
+                                    </>
+                                )}
+                            </nav>
+                            <h1 className="text-xl font-bold text-[#eef3ff] truncate">{activity.title}</h1>
                         </div>
-                        <div className="ml-4 flex-shrink-0">
+                        <div className="ml-4 flex-shrink-0 flex items-center gap-2">
+                            <div
+                                id="interactive-guide-header-controls"
+                                className="hidden sm:flex items-center gap-2"
+                            />
                             {shouldShowHeaderProgressBadge && (
-                                <ActivityProgressBadge activityId={id} initialProgress={progressValue} userRole={userRole} />
+                                <ActivityProgressBadge
+                                    activityId={id}
+                                    assignmentId={assignmentId ?? null}
+                                    initialProgress={progressValue}
+                                    userRole={userRole}
+                                />
                             )}
                         </div>
                     </div>
@@ -295,7 +309,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
 
     // Flashcard games render as fixed/fullscreen UIs, so avoid nesting them in the
     // standard activity shell to prevent overlapping duplicate-looking headers.
-    if (activity.type === "game" && resolveActivityGameUi(activity) === "flashcards") {
+    if (activity.type === "game" && activityGameUi === "flashcards") {
         return (
             <div className="min-h-screen bg-bg">
                 <ActivityRenderer
@@ -303,6 +317,79 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                     assignmentId={assignmentId}
                     existingSubmission={submission}
                 />
+            </div>
+        );
+    }
+
+    if (isMatchingGame) {
+        return (
+            <div className="min-h-screen bg-[#0a1738]">
+                <header className="bg-[#0b1230]/95 border-b border-[#243765]/80">
+                    <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                        {/* Mobile Layout: Stacked */}
+                        <div className="flex flex-col gap-2 sm:hidden">
+                            <div className="flex items-center justify-between gap-2">
+                                <BackButton href="/dashboard" className="flex-shrink-0" hideOnMobile />
+                                {shouldShowHeaderProgressBadge && (
+                                    <ActivityProgressBadge
+                                        activityId={id}
+                                        assignmentId={assignmentId ?? null}
+                                        initialProgress={progressValue}
+                                        userRole={userRole}
+                                    />
+                                )}
+                            </div>
+                            <h1 className="text-base sm:text-lg font-bold text-[#eef3ff] line-clamp-2 leading-snug">
+                                {activity.title}
+                            </h1>
+                        </div>
+
+                        {/* Desktop Layout: Horizontal */}
+                        <div className="hidden sm:flex items-center justify-between gap-6">
+                            <div className="min-w-0">
+                                <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-2 text-sm text-[#9fb0d8]">
+                                    {isCodingLike && (
+                                        <>
+                                            <Link href="/dashboard" className="hover:text-[#d6e3ff] transition-colors">Home</Link>
+                                            <span aria-hidden>/</span>
+                                        </>
+                                    )}
+                                    <Link href="/dashboard/activities" className="hover:text-[#d6e3ff] transition-colors">Activities</Link>
+                                    {categoryCrumb && (
+                                        <>
+                                            <span aria-hidden>/</span>
+                                            <Link href={categoryCrumb.href} className="hover:text-[#d6e3ff] transition-colors">
+                                                {categoryCrumb.label}
+                                            </Link>
+                                        </>
+                                    )}
+                                </nav>
+                                <h1 className="text-2xl font-bold text-[#eef3ff] truncate">
+                                    {activity.title}
+                                </h1>
+                            </div>
+
+                            {shouldShowHeaderProgressBadge && (
+                                <ActivityProgressBadge
+                                    activityId={id}
+                                    assignmentId={assignmentId ?? null}
+                                    initialProgress={progressValue}
+                                    userRole={userRole}
+                                />
+                            )}
+                        </div>
+                    </div>
+                </header>
+
+                <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                    <div className="px-4 py-6 sm:px-0">
+                        <ActivityRenderer
+                            activity={{ ...activity, ui: ui || activity.ui }}
+                            assignmentId={assignmentId}
+                            existingSubmission={submission}
+                        />
+                    </div>
+                </main>
             </div>
         );
     }
@@ -317,7 +404,12 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                         <div className="flex items-center justify-between gap-2">
                             <BackButton href="/dashboard" className="flex-shrink-0" hideOnMobile />
                             {shouldShowHeaderProgressBadge && (
-                                <ActivityProgressBadge activityId={id} initialProgress={progressValue} userRole={userRole} />
+                                <ActivityProgressBadge
+                                    activityId={id}
+                                    assignmentId={assignmentId ?? null}
+                                    initialProgress={progressValue}
+                                    userRole={userRole}
+                                />
                             )}
                         </div>
                         <h1 className="text-base sm:text-lg font-bold text-gray-900 line-clamp-2 leading-snug">
@@ -326,17 +418,38 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                     </div>
 
                     {/* Desktop Layout: Horizontal */}
-                    <div className="hidden sm:flex items-center justify-between">
-                        <BackButton href="/dashboard" variant="home" />
-
-                        {/* Centered Title */}
-                        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-2xl font-bold text-gray-900">
-                            {activity.title}
-                        </h1>
+                    <div className="hidden sm:flex items-center justify-between gap-6">
+                        <div className="min-w-0">
+                            <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-2 text-sm text-gray-500">
+                                {isCodingLike && (
+                                    <>
+                                        <Link href="/dashboard" className="hover:text-gray-700 transition-colors">Home</Link>
+                                        <span aria-hidden>/</span>
+                                    </>
+                                )}
+                                <Link href="/dashboard/activities" className="hover:text-gray-700 transition-colors">Activities</Link>
+                                {categoryCrumb && (
+                                    <>
+                                        <span aria-hidden>/</span>
+                                        <Link href={categoryCrumb.href} className="hover:text-gray-700 transition-colors">
+                                            {categoryCrumb.label}
+                                        </Link>
+                                    </>
+                                )}
+                            </nav>
+                            <h1 className="text-2xl font-bold text-gray-900 truncate">
+                                {activity.title}
+                            </h1>
+                        </div>
 
                         {/* Progress Badge */}
                         {shouldShowHeaderProgressBadge && (
-                            <ActivityProgressBadge activityId={id} initialProgress={progressValue} userRole={userRole} />
+                            <ActivityProgressBadge
+                                activityId={id}
+                                assignmentId={assignmentId ?? null}
+                                initialProgress={progressValue}
+                                userRole={userRole}
+                            />
                         )}
                     </div>
                 </div>

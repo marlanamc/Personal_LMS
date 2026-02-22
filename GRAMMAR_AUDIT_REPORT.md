@@ -199,7 +199,7 @@ These activities don't have dates in filenames. Ensure teachers assign them AFTE
 6. `/src/content/speaking/daily-warmups/summer-next-steps-goals-2026-06-11.ts` - Lines 11, 32-33
 
 ### Priority 3 (If adding Future Perfect to schedule):
-1. `/src/content/teacher/esol-3-teaching-schedule-jan-jun-2026.md` - Add Future Perfect lesson
+1. `/src/content/teacher/teaching-schedule-jan-jun-2026.md` - Add Future Perfect lesson
 2. Create `/src/content/grammar/future-perfect.ts` - New grammar guide
 
 ---

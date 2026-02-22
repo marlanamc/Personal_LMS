@@ -57,17 +57,17 @@ export const codingFunctionsParametersContent: InteractiveGuideContent = {
                 <p>JavaScript has different syntax for declaring functions. All work, but some are better than others for modern code.</p>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
                         <h4 style="margin-top: 0; font-size: 1.1rem;">1️⃣ Declaration</h4>
                         <code style="display: block; background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 0.25rem; font-size: 0.85rem; margin: 0.5rem 0;">function add(a,b) {}</code>
                         <p style="margin: 0.5rem 0; font-size: 0.85rem;">Traditional &amp; Hoisted</p>
                     </div>
-                    <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
                         <h4 style="margin-top: 0; font-size: 1.1rem;">2️⃣ Expression</h4>
                         <code style="display: block; background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 0.25rem; font-size: 0.85rem; margin: 0.5rem 0;">const add = fn(){}</code>
                         <p style="margin: 0.5rem 0; font-size: 0.85rem;">Flexible &amp; Versatile</p>
                     </div>
-                    <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
                         <h4 style="margin-top: 0; font-size: 1.1rem;">3️⃣ Arrow</h4>
                         <code style="display: block; background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 0.25rem; font-size: 0.85rem; margin: 0.5rem 0;">const add = (a,b) =&gt; {}</code>
                         <p style="margin: 0.5rem 0; font-size: 0.85rem;">Modern &amp; Concise ⭐</p>
@@ -197,13 +197,13 @@ export const codingFunctionsParametersContent: InteractiveGuideContent = {
                 <h3>Parameters vs Arguments</h3>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;">
-                    <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 1.5rem; border-radius: 0.75rem;">
+                    <div class="diagram-surface-light" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 1.5rem; border-radius: 0.75rem; color: #1f2937;">
                         <h4 style="margin-top: 0; color: #d97757; font-size: 1.1rem;">📋 Parameters</h4>
                         <p style="margin: 0; font-size: 0.95rem;">The <strong>placeholders</strong> in the function <strong>definition</strong></p>
                         <code style="display: block; background: rgba(0,0,0,0.1); padding: 0.75rem; border-radius: 0.25rem; margin-top: 0.75rem; font-size: 0.9rem;">function greet(<span style="background: #ffeb3b; padding: 0.2rem 0.4rem; border-radius: 0.2rem;">name</span>) {}</code>
                         <p style="margin: 0.75rem 0 0 0; font-size: 0.85rem; color: #555;"><code>name</code> is the parameter</p>
                     </div>
-                    <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.5rem; border-radius: 0.75rem;">
+                    <div class="diagram-surface-light" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.5rem; border-radius: 0.75rem; color: #1f2937;">
                         <h4 style="margin-top: 0; color: #2b3a4a; font-size: 1.1rem;">🎯 Arguments</h4>
                         <p style="margin: 0; font-size: 0.95rem;">The actual <strong>values</strong> you pass when you <strong>call</strong> the function</p>
                         <code style="display: block; background: rgba(0,0,0,0.1); padding: 0.75rem; border-radius: 0.25rem; margin-top: 0.75rem; font-size: 0.9rem;">greet(<span style="background: #ffeb3b; padding: 0.2rem 0.4rem; border-radius: 0.2rem;">'Alice'</span>)</code>
@@ -694,6 +694,72 @@ const addToTotal = (x) => {
             ],
             correctAnswer: "a",
             explanation: "Functions can access global variables. But variables declared inside functions are local.",
+        },
+        {
+            id: "q5",
+            question: "Which is the best first step when code does not work as expected?",
+            options: [
+                { value: "a", label: "Guess and change many things" },
+                { value: "b", label: "Reproduce the issue and inspect inputs/output" },
+                { value: "c", label: "Delete the whole function" },
+            ],
+            correctAnswer: "b",
+            explanation: "A reliable debugging flow starts by reproducing the problem and checking what data is actually flowing through the code.",
+        },
+        {
+            id: "q6",
+            question: "Why are clear variable and function names important?",
+            options: [
+                { value: "a", label: "They make code easier to read and maintain" },
+                { value: "b", label: "They make JavaScript run faster automatically" },
+                { value: "c", label: "They remove the need for testing" },
+            ],
+            correctAnswer: "a",
+            explanation: "Readable naming improves collaboration, reduces mistakes, and makes future edits safer.",
+        },
+        {
+            id: "q7",
+            question: "What should you do before choosing a complex solution?",
+            options: [
+                { value: "a", label: "Start with the simplest working approach" },
+                { value: "b", label: "Use advanced patterns immediately" },
+                { value: "c", label: "Copy code without understanding it" },
+            ],
+            correctAnswer: "a",
+            explanation: "Simple solutions are easier to test, debug, and extend. Complexity should be added only when necessary.",
+        },
+        {
+            id: "q8",
+            question: "Which habit best prevents regressions after code changes?",
+            options: [
+                { value: "a", label: "Run relevant tests or verify key scenarios" },
+                { value: "b", label: "Skip validation to save time" },
+                { value: "c", label: "Only check visual output" },
+            ],
+            correctAnswer: "a",
+            explanation: "Quick validation of critical paths catches breakages early and keeps the codebase stable.",
+        },
+        {
+            id: "q9",
+            question: "When using async code, what is a common reliability practice?",
+            options: [
+                { value: "a", label: "Handle success and failure paths explicitly" },
+                { value: "b", label: "Ignore errors and continue" },
+                { value: "c", label: "Assume all network calls always succeed" },
+            ],
+            correctAnswer: "a",
+            explanation: "Async operations can fail; handling errors explicitly prevents silent failures and confusing behavior.",
+        },
+        {
+            id: "q10",
+            question: "What makes a mini quiz comprehensive for a coding guide?",
+            options: [
+                { value: "a", label: "It checks only definitions" },
+                { value: "b", label: "It checks concepts, usage, and common mistakes" },
+                { value: "c", label: "It contains trick questions only" },
+            ],
+            correctAnswer: "b",
+            explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
         },
     ],
 };

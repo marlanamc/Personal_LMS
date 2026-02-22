@@ -29,6 +29,7 @@ interface FeaturedAssignment {
     activity: {
         title: string;
         description: string | null;
+        type: string;
         category?: string | null;
     };
     submissions: Array<{
@@ -221,9 +222,8 @@ export const TodaysAssignments: React.FC<Props> = ({
         return categoryStyles[categoryKey] || categoryStyles.default;
     };
 
-    const isGameCategory = (category?: string | null): boolean => {
-        const key = (category || '').toLowerCase();
-        return !['quiz', 'quizzes', 'grammar', 'vocab', 'vocabulary', 'personal'].includes(key);
+    const isGameActivity = (assignment: FeaturedAssignment): boolean => {
+        return assignment.activity.type === "game";
     };
 
     const withHexAlpha = (hex: string, alphaHex: string): string => {
@@ -235,7 +235,7 @@ export const TodaysAssignments: React.FC<Props> = ({
             const submission = assignment.submissions[0];
             const progressValue = typeof assignment.progress === 'number' ? assignment.progress : 0;
             const isNew = isNewlyFeatured(assignment);
-            const isGameRow = isGameCategory(assignment.activity.category);
+            const isGameRow = isGameActivity(assignment);
 
             // For vocabulary activities, check if all 4 sub-activities are complete
             const vocabProgress = getVocabProgress(assignment);
@@ -351,6 +351,35 @@ export const TodaysAssignments: React.FC<Props> = ({
             const items = sortedRows.filter(r => {
                 const cat = (r.assignment.activity.category || '').toLowerCase();
                 const title = (r.assignment.title || r.assignment.activity.title || '').toLowerCase();
+                const activityId = (r.assignment.activityId || '').toLowerCase();
+                const isGame = r.assignment.activity.type === 'game';
+
+                if (group.key === 'coding') {
+                    return (
+                        cat === 'coding' ||
+                        activityId.startsWith('coding-') ||
+                        (cat === 'personal' &&
+                            (activityId.startsWith('coding-') ||
+                                title.includes('coding') ||
+                                title.includes('javascript') ||
+                                title.includes('typescript') ||
+                                title.includes('js/ts')))
+                    );
+                }
+
+                if (group.key === 'spanish') {
+                    return (
+                        cat === 'spanish' ||
+                        activityId.startsWith('spanish-') ||
+                        (cat === 'personal' &&
+                            (activityId.startsWith('spanish-') || title.includes('spanish')))
+                    );
+                }
+
+                if (group.key === 'activity') {
+                    return isGame || group.match(cat, title);
+                }
+
                 return group.match(cat, title);
             });
             const doneInGroup = items.filter(r => r.isCompleted).length;

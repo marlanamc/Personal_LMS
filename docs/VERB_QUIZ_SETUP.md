@@ -180,7 +180,7 @@ The verb quiz interface matches your app's design system:
 ## Customization
 
 ### Modifying Quiz Schedule
-Edit `ESOL_LMS/quizzes.json` and re-run the import script.
+Edit `class_uploads/quizzes.json` and re-run the import script.
 
 ### Adding More Quizzes
 1. Add new weeks to `quizzes.json` following the same format
@@ -215,7 +215,7 @@ scripts/
 └── import/
     └── import-verb-quizzes.ts        # Database import script
 
-ESOL_LMS/
+class_uploads/
 └── quizzes.json                      # Quiz data source
 ```
 
@@ -224,7 +224,7 @@ ESOL_LMS/
 1. **Import the quizzes**: Run `npm run import:verb-quizzes`
 2. **Test the feature**: Log in as a student and take a quiz
 3. **Assign to classes**: Create assignments for your students
-4. **Delete ESOL_LMS folder**: Once you've verified everything works, you can safely delete the `ESOL_LMS` folder as the data is now in your database
+4. **Delete class_uploads folder**: Once you've verified everything works, you can safely delete the `class_uploads` folder as the data is now in your database
 
 ## Support
 

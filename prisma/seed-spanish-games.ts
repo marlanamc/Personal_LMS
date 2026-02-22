@@ -26,8 +26,22 @@ import {
   commonVerbCards,
   verbConjugations,
 } from "../src/content/spanish/vocabulary/common-verbs";
+import { SPANISH_CORE_GAME_IDS } from "../src/content/spanish/registry";
 
 const prisma = new PrismaClient();
+
+function validateGameRegistryAlignment(ids: readonly string[], seedIds: string[]): void {
+  const missingFromRegistry = seedIds.filter((id) => !ids.includes(id));
+  const missingFromSeed = ids.filter((id) => !seedIds.includes(id));
+
+  if (missingFromRegistry.length || missingFromSeed.length) {
+    throw new Error(
+      `Spanish core game registry mismatch.\n` +
+      `Missing in registry: ${missingFromRegistry.join(", ") || "none"}\n` +
+      `Missing in seed: ${missingFromSeed.join(", ") || "none"}`
+    );
+  }
+}
 
 async function main() {
   console.log("Seeding Spanish games and vocabulary activities...");
@@ -279,6 +293,10 @@ async function main() {
     ...numbersGameActivities,
     ...verbGameActivities,
   ];
+  validateGameRegistryAlignment(
+    SPANISH_CORE_GAME_IDS,
+    allActivities.map((activity) => activity.id)
+  );
 
   for (const activity of allActivities) {
     await prisma.activity.upsert({

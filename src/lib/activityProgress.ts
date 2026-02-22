@@ -19,6 +19,30 @@ export interface GuideState {
     completedSectionIds?: string[];
 }
 
+function normalizeAssignmentId(value: string | null | undefined): string | null {
+    if (typeof value !== "string") return null;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+}
+
+function emitProgressUpdatedEvent(
+    activityId: string,
+    assignmentId: string | null | undefined,
+    progress: number
+) {
+    if (typeof window === "undefined" || typeof window.dispatchEvent !== "function") return;
+
+    window.dispatchEvent(
+        new CustomEvent("activity-progress-updated", {
+            detail: {
+                activityId,
+                assignmentId: normalizeAssignmentId(assignmentId),
+                progress,
+            },
+        })
+    );
+}
+
 export async function fetchActivityProgress(
     activityId: string,
     assignmentId?: string | null
@@ -82,7 +106,11 @@ export async function saveActivityProgress(
         });
 
         if (response.ok) {
-            return await response.json();
+            const result = (await response.json()) as ActivityProgressResult;
+            if (typeof result.progress === "number") {
+                emitProgressUpdatedEvent(activityId, assignmentId, result.progress);
+            }
+            return result;
         }
         return null;
     } catch {

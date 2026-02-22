@@ -15,7 +15,7 @@ import ClickableAvatarDisplay from "@/components/ui/ClickableAvatarDisplay";
 import { MiniCertificateCard, EmptyCertificateCard, NeedsImprovementCard } from "@/components/ui/MiniCertificateCard";
 import { qualifiesForMedal } from "@/lib/medal-utils";
 import { Trophy, Flame, BookOpen, Calendar, Award, ChevronRight } from "lucide-react";
-import { HomeIcon, BookOpenIcon as BookIcon, TrophyIcon, UserIcon } from "@/components/icons/Icons";
+import { HomeIcon, BookOpenIcon as BookIcon, UserIcon } from "@/components/icons/Icons";
 
 // Force dynamic rendering to show real-time activity data
 export const dynamic = 'force-dynamic';
@@ -936,7 +936,6 @@ export default async function ProfilePage() {
                     items={[
                         { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
                         { href: "/dashboard/activities", label: "Activities", icon: <BookIcon /> },
-                        { href: "/grammar-map", label: "Map", icon: <TrophyIcon /> },
                         { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
                     ]}
                 />

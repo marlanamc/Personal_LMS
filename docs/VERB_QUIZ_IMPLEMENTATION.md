@@ -71,7 +71,7 @@ Features:
 **File**: `scripts/import/import-verb-quizzes.ts`
 
 Features:
-- Reads `ESOL_LMS/quizzes.json`
+- Reads `class_uploads/quizzes.json`
 - Creates Activity entries for each week
 - Sets appropriate metadata (type, category, level)
 - Creates calendar events for due dates
@@ -288,7 +288,7 @@ Points are automatically added to:
 ## Customization Guide
 
 ### Modify Quiz Content
-1. Edit `ESOL_LMS/quizzes.json`
+1. Edit `class_uploads/quizzes.json`
 2. Run `npm run import:verb-quizzes` again
 3. Existing quizzes skipped, new ones added
 
@@ -332,7 +332,7 @@ Update Tailwind classes:
 - [x] `package.json` - Added tsx and import script
 
 ### Existing Files Used
-- [x] `ESOL_LMS/quizzes.json` - Source data (can be deleted after import)
+- [x] `class_uploads/quizzes.json` - Source data (can be deleted after import)
 - [x] `prisma/schema.prisma` - Existing schema (no changes needed)
 - [x] `src/lib/gamification.ts` - Existing points system
 - [x] `src/lib/prisma.ts` - Existing database client
@@ -362,7 +362,7 @@ Update Tailwind classes:
    - Award points appropriately
 
 5. **Clean Up**
-   - Once verified working, delete `ESOL_LMS/` folder
+   - Once verified working, delete `class_uploads/` folder
    - Quiz data is now safely in your database
 
 ## Troubleshooting

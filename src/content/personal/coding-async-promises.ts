@@ -56,47 +56,47 @@ export const codingAsyncPromisesContent: InteractiveGuideContent = {
                 <h3>The Difference</h3>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 1.5rem 0;">
-                    <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1.5rem; border-radius: 0.75rem;">
+                    <div class="diagram-surface-light" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1.5rem; border-radius: 0.75rem; color: #1f2937;">
                         <h4 style="margin-top: 0; color: #7a2a2a;">⏹️ Synchronous</h4>
                         <p style="margin: 0.5rem 0; font-size: 1rem; color: #2f2f2f;"><strong>Blocking:</strong> Wait for each step</p>
                         <div style="background: rgba(255,255,255,0.9); padding: 1rem; border-radius: 0.5rem; margin: 0.75rem 0;">
                             <div style="display: flex; align-items: center; margin: 0.5rem 0;">
-                                <div style="background: #ff6b6b; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 1</div>
+                                <div class="diagram-surface-dark" style="background: #ff6b6b; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 1</div>
                                 <div style="flex: 1; height: 2px; background: #ff6b6b; margin: 0 0.5rem;"></div>
-                                <div style="font-size: 0.85rem; color: #1f2937;">5 seconds ⏳</div>
+                                <div class="diagram-surface-light" style="font-size: 0.85rem; color: #1f2937;">5 seconds ⏳</div>
                             </div>
                             <div style="display: flex; align-items: center; margin: 0.5rem 0;">
-                                <div style="background: #ff6b6b; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 2</div>
+                                <div class="diagram-surface-dark" style="background: #ff6b6b; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 2</div>
                                 <div style="flex: 1; height: 2px; background: #ff6b6b; margin: 0 0.5rem;"></div>
-                                <div style="font-size: 0.85rem; color: #1f2937;">3 seconds ⏳</div>
+                                <div class="diagram-surface-light" style="font-size: 0.85rem; color: #1f2937;">3 seconds ⏳</div>
                             </div>
                             <div style="display: flex; align-items: center; margin: 0.5rem 0;">
-                                <div style="background: #ff6b6b; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 3</div>
+                                <div class="diagram-surface-dark" style="background: #ff6b6b; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 3</div>
                                 <div style="flex: 1; height: 2px; background: #ff6b6b; margin: 0 0.5rem;"></div>
-                                <div style="font-size: 0.85rem; color: #1f2937;">2 seconds ⏳</div>
+                                <div class="diagram-surface-light" style="font-size: 0.85rem; color: #1f2937;">2 seconds ⏳</div>
                             </div>
                             <div style="border-top: 2px dashed #ff6b6b; padding-top: 0.75rem; margin-top: 0.75rem; text-align: center; font-weight: bold; color: #8a3b2f;">⏱️ Total: 10 seconds</div>
                         </div>
                         <p style="margin: 0.5rem 0; font-size: 0.95rem; color: #8a3b2f;">❌ App freezes while waiting!</p>
                     </div>
-                    <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.5rem; border-radius: 0.75rem;">
+                    <div class="diagram-surface-light" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.5rem; border-radius: 0.75rem; color: #1f2937;">
                         <h4 style="margin-top: 0; color: #004ea8;">⚡ Asynchronous</h4>
                         <p style="margin: 0.5rem 0; font-size: 1rem; color: #1f2937;"><strong>Non-blocking:</strong> Start and continue</p>
                         <div style="background: rgba(255,255,255,0.9); padding: 1rem; border-radius: 0.5rem; margin: 0.75rem 0;">
                             <div style="display: flex; align-items: center; margin: 0.5rem 0;">
-                                <div style="background: #0080ff; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 1</div>
+                                <div class="diagram-surface-dark" style="background: #0080ff; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 1</div>
                                 <div style="flex: 1; height: 2px; background: #0080ff; margin: 0 0.5rem;"></div>
-                                <div style="font-size: 0.85rem; color: #1f2937;">→ starts</div>
+                                <div class="diagram-surface-light" style="font-size: 0.85rem; color: #1f2937;">→ starts</div>
                             </div>
                             <div style="display: flex; align-items: center; margin: 0.5rem 0;">
-                                <div style="background: #0080ff; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 2</div>
+                                <div class="diagram-surface-dark" style="background: #0080ff; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 2</div>
                                 <div style="flex: 1; height: 2px; background: #0080ff; margin: 0 0.5rem;"></div>
-                                <div style="font-size: 0.85rem; color: #1f2937;">→ starts</div>
+                                <div class="diagram-surface-light" style="font-size: 0.85rem; color: #1f2937;">→ starts</div>
                             </div>
                             <div style="display: flex; align-items: center; margin: 0.5rem 0;">
-                                <div style="background: #0080ff; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 3</div>
+                                <div class="diagram-surface-dark" style="background: #0080ff; color: white; padding: 0.5rem 0.75rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold;">Step 3</div>
                                 <div style="flex: 1; height: 2px; background: #0080ff; margin: 0 0.5rem;"></div>
-                                <div style="font-size: 0.85rem; color: #1f2937;">→ starts</div>
+                                <div class="diagram-surface-light" style="font-size: 0.85rem; color: #1f2937;">→ starts</div>
                             </div>
                             <div style="border-top: 2px dashed #0080ff; padding-top: 0.75rem; margin-top: 0.75rem; text-align: center; font-weight: bold; color: #0057c2;">⏱️ Total: 5 seconds (parallel!)</div>
                         </div>
@@ -184,7 +184,7 @@ console.log('Done');`,
                 <h3>What is a Promise?</h3>
                 <p>A Promise represents something that will happen eventually: success (resolve) or failure (reject).</p>
 
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1.5rem 0; color: white;">
+                <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1.5rem 0; color: white;">
                     <h4 style="margin: 0 0 1.5rem 0; text-align: center; font-size: 1.1rem;">Promise Lifecycle</h4>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="text-align: center; flex: 1;">
@@ -358,14 +358,14 @@ console.log('Done');`,
                 <p>async/await makes asynchronous code look synchronous and read more naturally.</p>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;">
-                    <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1.5rem; border-radius: 0.75rem;">
+                    <div class="diagram-surface-light" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1.5rem; border-radius: 0.75rem; color: #1f2937;">
                         <h4 style="margin-top: 0; color: #d97757;">Promise Style</h4>
-                        <code style="display: block; background: rgba(0,0,0,0.1); padding: 1rem; border-radius: 0.5rem; font-size: 0.8rem; line-height: 1.6; color: #555;">fetch('/data')<br/>&nbsp;&nbsp;.then(r =&gt; r.json())<br/>&nbsp;&nbsp;.then(d =&gt; console.log(d))<br/>&nbsp;&nbsp;.catch(e =&gt; console.log(e))</code>
+                        <code style="display: block; background: rgba(0,0,0,0.1); padding: 1rem; border-radius: 0.5rem; font-size: 0.8rem; line-height: 1.6; color: #1f2937;">fetch('/data')<br/>&nbsp;&nbsp;.then(r =&gt; r.json())<br/>&nbsp;&nbsp;.then(d =&gt; console.log(d))<br/>&nbsp;&nbsp;.catch(e =&gt; console.log(e))</code>
                         <p style="margin: 0.75rem 0 0 0; font-size: 0.85rem; color: #d97757;">📌 More verbose, harder to read</p>
                     </div>
-                    <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.5rem; border-radius: 0.75rem;">
+                    <div class="diagram-surface-light" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.5rem; border-radius: 0.75rem; color: #1f2937;">
                         <h4 style="margin-top: 0; color: #0080ff;">Async/Await Style</h4>
-                        <code style="display: block; background: rgba(0,0,0,0.1); padding: 1rem; border-radius: 0.5rem; font-size: 0.8rem; line-height: 1.6; color: #333;">async function load() {<br/>&nbsp;&nbsp;try {<br/>&nbsp;&nbsp;&nbsp;&nbsp;const r = await fetch(…)<br/>&nbsp;&nbsp;&nbsp;&nbsp;const d = await r.json()<br/>&nbsp;&nbsp;&nbsp;&nbsp;console.log(d)<br/>&nbsp;&nbsp;} catch(e) {}<br/>}</code>
+                        <code style="display: block; background: rgba(0,0,0,0.1); padding: 1rem; border-radius: 0.5rem; font-size: 0.8rem; line-height: 1.6; color: #1f2937;">async function load() {<br/>&nbsp;&nbsp;try {<br/>&nbsp;&nbsp;&nbsp;&nbsp;const r = await fetch(…)<br/>&nbsp;&nbsp;&nbsp;&nbsp;const d = await r.json()<br/>&nbsp;&nbsp;&nbsp;&nbsp;console.log(d)<br/>&nbsp;&nbsp;} catch(e) {}<br/>}</code>
                         <p style="margin: 0.75rem 0 0 0; font-size: 0.85rem; color: #0080ff;">⭐ Cleaner, easier to follow</p>
                     </div>
                 </div>
@@ -837,6 +837,72 @@ console.log(data);`,
             correctAnswer: "c",
             explanation:
                 "With async/await, use try/catch to handle errors. With promises, use .catch().",
+        },
+        {
+            id: "q5",
+            question: "Which is the best first step when code does not work as expected?",
+            options: [
+                { value: "a", label: "Guess and change many things" },
+                { value: "b", label: "Reproduce the issue and inspect inputs/output" },
+                { value: "c", label: "Delete the whole function" },
+            ],
+            correctAnswer: "b",
+            explanation: "A reliable debugging flow starts by reproducing the problem and checking what data is actually flowing through the code.",
+        },
+        {
+            id: "q6",
+            question: "Why are clear variable and function names important?",
+            options: [
+                { value: "a", label: "They make code easier to read and maintain" },
+                { value: "b", label: "They make JavaScript run faster automatically" },
+                { value: "c", label: "They remove the need for testing" },
+            ],
+            correctAnswer: "a",
+            explanation: "Readable naming improves collaboration, reduces mistakes, and makes future edits safer.",
+        },
+        {
+            id: "q7",
+            question: "What should you do before choosing a complex solution?",
+            options: [
+                { value: "a", label: "Start with the simplest working approach" },
+                { value: "b", label: "Use advanced patterns immediately" },
+                { value: "c", label: "Copy code without understanding it" },
+            ],
+            correctAnswer: "a",
+            explanation: "Simple solutions are easier to test, debug, and extend. Complexity should be added only when necessary.",
+        },
+        {
+            id: "q8",
+            question: "Which habit best prevents regressions after code changes?",
+            options: [
+                { value: "a", label: "Run relevant tests or verify key scenarios" },
+                { value: "b", label: "Skip validation to save time" },
+                { value: "c", label: "Only check visual output" },
+            ],
+            correctAnswer: "a",
+            explanation: "Quick validation of critical paths catches breakages early and keeps the codebase stable.",
+        },
+        {
+            id: "q9",
+            question: "When using async code, what is a common reliability practice?",
+            options: [
+                { value: "a", label: "Handle success and failure paths explicitly" },
+                { value: "b", label: "Ignore errors and continue" },
+                { value: "c", label: "Assume all network calls always succeed" },
+            ],
+            correctAnswer: "a",
+            explanation: "Async operations can fail; handling errors explicitly prevents silent failures and confusing behavior.",
+        },
+        {
+            id: "q10",
+            question: "What makes a mini quiz comprehensive for a coding guide?",
+            options: [
+                { value: "a", label: "It checks only definitions" },
+                { value: "b", label: "It checks concepts, usage, and common mistakes" },
+                { value: "c", label: "It contains trick questions only" },
+            ],
+            correctAnswer: "b",
+            explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
         },
     ],
 };

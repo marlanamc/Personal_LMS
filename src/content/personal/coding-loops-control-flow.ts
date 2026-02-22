@@ -56,7 +56,7 @@ export const codingLoopsControlFlowContent: InteractiveGuideContent = {
                 <h3>Conditional Statements</h3>
                 <p>If/else lets your code make decisions based on conditions. Very powerful!</p>
 
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 0.75rem; margin: 1.5rem 0; color: white;">
+                <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 0.75rem; margin: 1.5rem 0; color: white;">
                     <h4 style="margin: 0 0 1.5rem 0; text-align: center; font-size: 1.2rem;">Decision Flow</h4>
                     <div style="display: flex; align-items: center; justify-content: space-around; flex-wrap: wrap;">
                         <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 0.5rem; text-align: center; min-width: 120px;">
@@ -301,7 +301,7 @@ case 'C':
                 <h3>For Loops</h3>
                 <p>For loops repeat code a specific number of times. Perfect when you know exactly how many iterations you need.</p>
 
-                <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1.5rem 0; color: white;">
+                <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1.5rem 0; color: white;">
                     <h4 style="margin: 0 0 1rem 0;">For Loop Anatomy</h4>
                     <code style="display: block; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 0.5rem; font-size: 0.9rem; line-height: 1.8;">
 for (<span style="background: rgba(255,255,255,0.3); padding: 0.2rem 0.4rem;">let i = 0</span>; <span style="background: rgba(255,255,0,0.3); padding: 0.2rem 0.4rem;">i &lt; 5</span>; <span style="background: rgba(0,255,255,0.3); padding: 0.2rem 0.4rem;">i++</span>) {<br/>
@@ -606,19 +606,19 @@ for (const num of numbers) {
                 <p>Instead of traditional for loops, modern JavaScript uses map, filter, reduce. These are more readable and functional.</p>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
-                    <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
                         <h4 style="margin-top: 0; font-size: 1rem;">🎨 map()</h4>
                         <p style="margin: 0.5rem 0; font-size: 0.85rem;">Transform each element</p>
                         <code style="display: block; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">[1,2,3].map(x =&gt; x*2)</code>
                         <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem;">[2,4,6]</p>
                     </div>
-                    <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
                         <h4 style="margin-top: 0; font-size: 1rem;">🔍 filter()</h4>
                         <p style="margin: 0.5rem 0; font-size: 0.85rem;">Keep matching items</p>
                         <code style="display: block; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">[1,2,3].filter(x =&gt; x&gt;1)</code>
                         <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem;">[2,3]</p>
                     </div>
-                    <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1.25rem; border-radius: 0.5rem; color: #2b3a4a;">
+                    <div class="diagram-surface-light" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1.25rem; border-radius: 0.5rem; color: #2b3a4a;">
                         <h4 style="margin-top: 0; font-size: 1rem;">➕ reduce()</h4>
                         <p style="margin: 0.5rem 0; font-size: 0.85rem;">Combine into one value</p>
                         <code style="display: block; background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">[1,2,3].reduce((a,b)=&gt;a+b)</code>
@@ -815,6 +815,72 @@ const count = items.reduce((acc, item) => {
             ],
             correctAnswer: "b",
             explanation: "map transforms each element. filter selects elements. reduce combines them.",
+        },
+        {
+            id: "q5",
+            question: "Which is the best first step when code does not work as expected?",
+            options: [
+                { value: "a", label: "Guess and change many things" },
+                { value: "b", label: "Reproduce the issue and inspect inputs/output" },
+                { value: "c", label: "Delete the whole function" },
+            ],
+            correctAnswer: "b",
+            explanation: "A reliable debugging flow starts by reproducing the problem and checking what data is actually flowing through the code.",
+        },
+        {
+            id: "q6",
+            question: "Why are clear variable and function names important?",
+            options: [
+                { value: "a", label: "They make code easier to read and maintain" },
+                { value: "b", label: "They make JavaScript run faster automatically" },
+                { value: "c", label: "They remove the need for testing" },
+            ],
+            correctAnswer: "a",
+            explanation: "Readable naming improves collaboration, reduces mistakes, and makes future edits safer.",
+        },
+        {
+            id: "q7",
+            question: "What should you do before choosing a complex solution?",
+            options: [
+                { value: "a", label: "Start with the simplest working approach" },
+                { value: "b", label: "Use advanced patterns immediately" },
+                { value: "c", label: "Copy code without understanding it" },
+            ],
+            correctAnswer: "a",
+            explanation: "Simple solutions are easier to test, debug, and extend. Complexity should be added only when necessary.",
+        },
+        {
+            id: "q8",
+            question: "Which habit best prevents regressions after code changes?",
+            options: [
+                { value: "a", label: "Run relevant tests or verify key scenarios" },
+                { value: "b", label: "Skip validation to save time" },
+                { value: "c", label: "Only check visual output" },
+            ],
+            correctAnswer: "a",
+            explanation: "Quick validation of critical paths catches breakages early and keeps the codebase stable.",
+        },
+        {
+            id: "q9",
+            question: "When using async code, what is a common reliability practice?",
+            options: [
+                { value: "a", label: "Handle success and failure paths explicitly" },
+                { value: "b", label: "Ignore errors and continue" },
+                { value: "c", label: "Assume all network calls always succeed" },
+            ],
+            correctAnswer: "a",
+            explanation: "Async operations can fail; handling errors explicitly prevents silent failures and confusing behavior.",
+        },
+        {
+            id: "q10",
+            question: "What makes a mini quiz comprehensive for a coding guide?",
+            options: [
+                { value: "a", label: "It checks only definitions" },
+                { value: "b", label: "It checks concepts, usage, and common mistakes" },
+                { value: "c", label: "It contains trick questions only" },
+            ],
+            correctAnswer: "b",
+            explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
         },
     ],
 };

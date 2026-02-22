@@ -4,8 +4,36 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import { SPANISH_LEGACY_GAME_IDS } from "../src/content/spanish/registry";
+import { CODING_GAME_IDS } from "../src/content/coding/registry";
 
 const prisma = new PrismaClient();
+
+function validateLegacySpanishRegistryAlignment(ids: readonly string[], gameIds: string[]): void {
+    const missingFromRegistry = gameIds.filter((id) => !ids.includes(id));
+    const missingFromSeed = ids.filter((id) => !gameIds.includes(id));
+
+    if (missingFromRegistry.length || missingFromSeed.length) {
+        throw new Error(
+            `Spanish legacy game registry mismatch.\n` +
+            `Missing in registry: ${missingFromRegistry.join(", ") || "none"}\n` +
+            `Missing in seed: ${missingFromSeed.join(", ") || "none"}`
+        );
+    }
+}
+
+function validateCodingGameRegistryAlignment(ids: readonly string[], gameIds: string[]): void {
+    const missingFromRegistry = gameIds.filter((id) => !ids.includes(id));
+    const missingFromSeed = ids.filter((id) => !gameIds.includes(id));
+
+    if (missingFromRegistry.length || missingFromSeed.length) {
+        throw new Error(
+            `Coding game registry mismatch.\n` +
+            `Missing in registry: ${missingFromRegistry.join(", ") || "none"}\n` +
+            `Missing in seed: ${missingFromSeed.join(", ") || "none"}`
+        );
+    }
+}
 
 // ============================================================================
 // SPANISH GAMES
@@ -669,6 +697,15 @@ async function main() {
         codingFillInBlank,
         codingKeywordsMatching,
     ];
+
+    const spanishGameIds = allGames
+        .filter((game) => game.category === "Spanish")
+        .map((game) => game.id);
+    validateLegacySpanishRegistryAlignment(SPANISH_LEGACY_GAME_IDS, spanishGameIds);
+    const codingGameIds = allGames
+        .filter((game) => game.category === "Coding")
+        .map((game) => game.id);
+    validateCodingGameRegistryAlignment(CODING_GAME_IDS, codingGameIds);
 
     for (const game of allGames) {
         const upserted = await prisma.activity.upsert({

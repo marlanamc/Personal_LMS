@@ -1,7 +1,7 @@
 {
   "name": "Class Companion",
   "short_name": "ClassComp",
-  "description": "Addictive ESOL learning platform with gamification",
+  "description": "Personal learning platform with gamification",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#0f0f1e",

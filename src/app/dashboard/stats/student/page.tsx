@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { StudentStatsView } from "@/components/dashboard/StudentStatsView";
 import { BottomNav } from "@/components/ui";
-import { HomeIcon, BookOpenIcon, TrophyIcon, UserIcon } from "@/components/icons/Icons";
+import { HomeIcon, BookOpenIcon, UserIcon } from "@/components/icons/Icons";
 
 export default async function StudentStatsPage() {
     const session = await getServerSession(authOptions);
@@ -76,14 +76,12 @@ export default async function StudentStatsPage() {
                 items={[
                     { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
                     { href: "/dashboard/activities", label: "Activities", icon: <BookOpenIcon /> },
-                    { href: "/grammar-map", label: "Map", icon: <TrophyIcon /> },
                     { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
                 ]}
             />
         </div>
     );
 }
-
 
 
 

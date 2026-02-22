@@ -14,7 +14,6 @@ import {
   TrophyIcon,
   CalendarIcon,
   FlameIcon,
-  MapIcon,
 } from "@/components/icons/Icons";
 import {
   MiniCalendar,
@@ -385,7 +384,6 @@ export default async function DashboardPage() {
             label: "Activities",
             icon: <BookOpenIcon />,
           },
-          { href: "/grammar-map", label: "Map", icon: <MapIcon /> },
           {
             href: "/dashboard/profile",
             label: "Profile",

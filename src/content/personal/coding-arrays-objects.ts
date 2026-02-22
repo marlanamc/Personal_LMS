@@ -56,7 +56,7 @@ export const codingArraysObjectsContent: InteractiveGuideContent = {
                 <h3>What Are Arrays?</h3>
                 <p>Arrays store multiple values in a specific order. Access elements by their index (position).</p>
 
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1.5rem 0; color: #ffffff; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16);">
+                <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1.5rem 0; color: #ffffff; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16);">
                     <h4 style="margin: 0 0 1rem 0; text-align: center;">Array Index Visualization</h4>
                     <div style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;">
                         <div style="text-align: center;">
@@ -64,21 +64,21 @@ export const codingArraysObjectsContent: InteractiveGuideContent = {
                                 <div style="font-size: 1.5rem; font-weight: bold;">🔴</div>
                                 <div style="font-size: 0.875rem; margin-top: 0.5rem; font-weight: 600;">red</div>
                             </div>
-                            <div style="font-size: 0.8125rem; margin-top: 0.5rem; background: rgba(15, 9, 31, 0.4); color: #ffffff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin-left: auto; margin-right: auto; font-weight: 600;">Index 0</div>
+                            <div class="diagram-surface-dark" style="font-size: 0.8125rem; margin-top: 0.5rem; background: rgba(15, 9, 31, 0.4); color: #ffffff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin-left: auto; margin-right: auto; font-weight: 600;">Index 0</div>
                         </div>
                         <div style="text-align: center;">
                             <div style="background: rgba(255,255,255,0.86); color: #1c1642; padding: 1rem; border-radius: 0.5rem; width: 80px; box-shadow: 0 2px 10px rgba(16, 10, 34, 0.2);">
                                 <div style="font-size: 1.5rem; font-weight: bold;">🟢</div>
                                 <div style="font-size: 0.875rem; margin-top: 0.5rem; font-weight: 600;">green</div>
                             </div>
-                            <div style="font-size: 0.8125rem; margin-top: 0.5rem; background: rgba(15, 9, 31, 0.4); color: #ffffff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin-left: auto; margin-right: auto; font-weight: 600;">Index 1</div>
+                            <div class="diagram-surface-dark" style="font-size: 0.8125rem; margin-top: 0.5rem; background: rgba(15, 9, 31, 0.4); color: #ffffff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin-left: auto; margin-right: auto; font-weight: 600;">Index 1</div>
                         </div>
                         <div style="text-align: center;">
                             <div style="background: rgba(255,255,255,0.86); color: #1c1642; padding: 1rem; border-radius: 0.5rem; width: 80px; box-shadow: 0 2px 10px rgba(16, 10, 34, 0.2);">
                                 <div style="font-size: 1.5rem; font-weight: bold;">🔵</div>
                                 <div style="font-size: 0.875rem; margin-top: 0.5rem; font-weight: 600;">blue</div>
                             </div>
-                            <div style="font-size: 0.8125rem; margin-top: 0.5rem; background: rgba(15, 9, 31, 0.4); color: #ffffff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin-left: auto; margin-right: auto; font-weight: 600;">Index 2</div>
+                            <div class="diagram-surface-dark" style="font-size: 0.8125rem; margin-top: 0.5rem; background: rgba(15, 9, 31, 0.4); color: #ffffff; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: fit-content; margin-left: auto; margin-right: auto; font-weight: 600;">Index 2</div>
                         </div>
                     </div>
                     <p style="margin: 1rem 0 0 0; text-align: center; font-size: 0.95rem; font-weight: 600;">💡 First item is always index 0!</p>
@@ -250,20 +250,20 @@ arr[arr.length - 1] = ?`,
                 <h3>What Are Objects?</h3>
                 <p>Objects store data as key-value pairs. Use keys to access values by name instead of position.</p>
 
-                <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1.5rem 0; color: #0a3a33; box-shadow: inset 0 0 0 1px rgba(5, 71, 60, 0.18);">
+                <div class="diagram-surface-light" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 1.5rem; border-radius: 0.75rem; margin: 1.5rem 0; color: #0a3a33; box-shadow: inset 0 0 0 1px rgba(5, 71, 60, 0.18);">
                     <h4 style="margin: 0 0 1rem 0; text-align: center;">Object Structure</h4>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
                         <div style="background: rgba(4, 77, 67, 0.34); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.2);">
                             <h5 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: #f1fffb;">Key (Property)</h5>
-                            <div style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600;">name</div>
-                            <div style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem;">age</div>
-                            <div style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem;">email</div>
+                            <div class="diagram-surface-light" style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600;">name</div>
+                            <div class="diagram-surface-light" style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem;">age</div>
+                            <div class="diagram-surface-light" style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem;">email</div>
                         </div>
                         <div style="background: rgba(4, 77, 67, 0.34); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.2);">
                             <h5 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: #f1fffb;">Value (Data)</h5>
-                            <div style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600;">'Alice'</div>
-                            <div style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem;">25</div>
-                            <div style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem;">alice@email.com</div>
+                            <div class="diagram-surface-light" style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600;">'Alice'</div>
+                            <div class="diagram-surface-light" style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem;">25</div>
+                            <div class="diagram-surface-light" style="background: rgba(255,255,255,0.78); color: #0a3a33; padding: 0.75rem; border-radius: 0.25rem; font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem;">alice@email.com</div>
                         </div>
                     </div>
                     <p style="margin: 1rem 0 0 0; text-align: center; font-size: 0.95rem; font-weight: 700;">💡 Access by key name, not position!</p>
@@ -754,6 +754,72 @@ obj1 === obj2; // false! (different objects)`,
             ],
             correctAnswer: "b",
             explanation: "push adds to the end. pop removes from the end.",
+        },
+        {
+            id: "q5",
+            question: "Which is the best first step when code does not work as expected?",
+            options: [
+                { value: "a", label: "Guess and change many things" },
+                { value: "b", label: "Reproduce the issue and inspect inputs/output" },
+                { value: "c", label: "Delete the whole function" },
+            ],
+            correctAnswer: "b",
+            explanation: "A reliable debugging flow starts by reproducing the problem and checking what data is actually flowing through the code.",
+        },
+        {
+            id: "q6",
+            question: "Why are clear variable and function names important?",
+            options: [
+                { value: "a", label: "They make code easier to read and maintain" },
+                { value: "b", label: "They make JavaScript run faster automatically" },
+                { value: "c", label: "They remove the need for testing" },
+            ],
+            correctAnswer: "a",
+            explanation: "Readable naming improves collaboration, reduces mistakes, and makes future edits safer.",
+        },
+        {
+            id: "q7",
+            question: "What should you do before choosing a complex solution?",
+            options: [
+                { value: "a", label: "Start with the simplest working approach" },
+                { value: "b", label: "Use advanced patterns immediately" },
+                { value: "c", label: "Copy code without understanding it" },
+            ],
+            correctAnswer: "a",
+            explanation: "Simple solutions are easier to test, debug, and extend. Complexity should be added only when necessary.",
+        },
+        {
+            id: "q8",
+            question: "Which habit best prevents regressions after code changes?",
+            options: [
+                { value: "a", label: "Run relevant tests or verify key scenarios" },
+                { value: "b", label: "Skip validation to save time" },
+                { value: "c", label: "Only check visual output" },
+            ],
+            correctAnswer: "a",
+            explanation: "Quick validation of critical paths catches breakages early and keeps the codebase stable.",
+        },
+        {
+            id: "q9",
+            question: "When using async code, what is a common reliability practice?",
+            options: [
+                { value: "a", label: "Handle success and failure paths explicitly" },
+                { value: "b", label: "Ignore errors and continue" },
+                { value: "c", label: "Assume all network calls always succeed" },
+            ],
+            correctAnswer: "a",
+            explanation: "Async operations can fail; handling errors explicitly prevents silent failures and confusing behavior.",
+        },
+        {
+            id: "q10",
+            question: "What makes a mini quiz comprehensive for a coding guide?",
+            options: [
+                { value: "a", label: "It checks only definitions" },
+                { value: "b", label: "It checks concepts, usage, and common mistakes" },
+                { value: "c", label: "It contains trick questions only" },
+            ],
+            correctAnswer: "b",
+            explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
         },
     ],
 };

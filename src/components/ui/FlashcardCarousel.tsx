@@ -229,8 +229,9 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
 
                 {/* Desktop: Navigation centered, Progress + Settings on right */}
                 <div className="hidden md:flex items-center gap-4">
-                    {/* Left spacer for balance */}
+                    {/* Left: Back + progress */}
                     <div className="flex-1 flex items-center gap-2">
+                        <BackButton onClick={() => window.history.back()} className="shrink-0" />
                         <div className="text-sm font-bold text-[var(--color-text-muted)]">
                             {studiedCards.size} / {total} studied
                         </div>

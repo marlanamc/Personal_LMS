@@ -86,8 +86,10 @@ export async function GET(
         }),
     ]);
 
-    // Calculate engagement metrics
-    const completedActivities = activityProgress.filter(p => p.status === 'completed');
+    const nonGameProgress = activityProgress.filter((p) => p.activity.type !== "game");
+
+    // Calculate engagement metrics (games are intentionally replayable and never treated as completed)
+    const completedActivities = nonGameProgress.filter(p => p.status === 'completed');
     const inProgressActivities = activityProgress.filter(p => p.status === 'in_progress' && p.progress < 100);
 
     // Calculate favorite activities (by counting how many times they earned points for each)
@@ -284,22 +286,22 @@ export async function GET(
                 vocab: {
                     activities: progressByCategory.vocab,
                     avgProgress: calculateAvg(progressByCategory.vocab),
-                    completed: progressByCategory.vocab.filter(p => p.status === 'completed').length
+                    completed: progressByCategory.vocab.filter(p => p.activity.type !== "game" && p.status === 'completed').length
                 },
                 grammar: {
                     activities: progressByCategory.grammar,
                     avgProgress: calculateAvg(progressByCategory.grammar),
-                    completed: progressByCategory.grammar.filter(p => p.status === 'completed').length
+                    completed: progressByCategory.grammar.filter(p => p.activity.type !== "game" && p.status === 'completed').length
                 },
                 numbers: {
                     activities: progressByCategory.numbers,
                     avgProgress: calculateAvg(progressByCategory.numbers),
-                    completed: progressByCategory.numbers.filter(p => p.status === 'completed').length
+                    completed: progressByCategory.numbers.filter(p => p.activity.type !== "game" && p.status === 'completed').length
                 },
                 other: {
                     activities: progressByCategory.other,
                     avgProgress: calculateAvg(progressByCategory.other),
-                    completed: progressByCategory.other.filter(p => p.status === 'completed').length
+                    completed: progressByCategory.other.filter(p => p.activity.type !== "game" && p.status === 'completed').length
                 }
             },
             all: activityProgress

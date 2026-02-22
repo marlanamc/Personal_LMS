@@ -25,7 +25,12 @@ async function main() {
   console.log('🚀 Starting verb quiz import...\n');
 
   // Read the quizzes.json file
-  const quizzesPath = path.join(process.cwd(), 'ESOL_LMS', 'quizzes.json');
+  const quizzesPath = path.join(process.cwd(), 'class_uploads', 'quizzes.json');
+  if (!fs.existsSync(quizzesPath)) {
+    console.error(`❌ quizzes.json not found at: ${quizzesPath}`);
+    console.error('   Add your quiz data to class_uploads/quizzes.json and run again.');
+    process.exit(1);
+  }
   const quizzesData: QuizzesData = JSON.parse(fs.readFileSync(quizzesPath, 'utf-8'));
 
   // Get the teacher user (assuming there's a teacher account)

@@ -159,6 +159,11 @@ export async function GET(request: Request) {
 
     const userId = session.user.id;
     const assignmentKey = typeof assignmentId === "string" ? assignmentId : null;
+    const activityMeta = await prisma.activity.findUnique({
+        where: { id: activityId },
+        select: { type: true },
+    });
+    const isGameActivity = activityMeta?.type === "game";
 
     const select = {
         progress: true,
@@ -257,7 +262,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
         progress: record?.progress ?? 0,
-        status: record?.status ?? "in_progress",
+        status: isGameActivity ? "in_progress" : (record?.status ?? "in_progress"),
         categoryData: record?.categoryData ?? null,
         updatedAt: record?.updatedAt ?? null,
     }, {
@@ -319,6 +324,7 @@ export async function POST(request: Request) {
         select: { type: true, title: true, content: true, ui: true, category: true }
     });
     const activityGameUi = activity ? resolveActivityGameUi(activity) : "unknown";
+    const isGameActivity = activity?.type === "game";
     const isPronunciationPracticeActivity =
         activity?.type === "game" &&
         (activity.category === "pronunciation" || activityGameUi === "ed-pronunciation" || activityGameUi === "minimal-pairs");
@@ -397,6 +403,11 @@ export async function POST(request: Request) {
     if (aggregatedNumbersProgress !== undefined) {
         progressValue = aggregatedNumbersProgress;
         statusValue = aggregatedNumbersProgress >= 100 ? "completed" : "in_progress";
+    }
+
+    // Games are always replayable and should not become "completed" activities.
+    if (isGameActivity) {
+        statusValue = "in_progress";
     }
 
     // Pronunciation games are intentionally open-ended practice and should never show as completed.

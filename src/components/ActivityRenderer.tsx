@@ -41,7 +41,6 @@ import SpeakingActivityRenderer from "./activities/SpeakingActivityRenderer";
 import { isSpeakingActivityContent } from "@/types/activity";
 import type { SpeakingActivityContent } from "@/types/activity";
 import VocabularyRenderer from "./activities/VocabularyRenderer";
-import { completionKeyFromActivityTitle } from "@/utils/completionKey";
 import { saveActivityProgress } from "@/lib/activityProgress";
 import { resolveActivityGameUi } from "@/lib/gamification/activity-points";
 import SpanishNumbersGame from "./ui/SpanishNumbersGame";
@@ -68,6 +67,15 @@ interface Props {
 
 export default function ActivityRenderer({ activity, assignmentId, existingSubmission }: Props) {
     const content = parseActivityContent(activity.content);
+    const categoryRaw = (activity.category || "").toLowerCase();
+    const titleLower = (activity.title || "").toLowerCase();
+    const idLower = (activity.id || "").toLowerCase();
+    const isSpanishGuide =
+        activity.type === "guide" &&
+        (categoryRaw === "spanish" || idLower.startsWith("spanish-") || titleLower.includes("spanish"));
+    const isFullHeightGuideLayout =
+        activity.type === "guide" &&
+        (isInteractiveGuideContent(content) || isLegacyGuideContent(content));
     if (!content && activity.type === "resource") {
         return (
             <ResourceRenderer
@@ -104,18 +112,23 @@ export default function ActivityRenderer({ activity, assignmentId, existingSubmi
                 if (isLegacyGuideContent(content)) {
                     return <LegacyGuideRenderer originalFile={content.metadata.originalFile} />;
                 }
-                if (isInteractiveGuideContent(content)) {
-                    if (activity.category === "grammar" || activity.category === "personal") {
-                        return (
-                            <GrammarReader
-                                content={content as InteractiveGuideContent}
-                                completionKey={completionKeyFromActivityTitle(activity.title)}
-                                activityId={activity.id}
-                            />
-                        );
-                    }
+                if (isInteractiveGuideContent(content) && isSpanishGuide) {
+                    return (
+                        <GrammarReader
+                            content={content as InteractiveGuideContent}
+                            activityId={activity.id}
+                        />
+                    );
                 }
-                return <InteractiveGuideViewer content={content as InteractiveGuideContent} title={activity.title} />;
+                return (
+                    <InteractiveGuideViewer
+                        content={content as InteractiveGuideContent}
+                        title={activity.title}
+                        showHeader={false}
+                        activityId={activity.id}
+                        assignmentId={assignmentId ?? null}
+                    />
+                );
             case "speaking":
                 if (isSpeakingActivityContent(content)) {
                     return (
@@ -236,11 +249,7 @@ export default function ActivityRenderer({ activity, assignmentId, existingSubmi
         }
     };
 
-    return (
-        <div className="space-y-6">
-            {renderActivityContent()}
-        </div>
-    );
+    return <div className={isFullHeightGuideLayout ? "h-full min-h-0" : "space-y-6"}>{renderActivityContent()}</div>;
 }
 
 function QuizRenderer({

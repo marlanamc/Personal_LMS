@@ -76,9 +76,6 @@ reset-*.js
 # QR codes and images not in public/
 qrcode_*.png
 
-# legacy projects (Flask app, etc.)
-ESOL_LMS/
-
 # local teaching uploads (default ignored)
 /class_uploads/*
 

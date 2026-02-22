@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import { spanishPresentTenseContent } from '../src/content/grammar/spanish-present-tense';
-import { spanishPreteriteTenseContent } from '../src/content/grammar/spanish-preterite-tense';
-import { spanishSerVsEstarContent } from '../src/content/grammar/spanish-ser-vs-estar';
-import { spanishAdjectiveAgreementContent } from '../src/content/grammar/spanish-adjective-agreement';
+import { spanishPresentTenseContent } from '../src/content/spanish/guides/spanish-present-tense';
+import { spanishPreteriteTenseContent } from '../src/content/spanish/guides/spanish-preterite-tense';
+import { spanishSerVsEstarContent } from '../src/content/spanish/guides/spanish-ser-vs-estar';
+import { spanishAdjectiveAgreementContent } from '../src/content/spanish/guides/spanish-adjective-agreement';
+import { SPANISH_GUIDE_IDS } from '../src/content/spanish/registry';
 
 const prisma = new PrismaClient();
 
@@ -37,8 +38,23 @@ const spanishGuides = [
   },
 ];
 
+function validateGuideRegistryAlignment(ids: readonly string[]): void {
+  const guideIds = spanishGuides.map((guide) => guide.id);
+  const missingFromRegistry = guideIds.filter((id) => !ids.includes(id));
+  const missingFromSeed = ids.filter((id) => !guideIds.includes(id));
+
+  if (missingFromRegistry.length || missingFromSeed.length) {
+    throw new Error(
+      `Spanish guide registry mismatch.\n` +
+      `Missing in registry: ${missingFromRegistry.join(', ') || 'none'}\n` +
+      `Missing in seed: ${missingFromSeed.join(', ') || 'none'}`
+    );
+  }
+}
+
 async function main() {
   console.log('🇪🇸 Upserting Spanish personal guides...\n');
+  validateGuideRegistryAlignment(SPANISH_GUIDE_IDS);
 
   for (const guide of spanishGuides) {
     await prisma.activity.upsert({
