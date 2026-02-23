@@ -77,19 +77,19 @@ export function DailyChallengeBanner({
 
   return (
     <div
-      className={`rounded-2xl border p-5 transition-all ${
+      className={`rounded-xl border px-4 py-3 transition-all ${
         isComplete
-          ? "bg-gradient-to-r from-secondary/20 to-secondary/10 border-secondary/40"
-          : "bg-gradient-to-r from-accent/20 to-accent/10 border-accent/40"
+          ? "bg-gradient-to-r from-secondary/15 to-secondary/5 border-secondary/30"
+          : "bg-gradient-to-r from-accent/15 to-accent/5 border-accent/30"
       }`}
     >
-      <div className="flex items-start justify-between gap-4">
-        {/* Left side - Challenge info */}
-        <div className="flex items-start gap-4 flex-1">
+      <div className="flex items-center justify-between gap-3">
+        {/* Left side - Icon + Challenge info */}
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           {/* Icon */}
           <div
-            className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${
-              isComplete ? "bg-secondary/30" : "bg-accent/30"
+            className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg shrink-0 ${
+              isComplete ? "bg-secondary/25" : "bg-accent/25"
             }`}
           >
             {isComplete ? "✅" : getChallengeIcon(challenge.type)}
@@ -98,56 +98,46 @@ export function DailyChallengeBanner({
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-bold text-text text-lg">
-                {isComplete ? "Challenge Complete!" : "Daily Challenge"}
+              <h3 className="font-semibold text-text text-sm">
+                {isComplete ? "Complete!" : "Daily Challenge"}
               </h3>
               <span
-                className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
                   isComplete
-                    ? "bg-secondary/30 text-secondary"
-                    : "bg-accent/30 text-accent"
+                    ? "bg-secondary/25 text-secondary"
+                    : "bg-accent/25 text-accent"
                 }`}
               >
-                +{challenge.bonusPoints} pts
+                +{challenge.bonusPoints}
               </span>
             </div>
-
-            <p className="text-text-muted mt-1">{challenge.description}</p>
-
-            {/* Progress bar */}
-            {!isComplete && (
-              <div className="mt-3">
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-text-muted">
-                    {challenge.progress} / {challenge.requirement}
-                  </span>
-                  <span className="text-text-muted">
-                    Resets in {formatTimeRemaining(timeRemaining)}
-                  </span>
-                </div>
-                <div className="h-2 bg-bg-primary/50 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-accent to-primary rounded-full transition-all duration-500 ease-out"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Completed state */}
-            {isComplete && (
-              <p className="text-sm text-secondary mt-2 font-medium">
-                Great work! Come back tomorrow for a new challenge.
-              </p>
-            )}
+            <p className="text-text-muted text-xs truncate">
+              {challenge.description}
+            </p>
           </div>
         </div>
+
+        {/* Middle - Progress */}
+        {!isComplete && (
+          <div className="hidden sm:flex items-center gap-3 text-xs text-text-muted">
+            <span>{challenge.progress}/{challenge.requirement}</span>
+            <div className="w-20 h-1.5 bg-bg-primary/50 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-accent to-primary rounded-full transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+            <span className="text-[10px] whitespace-nowrap">
+              {formatTimeRemaining(timeRemaining)}
+            </span>
+          </div>
+        )}
 
         {/* Right side - Action button */}
         {!isComplete && (
           <Link
             href="/dashboard/activities"
-            className="shrink-0 px-4 py-2.5 rounded-xl bg-accent text-bg-primary hover:brightness-110 transition-all font-bold text-sm shadow-md hover:shadow-lg active:scale-95"
+            className="shrink-0 px-3 py-1.5 rounded-lg bg-accent text-bg-primary hover:brightness-110 transition-all font-semibold text-xs"
           >
             Go!
           </Link>
