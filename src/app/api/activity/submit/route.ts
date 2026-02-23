@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { awardPoints, updateStreak, checkAndAwardAchievements, calculateQuizPoints, getActivityPoints } from "@/lib/gamification";
+import { updateChallengeProgress } from "@/lib/daily-challenge";
 
 type SubmissionRecord = {
     id: string;
@@ -229,11 +230,43 @@ export async function POST(request: Request) {
             await checkAndAwardAchievements(userId);
         }
 
+        // Update daily challenge progress
+        let challengeCompleted = false;
+        let challengeBonusPoints = 0;
+        try {
+            const challengeResult = await updateChallengeProgress(
+                userId,
+                activity.type,
+                typeof score === "number" ? score : undefined
+            );
+            challengeCompleted = challengeResult.justCompleted;
+            challengeBonusPoints = challengeResult.bonusPoints;
+        } catch (error) {
+            // Daily challenge table might not exist yet (before migration)
+            console.error("Failed to update daily challenge:", error);
+        }
+
+        // Detect milestones
+        const milestones: string[] = [];
+
+        // Perfect quiz milestone
+        if (activity.type.toLowerCase() === "quiz" && score === 100) {
+            milestones.push("perfect_quiz");
+        }
+
+        // Daily challenge milestone
+        if (challengeCompleted) {
+            milestones.push("daily_challenge");
+        }
+
         return NextResponse.json({
             ok: true,
             submissionId: submission.id,
             score: submission.score,
-            points: calculatedPoints
+            points: calculatedPoints,
+            challengeCompleted,
+            challengeBonusPoints,
+            milestones,
         });
     } catch (error) {
         console.error("[api/activity/submit] Error:", error);

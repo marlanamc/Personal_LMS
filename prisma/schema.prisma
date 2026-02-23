@@ -28,6 +28,7 @@ model User {
   calendarEventsCreated CalendarEvent[]
   createdClasses        Class[]              @relation("ClassTeacher")
   classes               ClassEnrollment[]
+  dailyChallenges       UserDailyChallenge[]
   pointsLedger          PointsLedger[]
   quizResponses         QuizResponse[]
   speakingSubmissions   SpeakingSubmission[]
@@ -249,4 +250,38 @@ model QuizResponse {
   @@index([skillTag])
   @@index([userId, activityId])
   @@index([activityId, skillTag])
+}
+
+// ============================================
+// Daily Challenge System
+// ============================================
+
+model DailyChallenge {
+  id          String               @id @default(cuid())
+  date        DateTime             @unique @db.Date
+  type        String // "complete_any", "complete_grammar", "perfect_quiz", "play_games"
+  requirement Int // How many activities/games to complete
+  bonusPoints Int                  @default(15)
+  description String
+  createdAt   DateTime             @default(now())
+  userChallenges UserDailyChallenge[]
+
+  @@index([date])
+}
+
+model UserDailyChallenge {
+  id          String         @id @default(cuid())
+  userId      String
+  challengeId String
+  progress    Int            @default(0)
+  completed   Boolean        @default(false)
+  completedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge   DailyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, challengeId])
+  @@index([userId])
+  @@index([completed])
 }

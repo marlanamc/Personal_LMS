@@ -13,3 +13,5 @@ export { default as ClearFeaturedButton } from './ClearFeaturedButton';
 export { default as GrammarGradebook } from './GrammarGradebook';
 export * from './ActivityCategoryPicker';
 export * from './ClassAnnouncement';
+export * from './DailyChallengeBanner';
+export * from './StreakWarning';

@@ -1,67 +1,85 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { useSound, SoundType } from "@/context/SoundContext";
 
 interface CelebrationAnimationProps {
-    trigger: boolean;
-    type?: "confetti" | "stars" | "sparkles" | "milestone";
-    onComplete?: () => void;
+  trigger: boolean;
+  type?: "confetti" | "stars" | "sparkles" | "milestone";
+  onComplete?: () => void;
 }
 
-// Simple seeded random function
-function seededRandom(seed: number) {
-    const x = Math.sin(seed) * 10000;
-    return x - Math.floor(x);
-}
-
-export default function CelebrationAnimation({ 
-    trigger, 
-    type = "confetti", 
-    onComplete 
+export default function CelebrationAnimation({
+  trigger,
+  type = "confetti",
+  onComplete,
 }: CelebrationAnimationProps) {
-    const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const { playSound } = useSound();
 
-    // Generate fixed positions once when component is created
-    const confettiPieces = useMemo(() => 
-        Array.from({ length: 50 }).map((_, i) => ({
-            left: (i * 2) % 100,
-            delay: (i * 0.1) % 2,
-            duration: 2 + (i * 0.1) % 2,
-            color: [
-                "#ef4444", "#f97316", "#eab308", "#84cc16",
-                "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6",
-                "#ec4899", "#f43f5e"
-            ][i % 10],
-            rotation: (i * 7.2) % 360
-        }))
-    , []);
+  // Generate fixed positions once when component is created
+  const confettiPieces = useMemo(
+    () =>
+      Array.from({ length: 50 }).map((_, i) => ({
+        left: (i * 2) % 100,
+        delay: (i * 0.1) % 2,
+        duration: 2 + ((i * 0.1) % 2),
+        color: [
+          "#ef4444",
+          "#f97316",
+          "#eab308",
+          "#84cc16",
+          "#22c55e",
+          "#06b6d4",
+          "#3b82f6",
+          "#8b5cf6",
+          "#ec4899",
+          "#f43f5e",
+        ][i % 10],
+        rotation: (i * 7.2) % 360,
+      })),
+    []
+  );
 
-    const starPieces = useMemo(() =>
-        Array.from({ length: 30 }).map((_, i) => ({
-            left: 20 + (i * 3) % 60,
-            top: 20 + (i * 2) % 60,
-            delay: (i * 0.1) % 1
-        }))
-    , []);
+  const starPieces = useMemo(
+    () =>
+      Array.from({ length: 30 }).map((_, i) => ({
+        left: 20 + ((i * 3) % 60),
+        top: 20 + ((i * 2) % 60),
+        delay: (i * 0.1) % 1,
+      })),
+    []
+  );
 
-    const sparklePieces = useMemo(() =>
-        Array.from({ length: 20 }).map((_, i) => ({
-            left: 10 + (i * 4) % 80,
-            top: 10 + (i * 3) % 80,
-            delay: (i * 0.15) % 2
-        }))
-    , []);
+  const sparklePieces = useMemo(
+    () =>
+      Array.from({ length: 20 }).map((_, i) => ({
+        left: 10 + ((i * 4) % 80),
+        top: 10 + ((i * 3) % 80),
+        delay: (i * 0.15) % 2,
+      })),
+    []
+  );
 
-    useEffect(() => {
-        if (trigger) {
-            setIsVisible(true);
-            const timer = setTimeout(() => {
-                setIsVisible(false);
-                onComplete?.();
-            }, 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [trigger, onComplete]);
+  useEffect(() => {
+    if (trigger) {
+      // Play appropriate sound based on type
+      const soundMap: Record<string, SoundType> = {
+        confetti: "achievement",
+        stars: "achievement",
+        sparkles: "correct",
+        milestone: "levelUp",
+      };
+      playSound(soundMap[type] || "achievement", 0.5);
+
+      setIsVisible(true);
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+        onComplete?.();
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [trigger, onComplete, type, playSound]);
 
     if (!isVisible) return null;
 

@@ -1,46 +1,53 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSound } from "@/context/SoundContext";
 
 interface PointsToastProps {
-    points: number;
-    onComplete?: () => void;
+  points: number;
+  onComplete?: () => void;
 }
 
 export function PointsToast({ points, onComplete }: PointsToastProps) {
-    const [isVisible, setIsVisible] = useState(false);
-    const [isLeaving, setIsLeaving] = useState(false);
-    const [particles, setParticles] = useState<Array<{ id: number; x: number; delay: number }>>([]);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const [particles, setParticles] = useState<
+    Array<{ id: number; x: number; delay: number }>
+  >([]);
+  const { playSound } = useSound();
 
-    useEffect(() => {
-        // Generate floating particles
-        const particleCount = 6;
-        const newParticles = Array.from({ length: particleCount }).map((_, i) => ({
-            id: i,
-            x: (Math.random() - 0.5) * 40,
-            delay: i * 100,
-        }));
-        setParticles(newParticles);
+  useEffect(() => {
+    // Play the points sound
+    playSound("points", 0.5);
 
-        // Trigger entrance animation
-        const showTimer = setTimeout(() => setIsVisible(true), 50);
+    // Generate floating particles
+    const particleCount = 6;
+    const newParticles = Array.from({ length: particleCount }).map((_, i) => ({
+      id: i,
+      x: (Math.random() - 0.5) * 40,
+      delay: i * 100,
+    }));
+    setParticles(newParticles);
 
-        // Start exit animation after 2 seconds
-        const hideTimer = setTimeout(() => {
-            setIsLeaving(true);
-        }, 2000);
+    // Trigger entrance animation
+    const showTimer = setTimeout(() => setIsVisible(true), 50);
 
-        // Clean up after exit animation
-        const cleanupTimer = setTimeout(() => {
-            if (onComplete) onComplete();
-        }, 2500);
+    // Start exit animation after 2 seconds
+    const hideTimer = setTimeout(() => {
+      setIsLeaving(true);
+    }, 2000);
 
-        return () => {
-            clearTimeout(showTimer);
-            clearTimeout(hideTimer);
-            clearTimeout(cleanupTimer);
-        };
-    }, [onComplete]);
+    // Clean up after exit animation
+    const cleanupTimer = setTimeout(() => {
+      if (onComplete) onComplete();
+    }, 2500);
+
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+      clearTimeout(cleanupTimer);
+    };
+  }, [onComplete, playSound]);
 
     return (
         <div

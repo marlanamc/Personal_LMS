@@ -14,6 +14,11 @@ export function getDaysSinceActivity(lastActivityDate: Date | string | null, now
   return Math.floor(diffMs / 86400000);
 }
 
+export function hasActivityToday(lastActivityDate: Date | string | null, now: Date = new Date()): boolean {
+  const daysSince = getDaysSinceActivity(lastActivityDate, now);
+  return daysSince === 0;
+}
+
 export function getEffectiveStreak(
   currentStreak: number | null | undefined,
   lastActivityDate: Date | string | null,

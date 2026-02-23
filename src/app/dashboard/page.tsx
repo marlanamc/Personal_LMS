@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { trackLogin } from "@/lib/gamification";
 import { parseCategoryData } from "@/lib/categoryData";
-import { getEffectiveStreak } from "@/lib/gamification/streak-utils";
+import { getEffectiveStreak, hasActivityToday } from "@/lib/gamification/streak-utils";
+import { getTodayChallengeWithProgress } from "@/lib/daily-challenge";
 import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
 import { BottomNav } from "@/components/ui";
@@ -21,6 +22,8 @@ import {
   UpcomingEventsList,
   TodaysAssignments,
   ClearFeaturedButton,
+  DailyChallengeBanner,
+  StreakWarning,
 } from "@/components/dashboard";
 
 
@@ -96,6 +99,18 @@ export default async function DashboardPage() {
       )
     : 0;
 
+  const didActivityToday = currentUser
+    ? hasActivityToday(currentUser.lastActivityDate)
+    : false;
+
+  // Fetch daily challenge
+  let dailyChallenge = null;
+  try {
+    dailyChallenge = await getTodayChallengeWithProgress(userId);
+  } catch (error) {
+    // Daily challenge table might not exist yet (before migration)
+    console.error("Failed to fetch daily challenge:", error);
+  }
 
   // Fetch Classes and Enrollments
   const [createdClasses, enrollments] = await Promise.all([
@@ -296,6 +311,21 @@ export default async function DashboardPage() {
               </div>
             </div>
 
+            {/* Streak Warning - shows when streak is at risk */}
+            {effectiveCurrentStreak > 0 && !didActivityToday && (
+              <StreakWarning
+                currentStreak={effectiveCurrentStreak}
+                lastActivityDate={currentUser?.lastActivityDate ?? null}
+                hasActivityToday={didActivityToday}
+              />
+            )}
+
+            {/* Daily Challenge Banner */}
+            {dailyChallenge && (
+              <section className="animate-fade-in-up delay-50">
+                <DailyChallengeBanner initialChallenge={dailyChallenge} />
+              </section>
+            )}
 
             {/* Weekly Checklist (Personalized) */}
             <section className="animate-fade-in-up delay-100">
