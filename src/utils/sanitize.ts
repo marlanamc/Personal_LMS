@@ -49,7 +49,7 @@ export function sanitizeHtml(input?: string | null, options: SanitizeHtmlOptions
 export function sanitizeCss(input?: string | null): string {
     if (!input) return "";
 
-    let cleaned = input
+    const cleaned = input
         .replace(/@import[^;]+;/gi, "")
         .replace(/expression\s*\([^)]*\)/gi, "")
         .replace(/javascript:/gi, "")

@@ -1,7 +1,16 @@
 "use client";
 
 import React from "react";
-import { getMedalIcon, getMedalTier, qualifiesForMedal } from "./MedalIcons";
+import { getMedalTier, qualifiesForMedal, BookIcon, BookPencilIcon, GraduationCapIcon, StarBurstIcon } from "./MedalIcons";
+
+// Helper component to render the correct icon based on score
+function MedalIconRenderer({ score, size, className }: { score: number; size: number; className: string }) {
+    if (score >= 100) return <StarBurstIcon size={size} className={className} />;
+    if (score >= 90) return <GraduationCapIcon size={size} className={className} />;
+    if (score >= 80) return <BookPencilIcon size={size} className={className} />;
+    if (score >= 70) return <BookIcon size={size} className={className} />;
+    return null;
+}
 
 export interface CertificateMedalProps {
     /** Quiz score percentage (0-100) */
@@ -34,12 +43,11 @@ export function CertificateMedal({
     className = "",
 }: CertificateMedalProps) {
     const tier = getMedalTier(score);
-    const IconComponent = getMedalIcon(score);
     const dimensions = sizeMap[size];
     const isPlatinum = tier === "platinum";
 
     // Don't render medal for scores under 70%
-    if (!qualifiesForMedal(score) || tier === null || IconComponent === null) {
+    if (!qualifiesForMedal(score) || tier === null) {
         return null;
     }
 
@@ -97,7 +105,8 @@ export function CertificateMedal({
                     }}
                 >
                     {/* Icon */}
-                    <IconComponent
+                    <MedalIconRenderer
+                        score={score}
                         size={dimensions.icon}
                         className={`relative z-10 ${iconColorClass} drop-shadow-sm`}
                     />

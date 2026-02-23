@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
                     isWarmup = true;
                     participationPoints = content.participationPoints || 3;
                 }
-            } catch (e) {
+            } catch {
                 // Content parsing failed, assume not warmup
             }
         }

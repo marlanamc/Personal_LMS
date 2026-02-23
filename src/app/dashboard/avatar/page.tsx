@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { BackButton, BottomNav } from "@/components/ui";
 import AvatarSelector from "@/components/ui/AvatarSelector";
-import SelectedAvatarDisplay from "@/components/ui/SelectedAvatarDisplay";
 import { HomeIcon, BookOpenIcon, UserIcon } from "@/components/icons/Icons";
 import { DEFAULT_AVATAR, DEFAULT_COLOR, AVATARS, COLORS } from "@/lib/avatar-constants";
 
@@ -89,10 +88,6 @@ export default function AvatarPage() {
         setCurrentColor(colorId);
         debouncedSave(currentAvatar, colorId);
     };
-
-    // Get current avatar and color info
-    const currentAvatarInfo = AVATARS.find(a => a.id === currentAvatar);
-    const currentColorInfo = COLORS.find(c => c.id === currentColor);
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-bg to-bg-light">

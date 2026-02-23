@@ -6,23 +6,18 @@
 
 import { PrismaClient } from "@prisma/client";
 import {
-  greetingsBasicsVocabulary,
   greetingsBasicsCards,
 } from "../src/content/spanish/vocabulary/greetings-basics";
 import {
-  numbers1to100Vocabulary,
   numbers1to100Cards,
 } from "../src/content/spanish/vocabulary/numbers-1-100";
 import {
-  colorsShapesVocabulary,
   colorsShapesCards,
 } from "../src/content/spanish/vocabulary/colors-shapes";
 import {
-  familyRelationshipsVocabulary,
   familyRelationshipsCards,
 } from "../src/content/spanish/vocabulary/family-relationships";
 import {
-  commonVerbsVocabulary,
   commonVerbCards,
   verbConjugations,
 } from "../src/content/spanish/vocabulary/common-verbs";

@@ -127,8 +127,8 @@ enum InteractionMode {
 }
 
 export default function MatchingGame({ contentStr, activityId, assignmentId, vocabType }: Props) {
-    const gameMode = useMemo(() => detectMatchingGameMode(contentStr), [contentStr]);
-    const vocabPairs = useMemo(() => (gameMode === "vocab" ? parseVocabPairs(contentStr) : []), [contentStr, gameMode]);
+    const gameMode = detectMatchingGameMode(contentStr);
+    const vocabPairs = gameMode === "vocab" ? parseVocabPairs(contentStr) : [];
 
     // Time Indicators sorting game
     if (gameMode === "time-indicators") {
@@ -172,6 +172,29 @@ export default function MatchingGame({ contentStr, activityId, assignmentId, voc
         );
     }
 
+    // Countable/Uncountable game - delegate to separate component to avoid hooks-after-return
+    return (
+        <CountableMatchingUI
+            contentStr={contentStr}
+            activityId={activityId}
+            assignmentId={assignmentId}
+            vocabType={vocabType}
+        />
+    );
+}
+
+// --- Countable/Uncountable Matching UI ---
+function CountableMatchingUI({
+    contentStr,
+    activityId,
+    assignmentId,
+    vocabType,
+}: {
+    contentStr: string;
+    activityId?: string;
+    assignmentId?: string | null;
+    vocabType?: string;
+}) {
     const rounds = useMemo(() => parseRounds(contentStr), [contentStr]);
     const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
     const currentRound = rounds[currentRoundIndex];
