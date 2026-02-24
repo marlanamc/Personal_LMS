@@ -129,6 +129,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     };
   }, [resolvedTheme]);
 
+  useEffect(() => {
+    const themeColor = resolvedTheme === "light" ? "#f5f7ff" : "#0f0f1e";
+    const metaSelector = 'meta[name="theme-color"][data-runtime-theme="true"]';
+    let runtimeMeta = document.head.querySelector<HTMLMetaElement>(metaSelector);
+
+    if (!runtimeMeta) {
+      runtimeMeta = document.createElement("meta");
+      runtimeMeta.setAttribute("name", "theme-color");
+      runtimeMeta.setAttribute("data-runtime-theme", "true");
+      document.head.appendChild(runtimeMeta);
+    }
+
+    runtimeMeta.setAttribute("content", themeColor);
+  }, [resolvedTheme]);
+
   const setThemePreference = useCallback((nextPreference: ThemePreference) => {
     setPreference(nextPreference);
   }, []);

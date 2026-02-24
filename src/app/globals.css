@@ -289,6 +289,13 @@ body::after {
   opacity: 0;
 }
 
+@media (display-mode: standalone) {
+  html,
+  body {
+    background-color: var(--color-bg-primary);
+  }
+}
+
 .light :is(button, a, input, select, textarea, [role="button"]) {
   --tw-ring-offset-color: var(--color-bg-primary);
 }
@@ -2066,6 +2073,13 @@ kbd {
   body {
     padding-left: max(0px, env(safe-area-inset-left));
     padding-right: max(0px, env(safe-area-inset-right));
+  }
+
+  @media (display-mode: standalone) {
+    body {
+      padding-top: max(0px, env(safe-area-inset-top));
+      min-height: 100svh;
+    }
   }
 
   .bottom-nav {
