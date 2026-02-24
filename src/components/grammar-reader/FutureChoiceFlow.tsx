@@ -46,10 +46,10 @@ export function FutureChoiceFlow({ data }: FutureChoiceFlowProps) {
                 };
             default:
                 return {
-                    border: 'border-slate-300',
-                    bg: 'bg-slate-50 text-slate-900',
-                    icon: 'text-slate-500',
-                    badge: 'bg-slate-100 text-slate-700 border-slate-200'
+                    border: 'border-border',
+                    bg: 'bg-bg-light text-text',
+                    icon: 'text-text-muted',
+                    badge: 'bg-bg-tertiary text-text-muted border-border'
                 };
         }
     };
@@ -66,14 +66,14 @@ export function FutureChoiceFlow({ data }: FutureChoiceFlowProps) {
 
     return (
         <div className="my-8">
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-bg-secondary rounded-xl shadow-sm border border-border overflow-hidden">
                 {/* Header */}
-                <div className="bg-slate-50 border-b border-slate-200 p-4 md:p-6 text-center">
-                    <h3 className="text-lg md:text-xl font-bold text-slate-800 m-0 flex items-center justify-center gap-2">
+                <div className="bg-bg-light border-b border-border p-4 md:p-6 text-center">
+                    <h3 className="text-lg md:text-xl font-bold text-text m-0 flex items-center justify-center gap-2">
                          🧭 {data.title || "Future Decision Flow"}
                     </h3>
                     {data.description && (
-                        <p className="text-slate-600 mt-2 text-sm md:text-base max-w-2xl mx-auto">
+                        <p className="text-text-muted mt-2 text-sm md:text-base max-w-2xl mx-auto">
                             {data.description}
                         </p>
                     )}
@@ -82,7 +82,7 @@ export function FutureChoiceFlow({ data }: FutureChoiceFlowProps) {
                 {/* Flow Content */}
                 <div className="p-4 md:p-6 space-y-4 relative">
                     {/* Connecting line for desktop visual flow */}
-                    <div className="absolute left-8 top-6 bottom-6 w-0.5 bg-slate-100 hidden md:block" />
+                    <div className="absolute left-8 top-6 bottom-6 w-0.5 bg-border hidden md:block" />
 
                     {data.options.map((option, index) => {
                         const theme = getTheme(option.color);
@@ -91,7 +91,7 @@ export function FutureChoiceFlow({ data }: FutureChoiceFlowProps) {
                             <div 
                                 key={index}
                                 className={cn(
-                                    "relative bg-white rounded-lg border-l-4 shadow-sm p-4 transition-all hover:shadow-md",
+                                    "relative bg-bg-secondary rounded-lg border-l-4 shadow-sm p-4 transition-all hover:shadow-md",
                                     theme.border
                                 )}
                             >
@@ -99,14 +99,14 @@ export function FutureChoiceFlow({ data }: FutureChoiceFlowProps) {
                                     {/* Trigger Question/Context */}
                                     <div className="flex-1">
                                         <div className="flex items-start gap-3">
-                                            <div className={cn("mt-1 p-1 rounded-full bg-white md:bg-transparent", theme.icon)}>
+                                            <div className={cn("mt-1 p-1 rounded-full bg-bg-secondary md:bg-transparent", theme.icon)}>
                                                 <CheckCircle2 className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <div className="font-medium text-slate-900 mb-1">
+                                                <div className="font-medium text-text mb-1">
                                                     {option.trigger}
                                                 </div>
-                                                <div className="flex items-center gap-2 text-sm text-slate-500 md:hidden">
+                                                <div className="flex items-center gap-2 text-sm text-text-muted md:hidden">
                                                     <ArrowRight className="w-4 h-4" />
                                                     <span className={cn("px-2 py-0.5 rounded text-xs font-semibold border", theme.badge)}>
                                                         {getFormLabel(option.form)}
@@ -117,18 +117,18 @@ export function FutureChoiceFlow({ data }: FutureChoiceFlowProps) {
                                     </div>
 
                                     {/* Arrow for Desktop */}
-                                    <div className="hidden md:flex items-center text-slate-300">
+                                    <div className="hidden md:flex items-center text-text-light">
                                         <ArrowRight className="w-5 h-5" />
                                     </div>
 
                                     {/* Result: Form + Example */}
-                                    <div className="md:w-1/2 bg-slate-50 rounded-lg p-3 md:bg-transparent md:p-0">
+                                    <div className="md:w-1/2 bg-bg-light rounded-lg p-3 md:bg-transparent md:p-0">
                                         <div className="hidden md:flex items-center gap-2 mb-1">
                                             <span className={cn("px-2 py-0.5 rounded text-xs font-semibold border uppercase tracking-wider", theme.badge)}>
                                                 {getFormLabel(option.form)}
                                             </span>
                                         </div>
-                                        <div className="text-slate-700 italic text-sm md:text-base">
+                                        <div className="text-text-muted italic text-sm md:text-base">
                                             "{option.example}"
                                         </div>
                                     </div>
@@ -141,7 +141,7 @@ export function FutureChoiceFlow({ data }: FutureChoiceFlowProps) {
             
             {/* Quick Helper / Mobile Hint */}
             <div className="mt-3 text-center">
-                <p className="text-xs text-slate-400 italic">
+                <p className="text-xs text-text-light italic">
                     Ask yourself: "When was the decision made?"
                 </p>
             </div>

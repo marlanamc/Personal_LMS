@@ -371,8 +371,8 @@ function SlidesRenderer({ content }: { content: SlidesContent }) {
             <p className="text-text-muted mb-4">
                 This is a slide presentation with {slides.length} slide{slides.length !== 1 ? "s" : ""}.
             </p>
-            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-                <p className="text-indigo-800">
+            <div className="bg-info/10 border border-info/30 rounded-lg p-4">
+                <p className="text-info">
                     💡 Slide presentations are best viewed in full-screen mode.
                     Use the arrow keys to navigate between slides.
                 </p>
@@ -590,7 +590,7 @@ function ResourceRenderer({
                                 {entry.term}
                             </h3>
                             {entry.pos && (
-                                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold italic border border-slate-200">
+                                <span className="px-2.5 py-0.5 rounded-full bg-bg-light text-text-muted text-xs font-semibold italic border border-border">
                                     {entry.pos}
                                 </span>
                             )}

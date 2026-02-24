@@ -7,7 +7,6 @@ import { parseCategoryData } from "@/lib/categoryData";
 import { getEffectiveStreak, hasActivityToday } from "@/lib/gamification/streak-utils";
 import { getTodayChallengeWithProgress } from "@/lib/daily-challenge";
 import Link from "next/link";
-import LogoutButton from "@/components/LogoutButton";
 import { BottomNav } from "@/components/ui";
 import {
   HomeIcon,
@@ -396,10 +395,6 @@ export default async function DashboardPage() {
                     <span className="text-sm font-semibold">New Event</span>
                   </Link>
                 </div>
-              </div>
-
-              <div className="pt-2 flex justify-center">
-                <LogoutButton />
               </div>
             </div>
           </aside>

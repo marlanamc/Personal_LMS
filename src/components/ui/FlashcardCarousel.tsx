@@ -192,7 +192,7 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
     const [showSettings, setShowSettings] = useState(false);
 
     return (
-        <div className="fixed inset-0 bg-[var(--color-bg)] flex flex-col touch-manipulation md:static md:h-auto md:min-h-screen md:w-full md:max-w-4xl md:mx-auto md:px-4 md:py-4">
+        <div className="fixed inset-0 bg-bg-primary flex flex-col touch-manipulation md:static md:h-auto md:min-h-screen md:w-full md:max-w-4xl md:mx-auto md:px-4 md:py-4">
             {/* Points Toast */}
             {pointsToast && (
                 <PointsToast
@@ -203,7 +203,7 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
             )}
 
             {/* Top Bar - Progress & Settings (+ Navigation on Desktop) */}
-            <div className="flex-shrink-0 bg-white border-b-2 border-[var(--color-border)] px-4 py-3">
+            <div className="flex-shrink-0 bg-bg-secondary border-b-2 border-[var(--color-border)] px-4 py-3">
                 {/* Mobile: Progress row */}
                 <div className="flex items-center justify-between md:hidden">
                     <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
                     <div className="flex items-center gap-3">
                         <button
                             onClick={(e) => { e.stopPropagation(); goPrev(); }}
-                            className="p-3 rounded-xl border-2 border-[var(--color-primary)]/30 bg-white hover:bg-[var(--color-bg-light)] text-[var(--color-text)] transition-[background-color,transform] active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                            className="p-3 rounded-xl border-2 border-[var(--color-primary)]/30 bg-bg-secondary hover:bg-[var(--color-bg-light)] text-[var(--color-text)] transition-[background-color,transform] active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                             aria-label="Previous card"
                         >
                             <ChevronLeftIcon className="w-5 h-5" />
@@ -255,14 +255,14 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
 
                         <button
                             onClick={(e) => { e.stopPropagation(); handleFlip(); }}
-                            className="py-3 px-10 rounded-full bg-white border-2 border-[var(--color-border)] text-[var(--color-text)] font-bold shadow-sm hover:shadow-md transition-[box-shadow,transform] text-base active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                            className="py-3 px-10 rounded-full bg-bg-secondary border-2 border-[var(--color-border)] text-[var(--color-text)] font-bold shadow-sm hover:shadow-md transition-[box-shadow,transform] text-base active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                         >
                             {isFlipped ? "Back" : "Flip"}
                         </button>
 
                         <button
                             onClick={(e) => { e.stopPropagation(); goNext(); }}
-                            className="p-3 rounded-xl border-2 border-[var(--color-border)] bg-white hover:bg-[var(--color-bg-light)] text-[var(--color-text)] transition-[background-color,transform] active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                            className="p-3 rounded-xl border-2 border-[var(--color-border)] bg-bg-secondary hover:bg-[var(--color-bg-light)] text-[var(--color-text)] transition-[background-color,transform] active:scale-95 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                             aria-label="Next card"
                         >
                             <ChevronRightIcon className="w-5 h-5" />
@@ -285,16 +285,16 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
             {/* Settings Panel - Collapsible */}
             {showSettings && (
                 <div className="flex-shrink-0 bg-[var(--color-bg-light)] border-b-2 border-[var(--color-border)] px-4 py-4 flex flex-col gap-3">
-                    <div className="flex items-center gap-0 bg-white rounded-lg p-1 border-2 border-[var(--color-border)]">
+                    <div className="flex items-center gap-0 bg-bg-secondary rounded-lg p-1 border-2 border-[var(--color-border)]">
                         <button
                             onClick={() => { setMode("term-first"); setIsFlipped(false); }}
-                            className={`flex-1 py-2.5 px-4 text-sm font-bold rounded-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 ${mode === "term-first" ? "bg-zinc-900 text-white shadow-md ring-1 ring-black/5" : "bg-transparent text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"}`}
+                            className={`flex-1 py-2.5 px-4 text-sm font-bold rounded-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${mode === "term-first" ? "bg-primary text-white shadow-md" : "bg-transparent text-text-muted hover:text-text hover:bg-bg-light"}`}
                         >
                             Term First
                         </button>
                         <button
                             onClick={() => { setMode("def-first"); setIsFlipped(false); }}
-                            className={`flex-1 py-2.5 px-4 text-sm font-bold rounded-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2 ${mode === "def-first" ? "bg-zinc-900 text-white shadow-md ring-1 ring-black/5" : "bg-transparent text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"}`}
+                            className={`flex-1 py-2.5 px-4 text-sm font-bold rounded-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${mode === "def-first" ? "bg-primary text-white shadow-md" : "bg-transparent text-text-muted hover:text-text hover:bg-bg-light"}`}
                         >
                             Definition First
                         </button>
@@ -302,14 +302,14 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
                     <div className="flex items-center gap-2">
                         <button
                             onClick={shuffleOrder}
-                            className={`flex-1 py-2.5 px-4 text-sm font-medium rounded-lg bg-white text-[var(--color-text)] hover:bg-[var(--color-border)] transition-[background-color] flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${isShuffling ? "opacity-50" : ""}`}
+                            className={`flex-1 py-2.5 px-4 text-sm font-medium rounded-lg bg-bg-secondary text-[var(--color-text)] hover:bg-[var(--color-border)] transition-[background-color] flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${isShuffling ? "opacity-50" : ""}`}
                         >
                             <ShuffleIcon className="w-4 h-4" />
                             Shuffle
                         </button>
                         <button
                             onClick={resetOrder}
-                            className="flex-1 py-2.5 px-4 text-sm font-medium rounded-lg bg-white text-[var(--color-text)] hover:bg-[var(--color-border)] transition-[background-color] flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                            className="flex-1 py-2.5 px-4 text-sm font-medium rounded-lg bg-bg-secondary text-[var(--color-text)] hover:bg-[var(--color-border)] transition-[background-color] flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                         >
                             <RefreshCwIcon className="w-4 h-4" />
                             Reset
@@ -362,7 +362,7 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
             </div>
 
             {/* Bottom Navigation - Large touch targets (Mobile only) */}
-            <div className="flex-shrink-0 bg-white border-t-2 border-[var(--color-border)] px-4 py-4 flex items-center justify-center gap-4 md:hidden">
+            <div className="flex-shrink-0 bg-bg-secondary border-t-2 border-[var(--color-border)] px-4 py-4 flex items-center justify-center gap-4 md:hidden">
                 <button
                     onClick={(e) => { e.stopPropagation(); goPrev(); }}
                     className="p-4 rounded-full bg-[var(--color-bg-light)] hover:bg-[var(--color-border)] text-[var(--color-text)] transition-[background-color,transform] active:scale-95 min-h-[56px] min-w-[56px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
@@ -421,16 +421,16 @@ function CardFace({ content, variant, theme }: { content: CardFaceContent; varia
 
     const containerClasses = theme === "colored"
         // Back/Colored theme (higher-contrast mint palette for readability)
-        ? "bg-gradient-to-br from-[#2f7f7a] to-[#2a6f6b] text-[#f4fffd] shadow-2xl border-2 border-[#4fc2b9]"
+        ? "bg-gradient-to-br from-secondary to-secondary-dark text-white shadow-2xl border-2 border-secondary-light"
         // Front/Light theme (White Background)
-        : "bg-white text-[var(--color-text)] shadow-2xl border-2 border-[var(--color-border)]";
+        : "bg-bg-secondary text-[var(--color-text)] shadow-2xl border-2 border-[var(--color-border)]";
 
     const labelClasses = theme === "colored"
-        ? "bg-black/20 text-[#f4fffd] backdrop-blur-sm border border-white/30"
+        ? "bg-black/20 text-white backdrop-blur-sm border border-white/30"
         : "bg-[var(--color-bg-light)] text-[var(--color-text-muted)] border border-[var(--color-border)]";
 
     const titleClasses = theme === "colored"
-        ? "text-[#f4fffd] drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
+        ? "text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
         : "text-[var(--color-text)]";
 
     // Gender badge colors
@@ -462,7 +462,7 @@ function CardFace({ content, variant, theme }: { content: CardFaceContent; varia
 
                 {/* Pronunciation (Spanish mode) */}
                 {content.pronunciation && (
-                    <p className={`text-lg sm:text-xl ${theme === "colored" ? "text-[#b8f0e8]" : "text-gray-500"}`}>
+                    <p className={`text-lg sm:text-xl ${theme === "colored" ? "text-secondary-light" : "text-[var(--color-text-muted)]"}`}>
                         /{content.pronunciation}/
                     </p>
                 )}
@@ -470,7 +470,7 @@ function CardFace({ content, variant, theme }: { content: CardFaceContent; varia
                 {/* Example Section */}
                 {content.example && (
                     <div className={`mt-2 sm:mt-4 pt-4 sm:pt-6 border-t-2 ${theme === "colored" ? "border-white/35" : "border-[var(--color-border)]"}`}>
-                        <p className={`text-base sm:text-lg md:text-xl italic leading-relaxed ${theme === "colored" ? "text-[#e8fffb]" : "text-[var(--color-text-muted)]"}`}>
+                        <p className={`text-base sm:text-lg md:text-xl italic leading-relaxed ${theme === "colored" ? "text-white/95" : "text-[var(--color-text-muted)]"}`}>
                             "{content.example}"
                         </p>
                     </div>

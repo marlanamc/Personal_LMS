@@ -163,12 +163,12 @@ export default function InteractiveGuideViewer({
 
     const embeddedControls = (
         <div className="flex items-center gap-2">
-            <div className="rounded-full border border-[#304675] bg-[#0b1230]/90 px-3 py-1 text-xs font-semibold text-[#9fb0d8] backdrop-blur-md">
+            <div className="rounded-full border border-border bg-bg-secondary/90 px-3 py-1 text-xs font-semibold text-text-muted backdrop-blur-md">
                 {showMiniQuiz ? "Mini Quiz" : `${currentStep + 1}/${totalSteps}`}
             </div>
             <button
                 onClick={() => setShowTOC(true)}
-                className="rounded-full border border-[#304675] bg-[#0b1230]/90 px-3 py-1.5 text-xs font-semibold text-[#c9d7f7] hover:text-white hover:bg-[#131f47] transition-colors backdrop-blur-md"
+                className="rounded-full border border-border bg-bg-secondary/90 px-3 py-1.5 text-xs font-semibold text-text hover:text-primary hover:bg-bg-light transition-colors backdrop-blur-md"
                 aria-expanded={showTOC}
                 aria-label="Show table of contents"
             >
@@ -184,14 +184,14 @@ export default function InteractiveGuideViewer({
 
     return (
         <div
-            className={`interactive-guide-viewer ${containerLayout} z-fixed flex flex-col text-[#e7eeff] font-body selection:bg-primary/30 lg:overflow-hidden bg-gradient-to-br from-[#050914] via-[#08112a] to-[#0a1738] ${
+            className={`interactive-guide-viewer ${containerLayout} z-fixed flex flex-col text-text font-body selection:bg-primary/20 lg:overflow-hidden bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-tertiary ${
                 isGrammarVariant ? "grammar-reader-variant" : ""
             }`}
         >
             {showHeader && (
                 <>
                     {/* Header */}
-                    <header className="sticky lg:relative top-0 flex-none h-14 sm:h-16 px-4 sm:px-6 border-b border-[#243765]/80 bg-[#0b1230]/95 backdrop-blur-md flex items-center justify-between z-10">
+                    <header className="sticky lg:relative top-0 flex-none h-14 sm:h-16 px-4 sm:px-6 border-b border-border bg-bg-secondary/95 backdrop-blur-md flex items-center justify-between z-10">
                         <div className="flex items-center gap-4">
                             {/* Back button - only on mobile when no onClose */}
                             {!onClose && (
@@ -200,13 +200,13 @@ export default function InteractiveGuideViewer({
                                     className="shrink-0 md:hidden min-w-[44px] min-h-[44px] justify-center"
                                 />
                             )}
-                            <h1 className="text-base sm:text-lg font-display font-bold text-[#eef3ff] truncate max-w-md">
+                            <h1 className="text-base sm:text-lg font-display font-bold text-text truncate max-w-md">
                                 {title || "Grammar Presentation Mode"}
                             </h1>
                         </div>
 
                         <div className="flex items-center gap-4 sm:gap-6">
-                            <span className="text-sm font-semibold text-[#9fb0d8] tracking-wide">
+                            <span className="text-sm font-semibold text-text-muted tracking-wide">
                                 {currentStep + 1} / {totalSteps}
                             </span>
                             {onClose && (
@@ -222,7 +222,7 @@ export default function InteractiveGuideViewer({
                     </header>
 
                     {/* Progress bar for small screens */}
-                    <div className="lg:hidden h-1 w-full bg-[#1d2c57]">
+                    <div className="lg:hidden h-1 w-full bg-bg-light">
                         <div className="h-full bg-primary transition-[width]" style={{ width: `${progressPercent}%` }} />
                     </div>
                 </>
@@ -230,13 +230,13 @@ export default function InteractiveGuideViewer({
 
             {/* Table of Contents */}
             {showTOC && (
-                <div className="border-b border-[#243765]/80 bg-[#0b1230]/95 px-4 sm:px-6 py-4">
+                <div className="border-b border-border bg-bg-secondary/95 px-4 sm:px-6 py-4">
                     <div className="max-w-4xl">
                         <div className="mb-3 flex items-center justify-between gap-3">
-                            <h3 className="text-sm font-semibold tracking-wide uppercase text-[#a8bee9]">Sections</h3>
+                            <h3 className="text-sm font-semibold tracking-wide uppercase text-text-muted">Sections</h3>
                             <button
                                 onClick={() => setShowTOC(false)}
-                                className="rounded-md border border-[#304675] bg-[#0f193a] px-2.5 py-1 text-xs font-semibold text-[#c9d7f7] hover:text-white hover:bg-[#13214c] transition-colors"
+                                className="rounded-md border border-border bg-bg-light px-2.5 py-1 text-xs font-semibold text-text hover:text-primary hover:bg-bg-tertiary transition-colors"
                                 aria-label="Hide table of contents"
                             >
                                 Hide TOC
@@ -251,8 +251,8 @@ export default function InteractiveGuideViewer({
                                         onClick={() => jumpToSection(index)}
                                         className={`text-left px-3.5 py-2.5 rounded-lg border transition-colors ${
                                             isCurrent
-                                                ? "bg-[#2a4d95] text-white border-[#7ca8ff]"
-                                                : "bg-[#0f193a] text-[#d6e3ff] border-[#304675] hover:bg-[#13214c] hover:border-[#4b6cb4]"
+                                                ? "bg-primary text-white border-primary"
+                                                : "bg-bg-secondary text-text border-border hover:bg-bg-light hover:border-primary/50"
                                         }`}
                                         aria-current={isCurrent ? "page" : undefined}
                                     >
@@ -269,8 +269,8 @@ export default function InteractiveGuideViewer({
                                     }}
                                     className={`text-left px-3.5 py-2.5 rounded-lg border transition-colors ${
                                         showMiniQuiz
-                                            ? "bg-[#2a4d95] text-white border-[#7ca8ff]"
-                                            : "bg-[#0f193a] text-[#d6e3ff] border-[#304675] hover:bg-[#13214c] hover:border-[#4b6cb4]"
+                                            ? "bg-primary text-white border-primary"
+                                            : "bg-bg-secondary text-text border-border hover:bg-bg-light hover:border-primary/50"
                                     }`}
                                     aria-current={showMiniQuiz ? "page" : undefined}
                                 >
@@ -301,7 +301,7 @@ export default function InteractiveGuideViewer({
                         <button
                             onClick={handlePrevious}
                             disabled={!canGoPrev}
-                            className={`hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 z-20 w-14 h-14 items-center justify-center rounded-full bg-[#111b42]/95 shadow-lg border border-[#2d4276] transition-[transform,color] hover:scale-110 active:scale-95 text-[#89b2ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${!canGoPrev ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:text-[#bdd4ff]'}`}
+                            className={`hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 z-20 w-14 h-14 items-center justify-center rounded-full bg-bg-secondary/95 shadow-lg border border-border transition-[transform,color] hover:scale-110 active:scale-95 text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${!canGoPrev ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:text-text'}`}
                             aria-label="Previous section"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
@@ -310,7 +310,7 @@ export default function InteractiveGuideViewer({
                         <button
                             onClick={handleNext}
                             disabled={!canGoNext}
-                            className={`hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 z-20 w-14 h-14 items-center justify-center rounded-full bg-[#111b42]/95 shadow-lg border border-[#2d4276] transition-[transform,color] hover:scale-110 active:scale-95 text-[#89b2ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${!canGoNext ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:text-[#bdd4ff]'}`}
+                            className={`hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 z-20 w-14 h-14 items-center justify-center rounded-full bg-bg-secondary/95 shadow-lg border border-border transition-[transform,color] hover:scale-110 active:scale-95 text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${!canGoNext ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:text-text'}`}
                             aria-label="Next section"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
@@ -322,37 +322,35 @@ export default function InteractiveGuideViewer({
                     <>
                         {/* Left Panel: Theory/Content */}
                         <div
-                            className={`flex-1 min-h-0 w-full lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain p-5 sm:p-7 lg:pl-24 lg:pr-12 flex flex-col lg:justify-start bg-gradient-to-b from-[#111a3d] to-[#0a1330] ${
+                            className={`flex-1 min-h-0 w-full lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain p-5 sm:p-7 lg:pl-24 lg:pr-12 flex flex-col lg:justify-start bg-gradient-to-b from-bg-secondary to-bg-tertiary ${
                                 isGrammarVariant ? "explanation-panel" : ""
                             }`}
                         >
                             <div className="w-full lg:max-w-2xl lg:mx-auto animate-fade-in-up space-y-4 sm:space-y-6">
                                 {currentSection.stepNumber && (
-                                    <span className="inline-block text-xs font-bold tracking-widest text-[#8db7ff] uppercase mb-4 border-b-2 border-[#8db7ff]/30 pb-1">
+                                    <span className="inline-block text-xs font-bold tracking-widest text-primary uppercase mb-4 border-b-2 border-primary/30 pb-1">
                                         Part {currentSection.stepNumber}
                                     </span>
                                 )}
-                                <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-[#f3f7ff] mb-6 md:mb-8 leading-tight">
+                                <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-text mb-6 md:mb-8 leading-tight">
                                     {currentSection.title}
                                 </h2>
 
                                 {currentSection.explanation && (
                                     <div
-                                        className={`prose prose-lg text-[#cdd9f6] leading-relaxed mb-8 max-w-none ${
-                                            isGrammarVariant ? "explanation-content" : "prose-invert"
-                                        }`}
+                                        className={`prose prose-lg text-text leading-relaxed mb-8 max-w-none ${isGrammarVariant ? "explanation-content" : ""}`}
                                         dangerouslySetInnerHTML={{ __html: currentSection.explanation }}
                                     />
                                 )}
 
                                 {currentSection.examples && currentSection.examples.length > 0 && (
-                                    <div className="bg-[#0c1636]/90 rounded-2xl p-6 border border-[#2b3f72] shadow-sm mb-8">
-                                        <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-[#aac2ee] mb-4">
+                                    <div className="bg-bg-secondary/90 rounded-2xl p-6 border border-border shadow-sm mb-8">
+                                        <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-text-muted mb-4">
                                             <span className="text-lg">💡</span> Examples
                                         </h3>
                                         <div className="space-y-3">
                                             {currentSection.examples.map((example, idx) => (
-                                                <div key={idx} className="bg-[#121f46]/90 px-4 py-3 rounded-xl border border-[#324d8b]/60 text-[#e8efff] font-medium text-lg leading-relaxed shadow-sm">
+                                                <div key={idx} className="bg-bg-tertiary/60 px-4 py-3 rounded-xl border border-border text-text font-medium text-lg leading-relaxed shadow-sm">
                                                     {example}
                                                 </div>
                                             ))}
@@ -372,16 +370,16 @@ export default function InteractiveGuideViewer({
 
                         {/* Right Panel: Practice/Interaction */}
                         <div
-                            className={`flex-1 min-h-0 w-full lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain bg-[#0a1028] border-t lg:border-t-0 lg:border-l border-[#243765]/80 p-5 sm:p-7 lg:pr-24 lg:pl-12 flex flex-col lg:justify-start ${
+                            className={`flex-1 min-h-0 w-full lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain bg-bg-primary border-t lg:border-t-0 lg:border-l border-border p-5 sm:p-7 lg:pr-24 lg:pl-12 flex flex-col lg:justify-start ${
                                 isGrammarVariant ? "practice-panel" : ""
                             }`}
                         >
                             <div className="w-full lg:max-w-2xl lg:mx-auto animate-fade-in-up delay-100 space-y-4 sm:space-y-6">
                                 {currentSection.exercises && currentSection.exercises.length > 0 ? (
-                                    <div className="bg-gradient-to-br from-[#121b42] to-[#0f1738] rounded-3xl p-6 sm:p-8 shadow-xl border border-[#304675] relative overflow-hidden">
+                                    <div className="bg-gradient-to-br from-bg-secondary to-bg-tertiary rounded-3xl p-6 sm:p-8 shadow-xl border border-border relative overflow-hidden">
                                         <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                                        <h3 className="flex items-center gap-2 text-lg font-display font-bold text-[#b4c8ef] mb-6 relative z-10">
+                                        <h3 className="flex items-center gap-2 text-lg font-display font-bold text-text-muted mb-6 relative z-10">
                                             <span className="text-xl">✍️</span> Practice
                                         </h3>
 
@@ -397,8 +395,8 @@ export default function InteractiveGuideViewer({
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center text-center p-12 opacity-70 text-[#c3d2f3]">
-                                        <div className="w-16 h-16 bg-[#1f315f]/60 rounded-full flex items-center justify-center mb-4 text-3xl">
+                                    <div className="flex flex-col items-center justify-center text-center p-12 opacity-80 text-text-muted">
+                                        <div className="w-16 h-16 bg-bg-light rounded-full flex items-center justify-center mb-4 text-3xl">
                                             📖
                                         </div>
                                         <p className="text-lg font-display font-semibold">Notes Only</p>
@@ -422,21 +420,21 @@ export default function InteractiveGuideViewer({
 
             {/* Mobile Controls */}
             {!showTOC && (
-                <div className="lg:hidden border-t border-[#243765]/80 bg-[#0b1230]/95 backdrop-blur px-4 py-3 flex items-center justify-between gap-3 fixed bottom-0 left-0 right-0 z-20 safe-area-bottom">
+                <div className="lg:hidden border-t border-border bg-bg-secondary/95 backdrop-blur px-4 py-3 flex items-center justify-between gap-3 fixed bottom-0 left-0 right-0 z-20 safe-area-bottom">
                     <button
                         onClick={handlePrevious}
                         disabled={!canGoPrev}
-                        className={`px-4 py-2 min-h-[44px] rounded-lg font-semibold transition-[background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${canGoPrev ? "bg-[#121d45] text-[#e8efff] hover:bg-[#1a2a5d]" : "bg-[#1d2b54] text-[#8ea0c8] cursor-not-allowed"}`}
+                        className={`px-4 py-2 min-h-[44px] rounded-lg font-semibold transition-[background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${canGoPrev ? "bg-bg-light text-text hover:bg-bg-tertiary" : "bg-bg-light/70 text-text-muted cursor-not-allowed"}`}
                     >
                         Prev
                     </button>
-                    <div className="text-sm font-semibold text-[#9fb0d8]">
+                    <div className="text-sm font-semibold text-text-muted">
                         {currentStep + 1} / {totalSteps}
                     </div>
                     <button
                         onClick={handleNext}
                         disabled={!canGoNext}
-                        className={`px-4 py-2 min-h-[44px] rounded-lg font-semibold transition-[filter] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${canGoNext ? "bg-primary text-white shadow-sm hover:brightness-110" : "bg-[#1d2b54] text-[#8ea0c8] cursor-not-allowed"}`}
+                        className={`px-4 py-2 min-h-[44px] rounded-lg font-semibold transition-[filter] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${canGoNext ? "bg-primary text-white shadow-sm hover:brightness-110" : "bg-bg-light/70 text-text-muted cursor-not-allowed"}`}
                     >
                         Next
                     </button>
@@ -450,12 +448,12 @@ export default function InteractiveGuideViewer({
 
 function FormulaBadge({ part }: { part: FormulaPart }) {
     const colors = {
-        subject: "bg-[#10244d] text-[#c9dcff] border-[#36599a]",
-        verb: "bg-[#2b1840] text-[#edd4ff] border-[#5d3b85]",
-        ing: "bg-[#172b5a] text-[#9dc3ff] border-[#3f68b5]",
-        helper: "bg-[#2f1a44] text-[#e6cbff] border-[#694493]",
-        object: "bg-[#13362f] text-[#c6f2df] border-[#2f7a6c]",
-        other: "bg-[#18233f] text-[#d9e4ff] border-[#3b4d7a]"
+        subject: "bg-primary/15 text-primary border-primary/35",
+        verb: "bg-warning/20 text-warning border-warning/40",
+        ing: "bg-secondary/20 text-secondary border-secondary/40",
+        helper: "bg-accent/20 text-accent border-accent/40",
+        object: "bg-success/20 text-success border-success/40",
+        other: "bg-bg-light text-text border-border"
     };
 
     const isHelperVerb =
@@ -530,14 +528,14 @@ function MiniQuizPanel({ questions, onBack }: { questions: MiniQuizQuestion[]; o
     };
 
     return (
-        <div className="max-w-4xl mx-auto bg-gradient-to-br from-[#121b42] to-[#0f1738] rounded-3xl p-6 sm:p-8 shadow-xl border border-[#304675]">
+        <div className="max-w-4xl mx-auto bg-gradient-to-br from-bg-secondary to-bg-tertiary rounded-3xl p-6 sm:p-8 shadow-xl border border-border">
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-display font-bold text-[#eaf1ff]">Mini Quiz</h3>
-                <span className="text-sm text-[#9fb0d8]">{answeredCount}/{questions.length} answered</span>
+                <h3 className="text-2xl font-display font-bold text-text">Mini Quiz</h3>
+                <span className="text-sm text-text-muted">{answeredCount}/{questions.length} answered</span>
             </div>
 
             {submitted && (
-                <div className="mb-5 rounded-xl border border-[#3d5fa8] bg-[#0f1f48] px-4 py-3 text-[#d8e7ff]">
+                <div className="mb-5 rounded-xl border border-primary/35 bg-primary/10 px-4 py-3 text-text">
                     Score: <span className="font-bold">{score}/{questions.length}</span>
                 </div>
             )}
@@ -547,9 +545,9 @@ function MiniQuizPanel({ questions, onBack }: { questions: MiniQuizQuestion[]; o
                     const selected = answers[question.id] || "";
                     const isCorrect = selected === question.correctAnswer;
                     return (
-                        <div key={question.id} className="rounded-xl border border-[#2f4a85] bg-[#0c1636]/90 p-4">
-                            <p className="text-[#e8efff] font-semibold mb-3">
-                                <span className="text-[#91a5d2] mr-2">{index + 1}.</span>
+                        <div key={question.id} className="rounded-xl border border-border bg-bg-secondary/90 p-4">
+                            <p className="text-text font-semibold mb-3">
+                                <span className="text-text-muted mr-2">{index + 1}.</span>
                                 {question.question}
                             </p>
 
@@ -565,15 +563,15 @@ function MiniQuizPanel({ questions, onBack }: { questions: MiniQuizQuestion[]; o
                                                 setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }));
                                                 if (submitted) setSubmitted(false);
                                             }}
-                                            className="appearance-none w-5 h-5 border-2 border-[#7892c8] rounded-full checked:border-[#7ca8ff] checked:bg-[#7ca8ff] transition-[border-color,background-color]"
+                                            className="appearance-none w-5 h-5 border-2 border-border-dark rounded-full checked:border-primary checked:bg-primary transition-[border-color,background-color]"
                                         />
-                                        <span className="text-[#dbe6ff] group-hover:text-[#9ec0ff] transition-colors">{opt.label}</span>
+                                        <span className="text-text group-hover:text-primary transition-colors">{opt.label}</span>
                                     </label>
                                 ))}
                             </div>
 
                             {submitted && (
-                                <p className={`mt-3 text-sm font-semibold ${isCorrect ? "text-emerald-300" : "text-rose-300"}`}>
+                                <p className={`mt-3 text-sm font-semibold ${isCorrect ? "text-success" : "text-error"}`}>
                                     {isCorrect ? "Correct" : "Incorrect"}
                                 </p>
                             )}
@@ -587,21 +585,21 @@ function MiniQuizPanel({ questions, onBack }: { questions: MiniQuizQuestion[]; o
                     type="button"
                     onClick={handleSubmit}
                     disabled={!allAnswered}
-                    className="px-4 py-2 rounded-lg bg-[#2a4d95] text-white font-semibold hover:bg-[#3560b8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Check Answers
                 </button>
                 <button
                     type="button"
                     onClick={handleReset}
-                    className="px-4 py-2 rounded-lg border border-[#3a5189] text-[#c9d7f7] hover:bg-[#13214c] transition-colors"
+                    className="px-4 py-2 rounded-lg border border-border text-text hover:bg-bg-light transition-colors"
                 >
                     Reset
                 </button>
                 <button
                     type="button"
                     onClick={onBack}
-                    className="px-4 py-2 rounded-lg border border-[#3a5189] text-[#c9d7f7] hover:bg-[#13214c] transition-colors"
+                    className="px-4 py-2 rounded-lg border border-border text-text hover:bg-bg-light transition-colors"
                 >
                     Back to Sections
                 </button>
@@ -652,7 +650,7 @@ function ExerciseGroup({
     return (
         <div className={`space-y-6 ${grammarVariant ? "exercise-section" : ""}`}>
             {exercise.title && (
-                <p className="text-sm font-semibold text-[#a9bee8] uppercase tracking-wider">{exercise.title}</p>
+                <p className="text-sm font-semibold text-text-muted uppercase tracking-wider">{exercise.title}</p>
             )}
 
             <div className="space-y-4">
@@ -664,16 +662,16 @@ function ExerciseGroup({
                         return (
                     <div
                         key={idx}
-                        className={`bg-[#0d1636]/90 p-5 rounded-xl border transition-colors ${
+                        className={`bg-bg-secondary/90 p-5 rounded-xl border transition-colors ${
                             showResult
                                 ? results[idx]
-                                    ? "border-emerald-500/80"
-                                    : "border-rose-500/80"
-                                : "border-[#2c4379] hover:border-[#3f61ac]"
+                                    ? "border-success/80"
+                                    : "border-error/80"
+                                : "border-border hover:border-primary/50"
                         }`}
                     >
-                        <p className="text-[#e8efff] font-medium text-lg mb-3">
-                            <span className="text-[#91a5d2] font-bold mr-2 text-sm">{idx + 1}.</span>
+                        <p className="text-text font-medium text-lg mb-3">
+                            <span className="text-text-muted font-bold mr-2 text-sm">{idx + 1}.</span>
                             {item.label}
                         </p>
 
@@ -681,7 +679,7 @@ function ExerciseGroup({
                             <select
                                 value={answerValue}
                                 onChange={(e) => handleAnswerChange(idx, e.target.value)}
-                                className="w-full p-3 rounded-lg border border-[#3a5189] bg-[#0a122f] text-[#e8efff] focus:ring-2 focus:ring-[#5b88d9]/30 focus:border-[#5b88d9] outline-none transition-[border-color] shadow-sm focus-visible:ring-2 focus-visible:ring-[#5b88d9]/50 focus-visible:ring-offset-2"
+                                className="w-full p-3 rounded-lg border border-border bg-bg-primary text-text focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-[border-color] shadow-sm focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                             >
                                 <option value="">Choose…</option>
                                 {item.options.map((opt, i) => (
@@ -696,7 +694,7 @@ function ExerciseGroup({
                                 value={answerValue}
                                 onChange={(e) => handleAnswerChange(idx, e.target.value)}
                                 placeholder={item.placeholder || "Type your answer…"}
-                                className="w-full p-3 rounded-lg border border-[#3a5189] bg-[#0a122f] text-[#e8efff] focus:ring-2 focus:ring-[#5b88d9]/30 focus:border-[#5b88d9] outline-none transition-[border-color] shadow-sm focus-visible:ring-2 focus-visible:ring-[#5b88d9]/50 focus-visible:ring-offset-2"
+                                className="w-full p-3 rounded-lg border border-border bg-bg-primary text-text focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-[border-color] shadow-sm focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                             />
                         )}
 
@@ -711,11 +709,11 @@ function ExerciseGroup({
                                                 value={opt.value}
                                                 checked={answerValue === opt.value}
                                                 onChange={(e) => handleAnswerChange(idx, e.target.value)}
-                                                className="peer appearance-none w-5 h-5 border-2 border-[#7892c8] rounded-full checked:border-[#7ca8ff] checked:bg-[#7ca8ff] transition-[border-color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7ca8ff]/50 focus-visible:ring-offset-2"
+                                                className="peer appearance-none w-5 h-5 border-2 border-border-dark rounded-full checked:border-primary checked:bg-primary transition-[border-color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                                             />
-                                            <div className="absolute inset-0 m-auto w-2 h-2 rounded-full bg-bg-secondary/90 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></div>
+                                            <div className="absolute inset-0 m-auto w-2 h-2 rounded-full bg-bg-secondary opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></div>
                                         </div>
-                                        <span className="text-[#dbe6ff] group-hover:text-[#9ec0ff] transition-colors">{opt.label}</span>
+                                        <span className="text-text group-hover:text-primary transition-colors">{opt.label}</span>
                                     </label>
                                 ))}
                             </div>
@@ -724,7 +722,7 @@ function ExerciseGroup({
                         {showResult && (
                             <div
                                 className={`mt-3 text-sm font-semibold ${
-                                    results[idx] ? "text-emerald-300" : "text-rose-300"
+                                    results[idx] ? "text-success" : "text-error"
                                 }`}
                             >
                                 {results[idx] ? "Correct" : "Try again"}
@@ -740,19 +738,19 @@ function ExerciseGroup({
                 <button
                     type="button"
                     onClick={handleCheckAnswers}
-                    className="px-4 py-2 rounded-lg bg-[#2a4d95] text-white font-semibold hover:bg-[#3560b8] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7ca8ff]/60"
+                    className="px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                 >
                     Check Answers
                 </button>
                 <button
                     type="button"
                     onClick={handleReset}
-                    className="px-4 py-2 rounded-lg border border-[#3a5189] text-[#c9d7f7] hover:bg-[#13214c] transition-colors"
+                    className="px-4 py-2 rounded-lg border border-border text-text hover:bg-bg-light transition-colors"
                 >
                     Reset
                 </button>
                 {checked && (
-                    <span className="text-sm text-[#c9d7f7] font-medium">
+                    <span className="text-sm text-text-muted font-medium">
                         Score: {correctItems}/{totalItems}
                     </span>
                 )}

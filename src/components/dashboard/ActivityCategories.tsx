@@ -1466,13 +1466,13 @@ const ActivityCard = React.memo(function ActivityCard({
                     disabled={featureDisabled}
                     className={`absolute top-3 right-3 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${
                         isFeatured
-                            ? 'border-amber-300 bg-amber-50 text-amber-500'
-                            : 'border-border/70 bg-white/90 text-text-muted hover:bg-bg-light'
+                            ? '!border-amber-300 !bg-amber-50 !text-amber-500'
+                            : '!border-border/70 !bg-bg-secondary !text-text-light hover:!bg-bg-light hover:!text-text'
                     } ${featureDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                     aria-label={isFeatured ? 'Remove from featured' : 'Mark as featured'}
                     title={isFeatured ? 'Featured (click to unfeature)' : 'Feature this activity'}
                 >
-                    <Star className={`h-3.5 w-3.5 ${isFeatured ? 'fill-current' : ''}`} />
+                    <Star className={`h-3.5 w-3.5 ${isFeatured ? 'fill-current' : ''}`} strokeWidth={2.25} />
                 </button>
             )}
 

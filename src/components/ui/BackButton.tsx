@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { HomeIcon } from "@/components/icons/Icons";
 
 const baseClass =
-  "items-center gap-2 px-3 py-2 rounded-lg bg-white border border-[var(--color-border)] text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-light)] hover:border-[var(--color-border-dark)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2";
+  "items-center gap-2 px-3 py-2 rounded-lg !bg-bg-secondary !border !border-border text-sm font-medium !text-text hover:!bg-bg-light hover:!border-border-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2";
 
 interface BackButtonBaseProps {
   children?: React.ReactNode;
@@ -47,8 +47,8 @@ export function BackButton({
   const buttonClasses = isHome
     ? [
         "items-center transition-colors shadow-sm active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2",
-        "md:justify-center md:w-10 md:h-10 md:rounded-full md:bg-white md:border md:border-[var(--color-border)] md:text-[var(--color-text)] md:hover:bg-[var(--color-bg-light)] md:hover:border-[var(--color-border-dark)]", // Desktop (Home style)
-        "rounded-lg bg-white border border-[var(--color-border)] text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-light)] hover:border-[var(--color-border-dark)] gap-2 px-3 py-2 md:px-0 md:py-0", // Mobile (Standard style override)
+        "md:justify-center md:w-10 md:h-10 md:rounded-full md:!bg-bg-secondary md:!border md:!border-border md:!text-text md:hover:!bg-bg-light md:hover:!border-border-dark", // Desktop (Home style)
+        "rounded-lg !bg-bg-secondary !border !border-border text-sm font-medium !text-text hover:!bg-bg-light hover:!border-border-dark gap-2 px-3 py-2 md:px-0 md:py-0", // Mobile (Standard style override)
       ].join(" ")
     : baseClass;
 

@@ -72,7 +72,7 @@ export const TableOfContents = React.memo(function TableOfContents({
                                         </svg>
                                     ) : (
                                         <svg
-                                            className={`w-6 h-6 ${isCurrent ? "text-primary" : "text-text-muted"}`}
+                                            className={`w-6 h-6 ${isCurrent ? "text-white" : "text-text-muted"}`}
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"

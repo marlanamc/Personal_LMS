@@ -167,7 +167,7 @@ export default function MatchingGame({ contentStr, activityId, assignmentId, voc
         }
         return (
             <div className="max-w-4xl mx-auto p-8 text-center">
-                <p className="text-gray-500">No vocabulary pairs to match.</p>
+                <p className="text-text-muted">No vocabulary pairs to match.</p>
             </div>
         );
     }
@@ -645,7 +645,7 @@ function CountableMatchingUI({
     if (rounds.length === 0 || !currentRound) {
         return (
             <div className="max-w-6xl mx-auto p-8 text-center">
-                <p className="text-gray-500">
+                <p className="text-text-muted">
                     No countable/uncountable words available.
                 </p>
             </div>
@@ -653,7 +653,7 @@ function CountableMatchingUI({
     }
 
     return (
-        <div className="fixed inset-0 bg-[var(--color-bg)] flex flex-col md:static md:max-w-4xl md:mx-auto md:px-3 md:py-4">
+        <div className="fixed inset-0 bg-bg-primary flex flex-col md:static md:max-w-4xl md:mx-auto md:px-3 md:py-4">
             {/* Points Toast */}
             {pointsToast && (
                 <PointsToast
@@ -664,7 +664,7 @@ function CountableMatchingUI({
             )}
 
             {/* Header */}
-            <div className="flex-shrink-0 bg-white border-b-2 md:border md:rounded-xl shadow-sm border-gray-200 p-3 md:p-4">
+            <div className="flex-shrink-0 bg-bg-secondary border-b-2 md:border md:rounded-xl shadow-sm border-border p-3 md:p-4">
                 <div className="flex items-start gap-3">
                     <BackButton
                         onClick={() => window.history.back()}
@@ -673,26 +673,26 @@ function CountableMatchingUI({
                     <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                             <div>
-                                <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 leading-tight">
+                                <h2 className="text-base sm:text-lg md:text-xl font-bold text-text leading-tight">
                                     Countable vs Uncountable Nouns
                                 </h2>
-                                <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+                                <p className="text-xs sm:text-sm text-text-muted mt-0.5">
                                     Round {currentRound.roundNumber} of {rounds.length}
                                 </p>
                             </div>
-                            <div className="text-sm font-medium text-gray-600 whitespace-nowrap">
+                            <div className="text-sm font-medium text-text-muted whitespace-nowrap">
                                 <span className="text-green-600 font-bold">
                                     {gameState.correctCount}
                                 </span>{" "}
                                 / {shuffledWords.length} correct
                             </div>
                         </div>
-                        <p className="text-xs sm:text-sm text-gray-600 mb-3">
+                        <p className="text-xs sm:text-sm text-text-muted mb-3">
                             {interactionMode === InteractionMode.WordSelected
                                 ? "Tap a group to put the word there"
                                 : "Pick a word and move it to the right group"}
                         </p>
-                        <div className="h-2.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-2.5 w-full bg-bg-light rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-[var(--color-primary)] transition-[width] duration-300"
                                 style={{ width: `${progress}%` }}
@@ -716,7 +716,7 @@ function CountableMatchingUI({
                             onDragEnd={handleWordDragEnd}
                             onClick={handleWordTap}
                             className={`
-                                p-6 md:p-8 bg-white rounded-2xl shadow-lg border-4 cursor-grab active:cursor-grabbing
+                                p-6 md:p-8 bg-bg-secondary rounded-2xl shadow-lg border-4 cursor-grab active:cursor-grabbing
                                 text-center transition-[transform,box-shadow] duration-200 min-h-[120px] flex items-center justify-center
                                 touch-manipulation select-none
                                 ${gameState.bounceWord ? "animate-bounce-back" : ""}
@@ -727,15 +727,15 @@ function CountableMatchingUI({
                                         : interactionMode ===
                                           InteractionMode.Dragging
                                         ? "border-blue-400 opacity-75"
-                                        : "border-gray-300 hover:border-blue-300"
+                                        : "border-border hover:border-blue-300"
                                 }
                             `}
                         >
-                            <h3 className="text-4xl md:text-5xl font-bold text-gray-900 break-words">
+                            <h3 className="text-4xl md:text-5xl font-bold text-text break-words">
                                 {currentWord.word}
                             </h3>
                         </div>
-                        <p className="text-center text-xs sm:text-sm text-gray-500 mt-3">
+                        <p className="text-center text-xs sm:text-sm text-text-muted mt-3">
                             {interactionMode === InteractionMode.WordSelected
                                 ? "Now tap a group below"
                                 : "Tap a group to sort the word"}
@@ -776,17 +776,17 @@ function CountableMatchingUI({
                                             : interactionMode ===
                                               InteractionMode.Dragging
                                             ? "border-green-500 bg-green-50"
-                                            : "border-gray-300 bg-gray-50 hover:border-gray-400"
+                                            : "border-border bg-bg-light/70 hover:border-border-dark"
                                     }
                                 `}
                             >
                                 <div className="text-4xl md:text-5xl mb-2">
                                     📦
                                 </div>
-                                <div className="font-bold text-gray-900 text-base md:text-lg">
+                                <div className="font-bold text-text text-base md:text-lg">
                                     Countable
                                 </div>
-                                <p className="text-xs text-gray-600 mt-2 text-center">
+                                <p className="text-xs text-text-muted mt-2 text-center">
                                     You can count these
                                 </p>
                             </div>
@@ -818,17 +818,17 @@ function CountableMatchingUI({
                                             : interactionMode ===
                                               InteractionMode.Dragging
                                             ? "border-green-500 bg-green-50"
-                                            : "border-gray-300 bg-gray-50 hover:border-gray-400"
+                                            : "border-border bg-bg-light/70 hover:border-border-dark"
                                     }
                                 `}
                             >
                                 <div className="text-4xl md:text-5xl mb-2">
                                     ∞
                                 </div>
-                                <div className="font-bold text-gray-900 text-base md:text-lg">
+                                <div className="font-bold text-text text-base md:text-lg">
                                     Uncountable
                                 </div>
-                                <p className="text-xs text-gray-600 mt-2 text-center">
+                                <p className="text-xs text-text-muted mt-2 text-center">
                                     You can't count this
                                 </p>
                             </div>
@@ -862,7 +862,7 @@ function CountableMatchingUI({
                                     </p>
                                     <button
                                         onClick={handleNextRound}
-                                        className="inline-block px-6 py-3 bg-white text-emerald-600 font-bold rounded-lg hover:bg-gray-100 active:scale-95 transition-[background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                                        className="inline-block px-6 py-3 bg-bg-secondary text-success font-bold rounded-lg hover:bg-bg-light active:scale-95 transition-[background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                                     >
                                         Next Round →
                                     </button>
@@ -911,7 +911,7 @@ function CountableMatchingUI({
                 <div className="flex-shrink-0 flex justify-center px-3 pb-4 md:pb-0">
                     <button
                         onClick={handleReset}
-                        className="w-full md:w-auto min-h-[48px] px-6 md:px-8 py-3 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-[background-color,box-shadow] shadow-lg touch-manipulation text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                        className="w-full md:w-auto min-h-[48px] px-6 md:px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark active:bg-primary-dark transition-[background-color,box-shadow] shadow-lg touch-manipulation text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                     >
                         Play Again
                     </button>
@@ -1032,18 +1032,18 @@ function VocabMatchingUI({
     };
 
     return (
-        <div className="-m-6 bg-gradient-to-br from-[#0b1230] via-[#101b3f] to-[#0a1738] p-4 md:p-6 text-[#dbe7ff]">
-            <div className="bg-[#0f193a] border border-[#304675] rounded-xl shadow-sm p-4 mb-4">
-                <h2 className="text-lg font-bold text-[#eef3ff] mb-1">Vocabulary Matching</h2>
-                <p className="text-sm text-[#9fb0d8] mb-2">Match each word to its definition.</p>
+        <div className="-m-6 bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-tertiary p-4 md:p-6 text-text">
+            <div className="bg-bg-secondary border border-border rounded-xl shadow-sm p-4 mb-4">
+                <h2 className="text-lg font-bold text-text mb-1">Vocabulary Matching</h2>
+                <p className="text-sm text-text-muted mb-2">Match each word to its definition.</p>
                 <div className="flex items-center gap-2">
-                    <div className="h-2 flex-1 bg-[#1f315f] rounded-full overflow-hidden">
+                    <div className="h-2 flex-1 bg-bg-light rounded-full overflow-hidden">
                         <div
                             className="h-full bg-[var(--color-primary)] transition-[width] duration-300"
                             style={{ width: `${progressPercent}%` }}
                         />
                     </div>
-                    <span className="text-sm font-medium text-[#9fb0d8] whitespace-nowrap">
+                    <span className="text-sm font-medium text-text-muted whitespace-nowrap">
                         {matchedTermIds.size}/{pairs.length}
                     </span>
                 </div>
@@ -1059,19 +1059,19 @@ function VocabMatchingUI({
                 <div className="space-y-6">
                     {/* Mobile: Selected term display */}
                     {selectedTermId && (
-                        <div className="md:hidden bg-[#12224a] border-2 border-[#4d6fb9] rounded-xl p-4 shadow-sm">
-                            <p className="text-sm text-[#9fb9ff] mb-2 font-medium">Selected Word:</p>
-                            <p className="text-xl font-bold text-[#eef3ff]">
+                        <div className="md:hidden bg-bg-light border-2 border-primary/50 rounded-xl p-4 shadow-sm">
+                            <p className="text-sm text-text-muted mb-2 font-medium">Selected Word:</p>
+                            <p className="text-xl font-bold text-text">
                                 {pairs.find((p) => p.id === selectedTermId)?.term}
                             </p>
-                            <p className="text-xs text-[#9fb9ff] mt-2">Now tap the correct definition below</p>
+                            <p className="text-xs text-text-muted mt-2">Now tap the correct definition below</p>
                         </div>
                     )}
 
                     {/* Desktop: Two-column layout */}
                     <div className="hidden md:grid md:grid-cols-2 md:gap-6">
                         <div className="space-y-2">
-                            <p className="text-sm font-medium text-[#9fb0d8]">Words</p>
+                            <p className="text-sm font-medium text-text-muted">Words</p>
                             {shuffledTerms.map((p) => {
                                 const handlers = createTermClickHandler(p.id);
                                 return (
@@ -1081,8 +1081,8 @@ function VocabMatchingUI({
                                         {...handlers}
                                         className={`
                                             w-full text-left px-4 py-3 min-h-[48px] rounded-lg border-2 transition-all touch-manipulation cursor-pointer
-                                            ${matchedTermIds.has(p.id) ? "bg-emerald-500/15 border-emerald-400 text-emerald-100" : ""}
-                                            ${selectedTermId === p.id ? "border-[#6d8fd8] bg-[#19315d] text-[#f1f6ff]" : "border-[#324b83] bg-[#101b3f] text-[#dbe7ff] hover:border-[#4a67a7] hover:bg-[#152650]"}
+                                            ${matchedTermIds.has(p.id) ? "bg-success/15 border-success/50 text-success" : ""}
+                                            ${selectedTermId === p.id ? "border-primary bg-primary/15 text-text" : "border-border bg-bg-secondary text-text hover:border-primary/50 hover:bg-bg-light"}
                                         `}
                                     >
                                         <span className="font-medium">{p.term}</span>
@@ -1091,7 +1091,7 @@ function VocabMatchingUI({
                             })}
                         </div>
                         <div className="space-y-2">
-                            <p className="text-sm font-medium text-[#9fb0d8]">Definitions</p>
+                            <p className="text-sm font-medium text-text-muted">Definitions</p>
                             {shuffledDefs.map((p) => {
                                 const handlers = createDefClickHandler(p.id);
                                 return (
@@ -1101,8 +1101,8 @@ function VocabMatchingUI({
                                         {...handlers}
                                         className={`
                                             w-full text-left px-4 py-3 min-h-[48px] rounded-lg border-2 transition-all touch-manipulation cursor-pointer text-sm
-                                            ${matchedTermIds.has(p.id) ? "bg-emerald-500/15 border-emerald-400 text-emerald-100" : ""}
-                                            ${wrongFlash === p.id ? "border-rose-400 bg-rose-500/15 text-rose-100 animate-pulse" : "border-[#324b83] bg-[#101b3f] text-[#dbe7ff] hover:border-[#4a67a7] hover:bg-[#152650]"}
+                                            ${matchedTermIds.has(p.id) ? "bg-success/15 border-success/50 text-success" : ""}
+                                            ${wrongFlash === p.id ? "border-error/60 bg-error/15 text-error animate-pulse" : "border-border bg-bg-secondary text-text hover:border-primary/50 hover:bg-bg-light"}
                                         `}
                                     >
                                         <span>{p.definition}</span>
@@ -1116,7 +1116,7 @@ function VocabMatchingUI({
                     <div className="md:hidden space-y-4">
                         {/* Words to select */}
                         <div className="space-y-2">
-                            <p className="text-sm font-medium text-[#9fb0d8]">
+                            <p className="text-sm font-medium text-text-muted">
                                 {selectedTermId ? "Selected word shown above" : "Tap a word to start:"}
                             </p>
                             {!selectedTermId && shuffledTerms.map((p) => {
@@ -1128,8 +1128,8 @@ function VocabMatchingUI({
                                         {...handlers}
                                         className={`
                                             w-full text-left px-4 py-4 min-h-[60px] rounded-lg border-2 transition-all touch-manipulation cursor-pointer text-base
-                                            ${matchedTermIds.has(p.id) ? "bg-emerald-500/15 border-emerald-400 text-emerald-100" : ""}
-                                            ${selectedTermId === p.id ? "border-[#6d8fd8] bg-[#19315d] text-[#f1f6ff]" : "border-[#324b83] bg-[#101b3f] text-[#dbe7ff] hover:border-[#4a67a7] hover:bg-[#152650]"}
+                                            ${matchedTermIds.has(p.id) ? "bg-success/15 border-success/50 text-success" : ""}
+                                            ${selectedTermId === p.id ? "border-primary bg-primary/15 text-text" : "border-border bg-bg-secondary text-text hover:border-primary/50 hover:bg-bg-light"}
                                         `}
                                     >
                                         <span className="font-medium text-lg">{p.term}</span>
@@ -1141,7 +1141,7 @@ function VocabMatchingUI({
                         {/* Definitions to match (only show when word is selected) */}
                         {selectedTermId && (
                             <div className="space-y-2">
-                                <p className="text-sm font-medium text-[#9fb0d8]">Tap the correct definition:</p>
+                                <p className="text-sm font-medium text-text-muted">Tap the correct definition:</p>
                                 {shuffledDefs.map((p) => {
                                     const handlers = createDefClickHandler(p.id);
                                     return (
@@ -1151,8 +1151,8 @@ function VocabMatchingUI({
                                             {...handlers}
                                             className={`
                                                 w-full text-left px-4 py-4 min-h-[60px] rounded-lg border-2 transition-all touch-manipulation cursor-pointer text-base
-                                                ${matchedTermIds.has(p.id) ? "bg-emerald-500/15 border-emerald-400 text-emerald-100" : ""}
-                                                ${wrongFlash === p.id ? "border-rose-400 bg-rose-500/15 text-rose-100 animate-pulse" : "border-[#324b83] bg-[#101b3f] text-[#dbe7ff] hover:border-[#4a67a7] hover:bg-[#152650]"}
+                                                ${matchedTermIds.has(p.id) ? "bg-success/15 border-success/50 text-success" : ""}
+                                                ${wrongFlash === p.id ? "border-error/60 bg-error/15 text-error animate-pulse" : "border-border bg-bg-secondary text-text hover:border-primary/50 hover:bg-bg-light"}
                                             `}
                                         >
                                             <span className="text-base">{p.definition}</span>
@@ -1616,7 +1616,7 @@ function TimeIndicatorSortingUI({
     if (rounds.length === 0 || !currentRound) {
         return (
             <div className="max-w-6xl mx-auto p-8 text-center">
-                <p className="text-gray-500">
+                <p className="text-text-muted">
                     No time indicator words available.
                 </p>
             </div>
@@ -1631,7 +1631,7 @@ function TimeIndicatorSortingUI({
     const difficultyStyle = difficultyColors[currentRound.difficulty];
 
     return (
-        <div className="fixed inset-0 bg-[var(--color-bg)] flex flex-col md:static md:max-w-4xl md:mx-auto md:px-3 md:py-4">
+        <div className="fixed inset-0 bg-bg-primary flex flex-col md:static md:max-w-4xl md:mx-auto md:px-3 md:py-4">
             {/* Points Toast */}
             {pointsToast && (
                 <PointsToast
@@ -1642,7 +1642,7 @@ function TimeIndicatorSortingUI({
             )}
 
             {/* Header */}
-            <div className="flex-shrink-0 bg-white border-b-2 md:border md:rounded-xl shadow-sm border-gray-200 p-3 md:p-4">
+            <div className="flex-shrink-0 bg-bg-secondary border-b-2 md:border md:rounded-xl shadow-sm border-border p-3 md:p-4">
                 <div className="flex items-start gap-3">
                     <BackButton
                         onClick={() => window.history.back()}
@@ -1651,29 +1651,29 @@ function TimeIndicatorSortingUI({
                     <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 leading-tight">
+                                <h2 className="text-base sm:text-lg md:text-xl font-bold text-text leading-tight">
                                     Time Indicators
                                 </h2>
                                 <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${difficultyStyle.bg} ${difficultyStyle.text}`}>
                                     {difficultyStyle.label}
                                 </span>
                             </div>
-                            <div className="text-sm font-medium text-gray-600 whitespace-nowrap">
+                            <div className="text-sm font-medium text-text-muted whitespace-nowrap">
                                 <span className="text-green-600 font-bold">
                                     {gameState.correctCount}
                                 </span>{" "}
                                 / {shuffledWords.length} correct
                             </div>
                         </div>
-                        <p className="text-xs text-gray-500 mb-1">
+                        <p className="text-xs text-text-muted mb-1">
                             Round {currentRound.roundNumber} of {rounds.length}
                         </p>
-                        <p className="text-xs sm:text-sm text-gray-600 mb-3">
+                        <p className="text-xs sm:text-sm text-text-muted mb-3">
                             {interactionMode === InteractionMode.WordSelected
                                 ? "Tap a category to sort"
                                 : "Which tense does this time expression use?"}
                         </p>
-                        <div className="h-2.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-2.5 w-full bg-bg-light rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-[var(--color-primary)] transition-[width] duration-300"
                                 style={{ width: `${progress}%` }}
@@ -1697,7 +1697,7 @@ function TimeIndicatorSortingUI({
                             onDragEnd={handleWordDragEnd}
                             onClick={handleWordTap}
                             className={`
-                                p-6 md:p-8 bg-white rounded-2xl shadow-lg border-4 cursor-grab active:cursor-grabbing
+                                p-6 md:p-8 bg-bg-secondary rounded-2xl shadow-lg border-4 cursor-grab active:cursor-grabbing
                                 text-center transition-[transform,box-shadow] duration-200 min-h-[120px] flex items-center justify-center
                                 touch-manipulation select-none
                                 ${gameState.bounceWord ? "animate-bounce-back" : ""}
@@ -1708,15 +1708,15 @@ function TimeIndicatorSortingUI({
                                         : interactionMode ===
                                           InteractionMode.Dragging
                                         ? "border-blue-400 opacity-75"
-                                        : "border-gray-300 hover:border-blue-300"
+                                        : "border-border hover:border-blue-300"
                                 }
                             `}
                         >
-                            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 break-words">
+                            <h3 className="text-3xl md:text-4xl font-bold text-text break-words">
                                 {currentWord.word}
                             </h3>
                         </div>
-                        <p className="text-center text-xs sm:text-sm text-gray-500 mt-3">
+                        <p className="text-center text-xs sm:text-sm text-text-muted mt-3">
                             {interactionMode === InteractionMode.WordSelected
                                 ? "Now tap a category below"
                                 : "Tap a category to sort"}
@@ -1751,14 +1751,14 @@ function TimeIndicatorSortingUI({
                                             : interactionMode ===
                                               InteractionMode.Dragging
                                             ? "border-green-500 bg-green-50"
-                                            : "border-gray-300 bg-gray-50 hover:border-gray-400"
+                                            : "border-border bg-bg-light/70 hover:border-border-dark"
                                     }
                                 `}
                             >
                                 <div className="text-4xl md:text-5xl mb-2">
                                     📅
                                 </div>
-                                <div className="font-bold text-gray-900 text-base md:text-lg">
+                                <div className="font-bold text-text text-base md:text-lg">
                                     Specified Time
                                 </div>
                                 <p className="text-xs font-semibold text-blue-600 mt-1">
@@ -1789,14 +1789,14 @@ function TimeIndicatorSortingUI({
                                             : interactionMode ===
                                               InteractionMode.Dragging
                                             ? "border-green-500 bg-green-50"
-                                            : "border-gray-300 bg-gray-50 hover:border-gray-400"
+                                            : "border-border bg-bg-light/70 hover:border-border-dark"
                                     }
                                 `}
                             >
                                 <div className="text-4xl md:text-5xl mb-2">
                                     ⏳
                                 </div>
-                                <div className="font-bold text-gray-900 text-base md:text-lg">
+                                <div className="font-bold text-text text-base md:text-lg">
                                     Unspecified Time
                                 </div>
                                 <p className="text-xs font-semibold text-purple-600 mt-1">
@@ -1835,7 +1835,7 @@ function TimeIndicatorSortingUI({
                                     </p>
                                     <button
                                         onClick={handleNextRound}
-                                        className="inline-block px-6 py-3 bg-white text-emerald-600 font-bold rounded-lg hover:bg-gray-100 active:scale-95 transition-[background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                                        className="inline-block px-6 py-3 bg-bg-secondary text-success font-bold rounded-lg hover:bg-bg-light active:scale-95 transition-[background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                                     >
                                         Next Round →
                                     </button>
@@ -1884,7 +1884,7 @@ function TimeIndicatorSortingUI({
                 <div className="flex-shrink-0 flex justify-center px-3 pb-4 md:pb-0">
                     <button
                         onClick={handleReset}
-                        className="w-full md:w-auto min-h-[48px] px-6 md:px-8 py-3 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-[background-color,box-shadow] shadow-lg touch-manipulation text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                        className="w-full md:w-auto min-h-[48px] px-6 md:px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark active:bg-primary-dark transition-[background-color,box-shadow] shadow-lg touch-manipulation text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                     >
                         Play Again
                     </button>
@@ -2232,7 +2232,7 @@ function VerbSoundsRightSortingUI({
     if (isLoadingProgress) {
         return (
             <div className="max-w-6xl mx-auto p-8 text-center">
-                <p className="text-gray-500">Loading your progress...</p>
+                <p className="text-text-muted">Loading your progress...</p>
             </div>
         );
     }
@@ -2240,7 +2240,7 @@ function VerbSoundsRightSortingUI({
     if (rounds.length === 0 || !currentRound) {
         return (
             <div className="max-w-6xl mx-auto p-8 text-center">
-                <p className="text-gray-500">No verb sounds right items available.</p>
+                <p className="text-text-muted">No verb sounds right items available.</p>
             </div>
         );
     }
@@ -2251,21 +2251,21 @@ function VerbSoundsRightSortingUI({
     const wordOptions = currentBlank ? buildVerbOptions(currentBlank, shouldSwap) : [];
 
     return (
-        <div className="fixed inset-0 bg-[var(--color-bg)] flex flex-col md:static md:max-w-4xl md:mx-auto md:px-3 md:py-4">
+        <div className="fixed inset-0 bg-bg-primary flex flex-col md:static md:max-w-4xl md:mx-auto md:px-3 md:py-4">
             {pointsToast && <PointsToast key={pointsToast.key} points={pointsToast.points} onComplete={() => setPointsToast(null)} />}
-            <div className="flex-shrink-0 bg-white border-b-2 md:border md:rounded-xl shadow-sm border-gray-200 p-3 md:p-4">
+            <div className="flex-shrink-0 bg-bg-secondary border-b-2 md:border md:rounded-xl shadow-sm border-border p-3 md:p-4">
                 <div className="flex items-start gap-3">
                     <BackButton onClick={() => window.history.back()} className="shrink-0 md:hidden min-w-[44px] min-h-[44px] justify-center touch-manipulation" />
                     <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                            <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Pick the word that sounds right</h2>
-                            <div className="text-sm font-medium text-gray-600">
+                            <h2 className="text-base sm:text-lg md:text-xl font-bold text-text">Pick the word that sounds right</h2>
+                            <div className="text-sm font-medium text-text-muted">
                                 <span className="text-green-600 font-bold">{gameState.correctCount}</span> / {shuffledItems.length} correct
                             </div>
                         </div>
-                        <p className="text-xs text-gray-500 mb-1">Round {currentRound.roundNumber} of {rounds.length}</p>
-                        <p className="text-xs sm:text-sm text-gray-600 mb-3">Tap the word that fits in the sentence</p>
-                        <div className="h-2.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <p className="text-xs text-text-muted mb-1">Round {currentRound.roundNumber} of {rounds.length}</p>
+                        <p className="text-xs sm:text-sm text-text-muted mb-3">Tap the word that fits in the sentence</p>
+                        <div className="h-2.5 w-full bg-bg-light rounded-full overflow-hidden">
                             <div className="h-full bg-[var(--color-primary)] transition-[width] duration-300" style={{ width: `${progress}%` }} />
                         </div>
                     </div>
@@ -2278,12 +2278,12 @@ function VerbSoundsRightSortingUI({
                     <div className="w-full max-w-2xl">
                         <div
                             className={`
-                                p-8 md:p-10 bg-white rounded-2xl shadow-lg border-4 text-center
+                                p-8 md:p-10 bg-bg-secondary rounded-2xl shadow-lg border-4 text-center
                                 min-h-[140px] flex items-center justify-center
-                                ${gameState.bounceCard ? "animate-bounce-back border-gray-300" : "border-gray-300"}
+                                ${gameState.bounceCard ? "animate-bounce-back border-border" : "border-border"}
                             `}
                         >
-                            <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 leading-relaxed">
+                            <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-text leading-relaxed">
                                 {currentItem.sentence.split("_____").map((part, blankIdx, arr) => (
                                     <span key={blankIdx}>
                                         {part}
@@ -2302,14 +2302,14 @@ function VerbSoundsRightSortingUI({
                                                 <span className="inline-block min-w-[80px] md:min-w-[100px] border-b-4 border-dashed border-[var(--color-primary)] mx-1 drop-zone-ready" />
                                             ) : (
                                                 // Future blank - dimmed
-                                                <span className="inline-block min-w-[80px] md:min-w-[100px] border-b-4 border-dashed border-gray-300 mx-1" />
+                                                <span className="inline-block min-w-[80px] md:min-w-[100px] border-b-4 border-dashed border-border mx-1" />
                                             )
                                         )}
                                     </span>
                                 ))}
                             </h3>
                         </div>
-                        <p className="text-center text-sm text-gray-500 mt-3">
+                        <p className="text-center text-sm text-text-muted mt-3">
                             {currentItem.blanks.length > 1
                                 ? `Blank ${gameState.currentBlankIndex + 1} of ${currentItem.blanks.length} — Tap the word that sounds right`
                                 : "Tap the word that sounds right"
@@ -2354,7 +2354,7 @@ function VerbSoundsRightSortingUI({
                                         <div className="text-4xl md:text-5xl mb-2">
                                             {isSelectedCorrect ? "✅" : showWrong ? "❌" : colors.emoji}
                                         </div>
-                                        <div className="font-bold text-gray-900 text-2xl md:text-3xl">
+                                        <div className="font-bold text-text text-2xl md:text-3xl">
                                             {word}
                                         </div>
                                         {isSelectedCorrect && tenseHint && (
@@ -2386,7 +2386,7 @@ function VerbSoundsRightSortingUI({
                                 <p className="text-sm text-white/80 mb-4">Ready for Round {currentRound.roundNumber + 1}?</p>
                                 <button
                                     onClick={handleNextRound}
-                                    className="inline-block px-6 py-3 bg-white text-emerald-600 font-bold rounded-lg hover:bg-gray-100 active:scale-95 transition-colors"
+                                    className="inline-block px-6 py-3 bg-bg-secondary text-success font-bold rounded-lg hover:bg-bg-light active:scale-95 transition-colors"
                                 >
                                     Next Round →
                                 </button>
@@ -2427,7 +2427,7 @@ function VerbSoundsRightSortingUI({
 
             {isGameComplete && (
                 <div className="flex-shrink-0 flex justify-center px-3 pb-4 md:pb-0">
-                    <button onClick={handleReset} className="w-full md:w-auto min-h-[48px] px-6 md:px-8 py-3 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 active:scale-95 transition-colors shadow-lg touch-manipulation">
+                    <button onClick={handleReset} className="w-full md:w-auto min-h-[48px] px-6 md:px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark active:scale-95 transition-colors shadow-lg touch-manipulation">
                         Play Again
                     </button>
                 </div>

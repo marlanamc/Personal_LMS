@@ -44,8 +44,8 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
   if (displayActivities.length === 0) {
     return (
       <div className={`text-center py-12 ${className}`}>
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-          <Trophy className="w-8 h-8 text-gray-400" />
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-bg-light flex items-center justify-center">
+          <Trophy className="w-8 h-8 text-text-light" />
         </div>
         <p className="text-text-muted">No activities completed yet</p>
         <p className="text-sm text-text-muted mt-1">Complete an activity to start earning points!</p>
@@ -63,7 +63,7 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
           return (
             <div
               key={activity.id + index}
-              className="group relative flex items-start gap-4 p-4 rounded-xl bg-white/50 border border-border/40 hover:bg-white hover:border-border transition-[background-color,border-color,box-shadow] duration-200 hover:shadow-sm"
+              className="group relative flex items-start gap-4 p-4 rounded-xl bg-bg-secondary/75 border border-border/50 hover:bg-bg-secondary hover:border-border-dark transition-[background-color,border-color,box-shadow] duration-200 hover:shadow-sm"
             >
               {/* Timeline line connector */}
               {index !== displayActivities.length - 1 && (

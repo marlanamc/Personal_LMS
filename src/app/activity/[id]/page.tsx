@@ -268,14 +268,14 @@ export default async function ActivityPage({ params, searchParams }: Props) {
         }
 
         return (
-            <div className="fixed inset-0 bg-[#0a1738] flex flex-col overflow-hidden">
+            <div className="fixed inset-0 bg-bg-primary flex flex-col overflow-hidden">
                 {/* Minimal Header */}
-                <header className="bg-[#0b1230]/95 border-b border-[#243765]/80 px-4 sm:px-6 py-3 sm:py-4 z-10 flex-shrink-0 backdrop-blur-md">
+                <header className="bg-bg-secondary/95 border-b border-border px-4 sm:px-6 py-3 sm:py-4 z-10 flex-shrink-0 backdrop-blur-md">
                     {/* Mobile Layout: Stacked */}
                     <div className="flex flex-col gap-2 sm:hidden">
                         <div className="flex items-center justify-between gap-2">
                             <BackButton href="/dashboard" className="flex-shrink-0" hideOnMobile />
-                            <h1 className="text-lg font-bold text-[#eef3ff] truncate flex-1 min-w-0 text-center px-2">
+                            <h1 className="text-lg font-bold text-text truncate flex-1 min-w-0 text-center px-2">
                                 {activity.title}
                             </h1>
                             {shouldShowHeaderProgressBadge && (
@@ -292,24 +292,24 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                     {/* Desktop Layout: Horizontal */}
                     <div className="hidden sm:flex items-center justify-between">
                         <div className="flex-1 min-w-0">
-                            <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-2 text-sm text-[#9fb0d8]">
+                            <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-2 text-sm text-text-muted">
                                 {isCodingLike && (
                                     <>
-                                        <Link href="/dashboard" className="hover:text-[#d6e3ff] transition-colors">Home</Link>
+                                        <Link href="/dashboard" className="hover:text-text transition-colors">Home</Link>
                                         <span aria-hidden>/</span>
                                     </>
                                 )}
-                                <Link href="/dashboard/activities" className="hover:text-[#d6e3ff] transition-colors">Activities</Link>
+                                <Link href="/dashboard/activities" className="hover:text-text transition-colors">Activities</Link>
                                 {categoryCrumb && (
                                     <>
                                         <span aria-hidden>/</span>
-                                        <Link href={categoryCrumb.href} className="hover:text-[#d6e3ff] transition-colors">
+                                        <Link href={categoryCrumb.href} className="hover:text-text transition-colors">
                                             {categoryCrumb.label}
                                         </Link>
                                     </>
                                 )}
                             </nav>
-                            <h1 className="text-xl font-bold text-[#eef3ff] truncate">{activity.title}</h1>
+                            <h1 className="text-xl font-bold text-text truncate">{activity.title}</h1>
                         </div>
                         <div className="ml-4 flex-shrink-0 flex items-center gap-2">
                             <div
@@ -359,8 +359,8 @@ export default async function ActivityPage({ params, searchParams }: Props) {
 
     if (isMatchingGame) {
         return (
-            <div className="min-h-screen bg-[#0a1738]">
-                <header className="bg-[#0b1230]/95 border-b border-[#243765]/80">
+            <div className="min-h-screen bg-bg-primary">
+                <header className="bg-bg-secondary/95 border-b border-border">
                     <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                         {/* Mobile Layout: Stacked */}
                         <div className="flex flex-col gap-2 sm:hidden">
@@ -375,7 +375,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                                     />
                                 )}
                             </div>
-                            <h1 className="text-base sm:text-lg font-bold text-[#eef3ff] line-clamp-2 leading-snug">
+                            <h1 className="text-base sm:text-lg font-bold text-text line-clamp-2 leading-snug">
                                 {activity.title}
                             </h1>
                         </div>
@@ -383,24 +383,24 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                         {/* Desktop Layout: Horizontal */}
                         <div className="hidden sm:flex items-center justify-between gap-6">
                             <div className="min-w-0">
-                                <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-2 text-sm text-[#9fb0d8]">
+                                <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-2 text-sm text-text-muted">
                                     {isCodingLike && (
                                         <>
-                                            <Link href="/dashboard" className="hover:text-[#d6e3ff] transition-colors">Home</Link>
+                                            <Link href="/dashboard" className="hover:text-text transition-colors">Home</Link>
                                             <span aria-hidden>/</span>
                                         </>
                                     )}
-                                    <Link href="/dashboard/activities" className="hover:text-[#d6e3ff] transition-colors">Activities</Link>
+                                    <Link href="/dashboard/activities" className="hover:text-text transition-colors">Activities</Link>
                                     {categoryCrumb && (
                                         <>
                                             <span aria-hidden>/</span>
-                                            <Link href={categoryCrumb.href} className="hover:text-[#d6e3ff] transition-colors">
+                                            <Link href={categoryCrumb.href} className="hover:text-text transition-colors">
                                                 {categoryCrumb.label}
                                             </Link>
                                         </>
                                     )}
                                 </nav>
-                                <h1 className="text-2xl font-bold text-[#eef3ff] truncate">
+                                <h1 className="text-2xl font-bold text-text truncate">
                                     {activity.title}
                                 </h1>
                             </div>
@@ -432,8 +432,8 @@ export default async function ActivityPage({ params, searchParams }: Props) {
 
     // Standard layout for other activities
     return (
-        <div className="min-h-screen bg-gray-50">
-            <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="min-h-screen bg-bg-primary">
+            <header className="bg-bg-secondary shadow-sm border-b border-border">
                 <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                     {/* Mobile Layout: Stacked */}
                     <div className="flex flex-col gap-2 sm:hidden">
@@ -448,7 +448,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                                 />
                             )}
                         </div>
-                        <h1 className="text-base sm:text-lg font-bold text-gray-900 line-clamp-2 leading-snug">
+                        <h1 className="text-base sm:text-lg font-bold text-text line-clamp-2 leading-snug">
                             {activity.title}
                         </h1>
                     </div>
@@ -456,24 +456,24 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                     {/* Desktop Layout: Horizontal */}
                     <div className="hidden sm:flex items-center justify-between gap-6">
                         <div className="min-w-0">
-                            <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-2 text-sm text-gray-500">
+                            <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-2 text-sm text-text-muted">
                                 {isCodingLike && (
                                     <>
-                                        <Link href="/dashboard" className="hover:text-gray-700 transition-colors">Home</Link>
+                                        <Link href="/dashboard" className="hover:text-text transition-colors">Home</Link>
                                         <span aria-hidden>/</span>
                                     </>
                                 )}
-                                <Link href="/dashboard/activities" className="hover:text-gray-700 transition-colors">Activities</Link>
+                                <Link href="/dashboard/activities" className="hover:text-text transition-colors">Activities</Link>
                                 {categoryCrumb && (
                                     <>
                                         <span aria-hidden>/</span>
-                                        <Link href={categoryCrumb.href} className="hover:text-gray-700 transition-colors">
+                                        <Link href={categoryCrumb.href} className="hover:text-text transition-colors">
                                             {categoryCrumb.label}
                                         </Link>
                                     </>
                                 )}
                             </nav>
-                            <h1 className="text-2xl font-bold text-gray-900 truncate">
+                            <h1 className="text-2xl font-bold text-text truncate">
                                 {activity.title}
                             </h1>
                         </div>
@@ -494,7 +494,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                     <div className="px-4 py-6 sm:px-0 space-y-6">
 
                     {/* Activity Content */}
-                    <div className="bg-white shadow sm:rounded-lg p-6">
+                    <div className="bg-bg-secondary shadow sm:rounded-lg p-6 border border-border/60">
                         <ActivityRenderer
                             activity={{ ...activity, ui: ui || activity.ui }}
                             assignmentId={assignmentId}
@@ -513,17 +513,17 @@ export default async function ActivityPage({ params, searchParams }: Props) {
 
                     {/* Submission Status */}
                     {submission && submission.status === "graded" && (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-                            <h3 className="text-lg font-semibold text-green-900 mb-2">Graded</h3>
+                        <div className="bg-success/10 border border-success/30 rounded-lg p-6">
+                            <h3 className="text-lg font-semibold text-success mb-2">Graded</h3>
                             {submission.score !== null && (
-                                <p className="text-2xl font-bold text-green-700 mb-2">
+                                <p className="text-2xl font-bold text-success mb-2">
                                     Score: {submission.score}%
                                 </p>
                             )}
                             {submission.feedback && (
                                 <div className="mt-4">
-                                    <p className="text-sm font-medium text-green-800 mb-1">Feedback:</p>
-                                    <p className="text-green-700">{submission.feedback}</p>
+                                    <p className="text-sm font-medium text-success mb-1">Feedback:</p>
+                                    <p className="text-success">{submission.feedback}</p>
                                 </div>
                             )}
                         </div>

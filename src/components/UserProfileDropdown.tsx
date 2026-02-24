@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import SelectedAvatarDisplay from "@/components/ui/SelectedAvatarDisplay";
 import { UserIcon } from "@/components/icons/Icons";
 import { DEFAULT_AVATAR, DEFAULT_COLOR } from "@/lib/avatar-constants";
+import { useTheme } from "@/context/ThemeContext";
+import type { ThemePreference } from "@/context/ThemeContext";
 
 interface UserProfileDropdownProps {
     userName: string;
@@ -18,6 +20,13 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
     const [colorId, setColorId] = useState<string>(DEFAULT_COLOR);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
+    const {
+        preference,
+        resolvedTheme,
+        isBostonDaylightNow,
+        setThemePreference,
+        toggleTheme,
+    } = useTheme();
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -68,11 +77,20 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
         router.push("/dashboard/avatar");
     };
 
+    const getThemeOptionClasses = (option: ThemePreference) =>
+        `rounded-md px-2 py-1.5 text-xs font-semibold transition-colors ${
+            preference === option
+                ? "bg-primary text-white shadow-sm"
+                : "text-text-muted hover:bg-bg-tertiary/60"
+        }`;
+
+    const nextThemeLabel = resolvedTheme === "dark" ? "Light" : "Dark";
+
     return (
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-10 h-10 rounded-full bg-white border-2 border-text/80 hover:border-text hover:bg-gray-50 transition-[border-color,background-color] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-text/30 focus:ring-offset-2 shadow-md focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                className="w-10 h-10 rounded-full bg-bg-secondary border-2 border-border-dark hover:border-primary/70 hover:bg-bg-light transition-[border-color,background-color] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2 shadow-md focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                 aria-label="User menu"
                 aria-expanded={isOpen}
                 aria-haspopup="true"
@@ -85,13 +103,13 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-border/30 py-2 z-50 animate-fade-in-up">
-                    <div className="px-4 py-2 border-b border-border/30">
+                <div className="absolute right-0 mt-2 w-64 bg-bg-secondary/95 backdrop-blur-sm rounded-xl shadow-xl border border-border/60 py-2 z-50 animate-fade-in-up">
+                    <div className="px-4 py-2 border-b border-border/40 bg-bg-light/45">
                         <p className="text-sm font-medium text-text truncate">{userName}</p>
                     </div>
                     <button
                         onClick={handleAvatarClick}
-                        className="w-full text-left px-4 py-2 text-sm font-medium text-text hover:bg-bg-light transition-colors flex items-center gap-2"
+                        className="w-full text-left px-4 py-2 text-sm font-medium text-text hover:bg-bg-light/90 transition-colors flex items-center gap-2"
                     >
                         <SelectedAvatarDisplay 
                             avatarId={avatarId}
@@ -103,14 +121,52 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
                     </button>
                     <button
                         onClick={handleProfileClick}
-                        className="w-full text-left px-4 py-2 text-sm font-medium text-text hover:bg-bg-light transition-colors flex items-center gap-2"
+                        className="w-full text-left px-4 py-2 text-sm font-medium text-text hover:bg-bg-light/90 transition-colors flex items-center gap-2"
                     >
                         <UserIcon className="w-4 h-4" />
                         View Profile
                     </button>
+                    <div className="px-4 pt-3 pb-2 border-t border-border/40 mt-1 bg-bg-light/35">
+                        <div className="flex items-center justify-between gap-2">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Theme</p>
+                            <button
+                                onClick={toggleTheme}
+                                className="text-xs font-semibold text-primary hover:text-primary-dark transition-colors"
+                                aria-label={`Switch to ${nextThemeLabel} mode`}
+                            >
+                                Switch to {nextThemeLabel}
+                            </button>
+                        </div>
+                        <div className="mt-2 grid grid-cols-3 gap-1 rounded-lg bg-bg-light/60 p-1">
+                            <button
+                                onClick={() => setThemePreference("auto")}
+                                className={getThemeOptionClasses("auto")}
+                                aria-label="Auto theme mode"
+                            >
+                                Auto
+                            </button>
+                            <button
+                                onClick={() => setThemePreference("light")}
+                                className={getThemeOptionClasses("light")}
+                                aria-label="Light theme mode"
+                            >
+                                Light
+                            </button>
+                            <button
+                                onClick={() => setThemePreference("dark")}
+                                className={getThemeOptionClasses("dark")}
+                                aria-label="Dark theme mode"
+                            >
+                                Dark
+                            </button>
+                        </div>
+                        <p className="mt-2 text-[11px] leading-4 text-text-muted">
+                            Auto follows Boston daylight. It is currently {isBostonDaylightNow ? "daytime" : "nighttime"} in Boston.
+                        </p>
+                    </div>
                     <button
                         onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-sm font-medium text-text hover:bg-bg-light transition-colors"
+                        className="w-full text-left px-4 py-2 text-sm font-medium text-text hover:bg-bg-light/90 transition-colors"
                     >
                         Logout
                     </button>

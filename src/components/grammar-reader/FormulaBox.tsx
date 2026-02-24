@@ -8,12 +8,12 @@ interface FormulaBoxProps {
 }
 
 const colorMap = {
-    subject: "bg-blue-900/40 text-blue-200 border-blue-500/50",
-    verb: "bg-amber-900/40 text-amber-200 border-amber-500/50",
-    ing: "bg-orange-900/40 text-orange-200 border-orange-500/50",
-    helper: "bg-purple-900/40 text-purple-200 border-purple-500/50",
-    object: "bg-emerald-900/40 text-emerald-200 border-emerald-500/50",
-    other: "bg-slate-800/40 text-slate-200 border-slate-500/50",
+    subject: "bg-primary/15 text-primary border-primary/35",
+    verb: "bg-warning/20 text-warning border-warning/40",
+    ing: "bg-secondary/20 text-secondary border-secondary/40",
+    helper: "bg-accent/20 text-accent border-accent/40",
+    object: "bg-success/20 text-success border-success/40",
+    other: "bg-bg-light text-text border-border-dark",
 };
 
 const isHelperVerb = (text: string, type?: FormulaPart["type"]) => {
@@ -46,7 +46,7 @@ export function FormulaBox({ parts }: FormulaBoxProps) {
                     return (
                         <div key={index} className="flex items-center gap-2 sm:gap-4 min-w-0 max-w-full">
                             {currentIsSeparator ? (
-                                <span className={`text-xl sm:text-2xl font-bold shrink-0 ${part.text === '+' ? 'text-slate-300' : 'text-slate-500'} drop-shadow-sm`}>
+                                <span className={`text-xl sm:text-2xl font-bold shrink-0 ${part.text === '+' ? 'text-text-muted' : 'text-text-light'} drop-shadow-sm`}>
                                     {part.text}
                                 </span>
                             ) : (
@@ -81,7 +81,7 @@ export function FormulaBox({ parts }: FormulaBoxProps) {
                             
                             {/* Only add automatic separator if current and next are both non-separators */}
                             {nextPart && !currentIsSeparator && !nextIsSeparator && (
-                                <span className="text-xl sm:text-2xl font-bold text-slate-300 drop-shadow-sm">+</span>
+                                <span className="text-xl sm:text-2xl font-bold text-text-muted drop-shadow-sm">+</span>
                             )}
                         </div>
                     );

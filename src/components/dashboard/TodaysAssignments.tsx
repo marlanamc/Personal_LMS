@@ -572,7 +572,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                                                 >
                                                     {group.label}
                                                 </Link>
-                                                <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-bg-secondary/70 border border-white/80" style={{ color: groupStyle.text }}>
+                                                <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-bg-secondary/95 border border-border/50" style={{ color: groupStyle.text }}>
                                                     {group.isGameGroup ? `${group.items.length}` : `${group.doneInGroup}/${group.items.length}`}
                                                 </span>
                                             </div>
