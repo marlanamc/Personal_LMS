@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { collapseEdPronunciationActivities } from "@/lib/activity-list-dedupe";
 import { ActivityCategoryPicker } from "@/components/dashboard/ActivityCategoryPicker";
 
-type Props = { searchParams: Promise<{ category?: string; subject?: string }> };
+type Props = { searchParams: Promise<{ category?: string; subject?: string; type?: string }> };
 const VOCAB_TYPES = ["word-list", "flashcards", "matching", "fill-blank"] as const;
 
 type ProgressEntry = {
@@ -244,8 +244,9 @@ export default async function SubjectsPage({ searchParams }: Props) {
         },
         {}
     );
-    const { subject, category } = await searchParams;
+    const { subject, category, type } = await searchParams;
     const initialSubject = subject ?? category ?? null;
+    const initialType = type ?? null;
 
     return (
         <div className="min-h-screen bg-bg">
@@ -266,6 +267,7 @@ export default async function SubjectsPage({ searchParams }: Props) {
                     defaultClassId={defaultClassId}
                     initialFeatureAssignments={initialFeatureAssignments}
                     initialSubject={initialSubject}
+                    initialType={initialType}
                 />
             </main>
         </div>

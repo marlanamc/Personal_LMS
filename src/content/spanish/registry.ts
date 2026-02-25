@@ -6,10 +6,16 @@
  */
 
 export const SPANISH_GUIDE_IDS = [
+  "spanish-alphabet-pronunciation-guide",
+  "spanish-noun-gender-articles-guide",
+  "spanish-question-words-sentences-guide",
   "spanish-present-tense-guide",
   "spanish-ser-vs-estar-guide",
   "spanish-adjective-agreement-guide",
+  "spanish-immediate-future-guide",
+  "spanish-reflexive-verbs-routines-guide",
   "spanish-preterite-tense-guide",
+  "spanish-imperfect-tense-guide",
   "spanish-restaurant-conversations-guide",
 ] as const;
 
@@ -75,4 +81,3 @@ export const SPANISH_ALL_ACTIVITY_IDS = [
 ] as const;
 
 export type SpanishActivityId = (typeof SPANISH_ALL_ACTIVITY_IDS)[number];
-

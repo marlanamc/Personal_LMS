@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useState, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { Code } from 'lucide-react';
 import { UtilitySubjectPanel } from './UtilitySubjectPanel';
 import { GUIDE_HUBS, type GuideHub } from '@/content/guide-hubs';
+import { getNotebooksForSubject, getAllNotebookActivityIds, type TopicNotebook } from '@/content/topic-notebooks';
+import { NotebookCard } from './NotebookCard';
+import { NotebookDetailView } from './NotebookDetailView';
 
 // Re-use the Activity type shape from ActivityCategories
 interface Activity {
@@ -98,6 +101,80 @@ const ACADEMIC_SECTIONS: Record<string, { label: string; emoji: string }[]> = {
     ],
 };
 
+const normalizeSectionKey = (value: string): string =>
+    value
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, ' and ')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+const resolveSectionLabelForSubject = (
+    subjectKey: string | null,
+    rawSection: string | null | undefined
+): string | null => {
+    if (!subjectKey || !rawSection) return null;
+    const sections = ACADEMIC_SECTIONS[subjectKey] ?? [];
+    const normalizedRawSection = normalizeSectionKey(rawSection);
+    const matchedSection = sections.find(
+        (section) => normalizeSectionKey(section.label) === normalizedRawSection
+    );
+    return matchedSection?.label ?? null;
+};
+
+const notebookMatchesSection = (
+    notebook: TopicNotebook,
+    subjectKey: string | null,
+    sectionLabel: string
+): boolean => {
+    const normalizedSection = normalizeSectionKey(sectionLabel);
+    const notebookText = [
+        notebook.id,
+        notebook.name,
+        notebook.tagline,
+        ...notebook.content.guides,
+        ...notebook.content.games,
+        ...notebook.content.vocabulary,
+    ]
+        .join(' ')
+        .toLowerCase();
+
+    if (subjectKey === 'spanish') {
+        switch (normalizedSection) {
+            case 'grammar':
+                return notebook.content.guides.length > 0;
+            case 'vocabulary':
+                return notebook.content.vocabulary.length > 0;
+            case 'verbs':
+                return /(verb|conjug|ser-estar|tense|preterite|present)/.test(notebookText);
+            case 'numbers':
+                return /(number|count)/.test(notebookText);
+            default:
+                return true;
+        }
+    }
+
+    if (subjectKey === 'coding') {
+        switch (normalizedSection) {
+            case 'foundations':
+                return notebook.id.includes('foundations');
+            case 'functions-and-control-flow':
+            case 'functions-control-flow':
+                return notebook.id.includes('functions') || notebookText.includes('control flow');
+            case 'intermediate':
+                return notebook.id.includes('intermediate');
+            case 'advanced':
+                return notebook.id.includes('advanced');
+            case 'practice':
+                return notebook.content.games.length > 0;
+            default:
+                return true;
+        }
+    }
+
+    return true;
+};
+
 const CATEGORY_CARDS: CategoryCardDef[] = [
     {
         key: 'spanish',
@@ -148,6 +225,8 @@ interface ActivityCategoryPickerProps {
     initialSubject?: string | null;
     /** Backward-compatible alias for legacy ?category params. */
     initialCategory?: string | null;
+    /** Optional initial section/type (e.g. ?type=vocabulary). */
+    initialType?: string | null;
 }
 
 // Lazy-import ActivityCategories to avoid circular deps
@@ -164,6 +243,7 @@ export function ActivityCategoryPicker({
     initialFeatureAssignments = {},
     initialSubject = null,
     initialCategory = null,
+    initialType = null,
 }: ActivityCategoryPickerProps) {
     const completedIdSet = useMemo(
         () => completedActivityIds instanceof Set ? completedActivityIds : new Set(completedActivityIds ?? []),
@@ -215,10 +295,28 @@ export function ActivityCategoryPicker({
         requestedSubject && CATEGORY_CARDS.some((c) => c.key === requestedSubject) && categoryHasActivities[requestedSubject]
             ? requestedSubject
             : null;
+    const validInitialSection = resolveSectionLabelForSubject(validInitialSubject, initialType);
 
     const [selectedSubject, setSelectedSubject] = useState<string | null>(() => validInitialSubject);
     const [selectedHub, setSelectedHub] = useState<GuideHub | null>(null);
+    const [selectedNotebook, setSelectedNotebook] = useState<TopicNotebook | null>(null);
+    const [selectedSection, setSelectedSection] = useState<string | null>(() => validInitialSection);
     const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+
+    useEffect(() => {
+        if (!selectedSubject) {
+            setSelectedSection(null);
+            return;
+        }
+
+        const sectionLabels = new Set((ACADEMIC_SECTIONS[selectedSubject] ?? []).map((section) => section.label));
+        const querySection = resolveSectionLabelForSubject(selectedSubject, initialType);
+
+        setSelectedSection((current) => {
+            if (current && sectionLabels.has(current)) return current;
+            return querySection;
+        });
+    }, [initialType, selectedSubject]);
 
     const scrollToSection = useCallback((sectionLabel: string) => {
         const el = sectionRefs.current[sectionLabel];
@@ -316,7 +414,11 @@ export function ActivityCategoryPicker({
             return (
                 <button
                     key={card.key}
-                    onClick={() => setSelectedSubject(card.key)}
+                    onClick={() => {
+                        setSelectedSubject(card.key);
+                        setSelectedHub(null);
+                        setSelectedNotebook(null);
+                    }}
                     className="category-card group flex flex-col rounded-2xl overflow-hidden bg-bg-secondary/90 border border-border/60 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 cursor-pointer"
                     style={{ animationDelay: `${idx * 80}ms` }}
                 >
@@ -362,7 +464,11 @@ export function ActivityCategoryPicker({
         const renderUtilityCard = (card: CategoryCardDef, idx: number) => (
             <button
                 key={card.key}
-                onClick={() => setSelectedSubject(card.key)}
+                onClick={() => {
+                    setSelectedSubject(card.key);
+                    setSelectedHub(null);
+                    setSelectedNotebook(null);
+                }}
                 className="category-card group flex flex-col rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 cursor-pointer"
                 style={{
                     animationDelay: `${idx * 80}ms`,
@@ -510,10 +616,91 @@ export function ActivityCategoryPicker({
         );
     }
 
+    // ── Notebook detail view (for Spanish and Coding) ─────────────────────────
+    if ((selectedSubject === 'spanish' || selectedSubject === 'coding') && selectedNotebook) {
+        const selectedCardDef3 = CATEGORY_CARDS.find((c) => c.key === selectedSubject);
+        const accentColor = selectedCardDef3?.iconColor ?? '#9d174d';
+        // Resolve all activities for this notebook
+        const notebookActivityIds = getAllNotebookActivityIds(selectedNotebook);
+        const notebookActivities = activities.filter((a) => notebookActivityIds.includes(a.id));
+
+        return (
+            <div className="animate-fade-in">
+                {/* Breadcrumb */}
+                <nav aria-label="Breadcrumb" className="mb-5">
+                    <ol className="flex items-center gap-2 text-sm font-medium text-text-muted flex-wrap">
+                        <li>
+                            <button
+                                onClick={() => { setSelectedSubject(null); setSelectedNotebook(null); }}
+                                className="inline-flex items-center gap-1 hover:text-primary transition-colors cursor-pointer active:scale-95"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Subjects
+                            </button>
+                        </li>
+                        <li aria-hidden="true" className="text-border">/</li>
+                        <li>
+                            <button
+                                onClick={() => setSelectedNotebook(null)}
+                                className="hover:text-primary transition-colors cursor-pointer"
+                            >
+                                {selectedCardDef3?.name}
+                            </button>
+                        </li>
+                        <li aria-hidden="true" className="text-border">/</li>
+                        <li className="text-text font-semibold">{selectedNotebook.name}</li>
+                    </ol>
+                </nav>
+
+                {/* Notebook header */}
+                <div className="mb-6 flex items-center gap-3">
+                    <div
+                        className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+                        style={{
+                            backgroundColor: `${accentColor}15`,
+                            border: `1.5px solid ${accentColor}30`,
+                        }}
+                    >
+                        {selectedNotebook.emoji}
+                    </div>
+                    <div>
+                        <h2 className="text-xl sm:text-2xl font-display font-bold text-text leading-tight">
+                            {selectedNotebook.name}
+                        </h2>
+                        <p className="text-sm text-text-muted mt-0.5">{selectedNotebook.tagline}</p>
+                    </div>
+                </div>
+
+                {/* Notebook content grouped by type */}
+                <NotebookDetailView
+                    notebook={selectedNotebook}
+                    activities={notebookActivities}
+                    completedIds={completedIdSet}
+                    progressMap={progressMap ?? {}}
+                    accentColor={accentColor}
+                />
+            </div>
+        );
+    }
+
     // ── Activity list view for selected category ─────────────────
     const selectedCardDef = CATEGORY_CARDS.find((c) => c.key === selectedSubject);
     const isUtilitySubject = selectedCardDef?.kind === 'utility';
     const sections = selectedSubject ? ACADEMIC_SECTIONS[selectedSubject] : null;
+
+    // Get notebooks for academic subjects
+    const subjectNotebooks = (selectedSubject === 'spanish' || selectedSubject === 'coding')
+        ? getNotebooksForSubject(selectedSubject as 'spanish' | 'coding')
+        : [];
+    const hasNotebookView = !isUtilitySubject && subjectNotebooks.length > 0;
+    const filteredSubjectNotebooks =
+        hasNotebookView && selectedSection
+            ? subjectNotebooks.filter((notebook) =>
+                notebookMatchesSection(notebook, selectedSubject, selectedSection)
+            )
+            : subjectNotebooks;
 
     return (
         <div className="animate-fade-in">
@@ -522,7 +709,7 @@ export function ActivityCategoryPicker({
                 <ol className="flex items-center gap-2 text-sm font-medium text-text-muted">
                     <li>
                         <button
-                            onClick={() => setSelectedSubject(null)}
+                            onClick={() => { setSelectedSubject(null); setSelectedHub(null); setSelectedNotebook(null); }}
                             className="inline-flex items-center gap-1 hover:text-primary transition-colors cursor-pointer active:scale-95"
                         >
                             <svg
@@ -568,8 +755,24 @@ export function ActivityCategoryPicker({
                         {sections.map((section) => (
                             <button
                                 key={section.label}
-                                onClick={() => scrollToSection(section.label)}
-                                className="flex-shrink-0 snap-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/60 bg-bg-secondary/80 text-xs font-semibold text-text hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 active:scale-95 cursor-pointer"
+                                onClick={() => {
+                                    if (hasNotebookView) {
+                                        setSelectedSection((current) => (current === section.label ? null : section.label));
+                                        return;
+                                    }
+                                    setSelectedSection(section.label);
+                                    scrollToSection(section.label);
+                                }}
+                                className={`flex-shrink-0 snap-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 active:scale-95 cursor-pointer ${
+                                    selectedSection === section.label
+                                        ? 'text-white border-transparent shadow-sm'
+                                        : 'border border-border/60 bg-bg-secondary/80 text-text hover:text-primary hover:border-primary/40 hover:bg-primary/5'
+                                }`}
+                                style={
+                                    selectedSection === section.label
+                                        ? { backgroundColor: selectedCardDef?.iconColor ?? 'var(--color-primary)' }
+                                        : undefined
+                                }
                             >
                                 <span>{section.emoji}</span>
                                 <span>{section.label}</span>
@@ -617,6 +820,32 @@ export function ActivityCategoryPicker({
                     subjectKey={selectedSubject}
                     subjectName={selectedCardDef?.name || 'Subject'}
                 />
+            ) : subjectNotebooks.length > 0 ? (
+                /* Academic subjects use Topic Notebooks */
+                <div className="space-y-3">
+                    {filteredSubjectNotebooks.map((notebook) => (
+                        <NotebookCard
+                            key={notebook.id}
+                            notebook={notebook}
+                            accentColor={selectedCardDef?.iconColor ?? '#9d174d'}
+                            completedIds={completedIdSet}
+                            progressMap={progressMap ?? {}}
+                            onClick={() => setSelectedNotebook(notebook)}
+                        />
+                    ))}
+                    {selectedSection && filteredSubjectNotebooks.length === 0 && (
+                        <div className="rounded-xl border border-border/60 bg-bg-secondary/80 p-4 text-sm text-text-muted">
+                            No notebooks matched <span className="font-semibold text-text">{selectedSection}</span>.
+                            <button
+                                type="button"
+                                onClick={() => setSelectedSection(null)}
+                                className="ml-2 font-semibold text-primary hover:underline"
+                            >
+                                Show all
+                            </button>
+                        </div>
+                    )}
+                </div>
             ) : (
                 <React.Suspense
                     fallback={

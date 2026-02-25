@@ -14,6 +14,7 @@ import { codingWorkingWithApisContent } from '../src/content/personal/coding-wor
 import { codingTypescriptDeepDiveContent } from '../src/content/personal/coding-typescript-deep-dive';
 import { codingArrayMethodMasteryContent } from '../src/content/personal/coding-array-method-mastery';
 import { codingDebuggingDevtoolsContent } from '../src/content/personal/coding-debugging-devtools';
+import { codingJsTsInterviewPrepContent } from '../src/content/personal/coding-js-ts-interview-prep';
 import { CODING_GUIDE_IDS } from '../src/content/coding/registry';
 
 const prisma = new PrismaClient();
@@ -153,6 +154,13 @@ const personalActivities = [
     description: 'Debug like a pro with console methods, breakpoints, Network tab, and debugging strategies.',
     level: 'advanced',
     content: codingDebuggingDevtoolsContent,
+  },
+  {
+    id: 'coding-js-ts-interview-prep',
+    title: 'JS/TS Interview Prep Sprint',
+    description: 'Interview-focused coding guide with complexity choices, JS/TS patterns, async decisions, and mock walkthroughs.',
+    level: 'advanced',
+    content: codingJsTsInterviewPrepContent,
   },
 ];
 

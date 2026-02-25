@@ -30,6 +30,7 @@ export const CODING_ADVANCED_GUIDE_IDS = [
   "coding-typescript-deep-dive",
   "coding-array-method-mastery",
   "coding-debugging-devtools",
+  "coding-js-ts-interview-prep",
 ] as const;
 
 export const CODING_GAME_IDS = [
@@ -53,4 +54,3 @@ export const CODING_ALL_ACTIVITY_IDS = [
 ] as const;
 
 export type CodingActivityId = (typeof CODING_ALL_ACTIVITY_IDS)[number];
-
