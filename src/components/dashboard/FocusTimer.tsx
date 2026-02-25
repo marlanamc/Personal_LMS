@@ -14,6 +14,7 @@ import {
     Trash2,
 } from 'lucide-react';
 import { useFocusTimer } from '@/context/FocusTimerContext';
+import { ActivityPanelContent } from '@/components/dashboard/ActivityPanelContent';
 
 type SpotifyConnectionStatus = {
     configured: boolean;
@@ -121,6 +122,9 @@ export const FocusTimer = () => {
     const [tasksNotice, setTasksNotice] = useState<string | null>(null);
     const [isImportingTasks, setIsImportingTasks] = useState(false);
     const [tasksHydrated, setTasksHydrated] = useState(false);
+    const [isActivityPanelOpen, setIsActivityPanelOpen] = useState(false);
+    const [activeActivityId, setActiveActivityId] = useState<string | null>(null);
+    const [activeAssignmentId, setActiveAssignmentId] = useState<string | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
     const fetchSpotifyStatus = useCallback(async (signal?: AbortSignal) => {
@@ -318,7 +322,7 @@ export const FocusTimer = () => {
             return;
         }
 
-        if (isTasksPanelOpen) {
+        if (isTasksPanelOpen || isActivityPanelOpen) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = '';
@@ -327,7 +331,7 @@ export const FocusTimer = () => {
         return () => {
             document.body.style.overflow = '';
         };
-    }, [isTasksPanelOpen]);
+    }, [isTasksPanelOpen, isActivityPanelOpen]);
 
     useEffect(() => {
         if (!tasksNotice) {
@@ -925,13 +929,22 @@ export const FocusTimer = () => {
                                                 {task.source === 'assignment' ? 'Subject' : 'Manual'}
                                             </span>
                                             {task.source === 'assignment' && task.href && (
-                                                <a
-                                                    href={task.href}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const url = new URL(task.href!, window.location.origin);
+                                                        const activityId = url.pathname.split('/').pop();
+                                                        const assignmentId = url.searchParams.get('assignment');
+
+                                                        setActiveActivityId(activityId || null);
+                                                        setActiveAssignmentId(assignmentId);
+                                                        setIsActivityPanelOpen(true);
+                                                        setIsTasksPanelOpen(false);
+                                                    }}
                                                     className="text-[10px] font-semibold text-text-muted hover:text-text underline"
-                                                    onClick={() => setIsTasksPanelOpen(false)}
                                                 >
                                                     Open
-                                                </a>
+                                                </button>
                                             )}
                                         </div>
                                     </div>
@@ -948,6 +961,35 @@ export const FocusTimer = () => {
                             ))}
                         </div>
                     </div>
+                </aside>
+            </div>
+
+            {/* Activity Panel */}
+            <div
+                className={`fixed inset-0 z-[65] ${isActivityPanelOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                aria-hidden={!isActivityPanelOpen}
+            >
+                <button
+                    type="button"
+                    onClick={() => setIsActivityPanelOpen(false)}
+                    className={`absolute inset-0 bg-black/45 transition-opacity duration-200 ${isActivityPanelOpen ? 'opacity-100' : 'opacity-0'}`}
+                    tabIndex={isActivityPanelOpen ? 0 : -1}
+                    aria-label="Close activity panel"
+                />
+
+                <aside
+                    className={`absolute right-0 top-0 h-full w-full max-w-2xl bg-bg-elevated border-l border-border shadow-2xl transition-transform duration-300 ${isActivityPanelOpen ? 'translate-x-0' : 'translate-x-full'}`}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Activity"
+                >
+                    {isActivityPanelOpen && (
+                        <ActivityPanelContent
+                            activityId={activeActivityId}
+                            assignmentId={activeAssignmentId}
+                            onClose={() => setIsActivityPanelOpen(false)}
+                        />
+                    )}
                 </aside>
             </div>
         </div>
