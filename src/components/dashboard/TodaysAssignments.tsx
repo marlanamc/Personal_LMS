@@ -163,7 +163,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                             </div>
                             <p className="text-lg font-display font-bold text-text mb-1">All caught up!</p>
                             <p className="text-sm text-text-muted max-w-xs mx-auto">
-                                No assignments this week. Explore activities below to keep building your skills.
+                                No assignments this week. Explore subjects below to keep building your skills.
                             </p>
                         </div>
                     </div>
@@ -340,8 +340,8 @@ export const TodaysAssignments: React.FC<Props> = ({
                 match: (c) => c === 'quiz' || c === 'quizzes' 
             },
             { 
-                key: 'activity', 
-                label: 'Games', 
+                key: 'practice', 
+                label: 'Practice', 
                 icon: <Sparkles className="w-5 h-5" />, 
                 match: (c) => !['quiz','quizzes','grammar','vocab','vocabulary', 'personal', 'spanish', 'coding'].includes(c) 
             },
@@ -376,14 +376,14 @@ export const TodaysAssignments: React.FC<Props> = ({
                     );
                 }
 
-                if (group.key === 'activity') {
+                if (group.key === 'practice') {
                     return isGame || group.match(cat, title);
                 }
 
                 return group.match(cat, title);
             });
             const doneInGroup = items.filter(r => r.isCompleted).length;
-            const isGameGroup = group.key === 'activity';
+            const isGameGroup = group.key === 'practice';
             return { ...group, items, doneInGroup, allDone: !isGameGroup && items.length > 0 && doneInGroup === items.length, isGameGroup };
         }).filter(g => g.items.length > 0);
 
@@ -566,7 +566,9 @@ export const TodaysAssignments: React.FC<Props> = ({
                                             <div className="flex items-center gap-2">
                                                 <span style={{ color: groupStyle.text }}>{group.icon}</span>
                                                 <Link
-                                                    href={`/dashboard/activities?category=${group.key === 'activity' ? 'games' : group.key}`}
+                                                    href={group.key === 'spanish' || group.key === 'coding'
+                                                        ? `/dashboard/subjects?subject=${group.key}`
+                                                        : '/dashboard/subjects'}
                                                     className="font-display font-bold text-base sm:text-lg hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-1 rounded"
                                                     style={{ color: groupStyle.text }}
                                                 >

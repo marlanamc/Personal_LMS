@@ -138,7 +138,7 @@ export function StreakWarning({
 
         {/* Quick action button */}
         <Link
-          href="/dashboard/activities"
+          href="/dashboard/subjects"
           className={`shrink-0 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
             isCritical
               ? "bg-error text-white hover:brightness-110"
@@ -147,7 +147,7 @@ export function StreakWarning({
                 : "bg-warning/20 text-warning hover:bg-warning/30"
           }`}
         >
-          {isCritical ? "Save streak!" : "Do an activity"}
+          {isCritical ? "Save streak!" : "Do a lesson"}
         </Link>
       </div>
     </div>

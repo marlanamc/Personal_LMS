@@ -90,7 +90,7 @@ export default function EditActivityForm({ activity }: Props) {
                 throw new Error(data.error || "Failed to update activity");
             }
 
-            router.push("/dashboard/activities");
+            router.push("/dashboard/subjects");
             router.refresh();
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : "Failed to update activity");
@@ -238,7 +238,6 @@ export default function EditActivityForm({ activity }: Props) {
         </div>
     );
 }
-
 
 
 

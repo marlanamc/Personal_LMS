@@ -92,16 +92,6 @@ const isTrackGameActivity = (activity: Activity): boolean => {
     return true;
 };
 
-const isSpanishTrackGame = (activity: Activity): boolean => {
-    const category = (activity.category || "").toLowerCase();
-    return category === "spanish" || (category === "personal" && isSpanishActivity(activity));
-};
-
-const isCodingTrackGame = (activity: Activity): boolean => {
-    const category = (activity.category || "").toLowerCase();
-    return category === "coding" || (category === "personal" && isCodingActivity(activity));
-};
-
 const sortBySuggestedOrder = (activities: Activity[], orderedIds: string[]): Activity[] => {
     const orderIndex = new Map<string, number>(orderedIds.map((id, index) => [id, index]));
     return [...activities].sort((a, b) => {
@@ -2038,66 +2028,8 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                         name: 'Practice',
                         activities: sortBySuggestedOrder(
                             activities.filter(
-                                (a: Activity) => isTrackGameActivity(a) && isCodingTrackGame(a)
+                                (a: Activity) => isTrackGameActivity(a) && isCodingActivity(a)
                             ),
-                            [...CODING_GAME_IDS]
-                        )
-                    }
-                ],
-                activities: []
-            },
-            {
-                name: 'Games',
-                color: '#f97316', // orange
-                subCategories: [
-                    {
-                        name: 'Spanish - Vocabulary',
-                        activities: sortBySuggestedOrder(
-                            activities
-                                .filter(
-                                    (a: Activity) =>
-                                        isTrackGameActivity(a) &&
-                                        isSpanishTrackGame(a) &&
-                                        (a.id?.includes('vocab') || a.id?.includes('flashcard'))
-                                )
-                                .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
-                            [...SPANISH_VOCAB_ACTIVITY_IDS]
-                        )
-                    },
-                    {
-                        name: 'Spanish - Verbs',
-                        activities: sortBySuggestedOrder(
-                            activities
-                                .filter(
-                                    (a: Activity) =>
-                                        isTrackGameActivity(a) &&
-                                        isSpanishTrackGame(a) &&
-                                        (a.id?.includes('verb-game') || a.id?.includes('verb-race') || a.id?.includes('verb-conjugation') || a.id?.includes('ser-estar'))
-                                )
-                                .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
-                            [...SPANISH_VERB_ACTIVITY_IDS]
-                        )
-                    },
-                    {
-                        name: 'Spanish - Numbers',
-                        activities: sortBySuggestedOrder(
-                            activities
-                                .filter(
-                                    (a: Activity) =>
-                                        isTrackGameActivity(a) &&
-                                        isSpanishTrackGame(a) &&
-                                        a.id?.includes('numbers-game')
-                                )
-                                .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
-                            [...SPANISH_NUMBERS_ACTIVITY_IDS]
-                        )
-                    },
-                    {
-                        name: 'Coding Games',
-                        activities: sortBySuggestedOrder(
-                            activities
-                                .filter((a: Activity) => isTrackGameActivity(a) && isCodingTrackGame(a))
-                                .sort((a: Activity, b: Activity) => displayTitle(a.title || "").localeCompare(displayTitle(b.title || ""))),
                             [...CODING_GAME_IDS]
                         )
                     }
@@ -2217,14 +2149,17 @@ export const ActivityCategories = React.memo(function ActivityCategories({
         const completedCount = allActivities.filter(a =>
             isActivityCompleted(a, completedIdSet, progressMap)
         ).length;
+        const hasTrackableItems = allActivities.some(
+            (activity) => activity.type !== "game" && !isPronunciationPracticeActivity(activity)
+        );
 
         return (
             <div className="animate-fade-in">
-                {/* Visual grouping header summary - hidden for games and pronunciation (counted as play, not complete) */}
-                {filterCategory !== 'games' && filterCategory !== 'pronunciation' && (
+                {/* Visual grouping header summary - hidden for play-only groups. */}
+                {hasTrackableItems && (
                     <div className="mb-6 pb-2 border-b border-border/20 flex items-center justify-between">
                         <p className="text-xs font-bold text-text-muted/80 uppercase tracking-widest">
-                            {totalCount} activities
+                            {totalCount} items
                         </p>
                         <div className="flex items-center gap-3">
                             <p className="text-xs font-bold text-secondary">
@@ -2262,6 +2197,10 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                             isActivityCompleted(a, completedIdSet, progressMap)
                         ).length;
                         const sectionTotal = sortedActivities.length;
+                        const sectionHasTrackableItems = sortedActivities.some(
+                            (activity) => activity.type !== "game" && !isPronunciationPracticeActivity(activity)
+                        );
+                        const shouldUseGameGrid = sortedActivities.every((activity) => activity.type === "game");
 
                         return (
                             <div key={section.rawLabel || section.label || sIdx} className="space-y-3">
@@ -2288,7 +2227,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                         >
                                             {section.label}
                                         </p>
-                                        {filterCategory !== 'games' && filterCategory !== 'pronunciation' && (
+                                        {sectionHasTrackableItems && (
                                             <span
                                                 className="text-[10px] font-medium px-2 py-0.5 rounded-full border"
                                                 style={{
@@ -2302,7 +2241,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                         )}
                                     </div>
                                 )}
-                                <div className={`space-y-2.5 ${filterCategory === 'games' ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 space-y-0' : ''}`}>
+                                <div className={`space-y-2.5 ${shouldUseGameGrid ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 space-y-0' : ''}`}>
                                     {sortedActivities.map(activity => renderActivityCard(activity, accentColor, false, section.label))}
                                 </div>
                             </div>
@@ -2342,7 +2281,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                     {category.name}
                                 </h3>
                                 <span className="text-sm text-text-muted font-medium bg-bg-light px-3 py-1 rounded-full pointer-events-none">
-                                    {totalActivities} {totalActivities === 1 ? 'activity' : 'activities'}
+                                    {totalActivities} {totalActivities === 1 ? 'item' : 'items'}
                                 </span>
                             </div>
                             <svg
@@ -2501,7 +2440,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                         {category.activities.length > 0 ? (
                                             category.activities.map(a => renderActivityCard(a))
                                         ) : (
-                                            <p className="text-text-muted text-center py-4 text-sm">No activities yet</p>
+                                            <p className="text-text-muted text-center py-4 text-sm">No items yet</p>
                                         )}
                                     </div>
                                 )}

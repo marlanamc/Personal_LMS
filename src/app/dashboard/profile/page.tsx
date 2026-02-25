@@ -935,7 +935,7 @@ export default async function ProfilePage() {
                 <BottomNav
                     items={[
                         { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
-                        { href: "/dashboard/activities", label: "Activities", icon: <BookIcon /> },
+                        { href: "/dashboard/subjects", label: "Subjects", icon: <BookIcon /> },
                         { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
                     ]}
                 />

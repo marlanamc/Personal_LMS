@@ -182,7 +182,7 @@ export default function AvatarPage() {
                 <BottomNav
                     items={[
                         { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
-                        { href: "/dashboard/activities", label: "Activities", icon: <BookOpenIcon /> },
+                        { href: "/dashboard/subjects", label: "Subjects", icon: <BookOpenIcon /> },
                         { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
                     ]}
                 />

@@ -216,7 +216,7 @@ export default async function StatsPage() {
             <BottomNav
                 items={[
                     { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
-                    { href: "/dashboard/activities", label: "Activities", icon: <BookOpenIcon /> },
+                    { href: "/dashboard/subjects", label: "Subjects", icon: <BookOpenIcon /> },
                     { href: "/dashboard/classes", label: "Classes", icon: <UsersIcon /> },
                     { href: "/dashboard/stats", label: "Stats", icon: <BarChartIcon /> },
                 ]}

@@ -22,7 +22,7 @@ export function BreadcrumbTrail({
     onJumpToSection: _onJumpToSection,
     showQuiz,
     categoryName = "Grammar",
-    categoryHref = "/dashboard/activities?category=grammar",
+    categoryHref = "/dashboard/subjects",
     guideTitle = "Guide",
 }: BreadcrumbTrailProps) {
     void _onJumpToSection;
@@ -44,10 +44,10 @@ export function BreadcrumbTrail({
             <div className="container mx-auto px-4 py-3">
                 <nav className="flex items-center gap-2 text-sm overflow-x-auto">
                     <Link
-                        href={isDesktop ? "/dashboard" : "/dashboard/activities"}
+                        href={isDesktop ? "/dashboard" : "/dashboard/subjects"}
                         className="text-primary hover:underline flex-shrink-0"
                     >
-                        Activities
+                        Subjects
                     </Link>
                     <span className="text-text-muted flex-shrink-0">/</span>
                     <Link

@@ -227,16 +227,9 @@ export default async function ActivityPage({ params, searchParams }: Props) {
     const isMatchingGame = activity.type === "game" && activityGameUi === "matching";
 
     const categoryCrumb = (() => {
-        if (isCodingLike) return { label: "Coding", href: "/dashboard/activities?category=coding" };
-        if (isSpanishLike) return { label: "Spanish", href: "/dashboard/activities?category=spanish" };
-        if (categoryRaw === "grammar") return { label: "Grammar", href: "/dashboard/activities?category=grammar" };
-        if (categoryRaw === "vocab" || categoryRaw === "vocabulary") {
-            return { label: "Vocabulary", href: "/dashboard/activities?category=vocabulary" };
-        }
-        if (categoryRaw === "quiz" || categoryRaw === "quizzes" || activity.type === "quiz") {
-            return { label: "Quizzes", href: "/dashboard/activities?category=quizzes" };
-        }
-        return null;
+        if (isCodingLike) return { label: "Coding", href: "/dashboard/subjects?subject=coding" };
+        if (isSpanishLike) return { label: "Spanish", href: "/dashboard/subjects?subject=spanish" };
+        return { label: "Subjects", href: "/dashboard/subjects" };
     })();
 
     // Vocabulary activities: full-screen only when in activity mode (?ui=xxx)
@@ -299,7 +292,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                                         <span aria-hidden>/</span>
                                     </>
                                 )}
-                                <Link href="/dashboard/activities" className="hover:text-text transition-colors">Activities</Link>
+                                <Link href="/dashboard/subjects" className="hover:text-text transition-colors">Subjects</Link>
                                 {categoryCrumb && (
                                     <>
                                         <span aria-hidden>/</span>
@@ -390,7 +383,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                                             <span aria-hidden>/</span>
                                         </>
                                     )}
-                                    <Link href="/dashboard/activities" className="hover:text-text transition-colors">Activities</Link>
+                                    <Link href="/dashboard/subjects" className="hover:text-text transition-colors">Subjects</Link>
                                     {categoryCrumb && (
                                         <>
                                             <span aria-hidden>/</span>
@@ -463,7 +456,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                                         <span aria-hidden>/</span>
                                     </>
                                 )}
-                                <Link href="/dashboard/activities" className="hover:text-text transition-colors">Activities</Link>
+                                <Link href="/dashboard/subjects" className="hover:text-text transition-colors">Subjects</Link>
                                 {categoryCrumb && (
                                     <>
                                         <span aria-hidden>/</span>

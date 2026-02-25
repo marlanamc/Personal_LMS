@@ -285,7 +285,7 @@ export default function InteractiveGuideViewer({
 
             {/* Main Content Area - Split Screen */}
             <div
-                className={`flex-1 flex relative flex-col min-h-0 lg:flex-row pb-16 lg:pb-0 ${
+                className={`flex-1 flex relative flex-col min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] lg:flex-row lg:overflow-hidden pb-16 lg:pb-0 ${
                     isGrammarVariant ? "grammar-reader-split-screen" : ""
                 }`}
             >
@@ -322,7 +322,7 @@ export default function InteractiveGuideViewer({
                     <>
                         {/* Left Panel: Theory/Content */}
                         <div
-                            className={`flex-1 min-h-0 w-full lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain p-5 sm:p-7 lg:pl-24 lg:pr-12 flex flex-col lg:justify-start bg-gradient-to-b from-bg-secondary to-bg-tertiary ${
+                            className={`w-full flex-none min-h-0 lg:flex-1 lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain p-5 sm:p-7 lg:pl-24 lg:pr-12 flex flex-col lg:justify-start bg-gradient-to-b from-bg-secondary to-bg-tertiary ${
                                 isGrammarVariant ? "explanation-panel" : ""
                             }`}
                         >
@@ -370,7 +370,7 @@ export default function InteractiveGuideViewer({
 
                         {/* Right Panel: Practice/Interaction */}
                         <div
-                            className={`flex-1 min-h-0 w-full lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain bg-bg-primary border-t lg:border-t-0 lg:border-l border-border p-5 sm:p-7 lg:pr-24 lg:pl-12 flex flex-col lg:justify-start ${
+                            className={`w-full flex-none min-h-0 lg:flex-1 lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain bg-bg-primary border-t lg:border-t-0 lg:border-l border-border p-5 sm:p-7 lg:pr-24 lg:pl-12 flex flex-col lg:justify-start ${
                                 isGrammarVariant ? "practice-panel" : ""
                             }`}
                         >
@@ -407,7 +407,7 @@ export default function InteractiveGuideViewer({
                         </div>
                     </>
                 ) : (
-                    <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-8 py-6">
+                    <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] px-4 sm:px-8 py-6">
                         {content.miniQuiz && (
                             <MiniQuizPanel
                                 questions={content.miniQuiz}

@@ -93,7 +93,7 @@ export default async function MiniQuizCertificatePage({ searchParams }: Certific
     const issuedAt = latestSubmission?.updatedAt ?? new Date();
     const guideHref = activityId
         ? `/activity/${activityId}${assignmentId ? `?assignment=${encodeURIComponent(assignmentId)}` : ""}`
-        : "/dashboard/activities";
+        : "/dashboard/subjects";
 
     const certificateCodeSeed = canonicalActivityId || slug || guideTitle || "grammar";
     const normalizedSeed = certificateCodeSeed.replace(/[^a-z0-9]/gi, "").toUpperCase().slice(0, 8) || "GRAMMAR";
@@ -123,7 +123,7 @@ export default async function MiniQuizCertificatePage({ searchParams }: Certific
             <BottomNav
                 items={[
                     { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
-                    { href: "/dashboard/activities", label: "Activities", icon: <BookIcon /> },
+                    { href: "/dashboard/subjects", label: "Subjects", icon: <BookIcon /> },
                     { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
                 ]}
             />

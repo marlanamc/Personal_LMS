@@ -136,7 +136,7 @@ export function DailyChallengeBanner({
         {/* Right side - Action button */}
         {!isComplete && (
           <Link
-            href="/dashboard/activities"
+            href="/dashboard/subjects"
             className="shrink-0 px-3 py-1.5 rounded-lg bg-accent text-bg-primary hover:brightness-110 transition-all font-semibold text-xs"
           >
             Go!

@@ -17,7 +17,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             <BottomNav
                 items={[
                     { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
-                    { href: "/dashboard/activities", label: "Activities", icon: <BookOpenIcon /> },
+                    { href: "/dashboard/subjects", label: "Subjects", icon: <BookOpenIcon /> },
                     { href: "/dashboard/calendar", label: "Calendar", icon: <CalendarIcon /> },
                     { href: "/dashboard/profile", label: "Profile", icon: <StarIcon /> },
                 ]}
@@ -25,4 +25,3 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         </div>
     );
 }
-

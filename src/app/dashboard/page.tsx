@@ -348,17 +348,17 @@ export default async function DashboardPage() {
                       Journey
                     </p>
                     <h2 className="text-2xl font-bold font-display text-text mt-2">
-                      All Activities
+                      All Subjects
                     </h2>
                     <p className="text-sm text-text/70 mt-2 max-w-2xl leading-relaxed">
-                      Browse every activity in your workspace.
+                      Browse every subject in your workspace.
                     </p>
                   </div>
                   <Link
-                    href="/dashboard/activities"
+                    href="/dashboard/subjects"
                     className="shrink-0 px-5 py-2.5 rounded-xl bg-primary text-white hover:brightness-110 transition-all font-bold text-sm shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
                   >
-                    See All Activities
+                    See All Subjects
                     <span className="arrow-animate">→</span>
                   </Link>
                 </div>
@@ -405,8 +405,8 @@ export default async function DashboardPage() {
         items={[
           { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
           {
-            href: "/dashboard/activities",
-            label: "Activities",
+            href: "/dashboard/subjects",
+            label: "Subjects",
             icon: <BookOpenIcon />,
           },
           {

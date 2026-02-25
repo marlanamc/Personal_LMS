@@ -53,7 +53,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
     const [unlockedPractice, setUnlockedPractice] = useState<Set<string>>(new Set());
     const practicePanelRef = useRef<HTMLDivElement | null>(null);
     const [awardSent, setAwardSent] = useState(false);
-    const [activitiesHref, setActivitiesHref] = useState<string>("/dashboard/activities");
+    const [activitiesHref, setActivitiesHref] = useState<string>("/dashboard/subjects");
     const [guideTitle, setGuideTitle] = useState<string>(() => formatGuideTitle(completionKey));
     const [showPractice, setShowPractice] = useState(true);
     const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
@@ -65,12 +65,12 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
     const categoryInfo = useMemo(() => {
         const id = activityId || completionKey || '';
         if (id.startsWith('spanish-') || id.toLowerCase().includes('spanish')) {
-            return { name: 'Spanish', href: '/dashboard/activities?category=spanish' };
+            return { name: 'Spanish', href: '/dashboard/subjects?subject=spanish' };
         }
         if (id.startsWith('coding-') || id.toLowerCase().includes('coding')) {
-            return { name: 'Coding', href: '/dashboard/activities?category=coding' };
+            return { name: 'Coding', href: '/dashboard/subjects?subject=coding' };
         }
-        return { name: 'Grammar', href: '/dashboard/activities?category=grammar' };
+        return { name: 'Grammar', href: '/dashboard/subjects' };
     }, [activityId, completionKey]);
     const sectionKeys = useMemo(
         () => content.sections.map((section, index) => section.id || `section-${index}`),
@@ -164,7 +164,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
         return () => { cancelled = true; };
     }, [activityId, content.sections.length, readAssignmentId, sectionKeys]);
 
-    // Choose where the "Activities" breadcrumb should take the user based on entry point.
+    // Choose where the "Subjects" breadcrumb should take the user based on entry point.
     useEffect(() => {
         let fromParam: string | null = null;
         try {
@@ -192,7 +192,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
             // ignore
         }
 
-        setActivitiesHref("/dashboard/activities");
+        setActivitiesHref("/dashboard/subjects");
     }, []);
 
     // Fallback title if a page didn't provide completionKey.
@@ -572,7 +572,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                                         href={activitiesHref}
                                         className="text-primary hover:underline flex-shrink-0"
                                     >
-                                        Activities
+                                        Subjects
                                     </Link>
                                     <span className="text-text-muted flex-shrink-0">/</span>
                                     <Link

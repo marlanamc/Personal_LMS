@@ -90,7 +90,7 @@ export default function CreateActivityForm() {
                 throw new Error(data.error || "Failed to create activity");
             }
 
-            router.push("/dashboard/activities");
+            router.push("/dashboard/subjects");
             router.refresh();
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : "Failed to create activity");
@@ -360,7 +360,6 @@ export default function CreateActivityForm() {
         </div>
     );
 }
-
 
 
 

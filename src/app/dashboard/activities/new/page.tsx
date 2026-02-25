@@ -20,7 +20,7 @@ export default async function NewActivityPage() {
         <div className="min-h-screen bg-gray-50">
             <header className="bg-bg-secondary/90 shadow">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <BackButton href="/dashboard/activities" className="mb-4">Back to Activities</BackButton>
+                    <BackButton href="/dashboard/subjects" className="mb-4">Back to Subjects</BackButton>
                     <h1 className="text-3xl font-bold text-text">Create New Activity</h1>
                 </div>
             </header>
@@ -32,7 +32,6 @@ export default async function NewActivityPage() {
         </div>
     );
 }
-
 
 
 

@@ -62,7 +62,7 @@ export default async function CalendarAddPage() {
             <BottomNav
                 items={[
                     { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
-                    { href: "/dashboard/activities", label: "Activities", icon: <BookOpenIcon /> },
+                    { href: "/dashboard/subjects", label: "Subjects", icon: <BookOpenIcon /> },
                     { href: "/dashboard/classes", label: "Classes", icon: <UsersIcon /> },
                     { href: "/dashboard/profile", label: "Profile", icon: <UserIcon /> },
                 ]}
@@ -70,7 +70,6 @@ export default async function CalendarAddPage() {
         </div>
     );
 }
-
 
 
 
