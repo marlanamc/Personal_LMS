@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, Timer } from "lucide-react";
 import ActivityRenderer from "@/components/ActivityRenderer";
+import { useFocusTimer } from "@/context/FocusTimerContext";
 
 type Activity = {
     id: string;
@@ -26,6 +27,7 @@ export function ActivityPanelContent({
     assignmentId,
     onClose,
 }: ActivityPanelContentProps) {
+    const { formattedTime, isActive } = useFocusTimer();
     const [activity, setActivity] = useState<Activity | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -86,16 +88,22 @@ export function ActivityPanelContent({
                     <h2 className="text-base font-display font-bold text-text truncate flex-1 text-center px-2">
                         {activity?.title || "Activity"}
                     </h2>
-                    {fullPageUrl && (
-                        <a
-                            href={fullPageUrl}
-                            className="p-2 rounded-lg bg-bg-secondary hover:bg-bg-light border border-border/40 transition-colors"
-                            aria-label="Open in separate page"
-                            title="Open in separate page"
-                        >
-                            <ExternalLink className="w-4 h-4 text-text-muted" />
-                        </a>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border border-border/40 bg-bg-secondary text-xs font-semibold text-text">
+                            <Timer className={`w-3.5 h-3.5 ${isActive ? "text-primary" : "text-text-muted"}`} />
+                            <span>{formattedTime}</span>
+                        </div>
+                        {fullPageUrl && (
+                            <a
+                                href={fullPageUrl}
+                                className="p-2 rounded-lg bg-bg-secondary hover:bg-bg-light border border-border/40 transition-colors"
+                                aria-label="Open in separate page"
+                                title="Open in separate page"
+                            >
+                                <ExternalLink className="w-4 h-4 text-text-muted" />
+                            </a>
+                        )}
+                    </div>
                 </div>
 
                 <div className="hidden sm:flex items-center justify-between gap-4">
@@ -114,6 +122,10 @@ export function ActivityPanelContent({
                     </h2>
 
                     <div className="flex items-center gap-2 shrink-0">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border/40 bg-bg-secondary text-sm font-semibold text-text">
+                            <Timer className={`w-4 h-4 ${isActive ? "text-primary" : "text-text-muted"}`} />
+                            <span>{formattedTime}</span>
+                        </div>
                         {isGuideActivity && (
                             <div
                                 id="interactive-guide-header-controls"
