@@ -327,7 +327,7 @@ export default async function DashboardPage() {
             )}
 
             {/* Weekly Checklist (Personalized) */}
-            <section className="animate-fade-in-up delay-100">
+            <section id="weekly-checklist" className="animate-fade-in-up delay-100 scroll-mt-24">
               <TodaysAssignments
                 title="Your Weekly Checklist"
                 ctaLabel="Start"

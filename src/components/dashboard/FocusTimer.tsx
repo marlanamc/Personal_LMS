@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Play, Pause, Music, CheckSquare, Check, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 
 type SpotifyConnectionStatus = {
     configured: boolean;
@@ -57,11 +58,15 @@ export const FocusTimer = () => {
     const menuRef = useRef<HTMLDivElement>(null);
 
     const tracks = useMemo(() => [
-        { id: 'lofi', name: 'Lo-Fi', playlistId: '37i9dQZF1DWWQRwui0ExPn' }, // Lofi Beats
-        { id: 'celestial', name: 'Celestial', playlistId: '37i9dQZF1DX8UebIWWIlS6' }, // Mellow Beats
-        { id: 'groovy', name: 'Groovy Beats', playlistId: '37i9dQZF1DX0SM0svvH1v0' }, // Jazz Vibes
-        { id: 'tiimo', name: 'Deep Focus', playlistId: '37i9dQZF1DWZeKzbqS3Sbi' }, // Deep Focus
-        { id: 'acoustic', name: 'Acoustic', playlistId: '37i9dQZF1DWZIOAP995ogX' }, // Acoustic Favorites
+        { id: 'deep-focus', name: 'Deep Focus', playlistId: '37i9dQZF1DWZeKzbqS3Sbi' },
+        { id: 'lofi-beats', name: 'Lo-Fi Beats', playlistId: '37i9dQZF1DWWQRwui0ExPn' },
+        { id: 'brain-food', name: 'Brain Food', playlistId: '37i9dQZF1DWXLeA8Omikj7' },
+        { id: 'intense-studying', name: 'Intense Studying', playlistId: '37i9dQZF1DX8NTLI2TtZa6' },
+        { id: 'peaceful-piano', name: 'Peaceful Piano', playlistId: '37i9dQZF1DX4sWSpwq3LiO' },
+        { id: 'focus-piano', name: 'Focus Piano', playlistId: '37i9dQZF1DWZIOAPKUdaKS' },
+        { id: 'electronic-focus', name: 'Electronic Focus', playlistId: '37i9dQZF1DX0wMD4IoQ5aJ' },
+        { id: 'electronic-rising', name: 'Electronic Rising', playlistId: '37i9dQZF1DX8AliSIsGeKd' },
+        { id: 'edm-mint', name: 'EDM (mint)', playlistId: '37i9dQZF1DX4dyzvuaRJ0n' },
         { id: 'none', name: 'No music', playlistId: null },
     ], []);
 
@@ -389,10 +394,14 @@ export const FocusTimer = () => {
 
                 {/* Removed Moon/Sun toggle since theme handles it globally */}
 
-                <button className="flex items-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-light rounded-full text-sm font-medium transition-colors border border-border/50 shadow-sm">
+                <Link
+                    href="/dashboard#weekly-checklist"
+                    className="flex items-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-light rounded-full text-sm font-medium transition-colors border border-border/50 shadow-sm"
+                    aria-label="Open weekly checklist tasks"
+                >
                     <CheckSquare className="w-4 h-4 text-text/70" />
                     <span className="text-text/90">Tasks</span>
-                </button>
+                </Link>
             </div>
 
             {spotifyNotice && (
