@@ -115,3 +115,13 @@ export const CalendarIcon: React.FC<IconProps> = ({ className = '', size = 24, .
     <line x1="3" y1="10" x2="21" y2="10"></line>
   </svg>
 );
+
+export const TimerIcon: React.FC<IconProps> = ({ className = '', size = 24, ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+    <circle cx="12" cy="13" r="8"></circle>
+    <line x1="12" y1="9" x2="12" y2="13"></line>
+    <line x1="12" y1="13" x2="15" y2="15"></line>
+    <path d="M10 2h4"></path>
+    <line x1="12" y1="2" x2="12" y2="5"></line>
+  </svg>
+);
