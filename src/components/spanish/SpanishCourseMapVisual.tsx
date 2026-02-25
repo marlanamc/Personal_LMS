@@ -61,40 +61,68 @@ export function SpanishCourseMapVisual({
 
   const getProgress = (id: string) => progressMap[id]?.progress ?? 0;
   const isCompleted = (id: string) => completedActivityIds.has(id) || getProgress(id) >= 100;
+  const allGuides = [...TIER_ORDER.flatMap((tier) => byTier[tier]), ...otherGuides];
+  const completedTotal = allGuides.filter((id) => isCompleted(id)).length;
+  const completionPercent = allGuides.length > 0 ? Math.round((completedTotal / allGuides.length) * 100) : 0;
 
   return (
-    <div className="spanish-course-map space-y-10">
-      <h2 className="text-xl font-display font-bold text-text text-center">
-        Spanish Learning Path
-      </h2>
+    <div className="spanish-course-map space-y-7">
+      <div className="rounded-2xl border border-border-subtle bg-bg-elevated p-4 sm:p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-display font-bold text-text">Spanish Learning Path</h2>
+            <p className="text-sm text-text-secondary mt-1">Tiered roadmap with ordered guides and progress.</p>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-bg-surface px-3 py-1.5 text-sm font-semibold text-text-secondary">
+            <span className="text-text">{completedTotal}/{allGuides.length}</span>
+            <span>done</span>
+          </div>
+        </div>
+        <div className="mt-4 h-2 w-full rounded-full overflow-hidden" style={{ backgroundColor: "var(--color-progress-track)" }}>
+          <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${completionPercent}%`, backgroundColor: "var(--color-accent-sakura)", opacity: 0.9 }} />
+        </div>
+      </div>
 
-      <div className="space-y-12">
+      <div className="space-y-7">
         {TIER_ORDER.map((tier) => {
           const guides = byTier[tier];
           if (guides.length === 0) return null;
 
           const color = TIER_COLORS[tier];
           const label = TIER_LABELS[tier];
+          const doneInTier = guides.filter((id) => isCompleted(id)).length;
+          const tierPercent = Math.round((doneInTier / guides.length) * 100);
 
           return (
-            <section key={tier} className="space-y-4">
-              <div
-                className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider"
-                style={{ color }}
-              >
-                <span
-                  className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: color }}
-                />
-                {label}
+            <section key={tier} className="rounded-2xl border border-border-subtle bg-bg-elevated/40 p-4 sm:p-5 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div
+                  className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider"
+                  style={{ color }}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: color }}
+                  />
+                  {label}
+                </div>
+                <div className="inline-flex items-center gap-2 text-xs font-semibold rounded-full border border-border-subtle px-2.5 py-1 bg-bg-surface text-text-secondary">
+                  <span style={{ color }}>{doneInTier}/{guides.length}</span>
+                  <span>completed</span>
+                </div>
+              </div>
+              <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ backgroundColor: "var(--color-progress-track)" }}>
+                <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${tierPercent}%`, backgroundColor: color, opacity: 0.9 }} />
               </div>
 
-              <div className="flex flex-wrap gap-2 sm:gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {guides.map((id, idx) => {
                   const meta = SPANISH_GUIDE_META[id as keyof typeof SPANISH_GUIDE_META];
                   const title = meta?.topic ?? id;
                   const lessonNum = meta?.lessonNumber ?? idx + 1;
                   const done = isCompleted(id);
+                  const progress = Math.min(100, Math.max(0, getProgress(id)));
+                  const statusLabel = done ? "Completed" : progress > 0 ? "In Progress" : "Not Started";
 
                   return (
                     <Link
@@ -104,16 +132,13 @@ export function SpanishCourseMapVisual({
                     >
                       <div
                         className={`
-                          relative rounded-xl border-2 px-4 py-3 min-w-[140px] sm:min-w-[160px]
-                          transition-all duration-200
+                          relative rounded-xl border px-4 py-3 transition-all duration-200 shadow-sm hover:shadow-md
                           ${done
-                            ? "border-success/50 bg-success/10 hover:border-success hover:bg-success/15"
-                            : "border-border/60 bg-bg-surface hover:border-primary/50 hover:bg-primary/5"
+                            ? "border-success/40 bg-success/10"
+                            : "border-border-subtle bg-bg-surface hover:border-border"
                           }
                         `}
-                        style={{
-                          borderColor: done ? undefined : `${color}30`,
-                        }}
+                        style={{ borderLeft: `3px solid ${color}` }}
                       >
                         {done && (
                           <span
@@ -125,12 +150,19 @@ export function SpanishCourseMapVisual({
                             </svg>
                           </span>
                         )}
-                        <span className="text-[10px] font-bold text-text-muted block mb-1">
-                          {label} {lessonNum}
+                        <span className="text-[10px] font-bold tracking-wide uppercase text-text-muted block mb-1">
+                          {label}: Guide {lessonNum}
                         </span>
-                        <span className="text-sm font-semibold text-text group-hover:text-primary transition-colors block">
+                        <span className="text-sm font-semibold text-text group-hover:text-primary transition-colors block line-clamp-2">
                           {title}
                         </span>
+                        <div className="mt-2 flex items-center justify-between gap-2 text-[11px]">
+                          <span className="text-text-secondary font-medium">{statusLabel}</span>
+                          <span className="font-semibold" style={{ color }}>{Math.round(progress)}%</span>
+                        </div>
+                        <div className="mt-1 h-1.5 w-full rounded-full overflow-hidden" style={{ backgroundColor: "var(--color-progress-track)" }}>
+                          <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${progress}%`, backgroundColor: color, opacity: 0.9 }} />
+                        </div>
                       </div>
                     </Link>
                   );
@@ -141,25 +173,26 @@ export function SpanishCourseMapVisual({
         })}
 
         {otherGuides.length > 0 && (
-          <section className="space-y-4">
+          <section className="rounded-2xl border border-border-subtle bg-bg-elevated/40 p-4 sm:p-5 space-y-4">
             <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-text-muted">
               <span className="w-2 h-2 rounded-full bg-text-muted/50 flex-shrink-0" />
               Additional
             </div>
-            <div className="flex flex-wrap gap-2 sm:gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {otherGuides.map((id) => {
                 const meta = SPANISH_GUIDE_META[id as keyof typeof SPANISH_GUIDE_META];
                 const title = meta?.topic ?? id;
                 const done = isCompleted(id);
+                const progress = Math.min(100, Math.max(0, getProgress(id)));
 
                 return (
                   <Link key={id} href={`/activity/${id}`} className="group block flex-shrink-0">
                     <div
                       className={`
-                        relative rounded-xl border-2 border-border/60 px-4 py-3 min-w-[140px] sm:min-w-[160px]
-                        transition-all duration-200
-                        ${done ? "border-success/50 bg-success/10" : "bg-bg-surface hover:border-primary/50 hover:bg-primary/5"}
+                        relative rounded-xl border border-border-subtle px-4 py-3 transition-all duration-200 shadow-sm hover:shadow-md
+                        ${done ? "border-success/40 bg-success/10" : "bg-bg-surface hover:border-border"}
                       `}
+                      style={{ borderLeft: "3px solid var(--color-text-muted)" }}
                     >
                       {done && (
                         <span className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center bg-success/20" aria-hidden>
@@ -168,9 +201,16 @@ export function SpanishCourseMapVisual({
                           </svg>
                         </span>
                       )}
-                      <span className="text-sm font-semibold text-text group-hover:text-primary transition-colors block">
+                      <span className="text-sm font-semibold text-text group-hover:text-primary transition-colors block line-clamp-2">
                         {title}
                       </span>
+                      <div className="mt-2 flex items-center justify-between gap-2 text-[11px]">
+                        <span className="text-text-secondary font-medium">{done ? "Completed" : progress > 0 ? "In Progress" : "Not Started"}</span>
+                        <span className="font-semibold text-text-muted">{Math.round(progress)}%</span>
+                      </div>
+                      <div className="mt-1 h-1.5 w-full rounded-full overflow-hidden" style={{ backgroundColor: "var(--color-progress-track)" }}>
+                        <div className="h-full rounded-full transition-[width] duration-500 bg-text-muted/70" style={{ width: `${progress}%` }} />
+                      </div>
                     </div>
                   </Link>
                 );
@@ -180,8 +220,8 @@ export function SpanishCourseMapVisual({
         )}
       </div>
 
-      <p className="text-xs text-text-muted text-center pt-4">
-        Click any lesson to open it. Completed lessons show a checkmark.
+      <p className="text-xs text-text-muted text-center pt-1">
+        Open any guide to continue. Colors indicate tier; bars show exact progress.
       </p>
     </div>
   );

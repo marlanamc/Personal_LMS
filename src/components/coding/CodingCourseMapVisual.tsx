@@ -62,35 +62,63 @@ export function CodingCourseMapVisual({
 }: CodingCourseMapVisualProps) {
   const getProgress = (id: string) => progressMap[id]?.progress ?? 0;
   const isCompleted = (id: string) => completedActivityIds.has(id) || getProgress(id) >= 100;
+  const allGuideIds = SECTIONS.flatMap((section) => Array.from(section.guideIds));
+  const completedTotal = allGuideIds.filter((id) => isCompleted(id)).length;
+  const completionPercent = allGuideIds.length > 0 ? Math.round((completedTotal / allGuideIds.length) * 100) : 0;
 
   return (
-    <div className="coding-course-map space-y-10">
-      <h2 className="text-xl font-display font-bold text-text text-center">
-        Coding Learning Path
-      </h2>
+    <div className="coding-course-map space-y-7">
+      <div className="rounded-2xl border border-border-subtle bg-bg-elevated p-4 sm:p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-display font-bold text-text">Coding Learning Path</h2>
+            <p className="text-sm text-text-secondary mt-1">A staged map from foundations through advanced execution.</p>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-bg-surface px-3 py-1.5 text-sm font-semibold text-text-secondary">
+            <span className="text-text">{completedTotal}/{allGuideIds.length}</span>
+            <span>done</span>
+          </div>
+        </div>
+        <div className="mt-4 h-2 w-full rounded-full overflow-hidden" style={{ backgroundColor: "var(--color-progress-track)" }}>
+          <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${completionPercent}%`, backgroundColor: "var(--color-accent-sakura)", opacity: 0.9 }} />
+        </div>
+      </div>
 
-      <div className="space-y-12">
+      <div className="space-y-7">
         {SECTIONS.map((section) => {
           const { label, color, guideIds } = section;
           const ids = Array.from(guideIds);
+          const doneInSection = ids.filter((id) => isCompleted(id)).length;
+          const sectionPercent = ids.length > 0 ? Math.round((doneInSection / ids.length) * 100) : 0;
 
           return (
-            <section key={label} className="space-y-4">
-              <div
-                className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider"
-                style={{ color }}
-              >
-                <span
-                  className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: color }}
-                />
-                {label}
+            <section key={label} className="rounded-2xl border border-border-subtle bg-bg-elevated/40 p-4 sm:p-5 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div
+                  className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider"
+                  style={{ color }}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: color }}
+                  />
+                  {label}
+                </div>
+                <div className="inline-flex items-center gap-2 text-xs font-semibold rounded-full border border-border-subtle px-2.5 py-1 bg-bg-surface text-text-secondary">
+                  <span style={{ color }}>{doneInSection}/{ids.length}</span>
+                  <span>completed</span>
+                </div>
+              </div>
+              <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ backgroundColor: "var(--color-progress-track)" }}>
+                <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${sectionPercent}%`, backgroundColor: color, opacity: 0.9 }} />
               </div>
 
-              <div className="flex flex-wrap gap-2 sm:gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {ids.map((id, idx) => {
                   const title = getDisplayName(id);
                   const done = isCompleted(id);
+                  const progress = Math.min(100, Math.max(0, getProgress(id)));
+                  const statusLabel = done ? "Completed" : progress > 0 ? "In Progress" : "Not Started";
 
                   return (
                     <Link
@@ -100,16 +128,13 @@ export function CodingCourseMapVisual({
                     >
                       <div
                         className={`
-                          relative rounded-xl border-2 px-4 py-3 min-w-[140px] sm:min-w-[180px]
-                          transition-all duration-200
+                          relative rounded-xl border px-4 py-3 transition-all duration-200 shadow-sm hover:shadow-md
                           ${done
-                            ? "border-success/50 bg-success/10 hover:border-success hover:bg-success/15"
-                            : "border-border/60 bg-bg-surface hover:border-primary/50 hover:bg-primary/5"
+                            ? "border-success/40 bg-success/10"
+                            : "border-border-subtle bg-bg-surface hover:border-border"
                           }
                         `}
-                        style={{
-                          borderColor: done ? undefined : `${color}30`,
-                        }}
+                        style={{ borderLeft: `3px solid ${color}` }}
                       >
                         {done && (
                           <span
@@ -121,12 +146,19 @@ export function CodingCourseMapVisual({
                             </svg>
                           </span>
                         )}
-                        <span className="text-xs font-medium text-text-muted block mb-1">
-                          {idx + 1} of {ids.length}
+                        <span className="text-[10px] font-bold tracking-wide uppercase text-text-muted block mb-1">
+                          {label}: Guide {idx + 1}
                         </span>
                         <span className="text-sm font-semibold text-text group-hover:text-primary transition-colors block line-clamp-2">
                           {title}
                         </span>
+                        <div className="mt-2 flex items-center justify-between gap-2 text-[11px]">
+                          <span className="text-text-secondary font-medium">{statusLabel}</span>
+                          <span className="font-semibold" style={{ color }}>{Math.round(progress)}%</span>
+                        </div>
+                        <div className="mt-1 h-1.5 w-full rounded-full overflow-hidden" style={{ backgroundColor: "var(--color-progress-track)" }}>
+                          <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${progress}%`, backgroundColor: color, opacity: 0.9 }} />
+                        </div>
                       </div>
                     </Link>
                   );
@@ -137,8 +169,8 @@ export function CodingCourseMapVisual({
         })}
       </div>
 
-      <p className="text-xs text-text-muted text-center pt-4">
-        Click any lesson to open it. Completed lessons show a checkmark.
+      <p className="text-xs text-text-muted text-center pt-1">
+        Open any guide to continue. Each card shows section order and live progress.
       </p>
     </div>
   );

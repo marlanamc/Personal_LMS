@@ -68,25 +68,6 @@ export function ActivityPanelContent({
         ? `/activity/${activityId}${assignmentId ? `?assignment=${assignmentId}` : ""}`
         : null;
     const isGuideActivity = activity?.type === "guide";
-    const categoryRaw = (activity?.category || "").toLowerCase();
-    const titleLower = (activity?.title || "").toLowerCase();
-    const idLower = (activity?.id || "").toLowerCase();
-    const isCodingLike =
-        categoryRaw === "coding" ||
-        idLower.startsWith("coding-") ||
-        titleLower.includes("coding") ||
-        titleLower.includes("javascript") ||
-        titleLower.includes("typescript") ||
-        titleLower.includes("js/ts");
-    const isSpanishLike =
-        categoryRaw === "spanish" ||
-        idLower.startsWith("spanish-") ||
-        titleLower.includes("spanish");
-    const categoryCrumb = isCodingLike
-        ? { label: "Coding", href: "/dashboard/subjects?subject=coding" }
-        : isSpanishLike
-            ? { label: "Spanish", href: "/dashboard/subjects?subject=spanish" }
-            : { label: "Subjects", href: "/dashboard/subjects" };
 
     return (
         <div className="h-full flex flex-col">
@@ -128,26 +109,9 @@ export function ActivityPanelContent({
                         <span>Back to Focus</span>
                     </button>
 
-                    <div className="flex-1 min-w-0">
-                        <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-2 text-sm text-text-muted">
-                            <a href="/dashboard" className="hover:text-text transition-colors">Home</a>
-                            <span aria-hidden>/</span>
-                            <a href="/dashboard/subjects" className="hover:text-text transition-colors">Subjects</a>
-                            {categoryCrumb && (
-                                <>
-                                    <span aria-hidden>/</span>
-                                    <a href={categoryCrumb.href} className="hover:text-text transition-colors">
-                                        {categoryCrumb.label}
-                                    </a>
-                                </>
-                            )}
-                            <span aria-hidden>/</span>
-                            <span className="text-text">Timer</span>
-                        </nav>
-                        <h2 className="text-lg sm:text-xl font-display font-bold text-text truncate">
-                            {activity?.title || "Activity"}
-                        </h2>
-                    </div>
+                    <h2 className="text-lg sm:text-xl font-display font-bold text-text truncate flex-1 min-w-0">
+                        {activity?.title || "Activity"}
+                    </h2>
 
                     <div className="flex items-center gap-2 shrink-0">
                         {isGuideActivity && (
@@ -174,7 +138,7 @@ export function ActivityPanelContent({
             <div
                 className={
                     isGuideActivity
-                        ? "flex-1 overflow-hidden min-h-0"
+                        ? "flex-1 overflow-y-auto min-h-0"
                         : "flex-1 overflow-y-auto min-h-0 pb-[calc(8rem+env(safe-area-inset-bottom))]"
                 }
             >
