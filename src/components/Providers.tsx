@@ -7,7 +7,6 @@ import { CelebrationProvider } from "@/context/CelebrationContext";
 import { FocusTimerProvider } from "@/context/FocusTimerContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { MilestoneCelebration } from "@/components/ui/MilestoneCelebration";
-import { FocusTimerDock } from "@/components/dashboard/FocusTimerDock";
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
@@ -21,7 +20,6 @@ export default function Providers({ children }: { children: ReactNode }) {
           <CelebrationProvider>
             <FocusTimerProvider>
               {children}
-              <FocusTimerDock />
               <MilestoneCelebration />
             </FocusTimerProvider>
           </CelebrationProvider>
