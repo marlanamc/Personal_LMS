@@ -375,8 +375,9 @@ export default async function ProfilePage() {
         prisma.activity.findMany({
             where: {
                 deletedAt: null,
+                type: "quiz",
                 category: {
-                    in: ["Spanish", "Coding"],
+                    in: ["Spanish", "spanish", "Coding", "coding"],
                 },
             },
             select: {
@@ -393,8 +394,9 @@ export default async function ProfilePage() {
                 score: { not: null },
                 activity: {
                     deletedAt: null,
+                    type: "quiz",
                     category: {
-                        in: ["Spanish", "Coding"],
+                        in: ["Spanish", "spanish", "Coding", "coding"],
                     },
                 },
             },

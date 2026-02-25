@@ -536,7 +536,19 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
         }
 
         setShowQuiz(false);
-        router.push(buildMiniQuizCertificateHref(score, total));
+        const certificateHref = buildMiniQuizCertificateHref(score, total);
+        const isFocusTimerContext =
+            typeof window !== "undefined" && window.location.pathname.startsWith("/dashboard/timer");
+
+        if (isFocusTimerContext) {
+            const opened = window.open(certificateHref, "_blank", "noopener,noreferrer");
+            if (!opened) {
+                router.push(certificateHref);
+            }
+        } else {
+            router.push(certificateHref);
+        }
+
         if (onComplete) {
             onComplete();
         }

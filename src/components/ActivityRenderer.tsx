@@ -135,6 +135,7 @@ export default function ActivityRenderer({ activity, assignmentId, existingSubmi
                         <GrammarReader
                             content={content as InteractiveGuideContent}
                             activityId={activity.id}
+                            completionKey={activity.id}
                         />
                     );
                 }
