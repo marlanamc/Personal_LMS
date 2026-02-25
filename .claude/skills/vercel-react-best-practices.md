@@ -372,7 +372,7 @@ When reviewing React/Next.js code, check:
 
 ## Project-Specific Checks
 
-For this ESOL Teacher Resources project:
+For this project:
 
 1. **Prisma Queries**: Always use `select` to minimize data transfer
 2. **Analytics**: `@vercel/analytics` should be loaded after hydration (check `layout.tsx`)

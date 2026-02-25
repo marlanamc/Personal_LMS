@@ -262,5 +262,49 @@ export const spanishQuestionWordsSentencesContent: InteractiveGuideContent = {
       correctAnswer: "b",
       explanation: "No goes before the conjugated verb: No entiendo.",
     },
+    {
+      id: "qw-q7",
+      question: "Which question word asks about a person?",
+      options: [
+        { value: "a", label: "¿Quién?" },
+        { value: "b", label: "¿Cuándo?" },
+        { value: "c", label: "¿Dónde?" },
+      ],
+      correctAnswer: "a",
+      explanation: "¿Quién? asks who.",
+    },
+    {
+      id: "qw-q8",
+      question: "Choose the best response using 'porque'.",
+      options: [
+        { value: "a", label: "¿Dónde vives?" },
+        { value: "b", label: "Porque me gusta estudiar." },
+        { value: "c", label: "¿Cómo te llamas?" },
+      ],
+      correctAnswer: "b",
+      explanation: "Porque introduces a reason in the answer.",
+    },
+    {
+      id: "qw-q9",
+      question: "Which sentence asks about time?",
+      options: [
+        { value: "a", label: "¿Cuándo empieza la clase?" },
+        { value: "b", label: "¿Qué estudias?" },
+        { value: "c", label: "¿Quién llega hoy?" },
+      ],
+      correctAnswer: "a",
+      explanation: "¿Cuándo? asks when.",
+    },
+    {
+      id: "qw-q10",
+      question: "Pick the correct question format:",
+      options: [
+        { value: "a", label: "¿Qué tú haces?" },
+        { value: "b", label: "¿Qué haces tú?" },
+        { value: "c", label: "Qué haces tú?" },
+      ],
+      correctAnswer: "b",
+      explanation: "This option uses proper question punctuation and natural word order.",
+    },
   ],
 };

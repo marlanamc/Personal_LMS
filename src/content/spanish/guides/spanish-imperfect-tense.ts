@@ -262,5 +262,49 @@ export const spanishImperfectTenseContent: InteractiveGuideContent = {
       correctAnswer: "b",
       explanation: "Repeated past habit with era/jugaba uses imperfect.",
     },
+    {
+      id: "imp-q7",
+      question: "Choose the correct imperfect form for 'nosotros hablar'.",
+      options: [
+        { value: "a", label: "hablábamos" },
+        { value: "b", label: "hablamos" },
+        { value: "c", label: "hablaremos" },
+      ],
+      correctAnswer: "a",
+      explanation: "Nosotros hablábamos is imperfect.",
+    },
+    {
+      id: "imp-q8",
+      question: "Which verb has an irregular imperfect form?",
+      options: [
+        { value: "a", label: "comer" },
+        { value: "b", label: "ver" },
+        { value: "c", label: "hablar" },
+      ],
+      correctAnswer: "b",
+      explanation: "Ver is one of the core irregular imperfect verbs.",
+    },
+    {
+      id: "imp-q9",
+      question: "Which sentence best sets a background scene?",
+      options: [
+        { value: "a", label: "A las ocho abrí la puerta." },
+        { value: "b", label: "Hacía frío y llovía." },
+        { value: "c", label: "Mañana va a llover." },
+      ],
+      correctAnswer: "b",
+      explanation: "Background weather descriptions typically use imperfect.",
+    },
+    {
+      id: "imp-q10",
+      question: "Pick the best contrast pair.",
+      options: [
+        { value: "a", label: "De niño jugaba fútbol, pero ayer no jugué." },
+        { value: "b", label: "De niño jugué fútbol, pero ayer jugaba." },
+        { value: "c", label: "De niño jugaré fútbol, pero ayer juego." },
+      ],
+      correctAnswer: "a",
+      explanation: "Imperfect for repeated past habit, preterite for completed single event.",
+    },
   ],
 };

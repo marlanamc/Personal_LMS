@@ -265,5 +265,49 @@ export const spanishReflexiveVerbsRoutinesContent: InteractiveGuideContent = {
       correctAnswer: "a",
       explanation: "They are very common when describing personal routines.",
     },
+    {
+      id: "refl-q7",
+      question: "Choose the correct pronoun for 'tú'.",
+      options: [
+        { value: "a", label: "me" },
+        { value: "b", label: "te" },
+        { value: "c", label: "nos" },
+      ],
+      correctAnswer: "b",
+      explanation: "Tú uses te.",
+    },
+    {
+      id: "refl-q8",
+      question: "Which is correct for 'ellos se despiertan'?",
+      options: [
+        { value: "a", label: "They wake up" },
+        { value: "b", label: "They go to bed" },
+        { value: "c", label: "They get dressed" },
+      ],
+      correctAnswer: "a",
+      explanation: "Despertarse means to wake up.",
+    },
+    {
+      id: "refl-q9",
+      question: "Pick the best ordered routine sequence.",
+      options: [
+        { value: "a", label: "Finalmente, luego, primero, después" },
+        { value: "b", label: "Primero, luego, después, finalmente" },
+        { value: "c", label: "Después, ayer, luego, finalmente" },
+      ],
+      correctAnswer: "b",
+      explanation: "This sequence is the expected narrative order for routines.",
+    },
+    {
+      id: "refl-q10",
+      question: "Which sentence is reflexive and correctly conjugated?",
+      options: [
+        { value: "a", label: "Nosotros nos acostamos temprano." },
+        { value: "b", label: "Nosotros me acostamos temprano." },
+        { value: "c", label: "Nosotros acostamos temprano." },
+      ],
+      correctAnswer: "a",
+      explanation: "Nosotros takes nos and the conjugated verb form acostamos.",
+    },
   ],
 };

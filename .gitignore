@@ -78,13 +78,6 @@ reset-*.js
 # QR codes and images not in public/
 qrcode_*.png
 
-# local teaching uploads (default ignored)
-/class_uploads/*
-
-# keep simplified class objective handouts in git
-!/class_uploads/Class-Objectives/
-/class_uploads/Class-Objectives/*
-!/class_uploads/Class-Objectives/week*-SIMPLIFIED.html
-
 # temporary documentation
 vocab-comparison.md
+.env*.local

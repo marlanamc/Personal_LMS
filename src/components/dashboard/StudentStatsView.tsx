@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { VOCAB_WEEKLY_UNITS } from "@/data/weekly-vocab-units";
 
 type ActivityStat = {
     id: string;
@@ -11,7 +10,7 @@ type ActivityStat = {
     progress: number;
 };
 
-type GroupedUnit = {
+type GroupedSection = {
     unitLabel: string;
     activities: ActivityStat[];
 };
@@ -20,22 +19,12 @@ type Props = {
     activities: ActivityStat[];
 };
 
-const vocabUnitMap: Record<string, string> = {
-    september: "Unit 1: September",
-    october: "Unit 2: October",
-    november: "Unit 3: November",
-    december: "Unit 4: December",
-    january: "Unit 5: January",
-    ...Object.fromEntries(VOCAB_WEEKLY_UNITS.map((u) => [u.id, u.label])),
-    june: "Unit 10: June",
-};
-
-function getUnitLabel(activity: ActivityStat) {
-    const id = activity.id.toLowerCase();
-    // Match weekly slugs first (e.g. vocab-feb-3-5-packet) so longer keys take precedence
-    const sortedEntries = Object.entries(vocabUnitMap).sort(([a], [b]) => b.length - a.length);
-    const found = sortedEntries.find(([key]) => id.includes(`vocab-${key}`));
-    return found ? found[1] : "Vocabulary";
+function getVocabSectionLabel(activity: ActivityStat) {
+    const category = (activity.category || "").toLowerCase();
+    if (category.includes("verb")) return "Verb Vocabulary";
+    if (category.includes("number")) return "Numbers Vocabulary";
+    if (category.includes("spanish")) return "Spanish Vocabulary";
+    return "Vocabulary";
 }
 
 function statusClasses(progress: number) {
@@ -68,9 +57,9 @@ export function StudentStatsView({ activities }: Props) {
                    category.includes("unit") ||
                    category.includes("flash cards");
         });
-        const vocabUnits: GroupedUnit[] = Object.values(
-            vocab.reduce<Record<string, GroupedUnit>>((acc, activity) => {
-                const label = getUnitLabel(activity);
+        const vocabUnits: GroupedSection[] = Object.values(
+            vocab.reduce<Record<string, GroupedSection>>((acc, activity) => {
+                const label = getVocabSectionLabel(activity);
                 if (!acc[label]) acc[label] = { unitLabel: label, activities: [] };
                 acc[label].activities.push(activity);
                 return acc;
@@ -200,5 +189,3 @@ export function StudentStatsView({ activities }: Props) {
         </div>
     );
 }
-
-

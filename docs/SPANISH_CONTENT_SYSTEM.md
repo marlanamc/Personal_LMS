@@ -9,8 +9,9 @@ If you only remember one rule: update `/Users/marlanacreed/Downloads/Projects/Pe
 Use these files as the canonical structure:
 
 - Registry and ordering: `/Users/marlanacreed/Downloads/Projects/Personal_LMS/src/content/spanish/registry.ts`
+- Guide QA checklist: `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/SPANISH_GUIDE_QA_CHECKLIST.md`
 - Vocabulary content modules: `/Users/marlanacreed/Downloads/Projects/Personal_LMS/src/content/spanish/vocabulary/`
-- Spanish grammar guide content: `/Users/marlanacreed/Downloads/Projects/Personal_LMS/src/content/grammar/spanish-*.ts`
+- Spanish grammar guide content: `/Users/marlanacreed/Downloads/Projects/Personal_LMS/src/content/spanish/guides/spanish-*.ts`
 - Core Spanish seed scripts:
   - `/Users/marlanacreed/Downloads/Projects/Personal_LMS/prisma/seed-spanish-guides.ts`
   - `/Users/marlanacreed/Downloads/Projects/Personal_LMS/prisma/seed-spanish-games.ts`
@@ -33,7 +34,7 @@ Use these files as the canonical structure:
 
 ### Add a new Spanish guide
 
-1. Create content file in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/src/content/grammar/` (follow `spanish-*.ts` pattern).
+1. Create content file in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/src/content/spanish/guides/` (follow `spanish-*.ts` pattern).
 2. Import and add it in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/prisma/seed-spanish-guides.ts`.
 3. Add the new guide ID to `SPANISH_GUIDE_IDS` in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/src/content/spanish/registry.ts`.
 4. Run:
@@ -87,7 +88,8 @@ npx tsx prisma/seed-personal-games.ts
 After adding content:
 
 1. Run `npm run typecheck`
-2. Seed the relevant script(s)
-3. Open `/dashboard/activities?category=spanish`
-4. Confirm your activity appears in the expected Spanish section
-
+2. Run `npm run check:spanish-b1-language` (enforces B1-C2 Spanish-only pedagogical language)
+3. Confirm all checklist items in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/SPANISH_GUIDE_QA_CHECKLIST.md`
+4. Seed the relevant script(s)
+5. Open `/dashboard/activities?category=spanish`
+6. Confirm your activity appears in the expected Spanish section

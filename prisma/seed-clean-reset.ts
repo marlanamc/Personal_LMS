@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('\n🧹 CLEAN RESET (non-ESOL)');
+  console.log('\n🧹 CLEAN RESET');
   console.log('Deleting all data, then reseeding minimal personal workspace...\n');
 
   await prisma.activityProgress.deleteMany({});

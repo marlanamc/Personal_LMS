@@ -268,5 +268,49 @@ export const spanishImmediateFutureContent: InteractiveGuideContent = {
       correctAnswer: "a",
       explanation: "Use vas a + infinitive for immediate future question.",
     },
+    {
+      id: "future-q7",
+      question: "Choose the correct immediate-future sentence with nosotros.",
+      options: [
+        { value: "a", label: "Nosotros vamos estudiar." },
+        { value: "b", label: "Nosotros vamos a estudiar." },
+        { value: "c", label: "Nosotros van a estudiar." },
+      ],
+      correctAnswer: "b",
+      explanation: "Immediate future needs conjugated ir + a + infinitive.",
+    },
+    {
+      id: "future-q8",
+      question: "What is the best rewrite of 'Mañana trabajo' in immediate future?",
+      options: [
+        { value: "a", label: "Mañana voy a trabajar." },
+        { value: "b", label: "Mañana va trabajar." },
+        { value: "c", label: "Mañana trabajo a ir." },
+      ],
+      correctAnswer: "a",
+      explanation: "Immediate future expresses intention clearly with voy a + infinitive.",
+    },
+    {
+      id: "future-q9",
+      question: "Pick the sentence with correct negative placement.",
+      options: [
+        { value: "a", label: "Voy no a cocinar." },
+        { value: "b", label: "No voy a cocinar." },
+        { value: "c", label: "Voy a no cocinar." },
+      ],
+      correctAnswer: "b",
+      explanation: "No goes before the conjugated verb (voy).",
+    },
+    {
+      id: "future-q10",
+      question: "Which option means 'next weekend'?",
+      options: [
+        { value: "a", label: "esta noche" },
+        { value: "b", label: "el próximo fin de semana" },
+        { value: "c", label: "anoche" },
+      ],
+      correctAnswer: "b",
+      explanation: "El próximo fin de semana refers to next weekend.",
+    },
   ],
 };

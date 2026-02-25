@@ -2,7 +2,6 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { VOCAB_WEEKLY_UNITS } from "@/data/weekly-vocab-units";
 import { stripVocabTypeSuffix, getVocabActivityType, VOCAB_CHIP_CONFIG } from '@/lib/vocab-display';
 
 interface Activity {
@@ -56,23 +55,6 @@ interface ActivityCardProps {
     assignError: string | null;
     defaultClassId: string | null;
 }
-
-const vocabCycle1 = [
-    { id: 'september', label: 'Unit 1: September: Getting to Know You' },
-    { id: 'october', label: 'Unit 2: October: Daily Life in the Community' },
-    { id: 'november', label: 'Unit 3: November: Community Participation' },
-    { id: 'december', label: 'Unit 4: December: Consumer Smarts' },
-    { id: 'january', label: 'Unit 5: January: Housing' },
-];
-
-// Group Cycle 2 (Units 6-10) by unit number
-const vocabUnits = [
-    { unitNum: 6, label: 'Unit 6: February - Workforce Preparation', weeks: VOCAB_WEEKLY_UNITS.filter(u => u.id.startsWith('feb-')) },
-    { unitNum: 7, label: 'Unit 7: March - Career Awareness', weeks: VOCAB_WEEKLY_UNITS.filter(u => u.id.startsWith('mar-')) },
-    { unitNum: 8, label: 'Unit 8: April - Health', weeks: VOCAB_WEEKLY_UNITS.filter(u => u.id.startsWith('apr-')) },
-    { unitNum: 9, label: 'Unit 9: May - Holistic Wellness', weeks: VOCAB_WEEKLY_UNITS.filter(u => u.id.startsWith('may-')) },
-    { unitNum: 10, label: 'Unit 10: June - Future Academic Goals', weeks: VOCAB_WEEKLY_UNITS.filter(u => u.id.startsWith('jun-')) },
-];
 
 const parseTitleDateMs = (title?: string | null) => {
     if (!title) return null;
@@ -602,33 +584,18 @@ export const TeacherActivityCategories = React.memo(function TeacherActivityCate
 
     // Organize activities by top-level categories with subcategories
     const categories = useMemo((): Category[] => {
+        const vocabularyActivities = activities
+            .filter((a: Activity) => {
+                const category = (a.category || '').toLowerCase();
+                return category === 'vocabulary' || category.includes('vocab') || a.id.startsWith('vocab-');
+            })
+            .sort((a: Activity, b: Activity) => displayTitle(a.title || '').localeCompare(displayTitle(b.title || '')));
+
         return [
             {
                 name: 'Vocabulary',
                 color: '#f4a261', // warm orange
-                subCategories: [
-                    {
-                        name: 'Cycle 1',
-                        activities: vocabCycle1.flatMap(month =>
-                            activities.filter((a: Activity) => a.id === `vocab-${month.id}`)
-                        )
-                    },
-                    ...vocabUnits.map(unit => {
-                        // Create a sub-category for each unit (6-10) with its weeks as nested sub-categories
-                        return {
-                            name: unit.label,
-                            activities: [],
-                            subCategories: unit.weeks.map(week => {
-                                const weekActivities = activities.filter((a: Activity) => a.id === `vocab-${week.id}`);
-                                return {
-                                    name: week.label,
-                                    activities: weekActivities
-                                };
-                            })
-                        };
-                    })
-                ],
-                activities: []
+                activities: vocabularyActivities
             },
             {
                 name: 'Grammar',

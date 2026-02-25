@@ -271,5 +271,49 @@ export const spanishAlphabetPronunciationContent: InteractiveGuideContent = {
       correctAnswer: "b",
       explanation: "Spanish vowels are stable, which makes pronunciation predictable.",
     },
+    {
+      id: "alpha-q7",
+      question: "Which statement about stress is usually true?",
+      options: [
+        { value: "a", label: "Words ending in vowel, n, or s usually stress the final syllable" },
+        { value: "b", label: "Words ending in vowel, n, or s usually stress the next-to-last syllable" },
+        { value: "c", label: "Spanish words have random stress" },
+      ],
+      correctAnswer: "b",
+      explanation: "Default stress often falls on the next-to-last syllable in words ending in vowel, n, or s.",
+    },
+    {
+      id: "alpha-q8",
+      question: "Choose the correct meaning pair.",
+      options: [
+        { value: "a", label: "tu = you, tú = your" },
+        { value: "b", label: "si = yes, sí = if" },
+        { value: "c", label: "el = the, él = he" },
+      ],
+      correctAnswer: "c",
+      explanation: "Accent marks can change meaning: el = the, él = he.",
+    },
+    {
+      id: "alpha-q9",
+      question: "In many regions, ll in 'llave' sounds like...",
+      options: [
+        { value: "a", label: "a y sound" },
+        { value: "b", label: "an English l sound" },
+        { value: "c", label: "silent" },
+      ],
+      correctAnswer: "a",
+      explanation: "A common pronunciation is similar to y in 'yes'.",
+    },
+    {
+      id: "alpha-q10",
+      question: "Which pair best shows why pronunciation matters?",
+      options: [
+        { value: "a", label: "pero / perro" },
+        { value: "b", label: "mañana / ayer" },
+        { value: "c", label: "grande / pequeño" },
+      ],
+      correctAnswer: "a",
+      explanation: "Single r and rr can change meaning, so sound control is important.",
+    },
   ],
 };

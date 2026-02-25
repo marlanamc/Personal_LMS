@@ -94,7 +94,7 @@ After seeding, you can log in with:
 - **User**: Teachers and students with authentication + gamification fields (points, streaks)
 - **Class**: Classes created by teachers with unique codes
 - **ClassEnrollment**: Student enrollments in classes
-- **Activity**: Teaching activities (quizzes, worksheets, slides, guides)
+- **Activity**: Teaching activities (quizzes, games, guides, and learning modules)
 - **Assignment**: Activities assigned to classes with due dates
 - **Submission**: Student submissions with scores and points awarded
 
@@ -144,6 +144,7 @@ Use the Spanish content system guide for a clear add-content workflow:
 - `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/CODING_CONTENT_SYSTEM.md`
 - `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/CONTENT_CATEGORY_PLAYBOOK.md`
 - `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/GUIDE_CREATION_README.md` (required mini quiz standards for grammar and coding guides)
+- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/planning/seed.md` (seed/runbook notes)
 
 ### Prisma Studio (Database GUI)
 ```bash
@@ -201,23 +202,18 @@ Students earn points for:
 - Displays rank changes from previous week
 - Students can see "You're up 3 spots!" type messages
 
-## Legacy Content
+## Workspace Organization
 
-**Note:** Legacy HTML activities can be archived in `/Users/marlanacreed/Downloads/Projects/Old Work/`.
+To keep the root directory clean and focused, project documents are grouped as follows:
 
-The legacy folder contains 82 HTML-based teaching resources including:
-- 40+ grammar guides (all tenses, sentence structure)
-- 16+ vocabulary activities
-- Speaking and writing activities
-- Slide presentations
-
-These can be migrated into the new activity system using the import scripts in `/scripts/` as needed.
+- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/setup/` - deployment and Vercel setup docs
+- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/planning/` - active planning notes
 
 ## Completed Features
 
 - [x] User authentication (teachers & students)
 - [x] Class management with join codes
-- [x] Activity library (quizzes, guides, worksheets, slides)
+- [x] Activity library (quizzes, guides, games, and modules)
 - [x] Assignment system with due dates
 - [x] Student submissions and grading
 - [x] **Gamification system** (points, streaks, achievements)
@@ -235,7 +231,6 @@ These can be migrated into the new activity system using the import scripts in `
 - [ ] Advanced activity renderers
 - [ ] File uploads for assignments
 - [ ] Class announcements and messaging
-- [ ] Migrate remaining legacy HTML activities
 - [ ] Dark mode toggle
 
 ## License

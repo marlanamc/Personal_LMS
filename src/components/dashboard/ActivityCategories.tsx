@@ -3,7 +3,6 @@
 import React, { useState, useCallback, useMemo, type RefObject } from 'react';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
-import { VOCAB_WEEKLY_UNITS } from "@/data/weekly-vocab-units";
 import { stripVocabTypeSuffix, getVocabActivityType, VOCAB_CHIP_CONFIG } from '@/lib/vocab-display';
 import { resolveActivityGameUi, getActivityPoints, type GameUi } from '@/lib/gamification/activity-points';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
@@ -12,6 +11,7 @@ import {
     SPANISH_VOCAB_ACTIVITY_IDS,
     SPANISH_VERB_ACTIVITY_IDS,
     SPANISH_NUMBERS_ACTIVITY_IDS,
+    SPANISH_LEGACY_GAME_IDS,
 } from '@/content/spanish/registry';
 import {
     CODING_FOUNDATIONS_GUIDE_IDS,
@@ -99,6 +99,11 @@ const isTrackGameActivity = (activity: Activity): boolean => {
     return true;
 };
 
+const SPANISH_LEGACY_GAME_ID_SET = new Set<string>(SPANISH_LEGACY_GAME_IDS);
+const isLearnerFacingSpanishGame = (activity: Activity): boolean => {
+    return isTrackGameActivity(activity) && !SPANISH_LEGACY_GAME_ID_SET.has(activity.id);
+};
+
 const sortBySuggestedOrder = (activities: Activity[], orderedIds: string[]): Activity[] => {
     const orderIndex = new Map<string, number>(orderedIds.map((id, index) => [id, index]));
     return [...activities].sort((a, b) => {
@@ -109,23 +114,6 @@ const sortBySuggestedOrder = (activities: Activity[], orderedIds: string[]): Act
     });
 };
 
-const vocabCycle1 = [
-    { id: 'september', label: 'Unit 1: September' },
-    { id: 'october', label: 'Unit 2: October' },
-    { id: 'november', label: 'Unit 3: November' },
-    { id: 'december', label: 'Unit 4: December' },
-    { id: 'january', label: 'Unit 5: January' },
-];
-
-// Group Cycle 2 (Units 6-10) by unit number
-const vocabUnits = [
-    { unitNum: 6, label: 'Unit 6: February - Workforce Preparation', weeks: VOCAB_WEEKLY_UNITS.filter(u => u.id.startsWith('feb-')) },
-    { unitNum: 7, label: 'Unit 7: March - Career Awareness', weeks: VOCAB_WEEKLY_UNITS.filter(u => u.id.startsWith('mar-')) },
-    { unitNum: 8, label: 'Unit 8: April - Health', weeks: VOCAB_WEEKLY_UNITS.filter(u => u.id.startsWith('apr-')) },
-    { unitNum: 9, label: 'Unit 9: May - Holistic Wellness', weeks: VOCAB_WEEKLY_UNITS.filter(u => u.id.startsWith('may-')) },
-    { unitNum: 10, label: 'Unit 10: June - Future Academic Goals', weeks: VOCAB_WEEKLY_UNITS.filter(u => u.id.startsWith('jun-')) },
-];
-
 const displayTitle = (title: string) =>
     stripVocabTypeSuffix(
         title
@@ -135,16 +123,16 @@ const displayTitle = (title: string) =>
     );
 
 const VOCAB_THEME_BY_UNIT_NUMBER: Record<number, string> = {
-    1: 'Getting to Know You',
-    2: 'Daily Life in the Community',
-    3: 'Community Participation',
-    4: 'Consumer Smarts',
-    5: 'Housing',
-    6: 'Workforce Preparation',
-    7: 'Career Awareness',
-    8: 'Health',
-    9: 'Holistic Wellness',
-    10: 'Future Academic Goals',
+    1: 'Vocabulary Unit 1',
+    2: 'Vocabulary Unit 2',
+    3: 'Vocabulary Unit 3',
+    4: 'Vocabulary Unit 4',
+    5: 'Vocabulary Unit 5',
+    6: 'Vocabulary Unit 6',
+    7: 'Vocabulary Unit 7',
+    8: 'Vocabulary Unit 8',
+    9: 'Vocabulary Unit 9',
+    10: 'Vocabulary Unit 10',
 };
 
 const VOCAB_TYPE_ONLY_LABEL_RE = /^(word\s*list|flash\s*cards?(?:\s*game)?|matching|fill-?in-?(?:the-?)?blank)$/i;
@@ -166,11 +154,6 @@ const getVocabUnitNumberFromActivity = (activity: Activity): number | null => {
         .replace(/^vocab-/, '')
         .replace(/-(packet|flashcards|matching|fillblank)$/, '');
 
-    if (coreId.startsWith('september')) return 1;
-    if (coreId.startsWith('october')) return 2;
-    if (coreId.startsWith('november')) return 3;
-    if (coreId.startsWith('december')) return 4;
-    if (coreId.startsWith('january')) return 5;
     if (coreId.startsWith('feb')) return 6;
     if (coreId.startsWith('mar')) return 7;
     if (coreId.startsWith('apr')) return 8;
@@ -186,13 +169,7 @@ const extractThemeFromVocabTitle = (title: string): string | null => {
 
     let candidate = normalized.replace(/^unit\s+\d+\s*:\s*/i, '').trim();
 
-    // Handle old Cycle 1 labels like "Unit 1: September: Getting to Know You"
-    const secondColonIndex = candidate.indexOf(':');
-    if (secondColonIndex >= 0) {
-        candidate = candidate.slice(secondColonIndex + 1).trim();
-    }
-
-    // Handle weekly/date titles like "February 3–5 Jobs" and month headers like "February - Workforce Preparation"
+    // Handle weekly/date titles and month headers.
     candidate = candidate.replace(VOCAB_TITLE_MONTH_WITH_DAY_RE, '').trim();
     candidate = candidate.replace(VOCAB_TITLE_MONTH_ONLY_RE, '').trim();
 
@@ -479,12 +456,6 @@ const getActivityCardTitle = (activity: Activity): string => {
     const isVocabActivity = activity.id.startsWith('vocab-') || activity.category?.toLowerCase() === 'vocabulary';
     if (!isVocabActivity) return normalizedTitle;
 
-    // Cycle 1 titles can include both month and theme in the title; keep theme in chip only.
-    const cycleOneTitleMatch = normalizedTitle.match(/^(Unit\s+[1-5]\s*:\s*[^:]+):\s*.+$/i);
-    if (cycleOneTitleMatch?.[1]) {
-        return cycleOneTitleMatch[1].trim();
-    }
-
     return normalizedTitle;
 };
 
@@ -513,7 +484,6 @@ const GRAMMAR_CHIP_COPY: GrammarChipCopy[] = [
     { pattern: /\bsimple tenses\b.*\breview\b/i, friendlyTitle: 'Review simple past, present, and future', useThisFor: 'switching between basic time frames' },
     { pattern: /\bsimple\s*&\s*continuous tenses\b.*\breview\b/i, friendlyTitle: 'Review simple and continuous choices', useThisFor: 'choosing between habits and in-progress actions' },
     { pattern: /\ball verb tenses overview\b/i, friendlyTitle: 'Master all verb tenses', useThisFor: 'final tense review in real communication' },
-    { pattern: /\bcycle 1 review\b/i, friendlyTitle: 'Review core grammar patterns', useThisFor: 'consolidating the key grammar from cycle 1' },
     { pattern: /\bzero\s*&\s*first conditional/i, friendlyTitle: 'Talk about real situations and results', useThisFor: 'real conditions and likely outcomes' },
     { pattern: /\bsecond\s*&\s*third conditional/i, friendlyTitle: 'Talk about unreal and past hypotheticals', useThisFor: 'imaginary situations and regrets' },
     { pattern: /\bmodals?\b/i, friendlyTitle: 'Give rules, advice, and permission', useThisFor: 'must, should, can, and may in daily life' },
@@ -832,10 +802,6 @@ const getVocabTextureBySection = (sectionLabel: string): ActivityTexture | undef
         if (Number.isFinite(unitNumber) && VOCAB_UNIT_TEXTURES[unitNumber]) {
             return VOCAB_UNIT_TEXTURES[unitNumber];
         }
-    }
-
-    if (sectionLabel.toLowerCase().includes('cycle 1')) {
-        return VOCAB_UNIT_TEXTURES[1];
     }
 
     return undefined;
@@ -1159,7 +1125,6 @@ const getSectionTexture = (sectionLabel: string, filterCategory?: string): Activ
     if (filterCategory === 'vocabulary') {
         const vocabSectionTexture = getVocabTextureBySection(sectionLabel);
         if (vocabSectionTexture) return vocabSectionTexture;
-        if (label.includes('cycle 1')) return VOCAB_TEXTURES['vocab-unit'];
         if (label.includes('unit')) return VOCAB_TEXTURES['vocab-unit'];
         return VOCAB_TEXTURES['vocab-other'];
     }
@@ -1865,11 +1830,11 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                         activities: sortBySuggestedOrder(
                             activities.filter(
                                 (a: Activity) =>
-                                    isTrackGameActivity(a) &&
+                                    isLearnerFacingSpanishGame(a) &&
                                     isSpanishActivity(a) &&
                                     (a.id?.includes('vocab') || a.id?.includes('flashcard'))
                             ),
-                            [...SPANISH_VOCAB_ACTIVITY_IDS]
+                            SPANISH_VOCAB_ACTIVITY_IDS.filter((id) => !SPANISH_LEGACY_GAME_ID_SET.has(id))
                         )
                     },
                     {
@@ -1877,11 +1842,11 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                         activities: sortBySuggestedOrder(
                             activities.filter(
                                 (a: Activity) =>
-                                    isTrackGameActivity(a) &&
+                                    isLearnerFacingSpanishGame(a) &&
                                     isSpanishActivity(a) &&
                                     (a.id?.includes('verb-game') || a.id?.includes('verb-race') || a.id?.includes('verb-conjugation') || a.id?.includes('ser-estar'))
                             ),
-                            [...SPANISH_VERB_ACTIVITY_IDS]
+                            SPANISH_VERB_ACTIVITY_IDS.filter((id) => !SPANISH_LEGACY_GAME_ID_SET.has(id))
                         )
                     },
                     {
@@ -1889,7 +1854,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                         activities: sortBySuggestedOrder(
                             activities.filter(
                                 (a: Activity) =>
-                                    isTrackGameActivity(a) &&
+                                    isLearnerFacingSpanishGame(a) &&
                                     isSpanishActivity(a) &&
                                     a.id?.includes('numbers-game')
                             ),

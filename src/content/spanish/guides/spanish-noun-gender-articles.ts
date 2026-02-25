@@ -268,5 +268,49 @@ export const spanishNounGenderArticlesContent: InteractiveGuideContent = {
       correctAnswer: "b",
       explanation: "Mapa is masculine despite ending in -a.",
     },
+    {
+      id: "gender-q7",
+      question: "Choose the correct plural phrase:",
+      options: [
+        { value: "a", label: "unos libros interesantes" },
+        { value: "b", label: "unas libros interesantes" },
+        { value: "c", label: "unos libro interesantes" },
+      ],
+      correctAnswer: "a",
+      explanation: "Masculine plural noun needs unos + libros.",
+    },
+    {
+      id: "gender-q8",
+      question: "Which article is correct for 'agua' in singular?",
+      options: [
+        { value: "a", label: "la agua" },
+        { value: "b", label: "el agua" },
+        { value: "c", label: "una agua" },
+      ],
+      correctAnswer: "b",
+      explanation: "Agua is feminine, but commonly takes el in singular for sound reasons.",
+    },
+    {
+      id: "gender-q9",
+      question: "Which statement is best practice for learning nouns?",
+      options: [
+        { value: "a", label: "Memorize only the noun ending" },
+        { value: "b", label: "Memorize each noun with its article" },
+        { value: "c", label: "Ignore article agreement at beginner level" },
+      ],
+      correctAnswer: "b",
+      explanation: "Learning nouns with articles improves gender accuracy.",
+    },
+    {
+      id: "gender-q10",
+      question: "Pick the sentence with full agreement:",
+      options: [
+        { value: "a", label: "La problema es difícil." },
+        { value: "b", label: "El problema es difícil." },
+        { value: "c", label: "El problema es difíciles." },
+      ],
+      correctAnswer: "b",
+      explanation: "Problema is masculine singular and adjective is singular.",
+    },
   ],
 };
