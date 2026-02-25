@@ -28,15 +28,7 @@ export const CODING_INTERMEDIATE_GUIDE_IDS = [
   "coding-async-promises",
 ] as const;
 
-export const CODING_ADVANCED_GUIDE_IDS = [
-  "coding-implementation-discovery-scoping",
-  "coding-implementation-stakeholder-communication-system",
-  "coding-implementation-planning-mechanics",
-  "coding-implementation-change-management-adoption",
-  "coding-implementation-uat-defect-triage",
-  "coding-implementation-go-live-hypercare",
-  "coding-implementation-kpi-outcome-tracking",
-  "coding-implementation-cross-functional-decision-leadership",
+export const CODING_ADVANCED_ENGINEERING_GUIDE_IDS = [
   "coding-git-pr-communication",
   "coding-testing-fundamentals-confidence",
   "coding-api-contract-prisma-workflow",
@@ -44,7 +36,27 @@ export const CODING_ADVANCED_GUIDE_IDS = [
   "coding-typescript-deep-dive",
   "coding-array-method-mastery",
   "coding-debugging-devtools",
+] as const;
+
+export const CODING_ADVANCED_IMPLEMENTATION_GUIDE_IDS = [
+  "coding-implementation-discovery-scoping",
+  "coding-implementation-stakeholder-communication-system",
+  "coding-implementation-planning-mechanics",
+  "coding-implementation-change-management-adoption",
+  "coding-implementation-uat-defect-triage",
+  "coding-implementation-go-live-hypercare",
+] as const;
+
+export const CODING_ADVANCED_LEADERSHIP_GUIDE_IDS = [
+  "coding-implementation-kpi-outcome-tracking",
+  "coding-implementation-cross-functional-decision-leadership",
   "coding-js-ts-interview-prep",
+] as const;
+
+export const CODING_ADVANCED_GUIDE_IDS = [
+  ...CODING_ADVANCED_ENGINEERING_GUIDE_IDS,
+  ...CODING_ADVANCED_IMPLEMENTATION_GUIDE_IDS,
+  ...CODING_ADVANCED_LEADERSHIP_GUIDE_IDS,
 ] as const;
 
 export const CODING_GAME_IDS = [

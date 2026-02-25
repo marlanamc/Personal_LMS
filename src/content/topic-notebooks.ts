@@ -131,7 +131,7 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
     id: 'notebook-coding-foundations',
     subjectKey: 'coding',
     name: 'Foundations',
-    tagline: 'Variables, operators, strings, and error handling',
+    tagline: 'Core JavaScript building blocks in map order',
     emoji: '🧱',
     content: {
       guides: [
@@ -150,10 +150,10 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
     order: 1,
   },
   {
-    id: 'notebook-coding-functions',
+    id: 'notebook-coding-functions-control-flow',
     subjectKey: 'coding',
-    name: 'Logic & Data Flow',
-    tagline: 'Functions, loops, arrays, and objects in real problem-solving',
+    name: 'Functions & Control Flow',
+    tagline: 'Logic, iteration, and data transformations',
     emoji: '⚙️',
     content: {
       guides: [
@@ -169,10 +169,10 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
     order: 2,
   },
   {
-    id: 'notebook-coding-frontend',
+    id: 'notebook-coding-intermediate',
     subjectKey: 'coding',
-    name: 'Frontend Systems',
-    tagline: 'React, Next.js architecture, DOM, classes, and modules',
+    name: 'Intermediate',
+    tagline: 'React, architecture, DOM, modules, and async workflows',
     emoji: '🚀',
     content: {
       guides: [
@@ -181,6 +181,8 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
         'coding-dom-manipulation',
         'coding-classes-oop',
         'coding-modules-imports',
+        'coding-working-with-apis',
+        'coding-async-promises',
       ],
       games: [],
       vocabulary: [],
@@ -188,29 +190,17 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
     order: 3,
   },
   {
-    id: 'notebook-coding-apis-async',
+    id: 'notebook-coding-advanced-engineering',
     subjectKey: 'coding',
-    name: 'APIs & Async',
-    tagline: 'API contracts at the client layer, async flow, and resilient error handling',
-    emoji: '🌐',
+    name: 'Advanced: Engineering',
+    tagline: 'Production engineering, TS depth, and debugging systems',
+    emoji: '🛠️',
     content: {
       guides: [
-        'coding-working-with-apis',
-        'coding-async-promises',
-      ],
-      games: [],
-      vocabulary: [],
-    },
-    order: 4,
-  },
-  {
-    id: 'notebook-coding-typescript-debug',
-    subjectKey: 'coding',
-    name: 'TypeScript & Debugging',
-    tagline: 'Type safety, array method depth, and practical debugging',
-    emoji: '🧠',
-    content: {
-      guides: [
+        'coding-git-pr-communication',
+        'coding-testing-fundamentals-confidence',
+        'coding-api-contract-prisma-workflow',
+        'coding-debugging-production-issues',
         'coding-typescript-deep-dive',
         'coding-array-method-mastery',
         'coding-debugging-devtools',
@@ -220,51 +210,19 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
       ],
       vocabulary: [],
     },
-    order: 5,
+    order: 4,
   },
   {
-    id: 'notebook-coding-delivery-engineering',
+    id: 'notebook-coding-advanced-implementation',
     subjectKey: 'coding',
-    name: 'Delivery Engineering',
-    tagline: 'PR quality, testing strategy, API/Prisma workflows, and production triage',
-    emoji: '🛠️',
-    content: {
-      guides: [
-        'coding-git-pr-communication',
-        'coding-testing-fundamentals-confidence',
-        'coding-api-contract-prisma-workflow',
-        'coding-debugging-production-issues',
-      ],
-      games: [],
-      vocabulary: [],
-    },
-    order: 6,
-  },
-  {
-    id: 'notebook-coding-implementation-foundations',
-    subjectKey: 'coding',
-    name: 'Implementation Foundations',
-    tagline: 'Discovery, stakeholder systems, and planning mechanics',
-    emoji: '📋',
+    name: 'Advanced: Implementation',
+    tagline: 'Delivery mechanics from discovery through go-live',
+    emoji: '🚦',
     content: {
       guides: [
         'coding-implementation-discovery-scoping',
         'coding-implementation-stakeholder-communication-system',
         'coding-implementation-planning-mechanics',
-      ],
-      games: [],
-      vocabulary: [],
-    },
-    order: 7,
-  },
-  {
-    id: 'notebook-coding-implementation-delivery',
-    subjectKey: 'coding',
-    name: 'Implementation Delivery',
-    tagline: 'Change adoption, UAT triage, and go-live/hypercare operations',
-    emoji: '🚦',
-    content: {
-      guides: [
         'coding-implementation-change-management-adoption',
         'coding-implementation-uat-defect-triage',
         'coding-implementation-go-live-hypercare',
@@ -272,38 +230,24 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
       games: [],
       vocabulary: [],
     },
-    order: 8,
+    order: 5,
   },
   {
-    id: 'notebook-coding-implementation-leadership',
+    id: 'notebook-coding-advanced-leadership',
     subjectKey: 'coding',
-    name: 'Implementation Leadership',
-    tagline: 'KPI-driven outcome tracking and cross-functional decision leadership',
+    name: 'Advanced: Leadership',
+    tagline: 'Outcome leadership, decision quality, and interview synthesis',
     emoji: '🎯',
     content: {
       guides: [
         'coding-implementation-kpi-outcome-tracking',
         'coding-implementation-cross-functional-decision-leadership',
-      ],
-      games: [],
-      vocabulary: [],
-    },
-    order: 9,
-  },
-  {
-    id: 'notebook-coding-interview',
-    subjectKey: 'coding',
-    name: 'Interview Sprint',
-    tagline: 'Consolidate JS/TS communication and problem-solving for interviews',
-    emoji: '💎',
-    content: {
-      guides: [
         'coding-js-ts-interview-prep',
       ],
       games: [],
       vocabulary: [],
     },
-    order: 10,
+    order: 6,
   },
 ];
 
