@@ -43,12 +43,71 @@ export function isSpotifyConfigured(): boolean {
     return Boolean(process.env.SPOTIFY_CLIENT_ID?.trim() && process.env.SPOTIFY_CLIENT_SECRET?.trim());
 }
 
+function parseOrigin(candidateUrl: string): string | null {
+    try {
+        return new URL(candidateUrl).origin;
+    } catch {
+        return null;
+    }
+}
+
+function normalizeVercelUrl(candidate: string): string | null {
+    const trimmed = candidate.trim();
+    if (!trimmed) {
+        return null;
+    }
+
+    const withProtocol =
+        trimmed.startsWith("http://") || trimmed.startsWith("https://")
+            ? trimmed
+            : `https://${trimmed}`;
+
+    return parseOrigin(withProtocol);
+}
+
+export function getSpotifyOauthOrigin(requestOrigin: string): string {
+    const configuredRedirect = process.env.SPOTIFY_REDIRECT_URI?.trim();
+    if (configuredRedirect) {
+        const configuredOrigin = parseOrigin(configuredRedirect);
+        if (configuredOrigin) {
+            return configuredOrigin;
+        }
+        logger.warn("SPOTIFY_REDIRECT_URI is not a valid URL. Falling back to app origin resolution.");
+    }
+
+    const nextAuthCandidates = [process.env.NEXTAUTH_URL, process.env.STORAGE_NEXTAUTH_URL];
+    for (const candidate of nextAuthCandidates) {
+        if (!candidate) {
+            continue;
+        }
+
+        const normalizedOrigin = parseOrigin(candidate);
+        if (normalizedOrigin) {
+            return normalizedOrigin;
+        }
+    }
+
+    const vercelCandidates = [process.env.VERCEL_URL, process.env.STORAGE_VERCEL_URL];
+    for (const candidate of vercelCandidates) {
+        if (!candidate) {
+            continue;
+        }
+
+        const normalizedOrigin = normalizeVercelUrl(candidate);
+        if (normalizedOrigin) {
+            return normalizedOrigin;
+        }
+    }
+
+    return requestOrigin;
+}
+
 export function getSpotifyRedirectUri(origin: string): string {
     const configuredRedirect = process.env.SPOTIFY_REDIRECT_URI?.trim();
     if (configuredRedirect) {
         return configuredRedirect;
     }
-    return `${origin}/api/spotify/callback`;
+    return `${getSpotifyOauthOrigin(origin)}/api/spotify/callback`;
 }
 
 export function sanitizeReturnPath(returnTo: string | null | undefined): string {
