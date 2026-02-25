@@ -615,7 +615,7 @@ export const FocusTimer = () => {
             </header>
 
             {/* Centered Content Area */}
-            <main className="flex-1 flex items-center justify-center px-6 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+            <main className="flex-1 flex items-start justify-center px-6 pt-0 sm:pt-2 pb-[calc(5rem+env(safe-area-inset-bottom))]">
                 <div className="w-full max-w-md flex flex-col items-center">
                     {/* Spotify Notice */}
                     {spotifyNotice && (
@@ -623,14 +623,14 @@ export const FocusTimer = () => {
                     )}
 
                     {/* Title */}
-                    <h1 className="text-center text-4xl font-display font-bold mb-6 tracking-tight">Focus</h1>
+                    <h1 className="text-center text-4xl font-display font-bold mb-4 tracking-tight">Focus</h1>
 
                     {/* Timer Ring */}
                     <div className="relative flex justify-center items-center mb-8 select-none touch-none">
                 <svg
                     ref={svgRef}
-                    width="320"
-                    height="320"
+                    width="400"
+                    height="400"
                     viewBox="0 0 320 320"
                     className="transform -rotate-90 cursor-pointer drop-shadow-lg"
                     onMouseDown={handleDragStart}
@@ -735,22 +735,23 @@ export const FocusTimer = () => {
 
                 {/* Center Text */}
                 <div className="absolute flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-6xl font-display font-light tracking-tighter mb-1 text-text">
+                    <span className="text-8xl font-display font-light tracking-tighter mb-1 text-text">
                         {isActive ? formatTime(timeLeft).split(':')[0] : selectedMinutes}
                     </span>
-                    <span className="text-sm tracking-[0.2em] font-sans uppercase font-bold text-center text-text-muted">
+                    <span className="text-base tracking-[0.2em] font-sans uppercase font-bold text-center text-text-muted">
                         MINS
-                        {isActive && <div className="text-xl mt-1 opacity-70 text-text">:{formatTime(timeLeft).split(':')[1]}</div>}
+                        {isActive && <div className="text-2xl mt-1 opacity-70 text-text">:{formatTime(timeLeft).split(':')[1]}</div>}
                     </span>
                 </div>
 
-                    {/* Clock Markers */}
-                    <div className="absolute inset-0 pointer-events-none w-[320px] h-[320px] mx-auto">
+                    {/* Clock Markers (positions in viewBox units; scale to match 400px ring) */}
+                    <div className="absolute inset-0 pointer-events-none w-[400px] h-[400px] mx-auto">
                         {[120, 30, 60, 90].map((marker, i) => {
                             const deg = i * 90;
                             const markerRadius = radius - strokeWidth/2 - 20; // Text inside the ring
-                            const x = 160 + markerRadius * Math.sin((deg * Math.PI) / 180);
-                            const y = 160 - markerRadius * Math.cos((deg * Math.PI) / 180);
+                            const scale = 400 / 320;
+                            const x = (160 + markerRadius * Math.sin((deg * Math.PI) / 180)) * scale;
+                            const y = (160 - markerRadius * Math.cos((deg * Math.PI) / 180)) * scale;
                             return (
                                 <div
                                     key={marker}
