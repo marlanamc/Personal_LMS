@@ -417,7 +417,7 @@ export const TodaysAssignments: React.FC<Props> = ({
         const renderChecklistRow = (
             { assignment, isCompleted, isNew, displayTitle, dueLabel, progressValue }: typeof sortedRows[0],
             isGameGroup = false,
-            categoryStyle: { text: string; accent: string }
+            categoryStyle: { label: string; bg: string; text: string; accent: string; accentBorder: string }
         ) => (
             <div key={assignment.id} className="relative group/row pl-3 pr-2 py-3 sm:px-4 flex items-center gap-3 transition-all duration-200 hover:bg-bg-secondary/60 border-b border-border/10 last:border-0">
 
