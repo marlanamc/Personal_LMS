@@ -46,6 +46,7 @@ type FeaturedAssignmentTask = {
 
 const FOCUS_TASKS_STORAGE_KEY = 'focus-timer:tasks:v1';
 const SPOTIFY_CONNECTED_STORAGE_KEY = 'focus-timer:spotify-connected:v1';
+const SPOTIFY_AUTO_TRACK_SELECTED_STORAGE_KEY = 'focus-timer:spotify-auto-track-selected:v1';
 
 type DragInputEvent =
     | MouseEvent
@@ -111,6 +112,7 @@ export const FocusTimer = () => {
         displayName: null,
     });
     const [spotifyConnectedOverride, setSpotifyConnectedOverride] = useState(false);
+    const [hasAutoSelectedSpotifyTrack, setHasAutoSelectedSpotifyTrack] = useState(false);
     const [isLoadingSpotifyStatus, setIsLoadingSpotifyStatus] = useState(true);
     const [spotifyNotice, setSpotifyNotice] = useState<string | null>(null);
     const [tasks, setTasks] = useState<FocusTaskItem[]>([]);
@@ -186,7 +188,44 @@ export const FocusTimer = () => {
         if (persistedConnected) {
             setSpotifyConnectedOverride(true);
         }
+
+        const persistedAutoTrackSelected =
+            window.localStorage.getItem(SPOTIFY_AUTO_TRACK_SELECTED_STORAGE_KEY) === 'true';
+        if (persistedAutoTrackSelected) {
+            setHasAutoSelectedSpotifyTrack(true);
+        }
     }, []);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        if (
+            isLoadingSpotifyStatus ||
+            !isSpotifyConnected ||
+            selectedTrackId !== 'none' ||
+            hasAutoSelectedSpotifyTrack
+        ) {
+            return;
+        }
+
+        const fallbackTrack = tracks.find((track) => Boolean(track.playlistId));
+        if (!fallbackTrack) {
+            return;
+        }
+
+        setSelectedTrack(fallbackTrack.id);
+        setHasAutoSelectedSpotifyTrack(true);
+        window.localStorage.setItem(SPOTIFY_AUTO_TRACK_SELECTED_STORAGE_KEY, 'true');
+    }, [
+        hasAutoSelectedSpotifyTrack,
+        isLoadingSpotifyStatus,
+        isSpotifyConnected,
+        selectedTrackId,
+        setSelectedTrack,
+        tracks,
+    ]);
 
     useEffect(() => {
         if (typeof window === 'undefined') {
