@@ -2943,8 +2943,192 @@ kbd {
   .subject-card,
   .subject-card-icon,
   .subject-card-progress-fill,
-  .subject-card-animate {
+  .subject-card-animate,
+  .notebook-card,
+  .activity-item,
+  .activity-item-animate,
+  .utility-hero,
+  .utility-card {
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* ============================================
+   Notebook Card Portal System
+   ============================================ */
+
+.notebook-card {
+  background: linear-gradient(
+    145deg,
+    rgba(26, 26, 46, 0.95) 0%,
+    rgba(15, 15, 30, 0.98) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
+}
+
+.notebook-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    0 0 20px var(--notebook-glow, rgba(255, 107, 157, 0.15)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.notebook-card:active {
+  transform: translateY(-2px) scale(0.99);
+}
+
+.light .notebook-card {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(248, 250, 255, 0.98) 100%
+  );
+  border-color: rgba(30, 38, 56, 0.1);
+  box-shadow:
+    0 4px 20px rgba(59, 73, 110, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.light .notebook-card:hover {
+  border-color: rgba(30, 38, 56, 0.18);
+  box-shadow:
+    0 12px 32px rgba(59, 73, 110, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+/* ============================================
+   Activity Item Portal System
+   ============================================ */
+
+.activity-item {
+  background: linear-gradient(
+    145deg,
+    rgba(26, 26, 46, 0.8) 0%,
+    rgba(20, 20, 36, 0.9) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
+}
+
+.activity-item:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 0 16px var(--activity-accent, rgba(255, 107, 157, 0.1));
+}
+
+.light .activity-item {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(250, 252, 255, 0.95) 100%
+  );
+  border-color: rgba(30, 38, 56, 0.08);
+  box-shadow: 0 2px 12px rgba(59, 73, 110, 0.08);
+}
+
+.light .activity-item:hover {
+  border-color: rgba(30, 38, 56, 0.15);
+  box-shadow: 0 8px 24px rgba(59, 73, 110, 0.12);
+}
+
+/* Activity item stagger animation */
+@keyframes activityItemReveal {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.activity-item-animate {
+  animation: activityItemReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* ============================================
+   Utility Panel Portal System
+   ============================================ */
+
+.utility-hero {
+  background: linear-gradient(
+    145deg,
+    rgba(26, 26, 46, 0.95) 0%,
+    rgba(15, 15, 30, 0.98) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.utility-hero:hover {
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 0 30px var(--utility-color, rgba(123, 237, 159, 0.1)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.light .utility-hero {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(248, 250, 255, 0.98) 100%
+  );
+  border-color: rgba(30, 38, 56, 0.1);
+  box-shadow:
+    0 8px 32px rgba(59, 73, 110, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.utility-card {
+  background: linear-gradient(
+    145deg,
+    rgba(26, 26, 46, 0.9) 0%,
+    rgba(20, 20, 36, 0.95) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  transition: box-shadow 0.3s ease;
+}
+
+.utility-card:hover {
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.light .utility-card {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(250, 252, 255, 0.95) 100%
+  );
+  border-color: rgba(30, 38, 56, 0.08);
+  box-shadow:
+    0 4px 20px rgba(59, 73, 110, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.light .utility-card:hover {
+  box-shadow:
+    0 8px 28px rgba(59, 73, 110, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }

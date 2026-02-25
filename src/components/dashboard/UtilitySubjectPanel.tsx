@@ -26,21 +26,24 @@ const SUBJECT_CONFIG: Record<UtilitySubjectKey, {
     emoji: string;
     tagline: string;
     color: string;
+    colorEnd: string;
     bgGradient: string;
     badgeLabel: string;
 }> = {
     health: {
         emoji: '🩺',
         tagline: 'Track appointments, notes, and important health links.',
-        color: '#0891b2',          // cyan-600
-        bgGradient: 'linear-gradient(135deg, rgba(8, 145, 178, 0.12) 0%, rgba(6, 182, 212, 0.06) 100%)',
+        color: '#7bed9f',          // Healing green (matching portal theme)
+        colorEnd: '#26de81',
+        bgGradient: 'linear-gradient(135deg, rgba(123, 237, 159, 0.12) 0%, rgba(38, 222, 129, 0.06) 100%)',
         badgeLabel: 'Wellness',
     },
     'job-search': {
         emoji: '💼',
         tagline: 'Stay on top of applications, your resume, and opportunities.',
-        color: '#6d28d9',          // violet-700
-        bgGradient: 'linear-gradient(135deg, rgba(109, 40, 217, 0.12) 0%, rgba(139, 92, 246, 0.06) 100%)',
+        color: '#a55eea',          // Ambitious violet (matching portal theme)
+        colorEnd: '#8854d0',
+        bgGradient: 'linear-gradient(135deg, rgba(165, 94, 234, 0.12) 0%, rgba(136, 84, 208, 0.06) 100%)',
         badgeLabel: 'Career',
     },
 };
@@ -194,48 +197,62 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
 
     return (
         <div className="space-y-5 animate-fade-in">
-            {/* ── Hero Banner ── */}
+            {/* ── Hero Banner - Portal Style ── */}
             <div
-                className="rounded-2xl p-6 sm:p-8 relative overflow-hidden group/hero shadow-md transition-all duration-500 hover:shadow-lg backdrop-blur-xl"
+                className="utility-hero rounded-2xl p-6 sm:p-8 relative overflow-hidden group/hero transition-all duration-500"
                 style={{
-                    background: config.bgGradient,
-                    border: `1.5px solid ${config.color}40`,
+                    ['--utility-color' as string]: config.color,
+                    ['--utility-color-end' as string]: config.colorEnd,
                 }}
             >
-                {/* Subtle radial glow, animated on hover */}
+                {/* Noise texture overlay */}
+                <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E')]" />
+
+                {/* Primary radial glow */}
                 <div
-                    className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl opacity-30 group-hover/hero:opacity-50 transition-opacity duration-700 pointer-events-none"
-                    style={{ backgroundColor: config.color }}
+                    className="absolute -top-20 -right-20 w-72 h-72 rounded-full blur-3xl opacity-25 group-hover/hero:opacity-40 transition-opacity duration-700 pointer-events-none"
+                    style={{
+                        background: `radial-gradient(circle, ${config.color} 0%, transparent 70%)`,
+                    }}
                 />
-                
+
                 {/* Secondary glow for depth */}
                 <div
-                     className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full blur-2xl opacity-20 pointer-events-none mix-blend-screen"
-                     style={{ backgroundColor: config.color }}
+                    className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full blur-3xl opacity-15 group-hover/hero:opacity-25 transition-opacity duration-700 pointer-events-none"
+                    style={{
+                        background: `radial-gradient(circle, ${config.colorEnd} 0%, transparent 70%)`,
+                    }}
                 />
 
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
+                    {/* Icon container with portal glow */}
                     <div
-                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-4xl sm:text-5xl flex-shrink-0 shadow-sm transition-transform duration-500 group-hover/hero:scale-105 group-hover/hero:-rotate-3"
-                        style={{ 
-                            backgroundColor: `${config.color}25`, 
-                            border: `1.5px solid ${config.color}50`,
-                            boxShadow: `inset 0 2px 10px ${config.color}20` 
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-4xl sm:text-5xl flex-shrink-0 transition-all duration-500 group-hover/hero:scale-105 group-hover/hero:-rotate-2"
+                        style={{
+                            background: `linear-gradient(135deg, ${config.color}20 0%, ${config.colorEnd}15 100%)`,
+                            border: `1.5px solid ${config.color}35`,
+                            boxShadow: `
+                                0 8px 32px ${config.color}20,
+                                0 0 20px ${config.color}15,
+                                inset 0 1px 0 rgba(255,255,255,0.1)
+                            `,
                         }}
                     >
                         {config.emoji}
                     </div>
+
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 flex-wrap mb-2">
                             <h2 className="text-2xl sm:text-3xl font-bold font-display text-text tracking-tight">
                                 {subjectName}
                             </h2>
                             <span
-                                className="text-[11px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm"
-                                style={{ 
-                                    backgroundColor: `${config.color}20`, 
+                                className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
+                                style={{
+                                    background: `linear-gradient(135deg, ${config.color}15 0%, ${config.colorEnd}10 100%)`,
                                     color: config.color,
-                                    border: `1px solid ${config.color}30`
+                                    border: `1px solid ${config.color}25`,
+                                    boxShadow: `0 0 12px ${config.color}15`,
                                 }}
                             >
                                 {config.badgeLabel}
@@ -245,12 +262,18 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                     </div>
                 </div>
 
-                {/* Progress bar */}
+                {/* Progress bar with neon trail */}
                 {checklist.length > 0 && (
-                    <div className="relative z-10 mt-6 space-y-2">
+                    <div className="relative z-10 mt-6 space-y-2.5">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs sm:text-sm text-text-muted font-medium flex items-center gap-1.5">
-                                <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: completedCount === checklist.length ? config.color : 'var(--text-muted)' }} />
+                            <span className="text-xs sm:text-sm text-text-muted font-medium flex items-center gap-2">
+                                <span
+                                    className="inline-block w-2 h-2 rounded-full transition-all duration-300"
+                                    style={{
+                                        backgroundColor: completedCount === checklist.length ? config.color : 'var(--color-text-muted)',
+                                        boxShadow: completedCount === checklist.length ? `0 0 8px ${config.color}` : 'none',
+                                    }}
+                                />
                                 {completedCount} of {checklist.length} tasks done
                             </span>
                             <span
@@ -260,49 +283,65 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                                 {pct}%
                             </span>
                         </div>
-                        <div className="h-2 bg-black/20 rounded-full overflow-hidden shadow-inner backdrop-blur-sm border border-white/5">
+                        <div className="h-2 bg-white/5 rounded-full overflow-hidden backdrop-blur-sm border border-white/5">
                             <div
                                 className="h-full rounded-full transition-all duration-1000 ease-out relative"
-                                style={{ 
-                                    width: `${pct}%`, 
-                                    backgroundColor: config.color,
-                                    boxShadow: `0 0 10px ${config.color}80`
+                                style={{
+                                    width: `${pct}%`,
+                                    background: `linear-gradient(90deg, ${config.color} 0%, ${config.colorEnd} 100%)`,
+                                    boxShadow: `0 0 16px ${config.color}60, 0 0 6px ${config.color}40`,
                                 }}
                             >
-                                {/* Shimmer effect on the filled part */}
+                                {/* Glowing dot at end */}
+                                {pct > 0 && (
+                                    <div
+                                        className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white/90"
+                                        style={{ boxShadow: `0 0 10px ${config.color}` }}
+                                    />
+                                )}
+                                {/* Shimmer effect */}
                                 {pct > 0 && pct < 100 && (
-                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent w-[200%] animate-[shimmerWave_2s_infinite_linear]" />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent w-[200%] animate-[shimmerWave_2s_infinite_linear]" />
                                 )}
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Quick actions */}
+                {/* Quick actions with portal styling */}
                 <div className="relative z-10 flex flex-wrap gap-3 mt-6">
                     <Link
                         href="/dashboard/calendar"
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation group"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation group"
                         style={{
-                            backgroundColor: `${config.color}15`,
+                            background: `linear-gradient(135deg, ${config.color}12 0%, ${config.colorEnd}08 100%)`,
                             color: config.color,
-                            border: `1px solid ${config.color}30`,
+                            border: `1px solid ${config.color}25`,
+                            boxShadow: `0 2px 8px ${config.color}10`,
                             ['--tw-ring-color' as string]: config.color,
                         }}
                     >
-                        <span className="group-hover:scale-110 transition-transform duration-300">📅</span> View Reminders
+                        <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 20 20" fill="none">
+                            <rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                            <path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                        View Reminders
                     </Link>
                     <Link
                         href="/dashboard/calendar/new"
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation group"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation group"
                         style={{
-                            backgroundColor: `${config.color}15`,
+                            background: `linear-gradient(135deg, ${config.color}12 0%, ${config.colorEnd}08 100%)`,
                             color: config.color,
-                            border: `1px solid ${config.color}30`,
+                            border: `1px solid ${config.color}25`,
+                            boxShadow: `0 2px 8px ${config.color}10`,
                             ['--tw-ring-color' as string]: config.color,
                         }}
                     >
-                         <span className="group-hover:rotate-90 transition-transform duration-300">＋</span> Add Reminder
+                        <svg className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                        Add Reminder
                     </Link>
                 </div>
             </div>
@@ -310,16 +349,31 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
             {/* ── Two-column body ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
 
-                {/* Checklist Card */}
-                <div className="rounded-2xl border border-border/50 bg-bg-secondary/90 p-5 sm:p-6 shadow-md hover:shadow-lg transition-shadow duration-300 space-y-4 flex flex-col backdrop-blur-sm">
-                    <div className="flex items-center justify-between border-b border-border/40 pb-3">
-                        <h3 className="text-base font-bold text-text flex items-center gap-2 m-0 tracking-tight">
-                            <span className="text-lg">📋</span> Tasks
+                {/* Checklist Card - Portal Style */}
+                <div className="utility-card rounded-2xl p-5 sm:p-6 space-y-4 flex flex-col relative overflow-hidden">
+                    {/* Subtle background glow */}
+                    <div
+                        className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-10 pointer-events-none"
+                        style={{ backgroundColor: config.color }}
+                    />
+
+                    <div className="relative flex items-center justify-between border-b border-white/5 pb-3">
+                        <h3 className="text-base font-bold text-text flex items-center gap-2.5 m-0 tracking-tight">
+                            <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none">
+                                <rect x="3" y="2" width="14" height="16" rx="2" stroke={config.color} strokeWidth="1.5" />
+                                <path d="M7 6h6M7 10h6M7 14h4" stroke={config.color} strokeWidth="1.5" strokeLinecap="round" />
+                            </svg>
+                            Tasks
                         </h3>
                         {checklist.length > 0 && (
                             <span
-                                className="text-xs font-bold px-2.5 py-1 rounded-full shadow-sm"
-                                style={{ backgroundColor: `${config.color}15`, color: config.color, border: `1px solid ${config.color}20` }}
+                                className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                                style={{
+                                    background: `linear-gradient(135deg, ${config.color}12 0%, ${config.colorEnd}08 100%)`,
+                                    color: config.color,
+                                    border: `1px solid ${config.color}20`,
+                                    boxShadow: `0 0 8px ${config.color}10`,
+                                }}
                             >
                                 {completedCount}/{checklist.length}
                             </span>
@@ -426,11 +480,21 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                     </div>
                 </div>
 
-                {/* Links Card */}
-                <div className="rounded-2xl border border-border/50 bg-bg-secondary/90 p-5 sm:p-6 shadow-md hover:shadow-lg transition-shadow duration-300 space-y-4 flex flex-col backdrop-blur-sm">
-                    <div className="border-b border-border/40 pb-3">
-                        <h3 className="text-base font-bold text-text flex items-center gap-2 m-0 tracking-tight">
-                            <span className="text-lg">🔗</span> Essential Links
+                {/* Links Card - Portal Style */}
+                <div className="utility-card rounded-2xl p-5 sm:p-6 space-y-4 flex flex-col relative overflow-hidden">
+                    {/* Subtle background glow */}
+                    <div
+                        className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full blur-3xl opacity-10 pointer-events-none"
+                        style={{ backgroundColor: config.colorEnd }}
+                    />
+
+                    <div className="relative border-b border-white/5 pb-3">
+                        <h3 className="text-base font-bold text-text flex items-center gap-2.5 m-0 tracking-tight">
+                            <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none">
+                                <path d="M8 12l4-4M8 6h.01M12 14h.01" stroke={config.color} strokeWidth="1.5" strokeLinecap="round" />
+                                <path d="M14 8l2-2a2.83 2.83 0 00-4-4l-2 2M6 12l-2 2a2.83 2.83 0 004 4l2-2" stroke={config.color} strokeWidth="1.5" strokeLinecap="round" />
+                            </svg>
+                            Essential Links
                         </h3>
                     </div>
 

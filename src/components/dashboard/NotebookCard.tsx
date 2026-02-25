@@ -45,58 +45,85 @@ export function NotebookCard({
   if (gamesCount > 0) contentParts.push(`${gamesCount} game${gamesCount !== 1 ? 's' : ''}`);
   if (vocabCount > 0) contentParts.push(`${vocabCount} vocab`);
 
+  const isHighProgress = avgProgress >= 75;
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group w-full text-left relative rounded-xl border overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/50"
+      className="notebook-card group w-full text-left relative rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
       style={{
-        borderColor: isNotebookDone ? 'var(--color-border)' : `${accentColor}45`,
-        background: isNotebookDone
-          ? 'var(--color-bg-secondary)'
-          : `linear-gradient(135deg, ${accentColor}14 0%, var(--color-bg-secondary) 58%)`,
+        ['--notebook-accent' as string]: accentColor,
+        ['--notebook-glow' as string]: `${accentColor}40`,
       }}
     >
-      {/* Notebook binding strip */}
+      {/* Background glow layer */}
       <div
-        className="absolute left-0 top-0 bottom-0 w-7 flex flex-col items-center justify-around py-2 pointer-events-none"
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
         style={{
-          background: `linear-gradient(to right, ${accentColor}20 0%, ${accentColor}08 60%, transparent 100%)`,
-          borderRight: `1.5px solid ${accentColor}30`,
+          background: `radial-gradient(ellipse at 30% 50%, ${accentColor}15 0%, transparent 60%)`,
         }}
-      >
-        {[0, 1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="w-3 h-3 rounded-full border-2 flex-shrink-0"
-            style={{ borderColor: `${accentColor}50`, backgroundColor: 'var(--color-bg-secondary)' }}
-          />
-        ))}
-      </div>
+      />
+
+      {/* Noise texture overlay */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E')]" />
+
+      {/* Left accent stripe with glow */}
+      <div
+        className="absolute left-0 top-0 bottom-0 w-1 transition-all duration-300 group-hover:w-1.5"
+        style={{
+          background: `linear-gradient(180deg, ${accentColor} 0%, ${accentColor}80 100%)`,
+          boxShadow: `0 0 12px ${accentColor}50`,
+        }}
+      />
 
       {/* Main card content */}
-      <div className="flex items-center pl-10 pr-4 py-4 gap-4">
-        {/* Emoji */}
-        <span className="text-2xl flex-shrink-0 select-none">{notebook.emoji}</span>
+      <div className="relative flex items-center pl-5 pr-4 py-4 gap-4">
+        {/* Emoji with glow container */}
+        <div
+          className="relative flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105"
+          style={{
+            background: `linear-gradient(135deg, ${accentColor}15 0%, ${accentColor}08 100%)`,
+            border: `1px solid ${accentColor}25`,
+            boxShadow: `0 4px 16px ${accentColor}15, inset 0 1px 0 rgba(255,255,255,0.05)`,
+          }}
+        >
+          <span className="text-2xl select-none">{notebook.emoji}</span>
+        </div>
 
-        {/* Text */}
+        {/* Text content */}
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-text text-sm sm:text-base leading-snug">
+          <p className="font-bold text-text text-sm sm:text-base leading-snug tracking-tight">
             {notebook.name}
           </p>
-          <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+          <p className="text-xs text-text-muted mt-0.5 leading-relaxed line-clamp-1">
             {notebook.tagline}
           </p>
-          {/* Progress bar */}
+
+          {/* Progress bar with neon glow */}
           {!isNotebookDone && avgProgress > 0 && (
-            <div className="mt-2 flex items-center gap-2">
-              <div className="flex-1 h-1 bg-border/30 rounded-full overflow-hidden">
+            <div className="mt-2.5 flex items-center gap-2">
+              <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden backdrop-blur-sm">
                 <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${Math.min(avgProgress, 100)}%`, backgroundColor: accentColor }}
-                />
+                  className="h-full rounded-full transition-all duration-700 relative"
+                  style={{
+                    width: `${Math.min(avgProgress, 100)}%`,
+                    background: `linear-gradient(90deg, ${accentColor} 0%, ${accentColor}cc 100%)`,
+                    boxShadow: `0 0 10px ${accentColor}60, 0 0 4px ${accentColor}40`,
+                  }}
+                  data-high-progress={isHighProgress}
+                >
+                  {/* Glowing dot at end */}
+                  <div
+                    className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white/80"
+                    style={{ boxShadow: `0 0 8px ${accentColor}` }}
+                  />
+                </div>
               </div>
-              <span className="text-[10px] text-text-muted font-medium flex-shrink-0">
+              <span
+                className="text-[10px] font-bold flex-shrink-0"
+                style={{ color: accentColor }}
+              >
                 {avgProgress}%
               </span>
             </div>
@@ -104,21 +131,33 @@ export function NotebookCard({
         </div>
 
         {/* Badge & arrow */}
-        <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
+        <div className="flex-shrink-0 flex flex-col items-end gap-2">
           {isNotebookDone ? (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-              Done
+            <span
+              className="text-[10px] font-bold px-2.5 py-1 rounded-full border"
+              style={{
+                background: 'rgba(34, 197, 94, 0.15)',
+                borderColor: 'rgba(34, 197, 94, 0.3)',
+                color: '#22c55e',
+                boxShadow: '0 0 10px rgba(34, 197, 94, 0.2)',
+              }}
+            >
+              Complete
             </span>
           ) : (
             <span
-              className="text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
-              style={{ backgroundColor: `${accentColor}12`, color: accentColor }}
+              className="text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap"
+              style={{
+                backgroundColor: `${accentColor}15`,
+                color: accentColor,
+                border: `1px solid ${accentColor}25`,
+              }}
             >
-              {contentParts.join(' + ')}
+              {contentParts.join(' · ')}
             </span>
           )}
           <svg
-            className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors"
+            className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
