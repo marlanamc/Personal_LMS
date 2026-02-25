@@ -71,9 +71,9 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
     });
 
     return (
-        <div className="bg-bg-secondary/90 p-5 rounded-xl shadow-sm border border-border/60 w-72 backdrop-blur-sm">
+        <div className="bg-bg-elevated p-5 rounded-xl shadow-sm border border-border-subtle w-72">
             <div className="flex flex-col items-center gap-2 mb-3">
-                <h3 className="text-sm font-bold text-primary font-display text-center">
+                <h3 className="text-sm font-semibold text-text font-display text-center">
                     {monthNames[viewMonth]} {viewYear}
                 </h3>
                 <div className="flex items-center gap-3">
@@ -81,7 +81,7 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
                         type="button"
                         aria-label="Previous month"
                         onClick={() => setViewDate(new Date(viewYear, viewMonth - 1, 1))}
-                        className="text-xs font-semibold text-text-muted border border-border/60 rounded-md px-3 py-2 min-h-[44px] min-w-[44px] hover:bg-bg-light flex items-center justify-center"
+                        className="text-xs font-semibold text-text-secondary border border-border-subtle rounded-md px-3 py-2 min-h-[44px] min-w-[44px] hover:bg-bg-surface flex items-center justify-center"
                     >
                         ←
                     </button>
@@ -89,7 +89,7 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
                         type="button"
                         aria-label="Next month"
                         onClick={() => setViewDate(new Date(viewYear, viewMonth + 1, 1))}
-                        className="text-xs font-semibold text-text-muted border border-border/60 rounded-md px-3 py-2 min-h-[44px] min-w-[44px] hover:bg-bg-light flex items-center justify-center"
+                        className="text-xs font-semibold text-text-secondary border border-border-subtle rounded-md px-3 py-2 min-h-[44px] min-w-[44px] hover:bg-bg-surface flex items-center justify-center"
                     >
                         →
                     </button>
@@ -115,28 +115,42 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
 
                     if (!day) return <div key={idx} />;
 
-                    const baseClasses = isToday
-                        ? 'bg-primary text-white font-bold shadow-sm'
-                        : 'text-text hover:bg-bg-gray';
-
-                    const eventClasses = hasQuiz
-                        ? 'bg-[#2d7a46]/20 text-[#2d7a46] font-semibold'
-                        : hasDue
-                            ? 'bg-accent/20 text-accent-dark font-semibold'
-                            : hasHoliday
-                                ? 'bg-[#1d6deb]/20 text-[#1d6deb] font-semibold'
-                                : hasOther
-                                    ? 'bg-warning/20 text-warning font-semibold'
-                                    : '';
+                    const dayStyle: React.CSSProperties | undefined = isToday
+                        ? {
+                            backgroundColor: "var(--color-accent-sakura-soft)",
+                            color: "var(--color-accent-sakura)",
+                            border: "1px solid color-mix(in srgb, var(--color-accent-sakura) 28%, transparent)",
+                          }
+                        : hasQuiz
+                            ? {
+                                backgroundColor: "color-mix(in srgb, var(--color-accent-mint) 18%, transparent)",
+                                color: "var(--color-accent-mint)",
+                              }
+                            : hasDue
+                                ? {
+                                    backgroundColor: "var(--color-accent-sakura-soft)",
+                                    color: "var(--color-accent-sakura)",
+                                  }
+                                : hasHoliday
+                                    ? {
+                                        backgroundColor: "color-mix(in srgb, var(--color-accent-teal) 18%, transparent)",
+                                        color: "var(--color-accent-teal)",
+                                      }
+                                    : hasOther
+                                        ? {
+                                            backgroundColor: "color-mix(in srgb, var(--color-accent-amethyst) 18%, transparent)",
+                                            color: "var(--color-accent-amethyst)",
+                                          }
+                                        : undefined;
 
                     return (
                         <div
                             key={idx}
                             className={`
                                 text-xs w-6 h-6 flex items-center justify-center rounded-full mx-auto font-medium transition-colors cursor-default
-                                ${baseClasses}
-                                ${!isToday ? eventClasses : ''}
+                                ${!isToday && !hasDue && !hasHoliday && !hasOther && !hasQuiz ? "text-text hover:bg-bg-surface" : ""}
                             `}
+                            style={dayStyle}
                         >
                             {day}
                         </div>
@@ -147,9 +161,9 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
             {/* Legend / Upcoming text */}
             <div className="mt-3 pt-2 border-t border-border/40 flex items-center gap-2 text-[10px] text-text-muted flex-wrap">
                 <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Today</span>
-                <span className="flex items-center gap-1 ml-1"><span className="w-1.5 h-1.5 rounded-full bg-[#2d7a46]" /> Quiz/Test</span>
-                <span className="flex items-center gap-1 ml-1"><span className="w-1.5 h-1.5 rounded-full bg-accent" /> Due</span>
-                <span className="flex items-center gap-1 ml-1"><span className="w-1.5 h-1.5 rounded-full bg-[#1d6deb]" /> Holiday</span>
+                <span className="flex items-center gap-1 ml-1"><span className="w-1.5 h-1.5 rounded-full bg-mineral-mint" /> Quiz/Test</span>
+                <span className="flex items-center gap-1 ml-1"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Due</span>
+                <span className="flex items-center gap-1 ml-1"><span className="w-1.5 h-1.5 rounded-full bg-mineral-teal" /> Holiday</span>
             </div>
         </div>
     );

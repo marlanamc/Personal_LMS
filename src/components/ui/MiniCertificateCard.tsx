@@ -153,7 +153,7 @@ export function EmptyCertificateCard({ className = "" }: { className?: string })
 }
 
 /**
- * Card for scores under 70% - encourages students to try again
+ * Card for scores under 70% - encourages another attempt
  */
 export function NeedsImprovementCard({
     certificate,
@@ -202,7 +202,7 @@ export function NeedsImprovementCard({
                 </p>
                 <p className="text-[10px] text-rose-500/80 flex items-center justify-center gap-1">
                     <HelpCircle className="h-3 w-3" />
-                    Ask your teacher for help
+                    Review the guide and try again
                 </p>
             </div>
 

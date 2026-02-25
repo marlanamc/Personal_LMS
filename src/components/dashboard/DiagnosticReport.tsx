@@ -94,7 +94,7 @@ export function DiagnosticReport({
                         </h2>
                         <p className="text-sm text-text-muted flex items-center gap-2">
                             <Users className="w-4 h-4" />
-                            {totalStudents} students enrolled
+                            {totalStudents} members enrolled
                         </p>
                     </div>
                     <select
@@ -162,7 +162,7 @@ export function DiagnosticReport({
                             No diagnostic data available
                         </p>
                         <p className="text-sm">
-                            Students need to complete mini-quizzes with skill
+                            Complete mini-quizzes with skill
                             tags to generate diagnostic reports.
                         </p>
                     </div>
@@ -238,8 +238,8 @@ export function DiagnosticReport({
                                         <AlertTriangle className="w-4 h-4" />
                                         {skill.studentsStruggling}{" "}
                                         {skill.studentsStruggling === 1
-                                            ? "student needs"
-                                            : "students need"}{" "}
+                                            ? "member needs"
+                                            : "members need"}{" "}
                                         help
                                         <span className="text-xs opacity-70 font-normal">
                                             (below 60%)

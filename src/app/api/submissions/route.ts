@@ -10,11 +10,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userRole = session.user?.role;
-        if (userRole !== "student") {
-            return NextResponse.json({ error: "Only students can submit work" }, { status: 403 });
-        }
-
         const body = await request.json();
         const { activityId, assignmentId, content } = body;
 
@@ -26,8 +21,11 @@ export async function POST(request: NextRequest) {
         }
 
         const userId = session.user?.id;
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
-        // Verify assignment exists and student is enrolled
+        // Verify assignment exists and user can access the class.
         const assignment = await prisma.assignment.findUnique({
             where: { id: assignmentId },
             include: {
@@ -43,12 +41,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
         }
 
-        const isEnrolled = assignment.class.enrollments.some(
+        const hasClassAccess = assignment.class.teacherId === userId || assignment.class.enrollments.some(
             (enrollment: { studentId: string }) => enrollment.studentId === userId
         );
 
-        if (!isEnrolled) {
-            return NextResponse.json({ error: "You are not enrolled in this class" }, { status: 403 });
+        if (!hasClassAccess) {
+            return NextResponse.json({ error: "You do not have access to this class" }, { status: 403 });
         }
 
         // Create or update submission
@@ -91,11 +89,6 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userRole = session.user?.role;
-        if (userRole !== "student") {
-            return NextResponse.json({ error: "Only students can update submissions" }, { status: 403 });
-        }
-
         const body = await request.json();
         const { submissionId, content } = body;
 
@@ -107,6 +100,9 @@ export async function PUT(request: NextRequest) {
         }
 
         const userId = session.user?.id;
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         // Verify submission belongs to user
         const submission = await prisma.submission.findUnique({
@@ -147,7 +143,6 @@ export async function PUT(request: NextRequest) {
         );
     }
 }
-
 
 
 

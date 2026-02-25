@@ -15,9 +15,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         if (!session) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
-
-        if (session.user?.role !== "teacher") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        if (!session.user?.id) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         const { id } = await params;

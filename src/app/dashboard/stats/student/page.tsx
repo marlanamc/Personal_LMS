@@ -15,12 +15,7 @@ export default async function StudentStatsPage() {
         redirect("/login");
     }
 
-    const userRole = session.user?.role || "student";
     const userId = session.user?.id;
-
-    if (userRole !== "student") {
-        redirect("/dashboard/stats");
-    }
 
     const activities = await prisma.activity.findMany({
         orderBy: { createdAt: "desc" },
@@ -48,7 +43,7 @@ export default async function StudentStatsPage() {
 
     return (
         <div className="min-h-screen bg-bg">
-            <header className="sticky top-0 backdrop-blur-md border-b z-50 bg-bg-secondary/80 border-white/40 shadow-sm transition-all">
+            <header className="sticky top-0 backdrop-blur-sm border-b z-50 bg-bg-elevated/95 border-border-subtle shadow-sm transition-all">
                 <div className="max-w-[1200px] mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <div>
                         <BackButton href="/dashboard" className="mb-1">Back to Dashboard</BackButton>
@@ -82,5 +77,3 @@ export default async function StudentStatsPage() {
         </div>
     );
 }
-
-

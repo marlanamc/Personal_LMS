@@ -184,7 +184,7 @@ export function CertificateShowcase({
                 <div className="grid grid-cols-3 gap-3">
                     <div className="rounded-xl bg-white/80 border border-amber-200/50 px-4 py-3">
                         <p className="text-xs uppercase tracking-wide text-amber-700 mb-1">
-                            Student
+                            Name
                         </p>
                         <p className="font-semibold text-amber-900 truncate">
                             {certificate.studentName}

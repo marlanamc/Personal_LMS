@@ -4,17 +4,16 @@ import { authOptions } from "@/lib/auth";
 import { resetWeeklyPoints } from "@/lib/gamification";
 
 /**
- * Reset weekly points for all students
- * This should be called every Tuesday to start a new week
+ * Reset weekly points for all learners.
+ * This should be called every Tuesday to start a new week.
  *
- * Week runs: Tuesday - Monday
+ * Week runs: Tuesday - Monday.
  */
 export async function POST() {
     const session = await getServerSession(authOptions);
 
-    // Only teachers can reset weekly points
-    if (!session?.user || session.user.role !== "teacher") {
-        return NextResponse.json({ error: "Unauthorized - Teachers only" }, { status: 401 });
+    if (!session?.user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     try {

@@ -3,16 +3,38 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+async function getClassAccess(userId: string, classId: string): Promise<{ exists: boolean; hasAccess: boolean }> {
+    const classItem = await prisma.class.findUnique({
+        where: { id: classId },
+        select: { teacherId: true },
+    });
+
+    if (!classItem) {
+        return { exists: false, hasAccess: false };
+    }
+
+    if (classItem.teacherId === userId) {
+        return { exists: true, hasAccess: true };
+    }
+
+    const enrollment = await prisma.classEnrollment.findUnique({
+        where: {
+            classId_studentId: {
+                classId,
+                studentId: userId,
+            },
+        },
+        select: { classId: true },
+    });
+
+    return { exists: true, hasAccess: Boolean(enrollment) };
+}
+
 export async function POST(request: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
         if (!session) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        const userRole = session.user?.role;
-        if (userRole !== "teacher") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
         const body = await request.json();
@@ -26,17 +48,16 @@ export async function POST(request: NextRequest) {
         }
 
         const userId = session.user?.id;
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
-        // Verify teacher owns the class
-        const classItem = await prisma.class.findUnique({
-            where: { id: classId },
-        });
-
-        if (!classItem) {
+        const classAccess = await getClassAccess(userId, classId);
+        if (!classAccess.exists) {
             return NextResponse.json({ error: "Class not found" }, { status: 404 });
         }
 
-        if (classItem.teacherId !== userId) {
+        if (!classAccess.hasAccess) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -81,11 +102,6 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userRole = session.user?.role;
-        if (userRole !== "teacher") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
         const body = await request.json();
         const { assignmentId, isFeatured } = body;
 
@@ -97,18 +113,32 @@ export async function PATCH(request: NextRequest) {
         }
 
         const userId = session.user?.id;
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
-        // Verify teacher owns the class that the assignment belongs to
         const assignment = await prisma.assignment.findUnique({
             where: { id: assignmentId },
-            include: { class: true }
+            select: { id: true, classId: true, class: { select: { teacherId: true } } }
         });
 
         if (!assignment) {
             return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
         }
 
-        if (assignment.class.teacherId !== userId) {
+        const hasClassAccess = assignment.class.teacherId === userId || Boolean(
+            await prisma.classEnrollment.findUnique({
+                where: {
+                    classId_studentId: {
+                        classId: assignment.classId,
+                        studentId: userId,
+                    },
+                },
+                select: { classId: true },
+            })
+        );
+
+        if (!hasClassAccess) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -127,7 +157,5 @@ export async function PATCH(request: NextRequest) {
         );
     }
 }
-
-
 
 

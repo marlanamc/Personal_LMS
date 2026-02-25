@@ -10,16 +10,11 @@ export default async function JoinClassPage() {
         redirect("/login");
     }
 
-    const userRole = session.user?.role;
-    if (userRole === "teacher") {
-        redirect("/dashboard");
-    }
-
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="bg-bg-secondary/90 shadow">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <h1 className="text-3xl font-bold text-text">Join a Class</h1>
+                    <h1 className="text-3xl font-bold text-text">Open a Class by Code</h1>
                 </div>
             </header>
             <main className="max-w-2xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -30,7 +25,6 @@ export default async function JoinClassPage() {
         </div>
     );
 }
-
 
 
 

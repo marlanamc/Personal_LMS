@@ -13,10 +13,9 @@ export function ActivityProgressBadge({
     activityId,
     assignmentId = null,
     initialProgress = 0,
-    userRole,
+    userRole: _userRole,
 }: Props) {
     const [progress, setProgress] = useState(initialProgress ?? 0);
-    const normalizedRole = userRole?.toLowerCase();
     const normalizedAssignmentId =
         typeof assignmentId === "string" && assignmentId.trim().length > 0 ? assignmentId.trim() : null;
 
@@ -26,7 +25,6 @@ export function ActivityProgressBadge({
 
     useEffect(() => {
         if (!activityId) return;
-        if (normalizedRole && normalizedRole !== "student") return;
 
         let isMounted = true;
 
@@ -56,11 +54,10 @@ export function ActivityProgressBadge({
             isMounted = false;
             window.clearInterval(interval);
         };
-    }, [activityId, assignmentId, normalizedRole]);
+    }, [activityId, assignmentId]);
 
     useEffect(() => {
         if (!activityId) return;
-        if (normalizedRole && normalizedRole !== "student") return;
 
         const handleProgressUpdated = (event: Event) => {
             const customEvent = event as CustomEvent<{ activityId?: unknown; assignmentId?: unknown; progress?: unknown }>;
@@ -82,7 +79,7 @@ export function ActivityProgressBadge({
         return () => {
             window.removeEventListener("activity-progress-updated", handleProgressUpdated);
         };
-    }, [activityId, normalizedAssignmentId, normalizedRole]);
+    }, [activityId, normalizedAssignmentId]);
 
     const color = useMemo(
         () =>

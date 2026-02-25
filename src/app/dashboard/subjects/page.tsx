@@ -179,8 +179,7 @@ export default async function SubjectsPage({ searchParams }: Props) {
     if (!session) redirect("/login");
 
     const userId = session.user?.id;
-    const userRole = session.user?.role;
-    const canFeatureActivities = userRole === "teacher";
+    const canFeatureActivities = Boolean(userId);
 
     // Personal LMS uses a unified role experience on subjects.
     const activities = await prisma.activity.findMany({
@@ -205,21 +204,34 @@ export default async function SubjectsPage({ searchParams }: Props) {
     });
     const completedActivityIds = completedActivities.map((s: { activityId: string }) => s.activityId);
 
-    const teacherClasses = canFeatureActivities
-        ? await prisma.class.findMany({
-            where: { teacherId: userId },
-            select: { id: true },
-            orderBy: { createdAt: "asc" },
-        })
-        : [];
-    const defaultClassId = teacherClasses[0]?.id ?? null;
+    const [ownedClasses, enrolledClasses] = canFeatureActivities
+        ? await Promise.all([
+            prisma.class.findMany({
+                where: { teacherId: userId },
+                select: { id: true },
+                orderBy: { createdAt: "asc" },
+            }),
+            prisma.classEnrollment.findMany({
+                where: { studentId: userId },
+                select: { classId: true },
+            }),
+        ])
+        : [[], []] as const;
+
+    const classIds = Array.from(
+        new Set([
+            ...ownedClasses.map((classRow) => classRow.id),
+            ...enrolledClasses.map((enrollment) => enrollment.classId),
+        ])
+    );
+    const defaultClassId = ownedClasses[0]?.id ?? enrolledClasses[0]?.classId ?? null;
 
     const activityIds = visibleActivities.map((a) => a.id);
     const assignmentRows =
-        canFeatureActivities && teacherClasses.length > 0 && activityIds.length > 0
+        canFeatureActivities && classIds.length > 0 && activityIds.length > 0
             ? await prisma.assignment.findMany({
                 where: {
-                    classId: { in: teacherClasses.map((c) => c.id) },
+                    classId: { in: classIds },
                     activityId: { in: activityIds },
                 },
                 select: {

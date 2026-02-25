@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { DiagnosticReport } from "@/components/dashboard/DiagnosticReport";
 import { BackButton } from "@/components/ui/BackButton";
 import { BarChart3 } from "lucide-react";
+import { canAccessClass } from "@/lib/class-access";
 
 export default async function DiagnosticsPage({
     searchParams,
@@ -12,9 +13,9 @@ export default async function DiagnosticsPage({
     searchParams: Promise<{ classId?: string; activityId?: string }>;
 }) {
     const session = await getServerSession(authOptions);
-    const user = session?.user as { id: string; role: string } | undefined;
+    const userId = session?.user?.id;
 
-    if (!user || user.role !== "teacher") {
+    if (!userId) {
         redirect("/login");
     }
 
@@ -27,10 +28,8 @@ export default async function DiagnosticsPage({
     }
 
     // Fetch class and activity data in parallel
-    const [classData, activityData, enrollmentCount] = await Promise.all([
-        prisma.class.findFirst({
-            where: { id: classId, teacherId: user.id },
-        }),
+    const [hasClassAccess, activityData, enrollmentCount] = await Promise.all([
+        canAccessClass(userId, classId),
         prisma.activity.findUnique({
             where: { id: activityId },
         }),
@@ -39,7 +38,16 @@ export default async function DiagnosticsPage({
         }),
     ]);
 
-    if (!classData || !activityData) {
+    if (!hasClassAccess || !activityData) {
+        redirect("/dashboard/gradebook");
+    }
+
+    const classData = await prisma.class.findUnique({
+        where: { id: classId },
+        select: { name: true },
+    });
+
+    if (!classData) {
         redirect("/dashboard/gradebook");
     }
 
@@ -89,20 +97,20 @@ export default async function DiagnosticsPage({
                                 % Correct:
                             </strong>{" "}
                             Shows the class average for that skill across all
-                            student attempts.
+                            attempts.
                         </p>
                         <p>
                             <strong className="text-text">
-                                Students Need Help:
+                                Members Need Help:
                             </strong>{" "}
-                            Count of students who scored below 60% on questions
+                            Count of learners who scored below 60% on questions
                             testing this skill.
                         </p>
                         <p>
                             <strong className="text-text">
                                 Difficulty Filter:
                             </strong>{" "}
-                            Filter by question difficulty to see how students
+                            Filter by question difficulty to see how learners
                             perform on easy, medium, or hard questions.
                         </p>
                     </div>

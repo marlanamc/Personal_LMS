@@ -1,14 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, DM_Sans, Caveat } from "next/font/google";
+import { Lora, DM_Sans, Caveat } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import { Analytics } from "@vercel/analytics/next";
 
-const fraunces = Fraunces({
+const lora = Lora({
   variable: "--font-display",
   subsets: ["latin"],
+  weight: ["500", "600", "700"],
   display: "swap",
 });
 
@@ -54,8 +55,8 @@ export const viewport: Viewport = {
   userScalable: true,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0f0f1e" },
-    { media: "(prefers-color-scheme: light)", color: "#f5f7ff" },
+    { media: "(prefers-color-scheme: dark)", color: "#122033" },
+    { media: "(prefers-color-scheme: light)", color: "#F3F4F8" },
   ],
 };
 
@@ -65,9 +66,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" className="dark" data-theme="dark" suppressHydrationWarning>
       <body
-        className={`${fraunces.variable} ${dmSans.variable} ${caveat.variable} bg-bg-primary text-text antialiased`}
+        className={`${lora.variable} ${dmSans.variable} ${caveat.variable} bg-bg-primary text-text antialiased`}
       >
         <Providers>{children}</Providers>
         <ServiceWorkerRegistration />

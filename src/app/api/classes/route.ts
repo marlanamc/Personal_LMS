@@ -11,15 +11,18 @@ export async function GET() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userRole = session.user?.role;
-        if (userRole !== "teacher") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        const userId = session.user?.id;
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userId = session.user?.id;
-
         const classes = await prisma.class.findMany({
-            where: { teacherId: userId },
+            where: {
+                OR: [
+                    { teacherId: userId },
+                    { enrollments: { some: { studentId: userId } } },
+                ],
+            },
             include: {
                 assignments: {
                     include: {
@@ -47,11 +50,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userRole = session.user?.role;
-        if (userRole !== "teacher") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
         const body = await request.json();
         const { name, description, code } = body;
 
@@ -64,12 +62,15 @@ export async function POST(request: NextRequest) {
         }
 
         const userId = session.user?.id;
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         // SECURITY: Generate cryptographically secure code or validate provided code
         let classCode: string;
 
         if (code) {
-            // If teacher provides custom code, validate format
+            // If a custom code is provided, validate format.
             if (!isValidClassCodeFormat(code)) {
                 return NextResponse.json({
                     error: "Invalid class code format. Must be 6 uppercase alphanumeric characters (no 0, O, 1, I, L)"
@@ -110,7 +111,6 @@ export async function POST(request: NextRequest) {
         );
     }
 }
-
 
 
 

@@ -48,11 +48,11 @@ export default async function ActivityPage({ params, searchParams }: Props) {
         notFound();
     }
 
-    // SECURITY: Students cannot access unreleased speaking activities
-    if (userRole === "student" && activity.type === "speaking") {
+    // Restrict unreleased speaking activities unless this user created the activity.
+    if (activity.type === "speaking") {
         try {
             const content = JSON.parse(activity.content);
-            if (content.released !== true) {
+            if (content.released !== true && activity.createdBy !== userId) {
                 // Redirect to dashboard if trying to access unreleased speaking activity
                 redirect("/dashboard");
             }
@@ -77,35 +77,32 @@ export default async function ActivityPage({ params, searchParams }: Props) {
             redirect("/dashboard");
         }
 
-        // Verify student is enrolled or teacher owns the class
+        // Verify current user can access assignment class (owner or enrolled member).
         if (assignment?.class) {
-            if (userRole === "student") {
-                let enrollment = null;
-                try {
-                    enrollment = await prisma.classEnrollment.findUnique({
-                        where: {
-                            classId_studentId: {
-                                classId: assignment.classId,
-                                studentId: userId,
-                            },
+            let enrollment = null;
+            try {
+                enrollment = await prisma.classEnrollment.findUnique({
+                    where: {
+                        classId_studentId: {
+                            classId: assignment.classId,
+                            studentId: userId,
                         },
-                    });
-                } catch (error) {
-                    console.error("Failed to verify class enrollment", {
-                        assignmentId,
-                        classId: assignment.classId,
-                        userId,
-                        error,
-                    });
-                    redirect("/dashboard");
-                }
-                if (!enrollment) {
-                    redirect("/dashboard");
-                }
-            } else if (userRole === "teacher") {
-                if (assignment.class.teacherId !== userId) {
-                    redirect("/dashboard");
-                }
+                    },
+                    select: { classId: true },
+                });
+            } catch (error) {
+                console.error("Failed to verify class enrollment", {
+                    assignmentId,
+                    classId: assignment.classId,
+                    userId,
+                    error,
+                });
+                redirect("/dashboard");
+            }
+
+            const hasAccess = assignment.class.teacherId === userId || Boolean(enrollment);
+            if (!hasAccess) {
+                redirect("/dashboard");
             }
         } else if (assignmentId) {
             // Guard against orphaned assignments and stale URLs.
@@ -117,16 +114,14 @@ export default async function ActivityPage({ params, searchParams }: Props) {
     const [submissionResult, progressRecord] = await (async () => {
         try {
             return await Promise.all([
-                // Get existing submission (for students only)
-                userRole === "student"
-                    ? prisma.submission.findFirst({
-                          where: {
-                              userId,
-                              activityId: id,
-                              assignmentId: assignmentId ?? null,
-                          },
-                      })
-                    : Promise.resolve(null),
+                // Get existing submission for the current account.
+                prisma.submission.findFirst({
+                    where: {
+                        userId,
+                        activityId: id,
+                        assignmentId: assignmentId ?? null,
+                    },
+                }),
                 // Get progress record
                 prisma.activityProgress.findFirst({
                     where: {

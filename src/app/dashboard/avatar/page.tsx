@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { BackButton, BottomNav } from "@/components/ui";
 import AvatarSelector from "@/components/ui/AvatarSelector";
 import { HomeIcon, BookOpenIcon, UserIcon } from "@/components/icons/Icons";
-import { DEFAULT_AVATAR, DEFAULT_COLOR, AVATARS, COLORS } from "@/lib/avatar-constants";
+import { DEFAULT_AVATAR, DEFAULT_COLOR } from "@/lib/avatar-constants";
 
 export default function AvatarPage() {
     const router = useRouter();
@@ -90,7 +90,7 @@ export default function AvatarPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-bg to-bg-light">
+        <div className="min-h-screen bg-bg-base">
             {/* Premium Header */}
             <div className="sticky top-0 z-10 backdrop-blur-md bg-bg-secondary/80 border-b border-border/50">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -127,7 +127,7 @@ export default function AvatarPage() {
                             {/* Animated loading ring */}
                             <div className="w-20 h-20 rounded-full border-4 border-bg-gray animate-pulse" />
                             <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 animate-pulse" />
+                                <div className="w-16 h-16 rounded-full bg-sakura-soft border border-border-subtle animate-pulse" />
                             </div>
                         </div>
                         <p className="mt-4 text-text-muted font-medium">Loading your avatar...</p>
@@ -148,19 +148,9 @@ export default function AvatarPage() {
                         <div className="flex justify-center pt-2">
                             <button
                                 onClick={() => router.push("/dashboard/profile")}
-                                className="
-                                    group relative px-8 py-4 rounded-xl font-semibold text-white
-                                    bg-gradient-to-r from-primary to-primary-dark
-                                    shadow-lg hover:shadow-xl
-                                    transition-all duration-300
-                                    hover:scale-[1.02] active:scale-[0.98]
-                                    overflow-hidden
-                                "
+                                className="px-8 py-4 rounded-xl font-semibold text-bg-base bg-primary shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                             >
-                                {/* Shine effect */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-bg-secondary/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                                
-                                <span className="relative flex items-center gap-2">
+                                <span className="flex items-center gap-2">
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>

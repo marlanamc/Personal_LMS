@@ -54,7 +54,7 @@ export default function CreateCalendarEventForm({ classes }: Props) {
                 throw new Error(data.error || "Unable to add calendar item");
             }
 
-            setSuccess("Saved and shared with students.");
+            setSuccess("Saved and shared.");
             setTitle("");
             setDate("");
             setDescription("");
@@ -150,7 +150,7 @@ export default function CreateCalendarEventForm({ classes }: Props) {
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         rows={2}
-                        placeholder="Optional notes for students"
+                        placeholder="Optional notes"
                         className="w-full rounded-lg border border-border/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                 </div>
@@ -161,7 +161,7 @@ export default function CreateCalendarEventForm({ classes }: Props) {
                 <button
                         type="submit"
                         disabled={isSubmitting || classes.length === 0}
-                        className="w-full inline-flex justify-center items-center px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:brightness-110 disabled:opacity-60"
+                        className="w-full inline-flex justify-center items-center px-4 py-2 text-sm font-semibold text-bg-base bg-primary rounded-lg hover:brightness-110 disabled:opacity-60"
                 >
                     {isSubmitting ? "Saving…" : "Save"}
                 </button>

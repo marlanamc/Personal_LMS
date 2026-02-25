@@ -20,7 +20,9 @@ export async function GET() {
         }
 
         const userId = session.user?.id;
-        const userRole = session.user?.role;
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         // Get student's enrolled classes
         const enrollments: { classId: string }[] = await prisma.classEnrollment.findMany({
@@ -28,18 +30,16 @@ export async function GET() {
             select: { classId: true }
         });
 
-        // Teachers should also see featured tasks from classes they own.
-        const teacherClasses = userRole === "teacher"
-            ? await prisma.class.findMany({
-                where: { teacherId: userId },
-                select: { id: true },
-            })
-            : [];
+        // Personal LMS: always include classes owned by this user.
+        const ownedClasses = await prisma.class.findMany({
+            where: { teacherId: userId },
+            select: { id: true },
+        });
 
         const classIds = Array.from(
             new Set([
                 ...enrollments.map((enrollment) => enrollment.classId),
-                ...teacherClasses.map((classRow) => classRow.id),
+                ...ownedClasses.map((classRow) => classRow.id),
             ])
         );
 
@@ -133,30 +133,43 @@ export async function DELETE() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userRole = session.user?.role;
-        if (userRole !== "teacher") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        const userId = session.user?.id;
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userId = session.user?.id;
+        // Personal LMS: clear featured tasks for all classes this user can access.
+        const [ownedClasses, enrollments] = await Promise.all([
+            prisma.class.findMany({
+                where: { teacherId: userId },
+                select: { id: true }
+            }),
+            prisma.classEnrollment.findMany({
+                where: { studentId: userId },
+                select: { classId: true },
+            }),
+        ]);
 
-        // Get all classes owned by the teacher
-        const teacherClasses = await prisma.class.findMany({
-            where: { teacherId: userId },
-            select: { id: true }
-        });
+        const classIds = Array.from(new Set([
+            ...ownedClasses.map((c) => c.id),
+            ...enrollments.map((e) => e.classId),
+        ]));
 
-        const classIds = teacherClasses.map((c) => c.id);
+        if (classIds.length === 0) {
+            return NextResponse.json({
+                success: true,
+                count: 0,
+                message: "No featured assignments to clear"
+            });
+        }
 
-        // Unfeatured all assignments in teacher's classes
+        // Unfeature assignments in classes the user can access.
         const result = await prisma.assignment.updateMany({
             where: {
                 classId: { in: classIds },
-                isFeatured: true
+                isFeatured: true,
             },
-            data: {
-                isFeatured: false
-            }
+            data: { isFeatured: false }
         });
 
         return NextResponse.json({

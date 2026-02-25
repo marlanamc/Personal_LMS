@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { trackLogin } from "@/lib/gamification";
 import { parseCategoryData } from "@/lib/categoryData";
 import { getEffectiveStreak, hasActivityToday } from "@/lib/gamification/streak-utils";
-import { getTodayChallengeWithProgress } from "@/lib/daily-challenge";
 import Link from "next/link";
 import { BottomNav } from "@/components/ui";
 import {
@@ -21,7 +20,6 @@ import {
   UpcomingEventsList,
   TodaysAssignments,
   ClearFeaturedButton,
-  DailyChallengeBanner,
   StreakWarning,
 } from "@/components/dashboard";
 
@@ -101,15 +99,6 @@ export default async function DashboardPage() {
   const didActivityToday = currentUser
     ? hasActivityToday(currentUser.lastActivityDate)
     : false;
-
-  // Fetch daily challenge
-  let dailyChallenge = null;
-  try {
-    dailyChallenge = await getTodayChallengeWithProgress(userId);
-  } catch (error) {
-    // Daily challenge table might not exist yet (before migration)
-    console.error("Failed to fetch daily challenge:", error);
-  }
 
   // Fetch Classes and Enrollments
   const [createdClasses, enrollments] = await Promise.all([
@@ -239,7 +228,7 @@ export default async function DashboardPage() {
   ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="min-h-screen bg-bg-base">
       <main className="container mx-auto pt-6 pb-24 md:pb-12 px-3 sm:px-6 lg:px-8 max-w-full lg:max-w-[1600px]">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           {/* Main Content Area - Left Side */}
@@ -261,16 +250,13 @@ export default async function DashboardPage() {
                   {effectiveCurrentStreak > 0 && (
                     <Link
                       href="/dashboard/profile"
-                      className="flex items-center gap-2.5 bg-gradient-to-r from-warning/20 to-warning/10 border border-warning/40 rounded-full pl-2.5 pr-4 py-2 shadow-sm hover:shadow-md transition-all"
+                      className="flex items-center gap-2.5 bg-bg-surface border border-border-subtle rounded-full pl-2.5 pr-4 py-2 shadow-sm hover:shadow-md transition-all"
                     >
-                      <div className="w-8 h-8 bg-warning/30 rounded-full flex items-center justify-center streak-glow">
-                        <FlameIcon
-                          className="text-warning streak-icon-pulse"
-                          size={16}
-                        />
+                      <div className="w-8 h-8 bg-sakura-soft rounded-full flex items-center justify-center">
+                        <FlameIcon className="text-primary streak-icon-pulse" size={16} />
                       </div>
                       <div>
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-text-muted leading-none">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted leading-none">
                           Streak
                         </div>
                         <div className="text-lg font-bold text-text leading-tight">
@@ -287,13 +273,13 @@ export default async function DashboardPage() {
                   {(currentUser?.points ?? 0) > 0 && (
                     <Link
                       href="/dashboard/profile"
-                      className="flex items-center gap-2.5 bg-gradient-to-r from-secondary/20 to-secondary/10 border border-secondary/40 rounded-full pl-2.5 pr-4 py-2 shadow-sm hover:shadow-md transition-all"
+                      className="flex items-center gap-2.5 bg-bg-surface border border-border-subtle rounded-full pl-2.5 pr-4 py-2 shadow-sm hover:shadow-md transition-all"
                     >
-                      <div className="w-8 h-8 bg-secondary/30 rounded-full flex items-center justify-center">
-                        <TrophyIcon className="text-secondary" size={16} />
+                      <div className="w-8 h-8 bg-mineral-mint/20 rounded-full flex items-center justify-center">
+                        <TrophyIcon className="text-mineral-mint" size={16} />
                       </div>
                       <div>
-                        <div className="text-[10px] font-bold uppercase tracking-wider text-text-muted leading-none">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted leading-none">
                           Total
                         </div>
                         <div className="text-lg font-bold text-text leading-tight">
@@ -319,13 +305,6 @@ export default async function DashboardPage() {
               />
             )}
 
-            {/* Daily Challenge Banner */}
-            {dailyChallenge && (
-              <section className="animate-fade-in-up delay-50">
-                <DailyChallengeBanner initialChallenge={dailyChallenge} />
-              </section>
-            )}
-
             {/* Weekly Checklist (Personalized) */}
             <section id="weekly-checklist" className="animate-fade-in-up delay-100 scroll-mt-24">
               <TodaysAssignments
@@ -340,11 +319,10 @@ export default async function DashboardPage() {
             {/* Explore CTA */}
             <section className="animate-fade-in-up delay-200">
               <div className="glass-card rounded-2xl px-5 py-4 relative overflow-hidden">
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 rounded-full blur-3xl opacity-60" />
                 <div className="flex items-center justify-between gap-4 relative z-10">
                   <div>
-                    <p className="text-xs font-bold text-secondary tracking-widest uppercase flex items-center gap-2">
-                      <span className="w-5 h-[2px] bg-secondary rounded-full" />
+                    <p className="text-xs font-semibold text-text-secondary tracking-[0.14em] uppercase flex items-center gap-2">
+                      <span className="w-5 h-[2px] bg-primary rounded-full" />
                       Journey
                     </p>
                     <h2 className="text-lg font-bold font-display text-text mt-0.5">
@@ -353,7 +331,7 @@ export default async function DashboardPage() {
                   </div>
                   <Link
                     href="/dashboard/subjects"
-                    className="shrink-0 px-4 py-2 rounded-xl bg-primary text-white hover:brightness-110 transition-all font-bold text-sm shadow-md hover:shadow-lg active:scale-95 flex items-center gap-1.5"
+                    className="shrink-0 px-4 py-2 rounded-xl bg-primary text-bg-base hover:brightness-105 transition-all font-semibold text-sm shadow-sm active:scale-95 flex items-center gap-1.5"
                   >
                     See All Subjects
                     <span className="arrow-animate">→</span>
@@ -365,7 +343,7 @@ export default async function DashboardPage() {
 
           {/* Sidebar */}
           <aside className="animate-fade-in-up delay-100 hidden md:block md:col-span-4 lg:col-span-3">
-            <div className="bg-bg-secondary/90 border p-6 sticky top-24 border-border shadow-lg rounded-2xl bg-gradient-to-b from-bg-secondary to-bg-primary space-y-5">
+            <div className="bg-bg-elevated border p-6 sticky top-24 border-border-subtle shadow-lg rounded-2xl space-y-5">
               <h2 className="text-xl font-bold text-text">Calendar</h2>
               <MiniCalendar events={calendarEvents} />
               <UpcomingEventsList

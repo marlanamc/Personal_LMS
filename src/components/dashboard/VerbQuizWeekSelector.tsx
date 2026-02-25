@@ -34,7 +34,7 @@ export default function VerbQuizWeekSelector() {
             </select>
             <button
                 onClick={handleViewResults}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:brightness-110 transition-[filter] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-bg-base text-sm font-semibold hover:brightness-110 transition-[filter] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
             >
                 View Results
             </button>

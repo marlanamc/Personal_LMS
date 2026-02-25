@@ -15,10 +15,8 @@ export default async function CalendarAddPage() {
         redirect("/login");
     }
 
-    const userRole = session.user?.role || "student";
     const userId = session.user?.id;
-
-    if (userRole !== "teacher") {
+    if (!userId) {
         redirect("/dashboard");
     }
 
@@ -70,6 +68,5 @@ export default async function CalendarAddPage() {
         </div>
     );
 }
-
 
 

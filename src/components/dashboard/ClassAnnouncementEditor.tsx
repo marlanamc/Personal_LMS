@@ -87,7 +87,7 @@ export function ClassAnnouncementEditor({
                 <div>
                     <h2 className="text-xl font-semibold">Class Announcement</h2>
                     <p className="text-sm text-text-muted mt-1">
-                        This appears on the student dashboard above the weekly checklist.
+                        This appears on the dashboard above the weekly checklist.
                     </p>
                     <p className="text-xs text-text-muted mt-1">
                         Markdown supported: <code>**bold**</code>, <code>*italic*</code>, <code>`code`</code>, and bullet lines starting with <code>- </code>.
@@ -123,7 +123,7 @@ export function ClassAnnouncementEditor({
                     type="button"
                     onClick={saveAnnouncement}
                     disabled={isSaving}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-bg-base bg-primary hover:brightness-110 disabled:opacity-60"
                 >
                     {isSaving ? "Saving..." : "Save Announcement"}
                 </button>

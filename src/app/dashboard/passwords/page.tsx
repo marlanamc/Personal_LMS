@@ -22,15 +22,18 @@ export default async function PasswordsPage() {
         redirect("/login");
     }
 
-    const userRole = session.user?.role || "student";
     const userId = session.user?.id;
-
-    if (userRole !== "teacher") {
+    if (!userId) {
         redirect("/dashboard");
     }
 
     const classes = await prisma.class.findMany({
-        where: { teacherId: userId },
+        where: {
+            OR: [
+                { teacherId: userId },
+                { enrollments: { some: { studentId: userId } } },
+            ],
+        },
         include: {
             enrollments: {
                 include: {
@@ -67,7 +70,7 @@ export default async function PasswordsPage() {
                         <h1 className="text-2xl md:text-3xl font-display font-bold text-text mt-1">
                             Password Management
                         </h1>
-                        <p className="text-sm text-text-muted">Reset student passwords in one place.</p>
+                        <p className="text-sm text-text-muted">Reset member passwords in one place.</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <span className="hidden sm:inline text-sm text-text-muted">
@@ -85,20 +88,20 @@ export default async function PasswordsPage() {
                             <p className="text-xs uppercase tracking-wide text-primary font-semibold">
                                 Security
                             </p>
-                            <h2 className="text-xl font-bold text-text">Student Passwords</h2>
+                            <h2 className="text-xl font-bold text-text">Member Passwords</h2>
                             <p className="text-sm text-text-muted">
-                                Update student passwords without leaving the dashboard sidebar.
+                                Update member passwords without leaving the dashboard sidebar.
                             </p>
                         </div>
                         <div className="text-right text-sm text-text-muted">
-                            <p>{students.length} student{students.length === 1 ? "" : "s"} in your classes</p>
+                            <p>{students.length} member{students.length === 1 ? "" : "s"} in your classes</p>
                         </div>
                     </div>
 
                     <div className="mt-4">
                         {students.length === 0 ? (
                             <div className="border border-dashed border-border/50 rounded-xl p-6 text-center text-sm text-text-muted bg-bg-secondary/60">
-                                No students yet. Add students to your classes to manage their passwords.
+                                No members yet. Add or join a class to manage shared passwords.
                             </div>
                         ) : (
                             <StudentPasswordManager students={students} />
@@ -118,6 +121,5 @@ export default async function PasswordsPage() {
         </div>
     );
 }
-
 
 

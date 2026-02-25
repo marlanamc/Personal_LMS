@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { canManageClass } from "@/lib/class-access";
 
 export async function POST(request: NextRequest) {
     try {
@@ -10,11 +11,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userRole = session.user?.role;
         const userId = session.user?.id;
-
-        if (userRole !== "teacher") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         const body = await request.json();
@@ -49,7 +48,8 @@ export async function POST(request: NextRequest) {
         if (!classItem) {
             return NextResponse.json({ error: "Class not found" }, { status: 404 });
         }
-        if (classItem.teacherId !== userId) {
+        const canManage = await canManageClass(userId, classId);
+        if (!canManage) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -83,11 +83,9 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userRole = session.user?.role;
         const userId = session.user?.id;
-
-        if (userRole !== "teacher") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
         const body = await request.json();
@@ -105,7 +103,8 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: "Event not found" }, { status: 404 });
         }
 
-        if (event.class.teacherId !== userId) {
+        const canManage = await canManageClass(userId, event.classId);
+        if (!canManage) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 

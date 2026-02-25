@@ -10,14 +10,14 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
     const audit = createAuditLogger(request);
 
-    if (!session?.user || session.user.role !== "teacher") {
+    if (!session?.user) {
         // Log unauthorized attempt
         if (session?.user) {
             audit.failure(
                 'admin.unauthorized_attempt',
                 session.user.id,
                 session.user.role,
-                'Non-teacher attempted to reset student password'
+                'Unauthorized password reset attempt'
             );
         }
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -51,10 +51,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    if (user.role !== "student") {
-        return NextResponse.json({ error: "Only student passwords can be changed here" }, { status: 400 });
-    }
-
     // SECURITY: Use industry-standard bcrypt rounds (12 in 2025)
     const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
 
@@ -74,13 +70,12 @@ export async function POST(request: Request) {
         {
             targetId: userId,
             targetType: 'user',
-            metadata: { resetBy: 'teacher' }
+            metadata: { resetBy: 'account-owner' }
         }
     );
 
     return NextResponse.json({ ok: true });
 }
-
 
 
 

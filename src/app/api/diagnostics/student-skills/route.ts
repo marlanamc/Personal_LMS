@@ -9,7 +9,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as { id: string; role: string };
+    const userId = session.user.id;
     const { searchParams } = new URL(request.url);
     const studentId = searchParams.get("studentId");
     const activityId = searchParams.get("activityId");
@@ -21,22 +21,27 @@ export async function GET(request: Request) {
         );
     }
 
-    // Verify access: teacher must have student in their class, or user is viewing their own data
-    if (user.role === "teacher") {
-        const enrollment = await prisma.classEnrollment.findFirst({
+    // Verify access: same user, or both users are in at least one shared class.
+    if (userId !== studentId) {
+        const sharedClass = await prisma.classEnrollment.findFirst({
             where: {
                 studentId,
-                class: { teacherId: user.id },
+                class: {
+                    OR: [
+                        { teacherId: userId },
+                        { enrollments: { some: { studentId: userId } } },
+                    ],
+                },
             },
+            select: { classId: true },
         });
-        if (!enrollment) {
+
+        if (!sharedClass) {
             return NextResponse.json(
                 { error: "Access denied" },
                 { status: 403 }
             );
         }
-    } else if (user.id !== studentId) {
-        return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
     // Get all responses for this student and activity

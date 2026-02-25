@@ -9,10 +9,6 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  getNextBostonDaylightTransition,
-  isBostonDaylight,
-} from "@/lib/bostonDaylight";
 
 export type ThemePreference = "auto" | "light" | "dark";
 export type ResolvedTheme = "light" | "dark";
@@ -20,7 +16,7 @@ export type ResolvedTheme = "light" | "dark";
 interface ThemeContextValue {
   preference: ThemePreference;
   resolvedTheme: ResolvedTheme;
-  isBostonDaylightNow: boolean;
+  isSystemDarkNow: boolean;
   setThemePreference: (nextPreference: ThemePreference) => void;
   toggleTheme: () => void;
 }
@@ -46,21 +42,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return "auto";
     }
   });
-  const [isBostonDaylightNow, setIsBostonDaylightNow] = useState<boolean>(() => {
+  const [isSystemDarkNow, setIsSystemDarkNow] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
-    return isBostonDaylight();
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
   const hasAppliedInitialThemeRef = useRef(false);
 
   const resolvedTheme: ResolvedTheme = useMemo(() => {
     if (preference === "light") return "light";
     if (preference === "dark") return "dark";
-    return isBostonDaylightNow ? "light" : "dark";
-  }, [isBostonDaylightNow, preference]);
-
-  useEffect(() => {
-    setIsBostonDaylightNow(isBostonDaylight());
-  }, []);
+    return isSystemDarkNow ? "dark" : "light";
+  }, [isSystemDarkNow, preference]);
 
   useEffect(() => {
     try {
@@ -71,36 +63,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [preference]);
 
   useEffect(() => {
-    if (preference !== "auto") return;
-
-    let timeoutId: number | undefined;
-
-    const refreshAndReschedule = () => {
-      setIsBostonDaylightNow(isBostonDaylight());
-      const nextTransition = getNextBostonDaylightTransition();
-      const delay = Math.max(
-        1_000,
-        nextTransition.getTime() - Date.now() + 1_000,
-      );
-      timeoutId = window.setTimeout(refreshAndReschedule, delay);
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const syncSystemTheme = (event?: MediaQueryListEvent) => {
+      setIsSystemDarkNow(event?.matches ?? mediaQuery.matches);
     };
+    syncSystemTheme();
 
-    const onVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        setIsBostonDaylightNow(isBostonDaylight());
-      }
-    };
-
-    refreshAndReschedule();
-    document.addEventListener("visibilitychange", onVisibilityChange);
-
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", syncSystemTheme);
+    } else {
+      mediaQuery.addListener(syncSystemTheme);
+    }
     return () => {
-      if (timeoutId) {
-        window.clearTimeout(timeoutId);
+      if (typeof mediaQuery.removeEventListener === "function") {
+        mediaQuery.removeEventListener("change", syncSystemTheme);
+      } else {
+        mediaQuery.removeListener(syncSystemTheme);
       }
-      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [preference]);
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -112,6 +93,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     root.classList.remove("light", "dark");
     root.classList.add(resolvedTheme);
+    root.setAttribute("data-theme", resolvedTheme);
     root.style.colorScheme = resolvedTheme;
 
     const cleanupTimer = shouldAnimate
@@ -130,7 +112,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [resolvedTheme]);
 
   useEffect(() => {
-    const themeColor = resolvedTheme === "light" ? "#f5f7ff" : "#0f0f1e";
+    const themeColor = resolvedTheme === "light" ? "#F3F4F8" : "#122033";
     const metaSelector = 'meta[name="theme-color"][data-runtime-theme="true"]';
     let runtimeMeta = document.head.querySelector<HTMLMetaElement>(metaSelector);
 
@@ -151,22 +133,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const toggleTheme = useCallback(() => {
     setPreference((currentPreference) => {
       if (currentPreference === "auto") {
-        return isBostonDaylight() ? "dark" : "light";
+        return isSystemDarkNow ? "light" : "dark";
       }
       return currentPreference === "dark" ? "light" : "dark";
     });
-  }, []);
+  }, [isSystemDarkNow]);
 
   const value = useMemo(
     () => ({
       preference,
       resolvedTheme,
-      isBostonDaylightNow,
+      isSystemDarkNow,
       setThemePreference,
       toggleTheme,
     }),
     [
-      isBostonDaylightNow,
+      isSystemDarkNow,
       preference,
       resolvedTheme,
       setThemePreference,

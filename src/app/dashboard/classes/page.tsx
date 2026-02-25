@@ -12,16 +12,19 @@ export default async function ClassesIndexPage() {
         redirect("/login");
     }
 
-    const userRole = session.user?.role || "student";
     const userId = session.user?.id;
 
-    // Only teachers should view their class list here
-    if (userRole !== "teacher") {
+    if (!userId) {
         redirect("/dashboard");
     }
 
     const classes = await prisma.class.findMany({
-        where: { teacherId: userId },
+        where: {
+            OR: [
+                { teacherId: userId },
+                { enrollments: { some: { studentId: userId } } },
+            ],
+        },
         include: {
             enrollments: true,
             assignments: true,
@@ -40,7 +43,7 @@ export default async function ClassesIndexPage() {
                     <div className="flex items-center gap-3">
                         <Link
                             href="/dashboard/classes/new"
-                            className="px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg shadow-sm hover:brightness-110"
+                            className="px-4 py-2 text-sm font-semibold text-bg-base bg-primary rounded-lg shadow-sm hover:brightness-110"
                         >
                             + New Class
                         </Link>
@@ -60,7 +63,7 @@ export default async function ClassesIndexPage() {
                         <p className="text-text-muted mb-3">No classes yet.</p>
                         <Link
                             href="/dashboard/classes/new"
-                            className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg shadow-sm hover:brightness-110"
+                            className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-bg-base bg-primary rounded-lg shadow-sm hover:brightness-110"
                         >
                             Create your first class
                         </Link>
@@ -88,7 +91,7 @@ export default async function ClassesIndexPage() {
                                     <p className="text-sm text-text-muted mb-3">{cls.description}</p>
                                 )}
                                 <div className="flex items-center gap-4 text-sm text-text-muted">
-                                    <span>{cls.enrollments.length} student{cls.enrollments.length === 1 ? "" : "s"}</span>
+                                    <span>{cls.enrollments.length} member{cls.enrollments.length === 1 ? "" : "s"}</span>
                                     <span className="w-px h-4 bg-border/60" />
                                     <span>{cls.assignments.length} assignment{cls.assignments.length === 1 ? "" : "s"}</span>
                                 </div>
@@ -98,7 +101,6 @@ export default async function ClassesIndexPage() {
                 )}
             </main>
 
-            {/* Mobile Bottom Nav - Teacher */}
             <BottomNav
                 items={[
                     { href: "/dashboard", label: "Home", icon: <HomeIcon /> },

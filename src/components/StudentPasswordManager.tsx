@@ -59,11 +59,11 @@ export function StudentPasswordManager({ students }: Props) {
         <div className="border rounded-2xl p-6 bg-white shadow-sm space-y-4">
             <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div>
-                    <p className="text-sm font-semibold text-text-muted">Student passwords</p>
+                    <p className="text-sm font-semibold text-text-muted">Member passwords</p>
                     <h3 className="text-xl font-bold text-text">Reset passwords quickly</h3>
                 </div>
                 <p className="text-xs text-text-muted">
-                    Changes apply immediately. Students will not be prompted to reset.
+                    Changes apply immediately.
                 </p>
             </div>
 
@@ -128,4 +128,3 @@ export function StudentPasswordManager({ students }: Props) {
         </div>
     );
 }
-

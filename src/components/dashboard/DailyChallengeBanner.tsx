@@ -47,9 +47,7 @@ function getChallengeIcon(type: string): string {
 export function DailyChallengeBanner({
   initialChallenge,
 }: DailyChallengeBannerProps) {
-  const [challenge, setChallenge] = useState<DailyChallenge | null>(
-    initialChallenge
-  );
+  const challenge = initialChallenge;
   const [timeRemaining, setTimeRemaining] = useState(
     initialChallenge?.timeUntilReset ?? 0
   );
@@ -74,23 +72,29 @@ export function DailyChallengeBanner({
     (challenge.progress / challenge.requirement) * 100
   );
   const isComplete = challenge.completed;
+  const accentColor = isComplete
+    ? "var(--color-accent-mint)"
+    : "var(--color-accent-sakura)";
+  const accentSoft = isComplete
+    ? "color-mix(in srgb, var(--color-accent-mint) 16%, transparent)"
+    : "var(--color-accent-sakura-soft)";
 
   return (
-    <div
-      className={`rounded-xl border px-4 py-3 transition-all ${
-        isComplete
-          ? "bg-gradient-to-r from-secondary/15 to-secondary/5 border-secondary/30"
-          : "bg-gradient-to-r from-accent/15 to-accent/5 border-accent/30"
-      }`}
-    >
+    <div className="relative overflow-hidden rounded-xl border border-border-subtle px-4 py-3 bg-bg-surface shadow-sm transition-all">
+      <div
+        className="absolute inset-x-0 top-0 h-[3px]"
+        style={{ backgroundColor: accentColor }}
+      />
       <div className="flex items-center justify-between gap-3">
         {/* Left side - Icon + Challenge info */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
           {/* Icon */}
           <div
-            className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg shrink-0 ${
-              isComplete ? "bg-secondary/25" : "bg-accent/25"
-            }`}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-lg shrink-0 border"
+            style={{
+              backgroundColor: accentSoft,
+              borderColor: `color-mix(in srgb, ${accentColor} 24%, transparent)`,
+            }}
           >
             {isComplete ? "✅" : getChallengeIcon(challenge.type)}
           </div>
@@ -102,11 +106,12 @@ export function DailyChallengeBanner({
                 {isComplete ? "Complete!" : "Daily Challenge"}
               </h3>
               <span
-                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
-                  isComplete
-                    ? "bg-secondary/25 text-secondary"
-                    : "bg-accent/25 text-accent"
-                }`}
+                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full border"
+                style={{
+                  backgroundColor: accentSoft,
+                  color: accentColor,
+                  borderColor: `color-mix(in srgb, ${accentColor} 24%, transparent)`,
+                }}
               >
                 +{challenge.bonusPoints}
               </span>
@@ -121,10 +126,10 @@ export function DailyChallengeBanner({
         {!isComplete && (
           <div className="hidden sm:flex items-center gap-3 text-xs text-text-muted">
             <span>{challenge.progress}/{challenge.requirement}</span>
-            <div className="w-20 h-1.5 bg-bg-primary/50 rounded-full overflow-hidden">
+            <div className="w-20 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "var(--color-progress-track)" }}>
               <div
-                className="h-full bg-gradient-to-r from-accent to-primary rounded-full transition-all duration-500"
-                style={{ width: `${progressPercent}%` }}
+                className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${progressPercent}%`, backgroundColor: accentColor, opacity: 0.9 }}
               />
             </div>
             <span className="text-[10px] whitespace-nowrap">
@@ -137,7 +142,7 @@ export function DailyChallengeBanner({
         {!isComplete && (
           <Link
             href="/dashboard/subjects"
-            className="shrink-0 px-3 py-1.5 rounded-lg bg-accent text-bg-primary hover:brightness-110 transition-all font-semibold text-xs"
+            className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-bg-base hover:brightness-105 transition-all font-semibold text-xs"
           >
             Go!
           </Link>

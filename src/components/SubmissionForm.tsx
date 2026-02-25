@@ -106,7 +106,7 @@ export default function SubmissionForm({ activityId, assignmentId, existingSubmi
                 {isSubmitted && existingSubmission?.status === "submitted" && (
                     <div className="rounded-md bg-blue-50 p-4">
                         <p className="text-sm text-blue-800">
-                            ✓ Your submission has been submitted. Waiting for teacher review.
+                            ✓ Your submission has been submitted and is waiting for review.
                         </p>
                     </div>
                 )}
@@ -126,7 +126,6 @@ export default function SubmissionForm({ activityId, assignmentId, existingSubmi
         </div>
     );
 }
-
 
 
 

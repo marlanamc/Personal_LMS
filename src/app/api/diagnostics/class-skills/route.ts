@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { canAccessClass } from "@/lib/class-access";
 
 export async function GET(request: Request) {
     const session = await getServerSession(authOptions);
@@ -9,10 +10,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = session.user as { id: string; role: string };
-    if (user.role !== "teacher") {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const userId = session.user.id;
 
     const { searchParams } = new URL(request.url);
     const classId = searchParams.get("classId");
@@ -26,15 +24,8 @@ export async function GET(request: Request) {
         );
     }
 
-    // Verify the teacher owns this class
-    const classData = await prisma.class.findFirst({
-        where: {
-            id: classId,
-            teacherId: user.id,
-        },
-    });
-
-    if (!classData) {
+    const hasClassAccess = await canAccessClass(userId, classId);
+    if (!hasClassAccess) {
         return NextResponse.json(
             { error: "Class not found or access denied" },
             { status: 404 }

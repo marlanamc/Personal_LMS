@@ -82,7 +82,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
     useEffect(() => {
         fetch(`/api/teacher/student-analytics/${studentId}`)
             .then(res => {
-                if (!res.ok) throw new Error('Failed to fetch student data');
+                if (!res.ok) throw new Error('Failed to fetch member data');
                 return res.json();
             })
             .then((data: StudentAnalytics) => {
@@ -90,7 +90,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                 setLoading(false);
             })
             .catch((err: unknown) => {
-                setError(err instanceof Error ? err.message : 'Failed to fetch student data');
+                setError(err instanceof Error ? err.message : 'Failed to fetch member data');
                 setLoading(false);
             });
     }, [studentId]);
@@ -98,7 +98,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
     if (loading) {
         return (
             <div className="flex items-center justify-center py-12">
-                <div className="text-text-muted">Loading student data...</div>
+                <div className="text-text-muted">Loading member data...</div>
             </div>
         );
     }
@@ -106,7 +106,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
     if (error || !data) {
         return (
             <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                <p className="text-red-900">Error loading student data: {error}</p>
+                <p className="text-red-900">Error loading member data: {error}</p>
             </div>
         );
     }
@@ -248,7 +248,7 @@ export default function StudentDetailView({ studentId }: { studentId: string }) 
                         {data.grammarQuizResults.length === 0 ? (
                             <div className="text-center py-8 bg-bg rounded-lg border border-dashed border-border/60">
                                 <p className="text-text-muted">No grammar guide quizzes completed yet.</p>
-                                <p className="text-xs text-text-muted/60 mt-1 italic">Scores will appear here once the student finishes a guide's mini-quiz.</p>
+                                <p className="text-xs text-text-muted/60 mt-1 italic">Scores will appear here once this member finishes a guide's mini-quiz.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 gap-3">

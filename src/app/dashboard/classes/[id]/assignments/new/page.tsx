@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { collapseEdPronunciationActivities } from "@/lib/activity-list-dedupe";
 import CreateAssignmentForm from "@/components/CreateAssignmentForm";
 import { BackButton } from "@/components/ui/BackButton";
+import { canManageClass } from "@/lib/class-access";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -19,9 +20,7 @@ export default async function NewAssignmentPage({ params }: Props) {
     }
 
     const userId = session.user?.id;
-    const userRole = session.user?.role;
-
-    if (userRole !== "teacher") {
+    if (!userId) {
         redirect("/dashboard");
     }
 
@@ -36,7 +35,8 @@ export default async function NewAssignmentPage({ params }: Props) {
         notFound();
     }
 
-    if (classItem.teacherId !== userId) {
+    const canManage = await canManageClass(userId, id);
+    if (!canManage) {
         redirect("/dashboard");
     }
 
@@ -63,7 +63,6 @@ export default async function NewAssignmentPage({ params }: Props) {
         </div>
     );
 }
-
 
 
 

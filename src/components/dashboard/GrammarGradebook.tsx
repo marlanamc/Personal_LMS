@@ -77,7 +77,7 @@ export default function GrammarGradebook({
                 <div className="flex flex-col sm:flex-row gap-4">
                     <input
                         type="text"
-                        placeholder="Search students..."
+                        placeholder="Search members..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="flex-1 max-w-md px-4 py-2 rounded-lg border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
@@ -107,7 +107,7 @@ export default function GrammarGradebook({
                         <thead>
                             <tr className="bg-bg-light border-b border-border/60">
                                 <th className="sticky left-0 z-20 bg-bg-light px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-text border-r border-border/40 min-w-[200px] shadow-[2px_0_5px_rgba(0,0,0,0.05)]">
-                                    Student
+                                    Member
                                 </th>
                                 {activities.map((activity) => (
                                     <th
@@ -137,7 +137,7 @@ export default function GrammarGradebook({
                                         colSpan={activities.length + 1}
                                         className="px-6 py-10 text-center text-text-muted italic"
                                     >
-                                        No students found.
+                                        No members found.
                                     </td>
                                 </tr>
                             ) : (

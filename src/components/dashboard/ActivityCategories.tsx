@@ -632,7 +632,6 @@ interface ActivityTexture {
     id: string;              // Unique identifier
     color: string;           // Primary accent color
     bgColor: string;         // Subtle background tint
-    gradient: string;        // CSS gradient for texture
     pattern: TexturePattern;
     icon: string;            // Small visual indicator
 }
@@ -648,7 +647,6 @@ const TENSE_TEXTURES: Record<TenseFamily, ActivityTexture> = {
         id: 'simple',
         color: '#d97757',           // Warm terracotta - grounded, basic
         bgColor: 'rgba(217, 119, 87, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(217, 119, 87, 0.06) 0%, transparent 100%)',
         pattern: 'solid',
         icon: '●',                   // Solid dot - single point in time
     },
@@ -656,7 +654,6 @@ const TENSE_TEXTURES: Record<TenseFamily, ActivityTexture> = {
         id: 'continuous',
         color: '#4a90a4',           // Flowing blue - ongoing, in motion
         bgColor: 'rgba(74, 144, 164, 0.04)',
-        gradient: 'linear-gradient(90deg, rgba(74, 144, 164, 0.03) 0%, rgba(74, 144, 164, 0.08) 50%, rgba(74, 144, 164, 0.03) 100%)',
         pattern: 'wave',
         icon: '〰',                  // Wave - ongoing action
     },
@@ -664,7 +661,6 @@ const TENSE_TEXTURES: Record<TenseFamily, ActivityTexture> = {
         id: 'perfect',
         color: '#7ba884',           // Fresh green - completed, accomplished
         bgColor: 'rgba(123, 168, 132, 0.04)',
-        gradient: 'linear-gradient(135deg, transparent 0%, rgba(123, 168, 132, 0.08) 100%)',
         pattern: 'dots',
         icon: '✓',                   // Check - completed connection
     },
@@ -672,7 +668,6 @@ const TENSE_TEXTURES: Record<TenseFamily, ActivityTexture> = {
         id: 'perfect-continuous',
         color: '#8b7aa8',           // Soft purple - blend of perfect + continuous
         bgColor: 'rgba(139, 122, 168, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(139, 122, 168, 0.05) 0%, rgba(74, 144, 164, 0.05) 100%)',
         pattern: 'diagonal',
         icon: '↻',                   // Cycle - duration leading to now
     },
@@ -680,7 +675,6 @@ const TENSE_TEXTURES: Record<TenseFamily, ActivityTexture> = {
         id: 'review',
         color: '#e09f3e',           // Golden amber - synthesis, mastery
         bgColor: 'rgba(224, 159, 62, 0.04)',
-        gradient: 'linear-gradient(45deg, rgba(224, 159, 62, 0.04) 25%, transparent 25%, transparent 75%, rgba(224, 159, 62, 0.04) 75%)',
         pattern: 'mixed',
         icon: '◈',                   // Diamond - bringing it together
     },
@@ -688,7 +682,6 @@ const TENSE_TEXTURES: Record<TenseFamily, ActivityTexture> = {
         id: 'grammar-other',
         color: '#9a8478',           // Warm gray-brown
         bgColor: 'rgba(154, 132, 120, 0.03)',
-        gradient: 'linear-gradient(135deg, rgba(154, 132, 120, 0.04) 0%, transparent 100%)',
         pattern: 'solid',
         icon: '◦',
     },
@@ -705,7 +698,6 @@ const VOCAB_TEXTURES: Record<VocabFamily, ActivityTexture> = {
         id: 'flashcard',
         color: '#1565c0',           // Deep blue - memory, recall
         bgColor: 'rgba(21, 101, 192, 0.04)',
-        gradient: 'linear-gradient(180deg, rgba(21, 101, 192, 0.06) 0%, transparent 50%)',
         pattern: 'grid',
         icon: '▢',                   // Card shape
     },
@@ -713,7 +705,6 @@ const VOCAB_TEXTURES: Record<VocabFamily, ActivityTexture> = {
         id: 'matching',
         color: '#7c3aed',           // Vibrant purple - connections
         bgColor: 'rgba(124, 58, 237, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(124, 58, 237, 0.02) 100%)',
         pattern: 'dots',
         icon: '⟷',                   // Connection arrows
     },
@@ -721,7 +712,6 @@ const VOCAB_TEXTURES: Record<VocabFamily, ActivityTexture> = {
         id: 'fill-blank',
         color: '#0891b2',           // Cyan - filling gaps
         bgColor: 'rgba(8, 145, 178, 0.04)',
-        gradient: 'linear-gradient(90deg, transparent 0%, rgba(8, 145, 178, 0.06) 50%, transparent 100%)',
         pattern: 'lines',
         icon: '___',                 // Blank line
     },
@@ -729,7 +719,6 @@ const VOCAB_TEXTURES: Record<VocabFamily, ActivityTexture> = {
         id: 'word-scramble',
         color: '#ea580c',           // Orange - puzzle, rearrange
         bgColor: 'rgba(234, 88, 12, 0.04)',
-        gradient: 'linear-gradient(45deg, rgba(234, 88, 12, 0.03) 0%, rgba(234, 88, 12, 0.06) 100%)',
         pattern: 'scatter',
         icon: '⟲',                   // Shuffle symbol
     },
@@ -737,7 +726,6 @@ const VOCAB_TEXTURES: Record<VocabFamily, ActivityTexture> = {
         id: 'vocab-unit',
         color: '#2563eb',           // Royal blue - structured learning
         bgColor: 'rgba(37, 99, 235, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, transparent 100%)',
         pattern: 'grid',
         icon: '📖',
     },
@@ -745,7 +733,6 @@ const VOCAB_TEXTURES: Record<VocabFamily, ActivityTexture> = {
         id: 'vocab-other',
         color: '#64748b',           // Slate
         bgColor: 'rgba(100, 116, 139, 0.03)',
-        gradient: 'linear-gradient(135deg, rgba(100, 116, 139, 0.03) 0%, transparent 100%)',
         pattern: 'solid',
         icon: '○',
     },
@@ -756,7 +743,6 @@ const VOCAB_UNIT_TEXTURES: Record<number, ActivityTexture> = {
         id: 'vocab-unit-1',
         color: '#2563eb',
         bgColor: 'rgba(37, 99, 235, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, transparent 100%)',
         pattern: 'grid',
         icon: '📘',
     },
@@ -764,7 +750,6 @@ const VOCAB_UNIT_TEXTURES: Record<number, ActivityTexture> = {
         id: 'vocab-unit-2',
         color: '#0891b2',
         bgColor: 'rgba(8, 145, 178, 0.04)',
-        gradient: 'linear-gradient(90deg, rgba(8, 145, 178, 0.04) 0%, rgba(8, 145, 178, 0.09) 50%, rgba(8, 145, 178, 0.04) 100%)',
         pattern: 'wave',
         icon: '📗',
     },
@@ -772,7 +757,6 @@ const VOCAB_UNIT_TEXTURES: Record<number, ActivityTexture> = {
         id: 'vocab-unit-3',
         color: '#0d9488',
         bgColor: 'rgba(13, 148, 136, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(13, 148, 136, 0.07) 0%, transparent 100%)',
         pattern: 'dots',
         icon: '📙',
     },
@@ -780,7 +764,6 @@ const VOCAB_UNIT_TEXTURES: Record<number, ActivityTexture> = {
         id: 'vocab-unit-4',
         color: '#16a34a',
         bgColor: 'rgba(22, 163, 74, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(22, 163, 74, 0.07) 0%, transparent 100%)',
         pattern: 'solid',
         icon: '📕',
     },
@@ -788,7 +771,6 @@ const VOCAB_UNIT_TEXTURES: Record<number, ActivityTexture> = {
         id: 'vocab-unit-5',
         color: '#65a30d',
         bgColor: 'rgba(101, 163, 13, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(101, 163, 13, 0.07) 0%, transparent 100%)',
         pattern: 'diagonal',
         icon: '🏠',
     },
@@ -796,7 +778,6 @@ const VOCAB_UNIT_TEXTURES: Record<number, ActivityTexture> = {
         id: 'vocab-unit-6',
         color: '#d97706',
         bgColor: 'rgba(217, 119, 6, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(217, 119, 6, 0.07) 0%, transparent 100%)',
         pattern: 'lines',
         icon: '💼',
     },
@@ -804,7 +785,6 @@ const VOCAB_UNIT_TEXTURES: Record<number, ActivityTexture> = {
         id: 'vocab-unit-7',
         color: '#ea580c',
         bgColor: 'rgba(234, 88, 12, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(234, 88, 12, 0.07) 0%, transparent 100%)',
         pattern: 'mixed',
         icon: '🧭',
     },
@@ -812,7 +792,6 @@ const VOCAB_UNIT_TEXTURES: Record<number, ActivityTexture> = {
         id: 'vocab-unit-8',
         color: '#dc2626',
         bgColor: 'rgba(220, 38, 38, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(220, 38, 38, 0.07) 0%, transparent 100%)',
         pattern: 'pulse',
         icon: '🩺',
     },
@@ -820,7 +799,6 @@ const VOCAB_UNIT_TEXTURES: Record<number, ActivityTexture> = {
         id: 'vocab-unit-9',
         color: '#c026d3',
         bgColor: 'rgba(192, 38, 211, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(192, 38, 211, 0.07) 0%, transparent 100%)',
         pattern: 'bubbles',
         icon: '🌿',
     },
@@ -828,7 +806,6 @@ const VOCAB_UNIT_TEXTURES: Record<number, ActivityTexture> = {
         id: 'vocab-unit-10',
         color: '#7c3aed',
         bgColor: 'rgba(124, 58, 237, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(124, 58, 237, 0.07) 0%, transparent 100%)',
         pattern: 'scatter',
         icon: '🎓',
     },
@@ -875,7 +852,6 @@ const GAME_TEXTURES: Record<GameFamily, ActivityTexture> = {
         id: 'numbers',
         color: '#dc2626',           // Red - excitement, challenge
         bgColor: 'rgba(220, 38, 38, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(251, 146, 60, 0.03) 100%)',
         pattern: 'pulse',
         icon: '🔢',
     },
@@ -883,7 +859,6 @@ const GAME_TEXTURES: Record<GameFamily, ActivityTexture> = {
         id: 'verb-forms',
         color: '#7c3aed',           // Purple - transformation
         bgColor: 'rgba(124, 58, 237, 0.04)',
-        gradient: 'linear-gradient(90deg, rgba(124, 58, 237, 0.04) 0%, rgba(124, 58, 237, 0.07) 50%, rgba(124, 58, 237, 0.04) 100%)',
         pattern: 'wave',
         icon: '🔄',
     },
@@ -891,7 +866,6 @@ const GAME_TEXTURES: Record<GameFamily, ActivityTexture> = {
         id: 'matching-game',
         color: '#059669',           // Emerald - success, pairs
         bgColor: 'rgba(5, 150, 105, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(5, 150, 105, 0.05) 0%, transparent 100%)',
         pattern: 'dots',
         icon: '🎯',
     },
@@ -899,7 +873,6 @@ const GAME_TEXTURES: Record<GameFamily, ActivityTexture> = {
         id: 'game-other',
         color: '#f59e0b',           // Amber - playful
         bgColor: 'rgba(245, 158, 11, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%)',
         pattern: 'bubbles',
         icon: '🎮',
     },
@@ -916,7 +889,6 @@ const QUIZ_TEXTURES: Record<QuizFamily, ActivityTexture> = {
         id: 'weekly-quiz',
         color: '#be123c',           // Rose - important, graded
         bgColor: 'rgba(190, 18, 60, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(190, 18, 60, 0.05) 0%, rgba(244, 63, 94, 0.03) 100%)',
         pattern: 'diagonal',
         icon: '📋',
     },
@@ -924,7 +896,6 @@ const QUIZ_TEXTURES: Record<QuizFamily, ActivityTexture> = {
         id: 'assessment',
         color: '#9333ea',           // Purple - evaluation
         bgColor: 'rgba(147, 51, 234, 0.04)',
-        gradient: 'linear-gradient(180deg, rgba(147, 51, 234, 0.05) 0%, transparent 100%)',
         pattern: 'lines',
         icon: '✎',
     },
@@ -932,7 +903,6 @@ const QUIZ_TEXTURES: Record<QuizFamily, ActivityTexture> = {
         id: 'quiz-other',
         color: '#c2410c',           // Burnt orange
         bgColor: 'rgba(194, 65, 12, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(194, 65, 12, 0.04) 0%, transparent 100%)',
         pattern: 'solid',
         icon: '✎',
     },
@@ -949,7 +919,6 @@ const SPEAKING_TEXTURES: Record<SpeakingFamily, ActivityTexture> = {
         id: 'pronunciation',
         color: '#ea580c',           // Orange - warmth, voice
         bgColor: 'rgba(234, 88, 12, 0.04)',
-        gradient: 'linear-gradient(90deg, rgba(234, 88, 12, 0.02) 0%, rgba(234, 88, 12, 0.06) 30%, rgba(234, 88, 12, 0.06) 70%, rgba(234, 88, 12, 0.02) 100%)',
         pattern: 'wave',
         icon: '🔊',
     },
@@ -957,7 +926,6 @@ const SPEAKING_TEXTURES: Record<SpeakingFamily, ActivityTexture> = {
         id: 'conversation',
         color: '#0d9488',           // Teal - dialogue, exchange
         bgColor: 'rgba(13, 148, 136, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(13, 148, 136, 0.05) 0%, rgba(6, 182, 212, 0.03) 100%)',
         pattern: 'bubbles',
         icon: '💬',
     },
@@ -965,7 +933,6 @@ const SPEAKING_TEXTURES: Record<SpeakingFamily, ActivityTexture> = {
         id: 'speaking-other',
         color: '#f97316',           // Bright orange
         bgColor: 'rgba(249, 115, 22, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(249, 115, 22, 0.04) 0%, transparent 100%)',
         pattern: 'solid',
         icon: '🎤',
     },
@@ -981,7 +948,6 @@ const PERSONAL_TEXTURES: Record<PersonalFamily, ActivityTexture> = {
         id: 'spanish',
         color: '#d946ef',           // Pink/Fuchsia - vibrant, culture
         bgColor: 'rgba(217, 70, 239, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(217, 70, 239, 0.06) 0%, transparent 100%)',
         pattern: 'pulse',
         icon: '🇪🇸',
     },
@@ -989,7 +955,6 @@ const PERSONAL_TEXTURES: Record<PersonalFamily, ActivityTexture> = {
         id: 'coding',
         color: '#0ea5e9',           // Sky blue - tech, logic
         bgColor: 'rgba(14, 165, 233, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(14, 165, 233, 0.06) 0%, transparent 100%)',
         pattern: 'grid',
         icon: '💻',
     },
@@ -997,7 +962,6 @@ const PERSONAL_TEXTURES: Record<PersonalFamily, ActivityTexture> = {
         id: 'personal-other',
         color: '#ec4899',           // Pink
         bgColor: 'rgba(236, 72, 153, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(236, 72, 153, 0.04) 0%, transparent 100%)',
         pattern: 'solid',
         icon: '✨',
     },
@@ -1014,7 +978,6 @@ const WRITING_TEXTURES: Record<WritingFamily, ActivityTexture> = {
         id: 'paragraph',
         color: '#4f46e5',           // Indigo - depth, structure
         bgColor: 'rgba(79, 70, 229, 0.04)',
-        gradient: 'linear-gradient(180deg, rgba(79, 70, 229, 0.05) 0%, transparent 100%)',
         pattern: 'lines',
         icon: '¶',
     },
@@ -1022,7 +985,6 @@ const WRITING_TEXTURES: Record<WritingFamily, ActivityTexture> = {
         id: 'sentence',
         color: '#0284c7',           // Sky blue - clarity
         bgColor: 'rgba(2, 132, 199, 0.04)',
-        gradient: 'linear-gradient(90deg, rgba(2, 132, 199, 0.04) 0%, transparent 100%)',
         pattern: 'lines',
         icon: '—',
     },
@@ -1030,7 +992,6 @@ const WRITING_TEXTURES: Record<WritingFamily, ActivityTexture> = {
         id: 'writing-other',
         color: '#475569',           // Slate - ink
         bgColor: 'rgba(71, 85, 105, 0.04)',
-        gradient: 'linear-gradient(135deg, rgba(71, 85, 105, 0.04) 0%, transparent 100%)',
         pattern: 'solid',
         icon: '✏',
     },
@@ -1292,22 +1253,53 @@ const ActivityCard = React.memo(function ActivityCard({
     // Determine card state for styling
     const hasProgress = progressValue > 0 && progressValue < 100;
     const isGuide = activity.type === 'guide';
+    const titleForScan = activityCardTitle.toLowerCase();
+
+    const quickFocus = (() => {
+        if (titleForScan.includes('present')) {
+            return { label: 'Present', color: 'var(--color-accent-mint)' };
+        }
+        if (titleForScan.includes('future')) {
+            return { label: 'Future', color: 'var(--color-accent-teal)' };
+        }
+        if (titleForScan.includes('preterite')) {
+            return { label: 'Preterite', color: 'var(--color-accent-amethyst)' };
+        }
+        if (titleForScan.includes('imperfect')) {
+            return { label: 'Imperfect', color: 'color-mix(in srgb, var(--color-accent-amethyst) 78%, var(--color-accent-sakura))' };
+        }
+        if (titleForScan.includes('conditional')) {
+            return { label: 'Conditional', color: 'var(--color-accent-amethyst)' };
+        }
+        if (titleForScan.includes('subjunctive')) {
+            return { label: 'Subjunctive', color: 'var(--color-accent-teal)' };
+        }
+        if (titleForScan.includes('vocab')) {
+            return { label: 'Vocabulary', color: 'var(--color-accent-teal)' };
+        }
+        if (titleForScan.includes('quiz')) {
+            return { label: 'Quiz', color: 'var(--color-accent-amethyst)' };
+        }
+        return null;
+    })();
+
+    const visualAccent = quickFocus?.color ?? tenseTexture?.color ?? accentColor ?? 'var(--color-accent-sakura)';
 
     // Use tense texture color if provided, otherwise fall back to defaults
-    const accentBorderColor = tenseTexture?.color || (isCompleted ? undefined : accentColor);
-    // Notebook binding color: use texture color, or warm sage fallback
-    const bindingColor = tenseTexture?.color ?? accentColor ?? '#7c8c6e';
+    const accentBorderColor = isCompleted ? undefined : visualAccent;
+    // Notebook binding color fallback stays on theme accents
+    const bindingColor = visualAccent;
 
     return (
         <div
             className={`group relative block rounded-xl border p-4 transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 overflow-hidden
                 ${isCompleted
-                    ? 'bg-bg-secondary/90 border-secondary/30 shadow-sm'
+                    ? 'bg-bg-surface border-border-subtle shadow-sm'
                     : isGuide
-                        ? 'shadow-sm hover:shadow-md hover:-translate-y-0.5'
+                        ? 'bg-bg-surface shadow-sm hover:shadow-md hover:-translate-y-0.5'
                         : hasProgress
-                            ? 'bg-bg-secondary/90 shadow-sm hover:shadow-md hover:-translate-y-0.5'
-                            : 'bg-bg-secondary/90 shadow-sm hover:shadow-md hover:-translate-y-0.5'
+                            ? 'bg-bg-surface shadow-sm hover:shadow-md hover:-translate-y-0.5'
+                            : 'bg-bg-surface shadow-sm hover:shadow-md hover:-translate-y-0.5'
                 }`}
             style={{
                 borderColor: isCompleted
@@ -1315,188 +1307,18 @@ const ActivityCard = React.memo(function ActivityCard({
                     : isGuide
                         ? `${bindingColor}50`
                         : (accentBorderColor ? `${accentBorderColor}40` : undefined),
-                // Notebook paper warm background for guides
+                // Keep guide cards slightly elevated without warm paper tint.
                 backgroundColor: isGuide && !isCompleted
-                    ? 'rgba(254, 252, 245, 0.97)'
+                    ? 'color-mix(in srgb, var(--color-bg-elevated) 64%, var(--color-bg-surface))'
                     : undefined,
             }}
         >
-            {/* Tense texture background pattern */}
-            {tenseTexture && !isCompleted && (
+            {/* Keep accent treatment subtle and contained */}
+            {!isCompleted && (
                 <div
-                    className="absolute inset-0 pointer-events-none opacity-60"
-                    style={{ background: tenseTexture.gradient }}
+                    className="absolute inset-x-0 top-0 h-[3px] pointer-events-none"
+                    style={{ backgroundColor: visualAccent }}
                 />
-            )}
-
-            {/* Notebook paper treatment for guides */}
-            {isGuide && !isCompleted && (
-                <>
-                    {/* Left binding strip */}
-                    <div
-                        className="absolute left-0 top-0 bottom-0 w-8 pointer-events-none"
-                        style={{
-                            background: `linear-gradient(to right, ${bindingColor}22 0%, ${bindingColor}08 60%, transparent 100%)`,
-                            borderRight: `1.5px solid ${bindingColor}25`,
-                        }}
-                    />
-                    {/* Spiral rings */}
-                    <svg
-                        className="absolute left-0 top-0 bottom-0 h-full pointer-events-none"
-                        width="18"
-                        viewBox="0 0 18 100"
-                        preserveAspectRatio="none"
-                        aria-hidden
-                    >
-                        {[14, 28, 42, 56, 70, 84].map((y) => (
-                            <ellipse
-                                key={y}
-                                cx="9" cy={y} rx="5" ry="4"
-                                fill="none"
-                                stroke={bindingColor}
-                                strokeWidth="1.2"
-                                opacity="0.35"
-                            />
-                        ))}
-                    </svg>
-                    {/* Ruled lines overlay */}
-                    <svg
-                        className="absolute inset-0 w-full h-full pointer-events-none"
-                        preserveAspectRatio="none"
-                        aria-hidden
-                    >
-                        {[32, 52, 72, 92].map((y) => (
-                            <line
-                                key={y}
-                                x1="28" y1={`${y}%`} x2="100%" y2={`${y}%`}
-                                stroke="rgba(180,160,120,0.12)"
-                                strokeWidth="1"
-                            />
-                        ))}
-                    </svg>
-                </>
-            )}
-
-            {/* Wave pattern overlay for continuous tenses */}
-            {tenseTexture?.pattern === 'wave' && !isCompleted && (
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.07]" preserveAspectRatio="none">
-                    <defs>
-                        <pattern id={`wave-${activity.id}`} x="0" y="0" width="40" height="20" patternUnits="userSpaceOnUse">
-                            <path
-                                d="M0 10 Q10 0, 20 10 T40 10"
-                                fill="none"
-                                stroke={tenseTexture.color}
-                                strokeWidth="2"
-                            />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill={`url(#wave-${activity.id})`} />
-                </svg>
-            )}
-
-            {/* Dots pattern for perfect tenses */}
-            {tenseTexture?.pattern === 'dots' && !isCompleted && (
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.12]" preserveAspectRatio="none">
-                    <defs>
-                        <pattern id={`dots-${activity.id}`} x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
-                            <circle cx="8" cy="8" r="1.5" fill={tenseTexture.color} />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill={`url(#dots-${activity.id})`} />
-                </svg>
-            )}
-
-            {/* Diagonal lines for perfect continuous */}
-            {tenseTexture?.pattern === 'diagonal' && !isCompleted && (
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.06]" preserveAspectRatio="none">
-                    <defs>
-                        <pattern id={`diagonal-${activity.id}`} x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
-                            <path d="M0 12 L12 0" stroke={tenseTexture.color} strokeWidth="1" />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill={`url(#diagonal-${activity.id})`} />
-                </svg>
-            )}
-
-            {/* Mixed pattern for reviews */}
-            {tenseTexture?.pattern === 'mixed' && !isCompleted && (
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.08]" preserveAspectRatio="none">
-                    <defs>
-                        <pattern id={`mixed-${activity.id}`} x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
-                            <circle cx="6" cy="6" r="1" fill={tenseTexture.color} />
-                            <circle cx="18" cy="18" r="1" fill={tenseTexture.color} />
-                            <path d="M12 0 L12 24" stroke={tenseTexture.color} strokeWidth="0.5" strokeDasharray="2,4" />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill={`url(#mixed-${activity.id})`} />
-                </svg>
-            )}
-
-            {/* Grid pattern for vocab flashcards */}
-            {tenseTexture?.pattern === 'grid' && !isCompleted && (
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.06]" preserveAspectRatio="none">
-                    <defs>
-                        <pattern id={`grid-${activity.id}`} x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                            <path d="M20 0 L0 0 0 20" fill="none" stroke={tenseTexture.color} strokeWidth="0.5" />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill={`url(#grid-${activity.id})`} />
-                </svg>
-            )}
-
-            {/* Bubbles pattern for speaking/conversation */}
-            {tenseTexture?.pattern === 'bubbles' && !isCompleted && (
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.08]" preserveAspectRatio="none">
-                    <defs>
-                        <pattern id={`bubbles-${activity.id}`} x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-                            <circle cx="5" cy="5" r="3" fill="none" stroke={tenseTexture.color} strokeWidth="0.8" />
-                            <circle cx="20" cy="18" r="4" fill="none" stroke={tenseTexture.color} strokeWidth="0.8" />
-                            <circle cx="12" cy="25" r="2" fill="none" stroke={tenseTexture.color} strokeWidth="0.6" />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill={`url(#bubbles-${activity.id})`} />
-                </svg>
-            )}
-
-            {/* Lines pattern for writing */}
-            {tenseTexture?.pattern === 'lines' && !isCompleted && (
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.05]" preserveAspectRatio="none">
-                    <defs>
-                        <pattern id={`lines-${activity.id}`} x="0" y="0" width="100" height="12" patternUnits="userSpaceOnUse">
-                            <line x1="0" y1="11" x2="100" y2="11" stroke={tenseTexture.color} strokeWidth="1" />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill={`url(#lines-${activity.id})`} />
-                </svg>
-            )}
-
-            {/* Pulse pattern for games (concentric circles) */}
-            {tenseTexture?.pattern === 'pulse' && !isCompleted && (
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.06]" preserveAspectRatio="none">
-                    <defs>
-                        <pattern id={`pulse-${activity.id}`} x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                            <circle cx="20" cy="20" r="6" fill="none" stroke={tenseTexture.color} strokeWidth="0.8" />
-                            <circle cx="20" cy="20" r="12" fill="none" stroke={tenseTexture.color} strokeWidth="0.5" />
-                            <circle cx="20" cy="20" r="18" fill="none" stroke={tenseTexture.color} strokeWidth="0.3" />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill={`url(#pulse-${activity.id})`} />
-                </svg>
-            )}
-
-            {/* Scatter pattern for word scramble */}
-            {tenseTexture?.pattern === 'scatter' && !isCompleted && (
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.07]" preserveAspectRatio="none">
-                    <defs>
-                        <pattern id={`scatter-${activity.id}`} x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-                            <rect x="2" y="4" width="4" height="4" rx="1" fill={tenseTexture.color} transform="rotate(15 4 6)" />
-                            <rect x="18" y="2" width="3" height="3" rx="0.5" fill={tenseTexture.color} transform="rotate(-10 19.5 3.5)" />
-                            <rect x="8" y="20" width="5" height="5" rx="1" fill={tenseTexture.color} transform="rotate(25 10.5 22.5)" />
-                            <rect x="24" y="22" width="3" height="3" rx="0.5" fill={tenseTexture.color} transform="rotate(-20 25.5 23.5)" />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill={`url(#scatter-${activity.id})`} />
-                </svg>
             )}
 
             {/* Progress background fill */}
@@ -1504,9 +1326,9 @@ const ActivityCard = React.memo(function ActivityCard({
                 <div
                     className="absolute inset-0 rounded-xl pointer-events-none"
                     style={{
-                        background: tenseTexture
-                            ? `linear-gradient(90deg, ${tenseTexture.color}08 0%, transparent 100%)`
-                            : 'linear-gradient(90deg, rgba(217, 119, 87, 0.03) 0%, transparent 100%)',
+                        backgroundColor: tenseTexture
+                            ? `color-mix(in srgb, ${visualAccent} 8%, transparent)`
+                            : 'var(--color-accent-sakura-soft)',
                         width: `${Math.min(progressValue, 100)}%`
                     }}
                 />
@@ -1520,24 +1342,28 @@ const ActivityCard = React.memo(function ActivityCard({
             {canFeature && (
                 <button
                     type="button"
-                    onClick={() => onToggleFeature?.(activity)}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onToggleFeature?.(activity);
+                    }}
                     disabled={featureDisabled}
-                    className={`absolute top-3 right-3 z-20 inline-flex h-7 w-7 items-center justify-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${
+                    className={`absolute top-3 right-3 z-30 inline-flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${
                         isFeatured
-                            ? '!border-amber-300 !bg-amber-50 !text-amber-500'
-                            : '!border-border/70 !bg-bg-secondary !text-text-light hover:!bg-bg-light hover:!text-text'
-                    } ${featureDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                            ? '!border-amber-400 !bg-amber-100 !text-amber-700'
+                            : '!border-amber-300/80 !bg-amber-50/70 !text-amber-600 hover:!border-amber-400 hover:!bg-amber-100 hover:!text-amber-700'
+                    } ${featureDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
                     aria-label={isFeatured ? 'Remove from featured' : 'Mark as featured'}
                     title={isFeatured ? 'Featured (click to unfeature)' : 'Feature this activity'}
                 >
-                    <Star className={`h-3.5 w-3.5 ${isFeatured ? 'fill-current' : ''}`} strokeWidth={2.25} />
+                    <Star className={`h-4 w-4 ${isFeatured ? 'fill-current' : ''}`} strokeWidth={2.25} />
                 </button>
             )}
 
             {isCompleted && (
                 <div className={`absolute top-3 z-20 ${canFeature ? 'right-12' : 'right-3'}`}>
                     <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center shadow-sm">
-                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-bg-base" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
@@ -1638,6 +1464,18 @@ const ActivityCard = React.memo(function ActivityCard({
                                     {capitalizeFirstLetter(grammarChipCopy.useThisFor)}
                                 </span>
                             )}
+                            {quickFocus && (
+                                <span
+                                    className="px-2 py-0.5 rounded-full border font-semibold text-[11px]"
+                                    style={{
+                                        backgroundColor: `color-mix(in srgb, ${quickFocus.color} 14%, transparent)`,
+                                        borderColor: `color-mix(in srgb, ${quickFocus.color} 28%, transparent)`,
+                                        color: quickFocus.color,
+                                    }}
+                                >
+                                    {quickFocus.label}
+                                </span>
+                            )}
                             {!hideTypeChip && (
                                 vocabType ? (
                                     <span
@@ -1646,11 +1484,18 @@ const ActivityCard = React.memo(function ActivityCard({
                                         {VOCAB_CHIP_CONFIG[vocabType].icon} {VOCAB_CHIP_CONFIG[vocabType].label}
                                     </span>
                                 ) : activity.type === 'guide' ? (
-                                    <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-md border bg-emerald-50 text-emerald-700 border-emerald-200">
+                                    <span
+                                        className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-md border"
+                                        style={{
+                                            backgroundColor: `color-mix(in srgb, ${visualAccent} 14%, transparent)`,
+                                            color: visualAccent,
+                                            borderColor: `color-mix(in srgb, ${visualAccent} 28%, transparent)`,
+                                        }}
+                                    >
                                         📖 Guide
                                     </span>
                                 ) : activity.type === 'game' ? (
-                                    <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-md border bg-violet-50 text-violet-700 border-violet-200">
+                                    <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-md border bg-mineral-teal/15 text-mineral-teal border-mineral-teal/30">
                                         🎮 Game
                                     </span>
                                 ) : (
@@ -1666,7 +1511,14 @@ const ActivityCard = React.memo(function ActivityCard({
                             )}
                         </div>
                         {progressValue > 0 && !isCompleted && (
-                            <span className="ml-auto shrink-0 mr-8 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold text-[11px]">
+                            <span
+                                className="ml-auto shrink-0 mr-8 px-2 py-0.5 rounded-full border font-semibold text-[11px]"
+                                style={{
+                                    backgroundColor: `color-mix(in srgb, ${visualAccent} 12%, transparent)`,
+                                    borderColor: `color-mix(in srgb, ${visualAccent} 24%, transparent)`,
+                                    color: visualAccent,
+                                }}
+                            >
                                 {progressChipLabel}
                             </span>
                         )}
@@ -1678,8 +1530,12 @@ const ActivityCard = React.memo(function ActivityCard({
             {hasProgress && (
                 <div className="mt-3 h-1 bg-bg-tertiary/80 rounded-full overflow-hidden relative z-10">
                     <div
-                        className="h-full bg-primary/70 rounded-full transition-all duration-500"
-                        style={{ width: `${Math.min(progressValue, 100)}%` }}
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                            backgroundColor: visualAccent,
+                            opacity: 0.85,
+                            width: `${Math.min(progressValue, 100)}%`,
+                        }}
                     />
                 </div>
             )}
@@ -2284,8 +2140,8 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                         }}
                                         className="flex items-center gap-3 px-3 py-2 rounded-xl"
                                         style={{
-                                            background: sectionTexture
-                                                ? `linear-gradient(135deg, ${sectionTexture.color}0D 0%, transparent 100%)`
+                                            backgroundColor: sectionTexture
+                                                ? `color-mix(in srgb, ${sectionTexture.color} 10%, transparent)`
                                                 : 'transparent',
                                             borderLeft: `3px solid ${accentColor}`,
                                         }}
@@ -2354,16 +2210,16 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                                         className="group w-full text-left relative rounded-xl border overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/50"
                                                         style={{
                                                             borderColor: isHubDone ? 'var(--color-border)' : `${accentColor}45`,
-                                                            background: isHubDone
+                                                            backgroundColor: isHubDone
                                                                 ? 'var(--color-bg-secondary)'
-                                                                : `linear-gradient(135deg, ${accentColor}14 0%, var(--color-bg-secondary) 58%)`,
+                                                                : `color-mix(in srgb, ${accentColor} 8%, var(--color-bg-secondary))`,
                                                         }}
                                                     >
                                                         {/* Notebook binding strip */}
                                                         <div
                                                             className="absolute left-0 top-0 bottom-0 w-7 flex flex-col items-center justify-around py-2 pointer-events-none"
                                                             style={{
-                                                                background: `linear-gradient(to right, ${accentColor}20 0%, ${accentColor}08 60%, transparent 100%)`,
+                                                                backgroundColor: `color-mix(in srgb, ${accentColor} 14%, transparent)`,
                                                                 borderRight: `1.5px solid ${accentColor}30`,
                                                             }}
                                                         >

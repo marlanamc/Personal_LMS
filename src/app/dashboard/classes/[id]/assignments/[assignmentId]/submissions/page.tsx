@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import LogoutButton from "@/components/LogoutButton";
 import { BackButton } from "@/components/ui/BackButton";
 import SubmissionsList from "@/components/SubmissionsList";
+import { canManageClass } from "@/lib/class-access";
 
 interface Props {
     params: Promise<{ id: string; assignmentId: string }>;
@@ -19,9 +20,7 @@ export default async function SubmissionsPage({ params }: Props) {
     }
 
     const userId = session.user?.id;
-    const userRole = session.user?.role;
-
-    if (userRole !== "teacher") {
+    if (!userId) {
         redirect("/dashboard");
     }
 
@@ -32,7 +31,12 @@ export default async function SubmissionsPage({ params }: Props) {
         },
     });
 
-    if (!classItem || classItem.teacherId !== userId) {
+    if (!classItem) {
+        redirect("/dashboard");
+    }
+
+    const canManage = await canManageClass(userId, id);
+    if (!canManage) {
         redirect("/dashboard");
     }
 
@@ -89,7 +93,6 @@ export default async function SubmissionsPage({ params }: Props) {
         </div>
     );
 }
-
 
 
 

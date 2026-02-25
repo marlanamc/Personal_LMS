@@ -26,7 +26,7 @@ type Props = {
 export function TeacherStudentStatsPanel({ students, activities, progressByStudent, overallProgress }: Props) {
     const options = useMemo(
         () => [
-            { id: "overall", label: "All students (average)" },
+            { id: "overall", label: "All members (average)" },
             ...students
                 .map((s) => ({
                     id: s.id,
@@ -53,8 +53,8 @@ export function TeacherStudentStatsPanel({ students, activities, progressByStude
         <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
                 <div>
-                    <h2 className="text-xl font-bold text-text">Student Activity Progress</h2>
-                    <p className="text-sm text-text-muted">Switch between students or view the overall average.</p>
+                    <h2 className="text-xl font-bold text-text">Member Activity Progress</h2>
+                    <p className="text-sm text-text-muted">Switch between members or view the overall average.</p>
                 </div>
                 <select
                     value={selectedId}
@@ -73,7 +73,6 @@ export function TeacherStudentStatsPanel({ students, activities, progressByStude
         </div>
     );
 }
-
 
 
 

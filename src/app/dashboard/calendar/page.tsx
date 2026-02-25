@@ -11,13 +11,13 @@ export default async function CalendarPage() {
         redirect("/login");
     }
 
-    const userRole = session.user?.role || "student";
     const userId = session.user?.id;
+    if (!userId) {
+        redirect("/dashboard");
+    }
 
-    let calendarEvents: CalendarEvent[] = [];
-
-    if (userRole === "teacher") {
-        const classes = await prisma.class.findMany({
+    const [ownedClasses, enrollments] = await Promise.all([
+        prisma.class.findMany({
             where: { teacherId: userId },
             include: {
                 assignments: {
@@ -26,74 +26,53 @@ export default async function CalendarPage() {
                 calendarEvents: true,
             },
             orderBy: { createdAt: "desc" },
-        });
-
-        const allAssignments = classes.flatMap((c) => c.assignments);
-
-        calendarEvents = [
-            ...allAssignments
-                .filter((a) => a.dueDate)
-                .map((a) => ({
-                    date: a.dueDate as Date,
-                    endDate: null,
-                    type: (a.title || a.activity.title || "").toLowerCase().includes("quiz") ? "quiz" as const : "due" as const,
-                    title: `${a.title || a.activity.title || "Assignment"}`,
-                })),
-            ...classes.flatMap((cls) =>
-                cls.calendarEvents.map((ev) => ({
-                    id: ev.id,
-                    date: ev.date,
-                    endDate: ev.endDate || null,
-                    type: (ev.type as CalendarEvent["type"]) || "holiday",
-                    title: `${ev.title}`,
-                }))
-            ),
-        ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    } else {
-        const enrollments = await prisma.classEnrollment.findMany({
+        }),
+        prisma.classEnrollment.findMany({
             where: { studentId: userId },
             include: {
                 class: {
                     include: {
                         assignments: {
-                            include: {
-                                activity: true,
-                            },
-                            orderBy: { createdAt: "desc" },
+                            include: { activity: true },
                         },
                         calendarEvents: true,
                     },
                 },
             },
-        });
+        }),
+    ]);
 
-        const allAssignments = enrollments.flatMap((enrollment) =>
-            enrollment.class.assignments.map((assignment) => ({
-                ...assignment,
-                className: enrollment.class.name,
-            }))
-        );
-
-        calendarEvents = [
-            ...allAssignments
-                .filter((a) => a.dueDate)
-                .map((a) => ({
-                    date: a.dueDate as Date,
-                    endDate: null,
-                    type: (a.title || a.activity.title || "").toLowerCase().includes("quiz") ? "quiz" as const : "due" as const,
-                    title: `${a.title || a.activity.title || "Assignment"}`,
-                })),
-            ...enrollments.flatMap((enrollment) =>
-                enrollment.class.calendarEvents.map((ev) => ({
-                    id: ev.id,
-                    date: ev.date,
-                    endDate: ev.endDate || null,
-                    type: (ev.type as CalendarEvent["type"]) || "holiday",
-                    title: `${ev.title}`,
-                }))
-            ),
-        ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const classMap = new Map<string, (typeof ownedClasses)[number]>();
+    for (const classItem of ownedClasses) {
+        classMap.set(classItem.id, classItem);
     }
+    for (const enrollment of enrollments) {
+        classMap.set(enrollment.class.id, enrollment.class);
+    }
+    const classes = Array.from(classMap.values());
+
+    const allAssignments = classes.flatMap((classItem) => classItem.assignments);
+    const calendarEvents: CalendarEvent[] = [
+        ...allAssignments
+            .filter((assignment) => assignment.dueDate)
+            .map((assignment) => ({
+                date: assignment.dueDate as Date,
+                endDate: null,
+                type: (assignment.title || assignment.activity.title || "").toLowerCase().includes("quiz")
+                    ? ("quiz" as const)
+                    : ("due" as const),
+                title: `${assignment.title || assignment.activity.title || "Assignment"}`,
+            })),
+        ...classes.flatMap((classItem) =>
+            classItem.calendarEvents.map((eventItem) => ({
+                id: eventItem.id,
+                date: eventItem.date,
+                endDate: eventItem.endDate || null,
+                type: (eventItem.type as CalendarEvent["type"]) || "holiday",
+                title: `${eventItem.title}`,
+            }))
+        ),
+    ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return (
         <div className="min-h-screen bg-bg">
@@ -130,8 +109,8 @@ export default async function CalendarPage() {
                             eventEndDate.setHours(0, 0, 0, 0);
                             return eventEndDate >= today;
                         })}
-                        allowDelete={userRole === 'teacher'}
-                        showSyncedLabel={userRole === 'teacher'}
+                        allowDelete={ownedClasses.length > 0}
+                        showSyncedLabel={false}
                     />
                 </div>
             </main>

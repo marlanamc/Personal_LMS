@@ -11,11 +11,6 @@ export default async function NewClassPage() {
         redirect("/login");
     }
 
-    const userRole = session.user?.role;
-    if (userRole !== "teacher") {
-        redirect("/dashboard");
-    }
-
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="bg-bg-secondary/90 shadow">

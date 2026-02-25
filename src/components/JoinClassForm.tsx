@@ -43,7 +43,7 @@ export default function JoinClassForm() {
                 <div className="mb-6">
                     <h2 className="text-lg font-medium text-text mb-2">Enter Class Code</h2>
                     <p className="text-sm text-text-muted">
-                        Ask your teacher for the class code to join their class.
+                        Enter a class code to connect this class to your workspace.
                     </p>
                 </div>
 
@@ -90,7 +90,6 @@ export default function JoinClassForm() {
         </div>
     );
 }
-
 
 
 

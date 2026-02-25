@@ -278,7 +278,7 @@ export default function LeaderboardPage() {
               No rankings yet
             </p>
             <p className="text-sm" style={{ color: '#8996a6' }}>
-              Students will appear here once they earn points. Complete activities to climb the ranks!
+              Members will appear here once they earn points. Complete activities to climb the ranks!
             </p>
           </div>
         )}

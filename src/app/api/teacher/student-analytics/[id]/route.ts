@@ -13,23 +13,25 @@ export async function GET(
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const teacherId = session.user.id;
-    const userRole = session.user.role;
+    const userId = session.user.id;
     const { id: studentId } = await params;
 
-    // Verify teacher has access to this student (student is in one of their classes)
-    if (userRole === "teacher") {
+    // Verify access to this member by shared class access (or own profile).
+    if (studentId !== userId) {
         const enrollment = await prisma.classEnrollment.findFirst({
             where: {
                 studentId,
                 class: {
-                    teacherId
+                    OR: [
+                        { teacherId: userId },
+                        { enrollments: { some: { studentId: userId } } },
+                    ],
                 }
             }
         });
 
         if (!enrollment) {
-            return NextResponse.json({ error: "Student not found in your classes" }, { status: 403 });
+            return NextResponse.json({ error: "Member not found in accessible classes" }, { status: 403 });
         }
     }
 
@@ -50,7 +52,7 @@ export async function GET(
     });
 
     if (!student) {
-        return NextResponse.json({ error: "Student not found" }, { status: 404 });
+        return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
     const effectiveCurrentStreak = getEffectiveStreak(student.currentStreak, student.lastActivityDate);
 

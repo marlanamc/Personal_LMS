@@ -18,15 +18,18 @@ export default async function StatsPage() {
         redirect("/login");
     }
 
-    const userRole = session.user?.role || "student";
     const userId = session.user?.id;
-
-    if (userRole !== "teacher") {
+    if (!userId) {
         redirect("/dashboard");
     }
 
     const classes = await prisma.class.findMany({
-        where: { teacherId: userId },
+        where: {
+            OR: [
+                { teacherId: userId },
+                { enrollments: { some: { studentId: userId } } },
+            ],
+        },
         include: {
             enrollments: {
                 include: {
@@ -127,15 +130,15 @@ export default async function StatsPage() {
 
     return (
         <div className="min-h-screen bg-bg">
-            <header className="sticky top-0 bg-bg-secondary/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
+            <header className="sticky top-0 bg-bg-elevated/95 backdrop-blur-sm border-b border-border-subtle shadow-sm z-50">
                 <div className="container mx-auto max-w-[1200px] py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <div>
                         <BackButton href="/dashboard" className="mb-1">Back to Dashboard</BackButton>
                         <h1 className="text-2xl md:text-3xl font-display font-bold text-text mt-1">
-                            Student Stats
+                            Class Stats
                         </h1>
                         <p className="text-sm text-text-muted">
-                            Quick snapshot of your classes, students, assignments, and activities.
+                            Quick snapshot of your classes, members, assignments, and activities.
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -161,7 +164,7 @@ export default async function StatsPage() {
                             <div className="h-8 w-px bg-border/40 hidden sm:block"></div>
                             <Link
                                 href="/dashboard/gradebook"
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition shadow-sm"
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-bg-base text-sm font-semibold hover:brightness-110 transition shadow-sm"
                             >
                                 <ClipboardIcon className="w-4 h-4" />
                                 Grammar Gradebook
@@ -179,7 +182,7 @@ export default async function StatsPage() {
                             className="delay-100"
                         />
                         <StatCard
-                            label="Total Students"
+                            label="Total Members"
                             value={classes.reduce((sum, c) => sum + c.enrollments.length, 0)}
                             icon={<UserIcon className="w-full h-full" />}
                             color="secondary"
@@ -205,7 +208,7 @@ export default async function StatsPage() {
                 <section className="animate-fade-in-up delay-150">
                     {enrichedStudents.length === 0 ? (
                         <div className="border border-dashed border-border/50 rounded-xl p-6 bg-bg-secondary/70 text-text-muted text-sm">
-                            No students yet. Add students to your classes to view stats.
+                            No members yet. Add or join a class to view stats here.
                         </div>
                     ) : (
                         <StudentEngagementTable students={enrichedStudents} />

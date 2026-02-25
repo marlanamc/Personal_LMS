@@ -95,11 +95,7 @@ export default async function MiniQuizCertificatePage({ searchParams }: Certific
         ? `/activity/${activityId}${assignmentId ? `?assignment=${encodeURIComponent(assignmentId)}` : ""}`
         : "/dashboard/subjects";
 
-    const certificateCodeSeed = canonicalActivityId || slug || guideTitle || "grammar";
-    const normalizedSeed = certificateCodeSeed.replace(/[^a-z0-9]/gi, "").toUpperCase().slice(0, 8) || "GRAMMAR";
-    const certificateCode = `${normalizedSeed}-${issuedAt.toISOString().slice(0, 10).replace(/-/g, "")}`;
-
-    const studentName = session.user.name || session.user.username || "Student";
+    const studentName = session.user.name || session.user.username || "Learner";
     const displayScore = certificateScore ?? 0;
 
     return (

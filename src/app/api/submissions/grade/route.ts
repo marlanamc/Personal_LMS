@@ -2,17 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { canManageClass } from "@/lib/class-access";
 
 export async function POST(request: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
         if (!session) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        const userRole = session.user?.role;
-        if (userRole !== "teacher") {
-            return NextResponse.json({ error: "Only teachers can grade submissions" }, { status: 403 });
         }
 
         const body = await request.json();
@@ -23,6 +19,9 @@ export async function POST(request: NextRequest) {
         }
 
         const userId = session.user?.id;
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         // Get submission with assignment and class
         const submission = await prisma.submission.findUnique({
@@ -40,8 +39,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Submission not found" }, { status: 404 });
         }
 
-        // Verify teacher owns the class
-        if (submission.assignment?.class.teacherId !== userId) {
+        const classId = submission.assignment?.classId;
+        if (!classId) {
+            return NextResponse.json({ error: "Submission is not linked to a class assignment" }, { status: 400 });
+        }
+
+        const canManage = await canManageClass(userId, classId);
+        if (!canManage) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -70,7 +74,6 @@ export async function POST(request: NextRequest) {
         );
     }
 }
-
 
 
 

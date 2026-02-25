@@ -512,7 +512,7 @@ export const FocusTimer = () => {
 
     // Variables for the SVG Ring
     const radius = 120;
-    const strokeWidth = 36;
+    const strokeWidth = 18;
     const circumference = 2 * Math.PI * radius;
     
     // Calculate how much of the ring is filled. 
@@ -527,12 +527,6 @@ export const FocusTimer = () => {
     const remainingArcLength = currentProgressPercentage * selectedArcLength;
     const elapsedArcLength = Math.max(selectedArcLength - remainingArcLength, 0);
     
-    // Pattern for the Tiimo "ticks"
-    // We want roughly 60-120 ticks around the whole 120min circle
-    const totalTicks = 120;
-    const tickSpacing = circumference / totalTicks;
-    const tickDashArray = `${tickSpacing * 0.2} ${tickSpacing * 0.8}`; // 20% line, 80% gap
-
     return (
         <div className="min-h-screen bg-bg-primary text-text font-display transition-colors duration-300 flex flex-col">
             {/* Header / Top Nav area - Fixed at top */}
@@ -554,7 +548,12 @@ export const FocusTimer = () => {
                                 <div className="px-3 py-2 mb-2 border-b border-border/30">
                                     <button
                                         onClick={connectSpotify}
-                                        className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-[#1DB954] hover:bg-[#1ed760] text-black rounded-xl text-xs font-bold transition-colors shadow-sm"
+                                        className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl text-xs font-semibold transition-colors shadow-sm border"
+                                        style={{
+                                            backgroundColor: "var(--color-accent-mint)",
+                                            color: "var(--color-bg-base)",
+                                            borderColor: "color-mix(in srgb, var(--color-accent-mint) 32%, transparent)",
+                                        }}
                                     >
                                         <ExternalLink className="w-3 h-3" />
                                         Connect Spotify Premium
@@ -573,7 +572,7 @@ export const FocusTimer = () => {
                             )}
                             {!isLoadingSpotifyStatus && isSpotifyConnected && (
                                 <div className="px-3 py-2 mb-2 border-b border-border/30">
-                                    <p className="text-[11px] text-[#1DB954] text-center font-semibold">
+                                    <p className="text-[11px] text-mineral-mint text-center font-semibold">
                                         {spotifyStatus.displayName
                                             ? `✅ Connected to Spotify (${spotifyStatus.displayName})`
                                             : '✅ Connected to Spotify'}
@@ -622,9 +621,6 @@ export const FocusTimer = () => {
                         <p className="text-center text-xs font-semibold text-text-muted mb-4">{spotifyNotice}</p>
                     )}
 
-                    {/* Title */}
-                    <h1 className="text-center text-4xl font-display font-bold mb-4 tracking-tight">Focus</h1>
-
                     {/* Timer Ring */}
                     <div className="relative flex justify-center items-center mb-8 select-none touch-none">
                 <svg
@@ -632,26 +628,37 @@ export const FocusTimer = () => {
                     width="400"
                     height="400"
                     viewBox="0 0 320 320"
-                    className="transform -rotate-90 cursor-pointer drop-shadow-lg"
+                    className="transform -rotate-90 cursor-pointer"
                     onMouseDown={handleDragStart}
                     onTouchStart={handleDragStart}
                 >
+                    <defs>
+                        <linearGradient id="nebula-orbit-gradient" x1="40" y1="40" x2="280" y2="280" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stopColor="var(--color-accent-amethyst)" />
+                            <stop offset="52%" stopColor="var(--color-accent-sakura)" />
+                            <stop offset="100%" stopColor="var(--color-accent-teal)" />
+                        </linearGradient>
+                    </defs>
+
                     {/* Background Track (Full Circle) */}
                     <circle
                         cx="160"
                         cy="160"
                         r={radius}
-                        className="stroke-black/5 dark:stroke-white/5 transition-colors duration-300"
+                        className="transition-colors duration-300"
+                        stroke="var(--color-progress-track)"
                         strokeWidth={strokeWidth}
                         fill="none"
                     />
                     
-                    {/* Progress Fill (Base color) */}
+                    {/* Remaining time arc (smooth orbit) */}
                     <circle
                         cx="160"
                         cy="160"
                         r={radius}
-                        className="stroke-primary transition-[stroke-dashoffset] duration-300 ease-linear shadow-glow-lavender"
+                        className="transition-[stroke-dashoffset] duration-300 ease-linear"
+                        stroke="url(#nebula-orbit-gradient)"
+                        opacity="0.92"
                         strokeWidth={strokeWidth}
                         fill="none"
                         strokeLinecap="round"
@@ -659,13 +666,15 @@ export const FocusTimer = () => {
                         strokeDashoffset={0}
                     />
 
-                    {/* Elapsed segment (muted) to show where session started */}
+                    {/* Elapsed segment (quiet mineral trail) */}
                     {hasSessionProgress && elapsedArcLength > 0.5 && (
                         <circle
                             cx="160"
                             cy="160"
                             r={radius}
-                            className="stroke-white/15 transition-[stroke-dasharray,stroke-dashoffset] duration-300 ease-linear"
+                            className="transition-[stroke-dasharray,stroke-dashoffset] duration-300 ease-linear"
+                            stroke="color-mix(in srgb, var(--color-text-muted) 45%, transparent)"
+                            opacity="0.7"
                             strokeWidth={strokeWidth}
                             fill="none"
                             strokeLinecap="round"
@@ -674,61 +683,29 @@ export const FocusTimer = () => {
                         />
                     )}
 
-                    {/* Progress Fill Ticks (Tiimo texture) */}
-                    <circle
-                        cx="160"
-                        cy="160"
-                        r={radius}
-                        className="stroke-black/10 transition-[stroke-dashoffset] duration-300 ease-linear"
-                        strokeWidth={strokeWidth - 2}
-                        fill="none"
-                        strokeLinecap="butt"
-                        strokeDasharray={tickDashArray}
-                        mask="url(#progress-mask)"
-                    />
-                    
-                    {/* Define an SVG mask to only show ticks where the progress is */}
-                    <defs>
-                        <mask id="progress-mask">
-                            <circle
-                                cx="160"
-                                cy="160"
-                                r={radius}
-                                stroke="white"
-                                strokeWidth={strokeWidth}
-                                fill="none"
-                                strokeLinecap="round"
-                                strokeDasharray={`${remainingArcLength} ${circumference}`}
-                                strokeDashoffset={0}
-                            />
-                        </mask>
-                    </defs>
-
-                    {/* Draggable Integrated Indicator (Tiimo Arrow) */}
+                    {/* Minimal orbit handle */}
                     <g 
                         className="transition-all duration-100"
                         style={{
                             transformOrigin: '160px 160px',
-                            // SVG is rotated -90deg globally; +90 aligns indicator to the arc endpoint.
+                            // SVG is rotated -90deg globally; +90 aligns handle to arc endpoint.
                             transform: `rotate(${currentProgressPercentage * selectedFraction * 360 + 90}deg)`
                         }}
                     >
-                        {/* A very subtle ghost circle to indicate drag area without being a heavy 'ball' */}
                         <circle 
                             cx="160" 
                             cy={160 - radius} 
-                            r={strokeWidth/2} 
-                            fill="rgba(255,255,255,0.15)"
+                            r="4.5"
+                            fill="var(--color-bg-elevated)"
+                            stroke="var(--color-accent-sakura)"
+                            strokeWidth="1.5"
                             className="transition-colors duration-300"
                         />
-                        {/* The chevron/arrow indicator */}
-                        <path
-                            d={`M154,${160-radius+2} L160,${160-radius-4} L166,${160-radius+2}`}
-                            stroke="rgba(255,255,255,0.9)"
-                            strokeWidth="2.5"
-                            fill="none"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
+                        <circle
+                            cx="160"
+                            cy={160 - radius}
+                            r="1.5"
+                            fill="var(--color-accent-sakura)"
                         />
                     </g>
                 </svg>
@@ -772,7 +749,7 @@ export const FocusTimer = () => {
                                 triggerHaptic(20);
                                 toggleTimer();
                             }}
-                            className="flex items-center gap-3 px-8 py-4 bg-primary text-white hover:brightness-110 rounded-full text-lg font-bold transition-transform active:scale-95 shadow-md"
+                            className="focus-timer-main-button flex items-center gap-3 px-8 py-4 rounded-full text-lg font-semibold transition-transform active:scale-95"
                         >
                             {isActive ? (
                                 <>Pause <Pause className="w-5 h-5 fill-current" /></>
@@ -865,7 +842,7 @@ export const FocusTimer = () => {
                                 <button
                                     type="button"
                                     onClick={addTask}
-                                    className="px-3 py-2 rounded-xl bg-primary text-white hover:brightness-110 transition-colors"
+                                    className="px-3 py-2 rounded-xl bg-primary text-bg-base hover:brightness-105 transition-colors"
                                     aria-label="Add task"
                                 >
                                     <Plus className="w-4 h-4" />
@@ -915,7 +892,7 @@ export const FocusTimer = () => {
                                     <button
                                         type="button"
                                         onClick={() => toggleTask(task.id)}
-                                        className={`mt-0.5 w-5 h-5 rounded-md border transition-colors flex items-center justify-center ${task.done ? 'bg-primary border-primary text-white' : 'border-border bg-bg'}`}
+                                        className={`mt-0.5 w-5 h-5 rounded-md border transition-colors flex items-center justify-center ${task.done ? 'bg-primary border-primary text-bg-base' : 'border-border bg-bg-surface'}`}
                                         aria-label={task.done ? 'Mark task as incomplete' : 'Mark task as complete'}
                                     >
                                         {task.done && <Check className="w-3.5 h-3.5" />}

@@ -14,11 +14,6 @@ export async function PUT(request: NextRequest, { params }: Props) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userRole = session.user?.role;
-        if (userRole !== "teacher") {
-            return NextResponse.json({ error: "Only teachers can edit activities" }, { status: 403 });
-        }
-
         const { id } = await params;
         const body = await request.json();
         const { title, description, type, category, level, content } = body;
@@ -73,11 +68,6 @@ export async function DELETE(request: NextRequest, { params }: Props) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userRole = session.user?.role;
-        if (userRole !== "teacher") {
-            return NextResponse.json({ error: "Only teachers can delete activities" }, { status: 403 });
-        }
-
         const { id } = await params;
 
         // Verify activity exists
@@ -111,7 +101,6 @@ export async function DELETE(request: NextRequest, { params }: Props) {
         );
     }
 }
-
 
 
 

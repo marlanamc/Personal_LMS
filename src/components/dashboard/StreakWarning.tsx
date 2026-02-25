@@ -141,7 +141,7 @@ export function StreakWarning({
           href="/dashboard/subjects"
           className={`shrink-0 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
             isCritical
-              ? "bg-error text-white hover:brightness-110"
+              ? "bg-error text-bg-base hover:brightness-110"
               : isUrgent
                 ? "bg-warning text-bg-primary hover:brightness-110"
                 : "bg-warning/20 text-warning hover:bg-warning/30"

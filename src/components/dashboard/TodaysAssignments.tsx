@@ -5,7 +5,16 @@ import Link from 'next/link';
 import { stripVocabTypeSuffix, getVocabActivityType, VOCAB_CHIP_CONFIG } from '@/lib/vocab-display';
 import { parseCategoryData } from '@/lib/categoryData';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
-import { PenLine, Gamepad2, BookOpen, ClipboardList, Sparkles } from 'lucide-react';
+import { PenLine, Gamepad2, BookOpen, ClipboardList, Sparkles, Code2, HeartPulse, Briefcase, BookText } from 'lucide-react';
+
+const SpanishSubjectIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg" aria-hidden>
+        <circle cx="22" cy="24" r="14" stroke="currentColor" strokeWidth="2.5" />
+        <ellipse cx="22" cy="24" rx="6" ry="14" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M8 24h28" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="40" cy="12" r="4" stroke="currentColor" strokeWidth="2" />
+    </svg>
+);
 
 interface VocabCategoryData {
     'word-list'?: { completed: boolean; progress: number; completedAt?: string };
@@ -55,7 +64,7 @@ export const TodaysAssignments: React.FC<Props> = ({
     variant = 'cards',
     actions,
 }) => {
-    const featuredNewBadgeClassName = "inline-flex items-center gap-1 rounded-full border border-primary/40 bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/25 text-text shadow-[0_2px_8px_rgba(245,158,11,0.25)]";
+    const featuredNewBadgeClassName = "inline-flex items-center gap-1 rounded-full border border-border-subtle bg-sakura-soft text-primary";
     const [assignments, setAssignments] = useState<FeaturedAssignment[]>(initialAssignments || []);
     const [loading, setLoading] = useState(true);
 
@@ -97,9 +106,9 @@ export const TodaysAssignments: React.FC<Props> = ({
     if (loading) {
         return (
             <div className="mb-8">
-                <div className="bg-bg-secondary/90 rounded-2xl border border-border/40 shadow-lg overflow-hidden">
+                <div className="bg-bg-surface rounded-2xl border border-border-subtle shadow-lg overflow-hidden">
                     {/* Skeleton header */}
-                    <div className="p-4 border-b border-border/30 bg-gradient-to-br from-white via-bg-secondary to-bg-light/30">
+                    <div className="p-4 border-b border-border/30 bg-bg-elevated">
                         <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-xl skeleton"></div>
@@ -116,7 +125,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                     {/* Skeleton rows */}
                     <div className="divide-y divide-border/20">
                         {[1, 2, 3].map((i) => (
-                            <div key={i} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4" style={{ borderLeft: '6px solid #e2ddd5' }}>
+                            <div key={i} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4" style={{ borderLeft: '6px solid var(--color-accent-sakura)' }}>
                                 <div className="flex items-start gap-3 flex-1">
                                     <div className="w-[22px] h-[22px] skeleton rounded-md mt-0.5"></div>
                                     <div className="flex-1">
@@ -138,9 +147,9 @@ export const TodaysAssignments: React.FC<Props> = ({
     if (assignments.length === 0) {
         return (
             <div className="mb-8">
-                <div className="bg-bg-secondary/90 rounded-2xl border border-border/40 shadow-lg overflow-hidden">
+                <div className="bg-bg-surface rounded-2xl border border-border-subtle shadow-lg overflow-hidden">
                     {/* Header matching the normal checklist */}
-                    <div className="px-4 py-3 border-b border-border/10 bg-bg-secondary/90 flex items-center gap-3">
+                    <div className="px-4 py-3 border-b border-border/10 bg-bg-elevated flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-lg">
                             📋
                         </div>
@@ -153,12 +162,8 @@ export const TodaysAssignments: React.FC<Props> = ({
 
                     {/* Empty state content */}
                     <div className="p-8 text-center relative overflow-hidden">
-                        {/* Decorative background elements */}
-                        <div className="absolute top-4 left-8 w-16 h-16 bg-accent/10 rounded-full blur-2xl"></div>
-                        <div className="absolute bottom-4 right-8 w-20 h-20 bg-secondary/10 rounded-full blur-2xl"></div>
-
                         <div className="relative z-10">
-                            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center">
+                            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-sakura-soft border border-border-subtle flex items-center justify-center">
                                 <span className="text-3xl">🎯</span>
                             </div>
                             <p className="text-lg font-display font-bold text-text mb-1">All caught up!</p>
@@ -202,22 +207,22 @@ export const TodaysAssignments: React.FC<Props> = ({
 
     const getCategoryStyle = (category?: string | null) => {
         const categoryKey = (category || '').toLowerCase();
-        const categoryStyles: Record<string, { label: string; bg: string; text: string; accent: string }> = {
-            vocab: { label: 'VOCAB', bg: '#1e293b', text: '#60a5fa', accent: '#3b82f6' },
-            vocabulary: { label: 'VOCAB', bg: '#1e293b', text: '#60a5fa', accent: '#3b82f6' },
-            grammar: { label: 'GRAMMAR', bg: '#064e3b', text: '#34d399', accent: '#10b981' },
-            numbers: { label: 'NUMBERS', bg: '#0c4a6e', text: '#38bdf8', accent: '#0ea5e9' },
-            number: { label: 'NUMBERS', bg: '#0c4a6e', text: '#38bdf8', accent: '#0ea5e9' },
-            reading: { label: 'READING', bg: '#134e4a', text: '#2dd4bf', accent: '#14b8a6' },
-            writing: { label: 'WRITING', bg: '#14532d', text: '#4ade80', accent: '#22c55e' },
-            pronunciation: { label: 'PRONUNCIATION', bg: '#4c1d95', text: '#a78bfa', accent: '#8b5cf6' },
-            speaking: { label: 'SPEAKING', bg: '#78350f', text: '#fbbf24', accent: '#f59e0b' },
-            listening: { label: 'LISTENING', bg: '#164e63', text: '#22d3ee', accent: '#06b6d4' },
-            quizzes: { label: 'QUIZ', bg: '#7f1d1d', text: '#f87171', accent: '#ef4444' },
-            personal: { label: 'PERSONAL', bg: '#701a75', text: '#f472b6', accent: '#ec4899' },
-            spanish: { label: 'SPANISH', bg: '#701a75', text: '#f472b6', accent: '#ec4899' },
-            coding: { label: 'CODING', bg: '#0c4a6e', text: '#38bdf8', accent: '#0ea5e9' },
-            default: { label: 'ACTIVITY', bg: '#1e1b4b', text: '#818cf8', accent: '#6366f1' },
+        const categoryStyles: Record<string, { label: string; bg: string; text: string; accent: string; accentBorder: string }> = {
+            vocab: { label: 'VOCAB', bg: 'color-mix(in srgb, var(--color-accent-teal) 18%, transparent)', text: 'var(--color-accent-teal)', accent: 'var(--color-accent-teal)', accentBorder: 'color-mix(in srgb, var(--color-accent-teal) 36%, transparent)' },
+            vocabulary: { label: 'VOCAB', bg: 'color-mix(in srgb, var(--color-accent-teal) 18%, transparent)', text: 'var(--color-accent-teal)', accent: 'var(--color-accent-teal)', accentBorder: 'color-mix(in srgb, var(--color-accent-teal) 36%, transparent)' },
+            grammar: { label: 'GRAMMAR', bg: 'color-mix(in srgb, var(--color-accent-mint) 18%, transparent)', text: 'var(--color-accent-mint)', accent: 'var(--color-accent-mint)', accentBorder: 'color-mix(in srgb, var(--color-accent-mint) 36%, transparent)' },
+            numbers: { label: 'NUMBERS', bg: 'color-mix(in srgb, var(--color-accent-teal) 18%, transparent)', text: 'var(--color-accent-teal)', accent: 'var(--color-accent-teal)', accentBorder: 'color-mix(in srgb, var(--color-accent-teal) 36%, transparent)' },
+            number: { label: 'NUMBERS', bg: 'color-mix(in srgb, var(--color-accent-teal) 18%, transparent)', text: 'var(--color-accent-teal)', accent: 'var(--color-accent-teal)', accentBorder: 'color-mix(in srgb, var(--color-accent-teal) 36%, transparent)' },
+            reading: { label: 'READING', bg: 'color-mix(in srgb, var(--color-accent-teal) 18%, transparent)', text: 'var(--color-accent-teal)', accent: 'var(--color-accent-teal)', accentBorder: 'color-mix(in srgb, var(--color-accent-teal) 36%, transparent)' },
+            writing: { label: 'WRITING', bg: 'color-mix(in srgb, var(--color-accent-mint) 18%, transparent)', text: 'var(--color-accent-mint)', accent: 'var(--color-accent-mint)', accentBorder: 'color-mix(in srgb, var(--color-accent-mint) 36%, transparent)' },
+            pronunciation: { label: 'PRONUNCIATION', bg: 'color-mix(in srgb, var(--color-accent-amethyst) 18%, transparent)', text: 'var(--color-accent-amethyst)', accent: 'var(--color-accent-amethyst)', accentBorder: 'color-mix(in srgb, var(--color-accent-amethyst) 36%, transparent)' },
+            speaking: { label: 'SPEAKING', bg: 'color-mix(in srgb, var(--color-accent-mint) 18%, transparent)', text: 'var(--color-accent-mint)', accent: 'var(--color-accent-mint)', accentBorder: 'color-mix(in srgb, var(--color-accent-mint) 36%, transparent)' },
+            listening: { label: 'LISTENING', bg: 'color-mix(in srgb, var(--color-accent-teal) 18%, transparent)', text: 'var(--color-accent-teal)', accent: 'var(--color-accent-teal)', accentBorder: 'color-mix(in srgb, var(--color-accent-teal) 36%, transparent)' },
+            quizzes: { label: 'QUIZ', bg: 'color-mix(in srgb, var(--color-accent-amethyst) 18%, transparent)', text: 'var(--color-accent-amethyst)', accent: 'var(--color-accent-amethyst)', accentBorder: 'color-mix(in srgb, var(--color-accent-amethyst) 36%, transparent)' },
+            personal: { label: 'PERSONAL', bg: 'var(--color-accent-sakura-soft)', text: 'var(--color-accent-sakura)', accent: 'var(--color-accent-sakura)', accentBorder: 'color-mix(in srgb, var(--color-accent-sakura) 36%, transparent)' },
+            spanish: { label: 'SPANISH', bg: 'var(--color-accent-sakura-soft)', text: 'var(--color-accent-sakura)', accent: 'var(--color-accent-sakura)', accentBorder: 'color-mix(in srgb, var(--color-accent-sakura) 36%, transparent)' },
+            coding: { label: 'CODING', bg: 'color-mix(in srgb, var(--color-accent-teal) 18%, transparent)', text: 'var(--color-accent-teal)', accent: 'var(--color-accent-teal)', accentBorder: 'color-mix(in srgb, var(--color-accent-teal) 36%, transparent)' },
+            default: { label: 'ACTIVITY', bg: 'var(--color-accent-sakura-soft)', text: 'var(--color-accent-sakura)', accent: 'var(--color-accent-sakura)', accentBorder: 'color-mix(in srgb, var(--color-accent-sakura) 36%, transparent)' },
         };
         return categoryStyles[categoryKey] || categoryStyles.default;
     };
@@ -226,8 +231,28 @@ export const TodaysAssignments: React.FC<Props> = ({
         return assignment.activity.type === "game";
     };
 
-    const withHexAlpha = (hex: string, alphaHex: string): string => {
-        return /^#[0-9a-fA-F]{6}$/.test(hex) ? `${hex}${alphaHex}` : hex;
+    const getSubjectCueIcon = (assignment: FeaturedAssignment): React.ReactNode => {
+        const category = (assignment.activity.category || '').toLowerCase();
+        const title = `${assignment.title || ''} ${assignment.activity.title || ''}`.toLowerCase();
+        const activityId = (assignment.activityId || '').toLowerCase();
+
+        if (
+            category === 'spanish' ||
+            activityId.startsWith('spanish-') ||
+            (category === 'personal' && (activityId.startsWith('spanish-') || title.includes('spanish')))
+        ) {
+            return <SpanishSubjectIcon className="w-3.5 h-3.5 text-primary" />;
+        }
+        if (
+            category === 'coding' ||
+            activityId.startsWith('coding-') ||
+            (category === 'personal' && (title.includes('coding') || title.includes('javascript') || title.includes('typescript')))
+        ) {
+            return <Code2 className="w-3.5 h-3.5 text-mineral-teal" aria-hidden />;
+        }
+        if (category === 'health') return <HeartPulse className="w-3.5 h-3.5 text-mineral-mint" aria-hidden />;
+        if (category === 'job-search') return <Briefcase className="w-3.5 h-3.5 text-mineral-amethyst" aria-hidden />;
+        return <BookText className="w-3.5 h-3.5 text-text-muted" aria-hidden />;
     };
 
     if (variant === 'checklist') {
@@ -312,7 +337,7 @@ export const TodaysAssignments: React.FC<Props> = ({
             { 
                 key: 'spanish', 
                 label: 'Spanish', 
-                icon: <span className="text-xl">🇪🇸</span>, 
+                icon: <SpanishSubjectIcon className="w-5 h-5" />, 
                 match: (c, t) => c === 'spanish' || c === 'personal' && t.toLowerCase().includes('spanish') 
             },
             { 
@@ -406,7 +431,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                         <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
                             isCompleted
                                 ? 'bg-secondary/10 border-secondary/20 text-secondary'
-                                : 'bg-bg-secondary/90 border-border/40 text-transparent'
+                                : 'bg-bg-surface border-border-subtle text-transparent'
                         }`}>
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                         </div>
@@ -414,11 +439,14 @@ export const TodaysAssignments: React.FC<Props> = ({
                 </div>
 
                 {/* Content */}
-                <div className="min-w-0 flex-1 flex flex-col gap-0.5">
-                    <div className="flex items-center gap-2 mb-0.5">
-                        {/* Mobile-only badges row */}
-                        {(() => {
-                            const vocabType = getVocabActivityType(assignment.activityId);
+                    <div className="min-w-0 flex-1 flex flex-col gap-0.5">
+                        <div className="flex items-center gap-2 mb-0.5">
+                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-md border border-border-subtle bg-bg-elevated/70" aria-hidden>
+                                {getSubjectCueIcon(assignment)}
+                            </span>
+                            {/* Mobile-only badges row */}
+                            {(() => {
+                                const vocabType = getVocabActivityType(assignment.activityId);
                             if (vocabType) {
                                 const chip = VOCAB_CHIP_CONFIG[vocabType];
                                 return (
@@ -431,10 +459,10 @@ export const TodaysAssignments: React.FC<Props> = ({
                         })()}
 
                         {isNew && (
-                            <span className={`${featuredNewBadgeClassName} px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide`}>
-                                <Sparkles className="h-2.5 w-2.5 text-primary animate-pulse" aria-hidden />
+                            <span className={`${featuredNewBadgeClassName} px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide`}>
+                                <Sparkles className="h-2.5 w-2.5 text-primary" aria-hidden />
                                 New!
-                                <Sparkles className="h-2.5 w-2.5 text-primary animate-pulse [animation-delay:180ms]" aria-hidden />
+                                <Sparkles className="h-2.5 w-2.5 text-primary" aria-hidden />
                             </span>
                         )}
 
@@ -476,8 +504,8 @@ export const TodaysAssignments: React.FC<Props> = ({
                         if (!isCompleted && progressValue > 0) {
                             return (
                                 <div className="mt-1.5">
-                                    <div className="h-1 w-24 max-w-full bg-border/20 rounded-full overflow-hidden">
-                                        <div className="h-full bg-emerald-400/80 rounded-full transition-all" style={{ width: `${progressValue}%` }} />
+                                    <div className="h-1 w-24 max-w-full rounded-full overflow-hidden" style={{ backgroundColor: "var(--color-progress-track)" }}>
+                                        <div className="h-full rounded-full transition-all" style={{ width: `${progressValue}%`, backgroundColor: categoryStyle.accent, opacity: 0.9 }} />
                                     </div>
                                 </div>
                             );
@@ -495,17 +523,17 @@ export const TodaysAssignments: React.FC<Props> = ({
                             color: categoryStyle.text,
                             borderWidth: '1px',
                             borderStyle: 'solid',
-                            borderColor: `${categoryStyle.accent}80`,
+                            borderColor: categoryStyle.accentBorder,
                         }}
                         onMouseEnter={(e) => {
                             if (!isCompleted) {
                                 e.currentTarget.style.borderColor = categoryStyle.accent;
-                                e.currentTarget.style.backgroundColor = `${categoryStyle.accent}15`;
+                                e.currentTarget.style.backgroundColor = categoryStyle.bg;
                             }
                         }}
                         onMouseLeave={(e) => {
                             if (!isCompleted) {
-                                e.currentTarget.style.borderColor = `${categoryStyle.accent}80`;
+                                e.currentTarget.style.borderColor = categoryStyle.accentBorder;
                                 e.currentTarget.style.backgroundColor = 'transparent';
                             }
                         }}
@@ -534,33 +562,30 @@ export const TodaysAssignments: React.FC<Props> = ({
                             </div>
                             <div className="flex items-center gap-2 text-xs font-bold text-text/70">
                                 {actions && <div className="mr-2">{actions}</div>}
-                                <span className="hidden sm:inline-block px-2 py-1 rounded-md bg-bg-light border border-border/50">{completedCount}/{checklistRows.length} done</span>
-                                <span className={`px-2 py-1 rounded-md border ${isFullyComplete ? 'bg-accent/10 border-accent/30 text-primary' : 'bg-bg-light border-border/50'}`}>{percent}%</span>
+                                <span className="hidden sm:inline-block px-2 py-1 rounded-md bg-bg-elevated border border-border-subtle">{completedCount}/{checklistRows.length} done</span>
+                                <span className={`px-2 py-1 rounded-md border ${isFullyComplete ? 'bg-sakura-soft border-border-subtle text-primary' : 'bg-bg-elevated border-border-subtle'}`}>{percent}%</span>
                             </div>
                         </div>
-                        <div className="w-full bg-bg-light rounded-full h-2 overflow-hidden">
-                            <div className={`h-full rounded-full transition-[width] duration-700 ease-out ${isFullyComplete ? 'bg-accent' : 'bg-primary'}`} style={{ width: `${percent}%` }} />
+                        <div className="w-full rounded-full h-2 overflow-hidden" style={{ backgroundColor: "var(--color-progress-track)" }}>
+                            <div className={`h-full rounded-full transition-[width] duration-700 ease-out ${isFullyComplete ? 'bg-mineral-amethyst' : 'bg-primary'}`} style={{ width: `${percent}%`, opacity: 0.9 }} />
                         </div>
                     </div>
 
                     {/* Category sections inside the same container */}
-                    <div className="p-3 sm:p-4 bg-bg-light/30">
+                    <div className="p-3 sm:p-4 bg-bg-elevated/30">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             {groups.map((group, groupIdx) => {
                                 const groupStyle = getCategoryStyle(group.key);
-                                const bannerStart = withHexAlpha(groupStyle.accent, '2B');
-                                const bannerEnd = withHexAlpha(groupStyle.accent, '14');
                                 return (
                                     <div
                                         key={group.key}
-                                        className="checklist-group bg-bg-secondary/90 rounded-xl border border-border/30 overflow-hidden shadow-sm"
+                                        className="checklist-group bg-bg-surface rounded-xl border border-border-subtle overflow-hidden shadow-sm"
                                         style={{ animationDelay: `${groupIdx * 100}ms` }}
                                     >
                                         <div
-                                            className="w-full px-3 py-2.5 border-b border-border/15 flex items-center justify-between"
+                                            className="w-full px-3 py-2.5 border-b border-border/15 flex items-center justify-between bg-bg-elevated"
                                             style={{
                                                 borderLeft: `4px solid ${groupStyle.accent}`,
-                                                background: `linear-gradient(90deg, ${bannerStart} 0%, ${bannerEnd} 100%)`,
                                             }}
                                         >
                                             <div className="flex items-center gap-2">
@@ -574,7 +599,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                                                 >
                                                     {group.label}
                                                 </Link>
-                                                <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-bg-secondary/95 border border-border/50" style={{ color: groupStyle.text }}>
+                                                <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-bg-surface border border-border-subtle" style={{ color: groupStyle.text }}>
                                                     {group.isGameGroup ? `${group.items.length}` : `${group.doneInGroup}/${group.items.length}`}
                                                 </span>
                                             </div>
@@ -600,7 +625,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                 <span className="w-1 h-6 rounded-full bg-primary"></span>
                 {title}
             </h2>
-            <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-secondary/20 rounded-2xl p-5 border border-primary/20 shadow-sm">
+            <div className="bg-bg-surface rounded-2xl p-5 border border-border-subtle shadow-sm">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                     {assignments.map((assignment, index) => {
                     const submission = assignment.submissions[0];
@@ -613,7 +638,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                     return (
                         <div
                             key={assignment.id}
-                            className="relative bg-bg-secondary/90 rounded-xl border border-border/20 hover:border-border/40 shadow-sm hover:shadow-md transition-[border-color,box-shadow] duration-200 overflow-hidden group"
+                            className="relative bg-bg-surface rounded-xl border border-border-subtle hover:border-border/60 shadow-sm hover:shadow-md transition-[border-color,box-shadow] duration-200 overflow-hidden group"
                             style={{
                                 animationDelay: `${index * 80}ms`
                             }}
@@ -628,6 +653,9 @@ export const TodaysAssignments: React.FC<Props> = ({
                                 {/* Content */}
                                 <div className="flex-1 min-w-0">
                                     <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-md border border-border-subtle bg-bg-elevated/70" aria-hidden>
+                                            {getSubjectCueIcon(assignment)}
+                                        </span>
                                         {/* Category badge */}
                                         <span
                                             className="inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide"
@@ -640,10 +668,10 @@ export const TodaysAssignments: React.FC<Props> = ({
                                         </span>
 
                                         {isNew && (
-                                            <span className={`${featuredNewBadgeClassName} px-2 py-0.5 text-[10px] font-black uppercase tracking-wide`}>
-                                                <Sparkles className="h-2.5 w-2.5 text-primary animate-pulse" aria-hidden />
+                                            <span className={`${featuredNewBadgeClassName} px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide`}>
+                                                <Sparkles className="h-2.5 w-2.5 text-primary" aria-hidden />
                                                 New!
-                                                <Sparkles className="h-2.5 w-2.5 text-primary animate-pulse [animation-delay:180ms]" aria-hidden />
+                                                <Sparkles className="h-2.5 w-2.5 text-primary" aria-hidden />
                                             </span>
                                         )}
 
@@ -666,7 +694,7 @@ export const TodaysAssignments: React.FC<Props> = ({
 
                                         {/* % done chip */}
                                         {assignment.progress != null && assignment.progress > 0 && !isCompleted && (
-                                            <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border border-border-subtle bg-mineral-mint/20 text-mineral-mint">
                                                 {Math.round(assignment.progress)}% done
                                             </span>
                                         )}
@@ -688,7 +716,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                                 {/* CTA Button */}
                                 <Link
                                     href={`/activity/${assignment.activityId}?assignment=${assignment.id}`}
-                                    className="inline-flex items-center justify-center px-4 py-2 text-sm font-bold transition-[box-shadow,transform,filter] hover:shadow-md active:scale-95 rounded-lg bg-primary text-white hover:brightness-110 whitespace-nowrap sm:shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                                    className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold transition-[box-shadow,transform,filter] hover:shadow-md active:scale-95 rounded-lg bg-primary text-bg-base hover:brightness-105 whitespace-nowrap sm:shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                                 >
                                     {isCompleted ? 'Review' : ctaLabel}
                                 </Link>

@@ -17,11 +17,6 @@ export default async function EditActivityPage({ params }: Props) {
         redirect("/login");
     }
 
-    const userRole = session.user?.role;
-    if (userRole !== "teacher") {
-        redirect("/dashboard");
-    }
-
     const activity = await prisma.activity.findFirst({
         where: {
             id,
@@ -49,7 +44,6 @@ export default async function EditActivityPage({ params }: Props) {
         </div>
     );
 }
-
 
 
 

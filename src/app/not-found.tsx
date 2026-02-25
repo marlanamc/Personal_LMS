@@ -26,7 +26,7 @@ export default function NotFound() {
                 </div>
 
                 <p className="mt-6 text-sm text-text-muted">
-                    If you believe this is an error, please contact your teacher.
+                    If you believe this is an error, please check your account settings.
                 </p>
             </div>
         </div>

@@ -18,19 +18,22 @@ export default async function GradebookPage({
         redirect("/login");
     }
 
-    const userRole = session.user?.role || "student";
     const userId = session.user?.id;
-
-    if (userRole !== "teacher") {
+    if (!userId) {
         redirect("/dashboard");
     }
 
     const params = await searchParams;
     const selectedClassId = params.classId || null;
 
-    // Get teacher's classes and students
+    // Get classes you can access and their members.
     const classes = await prisma.class.findMany({
-        where: { teacherId: userId },
+        where: {
+            OR: [
+                { teacherId: userId },
+                { enrollments: { some: { studentId: userId } } },
+            ],
+        },
         include: {
             enrollments: {
                 include: {

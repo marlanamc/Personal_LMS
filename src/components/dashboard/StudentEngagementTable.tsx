@@ -130,13 +130,13 @@ export default function StudentEngagementTable({ students }: StudentEngagementTa
             <div className="p-4 border-b border-border bg-bg-light">
                 <input
                     type="text"
-                    placeholder="Search students by name or username…"
+                    placeholder="Search members by name or username…"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full px-4 py-2 min-h-[44px] border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <div className="text-xs text-text-muted mt-2">
-                    Showing {filteredAndSortedStudents.length} of {students.length} students
+                    Showing {filteredAndSortedStudents.length} of {students.length} members
                 </div>
             </div>
 
@@ -144,7 +144,7 @@ export default function StudentEngagementTable({ students }: StudentEngagementTa
             <div className="md:hidden divide-y divide-border">
                 {filteredAndSortedStudents.length === 0 ? (
                     <div className="px-4 py-8 text-center text-text-muted">
-                        {searchQuery ? 'No students found matching your search' : 'No students yet'}
+                        {searchQuery ? 'No members found matching your search' : 'No members yet'}
                     </div>
                 ) : (
                     filteredAndSortedStudents.map((student) => {
@@ -229,7 +229,7 @@ export default function StudentEngagementTable({ students }: StudentEngagementTa
                     <thead className="bg-bg-light border-b border-border">
                         <tr>
                             <th className="px-4 py-3 text-left text-sm font-semibold text-text">
-                                <SortButton field="name" label="Student" activeField={sortField} direction={sortDirection} onSort={handleSort} />
+                                <SortButton field="name" label="Member" activeField={sortField} direction={sortDirection} onSort={handleSort} />
                             </th>
                             <th className="px-4 py-3 text-center text-sm font-semibold text-text">
                                 <SortButton field="streak" label="Streak 🔥" activeField={sortField} direction={sortDirection} onSort={handleSort} />
@@ -252,7 +252,7 @@ export default function StudentEngagementTable({ students }: StudentEngagementTa
                         {filteredAndSortedStudents.length === 0 ? (
                             <tr>
                                 <td colSpan={6} className="px-4 py-8 text-center text-text-muted">
-                                    {searchQuery ? 'No students found matching your search' : 'No students yet'}
+                                    {searchQuery ? 'No members found matching your search' : 'No members yet'}
                                 </td>
                             </tr>
                         ) : (

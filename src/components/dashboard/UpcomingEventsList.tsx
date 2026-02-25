@@ -42,10 +42,10 @@ export default function UpcomingEventsList({ events, allowDelete = true, showSyn
             <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">Upcoming dates</p>
                 {showSyncedLabel && (
-                    <span className="text-[10px] text-text-muted/70">Synced to students</span>
+                    <span className="text-[10px] text-text-muted/70">Shared</span>
                 )}
             </div>
-            {error && <p className="text-xs text-red-600 mb-2">{error}</p>}
+            {error && <p className="text-xs text-error mb-2">{error}</p>}
             {events.length === 0 ? (
                 <p className="text-sm text-text-muted italic bg-bg-light/60 border border-border/30 rounded-lg px-3 py-2">No dates yet.</p>
             ) : (
@@ -61,15 +61,16 @@ export default function UpcomingEventsList({ events, allowDelete = true, showSyn
                         const canDelete = allowDelete && Boolean(ev.id);
 
                         return (
-                            <div key={`${ev.title}-${idx}`} className="flex items-center text-sm border border-border/40 rounded-lg px-3 py-2 bg-bg-secondary/60 gap-3">
+                            <div key={`${ev.title}-${idx}`} className="flex items-center text-sm border border-border-subtle rounded-lg px-3 py-2 bg-bg-surface gap-3 shadow-sm">
                                 <div className="flex items-center gap-2 min-w-0">
                                     <span
-                                        className={`w-2 h-2 rounded-full ${ev.type === "quiz"
-                                                ? "bg-[#2d7a46]"  // green for quiz/test
+                                        className={`w-2 h-2 rounded-full ${
+                                            ev.type === "quiz"
+                                                ? "bg-mineral-mint"
                                                 : ev.type === "holiday"
-                                                    ? "bg-[#1d6deb]"  // blue for holiday
-                                                    : "bg-accent"  // yellow/gold for due dates
-                                            }`}
+                                                    ? "bg-mineral-teal"
+                                                    : "bg-primary"
+                                        }`}
                                     />
                                     <span className="font-medium text-text truncate">{ev.title}</span>
                                 </div>
@@ -80,7 +81,7 @@ export default function UpcomingEventsList({ events, allowDelete = true, showSyn
                                             type="button"
                                             onClick={() => handleDelete(ev.id)}
                                             disabled={isDeleting === ev.id}
-                                            className="text-[11px] text-red-600 hover:text-red-700 border border-red-100 px-2 py-1 rounded-md bg-red-50 disabled:opacity-50"
+                                            className="text-[11px] text-error hover:brightness-90 border border-border-subtle px-2 py-1 rounded-md bg-sakura-soft disabled:opacity-50"
                                         >
                                             {isDeleting === ev.id ? "Deleting…" : "Delete"}
                                         </button>

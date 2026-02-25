@@ -8,81 +8,45 @@ import { getNotebooksForSubject, getAllNotebookActivityIds, type TopicNotebook }
 import { NotebookCard } from './NotebookCard';
 import { NotebookDetailView } from './NotebookDetailView';
 
-// Custom SVG Icons for each subject - "Neon Study Lounge" aesthetic
+// Custom SVG Icons for each subject
 const SpanishIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
-        {/* Globe with speech bubble - language learning */}
-        <circle cx="22" cy="24" r="14" stroke="url(#spanishGrad)" strokeWidth="2.5" fill="none" />
-        <ellipse cx="22" cy="24" rx="6" ry="14" stroke="url(#spanishGrad)" strokeWidth="1.5" fill="none" />
-        <path d="M8 24h28" stroke="url(#spanishGrad)" strokeWidth="1.5" />
-        <path d="M10 17h24M10 31h24" stroke="url(#spanishGrad)" strokeWidth="1" opacity="0.6" />
-        {/* Speech bubble accent */}
+        <circle cx="22" cy="24" r="14" stroke="currentColor" strokeWidth="2.5" fill="none" />
+        <ellipse cx="22" cy="24" rx="6" ry="14" stroke="currentColor" strokeWidth="1.5" fill="none" />
+        <path d="M8 24h28" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M10 17h24M10 31h24" stroke="currentColor" strokeWidth="1" opacity="0.6" />
         <path d="M34 12c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6c-1.1 0-2.1-.3-3-.8l-3 2.8v-4.5c0-.5 0-1 0-1.5 0-1.1.4-2 1-2"
-              fill="url(#spanishGrad)" opacity="0.3" />
-        <circle cx="40" cy="12" r="4" stroke="url(#spanishGrad)" strokeWidth="2" fill="none" />
-        <defs>
-            <linearGradient id="spanishGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#ff6b6b" />
-                <stop offset="100%" stopColor="#ffa07a" />
-            </linearGradient>
-        </defs>
+              fill="currentColor" opacity="0.2" />
+        <circle cx="40" cy="12" r="4" stroke="currentColor" strokeWidth="2" fill="none" />
     </svg>
 );
 
 const CodingIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
-        {/* Terminal brackets with cursor */}
-        <path d="M14 14L6 24l8 10" stroke="url(#codingGrad)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        <path d="M34 14l8 10-8 10" stroke="url(#codingGrad)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        {/* Cursor line */}
-        <path d="M24 16v16" stroke="url(#codingGrad)" strokeWidth="2.5" strokeLinecap="round" opacity="0.8">
-            <animate attributeName="opacity" values="1;0.3;1" dur="1.2s" repeatCount="indefinite" />
-        </path>
-        {/* Dot accents */}
-        <circle cx="18" cy="24" r="2" fill="url(#codingGrad)" opacity="0.5" />
-        <circle cx="30" cy="24" r="2" fill="url(#codingGrad)" opacity="0.5" />
-        <defs>
-            <linearGradient id="codingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#00d9ff" />
-                <stop offset="100%" stopColor="#00ff88" />
-            </linearGradient>
-        </defs>
+        <path d="M14 14L6 24l8 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        <path d="M34 14l8 10-8 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        <path d="M24 16v16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+        <circle cx="18" cy="24" r="2" fill="currentColor" opacity="0.5" />
+        <circle cx="30" cy="24" r="2" fill="currentColor" opacity="0.5" />
     </svg>
 );
 
 const HealthIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
-        {/* Heart with ECG line */}
         <path d="M24 42s-16-10.5-16-21c0-6.1 4.9-11 11-11 3.7 0 5 1.9 5 1.9s1.3-1.9 5-1.9c6.1 0 11 4.9 11 11 0 10.5-16 21-16 21z"
-              stroke="url(#healthGrad)" strokeWidth="2.5" fill="none" />
-        {/* ECG line through heart */}
+              stroke="currentColor" strokeWidth="2.5" fill="none" />
         <path d="M8 24h8l2-6 4 12 4-12 2 6h12"
-              stroke="url(#healthGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.7" />
-        <defs>
-            <linearGradient id="healthGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#7bed9f" />
-                <stop offset="100%" stopColor="#26de81" />
-            </linearGradient>
-        </defs>
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.7" />
     </svg>
 );
 
 const JobSearchIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
-        {/* Briefcase with ascending arrow */}
-        <rect x="6" y="16" width="28" height="22" rx="3" stroke="url(#jobGrad)" strokeWidth="2.5" fill="none" />
-        <path d="M14 16v-4a4 4 0 014-4h4a4 4 0 014 4v4" stroke="url(#jobGrad)" strokeWidth="2.5" fill="none" />
-        <path d="M6 24h28" stroke="url(#jobGrad)" strokeWidth="1.5" opacity="0.5" />
-        {/* Ascending rocket/arrow */}
-        <path d="M38 32V12m0 0l-5 5m5-5l5 5" stroke="url(#jobGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        {/* Star accent */}
-        <circle cx="42" cy="8" r="2" fill="url(#jobGrad)" opacity="0.6" />
-        <defs>
-            <linearGradient id="jobGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#a55eea" />
-                <stop offset="100%" stopColor="#8854d0" />
-            </linearGradient>
-        </defs>
+        <rect x="6" y="16" width="28" height="22" rx="3" stroke="currentColor" strokeWidth="2.5" fill="none" />
+        <path d="M14 16v-4a4 4 0 014-4h4a4 4 0 014 4v4" stroke="currentColor" strokeWidth="2.5" fill="none" />
+        <path d="M6 24h28" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
+        <path d="M38 32V12m0 0l-5 5m5-5l5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="42" cy="8" r="2" fill="currentColor" opacity="0.6" />
     </svg>
 );
 
@@ -151,6 +115,77 @@ const formatTypeLabel = (type: string): string => {
     }
 };
 
+interface TopicCue {
+    label: string;
+    color: string;
+}
+
+const TOPIC_CUES: Array<{ label: string; color: string; matches: RegExp[] }> = [
+    { label: 'Present', color: 'var(--color-accent-mint)', matches: [/\bpresent\b/i, /\bpresente\b/i] },
+    { label: 'Future', color: 'var(--color-accent-teal)', matches: [/\bfuture\b/i, /\bfuturo\b/i] },
+    { label: 'Preterite', color: 'var(--color-accent-amethyst)', matches: [/\bpreterite\b/i, /\bpretérito\b/i] },
+    { label: 'Imperfect', color: 'color-mix(in srgb, var(--color-accent-amethyst) 72%, var(--color-accent-sakura))', matches: [/\bimperfect\b/i, /\bimperfecto\b/i] },
+    { label: 'Conditional', color: 'var(--color-accent-amethyst)', matches: [/\bconditional\b/i, /\bcondicional\b/i] },
+    { label: 'Subjunctive', color: 'var(--color-accent-teal)', matches: [/\bsubjunctive\b/i, /\bsubjuntivo\b/i] },
+    { label: 'Ser/Estar', color: 'var(--color-accent-mint)', matches: [/\bser\b/i, /\bestar\b/i] },
+    { label: 'Vocabulary', color: 'var(--color-accent-teal)', matches: [/\bvocab/i, /\bword/i, /\bphrase/i] },
+    { label: 'Numbers', color: 'var(--color-accent-teal)', matches: [/\bnumber/i, /\bcount/i] },
+    { label: 'Practice', color: 'var(--color-accent-amethyst)', matches: [/\bpractice\b/i, /\bdrill\b/i, /\bgame\b/i] },
+];
+
+const resolveTopicCue = (activity: Activity, fallbackColor: string): TopicCue => {
+    const scan = `${activity.title} ${activity.description ?? ''} ${activity.category ?? ''} ${activity.ui ?? ''}`.toLowerCase();
+    const matched = TOPIC_CUES.find((cue) => cue.matches.some((pattern) => pattern.test(scan)));
+    if (matched) return { label: matched.label, color: matched.color };
+
+    if (activity.ui === 'flashcard' || activity.ui === 'matching' || activity.type === 'vocabulary') {
+        return { label: 'Vocabulary', color: 'var(--color-accent-teal)' };
+    }
+    if (activity.type === 'game') return { label: 'Practice', color: 'var(--color-accent-amethyst)' };
+    if (activity.type === 'guide') return { label: 'Guide', color: 'var(--color-accent-mint)' };
+    return { label: 'Activity', color: fallbackColor };
+};
+
+const ActivityTypeGlyph = ({ type, ui, color }: { type: string; ui: string | null; color: string }) => {
+    if (type === 'guide') {
+        return (
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" style={{ color }}>
+                <path d="M4 19V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14l-8-4-8 4z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                <path d="M8 7h8M8 11h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+        );
+    }
+
+    if (ui === 'flashcard') {
+        return (
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" style={{ color }}>
+                <rect x="3" y="5" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                <rect x="7" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+            </svg>
+        );
+    }
+
+    if (ui === 'matching') {
+        return (
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" style={{ color }}>
+                <circle cx="6" cy="6" r="3" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="18" cy="18" r="3" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="6" cy="18" r="3" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="18" cy="6" r="3" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M9 6h6M9 18h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="2 2" />
+            </svg>
+        );
+    }
+
+    return (
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" style={{ color }}>
+            <rect x="2" y="6" width="20" height="12" rx="3" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="7" cy="12" r="2" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M15 10v4M13 12h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+    );
+};
+
 interface CategoryCardDef {
     key: string;
     kind: 'academic' | 'utility';
@@ -161,24 +196,86 @@ interface CategoryCardDef {
     iconColor: string;     // icon stroke color
 }
 
-// Section definitions for quick-jump nav
-const ACADEMIC_SECTIONS: Record<string, { label: string; emoji: string }[]> = {
-    spanish: [
-        { label: 'Grammar', emoji: '📖' },
-        { label: 'Vocabulary', emoji: '🔤' },
-        { label: 'Verbs', emoji: '🔄' },
-        { label: 'Numbers', emoji: '🔢' },
-    ],
-    coding: [
-        { label: 'Foundations', emoji: '🧱' },
-        { label: 'Functions & Control Flow', emoji: '⚙️' },
-        { label: 'Intermediate', emoji: '📐' },
-        { label: 'Advanced', emoji: '🚀' },
-        { label: 'Practice', emoji: '🎮' },
-    ],
+interface NotebookFilterDef {
+    key: string;
+    label: string;
+    icon: React.ReactNode;
+}
+
+const NotebookFilterIcon = ({ kind }: { kind: 'all' | 'guides' | 'matching' | 'flashcards' | 'fill-blank' | 'games' | 'vocabulary' }) => {
+    if (kind === 'all') {
+        return (
+            <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" aria-hidden>
+                <rect x="3" y="3" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+                <rect x="11" y="3" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+                <rect x="3" y="11" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+                <rect x="11" y="11" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+            </svg>
+        );
+    }
+    if (kind === 'guides') {
+        return (
+            <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" aria-hidden>
+                <path d="M4 4.5a1.5 1.5 0 0 1 1.5-1.5h9A1.5 1.5 0 0 1 16 4.5v11A1.5 1.5 0 0 1 14.5 17h-9A1.5 1.5 0 0 1 4 15.5z" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M7 7h6M7 10h6M7 13h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+        );
+    }
+    if (kind === 'matching') {
+        return (
+            <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" aria-hidden>
+                <circle cx="5" cy="5" r="2.2" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="15" cy="15" r="2.2" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="5" cy="15" r="2.2" stroke="currentColor" strokeWidth="1.5" />
+                <circle cx="15" cy="5" r="2.2" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M7.4 5h5.2M7.4 15h5.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+        );
+    }
+    if (kind === 'flashcards') {
+        return (
+            <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" aria-hidden>
+                <rect x="3" y="6" width="10" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+                <rect x="7" y="4" width="10" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+        );
+    }
+    if (kind === 'fill-blank') {
+        return (
+            <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" aria-hidden>
+                <path d="M3.5 5h13M3.5 10h5M11.5 10h5M3.5 15h13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M9 10h2" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+            </svg>
+        );
+    }
+    if (kind === 'games') {
+        return (
+            <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" aria-hidden>
+                <rect x="2.5" y="5.5" width="15" height="9" rx="3" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M7 10H5m1-1v2M12.5 9.2v1.6M14 10h1.6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+        );
+    }
+
+    return (
+        <svg viewBox="0 0 20 20" className="w-4 h-4" fill="none" aria-hidden>
+            <path d="M4 4h8a2 2 0 0 1 2 2v10H6a2 2 0 0 1-2-2z" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M8 8h4M8 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+    );
 };
 
-const normalizeSectionKey = (value: string): string =>
+const NOTEBOOK_FILTERS: NotebookFilterDef[] = [
+    { key: 'all', label: 'All', icon: <NotebookFilterIcon kind="all" /> },
+    { key: 'guides', label: 'Guides', icon: <NotebookFilterIcon kind="guides" /> },
+    { key: 'matching', label: 'Matching', icon: <NotebookFilterIcon kind="matching" /> },
+    { key: 'flashcards', label: 'Flash Cards', icon: <NotebookFilterIcon kind="flashcards" /> },
+    { key: 'fill-blank', label: 'Fill in Blank', icon: <NotebookFilterIcon kind="fill-blank" /> },
+    { key: 'games', label: 'Games', icon: <NotebookFilterIcon kind="games" /> },
+    { key: 'vocabulary', label: 'Vocabulary', icon: <NotebookFilterIcon kind="vocabulary" /> },
+];
+
+const normalizeFilterKey = (value: string): string =>
     value
         .trim()
         .toLowerCase()
@@ -186,70 +283,78 @@ const normalizeSectionKey = (value: string): string =>
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
 
-const resolveSectionLabelForSubject = (
-    subjectKey: string | null,
-    rawSection: string | null | undefined
-): string | null => {
-    if (!subjectKey || !rawSection) return null;
-    const sections = ACADEMIC_SECTIONS[subjectKey] ?? [];
-    const normalizedRawSection = normalizeSectionKey(rawSection);
-    const matchedSection = sections.find(
-        (section) => normalizeSectionKey(section.label) === normalizedRawSection
-    );
-    return matchedSection?.label ?? null;
+const resolveNotebookFilter = (rawFilter: string | null | undefined): string | null => {
+    if (!rawFilter) return null;
+
+    const aliases: Record<string, string> = {
+        grammar: 'guides',
+        verbs: 'guides',
+        numbers: 'games',
+        practice: 'games',
+        vocab: 'vocabulary',
+        vocabulary: 'vocabulary',
+        flashcard: 'flashcards',
+        flashcards: 'flashcards',
+        matching: 'matching',
+        'fill-in-the-blank': 'fill-blank',
+        'fill-in-blank': 'fill-blank',
+        'fill-blank': 'fill-blank',
+        guides: 'guides',
+        games: 'games',
+        all: 'all',
+    };
+
+    const normalized = normalizeFilterKey(rawFilter);
+    const mapped = aliases[normalized] ?? normalized;
+    return NOTEBOOK_FILTERS.some((filter) => filter.key === mapped) ? mapped : null;
 };
 
-const notebookMatchesSection = (
-    notebook: TopicNotebook,
-    subjectKey: string | null,
-    sectionLabel: string
-): boolean => {
-    const normalizedSection = normalizeSectionKey(sectionLabel);
-    const notebookText = [
-        notebook.id,
-        notebook.name,
-        notebook.tagline,
-        ...notebook.content.guides,
-        ...notebook.content.games,
-        ...notebook.content.vocabulary,
-    ]
-        .join(' ')
-        .toLowerCase();
+const activityMatchesNotebookFilter = (activity: Activity, filterKey: string): boolean => {
+    if (filterKey === 'all') return true;
 
-    if (subjectKey === 'spanish') {
-        switch (normalizedSection) {
-            case 'grammar':
-                return notebook.content.guides.length > 0;
-            case 'vocabulary':
-                return notebook.content.vocabulary.length > 0;
-            case 'verbs':
-                return /(verb|conjug|ser-estar|tense|preterite|present)/.test(notebookText);
-            case 'numbers':
-                return /(number|count)/.test(notebookText);
-            default:
-                return true;
-        }
+    const ui = (activity.ui || '').toLowerCase();
+    const title = `${activity.title} ${activity.description ?? ''}`.toLowerCase();
+    const id = activity.id.toLowerCase();
+
+    if (filterKey === 'guides') return activity.type === 'guide' || id.includes('guide');
+    if (filterKey === 'matching') return ui === 'matching' || id.includes('matching') || title.includes('matching');
+    if (filterKey === 'flashcards') {
+        return ui === 'flashcard' || id.includes('flashcard') || title.includes('flashcard');
     }
-
-    if (subjectKey === 'coding') {
-        switch (normalizedSection) {
-            case 'foundations':
-                return notebook.id.includes('foundations');
-            case 'functions-and-control-flow':
-            case 'functions-control-flow':
-                return notebook.id.includes('functions') || notebookText.includes('control flow');
-            case 'intermediate':
-                return notebook.id.includes('intermediate');
-            case 'advanced':
-                return notebook.id.includes('advanced');
-            case 'practice':
-                return notebook.content.games.length > 0;
-            default:
-                return true;
-        }
+    if (filterKey === 'fill-blank') {
+        return ui.includes('fill') || id.includes('fill-blank') || title.includes('fill in the blank') || title.includes('fill in blank');
     }
-
+    if (filterKey === 'games') return activity.type === 'game' || id.includes('game');
+    if (filterKey === 'vocabulary') {
+        return activity.type === 'vocabulary' || id.startsWith('vocab-') || id.includes('-vocab-') || title.includes('vocab');
+    }
     return true;
+};
+
+const notebookIdMatchesFilterFallback = (activityId: string, filterKey: string): boolean => {
+    if (filterKey === 'all') return true;
+    const id = activityId.toLowerCase();
+    if (filterKey === 'guides') return id.includes('guide');
+    if (filterKey === 'matching') return id.includes('matching');
+    if (filterKey === 'flashcards') return id.includes('flashcard');
+    if (filterKey === 'fill-blank') return id.includes('fill-blank') || id.includes('fill-in-blank');
+    if (filterKey === 'games') return id.includes('game') || id.includes('matching') || id.includes('flashcard');
+    if (filterKey === 'vocabulary') return id.startsWith('vocab-') || id.includes('-vocab-');
+    return false;
+};
+
+const notebookMatchesFilter = (
+    notebook: TopicNotebook,
+    filterKey: string,
+    activityMap: Map<string, Activity>
+): boolean => {
+    if (filterKey === 'all') return true;
+    const ids = getAllNotebookActivityIds(notebook);
+    return ids.some((id) => {
+        const activity = activityMap.get(id);
+        if (activity) return activityMatchesNotebookFilter(activity, filterKey);
+        return notebookIdMatchesFilterFallback(id, filterKey);
+    });
 };
 
 const CATEGORY_CARDS: CategoryCardDef[] = [
@@ -259,8 +364,8 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
         name: 'Spanish',
         subtitle: 'Grammar · Vocabulary · Verbs',
         icon: <SpanishIcon className="w-full h-full" />,
-        bgColor: 'rgba(255, 107, 107, 0.08)',
-        iconColor: '#ff6b6b',
+        bgColor: 'var(--color-accent-sakura-soft)',
+        iconColor: 'var(--color-accent-sakura)',
     },
     {
         key: 'coding',
@@ -268,8 +373,8 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
         name: 'Coding',
         subtitle: 'Basics · Functions · Practice',
         icon: <CodingIcon className="w-full h-full" />,
-        bgColor: 'rgba(0, 217, 255, 0.08)',
-        iconColor: '#00d9ff',
+        bgColor: 'color-mix(in srgb, var(--color-accent-teal) 16%, transparent)',
+        iconColor: 'var(--color-accent-teal)',
     },
     {
         key: 'health',
@@ -277,8 +382,8 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
         name: 'Health',
         subtitle: 'Appointments · Notes · Links',
         icon: <HealthIcon className="w-full h-full" />,
-        bgColor: 'rgba(123, 237, 159, 0.08)',
-        iconColor: '#7bed9f',
+        bgColor: 'color-mix(in srgb, var(--color-accent-mint) 16%, transparent)',
+        iconColor: 'var(--color-accent-mint)',
     },
     {
         key: 'job-search',
@@ -286,8 +391,8 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
         name: 'Job Search',
         subtitle: 'Tasks · Resume · Links',
         icon: <JobSearchIcon className="w-full h-full" />,
-        bgColor: 'rgba(165, 94, 234, 0.08)',
-        iconColor: '#a55eea',
+        bgColor: 'color-mix(in srgb, var(--color-accent-amethyst) 16%, transparent)',
+        iconColor: 'var(--color-accent-amethyst)',
     },
 ];
 
@@ -326,6 +431,7 @@ export function ActivityCategoryPicker({
         () => completedActivityIds instanceof Set ? completedActivityIds : new Set(completedActivityIds ?? []),
         [completedActivityIds]
     );
+    const activityMap = useMemo(() => new Map(activities.map((activity) => [activity.id, activity])), [activities]);
     // Determine which categories actually have activities so we can hide empty ones
     const categoryHasActivities = useMemo(() => {
         const map: Record<string, boolean> = {};
@@ -372,35 +478,29 @@ export function ActivityCategoryPicker({
         requestedSubject && CATEGORY_CARDS.some((c) => c.key === requestedSubject) && categoryHasActivities[requestedSubject]
             ? requestedSubject
             : null;
-    const validInitialSection = resolveSectionLabelForSubject(validInitialSubject, initialType);
+    const validInitialFilter = resolveNotebookFilter(initialType) ?? 'all';
 
     const [selectedSubject, setSelectedSubject] = useState<string | null>(() => validInitialSubject);
     const [selectedHub, setSelectedHub] = useState<GuideHub | null>(null);
     const [selectedNotebook, setSelectedNotebook] = useState<TopicNotebook | null>(null);
-    const [selectedSection, setSelectedSection] = useState<string | null>(() => validInitialSection);
+    const [selectedNotebookFilter, setSelectedNotebookFilter] = useState<string>(validInitialFilter);
+    const [showNotebookFilters, setShowNotebookFilters] = useState<boolean>(validInitialFilter !== 'all');
     const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
     useEffect(() => {
         if (!selectedSubject) {
-            setSelectedSection(null);
+            setSelectedNotebookFilter('all');
+            setShowNotebookFilters(false);
             return;
         }
-
-        const sectionLabels = new Set((ACADEMIC_SECTIONS[selectedSubject] ?? []).map((section) => section.label));
-        const querySection = resolveSectionLabelForSubject(selectedSubject, initialType);
-
-        setSelectedSection((current) => {
-            if (current && sectionLabels.has(current)) return current;
-            return querySection;
+        const queryFilter = resolveNotebookFilter(initialType);
+        setSelectedNotebookFilter((current) => {
+            if (NOTEBOOK_FILTERS.some((filter) => filter.key === current)) return current;
+            return queryFilter ?? 'all';
         });
+        setShowNotebookFilters((queryFilter ?? 'all') !== 'all');
     }, [initialType, selectedSubject]);
 
-    const scrollToSection = useCallback((sectionLabel: string) => {
-        const el = sectionRefs.current[sectionLabel];
-        if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    }, []);
     const subjectContext = useMemo(() => {
         if (!selectedSubject) return null;
 
@@ -682,7 +782,7 @@ export function ActivityCategoryPicker({
     // ── Notebook detail view (for Spanish and Coding) ─────────────────────────
     if ((selectedSubject === 'spanish' || selectedSubject === 'coding') && selectedNotebook) {
         const selectedCardDef3 = CATEGORY_CARDS.find((c) => c.key === selectedSubject);
-        const accentColor = selectedCardDef3?.iconColor ?? '#9d174d';
+        const accentColor = selectedCardDef3?.iconColor ?? 'var(--color-accent-sakura)';
         // Resolve all activities for this notebook
         const notebookActivityIds = getAllNotebookActivityIds(selectedNotebook);
         const notebookActivities = activities.filter((a) => notebookActivityIds.includes(a.id));
@@ -743,6 +843,9 @@ export function ActivityCategoryPicker({
                     completedIds={completedIdSet}
                     progressMap={progressMap ?? {}}
                     accentColor={accentColor}
+                    canFeatureActivities={canFeatureActivities}
+                    defaultClassId={defaultClassId}
+                    initialFeatureAssignments={initialFeatureAssignments}
                 />
             </div>
         );
@@ -751,19 +854,50 @@ export function ActivityCategoryPicker({
     // ── Activity list view for selected category ─────────────────
     const selectedCardDef = CATEGORY_CARDS.find((c) => c.key === selectedSubject);
     const isUtilitySubject = selectedCardDef?.kind === 'utility';
-    const sections = selectedSubject ? ACADEMIC_SECTIONS[selectedSubject] : null;
 
     // Get notebooks for academic subjects
     const subjectNotebooks = (selectedSubject === 'spanish' || selectedSubject === 'coding')
         ? getNotebooksForSubject(selectedSubject as 'spanish' | 'coding')
         : [];
     const hasNotebookView = !isUtilitySubject && subjectNotebooks.length > 0;
+    const activeNotebookFilter = NOTEBOOK_FILTERS.some((filter) => filter.key === selectedNotebookFilter)
+        ? selectedNotebookFilter
+        : 'all';
+    const activeNotebookFilterDef = NOTEBOOK_FILTERS.find((filter) => filter.key === activeNotebookFilter);
     const filteredSubjectNotebooks =
-        hasNotebookView && selectedSection
+        hasNotebookView && activeNotebookFilter !== 'all'
             ? subjectNotebooks.filter((notebook) =>
-                notebookMatchesSection(notebook, selectedSubject, selectedSection)
+                notebookMatchesFilter(notebook, activeNotebookFilter, activityMap)
             )
             : subjectNotebooks;
+    const filteredActivityRows = (() => {
+        if (!hasNotebookView || activeNotebookFilter === 'all') return [];
+
+        const seen = new Set<string>();
+        const rows: Array<{
+            activity: Activity;
+            notebook: TopicNotebook;
+            progress: number;
+            isCompleted: boolean;
+        }> = [];
+
+        for (const notebook of subjectNotebooks) {
+            const notebookIds = getAllNotebookActivityIds(notebook);
+            for (const id of notebookIds) {
+                if (seen.has(id)) continue;
+                const activity = activityMap.get(id);
+                if (!activity) continue;
+                if (!activityMatchesNotebookFilter(activity, activeNotebookFilter)) continue;
+
+                seen.add(id);
+                const progress = progressMap?.[id]?.progress ?? 0;
+                const isCompleted = completedIdSet.has(id) || progress >= 100;
+                rows.push({ activity, notebook, progress, isCompleted });
+            }
+        }
+
+        return rows;
+    })();
 
     return (
         <div className="animate-fade-in">
@@ -811,42 +945,71 @@ export function ActivityCategoryPicker({
                 </h2>
             </div>
 
-            {/* Quick-Jump Section Nav — Academic subjects only */}
-            {!isUtilitySubject && sections && sections.length > 0 && (
+            {/* Content-type filters for academic notebooks */}
+            {!isUtilitySubject && hasNotebookView && (
                 <div className="mb-6">
-                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide snap-x">
-                        {sections.map((section) => (
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                            type="button"
+                            onClick={() => setShowNotebookFilters((current) => !current)}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/60 bg-bg-surface text-text text-xs font-semibold hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 active:scale-95 cursor-pointer"
+                            aria-expanded={showNotebookFilters}
+                        >
+                            <span>Filters</span>
+                            {activeNotebookFilter !== 'all' && (
+                                <span
+                                    className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                                    style={{
+                                        backgroundColor: `color-mix(in srgb, ${selectedCardDef?.iconColor ?? 'var(--color-primary)'} 14%, transparent)`,
+                                        color: selectedCardDef?.iconColor ?? 'var(--color-primary)',
+                                    }}
+                                >
+                                    {activeNotebookFilterDef?.label ?? 'Active'}
+                                </span>
+                            )}
+                            <svg className={`w-3.5 h-3.5 transition-transform duration-200 ${showNotebookFilters ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="none" aria-hidden>
+                                <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        </button>
+                        {activeNotebookFilter !== 'all' && (
                             <button
-                                key={section.label}
-                                onClick={() => {
-                                    if (hasNotebookView) {
-                                        setSelectedSection((current) => (current === section.label ? null : section.label));
-                                        return;
-                                    }
-                                    setSelectedSection(section.label);
-                                    scrollToSection(section.label);
-                                }}
-                                className={`flex-shrink-0 snap-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 active:scale-95 cursor-pointer ${
-                                    selectedSection === section.label
-                                        ? 'text-white border-transparent shadow-sm'
-                                        : 'border border-border/60 bg-bg-secondary/80 text-text hover:text-primary hover:border-primary/40 hover:bg-primary/5'
-                                }`}
-                                style={
-                                    selectedSection === section.label
-                                        ? { backgroundColor: selectedCardDef?.iconColor ?? 'var(--color-primary)' }
-                                        : undefined
-                                }
+                                type="button"
+                                onClick={() => setSelectedNotebookFilter('all')}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold border border-border/60 bg-bg-surface text-text-muted hover:text-primary hover:border-primary/40 transition-colors cursor-pointer"
                             >
-                                <span>{section.emoji}</span>
-                                <span>{section.label}</span>
+                                Clear
                             </button>
-                        ))}
+                        )}
                     </div>
+                    {showNotebookFilters && (
+                        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-hide snap-x">
+                            {NOTEBOOK_FILTERS.map((filter) => (
+                                <button
+                                    key={filter.key}
+                                    onClick={() => setSelectedNotebookFilter(filter.key)}
+                                    className={`flex-shrink-0 snap-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 active:scale-95 cursor-pointer ${
+                                        activeNotebookFilter === filter.key
+                                            ? 'text-bg-base border-transparent shadow-sm'
+                                            : 'border border-border/60 bg-bg-surface text-text hover:text-primary hover:border-primary/40 hover:bg-primary/5'
+                                    }`}
+                                    style={
+                                        activeNotebookFilter === filter.key
+                                            ? { backgroundColor: selectedCardDef?.iconColor ?? 'var(--color-primary)' }
+                                            : undefined
+                                    }
+                                    aria-pressed={activeNotebookFilter === filter.key}
+                                >
+                                    <span>{filter.icon}</span>
+                                    <span>{filter.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
 
             {!isUtilitySubject && subjectContext && (
-                <section className="mb-6 rounded-2xl border border-border/50 bg-bg-secondary/90 p-4 sm:p-5 shadow-sm">
+                <section className="mb-6 rounded-2xl border border-border-subtle bg-bg-surface p-4 sm:p-5 shadow-sm">
                     <div className="flex flex-wrap items-center gap-3">
                         {/* Compact stats row */}
                         <div className="flex items-center gap-2 flex-wrap flex-1">
@@ -868,7 +1031,7 @@ export function ActivityCategoryPicker({
                         {subjectContext.focusItem && (
                             <Link
                                 href={`/activity/${subjectContext.focusItem.id}`}
-                                className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold hover:brightness-110 transition-[filter] flex items-center gap-1.5"
+                                className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-bg-base text-xs font-semibold hover:brightness-105 transition-[filter] flex items-center gap-1.5"
                             >
                                 <span>{subjectContext.focusLabel}</span>
                                 <span className="opacity-80">→</span>
@@ -886,22 +1049,113 @@ export function ActivityCategoryPicker({
             ) : subjectNotebooks.length > 0 ? (
                 /* Academic subjects use Topic Notebooks */
                 <div className="space-y-3">
-                    {filteredSubjectNotebooks.map((notebook) => (
+                    {activeNotebookFilter === 'all' && filteredSubjectNotebooks.map((notebook) => (
                         <NotebookCard
                             key={notebook.id}
                             notebook={notebook}
-                            accentColor={selectedCardDef?.iconColor ?? '#9d174d'}
+                            accentColor={selectedCardDef?.iconColor ?? 'var(--color-accent-sakura)'}
                             completedIds={completedIdSet}
                             progressMap={progressMap ?? {}}
                             onClick={() => setSelectedNotebook(notebook)}
                         />
                     ))}
-                    {selectedSection && filteredSubjectNotebooks.length === 0 && (
+                    {activeNotebookFilter !== 'all' && filteredActivityRows.map(({ activity, notebook, progress, isCompleted }) => {
+                        const baseAccent = selectedCardDef?.iconColor ?? 'var(--color-accent-sakura)';
+                        const topicCue = resolveTopicCue(activity, baseAccent);
+                        const visualAccent = isCompleted ? 'var(--color-accent-mint)' : topicCue.color;
+                        const isGuide = activity.type === 'guide';
+
+                        return (
+                            <Link
+                                key={activity.id}
+                                href={`/activity/${activity.id}`}
+                                className="activity-item group block relative rounded-xl overflow-hidden border border-border-subtle bg-bg-surface shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                            >
+                                <div
+                                    className="absolute left-0 top-0 bottom-0 w-[3px]"
+                                    style={{ backgroundColor: visualAccent }}
+                                />
+                                <div className="relative flex items-center gap-3 p-4 pl-5">
+                                    <div
+                                        className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 group-hover:scale-105"
+                                        style={{
+                                            backgroundColor: `color-mix(in srgb, ${visualAccent} 14%, transparent)`,
+                                            border: `1px solid color-mix(in srgb, ${visualAccent} 26%, transparent)`,
+                                        }}
+                                    >
+                                        <ActivityTypeGlyph type={activity.type} ui={activity.ui} color={visualAccent} />
+                                    </div>
+
+                                    <div className="flex-1 min-w-0">
+                                        <p className={`font-semibold text-sm leading-snug tracking-tight transition-colors duration-300 ${isCompleted ? 'text-text-muted' : 'text-text'}`}>
+                                            {activity.title}
+                                        </p>
+                                        <p className="text-xs text-text-muted mt-0.5 line-clamp-1 opacity-80">
+                                            {activity.description || notebook.name}
+                                        </p>
+
+                                        <div className="mt-2 flex items-center gap-2">
+                                            <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--color-progress-track)' }}>
+                                                <div
+                                                    className="h-full rounded-full transition-all duration-700"
+                                                    style={{
+                                                        width: `${Math.min(progress, 100)}%`,
+                                                        backgroundColor: visualAccent,
+                                                        opacity: 0.9,
+                                                    }}
+                                                />
+                                            </div>
+                                            <span className="text-[10px] font-bold" style={{ color: visualAccent }}>
+                                                {isCompleted ? 'Done' : `${Math.round(progress)}%`}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-shrink-0 flex items-center gap-2">
+                                        {isGuide && (
+                                            <span
+                                                className="hidden sm:inline-flex text-[10px] font-bold px-2 py-1 rounded-full"
+                                                style={{
+                                                    backgroundColor: `color-mix(in srgb, ${visualAccent} 12%, transparent)`,
+                                                    color: visualAccent,
+                                                    border: `1px solid color-mix(in srgb, ${visualAccent} 24%, transparent)`,
+                                                }}
+                                            >
+                                                Guide
+                                            </span>
+                                        )}
+                                        <span
+                                            className="hidden sm:inline-flex text-[10px] font-semibold px-2 py-1 rounded-full border"
+                                            style={{
+                                                backgroundColor: `color-mix(in srgb, ${topicCue.color} 14%, transparent)`,
+                                                borderColor: `color-mix(in srgb, ${topicCue.color} 28%, transparent)`,
+                                                color: topicCue.color,
+                                            }}
+                                        >
+                                            {topicCue.label}
+                                        </span>
+                                        <span className="text-[10px] font-semibold px-2 py-1 rounded-full border border-border-subtle bg-bg-elevated text-text-muted whitespace-nowrap">
+                                            {formatTypeLabel(activity.type)}
+                                        </span>
+                                        <svg
+                                            className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-300"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </Link>
+                        );
+                    })}
+                    {activeNotebookFilter !== 'all' && filteredActivityRows.length === 0 && (
                         <div className="rounded-xl border border-border/60 bg-bg-secondary/80 p-4 text-sm text-text-muted">
-                            No notebooks matched <span className="font-semibold text-text">{selectedSection}</span>.
+                            No activities matched <span className="font-semibold text-text">{NOTEBOOK_FILTERS.find((filter) => filter.key === activeNotebookFilter)?.label ?? activeNotebookFilter}</span>.
                             <button
                                 type="button"
-                                onClick={() => setSelectedSection(null)}
+                                onClick={() => setSelectedNotebookFilter('all')}
                                 className="ml-2 font-semibold text-primary hover:underline"
                             >
                                 Show all

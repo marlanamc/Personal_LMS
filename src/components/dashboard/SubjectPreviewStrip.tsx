@@ -7,56 +7,32 @@ import Link from 'next/link';
 const SubjectIcons: Record<string, React.ReactNode> = {
     spanish: (
         <svg viewBox="0 0 48 48" fill="none" className="w-7 h-7" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="22" cy="24" r="14" stroke="url(#spanishGradSmall)" strokeWidth="2.5" fill="none" />
-            <ellipse cx="22" cy="24" rx="6" ry="14" stroke="url(#spanishGradSmall)" strokeWidth="1.5" fill="none" />
-            <path d="M8 24h28" stroke="url(#spanishGradSmall)" strokeWidth="1.5" />
-            <circle cx="40" cy="12" r="4" stroke="url(#spanishGradSmall)" strokeWidth="2" fill="none" />
-            <defs>
-                <linearGradient id="spanishGradSmall" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#ff6b6b" />
-                    <stop offset="100%" stopColor="#ffa07a" />
-                </linearGradient>
-            </defs>
+            <circle cx="22" cy="24" r="14" stroke="currentColor" strokeWidth="2.5" fill="none" />
+            <ellipse cx="22" cy="24" rx="6" ry="14" stroke="currentColor" strokeWidth="1.5" fill="none" />
+            <path d="M8 24h28" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="40" cy="12" r="4" stroke="currentColor" strokeWidth="2" fill="none" />
         </svg>
     ),
     coding: (
         <svg viewBox="0 0 48 48" fill="none" className="w-7 h-7" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 14L6 24l8 10" stroke="url(#codingGradSmall)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-            <path d="M34 14l8 10-8 10" stroke="url(#codingGradSmall)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-            <path d="M24 16v16" stroke="url(#codingGradSmall)" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
-            <defs>
-                <linearGradient id="codingGradSmall" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#00d9ff" />
-                    <stop offset="100%" stopColor="#00ff88" />
-                </linearGradient>
-            </defs>
+            <path d="M14 14L6 24l8 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M34 14l8 10-8 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            <path d="M24 16v16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
         </svg>
     ),
     health: (
         <svg viewBox="0 0 48 48" fill="none" className="w-7 h-7" xmlns="http://www.w3.org/2000/svg">
             <path d="M24 42s-16-10.5-16-21c0-6.1 4.9-11 11-11 3.7 0 5 1.9 5 1.9s1.3-1.9 5-1.9c6.1 0 11 4.9 11 11 0 10.5-16 21-16 21z"
-                  stroke="url(#healthGradSmall)" strokeWidth="2.5" fill="none" />
+                  stroke="currentColor" strokeWidth="2.5" fill="none" />
             <path d="M8 24h8l2-6 4 12 4-12 2 6h12"
-                  stroke="url(#healthGradSmall)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.7" />
-            <defs>
-                <linearGradient id="healthGradSmall" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#7bed9f" />
-                    <stop offset="100%" stopColor="#26de81" />
-                </linearGradient>
-            </defs>
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.7" />
         </svg>
     ),
     'job-search': (
         <svg viewBox="0 0 48 48" fill="none" className="w-7 h-7" xmlns="http://www.w3.org/2000/svg">
-            <rect x="6" y="16" width="28" height="22" rx="3" stroke="url(#jobGradSmall)" strokeWidth="2.5" fill="none" />
-            <path d="M14 16v-4a4 4 0 014-4h4a4 4 0 014 4v4" stroke="url(#jobGradSmall)" strokeWidth="2.5" fill="none" />
-            <path d="M38 32V12m0 0l-5 5m5-5l5 5" stroke="url(#jobGradSmall)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            <defs>
-                <linearGradient id="jobGradSmall" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#a55eea" />
-                    <stop offset="100%" stopColor="#8854d0" />
-                </linearGradient>
-            </defs>
+            <rect x="6" y="16" width="28" height="22" rx="3" stroke="currentColor" strokeWidth="2.5" fill="none" />
+            <path d="M14 16v-4a4 4 0 014-4h4a4 4 0 014 4v4" stroke="currentColor" strokeWidth="2.5" fill="none" />
+            <path d="M38 32V12m0 0l-5 5m5-5l5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     ),
 };
@@ -77,6 +53,38 @@ interface SubjectStat {
 interface SubjectPreviewStripProps {
     subjects: SubjectStat[];
 }
+
+const normalizeSubjectKey = (value: string): string =>
+    value
+        .trim()
+        .toLowerCase()
+        .replace(/[_\s]+/g, '-');
+
+const getSubjectIcon = (subject: SubjectStat): React.ReactNode => {
+    const key = normalizeSubjectKey(subject.key);
+    const nameKey = normalizeSubjectKey(subject.name);
+    const resolvedKey =
+        SubjectIcons[key]
+            ? key
+            : SubjectIcons[nameKey]
+                ? nameKey
+                : nameKey === 'job-search'
+                    ? 'job-search'
+                    : key === 'job-search'
+                        ? 'job-search'
+                        : '';
+
+    if (resolvedKey && SubjectIcons[resolvedKey]) {
+        return SubjectIcons[resolvedKey];
+    }
+
+    return (
+        <svg viewBox="0 0 48 48" fill="none" className="w-7 h-7" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <rect x="9" y="10" width="30" height="28" rx="6" stroke="currentColor" strokeWidth="2.5" />
+            <path d="M16 18h16M16 24h12M16 30h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+};
 
 export function SubjectPreviewStrip({ subjects }: SubjectPreviewStripProps) {
     if (subjects.length === 0) return null;
@@ -102,7 +110,8 @@ export function SubjectPreviewStrip({ subjects }: SubjectPreviewStripProps) {
                             ? Math.round(((subject.completed ?? 0) / subject.total) * 100)
                             : null;
                     const isHighProgress = pct !== null && pct >= 75;
-                    const href = `/dashboard/subjects?subject=${subject.key}`;
+                    const normalizedKey = normalizeSubjectKey(subject.key);
+                    const href = `/dashboard/subjects?subject=${normalizedKey}`;
 
                     return (
                         <Link
@@ -115,9 +124,7 @@ export function SubjectPreviewStrip({ subjects }: SubjectPreviewStripProps) {
                             {/* Compact portal icon area */}
                             <div className="subject-card-portal !py-5 !min-h-0">
                                 <div className="subject-card-icon !w-12 !h-12 !rounded-xl">
-                                    {SubjectIcons[subject.key] || (
-                                        <span className="text-2xl">{subject.emoji}</span>
-                                    )}
+                                    {getSubjectIcon(subject)}
                                 </div>
                             </div>
 

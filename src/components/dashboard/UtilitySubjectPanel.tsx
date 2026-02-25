@@ -26,24 +26,21 @@ const SUBJECT_CONFIG: Record<UtilitySubjectKey, {
     emoji: string;
     tagline: string;
     color: string;
-    colorEnd: string;
-    bgGradient: string;
+    soft: string;
     badgeLabel: string;
 }> = {
     health: {
         emoji: '🩺',
         tagline: 'Track appointments, notes, and important health links.',
-        color: '#7bed9f',          // Healing green (matching portal theme)
-        colorEnd: '#26de81',
-        bgGradient: 'linear-gradient(135deg, rgba(123, 237, 159, 0.12) 0%, rgba(38, 222, 129, 0.06) 100%)',
+        color: 'var(--color-accent-mint)',
+        soft: 'color-mix(in srgb, var(--color-accent-mint) 16%, transparent)',
         badgeLabel: 'Wellness',
     },
     'job-search': {
         emoji: '💼',
         tagline: 'Stay on top of applications, your resume, and opportunities.',
-        color: '#a55eea',          // Ambitious violet (matching portal theme)
-        colorEnd: '#8854d0',
-        bgGradient: 'linear-gradient(135deg, rgba(165, 94, 234, 0.12) 0%, rgba(136, 84, 208, 0.06) 100%)',
+        color: 'var(--color-accent-amethyst)',
+        soft: 'color-mix(in srgb, var(--color-accent-amethyst) 16%, transparent)',
         badgeLabel: 'Career',
     },
 };
@@ -202,40 +199,14 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                 className="utility-hero rounded-2xl p-6 sm:p-8 relative overflow-hidden group/hero transition-all duration-500"
                 style={{
                     ['--utility-color' as string]: config.color,
-                    ['--utility-color-end' as string]: config.colorEnd,
                 }}
             >
-                {/* Noise texture overlay */}
-                <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E')]" />
-
-                {/* Primary radial glow */}
-                <div
-                    className="absolute -top-20 -right-20 w-72 h-72 rounded-full blur-3xl opacity-25 group-hover/hero:opacity-40 transition-opacity duration-700 pointer-events-none"
-                    style={{
-                        background: `radial-gradient(circle, ${config.color} 0%, transparent 70%)`,
-                    }}
-                />
-
-                {/* Secondary glow for depth */}
-                <div
-                    className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full blur-3xl opacity-15 group-hover/hero:opacity-25 transition-opacity duration-700 pointer-events-none"
-                    style={{
-                        background: `radial-gradient(circle, ${config.colorEnd} 0%, transparent 70%)`,
-                    }}
-                />
-
                 <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
-                    {/* Icon container with portal glow */}
                     <div
-                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-4xl sm:text-5xl flex-shrink-0 transition-all duration-500 group-hover/hero:scale-105 group-hover/hero:-rotate-2"
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-4xl sm:text-5xl flex-shrink-0 transition-all duration-300"
                         style={{
-                            background: `linear-gradient(135deg, ${config.color}20 0%, ${config.colorEnd}15 100%)`,
-                            border: `1.5px solid ${config.color}35`,
-                            boxShadow: `
-                                0 8px 32px ${config.color}20,
-                                0 0 20px ${config.color}15,
-                                inset 0 1px 0 rgba(255,255,255,0.1)
-                            `,
+                            background: config.soft,
+                            border: `1px solid color-mix(in srgb, ${config.color} 28%, transparent)`,
                         }}
                     >
                         {config.emoji}
@@ -247,12 +218,11 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                                 {subjectName}
                             </h2>
                             <span
-                                className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full"
+                                className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full"
                                 style={{
-                                    background: `linear-gradient(135deg, ${config.color}15 0%, ${config.colorEnd}10 100%)`,
+                                    background: config.soft,
                                     color: config.color,
-                                    border: `1px solid ${config.color}25`,
-                                    boxShadow: `0 0 12px ${config.color}15`,
+                                    border: `1px solid color-mix(in srgb, ${config.color} 24%, transparent)`,
                                 }}
                             >
                                 {config.badgeLabel}
@@ -262,7 +232,6 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                     </div>
                 </div>
 
-                {/* Progress bar with neon trail */}
                 {checklist.length > 0 && (
                     <div className="relative z-10 mt-6 space-y-2.5">
                         <div className="flex items-center justify-between">
@@ -271,7 +240,6 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                                     className="inline-block w-2 h-2 rounded-full transition-all duration-300"
                                     style={{
                                         backgroundColor: completedCount === checklist.length ? config.color : 'var(--color-text-muted)',
-                                        boxShadow: completedCount === checklist.length ? `0 0 8px ${config.color}` : 'none',
                                     }}
                                 />
                                 {completedCount} of {checklist.length} tasks done
@@ -283,41 +251,27 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                                 {pct}%
                             </span>
                         </div>
-                        <div className="h-2 bg-white/5 rounded-full overflow-hidden backdrop-blur-sm border border-white/5">
+                        <div className="h-2 rounded-full overflow-hidden border border-border-subtle" style={{ backgroundColor: 'var(--color-progress-track)' }}>
                             <div
-                                className="h-full rounded-full transition-all duration-1000 ease-out relative"
+                                className="h-full rounded-full transition-all duration-1000 ease-out"
                                 style={{
                                     width: `${pct}%`,
-                                    background: `linear-gradient(90deg, ${config.color} 0%, ${config.colorEnd} 100%)`,
-                                    boxShadow: `0 0 16px ${config.color}60, 0 0 6px ${config.color}40`,
+                                    backgroundColor: config.color,
+                                    opacity: 0.9,
                                 }}
-                            >
-                                {/* Glowing dot at end */}
-                                {pct > 0 && (
-                                    <div
-                                        className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white/90"
-                                        style={{ boxShadow: `0 0 10px ${config.color}` }}
-                                    />
-                                )}
-                                {/* Shimmer effect */}
-                                {pct > 0 && pct < 100 && (
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent w-[200%] animate-[shimmerWave_2s_infinite_linear]" />
-                                )}
-                            </div>
+                            />
                         </div>
                     </div>
                 )}
 
-                {/* Quick actions with portal styling */}
                 <div className="relative z-10 flex flex-wrap gap-3 mt-6">
                     <Link
                         href="/dashboard/calendar"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation group"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation group"
                         style={{
-                            background: `linear-gradient(135deg, ${config.color}12 0%, ${config.colorEnd}08 100%)`,
+                            background: config.soft,
                             color: config.color,
-                            border: `1px solid ${config.color}25`,
-                            boxShadow: `0 2px 8px ${config.color}10`,
+                            border: `1px solid color-mix(in srgb, ${config.color} 24%, transparent)`,
                             ['--tw-ring-color' as string]: config.color,
                         }}
                     >
@@ -329,12 +283,11 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                     </Link>
                     <Link
                         href="/dashboard/calendar/new"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation group"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation group"
                         style={{
-                            background: `linear-gradient(135deg, ${config.color}12 0%, ${config.colorEnd}08 100%)`,
+                            background: config.soft,
                             color: config.color,
-                            border: `1px solid ${config.color}25`,
-                            boxShadow: `0 2px 8px ${config.color}10`,
+                            border: `1px solid color-mix(in srgb, ${config.color} 24%, transparent)`,
                             ['--tw-ring-color' as string]: config.color,
                         }}
                     >
@@ -351,13 +304,7 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
 
                 {/* Checklist Card - Portal Style */}
                 <div className="utility-card rounded-2xl p-5 sm:p-6 space-y-4 flex flex-col relative overflow-hidden">
-                    {/* Subtle background glow */}
-                    <div
-                        className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-10 pointer-events-none"
-                        style={{ backgroundColor: config.color }}
-                    />
-
-                    <div className="relative flex items-center justify-between border-b border-white/5 pb-3">
+                    <div className="relative flex items-center justify-between border-b border-border-subtle pb-3">
                         <h3 className="text-base font-bold text-text flex items-center gap-2.5 m-0 tracking-tight">
                             <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none">
                                 <rect x="3" y="2" width="14" height="16" rx="2" stroke={config.color} strokeWidth="1.5" />
@@ -369,10 +316,9 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                             <span
                                 className="text-[10px] font-bold px-2.5 py-1 rounded-full"
                                 style={{
-                                    background: `linear-gradient(135deg, ${config.color}12 0%, ${config.colorEnd}08 100%)`,
+                                    background: config.soft,
                                     color: config.color,
-                                    border: `1px solid ${config.color}20`,
-                                    boxShadow: `0 0 8px ${config.color}10`,
+                                    border: `1px solid color-mix(in srgb, ${config.color} 22%, transparent)`,
                                 }}
                             >
                                 {completedCount}/{checklist.length}
@@ -386,8 +332,8 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                                 key={item.id}
                                 className={`group flex items-center gap-3.5 p-3 rounded-xl transition-all duration-300 cursor-pointer ${
                                     item.done
-                                        ? 'bg-bg-light/20 shadow-inner'
-                                        : 'hover:bg-bg-light/40 shadow-sm border border-transparent hover:border-border/50'
+                                        ? 'bg-bg-elevated/30'
+                                        : 'hover:bg-bg-elevated/30 border border-transparent hover:border-border/50'
                                 }`}
                                 htmlFor={`task-${item.id}`}
                             >
@@ -404,14 +350,13 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                                             animatingIds.has(item.id) ? 'scale-90' : 'scale-100 group-hover:scale-105'
                                         }`}
                                         style={{
-                                            borderColor: item.done ? config.color : 'var(--border)',
-                                            backgroundColor: item.done ? config.color : 'transparent',
-                                            boxShadow: item.done ? `0 0 8px ${config.color}60` : 'none'
+                                            borderColor: item.done ? config.color : 'var(--color-border-subtle)',
+                                            backgroundColor: item.done ? config.color : 'var(--color-bg-surface)',
                                         }}
                                         aria-hidden="true"
                                     >
                                         {item.done && (
-                                            <svg className="w-3.5 h-3.5 text-white animate-[drawCheck_0.3s_ease-out_forwards]" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ strokeDasharray: 24, strokeDashoffset: 0 }}>
+                                            <svg className="w-3.5 h-3.5 text-bg-base animate-[drawCheck_0.3s_ease-out_forwards]" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ strokeDasharray: 24, strokeDashoffset: 0 }}>
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                             </svg>
                                         )}
@@ -468,10 +413,9 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                             type="button"
                             onClick={addChecklistItem}
                             disabled={!newTask.trim()}
-                            className="px-4 py-2.5 rounded-xl text-white text-sm font-bold shadow-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5 group"
+                            className="px-4 py-2.5 rounded-xl text-bg-base text-sm font-semibold transition-all duration-300 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5 group"
                             style={{ 
                                 backgroundColor: config.color,
-                                boxShadow: newTask.trim() ? `0 2px 10px ${config.color}40` : 'none',
                                 ['--tw-ring-color' as string]: config.color
                             }}
                         >
@@ -482,13 +426,7 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
 
                 {/* Links Card - Portal Style */}
                 <div className="utility-card rounded-2xl p-5 sm:p-6 space-y-4 flex flex-col relative overflow-hidden">
-                    {/* Subtle background glow */}
-                    <div
-                        className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full blur-3xl opacity-10 pointer-events-none"
-                        style={{ backgroundColor: config.colorEnd }}
-                    />
-
-                    <div className="relative border-b border-white/5 pb-3">
+                    <div className="relative border-b border-border-subtle pb-3">
                         <h3 className="text-base font-bold text-text flex items-center gap-2.5 m-0 tracking-tight">
                             <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none">
                                 <path d="M8 12l4-4M8 6h.01M12 14h.01" stroke={config.color} strokeWidth="1.5" strokeLinecap="round" />
@@ -508,10 +446,10 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                                                 href={item.href}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation"
+                                                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation"
                                                 style={{
-                                                    backgroundColor: `${config.color}10`,
-                                                    border: `1.5px solid ${config.color}30`,
+                                                    backgroundColor: config.soft,
+                                                    border: `1.5px solid color-mix(in srgb, ${config.color} 30%, transparent)`,
                                                     color: config.color,
                                                     ['--tw-ring-color' as string]: config.color
                                                 }}
@@ -533,7 +471,7 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                                         <button
                                             type="button"
                                             onClick={() => removeLinkItem(item.id)}
-                                            className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-bg-primary text-text-muted border border-border hover:bg-error hover:text-white hover:border-error text-[10px] font-bold opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all flex items-center justify-center cursor-pointer shadow-sm z-10 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none touch-manipulation scale-75 group-hover:scale-100"
+                                            className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-bg-primary text-text-muted border border-border hover:bg-error hover:text-bg-base hover:border-error text-[10px] font-bold opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-all flex items-center justify-center cursor-pointer shadow-sm z-10 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none touch-manipulation scale-75 group-hover:scale-100"
                                             aria-label={`Remove link ${item.label}`}
                                             title="Remove link"
                                             style={{ ['--tw-ring-color' as string]: 'var(--color-error)' }}
@@ -603,10 +541,9 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                                     type="button"
                                     onClick={addLinkItem}
                                     disabled={!linkLabel.trim() || !linkUrl.trim()}
-                                    className="flex-1 py-2.5 rounded-xl text-white text-sm font-bold shadow-sm transition-all duration-300 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                    className="flex-1 py-2.5 rounded-xl text-bg-base text-sm font-semibold transition-all duration-300 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                     style={{ 
                                         backgroundColor: config.color,
-                                        boxShadow: (linkLabel.trim() && linkUrl.trim()) ? `0 2px 10px ${config.color}40` : 'none',
                                         ['--tw-ring-color' as string]: config.color
                                     }}
                                 >

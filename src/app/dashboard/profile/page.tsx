@@ -621,24 +621,17 @@ export default async function ProfilePage() {
     else if (totalCompleted > 0) welcomeMessage = "Great progress so far!";
 
     return (
-            <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pb-24">
-                {/* Decorative background elements */}
-                <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                    <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-3xl opacity-50" />
-                    <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-secondary/5 blur-3xl opacity-50" />
-                </div>
-
+            <div className="min-h-screen bg-bg-base pb-24">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
                     {/* Header */}
                     <div className="mb-10 animate-fade-in">
                         <div className="flex flex-col glass-card p-6 sm:p-8 rounded-2xl relative overflow-hidden">
                             {/* Accent decoration */}
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-secondary" />
+                            <div className="absolute top-0 left-0 w-full h-[3px] bg-primary" />
 
                             {/* Top section: Avatar + Name + Stats */}
                             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                                 <div className="flex-shrink-0 relative group">
-                                    <div className="absolute -inset-1 bg-gradient-to-br from-primary via-accent to-secondary rounded-full opacity-70 blur group-hover:opacity-100 transition-opacity duration-500"></div>
                                     <div className="relative bg-bg-secondary/90 p-1 rounded-full">
                                         <ClickableAvatarDisplay size="lg" />
                                     </div>
@@ -646,7 +639,7 @@ export default async function ProfilePage() {
 
                                 <div className="text-center sm:text-left flex-1 min-w-0">
                                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold font-display text-text mb-1 tracking-tight">
-                                        Hi, {user.name?.split(' ')[0] || 'Student'}! 👋
+                                        Hi, {user.name?.split(' ')[0] || 'there'}! 👋
                                     </h1>
                                     <p className="text-base sm:text-lg text-text-muted font-medium">
                                         {welcomeMessage}
@@ -709,9 +702,9 @@ export default async function ProfilePage() {
                     </div>
 
                     {/* Mini Quiz Certificates - Medal Collection */}
-                    <div id="mini-quiz-certificates" className="mb-10 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 via-bg-secondary to-secondary/20 p-6 shadow-sm animate-fade-in-up delay-300">
+                    <div id="mini-quiz-certificates" className="mb-10 rounded-2xl border border-border-subtle bg-bg-surface p-6 shadow-sm animate-fade-in-up delay-300">
                         <div className="mb-6 flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-secondary/20 text-primary shadow-inner">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border-subtle bg-sakura-soft text-primary">
                                 <Award className="h-6 w-6" />
                             </div>
                             <div>
@@ -902,7 +895,7 @@ export default async function ProfilePage() {
                         {user.achievements.length > 0 && (
                             <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-8 shadow-sm animate-fade-in-up delay-500">
                                 <div className="flex items-center gap-4 mb-6">
-                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center shadow-lg shadow-accent/20 text-white">
+                                    <div className="w-12 h-12 rounded-2xl bg-mineral-amethyst/20 border border-mineral-amethyst/30 flex items-center justify-center text-mineral-amethyst">
                                         <Award className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -915,7 +908,7 @@ export default async function ProfilePage() {
                                     {user.achievements.map((userAchievement) => (
                                         <div
                                             key={userAchievement.id}
-                                            className="flex items-center gap-4 p-4 bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/20 rounded-xl hover:shadow-md transition-shadow"
+                                            className="flex items-center gap-4 p-4 bg-bg-elevated border border-border-subtle rounded-xl hover:shadow-md transition-shadow"
                                         >
                                             <div className="w-12 h-12 rounded-full bg-bg-secondary/90 shadow-sm flex items-center justify-center text-2xl shrink-0">
                                                 {userAchievement.achievement.icon}

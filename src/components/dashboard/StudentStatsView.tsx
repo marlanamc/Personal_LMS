@@ -39,9 +39,9 @@ function getUnitLabel(activity: ActivityStat) {
 }
 
 function statusClasses(progress: number) {
-    if (progress >= 100) return "bg-success/20 text-success border border-success/40 shadow-[0_0_12px_rgba(149,225,211,0.3)]";
-    if (progress > 0) return "bg-warning/20 text-warning border border-warning/40 shadow-[0_0_12px_rgba(255,180,162,0.3)]";
-    return "bg-bg-tertiary text-text-tertiary border border-border/40";
+    if (progress >= 100) return "bg-mineral-mint/15 border-mineral-mint/35 text-mineral-mint";
+    if (progress > 0) return "bg-mineral-teal/15 border-mineral-teal/35 text-mineral-teal";
+    return "bg-bg-elevated text-text-muted border border-border-subtle";
 }
 
 function statusLabel(progress: number) {
@@ -120,7 +120,7 @@ export function StudentStatsView({ activities }: Props) {
                 </div>
                 <div className={`flex items-center gap-2 px-3 py-1 rounded-full border text-sm font-semibold ${statusClasses(progress)}`}>
                     {progress >= 100 ? (
-                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-600 text-white text-[10px]">
+                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] border border-mineral-mint/40 bg-mineral-mint/20 text-mineral-mint">
                             ✓
                         </span>
                     ) : null}
@@ -145,7 +145,7 @@ export function StudentStatsView({ activities }: Props) {
                         onClick={() => setTab(key)}
                         className={`px-4 py-2 rounded-full border text-sm font-semibold transition ${
                             tab === key
-                                ? "bg-primary text-white border-primary shadow-sm"
+                                ? "bg-primary text-bg-base border-primary shadow-sm"
                                 : "bg-bg-secondary/90 text-text border-border/60 hover:border-primary/60"
                         }`}
                     >
@@ -200,7 +200,5 @@ export function StudentStatsView({ activities }: Props) {
         </div>
     );
 }
-
-
 
 

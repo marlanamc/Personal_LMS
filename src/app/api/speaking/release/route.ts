@@ -10,11 +10,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = session.user?.role;
-    if (userRole !== 'teacher') {
-        return NextResponse.json({ error: "Only teachers can release speaking activities" }, { status: 403 });
-    }
-
     const { activityId, released } = await request.json();
 
     if (!activityId || typeof activityId !== "string") {
@@ -47,6 +42,6 @@ export async function POST(request: Request) {
     return NextResponse.json({
         ok: true,
         released,
-        message: released ? "Speaking activity released to students" : "Speaking activity hidden from students"
+        message: released ? "Speaking activity released" : "Speaking activity hidden"
     });
 }

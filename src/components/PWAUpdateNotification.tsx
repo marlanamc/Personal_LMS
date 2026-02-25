@@ -46,7 +46,7 @@ export default function PWAUpdateNotification() {
     setDismissCount(newCount);
     setShowUpdate(false);
 
-    // Progressively shorter delays - students WILL update eventually
+    // Progressively shorter delays so updates are eventually applied.
     // 1st dismiss: 2 minutes, 2nd: 1 minute, 3rd+: 30 seconds
     const delay = newCount === 1 ? 2 * 60 * 1000 : newCount === 2 ? 60 * 1000 : 30 * 1000;
     
@@ -69,7 +69,7 @@ export default function PWAUpdateNotification() {
             New Content Available! 🎉
           </h2>
           <p className="text-text-muted mb-6">
-            Your teacher added new activities. Update now to see them!
+            New activities were added. Update now to see them.
           </p>
           <button
             onClick={handleUpdate}

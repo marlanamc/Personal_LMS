@@ -21,7 +21,9 @@ export default async function ClassDetailPage({ params }: Props) {
     }
 
     const userId = session.user?.id;
-    const userRole = session.user?.role;
+    if (!userId) {
+        redirect("/dashboard");
+    }
 
     const classItem = await prisma.class.findUnique({
         where: { id },
@@ -46,13 +48,13 @@ export default async function ClassDetailPage({ params }: Props) {
         notFound();
     }
 
-    // Check if user has access (teacher or enrolled student)
-    const isTeacher = userRole === "teacher" && classItem.teacherId === userId;
+    // Personal LMS access: class owner or enrolled member.
+    const canManage = classItem.teacherId === userId;
     const isEnrolled = classItem.enrollments.some(
         (enrollment: { studentId: string }) => enrollment.studentId === userId
     );
 
-    if (!isTeacher && !isEnrolled) {
+    if (!canManage && !isEnrolled) {
         redirect("/dashboard");
     }
 
@@ -72,7 +74,7 @@ export default async function ClassDetailPage({ params }: Props) {
             </header>
             <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div className="px-4 py-6 sm:px-0 space-y-8">
-                    {isTeacher && (
+                    {canManage && (
                         <ClassAnnouncementEditor
                             classId={classItem.id}
                             initialAnnouncement={classItem.announcement}
@@ -83,7 +85,7 @@ export default async function ClassDetailPage({ params }: Props) {
                     <section className="bg-bg-secondary/90 shadow rounded-lg p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-semibold">Class Information</h2>
-                            {isTeacher && (
+                            {canManage && (
                                 <span className="px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
                                     Class Code: {classItem.code}
                                 </span>
@@ -91,7 +93,7 @@ export default async function ClassDetailPage({ params }: Props) {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <p className="text-sm text-text-muted">Students</p>
+                                <p className="text-sm text-text-muted">Members</p>
                                 <p className="text-2xl font-bold">{classItem.enrollments.length}</p>
                             </div>
                             <div>
@@ -99,21 +101,21 @@ export default async function ClassDetailPage({ params }: Props) {
                                 <p className="text-2xl font-bold">{classItem.assignments.length}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-text-muted">Teacher</p>
+                                <p className="text-sm text-text-muted">Owner</p>
                                 <p className="text-lg font-medium">{classItem.teacher.name}</p>
                             </div>
                         </div>
                     </section>
 
-                    {/* Students Section (Teacher Only) */}
-                    {isTeacher && (
+                    {/* Members Section */}
+                    {canManage && (
                         <section>
-                            <h2 className="text-xl font-semibold mb-4">Students</h2>
+                            <h2 className="text-xl font-semibold mb-4">Members</h2>
                             {classItem.enrollments.length === 0 ? (
                                 <div className="bg-bg-secondary/90 shadow rounded-lg p-6 text-center">
-                                    <p className="text-text-muted">No students enrolled yet.</p>
+                                    <p className="text-text-muted">No members yet.</p>
                                     <p className="text-sm text-text-light mt-2">
-                                        Share the class code <strong>{classItem.code}</strong> with students to join.
+                                        Share the class code <strong>{classItem.code}</strong> to connect this class.
                                     </p>
                                 </div>
                             ) : (
@@ -172,10 +174,10 @@ export default async function ClassDetailPage({ params }: Props) {
                     <section>
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-semibold">Assignments</h2>
-                            {isTeacher && (
+                            {canManage && (
                                 <Link
                                     href={`/dashboard/classes/${id}/assignments/new`}
-                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-bg-base bg-primary hover:brightness-110"
                                 >
                                     + New Assignment
                                 </Link>
@@ -226,11 +228,11 @@ export default async function ClassDetailPage({ params }: Props) {
                                             <div className="flex gap-2 flex-wrap">
                                                 <Link
                                                     href={`/activity/${assignment.activity.id}?assignment=${assignment.id}`}
-                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-bg-base bg-primary hover:brightness-110"
                                                 >
-                                                    {isTeacher ? "View" : "Start"}
+                                                    {canManage ? "View" : "Start"}
                                                 </Link>
-                                                {isTeacher && (
+                                                {canManage && (
                                                     <>
                                                         <FeatureToggleButton
                                                             assignmentId={assignment.id}

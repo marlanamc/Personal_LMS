@@ -58,7 +58,7 @@ export function EditableMarkdown({ initialContent, onSave, className = "" }: Edi
                 </div>
                 <button
                     onClick={() => setIsEditing(true)}
-                    className="mt-4 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition text-sm font-medium"
+                    className="mt-4 px-4 py-2 rounded-lg bg-primary text-bg-base hover:bg-primary/90 transition text-sm font-medium"
                 >
                     ✏️ Edit Schedule
                 </button>
@@ -93,7 +93,7 @@ export function EditableMarkdown({ initialContent, onSave, className = "" }: Edi
                 <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 rounded-lg bg-primary text-bg-base hover:bg-primary/90 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isSaving ? "Saving…" : "💾 Save Changes"}
                 </button>
@@ -108,4 +108,3 @@ export function EditableMarkdown({ initialContent, onSave, className = "" }: Edi
         </div>
     );
 }
-

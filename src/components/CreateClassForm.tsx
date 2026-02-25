@@ -105,7 +105,7 @@ export default function CreateClassForm() {
                             </button>
                         </div>
                         <p className="mt-2 text-sm text-text-muted">
-                            Students will use this code to join your class
+                            Use this code to open or share this class
                         </p>
                     </div>
 
@@ -136,7 +136,6 @@ export default function CreateClassForm() {
         </div>
     );
 }
-
 
 
 

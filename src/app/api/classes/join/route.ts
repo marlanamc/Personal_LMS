@@ -10,11 +10,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userRole = session.user?.role;
-        if (userRole === "teacher") {
-            return NextResponse.json({ error: "Teachers cannot join classes" }, { status: 403 });
-        }
-
         const body = await request.json();
         const { code } = body;
 
@@ -30,6 +25,9 @@ export async function POST(request: NextRequest) {
         }
 
         const userId = session.user?.id;
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         // Find class by code
         const classItem = await prisma.class.findUnique({
@@ -38,6 +36,13 @@ export async function POST(request: NextRequest) {
 
         if (!classItem) {
             return NextResponse.json({ error: "Class not found. Please check the code." }, { status: 404 });
+        }
+
+        if (classItem.teacherId === userId) {
+            return NextResponse.json(
+                { classId: classItem.id, message: "You already own this class" },
+                { status: 200 }
+            );
         }
 
         // Check if already enrolled
@@ -52,7 +57,7 @@ export async function POST(request: NextRequest) {
 
         if (existingEnrollment) {
             return NextResponse.json(
-                { error: "You are already enrolled in this class", classId: classItem.id },
+                { error: "You are already connected to this class", classId: classItem.id },
                 { status: 400 }
             );
         }
@@ -75,7 +80,6 @@ export async function POST(request: NextRequest) {
         );
     }
 }
-
 
 
 

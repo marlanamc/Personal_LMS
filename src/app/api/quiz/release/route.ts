@@ -10,11 +10,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = session.user?.role;
-    if (userRole !== 'teacher') {
-        return NextResponse.json({ error: "Only teachers can release quizzes" }, { status: 403 });
-    }
-
     const { activityId, released } = await request.json();
     const userId = session.user.id;
 
@@ -45,10 +40,10 @@ export async function POST(request: Request) {
         }
     });
 
-    // If this is a verb quiz being released, create calendar events for all classes
+    // If this is a verb quiz being released, create calendar events for owned classes.
     if (released && content.type === 'verb-quiz' && content.due_date) {
         try {
-            // Get all classes for this teacher
+            // Get all classes owned by this user.
             const classes = await prisma.class.findMany({
                 where: { teacherId: userId },
                 select: { id: true }
@@ -97,6 +92,6 @@ export async function POST(request: Request) {
     return NextResponse.json({
         ok: true,
         released,
-        message: released ? "Quiz released to students" : "Quiz hidden from students"
+        message: released ? "Quiz released" : "Quiz hidden"
     });
 }

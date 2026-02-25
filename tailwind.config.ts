@@ -28,7 +28,7 @@ const config: Config = {
         mono: ["var(--font-mono)", "monospace"],
       },
       colors: {
-        // Midnight Learning Sanctuary - Pastel Dark Theme
+        // Glacial Sakura color tokens
         primary: {
           DEFAULT: "var(--color-primary)",
           dark: "var(--color-primary-dark)",
@@ -44,16 +44,30 @@ const config: Config = {
           dark: "var(--color-accent-dark)",
           light: "var(--color-accent-light)",
         },
+        sakura: {
+          DEFAULT: "var(--color-accent-sakura)",
+          soft: "var(--color-accent-sakura-soft)",
+        },
+        mineral: {
+          teal: "var(--color-accent-teal)",
+          mint: "var(--color-accent-mint)",
+          amethyst: "var(--color-accent-amethyst)",
+        },
         success: "var(--color-success)",
         warning: "var(--color-warning)",
         error: "var(--color-error)",
         info: "var(--color-info)",
         text: {
           DEFAULT: "var(--color-text)",
+          primary: "var(--color-text-primary)",
+          secondary: "var(--color-text-secondary)",
           muted: "var(--color-text-muted)",
           light: "var(--color-text-light)",
         },
         bg: {
+          base: "var(--color-bg-base)",
+          surface: "var(--color-bg-surface)",
+          progress: "var(--color-progress-track)",
           primary: "var(--color-bg-primary)",
           secondary: "var(--color-bg-secondary)",
           tertiary: "var(--color-bg-tertiary)",
@@ -62,6 +76,7 @@ const config: Config = {
         border: {
           DEFAULT: "var(--color-border)",
           dark: "var(--color-border-dark)",
+          subtle: "var(--color-border-subtle)",
         },
       },
       borderRadius: {
@@ -73,19 +88,11 @@ const config: Config = {
         full: "9999px",
       },
       boxShadow: {
-        sm: "0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)",
-        DEFAULT: "0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)",
-        md: "0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3)",
-        lg: "0 10px 30px rgba(0, 0, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.3)",
-        xl: "0 20px 50px rgba(0, 0, 0, 0.5), 0 8px 20px rgba(0, 0, 0, 0.4)",
-        "glow-pink": "0 0 20px var(--glow-pink)",
-        "glow-mint": "0 0 20px var(--glow-mint)",
-        "glow-lavender": "0 0 20px var(--glow-lavender)",
-        "glow-aqua": "0 0 20px var(--glow-aqua)",
-        "glow-peach": "0 0 20px var(--glow-peach)",
-        "glow-pink-lg": "0 0 30px var(--glow-pink)",
-        "glow-mint-lg": "0 0 30px var(--glow-mint)",
-        "glow-lavender-lg": "0 0 30px var(--glow-lavender)",
+        sm: "var(--shadow-sm)",
+        DEFAULT: "var(--shadow-md)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
       },
       transitionDuration: {
         fast: "150ms",

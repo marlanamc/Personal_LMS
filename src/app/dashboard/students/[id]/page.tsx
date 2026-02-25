@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import StudentDetailView from "@/components/dashboard/StudentDetailView";
 import { BackButton } from "@/components/ui/BackButton";
+import { getAccessibleClassIds } from "@/lib/class-access";
 
 export default async function StudentDetailPage({
     params
@@ -17,21 +18,18 @@ export default async function StudentDetailPage({
     }
 
     const { id: studentId } = await params;
-    const userRole = session.user.role;
-    const teacherId = session.user.id;
-
-    // Only teachers can access this page
-    if (userRole !== "teacher") {
+    const userId = session.user.id;
+    if (!userId) {
         redirect("/dashboard");
     }
 
-    // Verify teacher has access to this student
+    const accessibleClassIds = await getAccessibleClassIds(userId);
+
+    // Verify current user has access to this member.
     const enrollment = await prisma.classEnrollment.findFirst({
         where: {
             studentId: studentId,
-            class: {
-                teacherId
-            }
+            classId: { in: accessibleClassIds },
         },
         include: {
             class: {
@@ -55,10 +53,10 @@ export default async function StudentDetailPage({
             <div className="container mx-auto px-4 py-8">
                 <div className="bg-red-50 border border-red-200 rounded-lg p-6">
                     <h2 className="text-xl font-semibold text-red-900 mb-2">
-                        Student Not Found
+                        Member Not Found
                     </h2>
                     <p className="text-red-700 mb-4">
-                        This student is not enrolled in any of your classes.
+                        This member is not in any class you can access.
                     </p>
                     <BackButton href="/dashboard/stats">Back to Stats</BackButton>
                 </div>

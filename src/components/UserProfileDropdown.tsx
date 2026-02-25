@@ -23,7 +23,7 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
     const {
         preference,
         resolvedTheme,
-        isBostonDaylightNow,
+        isSystemDarkNow,
         setThemePreference,
         toggleTheme,
     } = useTheme();
@@ -80,7 +80,7 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
     const getThemeOptionClasses = (option: ThemePreference) =>
         `rounded-md px-2 py-1.5 text-xs font-semibold transition-colors ${
             preference === option
-                ? "bg-primary text-white shadow-sm"
+                ? "bg-primary text-bg-base shadow-sm"
                 : "text-text-muted hover:bg-bg-tertiary/60"
         }`;
 
@@ -161,7 +161,7 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
                             </button>
                         </div>
                         <p className="mt-2 text-[11px] leading-4 text-text-muted">
-                            Auto follows Boston daylight. It is currently {isBostonDaylightNow ? "daytime" : "nighttime"} in Boston.
+                            Auto follows your system theme. Your device is currently in {isSystemDarkNow ? "dark" : "light"} mode.
                         </p>
                     </div>
                     <button

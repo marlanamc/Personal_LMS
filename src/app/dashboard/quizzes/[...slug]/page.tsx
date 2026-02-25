@@ -22,10 +22,6 @@ export default async function VerbQuizResultsPage({
     const session = await getServerSession(authOptions);
     if (!session) redirect("/login");
 
-    if (session.user?.role !== "teacher") {
-        redirect("/dashboard");
-    }
-
     const { slug } = await params;
     // Handle /dashboard/quizzes/verb-quiz-1 pattern
     // slug will be ["verb-quiz-1"]

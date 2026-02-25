@@ -11,11 +11,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userRole = session.user?.role;
-        if (userRole !== "teacher") {
-            return NextResponse.json({ error: "Only teachers can create activities" }, { status: 403 });
-        }
-
         const body = await request.json();
         const { title, description, type, category, level, content } = body;
 
@@ -27,6 +22,9 @@ export async function POST(request: NextRequest) {
         }
 
         const userId = session.user?.id;
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         const activity = await prisma.activity.create({
             data: {
@@ -57,54 +55,6 @@ export async function GET() {
         if (!session) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
-
-        const userRole = session.user?.role;
-
-        // For students, filter at database level for grammar guides
-        if (userRole === "student") {
-            const activities = await prisma.activity.findMany({
-                where: {
-                    deletedAt: null,
-                    OR: [
-                        // Released grammar guides only
-                        {
-                            type: "guide",
-                            category: "grammar",
-                            isReleased: true
-                        },
-                        // Non-grammar activities (speaking filtered below)
-                        {
-                            NOT: {
-                                AND: [
-                                    { type: "guide" },
-                                    { category: "grammar" }
-                                ]
-                            }
-                        }
-                    ]
-                },
-                orderBy: { createdAt: "desc" },
-            });
-
-            // Filter speaking activities by content.released (existing pattern)
-            const filteredActivities = activities.filter((activity) => {
-                if (activity.type !== "speaking") {
-                    return true;
-                }
-
-                // For speaking activities, check if released
-                try {
-                    const content = JSON.parse(activity.content);
-                    return content.released === true;
-                } catch {
-                    return false; // Hide if content is malformed
-                }
-            });
-
-            return NextResponse.json(collapseEdPronunciationActivities(filteredActivities));
-        }
-
-        // Teachers see all activities
         const activities = await prisma.activity.findMany({
             where: { deletedAt: null },
             orderBy: { createdAt: "desc" },
@@ -120,7 +70,6 @@ export async function GET() {
         );
     }
 }
-
 
 
 

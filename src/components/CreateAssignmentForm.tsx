@@ -123,7 +123,7 @@ export default function CreateAssignmentForm({ classId, activities }: Props) {
                             value={instructions}
                             onChange={(e) => setInstructions(e.target.value)}
                             rows={4}
-                            placeholder="Additional instructions for students…"
+                            placeholder="Additional instructions for this class…"
                             className="mt-1 block w-full rounded-md border border-border px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary/40 text-text"
                         />
                     </div>
@@ -168,7 +168,6 @@ export default function CreateAssignmentForm({ classId, activities }: Props) {
         </div>
     );
 }
-
 
 
 
