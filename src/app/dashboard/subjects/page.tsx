@@ -250,14 +250,6 @@ export default async function SubjectsPage({ searchParams }: Props) {
 
     return (
         <div className="min-h-screen bg-bg">
-            <header className="sticky top-0 backdrop-blur-md border-b z-40 bg-bg-secondary/90 border-border shadow-sm">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
-                    <h1 className="text-2xl sm:text-3xl font-display font-bold text-text text-center">
-                        Choose a <span className="text-primary italic">subject</span>
-                    </h1>
-                </div>
-            </header>
-
             <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 pb-24 md:pb-12">
                 <ActivityCategoryPicker
                     activities={visibleActivities}
