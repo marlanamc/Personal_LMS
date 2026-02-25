@@ -172,6 +172,46 @@ export const spanishContrasteTiemposB2Content: InteractiveGuideContent = {
         },
       ],
     },
+    {
+      id: "resumen-contraste-tiempos",
+      stepNumber: 4,
+      title: "Resumen: contraste de tiempos",
+      icon: "📋",
+      explanation: `
+        <h3>Visión general</h3>
+        <p><strong>Presente perfecto:</strong> periodo abierto (hoy, esta semana). <strong>Pretérito:</strong> evento cerrado en fecha. <strong>Condicional:</strong> cortesía, hipótesis. <strong>Subjuntivo imperfecto:</strong> en condicionales irreales (si fuera...).</p>
+      `,
+      exercises: [
+        {
+          id: "sp-ctb2-quickref",
+          title: "Identifica",
+          instructions: "Elige el tiempo adecuado.",
+          items: [
+            { type: "radio", label: "Para un periodo aún abierto: ___", options: [{ value: "pp", label: "presente perfecto" }, { value: "pret", label: "pretérito" }], expectedAnswer: "pp" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-contraste-tiempos",
+      stepNumber: 5,
+      title: "Errores frecuentes",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Usar pretérito con hoy/esta semana para resultados actuales (usar presente perfecto). Usar indicativo en condicionales irreales (usar imperfecto de subjuntivo). Mezclar tiempos sin coherencia temporal.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-ctb2-mistakes",
+          title: "¿Correcto?",
+          instructions: "Elige la opción correcta.",
+          items: [
+            { type: "radio", label: "Hoy hemos cerrado tres casos: ___", options: [{ value: "a", label: "correcto (periodo abierto)" }, { value: "b", label: "incorrecto" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
   ],
   miniQuiz: [
     {

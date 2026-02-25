@@ -13,7 +13,7 @@ export const codingDomManipulationContent: InteractiveGuideContent = {
                 <div style="background: rgba(20, 32, 47, 0.06); border: 1px solid rgba(20, 32, 47, 0.1); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
                     <p style="font-size: 1.125rem; margin-bottom: 0;">The DOM (Document Object Model) is how JavaScript sees and interacts with HTML. Master DOM manipulation to build dynamic, interactive websites!</p>
                 </div>
-
+                <p><strong>Professional note:</strong> In React/Next.js you rarely touch the DOM directly—use state and components instead. But understanding the DOM helps debug refs, Portals, and integration code.</p>
                 <h3>What You'll Learn</h3>
                 <ul>
                     <li>What the DOM is and how it works</li>
@@ -1002,6 +1002,28 @@ container.addEventListener('click', (e) => {
             ],
             correctAnswer: "b",
             explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
+        },
+        {
+            id: "q11",
+            question: "querySelector('.btn') vs querySelectorAll('.btn') returns:",
+            options: [
+                { value: "a", label: "querySelector: first match; querySelectorAll: NodeList of all" },
+                { value: "b", label: "Both return arrays" },
+                { value: "c", label: "querySelector: all; querySelectorAll: first" },
+            ],
+            correctAnswer: "a",
+            explanation: "querySelector returns the first matching element or null; querySelectorAll returns a NodeList of all matches.",
+        },
+        {
+            id: "q12",
+            question: "addEventListener vs inline onclick:",
+            options: [
+                { value: "a", label: "addEventListener allows multiple handlers; inline is one only" },
+                { value: "b", label: "No difference" },
+                { value: "c", label: "Inline is preferred for accessibility" },
+            ],
+            correctAnswer: "a",
+            explanation: "addEventListener supports multiple handlers and is preferred for separation of concerns and cleanup.",
         },
     ],
 };

@@ -994,5 +994,27 @@ export const codingDebuggingDevtoolsContent: InteractiveGuideContent = {
             correctAnswer: "b",
             explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
         },
+        {
+            id: "q11",
+            question: "Best tool for debugging failed API calls:",
+            options: [
+                { value: "a", label: "Network tab to inspect request/response and status" },
+                { value: "b", label: "Only console.log" },
+                { value: "c", label: "Application tab" },
+            ],
+            correctAnswer: "a",
+            explanation: "Network tab shows request payload, response body, status codes, and headers—essential for API debugging.",
+        },
+        {
+            id: "q12",
+            question: "When stepping through code, Step Over (F10) vs Step Into (F11):",
+            options: [
+                { value: "a", label: "Step Over skips into functions; Step Into executes line only" },
+                { value: "b", label: "Step Over executes line, skips functions; Step Into goes into function" },
+                { value: "c", label: "They do the same thing" },
+            ],
+            correctAnswer: "b",
+            explanation: "Step Over runs the current line without entering functions; Step Into enters function calls.",
+        },
     ],
 };

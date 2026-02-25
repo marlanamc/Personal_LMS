@@ -177,6 +177,46 @@ export const spanishMaticesPragmaticosC2Content: InteractiveGuideContent = {
         },
       ],
     },
+    {
+      id: "resumen-matices",
+      stepNumber: 4,
+      title: "Resumen: matices pragmáticos",
+      icon: "📋",
+      explanation: `
+        <h3>Visión general</h3>
+        <p><strong>Intención:</strong> lo que el hablante quiere lograr. <strong>Implicatura:</strong> lo que se sugiere sin decir. <strong>Tono:</strong> diplomático, directo, irónico. Reformulación según auditorio y contexto.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-c2prag-quickref",
+          title: "Identifica",
+          instructions: "Elige la opción correcta.",
+          items: [
+            { type: "radio", label: "La implicatura es ___", options: [{ value: "a", label: "lo sugerido sin decir explícitamente" }, { value: "b", label: "lo dicho literalmente" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-matices",
+      stepNumber: 5,
+      title: "Errores frecuentes",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Ignorar el tono implícito. Reformular sin ajustar al auditorio. Usar formulaciones rígidas cuando se requiere diplomacia. No calibrar la fuerza argumentativa.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-c2prag-mistakes",
+          title: "¿Correcto?",
+          instructions: "Elige la opción adecuada.",
+          items: [
+            { type: "radio", label: "Reformular implica ___", options: [{ value: "a", label: "ajustar foco y tono al contexto" }, { value: "b", label: "solo cambiar palabras" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
   ],
   miniQuiz: [
     {

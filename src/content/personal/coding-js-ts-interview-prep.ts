@@ -12,7 +12,7 @@ export const codingJsTsInterviewPrepContent: InteractiveGuideContent = {
                 <div style="background: rgba(20, 32, 47, 0.06); border: 1px solid rgba(20, 32, 47, 0.1); padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 1.5rem;">
                     <p style="font-size: 1.06rem; margin: 0;">This guide is focused on the exact interview moves that help you pass JavaScript/TypeScript questions: clarify, plan, implement clearly, and test edge cases out loud.</p>
                 </div>
-
+                <p><strong>Professional note:</strong> Interviewers care about process—clarifying inputs/outputs, stating assumptions, walking through edge cases, and explaining tradeoffs. A slower, deliberate solution with clear reasoning often scores better than a rushed answer.</p>
                 <h3>What this prep covers</h3>
                 <ul>
                     <li>How to structure your answer before coding</li>
@@ -644,6 +644,36 @@ function topActiveNames(users: User[]): string[] {
             topic: "complexity",
             skill: "analysis",
             skillTag: "dominant-operation",
+            difficulty: "medium",
+        },
+        {
+            id: "cjti-q11",
+            question: "Best first step when given a coding problem in an interview:",
+            options: [
+                { value: "a", label: "Clarify inputs, outputs, and edge cases" },
+                { value: "b", label: "Start typing immediately" },
+                { value: "c", label: "Ask for hints" },
+            ],
+            correctAnswer: "a",
+            explanation: "Clarifying before coding avoids rework and demonstrates communication skills.",
+            topic: "interview-process",
+            skill: "communication",
+            skillTag: "clarify-first",
+            difficulty: "easy",
+        },
+        {
+            id: "cjti-q12",
+            question: "Why mention edge cases aloud while coding?",
+            options: [
+                { value: "a", label: "Shows you think about robustness and helps catch bugs" },
+                { value: "b", label: "Slows you down" },
+                { value: "c", label: "Only needed for senior roles" },
+            ],
+            correctAnswer: "a",
+            explanation: "Talking through edge cases demonstrates thoroughness and catches mistakes before submission.",
+            topic: "interview-process",
+            skill: "verification",
+            skillTag: "edge-case-awareness",
             difficulty: "medium",
         },
     ],

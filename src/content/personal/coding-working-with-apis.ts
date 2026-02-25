@@ -13,7 +13,7 @@ export const codingWorkingWithApisContent: InteractiveGuideContent = {
                 <div style="background: rgba(20, 32, 47, 0.06); border: 1px solid rgba(20, 32, 47, 0.1); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
                     <p style="font-size: 1.125rem; margin-bottom: 0;">APIs let your code talk to servers and services. Fetch weather data, save user profiles, load products - it all happens through APIs!</p>
                 </div>
-
+                <p><strong>Professional note:</strong> Always handle non-2xx responses and network errors. In production, use retry/backoff for transient failures and surface clear errors to users—never assume the API will always succeed.</p>
                 <h3>What You'll Learn</h3>
                 <ul>
                     <li>What APIs are and how they work</li>
@@ -968,6 +968,28 @@ if (response.status === 401) {
             ],
             correctAnswer: "b",
             explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
+        },
+        {
+            id: "q11",
+            question: "fetch() returns:",
+            options: [
+                { value: "a", label: "A Promise that resolves to a Response object" },
+                { value: "b", label: "The parsed JSON directly" },
+                { value: "c", label: "The raw HTTP body" },
+            ],
+            correctAnswer: "a",
+            explanation: "fetch() returns a Promise. Use response.json() or response.text() to parse the body.",
+        },
+        {
+            id: "q12",
+            question: "Best practice for handling API errors:",
+            options: [
+                { value: "a", label: "Check response.ok and handle non-2xx explicitly" },
+                { value: "b", label: "Assume 200 and ignore errors" },
+                { value: "c", label: "Only handle network failures" },
+            ],
+            correctAnswer: "a",
+            explanation: "Check response.ok or response.status—non-2xx means the request failed even if fetch resolved.",
         },
     ],
 };

@@ -404,6 +404,10 @@ export const spanishSerVsEstarContent: InteractiveGuideContent = {
                 <p><strong>SER</strong> = Permanent, essential, defining characteristics</p>
                 <p><strong>ESTAR</strong> = Temporary, changeable, location, condition</p>
             `,
+            tipBox: {
+                title: "Quick reference",
+                content: "SER: identity, profession, nationality, origin, time & dates, permanent traits, possession, relationships. ESTAR: location, temporary conditions (tired, sick, hot/cold), emotions, ongoing results (the door is open).",
+            },
             comparison: {
                 title: "Ser vs Estar Examples",
                 leftLabel: "SER (Permanent)",
@@ -777,6 +781,26 @@ export const spanishSerVsEstarContent: InteractiveGuideContent = {
             ],
             correctAnswer: "a",
             explanation: "Origin uses ser (soy de...), and location uses estar (estoy en...).",
+        },
+        {
+            id: "q11",
+            question: "Which sentence has an error?",
+            options: [
+                { value: "a", label: "Son las dos de la tarde." },
+                { value: "b", label: "Están las dos de la tarde." },
+            ],
+            correctAnswer: "b",
+            explanation: "Time and dates always use ser: Son las dos. Never están for telling time.",
+        },
+        {
+            id: "q12",
+            question: "Choose the correct verb for a temporary feeling.",
+            options: [
+                { value: "a", label: "María está enferma hoy." },
+                { value: "b", label: "María es enferma hoy." },
+            ],
+            correctAnswer: "a",
+            explanation: "Illness and how you feel right now use estar: está enferma.",
         },
     ],
 };

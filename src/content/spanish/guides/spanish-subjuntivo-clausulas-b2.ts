@@ -153,30 +153,74 @@ export const spanishSubjuntivoClausulasB2Content: InteractiveGuideContent = {
       icon: "🗣️",
       explanation: `
         <h3>Integración en discurso</h3>
-        <p>Escribe argumentos breves combinando cláusulas sustantivas y adjetivas.</p>
-        <p>Objetivo: precisión gramatical + coherencia lógica + matiz discursivo.</p>
+        <p>Escribe argumentos breves combinando cláusulas sustantivas y adjetivas. Usa subjuntivo tras verbos de voluntad/duda (querer que, dudar que) y en subordinadas adjetivas con antecedente indefinido (busco alguien que...).</p>
+        <p><strong>Criterios B2:</strong> Precisión gramatical (subjuntivo/indicativo según contexto), coherencia lógica, matiz discursivo. 2-3 oraciones por item.</p>
       `,
       exercises: [
         {
           id: "sp-b2subj-4",
           title: "Microargumentos",
-          instructions: "Responde con 2-3 oraciones por punto.",
+          instructions: "Responde con 2-3 oraciones por punto. Usa subjuntivo en cláusulas sustantivas (Es fundamental que...) y adjetivas (una persona que...).",
+          answerExpectation: "full-sentence",
           items: [
             {
               type: "text",
-              label: "Plantea una recomendación institucional con 'Es fundamental que...'.",
+              label: "Plantea una recomendación institucional con 'Es fundamental que...' (incluye verbo en subjuntivo):",
+              placeholder: "Ejemplo: Es fundamental que se revise el protocolo.",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Describe el perfil de una persona que tu equipo todavía no ha encontrado.",
+              label: "Describe el perfil de una persona que tu equipo todavía no ha encontrado (usa subordinada adjetiva con subjuntivo):",
+              placeholder: "Ejemplo: Buscamos alguien que tenga experiencia en gestión de proyectos.",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Redacta una duda razonada sobre una propuesta y su viabilidad.",
+              label: "Redacta una duda razonada con 'Dudo que...' o 'No creo que...':",
+              placeholder: "Ejemplo: Dudo que la propuesta sea viable en el plazo actual.",
               acceptAnyAttempt: true,
             },
+          ],
+        },
+      ],
+    },
+    {
+      id: "resumen-subj-clausulas",
+      stepNumber: 4,
+      title: "Resumen: subjuntivo en cláusulas",
+      icon: "📋",
+      explanation: `
+        <h3>Visión general</h3>
+        <p><strong>Subordinadas sustantivas:</strong> tras verbos de voluntad, duda, emoción (quiero que venga). <strong>Subordinadas adjetivas:</strong> tras antecedente indefinido o negado (busco alguien que sepa). Indicativo cuando se afirma un hecho conocido; subjuntivo cuando hay incertidumbre o valoración.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-b2subj-quickref",
+          title: "Identifica",
+          instructions: "Elige la opción correcta.",
+          items: [
+            { type: "radio", label: "Tras 'dudo que' va ___", options: [{ value: "subjuntivo", label: "subjuntivo" }, { value: "indicativo", label: "indicativo" }], expectedAnswer: "subjuntivo" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-subj-clausulas",
+      stepNumber: 5,
+      title: "Errores frecuentes",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Usar indicativo tras dudo que, no creo que. Usar subjuntivo tras creo que (afirmación). Confundir subordinadas con antecedente definido (uso indicativo) vs indefinido (subjuntivo).</p>
+      `,
+      exercises: [
+        {
+          id: "sp-b2subj-mistakes",
+          title: "¿Correcto?",
+          instructions: "Elige la forma correcta.",
+          items: [
+            { type: "radio", label: "No creo que ___ a tiempo.", options: [{ value: "a", label: "llegue" }, { value: "b", label: "llega" }], expectedAnswer: "a" },
           ],
         },
       ],

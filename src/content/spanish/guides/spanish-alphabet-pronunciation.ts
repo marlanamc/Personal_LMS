@@ -165,9 +165,9 @@ export const spanishAlphabetPronunciationContent: InteractiveGuideContent = {
       ],
     },
     {
-      id: "a1-speaking-routine",
+      id: "pronunciation-routine",
       stepNumber: 3,
-      title: "A1 Pronunciation Routine",
+      title: "Pronunciation Routine",
       icon: "🗣️",
       explanation: `
         <h3>Daily 5-Minute Routine</h3>
@@ -198,6 +198,86 @@ export const spanishAlphabetPronunciationContent: InteractiveGuideContent = {
               label: "Type one Spanish word with ñ:",
               placeholder: "Example: año",
               acceptAnyAttempt: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "quick-reference",
+      stepNumber: 4,
+      title: "Quick Reference: Key Sounds",
+      icon: "📋",
+      explanation: `
+        <h3>At a Glance</h3>
+        <ul>
+          <li><strong>Vowels:</strong> a, e, i, o, u — pure and stable.</li>
+          <li><strong>j</strong> ≈ English h (jamón, jugar). <strong>g</strong> before e/i ≈ same (gente, girasol).</li>
+          <li><strong>h</strong> is silent (hola, hablar). <strong>ñ</strong> = ny (año, mañana).</li>
+          <li><strong>r</strong> = tap; <strong>rr</strong> = trill (pero vs perro).</li>
+          <li><strong>Stress:</strong> vowel/n/s → stress next-to-last syllable; accent mark (´) marks exceptions.</li>
+        </ul>
+      `,
+      exercises: [
+        {
+          id: "sp-alpha-quick-ref",
+          title: "Match the Rule",
+          instructions: "Choose the correct rule.",
+          items: [
+            {
+              type: "radio",
+              label: "The letter ñ always sounds like...",
+              options: [
+                { value: "n", label: "n in no" },
+                { value: "ny", label: "ny in canyon" },
+              ],
+              expectedAnswer: "ny",
+            },
+            {
+              type: "radio",
+              label: "Words ending in a vowel usually have stress on...",
+              options: [
+                { value: "last", label: "the last syllable" },
+                { value: "next-to-last", label: "the next-to-last syllable" },
+              ],
+              expectedAnswer: "next-to-last",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "common-mistakes",
+      stepNumber: 5,
+      title: "Common Pronunciation Mistakes",
+      icon: "⚠️",
+      explanation: `
+        <h3>What to Avoid</h3>
+        <ul>
+          <li><strong>Pronouncing h</strong> — In Spanish, h is silent. Say "ola" for hola.</li>
+          <li><strong>Using English j for Spanish j</strong> — Spanish j is breathy (like h in "ham"), not the sound in "jump".</li>
+          <li><strong>Ignoring accent marks</strong> — sí (yes) vs si (if), tú (you) vs tu (your) change meaning.</li>
+          <li><strong>Trilling every r</strong> — Only double rr is trilled; single r is a light tap.</li>
+        </ul>
+      `,
+      tipBox: {
+        title: "Tip",
+        content: "Listen to native speakers and mimic. Consistency matters more than speed at first.",
+      },
+      exercises: [
+        {
+          id: "sp-alpha-mistakes",
+          title: "Spot the Mistake",
+          instructions: "Which would a native speaker avoid?",
+          items: [
+            {
+              type: "radio",
+              label: "How should you pronounce the h in hablar?",
+              options: [
+                { value: "silent", label: "Silent (a-BLAR)" },
+                { value: "heard", label: "Pronounced (HA-blar)" },
+              ],
+              expectedAnswer: "silent",
             },
           ],
         },

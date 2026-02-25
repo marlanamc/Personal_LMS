@@ -6,15 +6,16 @@ export interface RubricCriterion {
 
 export interface AssessmentRubric {
   id: string;
-  level: "B1" | "B2" | "C1" | "C2";
+  /** Tier for Spanish: intermediate or advanced */
+  level: "intermediate" | "advanced";
   title: string;
   criteria: RubricCriterion[];
 }
 
 export const B1_CORE_RUBRIC: AssessmentRubric = {
   id: "b1-core-rubric",
-  level: "B1",
-  title: "Rúbrica base B1",
+  level: "intermediate",
+  title: "Rúbrica base (Intermediate)",
   criteria: [
     {
       id: "coherencia",
@@ -24,7 +25,7 @@ export const B1_CORE_RUBRIC: AssessmentRubric = {
     {
       id: "precision-gramatical",
       label: "Precisión gramatical",
-      description: "Controla estructuras frecuentes de B1 con errores no sistemáticos.",
+      description: "Controla estructuras frecuentes con errores no sistemáticos.",
     },
     {
       id: "alcance-lexico",

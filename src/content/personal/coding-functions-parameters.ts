@@ -52,9 +52,29 @@ export const codingFunctionsParametersContent: InteractiveGuideContent = {
             stepNumber: 1,
             title: "Declaring Functions",
             icon: "📝",
+            formula: [
+                { text: "function ", type: "subject" },
+                { text: "name", type: "verb" },
+                { text: "(", type: "other" },
+                { text: "params", type: "verb" },
+                { text: ") { return ", type: "other" },
+                { text: "value", type: "verb" },
+                { text: "; }", type: "other" },
+            ],
+            comparison: {
+                title: "Parameter Pattern Comparison",
+                leftLabel: "Declaration / Expression",
+                rightLabel: "Arrow Function",
+                rows: [
+                    { label: "Hoisting", left: "Function declarations hoisted; expressions not", right: "Not hoisted (expression)" },
+                    { label: "this binding", left: "Own this; varies by call context", right: "Inherits this from enclosing scope" },
+                    { label: "Best for", left: "Main entry points, constructors", right: "Callbacks, handlers, short transforms" },
+                    { label: "Single expression", left: "function add(a,b){ return a+b; }", right: "const add = (a,b) => a + b;" },
+                ],
+            },
             explanation: `
                 <h3>Three Ways to Create Functions</h3>
-                <p>JavaScript has different syntax for declaring functions. All work, but some are better than others for modern code.</p>
+                <p>JavaScript has different syntax for declaring functions. All work, but some are better than others for modern code. Function declarations are hoisted; arrow functions inherit <code>this</code> from the enclosing scope—critical for callbacks and event handlers.</p>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
                     <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.25rem; border-radius: 0.5rem; color: white;">
@@ -451,7 +471,24 @@ noReturn(); // Returns?`,
             icon: "🔒",
             explanation: `
                 <h3>Variables Inside Functions Are Local</h3>
-                <p>Variables declared inside a function only exist inside that function. This prevents name conflicts and keeps code clean.</p>
+                <p>Variables declared inside a function only exist inside that function. This prevents name conflicts and keeps code clean. Scope follows a chain: inner functions can access outer scope, but not the reverse.</p>
+
+                <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 1.25rem; border-radius: 0.75rem; color: #f8fafc; margin: 1.25rem 0;">
+                    <h4 style="margin: 0 0 1rem 0; font-size: 1rem;">Scope Chain Diagram</h4>
+                    <pre style="margin: 0; font-size: 0.88rem; line-height: 1.6;">
+┌─ global scope ─────────────────────────────────────┐
+│  const x = 1;  (accessible everywhere)              │
+│  ┌─ outer() ────────────────────────────────────┐  │
+│  │  const y = 2;  (outer + inner can see)        │  │
+│  │  ┌─ inner() ───────────────────────────────┐ │  │
+│  │  │  const z = 3;  (inner only)              │ │  │
+│  │  │  console.log(x, y, z);  // 1, 2, 3       │ │  │
+│  │  └──────────────────────────────────────────┘ │  │
+│  │  console.log(z);  // ReferenceError!          │  │
+│  └───────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────┘</pre>
+                    <p style="margin: 1rem 0 0 0; font-size: 0.9rem;">Inner scopes can read outer; outer cannot read inner.</p>
+                </div>
             `,
             usageMeanings: [
                 {

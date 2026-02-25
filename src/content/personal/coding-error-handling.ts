@@ -160,9 +160,33 @@ try {
             stepNumber: 2,
             title: "JavaScript Error Types",
             icon: "📋",
+            comparison: {
+                title: "Error Type Comparison",
+                leftLabel: "Runtime Errors",
+                rightLabel: "Parse Errors",
+                rows: [
+                    {
+                        label: "When",
+                        left: "During execution (TypeError, ReferenceError)",
+                        right: "Before code runs (SyntaxError)",
+                    },
+                    {
+                        label: "Fix",
+                        left: "Add null checks, validate types, handle async",
+                        right: "Fix syntax (brackets, semicolons, declarations)",
+                    },
+                    {
+                        label: "Example",
+                        left: "null.toString() → TypeError",
+                        right: "const x = ; → SyntaxError",
+                    },
+                ],
+            },
             explanation: `
                 <h3>Know Your Errors</h3>
                 <p>JavaScript has built-in error types that tell you what kind of problem occurred.</p>
+
+                <p><strong>Runtime vs parse:</strong> Runtime errors (TypeError, ReferenceError) happen when code executes. Parse errors (SyntaxError) occur before code runs—the engine cannot even parse the file. Fixing runtime errors means adding checks; fixing parse errors means correcting syntax.</p>
             `,
             verbTable: {
                 title: "Common Error Types",
@@ -456,9 +480,25 @@ try {
             stepNumber: 5,
             title: "Common Error Patterns",
             icon: "🎨",
+            verbTable: {
+                title: "Recovery Pattern Decision Tree",
+                headers: ["Question", "Answer", "Pattern"],
+                rows: [
+                    ["Is failure transient (network, timeout)?", "Yes", "Retry with backoff"],
+                    ["Is failure transient (network, timeout)?", "No", "Next: Can you provide fallback?"],
+                    ["Can you provide fallback value?", "Yes", "Graceful degradation (default value)"],
+                    ["Can you provide fallback value?", "No", "Log error, surface to user"],
+                    ["Is it critical path?", "Yes", "Log + alert; block or show error UI"],
+                    ["Is it critical path?", "No", "Log; use fallback or skip"],
+                ],
+            },
             explanation: `
                 <h3>Real-World Patterns</h3>
                 <p>These patterns are used in production code everywhere.</p>
+
+                <p><strong>Recovery decision flow:</strong> Is the failure transient (network, timeout)? → Retry with backoff. Can you provide a fallback? → Graceful degradation (default value). Is it critical path? → Log + alert; block or show error UI. Always log errors for debugging—silent failures are the hardest to diagnose.</p>
+
+                <p><strong>Retry vs degradation:</strong> Retry makes sense for transient failures (network hiccup, rate limit). Degradation makes sense when you can provide a safe fallback (default data, empty array). For permanent failures (invalid input, auth error), surface to user and log—do not retry blindly.</p>
             `,
             usageMeanings: [
                 {

@@ -168,6 +168,46 @@ export const spanishB1IntegratedAssessmentContent: InteractiveGuideContent = {
         },
       ],
     },
+    {
+      id: "resumen-evaluacion-b1",
+      stepNumber: 4,
+      title: "Resumen: criterios de evaluación",
+      icon: "📋",
+      explanation: `
+        <h3>Qué se evalúa</h3>
+        <p>Coherencia y organización del texto. Uso correcto de presente perfecto, subjuntivo y conectores. Alcance léxico y variedad. Respuesta adecuada a la consigna.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-b1e-quickref",
+          title: "Autoevaluación",
+          instructions: "Selecciona la opción correcta.",
+          items: [
+            { type: "radio", label: "El presente perfecto se usa para ___", options: [{ value: "a", label: "acciones recientes o tiempo no acabado" }, { value: "b", label: "acciones de hace muchos años" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-evaluacion-b1",
+      stepNumber: 5,
+      title: "Errores frecuentes en la producción",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Salirse del tema. No usar conectores entre ideas. Mezclar tiempos sin coherencia. Escribir menos o más de lo pedido sin ajustar el contenido.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-b1e-mistakes",
+          title: "Identifica",
+          instructions: "¿Qué se debe mejorar?",
+          items: [
+            { type: "radio", label: "Un texto sin conectores entre párrafos tiene problemas de ___", options: [{ value: "coherencia", label: "coherencia" }, { value: "ortografía", label: "ortografía" }], expectedAnswer: "coherencia" },
+          ],
+        },
+      ],
+    },
   ],
   miniQuiz: [
     {

@@ -155,11 +155,17 @@ export const spanishPresentPerfectB1Content: InteractiveGuideContent = {
       explanation: `
         <h3>Presente perfecto vs pretérito</h3>
         <p>En muchos contextos, el presente perfecto se usa con periodos conectados al presente; el pretérito suele marcar acciones cerradas en un tiempo específico.</p>
-        <ul>
-          <li><em>Hoy he hablado con Marta.</em> (hoy todavía continúa)</li>
-          <li><em>Ayer hablé con Marta.</em> (periodo cerrado)</li>
-        </ul>
       `,
+      comparison: {
+        title: "Presente perfecto vs pretérito",
+        leftLabel: "Presente perfecto",
+        rightLabel: "Pretérito",
+        rows: [
+          { label: "Periodo abierto", left: "Hoy he hablado con Marta.", right: "Ayer hablé con Marta." },
+          { label: "Experiencia vs evento", left: "He viajado a Perú.", right: "Viajé a Perú en 2019." },
+          { label: "Esta semana vs fecha exacta", left: "Esta semana hemos trabajado mucho.", right: "El lunes trabajamos diez horas." },
+        ],
+      },
       exercises: [
         {
           id: "sp-pp-4",
@@ -184,6 +190,47 @@ export const spanishPresentPerfectB1Content: InteractiveGuideContent = {
               correctAnswer: "he hecho",
               expectedAnswers: ["he hecho"],
             },
+          ],
+        },
+      ],
+    },
+    {
+      id: "quick-reference-pp",
+      stepNumber: 4,
+      title: "Quick Reference: Present Perfect",
+      icon: "📋",
+      explanation: `
+        <h3>At a Glance</h3>
+        <p><strong>Form:</strong> haber (present) + past participle (he hablado, has comido). <strong>Use:</strong> recent past, life experience, unfinished time (hoy, esta semana). Participle agrees with object when using lo/la/los/las.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-pp-quickref",
+          title: "Recall",
+          instructions: "Choose the correct form.",
+          items: [
+            { type: "radio", label: "Present perfect uses ___ + past participle.", options: [{ value: "haber", label: "haber (conjugated)" }, { value: "tener", label: "tener" }], expectedAnswer: "haber" },
+            { type: "radio", label: "Yo form: He ___.", options: [{ value: "hablado", label: "hablado" }, { value: "hablando", label: "hablando" }], expectedAnswer: "hablado" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "common-mistakes-pp",
+      stepNumber: 5,
+      title: "Common Mistakes",
+      icon: "⚠️",
+      explanation: `
+        <h3>What to Avoid</h3>
+        <p>Using tener instead of haber (correct: he comido). Using -ando/-iendo instead of -ado/-ido (past participle). Using present perfect for specific finished past (use preterite: ayer llegué).</p>
+      `,
+      exercises: [
+        {
+          id: "sp-pp-mistakes",
+          title: "Correct?",
+          instructions: "Which is correct?",
+          items: [
+            { type: "radio", label: "I have eaten:", options: [{ value: "a", label: "He comido." }, { value: "b", label: "Tengo comido." }], expectedAnswer: "a" },
           ],
         },
       ],

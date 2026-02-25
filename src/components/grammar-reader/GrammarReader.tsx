@@ -9,6 +9,7 @@ import { PracticePanel } from "./PracticePanel";
 import { ProgressBar } from "./ProgressBar";
 import { TableOfContents } from "./TableOfContents";
 import { MiniQuizSection } from "./MiniQuizSection";
+import { RelatedPracticeSection } from "./RelatedPracticeSection";
 import { PointsToast } from "@/components/ui/PointsToast";
 import Link from "next/link";
 import { saveActivityProgress } from "@/lib/activityProgress";
@@ -656,6 +657,13 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                                 sectionNumber={currentSectionIndex + 1}
                                 totalSections={content.sections.length}
                             />
+
+                            {/* Related practice & spiral review (Spanish guides) */}
+                            {activityId && activityId.startsWith("spanish-") && activityId.endsWith("-guide") && (
+                                <div className="px-6 pt-2">
+                                    <RelatedPracticeSection activityId={activityId} />
+                                </div>
+                            )}
 
                             {/* Split Screen Content */}
                             {showSplitLayout ? (

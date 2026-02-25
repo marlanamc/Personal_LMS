@@ -120,18 +120,30 @@ export const codingImplementationUatDefectTriageContent: InteractiveGuideContent
             stepNumber: 3,
             title: "Defect Severity and Priority Model",
             icon: "bug",
+            verbTable: {
+                title: "Defect Severity Matrix",
+                headers: ["Severity", "User Impact", "Launch Risk", "Example", "SLA Expectation"],
+                rows: [
+                    ["P0", "Core path broken; no workaround", "Launch blocker", "Cannot submit assignment; login fails", "Same-day triage, immediate owner"],
+                    ["P1", "Major workflow degraded; limited workaround", "High risk", "Search fails; key report wrong", "24h triage, fix window defined"],
+                    ["P2", "Moderate impact; workaround exists", "Low–medium", "UI misaligned; non-critical field missing", "Weekly batch; roadmap tradeoff"],
+                    ["P3", "Minor polish; cosmetic", "Negligible", "Spelling; pixel off; edge-case message", "Backlog; no launch gate"],
+                ],
+            },
+            comparison: {
+                title: "Severity vs Priority",
+                leftLabel: "Severity (Impact)",
+                rightLabel: "Priority (When to Fix)",
+                rows: [
+                    { label: "Definition", left: "How bad is the defect for users?", right: "When should we fix it?" },
+                    { label: "Inputs", left: "User impact, workaround, business criticality", right: "Severity + roadmap + resources + timing" },
+                    { label: "Example", left: "P1: search broken in core path", right: "Fix this sprint vs next vs backlog" },
+                ],
+            },
             explanation: `
                 <h3>Classify Defects by User Impact and Launch Risk</h3>
-                <p>Severity is impact; priority is when to fix. Keep these distinct for cleaner decisions.</p>
-
-                <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 1rem; border-radius: 0.75rem; color: #f8fafc; margin: 1rem 0;">
-<pre style="margin: 0; font-size: 0.88rem; line-height: 1.55;">
-P0: launch blocker
-P1: major workflow risk
-P2: moderate impact, workaround exists
-P3: low impact polish
-</pre>
-                </div>
+                <p>Severity is impact; priority is when to fix. Keep these distinct for cleaner decisions. A high-severity defect may be low priority if launch is far away; a low-severity defect may be high priority if it blocks a demo.</p>
+                <p><strong>Launch readiness rule:</strong> No open P0s; P1s must have explicit containment or fix commitment with owner. P2/P3 can carry to post-launch if stakeholders accept the risk in writing.</p>
             `,
             exercises: [
                 {
@@ -162,9 +174,20 @@ P3: low impact polish
             stepNumber: 4,
             title: "Defect Triage Ritual and SLA",
             icon: "timer",
+            timeline: {
+                title: "Triage Workflow Timeline",
+                description: "Ordered sequence for effective defect triage meetings.",
+                events: [
+                    { order: 1, label: "New/updated defects reviewed", tenseLabel: "Input" },
+                    { order: 2, label: "Classify severity (P0–P3) and priority", tenseLabel: "Classify" },
+                    { order: 3, label: "Assign owner + SLA/ETA per severity", tenseLabel: "Assign" },
+                    { order: 4, label: "Update launch risk posture", tenseLabel: "Risk" },
+                    { order: 5, label: "Document next checkpoint and blockers", tenseLabel: "Output" },
+                ],
+            },
             explanation: `
                 <h3>Run Triage as a Fast Decision Loop</h3>
-                <p>Set a recurring triage with engineering + product + implementation ownership and clear SLAs by severity.</p>
+                <p>Set a recurring triage with engineering + product + implementation ownership and clear SLAs by severity. Triage meetings should run on a fixed cadence (e.g., daily during UAT, twice-weekly post-UAT) and produce actionable outputs: owner, ETA, and next checkpoint.</p>
             `,
             verbTable: {
                 title: "Triage Cadence",
@@ -381,6 +404,51 @@ P3: low impact polish
             skill: "communication",
             skillTag: "launch-readiness-summary",
             difficulty: "hard",
+        },
+        {
+            id: "ciudt-q6",
+            question: "P0 defect appears 48h before launch. Best move:",
+            options: [
+                { value: "a", label: "Contain impact, assign owner, define fix or no-go path" },
+                { value: "b", label: "Add to backlog and proceed with launch" },
+                { value: "c", label: "Ignore and hope it does not recur" },
+            ],
+            correctAnswer: "a",
+            explanation: "P0 requires immediate containment and decision—go, no-go, or conditional-go with explicit mitigation.",
+            topic: "triage",
+            skill: "risk-management",
+            skillTag: "p0-response",
+            difficulty: "medium",
+        },
+        {
+            id: "ciudt-q7",
+            question: "Triage meeting outputs should include:",
+            options: [
+                { value: "a", label: "Owner, SLA/ETA, next checkpoint for each open defect" },
+                { value: "b", label: "List of defect titles only" },
+                { value: "c", label: "Blame assignment" },
+            ],
+            correctAnswer: "a",
+            explanation: "Actionable outputs drive follow-through and accountability.",
+            topic: "triage",
+            skill: "operations",
+            skillTag: "triage-outputs",
+            difficulty: "easy",
+        },
+        {
+            id: "ciudt-q8",
+            question: "Severity differs from priority because:",
+            options: [
+                { value: "a", label: "Severity = impact; priority = when to fix" },
+                { value: "b", label: "They are the same" },
+                { value: "c", label: "Severity = who reports; priority = who fixes" },
+            ],
+            correctAnswer: "a",
+            explanation: "Keeping them distinct prevents conflating urgency with impact.",
+            topic: "triage",
+            skill: "judgment",
+            skillTag: "severity-priority-distinction",
+            difficulty: "medium",
         },
     ],
 };

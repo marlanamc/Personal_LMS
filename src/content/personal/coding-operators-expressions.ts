@@ -303,6 +303,17 @@ export const codingOperatorsExpressionsContent: InteractiveGuideContent = {
             stepNumber: 3,
             title: "Logical Operators",
             icon: "🔗",
+            comparison: {
+                title: "Truthy vs Falsy Comparison",
+                leftLabel: "Falsy (Behave as false)",
+                rightLabel: "Truthy (Behave as true)",
+                rows: [
+                    { label: "Values", left: "false, 0, '', null, undefined, NaN", right: "All other values" },
+                    { label: "Example", left: "!0 // true; '' || 'fallback' // 'fallback'", right: "'hello' && 'world' // 'world'; 1 || 0 // 1" },
+                    { label: "Gotcha", left: "0, '', [] are falsy/truthy differently", right: "[] is truthy; '' is falsy; 0 is falsy" },
+                    { label: "Nullish ??", left: "?? only checks null/undefined", right: "0 ?? 10 // 0; '' ?? 'default' // ''" },
+                ],
+            },
             explanation: `
                 <h3>Combining Conditions</h3>
                 <p>Logical operators let you combine multiple conditions. They're the backbone of complex decision-making!</p>
@@ -746,6 +757,23 @@ if (score >= 60) {
             stepNumber: 7,
             title: "Operator Precedence",
             icon: "📊",
+            verbTable: {
+                title: "Operator Precedence Table (High to Low)",
+                headers: ["Operators", "Name", "Example"],
+                rows: [
+                    ["()", "Parentheses", "(2 + 3) * 4"],
+                    ["**", "Exponentiation", "2 ** 3"],
+                    ["* / %", "Multiplication, division, modulo", "10 - 4 / 2"],
+                    ["+ -", "Addition, subtraction", "2 + 3 * 4"],
+                    ["< > <= >=", "Comparison", "age >= 18"],
+                    ["=== !==", "Equality", "x === 5"],
+                    ["&&", "Logical AND", "a && b"],
+                    ["||", "Logical OR", "a || b"],
+                    ["??", "Nullish coalescing", "x ?? 0"],
+                    ["? :", "Ternary", "x > 0 ? 1 : -1"],
+                    ["= += -=", "Assignment", "x += 5"],
+                ],
+            },
             explanation: `
                 <h3>Order of Operations</h3>
                 <p>Just like PEMDAS in math, operators have precedence. Higher precedence runs first!</p>

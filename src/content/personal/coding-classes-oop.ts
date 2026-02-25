@@ -13,7 +13,7 @@ export const codingClassesOopContent: InteractiveGuideContent = {
                 <div style="background: rgba(20, 32, 47, 0.06); border: 1px solid rgba(20, 32, 47, 0.1); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
                     <p style="font-size: 1.125rem; margin-bottom: 0;">Object-Oriented Programming (OOP) is a way to organize code into reusable blueprints called classes. Think of classes as cookie cutters and objects as the cookies!</p>
                 </div>
-
+                <p><strong>Professional note:</strong> React favors composition over inheritance. But classes appear in older React code, state management (e.g., MobX), and backend models—knowing OOP helps you read and refactor legacy code.</p>
                 <h3>What You'll Learn</h3>
                 <ul>
                     <li>What OOP is and why it matters</li>
@@ -983,6 +983,28 @@ console.log(account.#balance); // SyntaxError! Can't access private</pre>
             ],
             correctAnswer: "b",
             explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
+        },
+        {
+            id: "q11",
+            question: "extends vs composition in class design:",
+            options: [
+                { value: "a", label: "extends: inheritance; composition: use other objects as properties" },
+                { value: "b", label: "They are the same" },
+                { value: "c", label: "extends is deprecated" },
+            ],
+            correctAnswer: "a",
+            explanation: "Inheritance creates an 'is-a' relationship; composition uses 'has-a'. Composition often provides more flexibility.",
+        },
+        {
+            id: "q12",
+            question: "static method in a class:",
+            options: [
+                { value: "a", label: "Called on the class itself, not on instances" },
+                { value: "b", label: "Cannot access class properties" },
+                { value: "c", label: "Same as private method" },
+            ],
+            correctAnswer: "a",
+            explanation: "Static methods belong to the class; you call ClassName.staticMethod(), not instance.staticMethod().",
         },
     ],
 };

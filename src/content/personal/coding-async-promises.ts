@@ -59,6 +59,7 @@ export const codingAsyncPromisesContent: InteractiveGuideContent = {
             icon: "🔀",
             explanation: `
                 <h3>The Difference</h3>
+                <p>Synchronous code blocks—each line waits for the previous. Asynchronous code starts operations and continues; callbacks or promises handle results when they arrive.</p>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 1.5rem 0;">
                     <div class="diagram-surface-light" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 1.5rem; border-radius: 0.75rem; color: #1f2937;">
@@ -185,6 +186,17 @@ console.log('Done');`,
             stepNumber: 2,
             title: "Promises: Handle Async Operations",
             icon: "📦",
+            timeline: {
+                title: "Promise Chain Timeline",
+                description: "How a promise flows from creation to resolution.",
+                events: [
+                    { order: 1, label: "Create promise (pending)", tenseLabel: "Pending" },
+                    { order: 2, label: "Async operation runs", tenseLabel: "In progress" },
+                    { order: 3, label: "resolve(result) or reject(error)", tenseLabel: "Settled" },
+                    { order: 4, label: ".then() or .catch() runs", tenseLabel: "Handled" },
+                    { order: 5, label: ".finally() runs (cleanup)", tenseLabel: "Complete" },
+                ],
+            },
             explanation: `
                 <h3>What is a Promise?</h3>
                 <p>A Promise represents something that will happen eventually: success (resolve) or failure (reject).</p>
@@ -358,6 +370,28 @@ console.log('Done');`,
             stepNumber: 3,
             title: "Async/Await: Modern Promise Syntax",
             icon: "🚀",
+            comparison: {
+                title: "Async Error Handling Comparison",
+                leftLabel: "Strong Error Handling",
+                rightLabel: "Weak Error Handling",
+                rows: [
+                    {
+                        label: "Structure",
+                        left: "try { await fetch(); } catch (e) { handle; } finally { cleanup }",
+                        right: "await fetch(); no catch",
+                    },
+                    {
+                        label: "Risk",
+                        left: "Errors caught, cleanup runs",
+                        right: "Unhandled rejections, no cleanup",
+                    },
+                    {
+                        label: "Example",
+                        left: "Log error, show fallback UI, set loading false",
+                        right: "Silent failure, stuck loading state",
+                    },
+                ],
+            },
             explanation: `
                 <h3>Easier Than Promises</h3>
                 <p>async/await makes asynchronous code look synchronous and read more naturally.</p>
@@ -981,6 +1015,61 @@ console.log(data);`,
             ],
             correctAnswer: "b",
             explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
+        },
+        {
+            id: "q11",
+            question: "Promise chain order: what runs after resolve()?",
+            options: [
+                { value: "a", label: ".then() callbacks" },
+                { value: "b", label: "Nothing—promise is done" },
+                { value: "c", label: ".catch() only" },
+            ],
+            correctAnswer: "a",
+            explanation: "resolve() triggers .then(); reject() triggers .catch(); both trigger .finally().",
+        },
+        {
+            id: "q12",
+            question: "Best way to run two independent fetch calls in parallel?",
+            options: [
+                { value: "a", label: "Promise.all([fetchA(), fetchB()])" },
+                { value: "b", label: "await fetchA(); await fetchB();" },
+                { value: "c", label: "Only one at a time" },
+            ],
+            correctAnswer: "a",
+            explanation: "Promise.all runs in parallel; sequential await is slower when calls are independent.",
+        },
+        {
+            id: "q13",
+            question: "Async function without try/catch: what happens on fetch failure?",
+            options: [
+                { value: "a", label: "Unhandled rejection; error propagates" },
+                { value: "b", label: "Silently returns undefined" },
+                { value: "c", label: "Auto-retries" },
+            ],
+            correctAnswer: "a",
+            explanation: "Without catch, rejections become unhandled. Always wrap await in try/catch or use .catch().",
+        },
+        {
+            id: "q14",
+            question: "When does .finally() run?",
+            options: [
+                { value: "a", label: "After resolve or reject, before next .then" },
+                { value: "b", label: "Only on success" },
+                { value: "c", label: "Only on failure" },
+            ],
+            correctAnswer: "a",
+            explanation: "finally runs regardless of outcome—ideal for cleanup like hiding loading spinner.",
+        },
+        {
+            id: "q15",
+            question: "Strong async error handling includes:",
+            options: [
+                { value: "a", label: "try/catch, user feedback, cleanup in finally" },
+                { value: "b", label: "Ignore errors" },
+                { value: "c", label: "No catch needed with await" },
+            ],
+            correctAnswer: "a",
+            explanation: "Strong handling: catch errors, inform user, clean up state. Weak: silent failures.",
         },
     ],
 };

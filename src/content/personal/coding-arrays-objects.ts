@@ -89,6 +89,18 @@ export const codingArraysObjectsContent: InteractiveGuideContent = {
                     <p style="margin: 1rem 0 0 0; text-align: center; font-size: 0.95rem; font-weight: 600;">💡 First item is always index 0!</p>
                 </div>
             `,
+            verbTable: {
+                title: "Array Method Comparison",
+                headers: ["Method", "Mutates?", "Returns", "Use Case"],
+                rows: [
+                    ["push/pop/unshift/shift", "Yes", "length or removed elem", "Add/remove at ends"],
+                    ["splice", "Yes", "Removed elems array", "Insert/remove at index"],
+                    ["map/filter/reduce", "No", "New array or value", "Transform/filter/aggregate"],
+                    ["slice", "No", "Shallow copy portion", "Copy without mutating"],
+                    ["concat", "No", "New array", "Merge arrays"],
+                    ["includes/indexOf", "No", "boolean or number", "Search/check existence"],
+                ],
+            },
             usageMeanings: [
                 {
                     title: "Creating Arrays",
@@ -572,9 +584,20 @@ a = ?`,
             stepNumber: 4,
             title: "Common Array & Object Mistakes",
             icon: "⚠️",
+            comparison: {
+                title: "Mutation vs Immutable Pattern",
+                leftLabel: "Mutating (In-Place)",
+                rightLabel: "Immutable (Returns New)",
+                rows: [
+                    { label: "Approach", left: "Modifies original array/object", right: "Returns new array/object; original unchanged" },
+                    { label: "Methods", left: "push, pop, splice, sort (default), obj.prop = x", right: "map, filter, slice, spread [...arr], { ...obj }" },
+                    { label: "When to use", left: "Local logic, no shared references", right: "React state, shared refs, predictable code" },
+                    { label: "Bug risk", left: "Shared refs can cause surprise mutations", right: "No shared ref changes; easier to debug" },
+                ],
+            },
             explanation: `
                 <h3>Watch Out For These!</h3>
-                <p>Easy mistakes when working with arrays and objects.</p>
+                <p>Easy mistakes when working with arrays and objects. Prefer immutable patterns when updating state or passing data around—mutating shared references causes subtle bugs.</p>
             `,
             usageMeanings: [
                 {

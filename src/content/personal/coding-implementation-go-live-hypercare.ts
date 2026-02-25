@@ -91,19 +91,27 @@ export const codingImplementationGoLiveHypercareContent: InteractiveGuideContent
             stepNumber: 2,
             title: "Cutover Runbook Design",
             icon: "list-checks",
+            formula: [
+                { text: "T-", type: "subject" },
+                { text: "N", type: "verb" },
+                { text: ": ", type: "other" },
+                { text: "Task", type: "verb" },
+                { text: " | Owner | Verification | Rollback trigger", type: "other" },
+            ],
+            verbTable: {
+                title: "Cutover Checklist Formula",
+                headers: ["Phase", "Example Tasks", "Output"],
+                rows: [
+                    ["T-60 to T-24", "Readiness gates pass; runbook walkthrough; backup verification", "Go/no-go decision"],
+                    ["T-24 to T-1", "Data freeze; final backups; env sanity checks", "Backup confirmation"],
+                    ["T-0", "Deploy; cutover; DNS/config flip", "Deployment complete"],
+                    ["T+15 to T+60", "Smoke checks; critical path validation", "Smoke pass/fail"],
+                    ["T+60+", "Hypercare cadence; incident triage", "Status checkpoint"],
+                ],
+            },
             explanation: `
                 <h3>Cutover Needs Time-Ordered, Owner-Labeled Steps</h3>
-                <p>Build runbooks with timestamped tasks, owner roles, verification checks, and rollback trigger criteria.</p>
-
-                <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 1rem; border-radius: 0.75rem; color: #f8fafc; margin: 1rem 0;">
-<pre style="margin: 0; font-size: 0.88rem; line-height: 1.55;">
-T-60: pre-checks
-T-30: freeze + backups
-T-0: deploy/cutover
-T+15: smoke checks
-T+60: status checkpoint
-</pre>
-                </div>
+                <p>Build runbooks with timestamped tasks, owner roles, verification checks, and rollback trigger criteria. Each step should answer: who, what, when, and how do we verify success? If verification fails, what is the rollback trigger?</p>
             `,
             exercises: [
                 {
@@ -134,9 +142,20 @@ T+60: status checkpoint
             stepNumber: 3,
             title: "Rollback and Mitigation Strategy",
             icon: "undo-2",
+            verbTable: {
+                title: "Rollback Decision Tree",
+                headers: ["Trigger", "Condition", "Action"],
+                rows: [
+                    ["Core login/auth down", ">15min unrecovered", "Execute rollback; notify stakeholders"],
+                    ["Data integrity issue", "Migration/seed mismatch detected", "Pause rollout; assess; rollback or fix-forward"],
+                    ["Critical workflow broken", "No workaround; P0 defect", "Contain; rollback if fix ETA &gt; threshold"],
+                    ["Partial degradation", "Workaround exists; P1", "Forward-fix with ETA; no rollback unless worsens"],
+                    ["Non-critical", "P2/P3; cosmetic", "Log; triage; no rollback"],
+                ],
+            },
             explanation: `
                 <h3>Define Exit Paths Before Entry</h3>
-                <p>For each critical failure mode, specify rollback criteria or forward-fix mitigation with owner and decision authority.</p>
+                <p>For each critical failure mode, specify rollback criteria or forward-fix mitigation with owner and decision authority. Rollback triggers must be objective and measurable—e.g., "core login fails for >15 minutes" not "things feel bad." Define who has authority to call rollback.</p>
             `,
             exercises: [
                 {
@@ -386,6 +405,36 @@ T+60: status checkpoint
             skill: "triage",
             skillTag: "contain-communicate",
             difficulty: "hard",
+        },
+        {
+            id: "cigh-q6",
+            question: "Cutover runbook step should include:",
+            options: [
+                { value: "a", label: "Time, owner, action, verification, rollback trigger" },
+                { value: "b", label: "Action title only" },
+                { value: "c", label: "Generic checklist" },
+            ],
+            correctAnswer: "a",
+            explanation: "Execution reliability requires explicit operational fields.",
+            topic: "cutover",
+            skill: "operations",
+            skillTag: "runbook-fields",
+            difficulty: "medium",
+        },
+        {
+            id: "cigh-q7",
+            question: "Rollback trigger should be:",
+            options: [
+                { value: "a", label: "Objective and measurable (e.g., >15min down)" },
+                { value: "b", label: "Subjective (when team feels bad)" },
+                { value: "c", label: "Optional" },
+            ],
+            correctAnswer: "a",
+            explanation: "Objective triggers enable fast, defensible decisions.",
+            topic: "rollback",
+            skill: "risk-management",
+            skillTag: "rollback-triggers",
+            difficulty: "medium",
         },
     ],
 };

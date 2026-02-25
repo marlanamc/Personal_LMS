@@ -137,33 +137,79 @@ export const spanishB2IntegratedAssessmentContent: InteractiveGuideContent = {
         {
           id: "sp-b2eval-4",
           title: "Escritura estructurada",
-          instructions: "Construye tu texto por partes y luego integra una versión final.",
+          instructions: "Construye tu texto por partes y luego integra una versión final. Tesis: una oración que responda la pregunta. Argumentos: cada uno con evidencia del texto/audio. Conclusión: recomendación viable. Versión final: 170-220 palabras.",
+          answerExpectation: "full-sentence",
           items: [
             {
               type: "text",
-              label: "Tesis (1 oración):",
+              label: "Tesis (1 oración que responda la pregunta):",
+              placeholder: "Ejemplo: Una institución debe garantizar acceso equitativo a tecnología.",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Argumento 1 con evidencia:",
+              label: "Argumento 1 con evidencia (usa datos o citas del texto):",
+              placeholder: "Ejemplo: En primer lugar, como indica el informe, el 40%...",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
               label: "Argumento 2 con evidencia:",
+              placeholder: "Ejemplo: En segundo lugar, la experiencia de...",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Conclusión con recomendación:",
+              label: "Conclusión con recomendación viable:",
+              placeholder: "Ejemplo: Por tanto, se recomienda crear becas de conectividad.",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Versión final (170-220 palabras):",
+              label: "Versión final (170-220 palabras, integra tesis + argumentos + conclusión):",
+              placeholder: "Pega aquí tu texto completo.",
               acceptAnyAttempt: true,
             },
+          ],
+        },
+      ],
+    },
+    {
+      id: "resumen-evaluacion-b2",
+      stepNumber: 4,
+      title: "Resumen: criterios B2",
+      icon: "📋",
+      explanation: `
+        <h3>Qué se evalúa</h3>
+        <p>Comprensión lectora con identificación de tesis y matices. Síntesis de audio y texto. Argumentación con evidencia. Uso adecuado de tiempos, pasiva, subjuntivo y registro formal.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-b2e-quickref",
+          title: "Autoevaluación",
+          instructions: "Selecciona la opción correcta.",
+          items: [
+            { type: "radio", label: "En lectura analítica B2 es esencial ___", options: [{ value: "a", label: "identificar tesis y matices" }, { value: "b", label: "copiar frases textuales" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-evaluacion-b2",
+      stepNumber: 5,
+      title: "Errores frecuentes",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Responder sin evidencia del texto o audio. Ignorar la consigna de extensión. Usar registro informal en contextos formales. No estructurar la argumentación con conectores.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-b2e-mistakes",
+          title: "Identifica",
+          instructions: "¿Qué se debe mejorar?",
+          items: [
+            { type: "radio", label: "Una respuesta sin citas del texto tiene problemas de ___", options: [{ value: "evidencia", label: "evidencia" }, { value: "ortografía", label: "ortografía" }], expectedAnswer: "evidencia" },
           ],
         },
       ],

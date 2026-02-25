@@ -68,6 +68,27 @@ export const codingGitPrCommunicationContent: InteractiveGuideContent = {
             explanation: `
                 <h3>Small, Focused Branches Win Reviews</h3>
                 <p>Branch scope should map to one coherent goal. If a branch includes theme refactor, seed script edits, and notebook filtering with no clear boundary, reviewers cannot reason about risk.</p>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1.5rem 0;">
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); padding: 1.25rem; border-radius: 0.75rem; color: white;">
+                        <h4 style="margin-top: 0; font-size: 1.1rem;">✅ Good Branch Scope</h4>
+                        <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.9rem;">
+                            <li>One feature or one bug fix</li>
+                            <li>Clear rollback boundary</li>
+                            <li>Single area of the codebase</li>
+                            <li>Reviewable in 15-30 minutes</li>
+                        </ul>
+                    </div>
+                    <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 1.25rem; border-radius: 0.75rem; color: white;">
+                        <h4 style="margin-top: 0; font-size: 1.1rem;">❌ Risky Branch Scope</h4>
+                        <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.9rem;">
+                            <li>Multiple unrelated changes</li>
+                            <li>Impossible to rollback one piece</li>
+                            <li>Touches auth, UI, and database</li>
+                            <li>200+ lines across 15 files</li>
+                        </ul>
+                    </div>
+                </div>
             `,
             usageMeanings: [
                 {
@@ -124,9 +145,24 @@ export const codingGitPrCommunicationContent: InteractiveGuideContent = {
             stepNumber: 2,
             title: "Commit Quality and History Design",
             icon: "🧱",
+            formula: [
+                { text: "type", type: "subject" },
+                { text: "(", type: "other" },
+                { text: "scope", type: "verb" },
+                { text: "):", type: "other" },
+                { text: "imperative description", type: "object" },
+            ],
             explanation: `
                 <h3>Commit Sequence Should Tell a Story</h3>
                 <p>Reviewers should understand your intent by reading commit messages in order. The question is not only "does it run?" but also "can someone audit what happened later?"</p>
+
+                <div class="diagram-surface-light" style="background: #f8fafc; border: 1px solid rgba(148, 163, 184, 0.45); padding: 1rem; border-radius: 0.75rem; margin: 1rem 0;">
+                    <p style="margin: 0 0 0.5rem 0;"><strong>Commit Message Formula</strong></p>
+                    <code style="display: block; background: rgba(0,0,0,0.05); padding: 0.75rem; border-radius: 0.5rem; font-size: 0.95rem;">
+                        type(scope): imperative verb + what changed
+                    </code>
+                    <p style="margin: 0.75rem 0 0 0; font-size: 0.9rem;"><strong>Types:</strong> feat, fix, refactor, test, docs, style, chore</p>
+                </div>
 
                 <div class="diagram-surface-light" style="background: #f8fafc; border: 1px solid rgba(148, 163, 184, 0.45); padding: 1rem; border-radius: 0.75rem; margin: 1rem 0;">
                     <p style="margin: 0 0 0.5rem 0;"><strong>Example high-signal sequence</strong></p>
@@ -172,6 +208,38 @@ export const codingGitPrCommunicationContent: InteractiveGuideContent = {
             stepNumber: 3,
             title: "PR Description, Risk Notes, and Validation",
             icon: "📝",
+            comparison: {
+                title: "PR Description Quality Comparison",
+                leftLabel: "Strong PR Description",
+                rightLabel: "Weak PR Description",
+                rows: [
+                    {
+                        label: "Problem Statement",
+                        left: "Filter chips show activity cards instead of notebook cards due to type mismatch",
+                        right: "Fixed bug",
+                    },
+                    {
+                        label: "Decision Rationale",
+                        left: "Chose to map chip selection to activity.type enum for consistency with existing filters",
+                        right: "(no explanation)",
+                    },
+                    {
+                        label: "Scope",
+                        left: "Changes: SubjectPage.tsx, FilterChip.tsx. No backend changes.",
+                        right: "Changed some files",
+                    },
+                    {
+                        label: "Risk Assessment",
+                        left: "Risk: filter state could persist incorrectly on navigation. Mitigated by resetting on route change.",
+                        right: "(no risk noted)",
+                    },
+                    {
+                        label: "Validation",
+                        left: "Tested: all 5 filter chips toggle correctly, card counts match, dark/light modes verified",
+                        right: "Looks good to me",
+                    },
+                ],
+            },
             explanation: `
                 <h3>PRs Should Reduce Reviewer Cognitive Load</h3>
                 <p>A strong PR description includes context, change scope, user impact, risks, and explicit validation steps.</p>
@@ -180,6 +248,28 @@ export const codingGitPrCommunicationContent: InteractiveGuideContent = {
 <pre style="margin: 0; font-size: 0.88rem; line-height: 1.55;">
 Problem -> Decision -> Scope -> Risks -> Validation -> Screenshots
 </pre>
+                </div>
+
+                <div class="diagram-surface-light" style="background: #f8fafc; border: 1px solid rgba(148, 163, 184, 0.45); padding: 1rem; border-radius: 0.75rem; margin: 1rem 0;">
+                    <p style="margin: 0 0 0.5rem 0;"><strong>PR Description Template</strong></p>
+                    <pre style="margin: 0; font-size: 0.85rem; line-height: 1.6; background: rgba(0,0,0,0.05); padding: 0.75rem; border-radius: 0.5rem;">
+## Problem
+[What user-facing issue does this solve?]
+
+## Solution
+[What approach did you take and why?]
+
+## Changes
+- [ ] File1.tsx - description
+- [ ] File2.ts - description
+
+## Risk Assessment
+[What could go wrong? How did you mitigate?]
+
+## Validation
+- [ ] Test case 1
+- [ ] Test case 2
+- [ ] Screenshots attached</pre>
                 </div>
             `,
             postExplanation: `
@@ -322,8 +412,77 @@ Problem -> Decision -> Scope -> Risks -> Validation -> Screenshots
             ],
         },
         {
-            id: "professional-communication-playbook",
+            id: "merge-conflict-resolution",
             stepNumber: 6,
+            title: "Merge Conflict Resolution Strategy",
+            icon: "⚔️",
+            explanation: `
+                <h3>Conflicts Are Coordination Signals, Not Failures</h3>
+                <p>When git flags a merge conflict, it means two branches changed the same lines. Resolve conflicts carefully by understanding both changes, testing thoroughly, and communicating the choice in commit messages.</p>
+
+                <div class="diagram-surface-light" style="background: #f8fafc; border: 1px solid rgba(148, 163, 184, 0.45); padding: 1rem; border-radius: 0.75rem; margin: 1rem 0;">
+                    <p style="margin: 0 0 0.5rem 0;"><strong>Conflict Resolution Checklist</strong></p>
+                    <ul style="margin: 0; padding-left: 1rem; line-height: 1.7;">
+                        <li>Understand what each branch changed and why</li>
+                        <li>Combine logic carefully, do not just delete one side</li>
+                        <li>Test the merged result thoroughly (both changes must work)</li>
+                        <li>Commit with clear message: 'merge: resolve conflict in X by combining A and B logic'</li>
+                        <li>Notify the other developer about your resolution strategy</li>
+                    </ul>
+                </div>
+
+                <h4 style="margin-top: 1.5rem;">Common Conflict Patterns</h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1rem 0;">
+                    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1rem; border-radius: 0.75rem;">
+                        <p style="margin: 0 0 0.5rem 0; font-weight: 600;">Import/export additions</p>
+                        <p style="margin: 0; font-size: 0.9rem;">Both branches added new exports. Combine all exports, removing duplicates.</p>
+                    </div>
+                    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1rem; border-radius: 0.75rem;">
+                        <p style="margin: 0 0 0.5rem 0; font-weight: 600;">Function signature changes</p>
+                        <p style="margin: 0; font-size: 0.9rem;">Different branch modified the same function. Keep signature from main, adapt calls if needed.</p>
+                    </div>
+                    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1rem; border-radius: 0.75rem;">
+                        <p style="margin: 0 0 0.5rem 0; font-weight: 600;">Merge with main frequently</p>
+                        <p style="margin: 0; font-size: 0.9rem;">Rebase or merge main into feature branch weekly to catch conflicts early.</p>
+                    </div>
+                    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); padding: 1rem; border-radius: 0.75rem;">
+                        <p style="margin: 0 0 0.5rem 0; font-weight: 600;">Semantic conflicts</p>
+                        <p style="margin: 0; font-size: 0.9rem;">Git merges but logic is broken. Always test after resolving conflicts, do not trust automatic resolution.</p>
+                    </div>
+                </div>
+            `,
+            tipBox: {
+                title: "Conflict Prevention",
+                content:
+                    "Keep branches short-lived (2-3 days max) and merge main frequently to reduce conflict risk. Communicate with teammates about who is touching which files.",
+            },
+            exercises: [
+                {
+                    id: "cgpc-conflict-1",
+                    title: "Conflict Resolution Drill",
+                    instructions: "Choose the strongest resolution strategy.",
+                    items: [
+                        {
+                            type: "radio",
+                            label: "You have a merge conflict where both branches added new theme tokens. Best approach:",
+                            options: [
+                                { value: "combine", label: "Combine both token sets, remove duplicates, test all references" },
+                                { value: "delete", label: "Delete one branch's changes to resolve faster" },
+                            ],
+                            expectedAnswer: "combine",
+                        },
+                        {
+                            type: "text",
+                            label: "Write a clear commit message after resolving a conflict where two branches modified activity filter logic:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            id: "professional-communication-playbook",
+            stepNumber: 7,
             title: "Professional Communication Playbook",
             icon: "🎯",
             explanation: `
@@ -364,7 +523,7 @@ Problem -> Decision -> Scope -> Risks -> Validation -> Screenshots
             id: "practice-cadence-and-outcomes",
             stepNumber: 99,
             title: "Practice Cadence + I Can Now",
-            icon: "check-circle",
+            icon: "✅",
             explanation: `
                 <h3>Standard Practice Cadence</h3>
                 <p>Use this repeatable sequence whenever you learn a new concept: concept check -> read code -> write code -> debug scenario.</p>
@@ -625,6 +784,51 @@ Problem -> Decision -> Scope -> Risks -> Validation -> Screenshots
             topic: "git-history",
             skill: "judgment",
             skillTag: "squash-tradeoff",
+            difficulty: "hard",
+        },
+        {
+            id: "cgpc-q13",
+            question: "Two branches both modified theme token definitions. What should NOT be your resolution strategy?",
+            options: [
+                { value: "a", label: "Delete one branch's tokens to reduce file size" },
+                { value: "b", label: "Combine both token sets and test all references" },
+                { value: "c", label: "Verify that neither change breaks the other's intended behavior" },
+            ],
+            correctAnswer: "a",
+            explanation: "Deleting one side of a conflict loses functionality. Always combine changes and validate.",
+            topic: "conflicts",
+            skill: "collaboration",
+            skillTag: "conflict-resolution",
+            difficulty: "medium",
+        },
+        {
+            id: "cgpc-q14",
+            question: "Best practice to prevent merge conflicts on long-running branches?",
+            options: [
+                { value: "a", label: "Merge or rebase main into feature branch weekly" },
+                { value: "b", label: "Wait until the end and resolve all conflicts at once" },
+                { value: "c", label: "Keep teammates away from the same files" },
+            ],
+            correctAnswer: "a",
+            explanation: "Frequent syncs with main catch conflicts early when they are easier to resolve.",
+            topic: "conflicts",
+            skill: "process",
+            skillTag: "conflict-prevention",
+            difficulty: "medium",
+        },
+        {
+            id: "cgpc-q15",
+            question: "After resolving a merge conflict in git, most important validation step?",
+            options: [
+                { value: "a", label: "Run typecheck, build, and relevant tests to ensure merged code works" },
+                { value: "b", label: "Trust git's conflict markers are correct" },
+                { value: "c", label: "Just commit without testing" },
+            ],
+            correctAnswer: "a",
+            explanation: "Git resolves line-level conflicts but cannot validate semantic correctness. Testing proves both changes work together.",
+            topic: "conflicts",
+            skill: "quality",
+            skillTag: "post-merge-validation",
             difficulty: "hard",
         },
     ],

@@ -9,11 +9,25 @@ export const spanishImmediateFutureContent: InteractiveGuideContent = {
       title: "Immediate Future with ir + a + infinitive",
       icon: "🕒",
       explanation: `
-        <h3>A2 Essential: Talk About Plans</h3>
-        <p>Spanish commonly uses <strong>ir + a + infinitive</strong> to express near future plans and intentions.</p>
-        <p>Pattern: <strong>subject + ir (conjugated) + a + infinitive</strong></p>
+        <h3>Why This Matters</h3>
+        <p>To talk about plans, intentions, and what you or others are going to do, Spanish uses a simple pattern that sounds natural in everyday conversation. Once you learn it, you can express the near future in almost any situation.</p>
+        <h3>The Pattern</h3>
+        <p>Spanish commonly uses <strong>ir + a + infinitive</strong> to express near future plans and intentions. You conjugate <strong>ir</strong> (to go) in the present tense, then add <strong>a</strong> and the infinitive of the action.</p>
         <p>Example: <em>Voy a estudiar esta noche.</em> (I am going to study tonight.)</p>
       `,
+      formula: [
+        { text: "subject", type: "subject" },
+        { text: "+", type: "other" },
+        { text: "ir", type: "verb" },
+        { text: "+", type: "other" },
+        { text: "a", type: "other" },
+        { text: "+", type: "other" },
+        { text: "infinitive", type: "object" },
+      ],
+      tipBox: {
+        title: "Common mistake",
+        content: "Do NOT drop the 'a'. It is always ir + a + infinitive, never ir + infinitive. Vamos a comer is correct; vamos comer is wrong.",
+      },
       verbTable: {
         title: "Conjugation of ir (present)",
         headers: ["Subject", "Form", "Example"],
@@ -49,6 +63,18 @@ export const spanishImmediateFutureContent: InteractiveGuideContent = {
               options: ["va", "van", "voy"],
               expectedAnswer: "van",
             },
+            {
+              type: "select",
+              label: "Tú ___ a cenar con nosotros.",
+              options: ["vas", "va", "vamos"],
+              expectedAnswer: "vas",
+            },
+            {
+              type: "select",
+              label: "Él ___ a comprar el pan.",
+              options: ["va", "voy", "van"],
+              expectedAnswer: "va",
+            },
           ],
         },
       ],
@@ -60,7 +86,7 @@ export const spanishImmediateFutureContent: InteractiveGuideContent = {
       icon: "📅",
       explanation: `
         <h3>Sound Natural with Time Expressions</h3>
-        <p>Combine immediate future with clear time markers.</p>
+        <p>Combine immediate future with clear time markers so listeners know when the action will happen. These phrases are used constantly in plans and invitations.</p>
       `,
       timeExpressions: [
         {
@@ -107,6 +133,24 @@ export const spanishImmediateFutureContent: InteractiveGuideContent = {
                 { value: "anoche", label: "anoche" },
               ],
               expectedAnswer: "proximo",
+            },
+            {
+              type: "radio",
+              label: "___ voy a leer. (Tomorrow I am going to read.)",
+              options: [
+                { value: "manana", label: "Mañana" },
+                { value: "ayer", label: "Ayer" },
+              ],
+              expectedAnswer: "manana",
+            },
+            {
+              type: "radio",
+              label: "___ van a llegar. (Later they are going to arrive.)",
+              options: [
+                { value: "tarde", label: "Más tarde" },
+                { value: "anoche", label: "Anoche" },
+              ],
+              expectedAnswer: "tarde",
             },
           ],
         },
@@ -171,7 +215,7 @@ export const spanishImmediateFutureContent: InteractiveGuideContent = {
       title: "Real-Life Planning Language",
       icon: "🗂️",
       explanation: `
-        <h3>Useful A2 Planning Frames</h3>
+        <h3>Useful Planning Frames</h3>
         <ul>
           <li><strong>Voy a + infinitive</strong> (I am going to...)</li>
           <li><strong>No voy a + infinitive</strong> (I am not going to...)</li>
@@ -195,6 +239,76 @@ export const spanishImmediateFutureContent: InteractiveGuideContent = {
               label: "No ______ (ir + salir) hoy; estoy cansado.",
               correctAnswer: "voy a salir",
               expectedAnswers: ["voy a salir"],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "quick-reference",
+      stepNumber: 4,
+      title: "Quick Reference: ir + a + infinitive",
+      icon: "📋",
+      explanation: `
+        <h3>At a Glance</h3>
+        <p><strong>Pattern:</strong> subject + ir (conjugated in present) + <strong>a</strong> + infinitive.</p>
+        <p><strong>ir present:</strong> voy, vas, va, vamos, van. Time markers: mañana, esta noche, más tarde, el próximo fin de semana.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-future-quick-ref",
+          title: "Recall the Pattern",
+          instructions: "Choose the correct form.",
+          items: [
+            {
+              type: "radio",
+              label: "The word that must appear between ir and the infinitive is ___.",
+              options: [
+                { value: "a", label: "a" },
+                { value: "de", label: "de" },
+              ],
+              expectedAnswer: "a",
+            },
+            {
+              type: "radio",
+              label: "Nosotros ___ a viajar.",
+              options: [
+                { value: "vamos", label: "vamos" },
+                { value: "van", label: "van" },
+              ],
+              expectedAnswer: "vamos",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "common-mistakes-future",
+      stepNumber: 5,
+      title: "Common Mistakes",
+      icon: "⚠️",
+      explanation: `
+        <h3>What to Avoid</h3>
+        <ul>
+          <li><strong>Dropping the "a"</strong> — Always ir + a + infinitive (vamos a comer, not vamos comer).</li>
+          <li><strong>Putting "no" in the wrong place</strong> — No goes before the conjugated verb: No voy a salir.</li>
+          <li><strong>Using the wrong form of ir</strong> — Match the subject: yo voy, tú vas, ellos van.</li>
+        </ul>
+      `,
+      exercises: [
+        {
+          id: "sp-future-mistakes",
+          title: "Spot the Error",
+          instructions: "Which is correct?",
+          items: [
+            {
+              type: "radio",
+              label: "How do you say 'I am not going to go'?",
+              options: [
+                { value: "a", label: "No voy a ir." },
+                { value: "b", label: "Voy no a ir." },
+              ],
+              expectedAnswer: "a",
             },
           ],
         },
@@ -311,6 +425,28 @@ export const spanishImmediateFutureContent: InteractiveGuideContent = {
       ],
       correctAnswer: "b",
       explanation: "El próximo fin de semana refers to next weekend.",
+    },
+    {
+      id: "future-q11",
+      question: "Which sentence has an error?",
+      options: [
+        { value: "a", label: "Voy a llamar mañana." },
+        { value: "b", label: "Ella va a trabajar esta noche." },
+        { value: "c", label: "Nosotros vamos comer fuera." },
+      ],
+      correctAnswer: "c",
+      explanation: "Correct form is vamos a comer; the 'a' must not be omitted.",
+    },
+    {
+      id: "future-q12",
+      question: "Choose the sentence that correctly expresses intention.",
+      options: [
+        { value: "a", label: "Mañana voy estudiar." },
+        { value: "b", label: "Mañana voy a estudiar." },
+        { value: "c", label: "Mañana ir a estudiar." },
+      ],
+      correctAnswer: "b",
+      explanation: "Immediate future requires conjugated ir + a + infinitive: voy a estudiar.",
     },
   ],
 };

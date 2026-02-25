@@ -160,39 +160,85 @@ export const spanishReflexiveVerbsRoutinesContent: InteractiveGuideContent = {
     {
       id: "daily-routine-speaking",
       stepNumber: 3,
-      title: "A2 Routine Speaking Template",
+      title: "Routine Speaking Template",
       icon: "🗣️",
       explanation: `
         <h3>Use This Speaking Frame</h3>
         <p><em>Primero me ____. Luego ____. Después ____. Finalmente ____.</em></p>
-        <p>This frame helps you produce a full routine in 4 connected steps.</p>
+        <p>This frame helps you produce a full routine in 4 connected steps. <strong>Success criteria:</strong> Use at least two reflexive verbs (e.g. levantarse, ducharse, vestirse, acostarse). One action per step. Example: <em>Primero me levanto. Luego me ducho. Después me visto. Finalmente desayuno.</em></p>
       `,
       exercises: [
         {
           id: "sp-reflexive-4",
           title: "Write a 4-Step Routine",
-          instructions: "Use at least two reflexive verbs.",
+          instructions: "Write your morning or evening routine in 4 steps. Use at least two reflexive verbs. One complete sentence per step. Sequence: primero → luego → después → finalmente.",
+          answerExpectation: "full-sentence",
           items: [
             {
               type: "text",
-              label: "Step 1 (primero):",
+              label: "Step 1 (primero, e.g. Primero me levanto):",
+              placeholder: "Ejemplo: Primero me levanto a las siete.",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Step 2 (luego):",
+              label: "Step 2 (luego, e.g. Luego me ducho):",
+              placeholder: "Ejemplo: Luego me ducho.",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Step 3 (después):",
+              label: "Step 3 (después, e.g. Después me visto):",
+              placeholder: "Ejemplo: Después me visto.",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Step 4 (finalmente):",
+              label: "Step 4 (finalmente, e.g. Finalmente desayuno):",
+              placeholder: "Ejemplo: Finalmente desayuno.",
               acceptAnyAttempt: true,
             },
+          ],
+        },
+      ],
+    },
+    {
+      id: "quick-reference-refl",
+      stepNumber: 4,
+      title: "Quick Reference: Reflexive Pronouns",
+      icon: "📋",
+      explanation: `
+        <h3>At a Glance</h3>
+        <p><strong>Pronouns:</strong> me, te, se, nos, os, se (match the subject). Common reflexive verbs: levantarse, ducharse, vestirse, acostarse. Pronoun goes before conjugated verb or attached to infinitive (voy a levantarme).</p>
+      `,
+      exercises: [
+        {
+          id: "sp-refl-quickref",
+          title: "Recall",
+          instructions: "Choose the correct form.",
+          items: [
+            { type: "radio", label: "With 'yo' the reflexive pronoun is ___.", options: [{ value: "me", label: "me" }, { value: "te", label: "te" }], expectedAnswer: "me" },
+            { type: "radio", label: "With 'él/ella' the reflexive pronoun is ___.", options: [{ value: "se", label: "se" }, { value: "le", label: "le" }], expectedAnswer: "se" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "common-mistakes-refl",
+      stepNumber: 5,
+      title: "Common Mistakes",
+      icon: "⚠️",
+      explanation: `
+        <h3>What to Avoid</h3>
+        <p>Using the wrong pronoun for the subject (yo me levanto, not yo te levanto). Forgetting the pronoun (me ducho, not ducho). Putting the pronoun in the wrong place with two verbs (debo levantarme early, or me debo levantar).</p>
+      `,
+      exercises: [
+        {
+          id: "sp-refl-mistakes",
+          title: "Correct?",
+          instructions: "Which is correct?",
+          items: [
+            { type: "radio", label: "I wake up:", options: [{ value: "a", label: "Me despierto." }, { value: "b", label: "Despierto." }], expectedAnswer: "a" },
           ],
         },
       ],

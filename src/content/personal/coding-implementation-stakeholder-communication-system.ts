@@ -83,6 +83,30 @@ export const codingImplementationStakeholderCommunicationSystemContent: Interact
                             label: "Write one sentence translating a technical blocker into stakeholder-friendly language:",
                             acceptAnyAttempt: true,
                         },
+                        {
+                            type: "radio",
+                            label: "A delivery team needs to know about a vendor API integration delay. Best communication includes:",
+                            options: [
+                                { value: "blockers", label: "Blockers, ownership, next actions, timeline impact" },
+                                { value: "status", label: "Status update and general timeline" },
+                            ],
+                            expectedAnswer: "blockers",
+                        },
+                        {
+                            type: "text",
+                            label: "Draft a one-line customer update about a feature delay (focus on impact they care about):",
+                            acceptAnyAttempt: true,
+                        },
+                        {
+                            type: "radio",
+                            label: "When communicating with operations/support team pre-launch, avoid:",
+                            options: [
+                                { value: "vague", label: "Vague timelines and surprise rollout plans" },
+                                { value: "technical", label: "Technical implementation details" },
+                                { value: "both", label: "Both of the above" },
+                            ],
+                            expectedAnswer: "vague",
+                        },
                     ],
                 },
             ],
@@ -126,6 +150,30 @@ export const codingImplementationStakeholderCommunicationSystemContent: Interact
                             label: "Write one rule for when to switch from normal cadence to incident cadence:",
                             acceptAnyAttempt: true,
                         },
+                        {
+                            type: "radio",
+                            label: "During normal delivery, delivery team sync frequency should be:",
+                            options: [
+                                { value: "frequent", label: "2-3x weekly to surface blockers quickly" },
+                                { value: "sparse", label: "Once per week to minimize interruption" },
+                            ],
+                            expectedAnswer: "frequent",
+                        },
+                        {
+                            type: "text",
+                            label: "Define what 'incident mode' communication looks like (frequency, decision speed, escalation protocol):",
+                            acceptAnyAttempt: true,
+                        },
+                        {
+                            type: "radio",
+                            label: "Cadence should increase if:",
+                            options: [
+                                { value: "risk", label: "Risk exposure increases or timeline compresses" },
+                                { value: "happy", label: "Team morale is high and progress is fast" },
+                                { value: "team", label: "Team size grows" },
+                            ],
+                            expectedAnswer: "risk",
+                        },
                     ],
                 },
             ],
@@ -159,6 +207,34 @@ Objective status -> Milestone confidence -> Risks -> Decisions needed -> Next mi
                         {
                             type: "text",
                             label: "Write one decision request line that names owner, decision needed, and deadline:",
+                            acceptAnyAttempt: true,
+                        },
+                        {
+                            type: "radio",
+                            label: "A status update should flow in this order:",
+                            options: [
+                                { value: "flow", label: "Objective → Confidence → Risk → Decision needed → Next milestone" },
+                                { value: "time", label: "Timeline → budget → scope → team → status" },
+                            ],
+                            expectedAnswer: "flow",
+                        },
+                        {
+                            type: "text",
+                            label: "Write a 'risk' paragraph for an executive update (1-2 sentences, include timeline impact):",
+                            acceptAnyAttempt: true,
+                        },
+                        {
+                            type: "radio",
+                            label: "When project status is green, executive update should focus on:",
+                            options: [
+                                { value: "milestone", label: "Milestone completion, upcoming decisions, confidence for next phase" },
+                                { value: "detail", label: "Technical details of what was completed" },
+                            ],
+                            expectedAnswer: "milestone",
+                        },
+                        {
+                            type: "text",
+                            label: "Draft a 1-line confidence statement for a project tracking on timeline:",
                             acceptAnyAttempt: true,
                         },
                     ],
@@ -216,6 +292,29 @@ Objective status -> Milestone confidence -> Risks -> Decisions needed -> Next mi
                             label: "Write one escalation line using trigger/impact/ask/deadline:",
                             acceptAnyAttempt: true,
                         },
+                        {
+                            type: "radio",
+                            label: "A strong escalation message always includes:",
+                            options: [
+                                { value: "structure", label: "Specific trigger, business impact, decision options, and deadline" },
+                                { value: "emotion", label: "Urgency and frustration to motivate action" },
+                            ],
+                            expectedAnswer: "structure",
+                        },
+                        {
+                            type: "text",
+                            label: "Compare: weak escalation vs strong escalation. Write the weak version first, then the strong version:",
+                            acceptAnyAttempt: true,
+                        },
+                        {
+                            type: "radio",
+                            label: "When escalating a critical issue, recommendation should include:",
+                            options: [
+                                { value: "options", label: "2-3 options with tradeoffs so decision-maker can choose" },
+                                { value: "single", label: "Single recommended path to speed decision" },
+                            ],
+                            expectedAnswer: "options",
+                        },
                     ],
                 },
             ],
@@ -247,6 +346,142 @@ Objective status -> Milestone confidence -> Risks -> Decisions needed -> Next mi
                         {
                             type: "text",
                             label: "Write one action-log line with owner, action, and due date:",
+                            acceptAnyAttempt: true,
+                        },
+                        {
+                            type: "radio",
+                            label: "A meeting without clear owners or deadlines results in:",
+                            options: [
+                                { value: "drift", label: "Accountability drift and unexecuted actions" },
+                                { value: "progress", label: "Faster progress due to no blocking constraints" },
+                            ],
+                            expectedAnswer: "drift",
+                        },
+                        {
+                            type: "text",
+                            label: "Design a post-meeting recap template with 4 key sections:",
+                            acceptAnyAttempt: true,
+                        },
+                        {
+                            type: "radio",
+                            label: "When an action remains unresolved after a meeting:",
+                            options: [
+                                { value: "track", label: "Track it in the unresolved log with escalation trigger" },
+                                { value: "drop", label: "Drop it from tracking to avoid noise" },
+                            ],
+                            expectedAnswer: "track",
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            id: "translating-technical-issues",
+            stepNumber: 6,
+            title: "Translating Technical Issues to Business Impact",
+            icon: "zap",
+            explanation: `
+                <h3>The Translation Problem</h3>
+                <p>When a technical issue arises, stakeholders don't care about the technical details—they care about impact on delivery, cost, and user experience. Your job is to translate the technical constraint into business language that enables faster decisions.</p>
+
+                <div class="diagram-surface-light" style="background: #f8fafc; border: 1px solid rgba(148, 163, 184, 0.45); padding: 1rem; border-radius: 0.75rem; margin: 1rem 0;">
+                    <p style="margin: 0 0 0.5rem 0;"><strong>Translation pattern:</strong></p>
+                    <p style="margin: 0; line-height: 1.7;"><em>Technical issue</em> → <em>business consequence</em> → <em>decision needed</em> → <em>recommendation</em></p>
+                </div>
+
+                <h3>Common Translation Scenarios</h3>
+                <p>Technical issues map to specific business impacts. Understanding which impact matters most to your stakeholder audience helps you frame the message for faster alignment.</p>
+            `,
+            verbTable: {
+                title: "Technical Issue → Business Impact Translation",
+                headers: ["Technical Issue", "Business Impact", "Decision Framing", "Stakeholder Concern"],
+                rows: [
+                    ["API vendor onboarding delayed 2 weeks", "Timeline risk: launch date now at risk", "Phased launch vs extended timeline", "Executive: cost of delay vs quality"],
+                    ["Database schema migration incomplete", "Scope risk: feature flagging required", "Ship without feature vs extend prep", "Team: rollback safety vs new timeline"],
+                    ["Third-party library security patch pending", "Delivery risk: blocker until patched", "Patch in QA vs extend timeline vs skip", "Security lead: risk tolerance vs launch date"],
+                    ["Performance regression in core flow", "User experience risk: may not meet SLA", "Optimize vs accept degradation vs scope cut", "Product: quality vs users waiting"],
+                ],
+            },
+            exercises: [
+                {
+                    id: "cisc-translate-1",
+                    title: "Issue Translation",
+                    instructions: "Translate technical issues to business language.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "You discover a critical payment processing API is rate-limited. Translate this technical issue into a stakeholder-facing business impact (1-2 sentences):",
+                            acceptAnyAttempt: true,
+                        },
+                        {
+                            type: "text",
+                            label: "A key data import takes 6 hours instead of 1 hour due to volume. What is the business consequence for go-live cutover?",
+                            acceptAnyAttempt: true,
+                        },
+                        {
+                            type: "radio",
+                            label: "When translating technical delays, highest-value framing includes:",
+                            options: [
+                                { value: "impact", label: "Business consequence (timeline/cost/risk) + decision options" },
+                                { value: "blame", label: "Who caused the delay and technical details" },
+                                { value: "emotion", label: "Frustration and urgency signals" },
+                            ],
+                            expectedAnswer: "impact",
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            id: "meeting-facilitation-action-capture",
+            stepNumber: 7,
+            title: "Meeting Facilitation and Action Capture",
+            icon: "clipboard-list",
+            explanation: `
+                <h3>Not All Meetings Drive Decisions</h3>
+                <p>Status meetings that end without owners, decisions, or next actions waste time. Implementation-grade meetings require pre-meeting clarity, real-time decision capture, and post-meeting artifact distribution.</p>
+
+                <h3>Three Meeting Types in Implementation</h3>
+                <p>Different meetings serve different purposes. Mixing purposes creates confusion and wasted time.</p>
+            `,
+            verbTable: {
+                title: "Meeting Types: Purpose × Preparation × Closeout",
+                headers: ["Meeting Type", "Purpose", "Prep Required", "Key Outcome", "Minimum Attendees"],
+                rows: [
+                    ["Operational Sync", "Unblock delivery, surface blockers", "Shared ticket view or status template", "Action log with owners/dates", "Team lead, dependencies"],
+                    ["Escalation Review", "Decide on risk response, approve options", "3+ options with tradeoffs pre-written", "Decision recorded with reasoning", "Decision-maker, impacted teams"],
+                    ["Stakeholder Alignment", "Drive cross-functional consensus, remove ambiguity", "Shared charter or scope doc pre-reviewed", "Owner, timeline, and unresolved questions", "All decision-makers, exec sponsor"],
+                    ["Go-Live Readiness", "Final risk verification before cutover", "Readiness checklist, runbook review", "Go/no-go decision, rollback plan", "All teams, incident commander"],
+                ],
+            },
+            tipBox: {
+                title: "Post-Meeting Artifact Template",
+                content: `Decision made | Action log (Owner/Action/Date) | Unresolved issues | Next sync date and purpose`,
+            },
+            exercises: [
+                {
+                    id: "cisc-facilitation-1",
+                    title: "Meeting Preparation",
+                    instructions: "Identify the prep required for decision meetings.",
+                    items: [
+                        {
+                            type: "radio",
+                            label: "Before an escalation meeting to decide on timeline extension, best prep is:",
+                            options: [
+                                { value: "options", label: "3+ options with cost/risk tradeoffs pre-analyzed" },
+                                { value: "problem", label: "A complete problem description and team morale" },
+                                { value: "data", label: "Historical data on past delays" },
+                            ],
+                            expectedAnswer: "options",
+                        },
+                        {
+                            type: "text",
+                            label: "Design a pre-meeting agenda for an operational sync that unblocks a critical delivery path (3-4 items):",
+                            acceptAnyAttempt: true,
+                        },
+                        {
+                            type: "text",
+                            label: "Write one action log entry with owner, action, and due date for a stakeholder alignment meeting:",
                             acceptAnyAttempt: true,
                         },
                     ],
@@ -401,6 +636,156 @@ Objective status -> Milestone confidence -> Risks -> Decisions needed -> Next mi
             topic: "communication-strategy",
             skill: "systems-thinking",
             skillTag: "decision-flow",
+            difficulty: "hard",
+        },
+        {
+            id: "cisc-q6",
+            question: "Delivery team updates should focus most on:",
+            options: [
+                { value: "a", label: "Blockers, dependencies, ownership, and next actions" },
+                { value: "b", label: "Completed tasks and team velocity" },
+                { value: "c", label: "Budget spend and resource utilization" },
+            ],
+            correctAnswer: "a",
+            explanation: "Delivery teams need operational clarity to execute, not status reporting.",
+            topic: "audience-mapping",
+            skill: "stakeholder-management",
+            skillTag: "delivery-team-signal",
+            difficulty: "easy",
+        },
+        {
+            id: "cisc-q7",
+            question: "When translating technical issues for stakeholders, avoid:",
+            options: [
+                { value: "a", label: "The technical details; focus on business impact instead" },
+                { value: "b", label: "Mentioning the problem at all" },
+                { value: "c", label: "Any admission of the issue" },
+            ],
+            correctAnswer: "a",
+            explanation: "Technical jargon obscures decision-making. Frame around impact: timeline, cost, or quality.",
+            topic: "translating-technical-issues",
+            skill: "communication",
+            skillTag: "impact-translation",
+            difficulty: "easy",
+        },
+        {
+            id: "cisc-q8",
+            question: "A vendor delay affects your launch date. Best escalation structure:",
+            options: [
+                { value: "a", label: "Trigger: API delayed 2 weeks | Impact: launch at risk | Ask: approve phased launch" },
+                { value: "b", label: "The vendor really dropped the ball, we need their help immediately" },
+                { value: "c", label: "Status is yellow, timeline now uncertain" },
+            ],
+            correctAnswer: "a",
+            explanation: "Clear trigger, specific impact, and actionable ask enable faster decisions.",
+            topic: "escalation",
+            skill: "risk-management",
+            skillTag: "escalation-structure",
+            difficulty: "medium",
+        },
+        {
+            id: "cisc-q9",
+            question: "During incident mode communication, priority sequence is:",
+            options: [
+                { value: "a", label: "Decision owners first, then delivery team, then executives with wrapped summary" },
+                { value: "b", label: "Executives first to get approval, then execute" },
+                { value: "c", label: "Deliver team first for full details, then exec summary" },
+            ],
+            correctAnswer: "a",
+            explanation: "Decision-makers need real-time access to unblock; teams need clarity; exec needs summary.",
+            topic: "cadence",
+            skill: "operations",
+            skillTag: "incident-communication",
+            difficulty: "medium",
+        },
+        {
+            id: "cisc-q10",
+            question: "Status update flow that drives decisions is:",
+            options: [
+                { value: "a", label: "Objective → Milestone confidence → Risks → Decisions needed → Next milestone" },
+                { value: "b", label: "Tasks completed → Blockers → Status → Schedule" },
+                { value: "c", label: "What happened → What we're doing → When it will finish" },
+            ],
+            correctAnswer: "a",
+            explanation: "Decision-oriented flow puts outcome clarity first, then risks, then asks.",
+            topic: "status-update-architecture",
+            skill: "communication",
+            skillTag: "update-structure",
+            difficulty: "medium",
+        },
+        {
+            id: "cisc-q11",
+            question: "Meeting prep for escalation decisions should include:",
+            options: [
+                { value: "a", label: "3+ options with costs/risks/timelines pre-analyzed" },
+                { value: "b", label: "Complete problem description to discuss" },
+                { value: "c", label: "Historical context and emotional buy-in" },
+            ],
+            correctAnswer: "a",
+            explanation: "Pre-analysis of options enables faster, higher-quality decisions.",
+            topic: "meeting-facilitation-action-capture",
+            skill: "delivery",
+            skillTag: "meeting-prep",
+            difficulty: "medium",
+        },
+        {
+            id: "cisc-q12",
+            question: "Customer communication before a feature delay should include:",
+            options: [
+                { value: "a", label: "Clear impact on their use, new timeline, what they can do in the meantime" },
+                { value: "b", label: "Technical reason for the delay and apologies" },
+                { value: "c", label: "Internal team struggles and resource constraints" },
+            ],
+            correctAnswer: "a",
+            explanation: "Customers care about impact on them: when they get it, alternatives meanwhile, and confidence in new date.",
+            topic: "audience-mapping",
+            skill: "stakeholder-management",
+            skillTag: "customer-framing",
+            difficulty: "medium",
+        },
+        {
+            id: "cisc-q13",
+            question: "An unresolved action after a meeting creates risk because:",
+            options: [
+                { value: "a", label: "Ambiguity → no owner → no execution → missed deadline" },
+                { value: "b", label: "It shows the meeting was inefficient" },
+                { value: "c", label: "The team will naturally complete it later" },
+            ],
+            correctAnswer: "a",
+            explanation: "Ownership ambiguity breaks execution. Every action needs explicit owner, timeline, and escalation trigger.",
+            topic: "meeting-facilitation-action-capture",
+            skill: "delivery",
+            skillTag: "action-tracking",
+            difficulty: "hard",
+        },
+        {
+            id: "cisc-q14",
+            question: "Risk-based cadence adjustment means:",
+            options: [
+                { value: "a", label: "Higher risk = tighter communication loops and faster decision cycles" },
+                { value: "b", label: "Lower risk = daily updates to stay aligned" },
+                { value: "c", label: "Cadence should always stay fixed regardless of risk" },
+            ],
+            correctAnswer: "a",
+            explanation: "Risk exposure should drive communication frequency. Compressed timelines need compressed decision cycles.",
+            topic: "cadence-and-channel-design",
+            skill: "operations",
+            skillTag: "risk-cadence-link",
+            difficulty: "hard",
+        },
+        {
+            id: "cisc-q15",
+            question: "When a technical issue has dual impacts (cost and timeline), best escalation:",
+            options: [
+                { value: "a", label: "Present both impacts with 2-3 options and let decision-maker choose tradeoff" },
+                { value: "b", label: "Choose the worst impact to force immediate action" },
+                { value: "c", label: "Wait until one impact becomes clear" },
+            ],
+            correctAnswer: "a",
+            explanation: "Multi-dimensional impacts require transparent tradeoff analysis. Let decision-makers see full picture.",
+            topic: "translating-technical-issues",
+            skill: "risk-management",
+            skillTag: "multi-impact-escalation",
             difficulty: "hard",
         },
     ],

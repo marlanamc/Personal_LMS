@@ -180,6 +180,46 @@ export const spanishRegisterControlC1Content: InteractiveGuideContent = {
         },
       ],
     },
+    {
+      id: "resumen-registro",
+      stepNumber: 4,
+      title: "Resumen: control de registro",
+      icon: "📋",
+      explanation: `
+        <h3>Visión general</h3>
+        <p><strong>Formal:</strong> mitigación, distancia, precisión léxica, estructuras completas. <strong>Semiformal:</strong> equilibrio entre cercanía y profesionalismo. <strong>Cercano:</strong> espontaneidad, coloquialismos aceptables. Adaptar vocabulario, formas de tratamiento y grado de elipsis al destinatario.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-c1reg-quickref",
+          title: "Identifica",
+          instructions: "Elige el rasgo correcto.",
+          items: [
+            { type: "radio", label: "El registro formal prioriza ___", options: [{ value: "a", label: "mitigación y precisión" }, { value: "b", label: "coloquialismos" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-registro",
+      stepNumber: 5,
+      title: "Errores frecuentes",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Usar tú y coloquialismos en contexto institucional. Usar fórmulas excesivamente rígidas con colegas cercanos. No adaptar el tono al canal (correo, reunión, informe).</p>
+      `,
+      exercises: [
+        {
+          id: "sp-c1reg-mistakes",
+          title: "¿Correcto?",
+          instructions: "Elige la opción adecuada.",
+          items: [
+            { type: "radio", label: "Para un correo institucional: ___", options: [{ value: "a", label: "Me permito solicitar información." }, { value: "b", label: "¿Qué onda? Te escribo por esto." }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
   ],
   miniQuiz: [
     {

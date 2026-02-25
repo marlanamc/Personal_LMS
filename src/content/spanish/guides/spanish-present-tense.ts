@@ -16,7 +16,22 @@ export const spanishPresentTenseContent: InteractiveGuideContent = {
 
                 <h3>Why This Matters</h3>
                 <p>The present tense in Spanish allows you to describe what you do every day, what's happening right now, and facts about your life. It's the foundation of everyday communication.</p>
+                <p>To describe actions <em>in progress right now</em>, use the present progressive: <strong>estar + gerundio</strong> (-ando / -iendo).</p>
             `,
+            timeExpressions: [
+                { word: "siempre", usage: "always", examples: ["Siempre como en casa."] },
+                { word: "nunca", usage: "never", examples: ["Nunca llego tarde."] },
+                { word: "a veces", usage: "sometimes", examples: ["A veces estudio por la noche."] },
+                { word: "cada día", usage: "every day", examples: ["Cada día camino al trabajo."] },
+                { word: "normalmente", usage: "normally", examples: ["Normalmente trabajo hasta las seis."] },
+            ],
+            formula: [
+                { text: "subject", type: "subject" },
+                { text: "+", type: "other" },
+                { text: "estar", type: "verb" },
+                { text: "+", type: "other" },
+                { text: "gerundio (-ando/-iendo)", type: "object" },
+            ],
             exercises: [
                 {
                     id: "sp-intro-1",
@@ -54,8 +69,12 @@ export const spanishPresentTenseContent: InteractiveGuideContent = {
             icon: "📝",
             explanation: `
                 <h3>Three Main Types of Regular Verbs</h3>
-                <p>Spanish regular verbs fall into three categories based on their infinitive ending: <strong>-AR</strong>, <strong>-ER</strong>, and <strong>-IR</strong>. Each group follows its own pattern.</p>
+                <p>Spanish regular verbs fall into three categories based on their infinitive ending: <strong>-AR</strong>, <strong>-ER</strong>, and <strong>-IR</strong>. Each group follows its own pattern. Learn the endings in the table below and you can conjugate hundreds of verbs.</p>
             `,
+            tipBox: {
+                title: "Quick reference",
+                content: "Regular present endings: -AR → yo -o, tú -as, él/ella -a, nosotros -amos, ellos -an. -ER/-IR share the same pattern except: -ER tú -es, él -e, nosotros -emos, ellos -en; -IR nosotros -imos, ellos -en.",
+            },
             verbTable: {
                 title: "Regular Present Tense Conjugations",
                 headers: ["Person", "-AR (hablar)", "-ER (comer)", "-IR (vivir)"],
@@ -214,6 +233,10 @@ export const spanishPresentTenseContent: InteractiveGuideContent = {
                 <h3>Spanish Loves Exceptions</h3>
                 <p>Some of the most common Spanish verbs don't follow the regular patterns. But the good news? You only need to memorize a few essential ones to speak fluently.</p>
             `,
+            tipBox: {
+                title: "Remember",
+                content: "Ser, estar, ir, tener, and hacer are used every day. Learn their present forms first; you will see them in almost every conversation.",
+            },
             verbTable: {
                 title: "Essential Irregular Verbs",
                 headers: ["Person", "Ser (to be)", "Estar (to be)", "Ir (to go)", "Tener (to have)", "Hacer (to do/make)"],
@@ -320,7 +343,7 @@ export const spanishPresentTenseContent: InteractiveGuideContent = {
                     description: "Things you do regularly or every day",
                     examples: [
                         {
-                            sentence: "Cada mañana me <strong>despiertas</strong> a las 6 y <strong>tomo</strong> café.",
+                            sentence: "Cada mañana me <strong>despierto</strong> a las 6 y <strong>tomo</strong> café.",
                             explanation:
                                 "Every morning I wake up at 6 and drink coffee. These are regular habits.",
                         },
@@ -379,6 +402,39 @@ export const spanishPresentTenseContent: InteractiveGuideContent = {
                             label: "Nosotros ______ en un apartamento céntrico.",
                             options: ["vivimos", "vivíamos", "viviremos"],
                             expectedAnswer: "vivimos",
+                        },
+                    ],
+                },
+            ],
+        },
+
+        {
+            id: "quick-reference-present",
+            stepNumber: 4,
+            title: "Quick Reference: Present Tense",
+            icon: "📋",
+            explanation: `
+                <h3>At a Glance</h3>
+                <p><strong>-AR:</strong> -o, -as, -a, -amos, -an. <strong>-ER:</strong> -o, -es, -e, -emos, -en. <strong>-IR:</strong> -o, -es, -e, -imos, -en. Irregulars to memorize: ser, estar, ir, tener, hacer. Use present for habits, facts, and ongoing actions.</p>
+            `,
+            tipBox: {
+                title: "Remember",
+                content: "The yo form of regular -AR verbs always ends in -o. For -ER/-IR, yo ends in -o, tú in -es, él/ella in -e.",
+            },
+            exercises: [
+                {
+                    id: "sp-present-quickref",
+                    title: "Recall",
+                    instructions: "Choose the correct ending.",
+                    items: [
+                        {
+                            type: "radio",
+                            label: "-AR yo form ends in ___",
+                            options: [
+                                { value: "o", label: "-o" },
+                                { value: "a", label: "-a" },
+                            ],
+                            expectedAnswer: "o",
                         },
                     ],
                 },
@@ -539,6 +595,28 @@ export const spanishPresentTenseContent: InteractiveGuideContent = {
             ],
             correctAnswer: "a",
             explanation: "Present tense describes current routines and repeated habits.",
+        },
+        {
+            id: "q11",
+            question: "Which sentence has an error?",
+            options: [
+                { value: "a", label: "Yo tengo dos hermanos." },
+                { value: "b", label: "Ella tiene hambre." },
+                { value: "c", label: "Ellos tiene mucho que hacer." },
+            ],
+            correctAnswer: "c",
+            explanation: "With ellos/ellas, tener must be tienen, not tiene. Correct: Ellos tienen mucho que hacer.",
+        },
+        {
+            id: "q12",
+            question: "Choose the correct -ER ending for 'ellos comen'.",
+            options: [
+                { value: "a", label: "-en (correct for ellos/ellas with -ER)" },
+                { value: "b", label: "-an" },
+                { value: "c", label: "-emos" },
+            ],
+            correctAnswer: "a",
+            explanation: "-ER and -IR verbs use -en for ellos/ellas/ustedes; -an is for -AR only.",
         },
     ],
 };

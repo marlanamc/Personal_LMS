@@ -53,12 +53,12 @@ export const codingImplementationKpiOutcomeTrackingContent: InteractiveGuideCont
                 <p>Map top-level outcomes to supporting process and behavior indicators so teams know what to monitor weekly.</p>
             `,
             verbTable: {
-                title: "KPI Tree Layers",
-                headers: ["Layer", "Question", "Example"],
+                title: "KPI Framework verbTable",
+                headers: ["Layer", "Question", "Example", "Owner"],
                 rows: [
-                    ["Outcome KPI", "What business result must move?", "Completion rate +15%"],
-                    ["Behavior KPI", "What user behavior drives result?", "Weekly active learners"],
-                    ["Process KPI", "What delivery behavior enables adoption?", "Issue resolution SLA"],
+                    ["Outcome KPI", "What business result must move?", "Completion rate +15%; retention", "Product/Exec"],
+                    ["Behavior KPI", "What user behavior drives result?", "Weekly active learners; time-on-task", "Implementation"],
+                    ["Process KPI", "What delivery enables adoption?", "Issue resolution SLA; training completion", "Operations/Eng"],
                 ],
             },
             exercises: [
@@ -90,9 +90,20 @@ export const codingImplementationKpiOutcomeTrackingContent: InteractiveGuideCont
             stepNumber: 2,
             title: "Leading vs Lagging Indicators",
             icon: "activity",
+            comparison: {
+                title: "Dashboard Design Comparison",
+                leftLabel: "Leading Indicator Dashboard",
+                rightLabel: "Lagging Outcome Dashboard",
+                rows: [
+                    { label: "Purpose", left: "Early warning; enable intervention", right: "Validate outcomes; report results" },
+                    { label: "Cadence", left: "Weekly or more frequent", right: "Monthly, quarterly" },
+                    { label: "Examples", left: "First-week activation; feature adoption rate", right: "Completion rate; retention; revenue" },
+                    { label: "Audience", left: "Operations; implementation; product", right: "Executives; stakeholders" },
+                ],
+            },
             explanation: `
                 <h3>Track Early Warnings and Final Outcomes</h3>
-                <p>Lagging indicators show results after the fact. Leading indicators provide early warning so teams can intervene sooner.</p>
+                <p>Lagging indicators show results after the fact. Leading indicators provide early warning so teams can intervene sooner. Build dashboards that combine both—leading for proactive management, lagging for validation and reporting.</p>
             `,
             exercises: [
                 {

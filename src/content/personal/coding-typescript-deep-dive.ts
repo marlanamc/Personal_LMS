@@ -170,9 +170,42 @@ type ID = string | number;</pre>
             stepNumber: 2,
             title: "Generics: Reusable Types",
             icon: "🧬",
+            formula: [
+                { text: "function ", type: "other" },
+                { text: "name", type: "verb" },
+                { text: "<", type: "other" },
+                { text: "T", type: "subject" },
+                { text: ">", type: "other" },
+                { text: "(arg: T): T", type: "object" },
+                { text: " { ... }", type: "other" },
+            ],
+            comparison: {
+                title: "Type Inference Comparison",
+                leftLabel: "Explicit Types",
+                rightLabel: "Inferred Types",
+                rows: [
+                    {
+                        label: "When",
+                        left: "Function params, return types, when inference fails",
+                        right: "Variable declarations, generic calls without type arg",
+                    },
+                    {
+                        label: "Example",
+                        left: "const x: number = 5;",
+                        right: "const x = 5; // inferred as number",
+                    },
+                    {
+                        label: "Tradeoff",
+                        left: "Clear intent, catches mismatches",
+                        right: "Less verbose, TS infers from context",
+                    },
+                ],
+            },
             explanation: `
                 <h3>Types That Take Parameters</h3>
                 <p>Generics let you create flexible, reusable types. Think of them as "type parameters" - like function arguments, but for types!</p>
+
+                <p><strong>Generics formula:</strong> function name&lt;T&gt;(arg: T): T. T is a type parameter—inferred from the call or specified explicitly. Use constraints (T extends Base) when you need T to have certain properties.</p>
 
                 <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 0.75rem; color: white; margin: 1.5rem 0;">
                     <pre style="margin: 0; font-size: 0.9rem; line-height: 1.6;">
@@ -984,6 +1017,61 @@ function move(animal: Fish | Bird) {
             ],
             correctAnswer: "b",
             explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
+        },
+        {
+            id: "q11",
+            question: "Generics syntax: function first<T>(arr: T[]): T — what is T?",
+            options: [
+                { value: "a", label: "Type parameter (placeholder for any type)" },
+                { value: "b", label: "Variable name" },
+                { value: "c", label: "Return value" },
+            ],
+            correctAnswer: "a",
+            explanation: "T is a type parameter—filled in by inference or explicit call.",
+        },
+        {
+            id: "q12",
+            question: "const x = 5; — what type does TypeScript infer?",
+            options: [
+                { value: "a", label: "number" },
+                { value: "b", label: "any" },
+                { value: "c", label: "unknown" },
+            ],
+            correctAnswer: "a",
+            explanation: "TypeScript infers number from literal 5.",
+        },
+        {
+            id: "q13",
+            question: "When to use type vs interface for a union like 'a' | 'b'?",
+            options: [
+                { value: "a", label: "type—interfaces cannot do unions" },
+                { value: "b", label: "interface" },
+                { value: "c", label: "Either works the same" },
+            ],
+            correctAnswer: "a",
+            explanation: "type supports unions; interface does not.",
+        },
+        {
+            id: "q14",
+            question: "Array<string> and string[] are:",
+            options: [
+                { value: "a", label: "Equivalent—both mean array of strings" },
+                { value: "b", label: "Different types" },
+                { value: "c", label: "Only Array<string> is valid" },
+            ],
+            correctAnswer: "a",
+            explanation: "Both are generic Array type with string parameter.",
+        },
+        {
+            id: "q15",
+            question: "Type inference vs explicit: when to add explicit types?",
+            options: [
+                { value: "a", label: "When inference fails or intent needs clarity" },
+                { value: "b", label: "Never—always let TS infer" },
+                { value: "c", label: "Always—never rely on inference" },
+            ],
+            correctAnswer: "a",
+            explanation: "Use explicit types when helpful; inference reduces boilerplate.",
         },
     ],
 };

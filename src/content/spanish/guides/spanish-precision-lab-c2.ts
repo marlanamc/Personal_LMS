@@ -148,6 +148,46 @@ export const spanishPrecisionLabC2Content: InteractiveGuideContent = {
         },
       ],
     },
+    {
+      id: "resumen-precision",
+      stepNumber: 4,
+      title: "Resumen: reformulación de precisión",
+      icon: "📋",
+      explanation: `
+        <h3>Visión general</h3>
+        <p>Reformular no es solo cambiar palabras: implica ajustar foco, fuerza argumentativa y carga pragmática. Evitar errores sutiles de registro, colocaciones y matices. Precisión léxica y gramatical de nivel nativo.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-c2prec-quickref",
+          title: "Identifica",
+          instructions: "Elige la opción correcta.",
+          items: [
+            { type: "radio", label: "Una reformulación efectiva ___", options: [{ value: "a", label: "ajusta foco y tono" }, { value: "b", label: "solo cambia sinónimos" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-precision",
+      stepNumber: 5,
+      title: "Errores frecuentes",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Cambiar palabras sin ajustar la estructura. Ignorar colocaciones naturales. Usar registro inadecuado. Perder matices en la reformulación.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-c2prec-mistakes",
+          title: "¿Correcto?",
+          instructions: "Elige la mejora más relevante.",
+          items: [
+            { type: "radio", label: "Reformular 'El plan salió mal' implica ___", options: [{ value: "a", label: "ajustar foco y precisión" }, { value: "b", label: "mantener la misma vaguedad" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
   ],
   miniQuiz: [
     {

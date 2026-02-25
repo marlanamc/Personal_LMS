@@ -164,18 +164,30 @@ Positions -> Assumptions -> Evidence -> Risks -> Decision -> Owner
             stepNumber: 4,
             title: "Decision Memos and Follow-Through",
             icon: "file-text",
+            verbTable: {
+                title: "RACI Template for Cross-Functional Decisions",
+                headers: ["Role", "Responsible", "Accountable", "Consulted", "Informed"],
+                rows: [
+                    ["Product", "Scope definition", "Scope sign-off", "Tech feasibility", "Launch timeline"],
+                    ["Engineering", "Build + deploy", "Technical delivery", "Scope tradeoffs", "Go-live readiness"],
+                    ["Implementation", "UAT + rollout", "Adoption success", "Support readiness", "Cutover plan"],
+                    ["Stakeholders", "Requirements", "Business approval", "Change impact", "Status updates"],
+                ],
+            },
             explanation: `
                 <h3>Decision Quality Includes Execution Clarity</h3>
-                <p>Every decision needs a record: chosen option, rationale, owner, timeline impact, and validation checkpoint.</p>
+                <p>Every decision needs a record: chosen option, rationale, owner, timeline impact, and validation checkpoint. Use RACI (Responsible, Accountable, Consulted, Informed) to clarify roles and avoid ambiguity when cross-functional teams execute.</p>
+                <p><strong>Decision log format:</strong> Date | Decision | Rationale | Owner | Validation checkpoint | Status</p>
+                <p>Include Decision, Rationale, Owner, and Validation in every memo so execution owners can move immediately without re-clarifying.</p>
             `,
-            verbTable: {
-                title: "Decision Memo Fields",
-                headers: ["Field", "Purpose", "Example"],
+            comparison: {
+                title: "Decision Log Format Quality",
+                leftLabel: "Strong Decision Log",
+                rightLabel: "Weak Decision Log",
                 rows: [
-                    ["Decision", "What was chosen", "Phased rollout instead of full launch"],
-                    ["Rationale", "Why this option", "Lower launch risk with fixed deadline"],
-                    ["Owner", "Who executes", "Implementation lead + Eng lead"],
-                    ["Validation", "How success will be checked", "Week-1 adoption + defect thresholds"],
+                    { label: "Content", left: "Decision + rationale + owner + validation checkpoint", right: "Decision only; no context" },
+                    { label: "Executability", left: "Owner knows what to do and how success is measured", right: "Ambiguous; requires follow-up" },
+                    { label: "Traceability", left: "Date + status; audit trail for future reference", right: "No date; no status" },
                 ],
             },
             exercises: [

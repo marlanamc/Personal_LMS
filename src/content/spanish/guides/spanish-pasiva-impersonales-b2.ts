@@ -175,6 +175,46 @@ export const spanishPasivaImpersonalesB2Content: InteractiveGuideContent = {
         },
       ],
     },
+    {
+      id: "resumen-pasiva-impersonal",
+      stepNumber: 4,
+      title: "Resumen: pasiva e impersonales",
+      icon: "📋",
+      explanation: `
+        <h3>Visión general</h3>
+        <p><strong>Pasiva con se:</strong> se + verbo (3.ª persona) + sujeto paciente (Se aprobaron las normas). <strong>Impersonal con se:</strong> se + verbo (3.ª sing.) + infinitivo (Se debe revisar). Concordancia: pasiva concuerda con sujeto; impersonal no tiene sujeto.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-pasb2-quickref",
+          title: "Distingue",
+          instructions: "Elige el tipo correcto.",
+          items: [
+            { type: "radio", label: "'Se procesaron 100 documentos' es ___", options: [{ value: "pasiva", label: "pasiva con se" }, { value: "impersonal", label: "impersonal" }], expectedAnswer: "pasiva" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-pasiva-impersonal",
+      stepNumber: 5,
+      title: "Errores frecuentes",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Concordar mal en pasiva (Se aprobaron las leyes, no Se aprobó las leyes). Usar impersonal con complemento directo de persona (Se busca al responsable, no Se busca al responsable con 'le'). Confundir pasiva perifrástica (ser + participio) con se.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-pasb2-mistakes",
+          title: "¿Correcto?",
+          instructions: "Elige la forma correcta.",
+          items: [
+            { type: "radio", label: "Se ___ las solicitudes ayer.", options: [{ value: "a", label: "revisaron" }, { value: "b", label: "revisó" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
   ],
   miniQuiz: [
     {

@@ -130,6 +130,18 @@ export const codingModulesImportsContent: InteractiveGuideContent = {
             stepNumber: 2,
             title: "Named Exports & Imports",
             icon: "🏷️",
+            comparison: {
+                title: "Import Pattern Comparison",
+                leftLabel: "Named Import",
+                rightLabel: "Default Import",
+                rows: [
+                    { label: "Syntax", left: "import { name } from './file'", right: "import name from './file'" },
+                    { label: "Quantity", left: "Multiple per file; pick what you need", right: "One per file; any name on import" },
+                    { label: "Tree shaking", left: "Yes—unused names can be dropped", right: "Whole module if default only" },
+                    { label: "Best for", left: "Utilities, constants, multiple exports", right: "Single main export (component, class)" },
+                    { label: "Renaming", left: "import { old as new } from './file'", right: "import AnyName from './file'" },
+                ],
+            },
             explanation: `
                 <h3>Export Multiple Things</h3>
                 <p>Named exports let you export multiple values from a module. Import them by name with curly braces.</p>
@@ -440,6 +452,18 @@ import { Button, Card, Modal }
             stepNumber: 5,
             title: "Dynamic Imports",
             icon: "⚡",
+            verbTable: {
+                title: "Bundling Decision Tree",
+                headers: ["When to Use", "Decision", "Pattern"],
+                rows: [
+                    ["Need code at startup", "Static import", "import { X } from './module'"],
+                    ["Heavy feature, lazy load", "Dynamic import", "await import('./heavy')"],
+                    ["Admin-only code", "Dynamic import", "if (isAdmin) await import('./admin')"],
+                    ["Route-based splitting", "React.lazy + dynamic", "lazy(() => import('./Page'))"],
+                    ["Third-party large lib", "Dynamic import on use", "import() when user opens feature"],
+                    ["Critical path", "Static import", "Always load core UI/data paths statically"],
+                ],
+            },
             explanation: `
                 <h3>Load Code On-Demand</h3>
                 <p>Dynamic imports let you load modules when needed, not at startup. Great for code splitting!</p>

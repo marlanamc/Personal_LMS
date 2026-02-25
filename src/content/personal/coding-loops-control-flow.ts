@@ -297,6 +297,29 @@ case 'C':
             stepNumber: 3,
             title: "For Loops: Count-Based Repetition",
             icon: "📍",
+            verbTable: {
+                title: "Loop Selection Decision Tree",
+                headers: ["When to Use", "Condition", "Preferred Choice"],
+                rows: [
+                    ["Know iteration count", "Index 0..N", "for (let i=0; i<n; i++)"],
+                    ["Iterate array/string values", "Need each value", "for...of (preferred over index for-loop)"],
+                    ["Iterate object keys", "Need keys only", "for...in (check hasOwnProperty)"],
+                    ["Unknown iterations", "Condition-based", "while (condition) { }"],
+                    ["Run at least once", "Menu, prompt", "do { } while (condition)"],
+                    ["Transform/filter/reduce", "Array operations", "map/filter/reduce (preferred)"],
+                ],
+            },
+            comparison: {
+                title: "Loop Performance Comparison",
+                leftLabel: "Traditional for",
+                rightLabel: "Array Methods (map/filter/reduce)",
+                rows: [
+                    { label: "When to use", left: "Index access, break/continue, large raw arrays", right: "Transform, filter, or reduce—clear intent" },
+                    { label: "Readability", left: "More verbose; intent less obvious", right: "Declarative; intent clear from method name" },
+                    { label: "Performance", left: "Slightly faster for huge arrays (micro-optimization)", right: "Usually fine; optimize only when profiled" },
+                    { label: "Early exit", left: "break/continue built-in", right: "Use .some() / .find() for early exit patterns" },
+                ],
+            },
             explanation: `
                 <h3>For Loops</h3>
                 <p>For loops repeat code a specific number of times. Perfect when you know exactly how many iterations you need.</p>

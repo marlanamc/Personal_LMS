@@ -17,6 +17,24 @@ export const spanishPreteriteTenseContent: InteractiveGuideContent = {
                 <h3>Why This Matters</h3>
                 <p>The preterite tense is essential for talking about completed past actions. Once you master this tense, you can tell stories, share experiences, and talk about your day in Spanish.</p>
             `,
+            timeExpressions: [
+                { word: "ayer", usage: "yesterday", examples: ["Ayer comí pizza."] },
+                { word: "anoche", usage: "last night", examples: ["Anoche vi una película."] },
+                { word: "esta mañana", usage: "this morning", examples: ["Esta mañana llegué temprano."] },
+                { word: "la semana pasada", usage: "last week", examples: ["La semana pasada viajé."] },
+                { word: "el lunes", usage: "on Monday (specific date)", examples: ["El lunes terminé el proyecto."] },
+                { word: "hace dos días", usage: "two days ago", examples: ["Hace dos días hablé con ella."] },
+            ],
+            comparison: {
+                title: "Preterite vs Imperfect (Quick Reference)",
+                leftLabel: "Preterite",
+                rightLabel: "Imperfect",
+                rows: [
+                    { label: "Completed event", left: "Ayer llegué.", right: "Llovía cuando llegué." },
+                    { label: "One-time action", left: "Comí pizza.", right: "Siempre comía pizza." },
+                    { label: "Specific moment", left: "Sonó el teléfono.", right: "Era tarde." },
+                ],
+            },
             exercises: [
                 {
                     id: "spr-intro-1",

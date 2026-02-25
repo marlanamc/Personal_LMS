@@ -931,18 +931,42 @@ export function ActivityCategoryPicker({
             </nav>
 
             {/* Category header */}
-            <div className="flex items-center justify-center gap-3 mb-4 text-center">
-                {selectedCardDef && (
-                    <div
-                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center"
-                        style={{ backgroundColor: selectedCardDef.bgColor, color: selectedCardDef.iconColor }}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-4 text-center">
+                <div className="flex items-center gap-3">
+                    {selectedCardDef && (
+                        <div
+                            className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: selectedCardDef.bgColor, color: selectedCardDef.iconColor }}
+                        >
+                            {selectedCardDef.icon}
+                        </div>
+                    )}
+                    <h2 className="text-2xl sm:text-3xl font-display font-bold text-text">
+                        {selectedCardDef?.name}
+                    </h2>
+                </div>
+                {selectedSubject === 'spanish' && (
+                    <Link
+                        href="/dashboard/spanish-course-map"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 transition-colors"
                     >
-                        {selectedCardDef.icon}
-                    </div>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                        </svg>
+                        View Course Map
+                    </Link>
                 )}
-                <h2 className="text-2xl sm:text-3xl font-display font-bold text-text">
-                    {selectedCardDef?.name}
-                </h2>
+                {selectedSubject === 'coding' && (
+                    <Link
+                        href="/dashboard/coding-course-map"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 transition-colors"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                        </svg>
+                        View Course Map
+                    </Link>
+                )}
             </div>
 
             {/* Content-type filters for academic notebooks */}

@@ -13,7 +13,7 @@ export const codingArrayMethodMasteryContent: InteractiveGuideContent = {
                 <div style="background: rgba(20, 32, 47, 0.06); border: 1px solid rgba(20, 32, 47, 0.1); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
                     <p style="font-size: 1.125rem; margin-bottom: 0;">Array methods are core transformation tools in modern JavaScript. This guide assumes you already know basic arrays/objects and focuses on fluent data-shaping patterns.</p>
                 </div>
-
+                <p><strong>Professional note:</strong> Prefer declarative map/filter/reduce over imperative for-loops when transforming data—clearer intent, fewer mutation bugs, and easier testing. Chain methods for readability; break into variables if a chain gets long.</p>
                 <h3>What You'll Learn</h3>
                 <ul>
                     <li>map() - Transform every element</li>
@@ -996,6 +996,28 @@ const total = products
             ],
             correctAnswer: "b",
             explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
+        },
+        {
+            id: "q11",
+            question: "reduce((acc, x) => acc + x, 0) on [1,2,3] returns:",
+            options: [
+                { value: "a", label: "6" },
+                { value: "b", label: "[1,2,3]" },
+                { value: "c", label: "0" },
+            ],
+            correctAnswer: "a",
+            explanation: "reduce accumulates: 0+1=1, 1+2=3, 3+3=6.",
+        },
+        {
+            id: "q12",
+            question: "find() vs filter() for single-match search:",
+            options: [
+                { value: "a", label: "find() returns first match; filter() returns array of all matches" },
+                { value: "b", label: "Both return arrays" },
+                { value: "c", label: "filter() stops at first match" },
+            ],
+            correctAnswer: "a",
+            explanation: "find() stops and returns the element; filter() returns all matches. Use find() when you need one result.",
         },
     ],
 };

@@ -157,6 +157,46 @@ export const spanishC2CapstoneContent: InteractiveGuideContent = {
         },
       ],
     },
+    {
+      id: "resumen-capstone",
+      stepNumber: 4,
+      title: "Resumen: capstone integrado",
+      icon: "📋",
+      explanation: `
+        <h3>Qué se integra</h3>
+        <p>Tareas profesionales/académicas que combinan lectura, escritura, argumentación, control de registro y matices pragmáticos. Simulación de contextos reales. Evaluación holística de competencias C2.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-c2cap-quickref",
+          title: "Autoevaluación",
+          instructions: "Selecciona la opción correcta.",
+          items: [
+            { type: "radio", label: "El capstone evalúa ___", options: [{ value: "a", label: "competencias integradas en contexto" }, { value: "b", label: "solo gramática aislada" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-capstone",
+      stepNumber: 5,
+      title: "Errores frecuentes",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Ignorar el contexto de la tarea. No adaptar registro al destinatario. Respuestas genéricas sin evidencia. No revisar con rúbrica antes de entregar.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-c2cap-mistakes",
+          title: "Identifica",
+          instructions: "¿Qué se debe priorizar?",
+          items: [
+            { type: "radio", label: "En una simulación profesional: ___", options: [{ value: "a", label: "adaptar registro y contexto" }, { value: "b", label: "respuesta genérica" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
   ],
   miniQuiz: [
     {

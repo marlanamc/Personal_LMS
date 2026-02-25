@@ -6,7 +6,7 @@ export const spanishImperfectTenseContent: InteractiveGuideContent = {
   sections: [
     {
       id: "imperfect-overview",
-      title: "Spanish Imperfect Tense (A2 Foundation)",
+      title: "Spanish Imperfect Tense",
       icon: "🌙",
       explanation: `
         <h3>Past Habits and Background</h3>
@@ -17,6 +17,13 @@ export const spanishImperfectTenseContent: InteractiveGuideContent = {
           <li>time/weather in the past: <em>Hacía frío y llovía.</em></li>
         </ul>
       `,
+      timeExpressions: [
+        { word: "cuando era niño/a", usage: "when I was a child", examples: ["Cuando era niño, jugaba afuera."] },
+        { word: "siempre", usage: "always (repeated)", examples: ["Siempre estudiaba por la noche."] },
+        { word: "a menudo", usage: "often", examples: ["A menudo íbamos al parque."] },
+        { word: "todos los días", usage: "every day (habit)", examples: ["Todos los días desayunaba a las siete."] },
+        { word: "en aquella época", usage: "in those days", examples: ["En aquella época vivíamos en Madrid."] },
+      ],
       exercises: [
         {
           id: "sp-imp-1",
@@ -138,12 +145,22 @@ export const spanishImperfectTenseContent: InteractiveGuideContent = {
     {
       id: "imperfect-vs-preterite",
       stepNumber: 3,
-      title: "Imperfect vs Preterite (A2 Contrast)",
+      title: "Imperfect vs Preterite",
       icon: "↔️",
       explanation: `
         <h3>Core Contrast</h3>
         <p>Use <strong>imperfect</strong> for background/habit and <strong>preterite</strong> for specific completed events.</p>
       `,
+      timeline: {
+        title: "Narrative Sequence: Imperfect (background) + Preterite (events)",
+        description: "In stories, the imperfect sets the scene; the preterite marks what happened. Earlier actions on the left, later on the right.",
+        events: [
+          { order: 1, tenseLabel: "Imperfect (background)", label: "Era tarde. Llovía." },
+          { order: 2, tenseLabel: "Preterite (event)", label: "Sonó el teléfono." },
+          { order: 3, tenseLabel: "Preterite (event)", label: "Contesté." },
+          { order: 4, tenseLabel: "Imperfect (background)", label: "Mi familia cenaba." },
+        ],
+      },
       comparison: {
         title: "Meaning Contrast",
         leftLabel: "Imperfect",
@@ -190,6 +207,47 @@ export const spanishImperfectTenseContent: InteractiveGuideContent = {
               ],
               expectedAnswer: "preterite",
             },
+          ],
+        },
+      ],
+    },
+    {
+      id: "quick-reference-imp",
+      stepNumber: 4,
+      title: "Quick Reference: Imperfect",
+      icon: "📋",
+      explanation: `
+        <h3>At a Glance</h3>
+        <p><strong>Uses:</strong> past habits, background, descriptions, time/age/weather in the past. <strong>Regular endings:</strong> -aba/-ía (hablaba, comía). <strong>Key irregulars:</strong> ser → era, ir → iba, ver → veía.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-imp-quickref",
+          title: "Recall",
+          instructions: "Choose the correct use.",
+          items: [
+            { type: "radio", label: "Imperfect is used for ___.", options: [{ value: "habits", label: "past habits and background" }, { value: "completed", label: "single completed events" }], expectedAnswer: "habits" },
+            { type: "radio", label: "The imperfect of ir is ___.", options: [{ value: "iba", label: "iba" }, { value: "fue", label: "fue" }], expectedAnswer: "iba" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "common-mistakes-imp",
+      stepNumber: 5,
+      title: "Common Mistakes",
+      icon: "⚠️",
+      explanation: `
+        <h3>What to Avoid</h3>
+        <p>Using preterite for ongoing or repeated past (use imperfect: cuando era niño jugaba). Using imperfect for one-time completed actions (use preterite: ayer llegué). Confusing era (imperfect) with fue (preterite) for ser.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-imp-mistakes",
+          title: "Correct?",
+          instructions: "Which tense fits?",
+          items: [
+            { type: "radio", label: "When I was young I played every day:", options: [{ value: "imperfect", label: "imperfect (jugaba)" }, { value: "preterite", label: "preterite (jugué)" }], expectedAnswer: "imperfect" },
           ],
         },
       ],

@@ -200,6 +200,80 @@ export const spanishNounGenderArticlesContent: InteractiveGuideContent = {
         },
       ],
     },
+    {
+      id: "quick-reference",
+      stepNumber: 4,
+      title: "Quick Reference: Articles",
+      icon: "📋",
+      explanation: `
+        <h3>At a Glance</h3>
+        <p><strong>Definite:</strong> el, la, los, las (the). <strong>Indefinite:</strong> un, una, unos, unas (a/some).</p>
+        <p>Article and adjective agree with the noun in gender and number. Learn nouns with their article (el libro, la casa) to avoid mistakes.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-gender-quick-ref",
+          title: "Choose the Article",
+          instructions: "Pick the correct form.",
+          items: [
+            {
+              type: "radio",
+              label: "___ casas (the houses)",
+              options: [
+                { value: "las", label: "las" },
+                { value: "los", label: "los" },
+              ],
+              expectedAnswer: "las",
+            },
+            {
+              type: "radio",
+              label: "___ problema (the problem)",
+              options: [
+                { value: "el", label: "el" },
+                { value: "la", label: "la" },
+              ],
+              expectedAnswer: "el",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "common-mistakes",
+      stepNumber: 5,
+      title: "Common Mistakes with Gender",
+      icon: "⚠️",
+      explanation: `
+        <h3>What to Avoid</h3>
+        <ul>
+          <li><strong>Assuming -o = masculine, -a = feminine</strong> — el día, el mapa, la mano, la foto are exceptions.</li>
+          <li><strong>Using el/la with adjectives only</strong> — The article agrees with the noun (la casa blanca, not la casa blanco).</li>
+          <li><strong>Forgetting plural agreement</strong> — unos libros, unas mesas; adjective must match (libros interesantes, mesas grandes).</li>
+        </ul>
+      `,
+      tipBox: {
+        title: "Tip",
+        content: "When in doubt, learn the noun with its article: el agua, la mano. It sticks better.",
+      },
+      exercises: [
+        {
+          id: "sp-gender-mistakes",
+          title: "Spot the Error",
+          instructions: "Which sentence is wrong?",
+          items: [
+            {
+              type: "radio",
+              label: "Which is correct?",
+              options: [
+                { value: "a", label: "la mano" },
+                { value: "b", label: "el mano" },
+              ],
+              expectedAnswer: "a",
+            },
+          ],
+        },
+      ],
+    },
   ],
   miniQuiz: [
     {

@@ -450,15 +450,73 @@ export const codingStringsMethodsContent: InteractiveGuideContent = {
             ],
         },
 
+        // Regex Basics
+        {
+            id: "regex-formula",
+            stepNumber: 5,
+            title: "Regex: Pattern Matching",
+            icon: "🔤",
+            formula: [
+                { text: "/", type: "subject" },
+                { text: "pattern", type: "verb" },
+                { text: "/flags", type: "other" },
+            ],
+            explanation: `
+                <h3>Regular Expression Formula</h3>
+                <p>Regex lets you match patterns in text—emails, URLs, digits, or complex formats. The formula: <code>/pattern/flags</code>. Use <code>test()</code> for boolean, <code>match()</code> for matches.</p>
+                <p><strong>Common patterns:</strong> <code>\\d</code> (digit), <code>\\w</code> (word char), <code>[a-z]</code> (range), <code>+</code> (one or more), <code>*</code> (zero or more), <code>^</code>/<code>$</code> (start/end).</p>
+            `,
+            verbTable: {
+                title: "Regex Pattern Quick Reference",
+                headers: ["Pattern", "Meaning", "Example"],
+                rows: [
+                    ["\\d", "Digit 0-9", "/\\d+/ matches '123'"],
+                    ["\\w", "Word char (a-z, A-Z, 0-9, _)", "/\\w+/ matches 'hello'"],
+                    ["[a-z]", "Character in range", "/[aeiou]/ matches any vowel"],
+                    ["+", "One or more", "/\\d+/ matches '42', '1', '999'"],
+                    ["*", "Zero or more", "/hi*/ matches 'h', 'hi', 'hiii'"],
+                    ["?", "Zero or one", "/colou?r/ matches 'color' or 'colour'"],
+                    ["^", "$", "Start, end of string", "/^hello$/ matches exactly 'hello'"],
+                ],
+            },
+            tipBox: {
+                title: "Regex Tip",
+                content: "Start simple: includes('@') often beats regex for basic email checks. Use regex when you need structured validation (format, length, character set).",
+            },
+            exercises: [
+                {
+                    id: "csm-regex-1",
+                    title: "Regex Basics",
+                    instructions: "What do these match?",
+                    items: [
+                        {
+                            type: "radio",
+                            label: "/\\d+/.test('abc123')",
+                            options: [
+                                { value: "true", label: "true" },
+                                { value: "false", label: "false" },
+                            ],
+                            expectedAnswer: "true",
+                        },
+                        {
+                            type: "text",
+                            label: "'hello'.match(/l+/)?.[0] returns?",
+                            correctAnswer: "ll",
+                            expectedAnswers: ["ll", "'ll'"],
+                        },
+                    ],
+                },
+            ],
+        },
         // Replace Methods
         {
             id: "replace-methods",
-            stepNumber: 5,
+            stepNumber: 6,
             title: "Replacing Content",
             icon: "🔀",
             explanation: `
                 <h3>Find and Replace</h3>
-                <p>Replace parts of strings with new content.</p>
+                <p>Replace parts of strings with new content. Use regex with replace() for powerful pattern-based replacement.</p>
             `,
             verbTable: {
                 title: "Replace Methods",
@@ -532,7 +590,7 @@ export const codingStringsMethodsContent: InteractiveGuideContent = {
         // Split and Join
         {
             id: "split-join",
-            stepNumber: 6,
+            stepNumber: 7,
             title: "Split and Join",
             icon: "🔗",
             explanation: `
@@ -638,7 +696,7 @@ export const codingStringsMethodsContent: InteractiveGuideContent = {
         // Template Literals Advanced
         {
             id: "template-literals",
-            stepNumber: 7,
+            stepNumber: 8,
             title: "Template Literals Deep Dive",
             icon: "💫",
             explanation: `
@@ -719,7 +777,7 @@ export const codingStringsMethodsContent: InteractiveGuideContent = {
         // Summary
         {
             id: "summary",
-            stepNumber: 8,
+            stepNumber: 9,
             title: "Strings Summary",
             icon: "🎓",
             explanation: `

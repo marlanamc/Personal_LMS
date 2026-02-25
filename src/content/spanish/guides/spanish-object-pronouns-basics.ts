@@ -141,7 +141,7 @@ export const spanishObjectPronounsBasicsContent: InteractiveGuideContent = {
           <li>Before conjugated verbs: <em>Lo necesito.</em></li>
           <li>Attached to infinitives: <em>Voy a comprarlo.</em></li>
         </ul>
-        <p>At A2, focus on accurate form and clear meaning first.</p>
+        <p>Focus on accurate form and clear meaning first.</p>
       `,
       exercises: [
         {
@@ -164,6 +164,47 @@ export const spanishObjectPronounsBasicsContent: InteractiveGuideContent = {
               label: "Compramos las entradas para ellos.",
               acceptAnyAttempt: true,
             },
+          ],
+        },
+      ],
+    },
+    {
+      id: "quick-reference-pro",
+      stepNumber: 4,
+      title: "Quick Reference: Object Pronouns",
+      icon: "📋",
+      explanation: `
+        <h3>At a Glance</h3>
+        <p><strong>Direct:</strong> me, te, lo/la, nos, os, los/las. <strong>Indirect:</strong> me, te, le, nos, os, les. Place before conjugated verb or attached to infinitive (comprarlo, decírselo).</p>
+      `,
+      exercises: [
+        {
+          id: "sp-pro-quickref",
+          title: "Recall",
+          instructions: "Choose the correct pronoun type.",
+          items: [
+            { type: "radio", label: "Lo/la are ___ object pronouns.", options: [{ value: "direct", label: "direct" }, { value: "indirect", label: "indirect" }], expectedAnswer: "direct" },
+            { type: "radio", label: "Le/les are ___ object pronouns.", options: [{ value: "direct", label: "direct" }, { value: "indirect", label: "indirect" }], expectedAnswer: "indirect" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "common-mistakes-pro",
+      stepNumber: 5,
+      title: "Common Mistakes",
+      icon: "⚠️",
+      explanation: `
+        <h3>What to Avoid</h3>
+        <p>Putting the pronoun after a conjugated verb (wrong: necesito lo; right: lo necesito). Using le for direct object (use lo/la for things). Forgetting to attach to infinitive when there are two verbs (quiero comprarlo).</p>
+      `,
+      exercises: [
+        {
+          id: "sp-pro-mistakes",
+          title: "Correct?",
+          instructions: "Which is correct?",
+          items: [
+            { type: "radio", label: "I need it (masculine):", options: [{ value: "a", label: "Lo necesito." }, { value: "b", label: "Necesito lo." }], expectedAnswer: "a" },
           ],
         },
       ],

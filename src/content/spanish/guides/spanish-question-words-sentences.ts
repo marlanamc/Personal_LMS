@@ -194,6 +194,83 @@ export const spanishQuestionWordsSentencesContent: InteractiveGuideContent = {
         },
       ],
     },
+    {
+      id: "quick-reference-qw",
+      stepNumber: 4,
+      title: "Quick Reference: Question Words",
+      icon: "📋",
+      explanation: `
+        <h3>At a Glance</h3>
+        <ul>
+          <li><strong>Quién</strong> = who. <strong>Qué</strong> = what. <strong>Dónde</strong> = where. <strong>Cuándo</strong> = when.</li>
+          <li><strong>Cómo</strong> = how. <strong>Por qué</strong> = why. <strong>Cuánto/a</strong> = how much. <strong>Cuántos/as</strong> = how many.</li>
+          <li>Questions need opening ¿ and closing ?. Verb usually comes after the question word.</li>
+        </ul>
+      `,
+      exercises: [
+        {
+          id: "sp-qw-quick-ref",
+          title: "Match the Word",
+          instructions: "Choose the question word that fits.",
+          items: [
+            {
+              type: "radio",
+              label: "To ask for a place you use ___.",
+              options: [
+                { value: "donde", label: "¿Dónde?" },
+                { value: "cuando", label: "¿Cuándo?" },
+              ],
+              expectedAnswer: "donde",
+            },
+            {
+              type: "radio",
+              label: "To ask for a reason you use ___.",
+              options: [
+                { value: "porque", label: "¿Por qué?" },
+                { value: "que", label: "¿Qué?" },
+              ],
+              expectedAnswer: "porque",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "common-mistakes-qw",
+      stepNumber: 5,
+      title: "Common Mistakes",
+      icon: "⚠️",
+      explanation: `
+        <h3>What to Avoid</h3>
+        <ul>
+          <li><strong>Forgetting the opening ¿</strong> — Spanish questions use both ¿ and ?.</li>
+          <li><strong>Confusing por qué (why) with porque (because)</strong> — The accent and space matter.</li>
+          <li><strong>Using qué for "how many"</strong> — Use cuántos/cuántas for quantity.</li>
+        </ul>
+      `,
+      tipBox: {
+        title: "Tip",
+        content: "¿Por qué? = why (question). Porque = because (answer).",
+      },
+      exercises: [
+        {
+          id: "sp-qw-mistakes",
+          title: "Correct or Incorrect?",
+          instructions: "Which is written correctly?",
+          items: [
+            {
+              type: "radio",
+              label: "How do you write 'Where do you live?'",
+              options: [
+                { value: "a", label: "¿Dónde vives?" },
+                { value: "b", label: "Dónde vives?" },
+              ],
+              expectedAnswer: "a",
+            },
+          ],
+        },
+      ],
+    },
   ],
   miniQuiz: [
     {

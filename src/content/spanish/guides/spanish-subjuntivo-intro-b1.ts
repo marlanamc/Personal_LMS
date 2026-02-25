@@ -136,34 +136,80 @@ export const spanishSubjuntivoIntroB1Content: InteractiveGuideContent = {
     {
       id: "subj-produccion",
       stepNumber: 3,
-      title: "Producción B1",
+      title: "Producción guiada",
       icon: "🗣️",
       explanation: `
         <h3>Expresar postura y recomendación</h3>
         <p>Construye respuestas completas con esta estructura:</p>
         <p><em>Creo/No creo que..., Es importante que..., Te recomiendo que...</em></p>
+        <p><strong>Criterios de éxito:</strong> Usa subjuntivo tras desencadenantes (querer que, es importante que, no creer que). Una oración completa por item. Ejemplo: <em>Te recomiendo que estudies cada día.</em></p>
       `,
       exercises: [
         {
           id: "sp-subj-4",
           title: "Escribe con intención",
-          instructions: "Escribe oraciones completas usando subjuntivo.",
+          instructions: "Escribe oraciones completas usando subjuntivo. Usa desencadenantes como Te recomiendo que..., No creo que..., Es importante que...",
+          answerExpectation: "full-sentence",
           items: [
             {
               type: "text",
-              label: "Da una recomendación a un compañero para estudiar mejor.",
+              label: "Da una recomendación a un compañero para estudiar mejor (Te recomiendo que...):",
+              placeholder: "Ejemplo: Te recomiendo que estudies cada día.",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Expresa una duda sobre un plan para mañana.",
+              label: "Expresa una duda sobre un plan para mañana (No creo que... o Dudo que...):",
+              placeholder: "Ejemplo: No creo que llegue a tiempo.",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Escribe una valoración con 'Es importante que...'.",
+              label: "Escribe una valoración con 'Es importante que...':",
+              placeholder: "Ejemplo: Es importante que practiques español.",
               acceptAnyAttempt: true,
             },
+          ],
+        },
+      ],
+    },
+    {
+      id: "resumen-rapido-subj",
+      stepNumber: 4,
+      title: "Resumen rápido: desencadenantes del subjuntivo",
+      icon: "📋",
+      explanation: `
+        <h3>Visión general</h3>
+        <p><strong>Desencadenantes típicos:</strong> querer que, esperar que, es importante que, dudar que, no creer que, ojalá, tal vez, quizás. Forma: tercera persona singular del presente sin -s + terminaciones -e/-es/-e/-emos/-en (para -AR) o -a/-as/-a/-amos/-an (para -ER/-IR).</p>
+      `,
+      exercises: [
+        {
+          id: "sp-subj-quickref",
+          title: "Identifica el desencadenante",
+          instructions: "Elige la opción correcta.",
+          items: [
+            { type: "radio", label: "¿Qué estructura suele activar subjuntivo?", options: [{ value: "a", label: "Quiero que + verbo" }, { value: "b", label: "Yo quiero + infinitivo" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-frecuentes-subj",
+      stepNumber: 5,
+      title: "Errores frecuentes",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Usar indicativo tras expresiones de voluntad/duda (correcto: espero que vengas). Usar subjuntivo tras creer que + afirmación (correcto: creo que viene). Confundir la forma de la primera persona (yo quiero que yo vaya, no yo quiero que yo voy).</p>
+      `,
+      tipBox: { title: "Recuerda", content: "Subjuntivo aparece en subordinadas tras verbos/expresiones de deseo, duda, emoción, valoración o negación." },
+      exercises: [
+        {
+          id: "sp-subj-mistakes",
+          title: "¿Correcto?",
+          instructions: "Elige la forma correcta.",
+          items: [
+            { type: "radio", label: "Espero que tú ___ mañana.", options: [{ value: "a", label: "vengas" }, { value: "b", label: "vienes" }], expectedAnswer: "a" },
           ],
         },
       ],

@@ -6,7 +6,7 @@ export const spanishCommandsPoliteRequestsContent: InteractiveGuideContent = {
   sections: [
     {
       id: "commands-intro",
-      title: "Commands and Polite Requests (A2)",
+      title: "Commands and Polite Requests",
       icon: "🧭",
       explanation: `
         <h3>Give Instructions Clearly</h3>
@@ -53,7 +53,7 @@ export const spanishCommandsPoliteRequestsContent: InteractiveGuideContent = {
       title: "Tú Commands: Affirmative and Negative",
       icon: "👥",
       explanation: `
-        <h3>Core A2 Pattern</h3>
+        <h3>Core Pattern</h3>
         <p>Affirmative tú often uses the 3rd person singular present form.</p>
         <p>Negative tú uses <strong>no + present subjunctive</strong>.</p>
       `,
@@ -105,7 +105,17 @@ export const spanishCommandsPoliteRequestsContent: InteractiveGuideContent = {
         <h3>Polite and Professional Tone</h3>
         <p>Use usted commands in customer service, formal settings, and respectful requests.</p>
         <p>Examples: <em>Pase</em>, <em>Tome asiento</em>, <em>Espere un momento</em>.</p>
+        <p>To express obligation softly, use <strong>tener que + infinitive</strong>: <em>Tiene que firmar aquí.</em> (You have to sign here.)</p>
       `,
+      formula: [
+        { text: "subject", type: "subject" },
+        { text: "+", type: "other" },
+        { text: "tener", type: "verb" },
+        { text: "+", type: "other" },
+        { text: "que", type: "other" },
+        { text: "+", type: "other" },
+        { text: "infinitive", type: "object" },
+      ],
       usageMeanings: [
         {
           title: "Common Polite Frames",
@@ -163,38 +173,85 @@ export const spanishCommandsPoliteRequestsContent: InteractiveGuideContent = {
     {
       id: "commands-production",
       stepNumber: 3,
-      title: "A2 Production: Instruction Sequences",
+      title: "Production: Instruction Sequences",
       icon: "📝",
       explanation: `
         <h3>Give Multi-Step Instructions</h3>
         <p>Combine commands with sequence markers: <strong>primero, luego, después, finalmente</strong>.</p>
+        <p><strong>Success criteria:</strong> Each step should be one clear command. Use affirmative tú for informal steps, negative tú for "don't" steps, usted for formal/polite steps. Example sequence: <em>Primero abre la puerta. Luego no corras. Después pase por aquí, por favor. Finalmente firme aquí.</em></p>
       `,
       exercises: [
         {
           id: "sp-cmd-4",
           title: "Write a 4-Step Instruction",
-          instructions: "Write practical instructions for a classmate or customer.",
+          instructions: "Write practical instructions (e.g., for a visitor or customer). Use: Step 1 = affirmative tú command, Step 2 = negative tú command, Step 3 = polite usted command, Step 4 = final instruction. One clear command per step.",
+          answerExpectation: "full-sentence",
           items: [
             {
               type: "text",
-              label: "Step 1 (affirmative command):",
+              label: "Step 1 (affirmative tú command, e.g. Abre la puerta):",
+              placeholder: "Ejemplo: Habla más despacio.",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Step 2 (negative command):",
+              label: "Step 2 (negative tú command, e.g. No corras):",
+              placeholder: "Ejemplo: No llegues tarde.",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Step 3 (polite usted command):",
+              label: "Step 3 (polite usted command, e.g. Pase por aquí):",
+              placeholder: "Ejemplo: Espere un momento, por favor.",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Step 4 (final instruction):",
+              label: "Step 4 (final instruction, e.g. Firme aquí):",
+              placeholder: "Ejemplo: Siéntese, por favor.",
               acceptAnyAttempt: true,
             },
+          ],
+        },
+      ],
+    },
+    {
+      id: "quick-reference-cmd",
+      stepNumber: 4,
+      title: "Quick Reference: Command Forms",
+      icon: "📋",
+      explanation: `
+        <h3>At a Glance</h3>
+        <p><strong>Affirmative tú:</strong> use present él/ella form (habla, come). <strong>Negative tú:</strong> no + subjunctive (no hables, no comas). <strong>Usted/ustedes:</strong> subjunctive (hable, hablen). Irregulars: ten, ven, pon, haz, di, sal, sé.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-cmd-quickref",
+          title: "Recall",
+          instructions: "Choose the correct type.",
+          items: [
+            { type: "radio", label: "Negative tú command uses ___ + subjunctive.", options: [{ value: "no", label: "no" }, { value: "si", label: "sí" }], expectedAnswer: "no" },
+            { type: "radio", label: "Polite (usted) command uses ___ form.", options: [{ value: "subjunctive", label: "subjunctive" }, { value: "indicative", label: "indicative" }], expectedAnswer: "subjunctive" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "common-mistakes-cmd",
+      stepNumber: 5,
+      title: "Common Mistakes",
+      icon: "⚠️",
+      explanation: `
+        <h3>What to Avoid</h3>
+        <p>Using indicative for negative tú (say <strong>no hables</strong>, not no hablas). Forgetting irregular affirmative tú forms (di, haz, ten, etc.). Using tú form for usted.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-cmd-mistakes",
+          title: "Correct?",
+          instructions: "Which is correct?",
+          items: [
+            { type: "radio", label: "Negative command for 'speak':", options: [{ value: "a", label: "No hables." }, { value: "b", label: "No hablas." }], expectedAnswer: "a" },
           ],
         },
       ],

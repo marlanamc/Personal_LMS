@@ -148,6 +148,46 @@ export const spanishC1ProductionLabContent: InteractiveGuideContent = {
         },
       ],
     },
+    {
+      id: "resumen-laboratorio-c1",
+      stepNumber: 4,
+      title: "Resumen: producción C1",
+      icon: "📋",
+      explanation: `
+        <h3>Qué se valora</h3>
+        <p>Tesis precisa y defendible. Uso de conectores de contraste, consecuencia y reformulación. Alcance léxico y variedad. Extensión 220-280 palabras. Revisión con rúbrica (coherencia, precisión gramatical, alcance léxico).</p>
+      `,
+      exercises: [
+        {
+          id: "sp-c1lab-quickref",
+          title: "Autoevaluación",
+          instructions: "Selecciona la opción correcta.",
+          items: [
+            { type: "radio", label: "El rango de palabras del ensayo es ___", options: [{ value: "a", label: "220-280" }, { value: "b", label: "120-160" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-laboratorio-c1",
+      stepNumber: 5,
+      title: "Errores frecuentes",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Tesis vaga o indefendible. Falta de conectores entre ideas. No revisar con la rúbrica. Salirse del rango de palabras sin justificación.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-c1lab-mistakes",
+          title: "Identifica",
+          instructions: "¿Qué fortalece una tesis C1?",
+          items: [
+            { type: "radio", label: "Una tesis fuerte requiere ___", options: [{ value: "a", label: "posición precisa y defendible" }, { value: "b", label: "generalidad vaga" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
   ],
   miniQuiz: [
     {

@@ -177,6 +177,46 @@ export const spanishConectoresPersuasionC1Content: InteractiveGuideContent = {
         },
       ],
     },
+    {
+      id: "resumen-conectores-persuasion",
+      stepNumber: 4,
+      title: "Resumen: conectores persuasivos",
+      icon: "📋",
+      explanation: `
+        <h3>Visión general</h3>
+        <p><strong>Contraste:</strong> sin embargo, no obstante, en cambio. <strong>Consecuencia:</strong> por lo tanto, de ahí que. <strong>Concesión:</strong> aunque, si bien. <strong>Reformulación:</strong> es decir, en otras palabras. Ordenar el discurso con claridad para persuadir.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-c1con-quickref",
+          title: "Identifica",
+          instructions: "Elige el conector adecuado.",
+          items: [
+            { type: "radio", label: "Para expresar contraste: ___", options: [{ value: "a", label: "sin embargo" }, { value: "b", label: "por ejemplo" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-conectores-persuasion",
+      stepNumber: 5,
+      title: "Errores frecuentes",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Acumular conectores de contraste sin desarrollo. Usar conectores de consecuencia sin relación causal clara. No recuperar la tesis tras una concesión.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-c1con-mistakes",
+          title: "¿Correcto?",
+          instructions: "Elige la opción correcta.",
+          items: [
+            { type: "radio", label: "De ahí que introduce ___", options: [{ value: "a", label: "consecuencia" }, { value: "b", label: "contraste" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
   ],
   miniQuiz: [
     {

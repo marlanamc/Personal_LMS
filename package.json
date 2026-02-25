@@ -20,6 +20,7 @@
     "audit:diagram-contrast": "node --import tsx scripts/audit-diagram-contrast.ts",
     "check:nullable-upserts": "node scripts/check-null-assignment-upserts.mjs",
     "check:spanish-b1-language": "node --import tsx scripts/check-spanish-b1-language.ts",
+    "check:spanish-guides": "python3 scripts/analyze-spanish-guides.py",
     "typecheck": "tsc --noEmit",
     "db:seed": "npm run db:seed:base",
     "db:seed:base": "npm run db:seed:users && npx tsx prisma/seed-personal-content.ts && npx tsx prisma/seed-spanish-guides.ts && npx tsx prisma/seed-spanish-games.ts && npx tsx prisma/seed-achievements.ts",

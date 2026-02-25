@@ -6,7 +6,7 @@ export const spanishComparativesSuperlativesContent: InteractiveGuideContent = {
   sections: [
     {
       id: "comparatives-core",
-      title: "Comparatives in Spanish (A2 Bridge)",
+      title: "Comparatives in Spanish",
       icon: "⚖️",
       explanation: `
         <h3>Compare Clearly and Naturally</h3>
@@ -187,6 +187,84 @@ export const spanishComparativesSuperlativesContent: InteractiveGuideContent = {
               type: "text",
               label: "Write one superlative sentence (el/la más...).",
               acceptAnyAttempt: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "quick-reference",
+      stepNumber: 3,
+      title: "Quick Reference: Patterns",
+      icon: "📋",
+      explanation: `
+        <h3>At a Glance</h3>
+        <ul>
+          <li><strong>More/less than:</strong> más/menos + adjective/noun + <strong>que</strong></li>
+          <li><strong>As ... as:</strong> tan + adjective + <strong>como</strong></li>
+          <li><strong>Before numbers:</strong> más de, menos de (más de diez)</li>
+          <li><strong>Superlative:</strong> el/la/los/las + más/menos + adjective (agree in gender/number)</li>
+        </ul>
+      `,
+      exercises: [
+        {
+          id: "sp-comp-quick-ref",
+          title: "Match the Pattern",
+          instructions: "Choose the correct word.",
+          items: [
+            {
+              type: "radio",
+              label: "As ... as uses ___ + adjective + ___.",
+              options: [
+                { value: "tan-como", label: "tan ... como" },
+                { value: "mas-que", label: "más ... que" },
+              ],
+              expectedAnswer: "tan-como",
+            },
+            {
+              type: "radio",
+              label: "Before a number (e.g. ten), we say más ___.",
+              options: [
+                { value: "de", label: "de (más de diez)" },
+                { value: "que", label: "que" },
+              ],
+              expectedAnswer: "de",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "common-mistakes",
+      stepNumber: 4,
+      title: "Common Mistakes",
+      icon: "⚠️",
+      explanation: `
+        <h3>What to Avoid</h3>
+        <ul>
+          <li><strong>Using de instead of que</strong> for comparisons between two items: más alto <strong>que</strong> (not más alto de).</li>
+          <li><strong>Using que with numbers</strong> — Use <strong>de</strong>: más de diez, menos de cinco.</li>
+          <li><strong>Wrong article in superlative</strong> — la más alta (feminine), los más altos (masculine plural).</li>
+        </ul>
+      `,
+      tipBox: {
+        title: "Remember",
+        content: "Comparisons of equality: tan ... como. Comparisons of inequality: más/menos ... que (or de before numbers).",
+      },
+      exercises: [
+        {
+          id: "sp-comp-mistakes",
+          title: "Correct or Incorrect?",
+          instructions: "Pick the correct sentence.",
+          items: [
+            {
+              type: "radio",
+              label: "Which is correct?",
+              options: [
+                { value: "a", label: "Ella es más alta que yo." },
+                { value: "b", label: "Ella es más alta de yo." },
+              ],
+              expectedAnswer: "a",
             },
           ],
         },

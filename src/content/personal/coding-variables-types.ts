@@ -52,9 +52,18 @@ export const codingVariablesTypesContent: InteractiveGuideContent = {
             stepNumber: 1,
             title: "Declaring Variables: const, let, var",
             icon: "📝",
+            formula: [
+                { text: "const | let | var ", type: "subject" },
+                { text: "identifier", type: "verb" },
+                { text: " = ", type: "other" },
+                { text: "value", type: "object" },
+                { text: ";", type: "other" },
+            ],
             explanation: `
                 <h3>Three Ways to Declare Variables</h3>
                 <p>JavaScript gives you three keywords to declare variables. Modern code prefers <strong>const</strong> and <strong>let</strong>.</p>
+
+                <p><strong>Declaration formula:</strong> keyword (const/let/var) + identifier + = + value. Use const by default; use let only when you need to reassign. Avoid var—it has function scope and causes confusing bugs.</p>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
                     <div class="diagram-surface-dark" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 0.75rem; color: white;">
@@ -472,6 +481,28 @@ export const codingVariablesTypesContent: InteractiveGuideContent = {
             stepNumber: 4,
             title: "Type Coercion: When Types Convert Automatically",
             icon: "🔄",
+            comparison: {
+                title: "Coercion Comparison",
+                leftLabel: "Implicit (Automatic)",
+                rightLabel: "Explicit (Intentional)",
+                rows: [
+                    {
+                        label: "Example",
+                        left: "'5' + 3 → '53' (string wins)",
+                        right: "Number('5') + 3 → 8",
+                    },
+                    {
+                        label: "Risk",
+                        left: "Surprises: '10' - 3 = 7, but '5' + 3 = '53'",
+                        right: "Clear intent, easier to debug",
+                    },
+                    {
+                        label: "When",
+                        left: "Unavoidable in loose comparisons (==)",
+                        right: "Use parseInt, Number(), String() when converting",
+                    },
+                ],
+            },
             explanation: `
                 <h3>JavaScript Converts Types (Sometimes Surprisingly!)</h3>
                 <p>JavaScript will try to convert types automatically in certain situations. This can help, but it can also cause bugs!</p>
@@ -905,6 +936,61 @@ export const codingVariablesTypesContent: InteractiveGuideContent = {
             ],
             correctAnswer: "b",
             explanation: "Comprehensive checks include understanding, practical use, and error recognition, not just memorized terms.",
+        },
+        {
+            id: "q11",
+            question: "Declaration syntax: what comes first in const x = 5;?",
+            options: [
+                { value: "a", label: "const (keyword)" },
+                { value: "b", label: "x (identifier)" },
+                { value: "c", label: "5 (value)" },
+            ],
+            correctAnswer: "a",
+            explanation: "Declaration formula: keyword, then identifier, then = and value.",
+        },
+        {
+            id: "q12",
+            question: "Best way to convert string '42' to number explicitly?",
+            options: [
+                { value: "a", label: "Number('42') or parseInt('42', 10)" },
+                { value: "b", label: "'42' + 0" },
+                { value: "c", label: "Rely on implicit coercion" },
+            ],
+            correctAnswer: "a",
+            explanation: "Explicit conversion makes intent clear and avoids coercion surprises.",
+        },
+        {
+            id: "q13",
+            question: "Why does '5' + 3 equal '53' not 8?",
+            options: [
+                { value: "a", label: "String + number triggers string concatenation" },
+                { value: "b", label: "JavaScript adds as numbers then converts" },
+                { value: "c", label: "It should equal 8" },
+            ],
+            correctAnswer: "a",
+            explanation: "When one operand is string, + concatenates; - * / convert to numbers.",
+        },
+        {
+            id: "q14",
+            question: "var x = 1; if (true) { var x = 2; } console.log(x); Result?",
+            options: [
+                { value: "a", label: "2 (var has function scope, not block)" },
+                { value: "b", label: "1" },
+                { value: "c", label: "undefined" },
+            ],
+            correctAnswer: "a",
+            explanation: "var bleeds out of blocks; let would stay block-scoped and log 1.",
+        },
+        {
+            id: "q15",
+            question: "When to prefer const over let?",
+            options: [
+                { value: "a", label: "By default; use let only when you need to reassign" },
+                { value: "b", label: "Always use let" },
+                { value: "c", label: "const only for numbers" },
+            ],
+            correctAnswer: "a",
+            explanation: "const by default prevents accidental reassignment bugs.",
         },
     ],
 };

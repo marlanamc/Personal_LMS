@@ -189,6 +189,7 @@ export default function CreateActivityForm() {
                                 >
                                     <option value="">Select level</option>
                                     <option value="beginner">Beginner</option>
+                                    <option value="basics">Basics</option>
                                     <option value="intermediate">Intermediate</option>
                                     <option value="advanced">Advanced</option>
                                 </select>

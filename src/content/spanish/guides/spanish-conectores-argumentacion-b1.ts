@@ -168,6 +168,46 @@ export const spanishConectoresArgumentacionB1Content: InteractiveGuideContent = 
         },
       ],
     },
+    {
+      id: "resumen-rapido-conn",
+      stepNumber: 4,
+      title: "Resumen rápido: conectores",
+      icon: "📋",
+      explanation: `
+        <h3>Visión general</h3>
+        <p><strong>Causa:</strong> porque, ya que, puesto que. <strong>Contraste:</strong> sin embargo, no obstante, en cambio. <strong>Adición:</strong> además, también. <strong>Consecuencia:</strong> por lo tanto, así que. <strong>Cierre:</strong> finalmente, en conclusión.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-conn-quickref",
+          title: "Clasifica",
+          instructions: "Elige el tipo de conector.",
+          items: [
+            { type: "radio", label: "'Sin embargo' expresa ___", options: [{ value: "contraste", label: "contraste" }, { value: "causa", label: "causa" }], expectedAnswer: "contraste" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "errores-frecuentes-conn",
+      stepNumber: 5,
+      title: "Errores frecuentes",
+      icon: "⚠️",
+      explanation: `
+        <h3>Evitar</h3>
+        <p>Repetir el mismo conector. Usar 'pero' y 'sin embargo' juntos. Colocar conectores al final de frase cuando van al inicio. Olvidar la coma tras conectores de enlace.</p>
+      `,
+      exercises: [
+        {
+          id: "sp-conn-mistakes",
+          title: "¿Correcto?",
+          instructions: "Elige la mejor opción.",
+          items: [
+            { type: "radio", label: "Para introducir contraste: ___", options: [{ value: "a", label: "sin embargo," }, { value: "b", label: "porque" }], expectedAnswer: "a" },
+          ],
+        },
+      ],
+    },
   ],
   miniQuiz: [
     {
