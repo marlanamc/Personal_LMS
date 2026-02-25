@@ -6,31 +6,31 @@ export const spanishForEsolTeachersContent: InteractiveGuideContent = {
   sections: [
     {
       id: "esol-intro",
-      title: "Español para docentes ESOL: mirada contrastiva",
+      title: "Spanish for ESOL Teachers: A Contrastive View",
       icon: "👩‍🏫",
       explanation: `
-        <h3>Objetivo</h3>
-        <p>Esta guía está diseñada para docentes ESOL que desean usar su experiencia didáctica para acelerar su propio desarrollo en español.</p>
-        <p>Trabajaremos desde una perspectiva contrastiva: cómo se organizan significado, forma y uso en inglés y en español, y cómo evitar transferencias problemáticas.</p>
+        <h3>Objective</h3>
+        <p>This guide is for ESOL teachers who want to use their teaching experience to speed up their own Spanish learning.</p>
+        <p>We’ll use a contrastive lens: how meaning, form, and use work in English vs. Spanish, and how to avoid transfer that causes errors.</p>
       `,
       exercises: [
         {
           id: "sp-esol-1",
-          title: "Autoperfil docente",
-          instructions: "Identifica tus fortalezas de transferencia positiva.",
+          title: "Your teaching profile",
+          instructions: "Identify your strengths for positive transfer.",
           items: [
             {
               type: "text",
-              label: "Escribe dos áreas de tu práctica docente que pueden ayudarte en español.",
+              label: "Name two areas of your teaching practice that can help you in Spanish.",
               acceptAnyAttempt: true,
             },
             {
               type: "radio",
-              label: "En tu caso, ¿qué representa mayor reto inicial?",
+              label: "For you, what’s the biggest initial challenge?",
               options: [
-                { value: "a", label: "concordancia y género" },
-                { value: "b", label: "organización del discurso" },
-                { value: "c", label: "registro pragmático" },
+                { value: "a", label: "agreement and gender" },
+                { value: "b", label: "how discourse is organized" },
+                { value: "c", label: "pragmatic register (tone, formality)" },
               ],
               expectedAnswer: "a",
             },
@@ -41,43 +41,43 @@ export const spanishForEsolTeachersContent: InteractiveGuideContent = {
     {
       id: "esol-transferencia",
       stepNumber: 1,
-      title: "Transferencia útil vs interferencia",
+      title: "Useful transfer vs interference",
       icon: "🔁",
       explanation: `
-        <h3>Punto clave para docentes</h3>
-        <p>No toda comparación entre lenguas ayuda igual: algunas analogías aceleran aprendizaje y otras generan errores persistentes.</p>
+        <h3>Key idea for teachers</h3>
+        <p>Not every cross-linguistic comparison helps the same way: some speed up learning, others create persistent errors.</p>
         <ul>
-          <li><strong>Transferencia útil:</strong> organizar enunciados por función comunicativa.</li>
-          <li><strong>Interferencia:</strong> trasladar patrones morfosintácticos de forma directa.</li>
+          <li><strong>Useful transfer:</strong> organizing sentences by communicative function.</li>
+          <li><strong>Interference:</strong> copying morphosyntactic patterns directly from English.</li>
         </ul>
       `,
       exercises: [
         {
           id: "sp-esol-2",
-          title: "Clasifica casos",
-          instructions: "Selecciona si el caso representa transferencia útil o interferencia.",
+          title: "Classify the case",
+          instructions: "Say whether each case is useful transfer or interference.",
           items: [
             {
               type: "radio",
-              label: "Usar marco de 'función + forma + uso' para planificar práctica oral.",
+              label: "Using a 'function + form + use' framework to plan speaking practice.",
               options: [
-                { value: "a", label: "transferencia útil" },
-                { value: "b", label: "interferencia" },
+                { value: "a", label: "useful transfer" },
+                { value: "b", label: "interference" },
               ],
               expectedAnswer: "a",
             },
             {
               type: "radio",
-              label: "Omitir concordancia nominal porque en inglés no se marca igual.",
+              label: "Dropping noun–adjective agreement because English doesn’t mark it the same way.",
               options: [
-                { value: "a", label: "transferencia útil" },
-                { value: "b", label: "interferencia" },
+                { value: "a", label: "useful transfer" },
+                { value: "b", label: "interference" },
               ],
               expectedAnswer: "b",
             },
             {
               type: "text",
-              label: "Describe una interferencia frecuente que observas en tu propio proceso.",
+              label: "Describe one interference you notice in your own Spanish.",
               acceptAnyAttempt: true,
             },
           ],
@@ -87,68 +87,68 @@ export const spanishForEsolTeachersContent: InteractiveGuideContent = {
     {
       id: "esol-diferencias",
       stepNumber: 2,
-      title: "Diferencias estructurales de alto impacto",
+      title: "High-impact structural differences",
       icon: "🧩",
       explanation: `
-        <h3>Zonas críticas para docentes angloparlantes</h3>
+        <h3>Critical areas for English-speaking teachers</h3>
         <ul>
-          <li><strong>Concordancia:</strong> artículo + sustantivo + adjetivo.</li>
-          <li><strong>Sistema verbal:</strong> contraste aspecto/tiempo más sensible al contexto.</li>
-          <li><strong>Pronombres átonos:</strong> posición y función discursiva.</li>
-          <li><strong>Registro:</strong> elección de usted/tú y estrategias de mitigación.</li>
+          <li><strong>Agreement:</strong> article + noun + adjective (gender and number).</li>
+          <li><strong>Verb system:</strong> aspect and tense are more context-sensitive than in English.</li>
+          <li><strong>Object pronouns:</strong> position and discourse function differ from English.</li>
+          <li><strong>Register:</strong> choosing tú vs usted and mitigation strategies.</li>
         </ul>
       `,
       comparison: {
-        title: "Áreas de contraste funcional",
-        leftLabel: "Riesgo típico",
-        rightLabel: "Estrategia docente aplicada al aprendizaje propio",
+        title: "Areas of contrast",
+        leftLabel: "Typical pitfall",
+        rightLabel: "Strategy: apply your teaching lens to your own learning",
         rows: [
           {
-            label: "Concordancia",
-            left: "Subestimar género y número por transferencia del inglés.",
-            right: "Diseñar rutinas de revisión morfológica por sintagma nominal.",
+            label: "Agreement",
+            left: "Underusing gender and number because of English transfer.",
+            right: "Build routines that check the whole noun phrase (article–noun–adjective).",
           },
           {
-            label: "Tiempos/modos",
-            left: "Elegir tiempo por traducción literal.",
-            right: "Seleccionar forma según intención comunicativa y marco temporal.",
+            label: "Tense and mood",
+            left: "Choosing tense by literal translation from English.",
+            right: "Choose form by communicative intent and time frame.",
           },
           {
-            label: "Pragmática",
-            left: "Usar tono uniforme en toda audiencia.",
-            right: "Mapear audiencia, distancia y propósito antes de redactar.",
+            label: "Pragmatics",
+            left: "Using the same tone with everyone.",
+            right: "Consider audience, distance, and purpose before you speak or write.",
           },
         ],
       },
       exercises: [
         {
           id: "sp-esol-3",
-          title: "Decisión pedagógica aplicada",
-          instructions: "Escoge la estrategia más eficaz para cada dificultad.",
+          title: "Apply a teaching decision",
+          instructions: "Choose the most effective strategy for each difficulty.",
           items: [
             {
               type: "select",
-              label: "Dificultad: errores recurrentes de concordancia en producción escrita.",
+              label: "Difficulty: repeated agreement errors in writing.",
               options: [
-                "Incrementar longitud de textos sin retroalimentación focalizada",
-                "Aplicar rúbrica de control de sintagma nominal en cada borrador",
-                "Evitar adjetivos para reducir error",
+                "Write longer texts without focused feedback",
+                "Use a noun-phrase checklist on every draft",
+                "Avoid adjectives to reduce errors",
               ],
-              expectedAnswer: "Aplicar rúbrica de control de sintagma nominal en cada borrador",
+              expectedAnswer: "Use a noun-phrase checklist on every draft",
             },
             {
               type: "select",
-              label: "Dificultad: selección inestable entre indicativo y subjuntivo.",
+              label: "Difficulty: shaky choice between indicative and subjunctive.",
               options: [
-                "Memorizar listas sin contexto",
-                "Clasificar detonantes por intención y practicar con escenarios auténticos",
-                "Evitar subordinación",
+                "Memorize lists without context",
+                "Group triggers by meaning and practice with real scenarios",
+                "Avoid subordinate clauses",
               ],
-              expectedAnswer: "Clasificar detonantes por intención y practicar con escenarios auténticos",
+              expectedAnswer: "Group triggers by meaning and practice with real scenarios",
             },
             {
               type: "text",
-              label: "Propón una microsecuencia de 3 pasos para corregir una interferencia propia.",
+              label: "Outline a 3-step mini-sequence to fix one of your own interferences.",
               acceptAnyAttempt: true,
             },
           ],
@@ -158,36 +158,36 @@ export const spanishForEsolTeachersContent: InteractiveGuideContent = {
     {
       id: "esol-produccion",
       stepNumber: 3,
-      title: "Producción metalingüística aplicada",
+      title: "Applying metalinguistic reflection",
       icon: "📝",
       explanation: `
-        <h3>Tarea final</h3>
-        <p>Redacta una reflexión profesional (160-220 palabras) donde expliques cómo tu experiencia ESOL puede mejorar tu aprendizaje de español y qué ajustes concretos implementarás.</p>
+        <h3>Final task</h3>
+        <p>Write a short reflection (160–220 words) on how your ESOL experience can improve your Spanish learning and what concrete changes you’ll make.</p>
       `,
       exercises: [
         {
           id: "sp-esol-4",
-          title: "Plan docente-aprendiz",
-          instructions: "Construye un texto con diagnóstico, estrategia y métrica de progreso.",
+          title: "Teacher–learner plan",
+          instructions: "Write a short plan with diagnosis, strategy, and a progress check.",
           items: [
             {
               type: "text",
-              label: "Diagnóstico de dos interferencias prioritarias:",
+              label: "Diagnosis: two priority interferences for you:",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Estrategia didáctica que transferirás a tu aprendizaje:",
+              label: "One teaching strategy you’ll transfer to your own learning:",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Indicador de avance para las próximas cuatro semanas:",
+              label: "One way you’ll measure progress in the next four weeks:",
               acceptAnyAttempt: true,
             },
             {
               type: "text",
-              label: "Versión final (160-220 palabras):",
+              label: "Final reflection (160–220 words):",
               acceptAnyAttempt: true,
             },
           ],
@@ -198,113 +198,113 @@ export const spanishForEsolTeachersContent: InteractiveGuideContent = {
   miniQuiz: [
     {
       id: "esol-q1",
-      question: "¿Qué describe mejor el enfoque contrastivo para docentes ESOL?",
+      question: "What best describes a contrastive approach for ESOL teachers?",
       options: [
-        { value: "a", label: "Traducción palabra por palabra" },
-        { value: "b", label: "Comparación funcional para tomar decisiones de forma y uso" },
-        { value: "c", label: "Evitar toda referencia al inglés" },
+        { value: "a", label: "Word-for-word translation" },
+        { value: "b", label: "Comparing how the languages work to choose form and use" },
+        { value: "c", label: "Avoiding any reference to English" },
       ],
       correctAnswer: "b",
-      explanation: "La comparación útil guía decisiones comunicativas y reduce interferencia.",
+      explanation: "Useful comparison guides communicative choices and reduces interference.",
     },
     {
       id: "esol-q2",
-      question: "¿Qué caso es interferencia?",
+      question: "Which is interference?",
       options: [
-        { value: "a", label: "Aplicar marcos de función comunicativa" },
-        { value: "b", label: "Ignorar concordancia nominal por transferencia del inglés" },
-        { value: "c", label: "Planificar práctica contextual" },
+        { value: "a", label: "Using communicative function as a framework" },
+        { value: "b", label: "Ignoring noun–adjective agreement because of English" },
+        { value: "c", label: "Planning contextual practice" },
       ],
       correctAnswer: "b",
-      explanation: "Esa transferencia estructural genera error sistemático.",
+      explanation: "That kind of transfer creates systematic error.",
     },
     {
       id: "esol-q3",
-      question: "¿Qué estrategia mejora más la precisión verbal?",
+      question: "Which strategy improves verb accuracy most?",
       options: [
-        { value: "a", label: "Elegir tiempo por traducción literal" },
-        { value: "b", label: "Relacionar tiempo/modo con intención y marco temporal" },
-        { value: "c", label: "Evitar subordinación" },
+        { value: "a", label: "Choosing tense by literal translation" },
+        { value: "b", label: "Linking tense and mood to intent and time frame" },
+        { value: "c", label: "Avoiding subordinate clauses" },
       ],
       correctAnswer: "b",
-      explanation: "Alinea forma con función discursiva real.",
+      explanation: "It aligns form with real discourse function.",
     },
     {
       id: "esol-q4",
-      question: "¿Qué aporta una rúbrica focalizada en sintagma nominal?",
+      question: "What does a noun-phrase checklist help with?",
       options: [
-        { value: "a", label: "Reduce control formal" },
-        { value: "b", label: "Aumenta revisión de concordancia de forma sistemática" },
-        { value: "c", label: "Elimina necesidad de retroalimentación" },
+        { value: "a", label: "Reduces focus on form" },
+        { value: "b", label: "Makes you check agreement systematically" },
+        { value: "c", label: "Makes feedback unnecessary" },
       ],
       correctAnswer: "b",
-      explanation: "Permite monitoreo consistente de artículo-sustantivo-adjetivo.",
+      explanation: "It supports consistent monitoring of article–noun–adjective.",
     },
     {
       id: "esol-q5",
-      question: "En desarrollo C1-C2, ¿qué área pragmática es clave?",
+      question: "In pragmatics, what matters most?",
       options: [
-        { value: "a", label: "Mantener tono único" },
-        { value: "b", label: "Ajustar registro según audiencia y propósito" },
-        { value: "c", label: "Evitar mitigación" },
+        { value: "a", label: "Keeping the same tone everywhere" },
+        { value: "b", label: "Adjusting register for audience and purpose" },
+        { value: "c", label: "Avoiding mitigation" },
       ],
       correctAnswer: "b",
-      explanation: "La adecuación pragmática es central en niveles avanzados.",
+      explanation: "Pragmatic appropriateness is central to effective communication.",
     },
     {
       id: "esol-q6",
-      question: "¿Qué representa transferencia útil para una docente ESOL?",
+      question: "What counts as useful transfer for an ESOL teacher?",
       options: [
-        { value: "a", label: "Aplicar secuenciación didáctica al autoaprendizaje" },
-        { value: "b", label: "Copiar estructuras del inglés en español" },
-        { value: "c", label: "Omitir contraste lingüístico" },
+        { value: "a", label: "Applying teaching sequencing to your own learning" },
+        { value: "b", label: "Copying English structures into Spanish" },
+        { value: "c", label: "Ignoring cross-linguistic contrast" },
       ],
       correctAnswer: "a",
-      explanation: "La experticia didáctica sí puede transferirse positivamente.",
+      explanation: "Your teaching expertise can transfer in positive ways.",
     },
     {
       id: "esol-q7",
-      question: "¿Qué decisión favorece corrección sostenida?",
+      question: "What supports sustained improvement?",
       options: [
-        { value: "a", label: "Corregir todo sin priorizar" },
-        { value: "b", label: "Priorizar interferencias de alto impacto y medir progreso" },
-        { value: "c", label: "Ignorar errores recurrentes" },
+        { value: "a", label: "Correcting everything with no priorities" },
+        { value: "b", label: "Focusing on high-impact interferences and tracking progress" },
+        { value: "c", label: "Ignoring recurring errors" },
       ],
       correctAnswer: "b",
-      explanation: "La priorización mejora eficiencia y seguimiento.",
+      explanation: "Prioritizing makes practice more efficient and measurable.",
     },
     {
       id: "esol-q8",
-      question: "¿Qué práctica fortalece autonomía docente-aprendiz?",
+      question: "What helps you learn more independently?",
       options: [
-        { value: "a", label: "Registrar indicadores semanales de desempeño" },
-        { value: "b", label: "Estudiar sin criterios de avance" },
-        { value: "c", label: "Evitar autoevaluación" },
+        { value: "a", label: "Tracking simple weekly indicators" },
+        { value: "b", label: "Studying with no clear progress criteria" },
+        { value: "c", label: "Avoiding self-assessment" },
       ],
       correctAnswer: "a",
-      explanation: "Permite ajustar estrategia con evidencia.",
+      explanation: "It lets you adjust your strategy with evidence.",
     },
     {
       id: "esol-q9",
-      question: "¿Cuál es una meta realista de cuatro semanas?",
+      question: "What’s a realistic 4-week goal?",
       options: [
-        { value: "a", label: "Perfección total en todos los niveles" },
-        { value: "b", label: "Reducir un patrón de interferencia con criterio medible" },
-        { value: "c", label: "No revisar producción" },
+        { value: "a", label: "Perfect control of everything" },
+        { value: "b", label: "Reducing one interference pattern with a clear measure" },
+        { value: "c", label: "Not reviewing your output" },
       ],
       correctAnswer: "b",
-      explanation: "Metas acotadas y medibles facilitan progreso real.",
+      explanation: "Small, measurable goals support real progress.",
     },
     {
       id: "esol-q10",
-      question: "¿Qué demuestra mejor integración de esta guía?",
+      question: "What best shows you’ve used this guide?",
       options: [
-        { value: "a", label: "Descripción general sin plan" },
-        { value: "b", label: "Diagnóstico + estrategia transferida + indicador de seguimiento" },
-        { value: "c", label: "Solo lista de errores" },
+        { value: "a", label: "A general description with no plan" },
+        { value: "b", label: "Diagnosis + a strategy you transferred + a way to track it" },
+        { value: "c", label: "Only a list of errors" },
       ],
       correctAnswer: "b",
-      explanation: "Integra reflexión metalingüística y acción didáctica concreta.",
+      explanation: "It combines reflection with concrete teaching-style action.",
     },
   ],
 };

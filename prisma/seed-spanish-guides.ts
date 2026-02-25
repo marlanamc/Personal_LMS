@@ -231,9 +231,9 @@ const spanishGuides = [
   },
   {
     id: 'spanish-for-esol-teachers-guide',
-    title: 'Learning Spanish for ESOL Teachers',
-    description: 'C1 guide with contrastive strategies for ESOL teachers building advanced Spanish proficiency.',
-    level: 'C1',
+    title: 'Spanish for ESOL Teachers',
+    description: 'English-language contrastive guide for ESOL teachers learning Spanish—uses your teaching lens to avoid interference and speed up progress.',
+    level: 'B2',
     content: spanishForEsolTeachersContent,
   },
 ];

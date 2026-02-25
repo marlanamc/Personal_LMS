@@ -227,13 +227,13 @@ export const spanishCourseObjectives: SpanishCourseObjective[] = [
   },
   {
     id: "c1-esol-teacher-contrastive",
-    cefr: "C1",
-    module: "Advanced production",
-    title: "Contrastive Spanish development for ESOL teachers",
+    cefr: "B2",
+    module: "Applied learning",
+    title: "Spanish for ESOL teachers (contrastive guide)",
     status: "existing",
     canonicalGuideId: "spanish-for-esol-teachers-guide",
-    prerequisites: ["b2-tense-mood-contrast", "c1-register-control"],
-    notes: "B1+ must be Spanish-only for instructions, hints, and feedback.",
+    prerequisites: ["b2-tense-mood-contrast"],
+    notes: "Guide is in English for ESOL teachers learning Spanish.",
   },
   {
     id: "c2-pragmatic-nuance",
