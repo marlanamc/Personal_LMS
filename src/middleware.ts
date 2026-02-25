@@ -17,6 +17,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
         "img-src 'self' data: blob:", // Allow data URIs for inline images
         "font-src 'self' data:", // Allow data URIs for fonts
         "connect-src 'self' https://docs.google.com https://*.google.com https://*.googleusercontent.com https://vercel.live https://*.vercel.live", // Allow preview feedback network calls
+        "frame-src 'self' https://open.spotify.com", // Allow Spotify embeds
         "frame-ancestors 'none'", // Prevent embedding (clickjacking protection)
         "base-uri 'self'", // Restrict base tag URLs
         "form-action 'self'", // Restrict form submissions

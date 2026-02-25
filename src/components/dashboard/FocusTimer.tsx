@@ -25,11 +25,11 @@ export const FocusTimer = () => {
     const menuRef = useRef<HTMLDivElement>(null);
 
     const tracks = useMemo(() => [
-        { id: 'lofi', name: 'Lo-Fi', playlistId: '0vvXsWCC9xrXsKd4FyS8kM' },
-        { id: 'celestial', name: 'Celestial', playlistId: '2mYyO2LwW0pBy7YVREf2P2' },
-        { id: 'groovy', name: 'Groovy Beats', playlistId: '37i9dQZF1DX8UebIWWIlS6' },
-        { id: 'tiimo', name: 'Tiimo Town', playlistId: '37i9dQZF1DX919S97YpIP3' },
-        { id: 'acoustic', name: 'Acoustic', playlistId: '37i9dQZF1DWZIOAP995ogX' },
+        { id: 'lofi', name: 'Lo-Fi', playlistId: '37i9dQZF1DWWQRwui0ExPn' }, // Lofi Beats
+        { id: 'celestial', name: 'Celestial', playlistId: '37i9dQZF1DX8UebIWWIlS6' }, // Mellow Beats
+        { id: 'groovy', name: 'Groovy Beats', playlistId: '37i9dQZF1DX0SM0svvH1v0' }, // Jazz Vibes
+        { id: 'tiimo', name: 'Deep Focus', playlistId: '37i9dQZF1DWZeKzbqS3Sbi' }, // Deep Focus
+        { id: 'acoustic', name: 'Acoustic', playlistId: '37i9dQZF1DWZIOAP995ogX' }, // Acoustic Favorites
         { id: 'none', name: 'No music', playlistId: null },
     ], []);
     
