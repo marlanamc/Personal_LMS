@@ -8,6 +8,10 @@ import {
     CheckSquare,
     Check,
     ExternalLink,
+    BookOpen,
+    Code2,
+    Gamepad2,
+    Languages,
     X,
     Plus,
     RefreshCw,
@@ -15,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useFocusTimer } from '@/context/FocusTimerContext';
 import { ActivityPanelContent } from '@/components/dashboard/ActivityPanelContent';
+import { getGameEmojiForActivity } from '@/lib/game-emoji';
 
 type SpotifyConnectionStatus = {
     configured: boolean;
@@ -29,6 +34,7 @@ type FocusTaskItem = {
     source: 'manual' | 'assignment';
     sourceId?: string;
     href?: string;
+    activityType?: string;
 };
 
 type FeaturedAssignmentTask = {
@@ -490,6 +496,7 @@ export const FocusTimer = () => {
                     source: 'assignment',
                     sourceId: assignment.id,
                     href: `/activity/${assignment.activityId}?assignment=${assignment.id}`,
+                    activityType: assignment.activity.type,
                 };
             });
 
@@ -526,6 +533,57 @@ export const FocusTimer = () => {
     const selectedArcLength = selectedFraction * circumference;
     const remainingArcLength = currentProgressPercentage * selectedArcLength;
     const elapsedArcLength = Math.max(selectedArcLength - remainingArcLength, 0);
+
+    const getTaskVisualStyle = useCallback((task: FocusTaskItem) => {
+        const lower = task.text.toLowerCase();
+        const isGame =
+            task.activityType === 'game' ||
+            /\b(game|matching|flashcard|flash card|speed|race|challenge|practice)\b/.test(lower);
+        const isCoding = /\b(coding|javascript|typescript|js\/ts|react|next\.js|operator|array)\b/.test(lower);
+        const isSpanish = /\b(spanish|preterite|imperfect|verb|conjugation|esol)\b/.test(lower);
+
+        if (isGame) {
+            return {
+                accent: 'var(--color-accent-amethyst)',
+                soft: 'color-mix(in srgb, var(--color-accent-amethyst) 14%, transparent)',
+                border: 'color-mix(in srgb, var(--color-accent-amethyst) 40%, var(--color-border-subtle))',
+                label: 'Practice',
+                icon: 'game' as const,
+                isGame: true,
+            };
+        }
+
+        if (isCoding) {
+            return {
+                accent: 'var(--color-accent-teal)',
+                soft: 'color-mix(in srgb, var(--color-accent-teal) 14%, transparent)',
+                border: 'color-mix(in srgb, var(--color-accent-teal) 40%, var(--color-border-subtle))',
+                label: 'Coding',
+                icon: 'coding' as const,
+                isGame: false,
+            };
+        }
+
+        if (isSpanish) {
+            return {
+                accent: 'var(--color-accent-sakura)',
+                soft: 'var(--color-accent-sakura-soft)',
+                border: 'color-mix(in srgb, var(--color-accent-sakura) 40%, var(--color-border-subtle))',
+                label: 'Spanish',
+                icon: 'spanish' as const,
+                isGame: false,
+            };
+        }
+
+        return {
+            accent: 'var(--color-accent-mint)',
+            soft: 'color-mix(in srgb, var(--color-accent-mint) 14%, transparent)',
+            border: 'color-mix(in srgb, var(--color-accent-mint) 40%, var(--color-border-subtle))',
+            label: task.source === 'assignment' ? 'Subject' : 'Manual',
+            icon: 'default' as const,
+            isGame: false,
+        };
+    }, []);
     
     return (
         <div className="min-h-screen bg-bg-primary text-text font-display transition-colors duration-300 flex flex-col">
@@ -874,7 +932,7 @@ export const FocusTimer = () => {
                             )}
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                        <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
                             {tasks.length === 0 && (
                                 <div className="rounded-2xl border border-dashed border-border/60 bg-bg-secondary/60 p-5 text-center">
                                     <p className="text-sm font-semibold text-text">No tasks yet</p>
@@ -885,59 +943,103 @@ export const FocusTimer = () => {
                             )}
 
                             {tasks.map((task) => (
-                                <div
-                                    key={task.id}
-                                    className="rounded-2xl border border-border/40 bg-bg-secondary/80 px-3 py-3 flex items-start gap-3"
-                                >
-                                    <button
-                                        type="button"
-                                        onClick={() => toggleTask(task.id)}
-                                        className={`mt-0.5 w-5 h-5 rounded-md border transition-colors flex items-center justify-center ${task.done ? 'bg-primary border-primary text-bg-base' : 'border-border bg-bg-surface'}`}
-                                        aria-label={task.done ? 'Mark task as incomplete' : 'Mark task as complete'}
-                                    >
-                                        {task.done && <Check className="w-3.5 h-3.5" />}
-                                    </button>
+                                (() => {
+                                    const style = getTaskVisualStyle(task);
+                                    const match = task.text.match(/^(.*?)(?:\s+\(([^)]+)\))?$/);
+                                    const title = (match?.[1] || task.text).trim();
+                                    const className = match?.[2]?.trim() || null;
+                                    const activityId = task.href
+                                        ? task.href.split('?')[0].split('/').pop() || undefined
+                                        : undefined;
+                                    const gameEmoji = style.isGame
+                                        ? getGameEmojiForActivity({ activityId, title: task.text })
+                                        : null;
 
-                                    <div className="flex-1 min-w-0">
-                                        <p className={`text-sm leading-snug ${task.done ? 'line-through text-text-muted' : 'text-text'}`}>
-                                            {task.text}
-                                        </p>
-                                        <div className="mt-1 flex items-center gap-2">
-                                            <span
-                                                className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${task.source === 'assignment' ? 'bg-secondary/20 text-secondary' : 'bg-primary/20 text-primary'}`}
-                                            >
-                                                {task.source === 'assignment' ? 'Subject' : 'Manual'}
-                                            </span>
-                                            {task.source === 'assignment' && task.href && (
+                                    return (
+                                        <div
+                                            key={task.id}
+                                            className="relative overflow-hidden rounded-xl border border-border-subtle bg-bg-surface shadow-sm"
+                                        >
+                                            <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: style.accent }} />
+
+                                            <div className="pl-4 pr-3 py-3 flex items-start gap-3">
                                                 <button
                                                     type="button"
-                                                    onClick={() => {
-                                                        const url = new URL(task.href!, window.location.origin);
-                                                        const activityId = url.pathname.split('/').pop();
-                                                        const assignmentId = url.searchParams.get('assignment');
-
-                                                        setActiveActivityId(activityId || null);
-                                                        setActiveAssignmentId(assignmentId);
-                                                        setIsActivityPanelOpen(true);
-                                                        setIsTasksPanelOpen(false);
-                                                    }}
-                                                    className="text-[10px] font-semibold text-text-muted hover:text-text underline"
+                                                    onClick={() => toggleTask(task.id)}
+                                                    className={`mt-0.5 w-5 h-5 rounded-md border transition-colors flex items-center justify-center ${
+                                                        style.isGame
+                                                            ? 'border-transparent bg-transparent pointer-events-none'
+                                                            : task.done
+                                                                ? 'bg-primary border-primary text-bg-base'
+                                                                : 'border-border-subtle bg-bg-surface'
+                                                    }`}
+                                                    aria-label={task.done ? 'Mark task as incomplete' : 'Mark task as complete'}
                                                 >
-                                                    Open
+                                                    {style.isGame ? (
+                                                        <span className="text-[15px] leading-none">{gameEmoji}</span>
+                                                    ) : (
+                                                        task.done && <Check className="w-3.5 h-3.5" />
+                                                    )}
                                                 </button>
-                                            )}
-                                        </div>
-                                    </div>
 
-                                    <button
-                                        type="button"
-                                        onClick={() => deleteTask(task.id)}
-                                        className="p-1.5 rounded-md hover:bg-bg-light text-text-muted hover:text-text transition-colors"
-                                        aria-label="Delete task"
-                                    >
-                                        <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
-                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-md border border-border-subtle bg-bg-elevated/70" aria-hidden>
+                                                            {style.icon === 'game' && <Gamepad2 className="w-3 h-3" style={{ color: style.accent }} />}
+                                                            {style.icon === 'coding' && <Code2 className="w-3 h-3" style={{ color: style.accent }} />}
+                                                            {style.icon === 'spanish' && <Languages className="w-3 h-3" style={{ color: style.accent }} />}
+                                                            {style.icon === 'default' && <BookOpen className="w-3 h-3" style={{ color: style.accent }} />}
+                                                        </span>
+                                                        <span
+                                                            className="inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border"
+                                                            style={{ backgroundColor: style.soft, color: style.accent, borderColor: style.border }}
+                                                        >
+                                                            {style.label}
+                                                        </span>
+                                                        {className && (
+                                                            <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold border border-border-subtle text-text-muted bg-bg-elevated/70">
+                                                                {className}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    <p className={`text-base leading-snug font-semibold ${task.done ? 'line-through text-text-muted' : 'text-text'}`}>
+                                                        {title}
+                                                    </p>
+
+                                                    {task.source === 'assignment' && task.href && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const url = new URL(task.href!, window.location.origin);
+                                                                const taskActivityId = url.pathname.split('/').pop();
+                                                                const assignmentId = url.searchParams.get('assignment');
+
+                                                                setActiveActivityId(taskActivityId || null);
+                                                                setActiveAssignmentId(assignmentId);
+                                                                setIsActivityPanelOpen(true);
+                                                                setIsTasksPanelOpen(false);
+                                                            }}
+                                                            className="mt-2 inline-flex items-center px-2.5 py-1 rounded-md border text-xs font-semibold transition-colors hover:bg-bg-elevated"
+                                                            style={{ color: style.accent, borderColor: style.border }}
+                                                        >
+                                                            {style.isGame ? 'Play' : 'Open'}
+                                                        </button>
+                                                    )}
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => deleteTask(task.id)}
+                                                    className="p-1.5 rounded-md hover:bg-bg-elevated text-text-muted hover:text-text transition-colors"
+                                                    aria-label="Delete task"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })()
                             ))}
                         </div>
                     </div>

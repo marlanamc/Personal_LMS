@@ -67,40 +67,118 @@ export function ActivityPanelContent({
     const fullPageUrl = activityId
         ? `/activity/${activityId}${assignmentId ? `?assignment=${assignmentId}` : ""}`
         : null;
+    const isGuideActivity = activity?.type === "guide";
+    const categoryRaw = (activity?.category || "").toLowerCase();
+    const titleLower = (activity?.title || "").toLowerCase();
+    const idLower = (activity?.id || "").toLowerCase();
+    const isCodingLike =
+        categoryRaw === "coding" ||
+        idLower.startsWith("coding-") ||
+        titleLower.includes("coding") ||
+        titleLower.includes("javascript") ||
+        titleLower.includes("typescript") ||
+        titleLower.includes("js/ts");
+    const isSpanishLike =
+        categoryRaw === "spanish" ||
+        idLower.startsWith("spanish-") ||
+        titleLower.includes("spanish");
+    const categoryCrumb = isCodingLike
+        ? { label: "Coding", href: "/dashboard/subjects?subject=coding" }
+        : isSpanishLike
+            ? { label: "Spanish", href: "/dashboard/subjects?subject=spanish" }
+            : { label: "Subjects", href: "/dashboard/subjects" };
 
     return (
         <div className="h-full flex flex-col">
             {/* Header */}
-            <div className="px-4 sm:px-6 pt-4 pb-3 border-b border-border/40 flex items-center gap-3 shrink-0 bg-bg-primary/95 backdrop-blur-sm">
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-bg-secondary hover:bg-bg-light border border-border/40 transition-colors text-sm font-semibold text-text"
-                    aria-label="Back to Focus Timer"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    <span className="hidden sm:inline">Back to Focus</span>
-                </button>
-
-                <h2 className="text-lg sm:text-xl font-display font-bold text-text truncate flex-1">
-                    {activity?.title || "Activity"}
-                </h2>
-
-                {fullPageUrl && (
-                    <a
-                        href={fullPageUrl}
-                        className="p-2 rounded-lg bg-bg-secondary hover:bg-bg-light border border-border/40 transition-colors"
-                        aria-label="Open in separate page"
-                        title="Open in separate page"
+            <div className="px-4 sm:px-6 py-3 border-b border-border/40 shrink-0 bg-bg-primary/95 backdrop-blur-sm">
+                <div className="flex items-center justify-between gap-2 sm:hidden">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-bg-secondary hover:bg-bg-light border border-border/40 transition-colors text-sm font-semibold text-text"
+                        aria-label="Back to Focus Timer"
                     >
-                        <ExternalLink className="w-4 h-4 text-text-muted" />
-                    </a>
-                )}
+                        <ArrowLeft className="w-4 h-4" />
+                        <span>Back</span>
+                    </button>
+                    <h2 className="text-base font-display font-bold text-text truncate flex-1 text-center px-2">
+                        {activity?.title || "Activity"}
+                    </h2>
+                    {fullPageUrl && (
+                        <a
+                            href={fullPageUrl}
+                            className="p-2 rounded-lg bg-bg-secondary hover:bg-bg-light border border-border/40 transition-colors"
+                            aria-label="Open in separate page"
+                            title="Open in separate page"
+                        >
+                            <ExternalLink className="w-4 h-4 text-text-muted" />
+                        </a>
+                    )}
+                </div>
+
+                <div className="hidden sm:flex items-center justify-between gap-4">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-bg-secondary hover:bg-bg-light border border-border/40 transition-colors text-sm font-semibold text-text shrink-0"
+                        aria-label="Back to Focus Timer"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        <span>Back to Focus</span>
+                    </button>
+
+                    <div className="flex-1 min-w-0">
+                        <nav aria-label="Breadcrumb" className="mb-1 flex items-center gap-2 text-sm text-text-muted">
+                            <a href="/dashboard" className="hover:text-text transition-colors">Home</a>
+                            <span aria-hidden>/</span>
+                            <a href="/dashboard/subjects" className="hover:text-text transition-colors">Subjects</a>
+                            {categoryCrumb && (
+                                <>
+                                    <span aria-hidden>/</span>
+                                    <a href={categoryCrumb.href} className="hover:text-text transition-colors">
+                                        {categoryCrumb.label}
+                                    </a>
+                                </>
+                            )}
+                            <span aria-hidden>/</span>
+                            <span className="text-text">Timer</span>
+                        </nav>
+                        <h2 className="text-lg sm:text-xl font-display font-bold text-text truncate">
+                            {activity?.title || "Activity"}
+                        </h2>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                        {isGuideActivity && (
+                            <div
+                                id="interactive-guide-header-controls"
+                                className="hidden sm:flex items-center gap-2 mr-1"
+                            />
+                        )}
+                        {fullPageUrl && (
+                            <a
+                                href={fullPageUrl}
+                                className="p-2 rounded-lg bg-bg-secondary hover:bg-bg-light border border-border/40 transition-colors"
+                                aria-label="Open in separate page"
+                                title="Open in separate page"
+                            >
+                                <ExternalLink className="w-4 h-4 text-text-muted" />
+                            </a>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto min-h-0 pb-[calc(8rem+env(safe-area-inset-bottom))]">
-                <div className="max-w-4xl mx-auto p-4 sm:p-6">
+            <div
+                className={
+                    isGuideActivity
+                        ? "flex-1 overflow-hidden min-h-0"
+                        : "flex-1 overflow-y-auto min-h-0 pb-[calc(8rem+env(safe-area-inset-bottom))]"
+                }
+            >
+                <div className={isGuideActivity ? "w-full h-full min-h-0 p-0" : "max-w-4xl mx-auto p-4 sm:p-6"}>
                     {isLoading && (
                         <div className="flex items-center justify-center h-32">
                             <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
