@@ -964,33 +964,21 @@ export const FocusTimer = () => {
                 </aside>
             </div>
 
-            {/* Activity Panel */}
+            {/* Activity Panel - Full Page */}
             <div
-                className={`fixed inset-0 z-[65] ${isActivityPanelOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                className={`fixed inset-0 z-[65] bg-bg-primary transition-opacity duration-300 ${isActivityPanelOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
                 aria-hidden={!isActivityPanelOpen}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Activity"
             >
-                <button
-                    type="button"
-                    onClick={() => setIsActivityPanelOpen(false)}
-                    className={`absolute inset-0 bg-black/45 transition-opacity duration-200 ${isActivityPanelOpen ? 'opacity-100' : 'opacity-0'}`}
-                    tabIndex={isActivityPanelOpen ? 0 : -1}
-                    aria-label="Close activity panel"
-                />
-
-                <aside
-                    className={`absolute right-0 top-0 h-full w-full max-w-2xl bg-bg-elevated border-l border-border shadow-2xl transition-transform duration-300 ${isActivityPanelOpen ? 'translate-x-0' : 'translate-x-full'}`}
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label="Activity"
-                >
-                    {isActivityPanelOpen && (
-                        <ActivityPanelContent
-                            activityId={activeActivityId}
-                            assignmentId={activeAssignmentId}
-                            onClose={() => setIsActivityPanelOpen(false)}
-                        />
-                    )}
-                </aside>
+                {isActivityPanelOpen && (
+                    <ActivityPanelContent
+                        activityId={activeActivityId}
+                        assignmentId={activeAssignmentId}
+                        onClose={() => setIsActivityPanelOpen(false)}
+                    />
+                )}
             </div>
         </div>
     );

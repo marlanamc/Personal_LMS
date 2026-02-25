@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import ActivityRenderer from "@/components/ActivityRenderer";
 
 type Activity = {
@@ -71,57 +71,60 @@ export function ActivityPanelContent({
     return (
         <div className="h-full flex flex-col">
             {/* Header */}
-            <div className="px-5 pt-5 pb-4 border-b border-border/40 flex items-center justify-between shrink-0">
-                <h2 className="text-xl font-display font-bold text-text truncate flex-1 mr-4">
+            <div className="px-4 sm:px-6 pt-4 pb-3 border-b border-border/40 flex items-center gap-3 shrink-0 bg-bg-primary/95 backdrop-blur-sm">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-bg-secondary hover:bg-bg-light border border-border/40 transition-colors text-sm font-semibold text-text"
+                    aria-label="Back to Focus Timer"
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span className="hidden sm:inline">Back to Focus</span>
+                </button>
+
+                <h2 className="text-lg sm:text-xl font-display font-bold text-text truncate flex-1">
                     {activity?.title || "Activity"}
                 </h2>
-                <div className="flex items-center gap-2">
-                    {fullPageUrl && (
-                        <a
-                            href={fullPageUrl}
-                            className="p-2 rounded-lg bg-bg-secondary hover:bg-bg-light border border-border/40 transition-colors"
-                            aria-label="Open in full page"
-                            title="Open in full page"
-                        >
-                            <ExternalLink className="w-4 h-4 text-text-muted" />
-                        </a>
-                    )}
-                    <button
-                        type="button"
-                        onClick={onClose}
+
+                {fullPageUrl && (
+                    <a
+                        href={fullPageUrl}
                         className="p-2 rounded-lg bg-bg-secondary hover:bg-bg-light border border-border/40 transition-colors"
-                        aria-label="Close activity panel"
+                        aria-label="Open in separate page"
+                        title="Open in separate page"
                     >
-                        <X className="w-4 h-4 text-text-muted" />
-                    </button>
-                </div>
+                        <ExternalLink className="w-4 h-4 text-text-muted" />
+                    </a>
+                )}
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-4 min-h-0">
-                {isLoading && (
-                    <div className="flex items-center justify-center h-32">
-                        <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
-                    </div>
-                )}
-                {error && (
-                    <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-center">
-                        <p className="text-sm font-semibold text-red-600">{error}</p>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="mt-3 text-xs font-semibold text-red-500 underline hover:text-red-700"
-                        >
-                            Close panel
-                        </button>
-                    </div>
-                )}
-                {activity && !isLoading && (
-                    <ActivityRenderer
-                        activity={activity}
-                        assignmentId={assignmentId}
-                    />
-                )}
+            <div className="flex-1 overflow-y-auto min-h-0 pb-[calc(8rem+env(safe-area-inset-bottom))]">
+                <div className="max-w-4xl mx-auto p-4 sm:p-6">
+                    {isLoading && (
+                        <div className="flex items-center justify-center h-32">
+                            <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
+                        </div>
+                    )}
+                    {error && (
+                        <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-center">
+                            <p className="text-sm font-semibold text-red-600">{error}</p>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="mt-3 text-xs font-semibold text-red-500 underline hover:text-red-700"
+                            >
+                                Back to Focus Timer
+                            </button>
+                        </div>
+                    )}
+                    {activity && !isLoading && (
+                        <ActivityRenderer
+                            activity={activity}
+                            assignmentId={assignmentId}
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );
