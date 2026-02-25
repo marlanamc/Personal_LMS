@@ -37,28 +37,30 @@ const SUBJECT_CONFIG: Record<UtilitySubjectKey, {
 };
 
 const DEFAULT_CHECKLISTS: Record<UtilitySubjectKey, UtilityChecklistItem[]> = {
-    health: [
-        { id: 'health-1', text: 'Review upcoming appointments', done: false },
-        { id: 'health-2', text: 'Check medications or supplies', done: false },
-        { id: 'health-3', text: 'Read one important health note', done: false },
-    ],
-    'job-search': [
-        { id: 'job-1', text: 'Check application replies', done: false },
-        { id: 'job-2', text: 'Update resume or portfolio', done: false },
-        { id: 'job-3', text: 'Save one strong opportunity', done: false },
-    ],
+    health: [],
+    'job-search': [],
 };
 
 const DEFAULT_LINKS: Record<UtilitySubjectKey, UtilityLinkItem[]> = {
-    health: [
-        { id: 'health-link-1', label: 'Patient Portal', href: '' },
-        { id: 'health-link-2', label: 'Insurance Docs', href: '' },
-    ],
-    'job-search': [
-        { id: 'job-link-1', label: 'My Resume', href: '' },
-        { id: 'job-link-2', label: 'Job Tracker', href: '' },
-    ],
+    health: [],
+    'job-search': [],
 };
+
+const TEMPLATE_CHECKLIST_IDS = new Set([
+    'health-1',
+    'health-2',
+    'health-3',
+    'job-1',
+    'job-2',
+    'job-3',
+]);
+
+const TEMPLATE_LINK_IDS = new Set([
+    'health-link-1',
+    'health-link-2',
+    'job-link-1',
+    'job-link-2',
+]);
 
 const withProtocol = (url: string): string => {
     if (!url) return '';
@@ -77,6 +79,12 @@ const isLinkItem = (value: unknown): value is UtilityLinkItem => {
     const item = value as Record<string, unknown>;
     return typeof item.id === 'string' && typeof item.label === 'string' && typeof item.href === 'string';
 };
+
+const stripTemplateChecklistItems = (items: UtilityChecklistItem[]): UtilityChecklistItem[] =>
+    items.filter((item) => !TEMPLATE_CHECKLIST_IDS.has(item.id));
+
+const stripTemplateLinkItems = (items: UtilityLinkItem[]): UtilityLinkItem[] =>
+    items.filter((item) => !TEMPLATE_LINK_IDS.has(item.id));
 
 export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectPanelProps) {
     const config = SUBJECT_CONFIG[subjectKey];
@@ -113,10 +121,10 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
 
                 const data = await response.json() as { checklist?: unknown; links?: unknown };
                 const checklistData = Array.isArray(data.checklist) && data.checklist.every(isChecklistItem)
-                    ? data.checklist
+                    ? stripTemplateChecklistItems(data.checklist)
                     : DEFAULT_CHECKLISTS[subjectKey];
                 const linksData = Array.isArray(data.links) && data.links.every(isLinkItem)
-                    ? data.links
+                    ? stripTemplateLinkItems(data.links)
                     : DEFAULT_LINKS[subjectKey];
 
                 if (!cancelled) {

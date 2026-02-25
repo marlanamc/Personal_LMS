@@ -30,7 +30,7 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
     id: 'notebook-spanish-tenses',
     subjectKey: 'spanish',
     name: 'Verb Tenses',
-    tagline: 'Present, future plans, preterite, and imperfect',
+    tagline: 'Present, future plans, preterite, imperfect, and present perfect',
     emoji: '⏱️',
     content: {
       guides: [
@@ -38,6 +38,7 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
         'spanish-immediate-future-guide',
         'spanish-preterite-tense-guide',
         'spanish-imperfect-tense-guide',
+        'spanish-present-perfect-b1-guide',
       ],
       games: [
         'spanish-verb-game-present-ar',
@@ -85,12 +86,13 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
     id: 'notebook-spanish-describing',
     subjectKey: 'spanish',
     name: 'Describing Things',
-    tagline: 'Gender, articles, adjectives, colors, and family',
+    tagline: 'Gender, articles, adjectives, comparatives, colors, and family',
     emoji: '🎨',
     content: {
       guides: [
         'spanish-noun-gender-articles-guide',
         'spanish-adjective-agreement-guide',
+        'spanish-comparatives-superlatives-guide',
       ],
       games: ['spanish-adjectives-flashcards'],
       vocabulary: [
@@ -104,12 +106,14 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
     id: 'notebook-spanish-conversations',
     subjectKey: 'spanish',
     name: 'Real Conversations',
-    tagline: 'Pronunciation, questions, restaurants, and everyday phrases',
+    tagline: 'Pronunciation, questions, commands, pronouns, restaurants, and everyday phrases',
     emoji: '🗣️',
     content: {
       guides: [
         'spanish-alphabet-pronunciation-guide',
         'spanish-question-words-sentences-guide',
+        'spanish-commands-polite-requests-guide',
+        'spanish-object-pronouns-basics-guide',
         'spanish-restaurant-conversations-guide',
       ],
       games: [],
@@ -119,6 +123,90 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
       ],
     },
     order: 5,
+  },
+  {
+    id: 'notebook-spanish-b1',
+    subjectKey: 'spanish',
+    name: 'B1 Bridge',
+    tagline: 'Connectors, subjunctive intro, and integrated assessment',
+    emoji: '🧭',
+    content: {
+      guides: [
+        'spanish-conectores-argumentacion-b1-guide',
+        'spanish-subjuntivo-intro-b1-guide',
+        'spanish-b1-integrated-assessment-guide',
+      ],
+      games: [],
+      vocabulary: [],
+    },
+    order: 6,
+  },
+  {
+    id: 'notebook-spanish-b2',
+    subjectKey: 'spanish',
+    name: 'B2 Precision',
+    tagline: 'Subjunctive clauses, tense contrast, passive structures, and assessment',
+    emoji: '🧩',
+    content: {
+      guides: [
+        'spanish-subjuntivo-clausulas-b2-guide',
+        'spanish-contraste-tiempos-b2-guide',
+        'spanish-pasiva-impersonales-b2-guide',
+        'spanish-b2-integrated-assessment-guide',
+      ],
+      games: [],
+      vocabulary: [],
+    },
+    order: 7,
+  },
+  {
+    id: 'notebook-spanish-c1',
+    subjectKey: 'spanish',
+    name: 'C1 Expression',
+    tagline: 'Register control, persuasive connectors, and production lab',
+    emoji: '🎯',
+    content: {
+      guides: [
+        'spanish-register-control-c1-guide',
+        'spanish-conectores-persuasion-c1-guide',
+        'spanish-c1-production-lab-guide',
+      ],
+      games: [],
+      vocabulary: [],
+    },
+    order: 8,
+  },
+  {
+    id: 'notebook-spanish-c2',
+    subjectKey: 'spanish',
+    name: 'C2 Mastery',
+    tagline: 'Pragmatic nuance, precision lab, and capstone',
+    emoji: '🏔️',
+    content: {
+      guides: [
+        'spanish-matices-pragmaticos-c2-guide',
+        'spanish-precision-lab-c2-guide',
+        'spanish-c2-capstone-guide',
+      ],
+      games: [],
+      vocabulary: [],
+    },
+    order: 9,
+  },
+  {
+    id: 'notebook-spanish-teaching',
+    subjectKey: 'spanish',
+    name: 'Teaching Spanish',
+    tagline: 'Applied Spanish for ESOL teachers',
+    emoji: '🧑‍🏫',
+    content: {
+      guides: [
+        'spanish-for-esol-teachers-guide',
+      ],
+      games: [],
+      vocabulary: [],
+    },
+    order: 10,
   },
   {
     id: 'notebook-spanish-numbers',
@@ -138,7 +226,7 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
         'spanish-numbers-flashcards',
       ],
     },
-    order: 6,
+    order: 11,
   },
 
   // ──────────────────────────────────────────
@@ -169,8 +257,8 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
   {
     id: 'notebook-coding-functions',
     subjectKey: 'coding',
-    name: 'Functions & Control Flow',
-    tagline: 'Functions, loops, arrays, and objects',
+    name: 'Logic & Data Flow',
+    tagline: 'Functions, loops, arrays, and objects in real problem-solving',
     emoji: '⚙️',
     content: {
       guides: [
@@ -186,10 +274,10 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
     order: 2,
   },
   {
-    id: 'notebook-coding-intermediate',
+    id: 'notebook-coding-frontend',
     subjectKey: 'coding',
-    name: 'Intermediate',
-    tagline: 'React, Next.js architecture, DOM, OOP, modules, APIs, and async',
+    name: 'Frontend Systems',
+    tagline: 'React, Next.js architecture, DOM, classes, and modules',
     emoji: '🚀',
     content: {
       guides: [
@@ -198,8 +286,6 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
         'coding-dom-manipulation',
         'coding-classes-oop',
         'coding-modules-imports',
-        'coding-working-with-apis',
-        'coding-async-promises',
       ],
       games: [],
       vocabulary: [],
@@ -207,36 +293,122 @@ export const TOPIC_NOTEBOOKS: TopicNotebook[] = [
     order: 3,
   },
   {
-    id: 'notebook-coding-advanced',
+    id: 'notebook-coding-apis-async',
     subjectKey: 'coding',
-    name: 'Advanced',
-    tagline: 'Implementation strategy, Git/PR, testing, API/Prisma, production debugging, and TypeScript',
-    emoji: '💎',
+    name: 'APIs & Async',
+    tagline: 'API contracts at the client layer, async flow, and resilient error handling',
+    emoji: '🌐',
     content: {
       guides: [
-        'coding-implementation-discovery-scoping',
-        'coding-implementation-stakeholder-communication-system',
-        'coding-implementation-planning-mechanics',
-        'coding-implementation-change-management-adoption',
-        'coding-implementation-uat-defect-triage',
-        'coding-implementation-go-live-hypercare',
-        'coding-implementation-kpi-outcome-tracking',
-        'coding-implementation-cross-functional-decision-leadership',
-        'coding-git-pr-communication',
-        'coding-testing-fundamentals-confidence',
-        'coding-api-contract-prisma-workflow',
-        'coding-debugging-production-issues',
+        'coding-working-with-apis',
+        'coding-async-promises',
+      ],
+      games: [],
+      vocabulary: [],
+    },
+    order: 4,
+  },
+  {
+    id: 'notebook-coding-typescript-debug',
+    subjectKey: 'coding',
+    name: 'TypeScript & Debugging',
+    tagline: 'Type safety, array method depth, and practical debugging',
+    emoji: '🧠',
+    content: {
+      guides: [
         'coding-typescript-deep-dive',
         'coding-array-method-mastery',
         'coding-debugging-devtools',
-        'coding-js-ts-interview-prep',
       ],
       games: [
         'coding-array-methods-matching',
       ],
       vocabulary: [],
     },
-    order: 4,
+    order: 5,
+  },
+  {
+    id: 'notebook-coding-delivery-engineering',
+    subjectKey: 'coding',
+    name: 'Delivery Engineering',
+    tagline: 'PR quality, testing strategy, API/Prisma workflows, and production triage',
+    emoji: '🛠️',
+    content: {
+      guides: [
+        'coding-git-pr-communication',
+        'coding-testing-fundamentals-confidence',
+        'coding-api-contract-prisma-workflow',
+        'coding-debugging-production-issues',
+      ],
+      games: [],
+      vocabulary: [],
+    },
+    order: 6,
+  },
+  {
+    id: 'notebook-coding-implementation-foundations',
+    subjectKey: 'coding',
+    name: 'Implementation Foundations',
+    tagline: 'Discovery, stakeholder systems, and planning mechanics',
+    emoji: '📋',
+    content: {
+      guides: [
+        'coding-implementation-discovery-scoping',
+        'coding-implementation-stakeholder-communication-system',
+        'coding-implementation-planning-mechanics',
+      ],
+      games: [],
+      vocabulary: [],
+    },
+    order: 7,
+  },
+  {
+    id: 'notebook-coding-implementation-delivery',
+    subjectKey: 'coding',
+    name: 'Implementation Delivery',
+    tagline: 'Change adoption, UAT triage, and go-live/hypercare operations',
+    emoji: '🚦',
+    content: {
+      guides: [
+        'coding-implementation-change-management-adoption',
+        'coding-implementation-uat-defect-triage',
+        'coding-implementation-go-live-hypercare',
+      ],
+      games: [],
+      vocabulary: [],
+    },
+    order: 8,
+  },
+  {
+    id: 'notebook-coding-implementation-leadership',
+    subjectKey: 'coding',
+    name: 'Implementation Leadership',
+    tagline: 'KPI-driven outcome tracking and cross-functional decision leadership',
+    emoji: '🎯',
+    content: {
+      guides: [
+        'coding-implementation-kpi-outcome-tracking',
+        'coding-implementation-cross-functional-decision-leadership',
+      ],
+      games: [],
+      vocabulary: [],
+    },
+    order: 9,
+  },
+  {
+    id: 'notebook-coding-interview',
+    subjectKey: 'coding',
+    name: 'Interview Sprint',
+    tagline: 'Consolidate JS/TS communication and problem-solving for interviews',
+    emoji: '💎',
+    content: {
+      guides: [
+        'coding-js-ts-interview-prep',
+      ],
+      games: [],
+      vocabulary: [],
+    },
+    order: 10,
   },
 ];
 
