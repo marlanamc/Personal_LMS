@@ -364,12 +364,6 @@ export const TodaysAssignments: React.FC<Props> = ({
                 icon: <ClipboardList className="w-5 h-5" />, 
                 match: (c) => c === 'quiz' || c === 'quizzes' 
             },
-            { 
-                key: 'practice', 
-                label: 'Practice', 
-                icon: <Sparkles className="w-5 h-5" />, 
-                match: (c) => !['quiz','quizzes','grammar','vocab','vocabulary', 'personal', 'spanish', 'coding'].includes(c) 
-            },
         ];
 
         const groups = CHECKLIST_GROUPS.map(group => {
@@ -377,7 +371,6 @@ export const TodaysAssignments: React.FC<Props> = ({
                 const cat = (r.assignment.activity.category || '').toLowerCase();
                 const title = (r.assignment.title || r.assignment.activity.title || '').toLowerCase();
                 const activityId = (r.assignment.activityId || '').toLowerCase();
-                const isGame = r.assignment.activity.type === 'game';
 
                 if (group.key === 'coding') {
                     return (
@@ -401,29 +394,26 @@ export const TodaysAssignments: React.FC<Props> = ({
                     );
                 }
 
-                if (group.key === 'practice') {
-                    return isGame || group.match(cat, title);
-                }
-
                 return group.match(cat, title);
             });
             const doneInGroup = items.filter(r => r.isCompleted).length;
-            const isGameGroup = group.key === 'practice';
-            return { ...group, items, doneInGroup, allDone: !isGameGroup && items.length > 0 && doneInGroup === items.length, isGameGroup };
+            return { ...group, items, doneInGroup, allDone: items.length > 0 && doneInGroup === items.length };
         }).filter(g => g.items.length > 0);
 
 
 
         const renderChecklistRow = (
             { assignment, isCompleted, isNew, displayTitle, dueLabel, progressValue }: typeof sortedRows[0],
-            isGameGroup = false,
             categoryStyle: { label: string; bg: string; text: string; accent: string; accentBorder: string }
-        ) => (
+        ) => {
+            const isGameRow = assignment.activity.type === 'game';
+
+            return (
             <div key={assignment.id} className="relative group/row pl-3 pr-2 py-3 sm:px-4 flex items-center gap-3 transition-all duration-200 hover:bg-bg-secondary/60 border-b border-border/10 last:border-0">
 
                 {/* Checkbox (or Game Icon placeholder) */}
                 <div className="shrink-0 pt-0.5 self-start sm:self-center">
-                    {isGameGroup ? (
+                    {isGameRow ? (
                         <div className="w-5 h-5 flex items-center justify-center text-[18px] leading-none">
                             {getGameEmojiForActivity({ activityId: assignment.activityId, title: assignment.title || assignment.activity.title })}
                         </div>
@@ -467,7 +457,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                         )}
 
                         {/* Only show due date if overdue */}
-                        {!isGameGroup && dueLabel && !isCompleted && new Date(assignment.dueDate as string) < new Date() && (
+                        {!isGameRow && dueLabel && !isCompleted && new Date(assignment.dueDate as string) < new Date() && (
                             <span className="text-[10px] font-semibold text-red-500">
                                 {dueLabel}
                             </span>
@@ -480,7 +470,7 @@ export const TodaysAssignments: React.FC<Props> = ({
 
                     {/* Progress: Vocab 4-dots chip OR Generic Bar */}
                     {(() => {
-                        if (isGameGroup) return null;
+                        if (isGameRow) return null;
 
                         const vocabProgress = getVocabProgress(assignment);
                         // Show 4-dots chip if it's a vocab assignment and not fully complete
@@ -537,15 +527,16 @@ export const TodaysAssignments: React.FC<Props> = ({
                                 e.currentTarget.style.backgroundColor = 'transparent';
                             }
                         }}
-                        aria-label={`${isGameGroup ? 'Play' : isCompleted ? 'Review' : 'Start'} ${displayTitle}`}
+                        aria-label={`${isGameRow ? 'Play' : isCompleted ? 'Review' : 'Start'} ${displayTitle}`}
                     >
-                        <span className={isCompleted && !isGameGroup ? 'text-text-muted/60' : ''}>
-                            {isGameGroup ? 'Play' : isCompleted ? 'Review' : 'Start'}
+                        <span className={isCompleted && !isGameRow ? 'text-text-muted/60' : ''}>
+                            {isGameRow ? 'Play' : isCompleted ? 'Review' : 'Start'}
                         </span>
                     </Link>
                 </div>
             </div>
         );
+        };
 
         return (
             <div className="mb-8">
@@ -600,13 +591,13 @@ export const TodaysAssignments: React.FC<Props> = ({
                                                     {group.label}
                                                 </Link>
                                                 <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-bg-surface border border-border-subtle" style={{ color: groupStyle.text }}>
-                                                    {group.isGameGroup ? `${group.items.length}` : `${group.doneInGroup}/${group.items.length}`}
+                                                    {`${group.doneInGroup}/${group.items.length}`}
                                                 </span>
                                             </div>
                                         </div>
 
                                         <div className="divide-y divide-border/10">
-                                            {group.items.map((row) => renderChecklistRow(row, group.isGameGroup, groupStyle))}
+                                            {group.items.map((row) => renderChecklistRow(row, groupStyle))}
                                         </div>
                                     </div>
                                 );
