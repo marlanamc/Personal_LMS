@@ -35,6 +35,7 @@ model User {
   spotifyConnection     SpotifyConnection?
   submissions           Submission[]
   achievements          UserAchievement[]
+  utilitySubjectStates  UtilitySubjectState[]
 
   @@index([role])
   @@index([weeklyPoints])
@@ -301,4 +302,19 @@ model UserDailyChallenge {
   @@unique([userId, challengeId])
   @@index([userId])
   @@index([completed])
+}
+
+model UtilitySubjectState {
+  id         String   @id @default(cuid())
+  userId     String
+  subjectKey String
+  checklist  Json
+  links      Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, subjectKey])
+  @@index([userId])
+  @@index([subjectKey])
 }

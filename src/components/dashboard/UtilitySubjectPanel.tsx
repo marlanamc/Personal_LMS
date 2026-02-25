@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 
 type UtilitySubjectKey = 'health' | 'job-search';
@@ -66,11 +66,20 @@ const withProtocol = (url: string): string => {
     return `https://${url}`;
 };
 
+const isChecklistItem = (value: unknown): value is UtilityChecklistItem => {
+    if (!value || typeof value !== 'object') return false;
+    const item = value as Record<string, unknown>;
+    return typeof item.id === 'string' && typeof item.text === 'string' && typeof item.done === 'boolean';
+};
+
+const isLinkItem = (value: unknown): value is UtilityLinkItem => {
+    if (!value || typeof value !== 'object') return false;
+    const item = value as Record<string, unknown>;
+    return typeof item.id === 'string' && typeof item.label === 'string' && typeof item.href === 'string';
+};
+
 export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectPanelProps) {
     const config = SUBJECT_CONFIG[subjectKey];
-    const storagePrefix = `utility-subject:${subjectKey}`;
-    const checklistStorageKey = `${storagePrefix}:checklist`;
-    const linksStorageKey = `${storagePrefix}:links`;
 
     const [checklist, setChecklist] = useState<UtilityChecklistItem[]>([]);
     const [links, setLinks] = useState<UtilityLinkItem[]>([]);
@@ -78,44 +87,99 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
     const [linkLabel, setLinkLabel] = useState('');
     const [linkUrl, setLinkUrl] = useState('');
     const [showAddLink, setShowAddLink] = useState(false);
-    const [hydrated, setHydrated] = useState(false);
     const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [readyToPersist, setReadyToPersist] = useState(false);
+    const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
-        try {
-            const storedChecklist = localStorage.getItem(checklistStorageKey);
-            const storedLinks = localStorage.getItem(linksStorageKey);
+        let cancelled = false;
+        setIsLoading(true);
+        setSaveError(null);
+        setReadyToPersist(false);
 
-            if (storedChecklist) {
-                const parsed = JSON.parse(storedChecklist) as UtilityChecklistItem[];
-                setChecklist(Array.isArray(parsed) ? parsed : DEFAULT_CHECKLISTS[subjectKey]);
-            } else {
-                setChecklist(DEFAULT_CHECKLISTS[subjectKey]);
-            }
+        const loadState = async () => {
+            try {
+                const response = await fetch(`/api/utility-subjects/${subjectKey}`, {
+                    method: 'GET',
+                    cache: 'no-store',
+                });
 
-            if (storedLinks) {
-                const parsed = JSON.parse(storedLinks) as UtilityLinkItem[];
-                setLinks(Array.isArray(parsed) ? parsed : DEFAULT_LINKS[subjectKey]);
-            } else {
-                setLinks(DEFAULT_LINKS[subjectKey]);
+                if (!response.ok) {
+                    throw new Error('Failed to load utility subject data');
+                }
+
+                const data = await response.json() as { checklist?: unknown; links?: unknown };
+                const checklistData = Array.isArray(data.checklist) && data.checklist.every(isChecklistItem)
+                    ? data.checklist
+                    : DEFAULT_CHECKLISTS[subjectKey];
+                const linksData = Array.isArray(data.links) && data.links.every(isLinkItem)
+                    ? data.links
+                    : DEFAULT_LINKS[subjectKey];
+
+                if (!cancelled) {
+                    setChecklist(checklistData);
+                    setLinks(linksData);
+                }
+            } catch (error) {
+                console.error('[UtilitySubjectPanel] Failed to load subject state', error);
+                if (!cancelled) {
+                    setChecklist(DEFAULT_CHECKLISTS[subjectKey]);
+                    setLinks(DEFAULT_LINKS[subjectKey]);
+                    setSaveError('Could not load saved data. Showing defaults.');
+                }
+            } finally {
+                if (!cancelled) {
+                    setIsLoading(false);
+                    setReadyToPersist(true);
+                }
             }
-        } catch {
-            setChecklist(DEFAULT_CHECKLISTS[subjectKey]);
-            setLinks(DEFAULT_LINKS[subjectKey]);
-        } finally {
-            setHydrated(true);
+        };
+
+        loadState();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [subjectKey]);
+
+    useEffect(() => {
+        if (!readyToPersist) return;
+
+        if (saveTimerRef.current) {
+            clearTimeout(saveTimerRef.current);
         }
-    }, [checklistStorageKey, linksStorageKey, subjectKey]);
 
-    useEffect(() => {
-        if (!hydrated) return;
-        localStorage.setItem(checklistStorageKey, JSON.stringify(checklist));
-    }, [checklist, checklistStorageKey, hydrated]);
+        saveTimerRef.current = setTimeout(async () => {
+            setIsSaving(true);
+            setSaveError(null);
+            try {
+                const response = await fetch(`/api/utility-subjects/${subjectKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ checklist, links }),
+                });
 
-    useEffect(() => {
-        if (!hydrated) return;
-        localStorage.setItem(linksStorageKey, JSON.stringify(links));
-    }, [links, linksStorageKey, hydrated]);
+                if (!response.ok) {
+                    throw new Error('Failed to save utility subject data');
+                }
+            } catch (error) {
+                console.error('[UtilitySubjectPanel] Failed to save subject state', error);
+                setSaveError('Could not save changes right now.');
+            } finally {
+                setIsSaving(false);
+            }
+        }, 350);
+
+        return () => {
+            if (saveTimerRef.current) {
+                clearTimeout(saveTimerRef.current);
+                saveTimerRef.current = null;
+            }
+        };
+    }, [checklist, links, readyToPersist, subjectKey]);
 
     const completedCount = useMemo(
         () => checklist.filter((item) => item.done).length,
@@ -123,6 +187,7 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
     );
 
     const toggleChecklistItem = (id: string) => {
+        if (isLoading) return;
         setAnimatingIds(prev => new Set(prev).add(id));
         setTimeout(() => {
             setAnimatingIds(prev => {
@@ -139,6 +204,7 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
     };
 
     const addChecklistItem = () => {
+        if (isLoading) return;
         const trimmed = newTask.trim();
         if (!trimmed) return;
         if (checklist.length >= 10) return;
@@ -155,10 +221,12 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
     };
 
     const removeChecklistItem = (id: string) => {
+        if (isLoading) return;
         setChecklist((prev) => prev.filter((item) => item.id !== id));
     };
 
     const addLinkItem = () => {
+        if (isLoading) return;
         const trimmedLabel = linkLabel.trim();
         const trimmedUrl = linkUrl.trim();
         if (!trimmedLabel || !trimmedUrl) return;
@@ -178,14 +246,17 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
     };
 
     const removeLinkItem = (id: string) => {
+        if (isLoading) return;
         setLinks((prev) => prev.filter((item) => item.id !== id));
     };
 
-    const pct = checklist.length === 0 ? 0 : Math.round((completedCount / checklist.length) * 100);
-
     return (
-        <div className="space-y-5 animate-fade-in">
-            <div className="flex items-center justify-end gap-2">
+        <div className="space-y-5 animate-fade-in" aria-busy={isLoading || isSaving}>
+            <div className="flex items-center justify-between gap-2">
+                <p className="text-xs text-text-muted">
+                    {subjectName} tools: {isLoading ? 'loading' : isSaving ? 'saving' : saveError ? saveError : 'saved'}
+                </p>
+                <div className="flex items-center justify-end gap-2">
                 <Link
                     href="/dashboard/calendar"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-border-subtle bg-bg-surface hover:border-border/70 hover:bg-bg-elevated transition-colors"
@@ -207,6 +278,7 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                     </svg>
                     Add Reminder
                 </Link>
+                </div>
             </div>
 
             {/* ── Two-column body ── */}
