@@ -3,10 +3,11 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { trackLogin } from "@/lib/gamification";
-import { normalizeGuideTitle } from "@/lib/grammar-activity-resolution";
 import { getEffectiveStreak } from "@/lib/gamification/streak-utils";
 import { getVocabTypeFromTitle, parseVocabTypeLabel, stripVocabTypeSuffix, VOCAB_CHIP_CONFIG } from "@/lib/vocab-display";
 import { completionKeyFromActivityTitle } from "@/utils/completionKey";
+import { SPANISH_GUIDE_IDS } from "@/content/spanish/registry";
+import { CODING_GUIDE_IDS } from "@/content/coding/registry";
 import Link from "next/link";
 import { BottomNav } from "@/components/ui";
 import { StreakCalendar } from "@/components/ui/StreakCalendar";
@@ -31,13 +32,6 @@ interface QuizGradeRow {
     title: string;
     score: number | null;
     submittedAt: Date | null;
-}
-
-interface LmsTrackActivityRow {
-    id: string;
-    title: string;
-    category: string | null;
-    createdAt: Date;
 }
 
 interface MiniQuizCertificateBanner {
@@ -306,10 +300,8 @@ export default async function ProfilePage() {
         recentPointsLedger,
         pointsLedgerDates,
         activityProgressDates,
-        releasedGrammarGuideActivities,
-        grammarQuizSubmissions,
-        lmsTrackActivities,
-        lmsTrackSubmissions,
+        releasedMiniQuizGuideActivities,
+        miniQuizSubmissions,
     ] = await Promise.all([
         // Get activity progress for category stats
         prisma.activityProgress.findMany({
@@ -341,50 +333,15 @@ export default async function ProfilePage() {
         prisma.activity.findMany({
             where: {
                 type: "guide",
-                category: "grammar",
-                isReleased: true,
+                id: {
+                    in: [...SPANISH_GUIDE_IDS, ...CODING_GUIDE_IDS],
+                },
             },
             select: {
                 id: true,
                 title: true,
                 content: true,
-            },
-            orderBy: { createdAt: "desc" },
-        }),
-        prisma.submission.findMany({
-            where: {
-                userId,
-                score: { not: null },
-                activity: {
-                    type: "guide",
-                    category: "grammar",
-                },
-            },
-            select: {
-                activityId: true,
-                score: true,
-                updatedAt: true,
-                activity: {
-                    select: {
-                        title: true,
-                    },
-                },
-            },
-            orderBy: { updatedAt: "desc" },
-        }),
-        prisma.activity.findMany({
-            where: {
-                deletedAt: null,
-                type: "quiz",
-                category: {
-                    in: ["Spanish", "spanish", "Coding", "coding"],
-                },
-            },
-            select: {
-                id: true,
-                title: true,
                 category: true,
-                createdAt: true,
             },
             orderBy: { createdAt: "asc" },
         }),
@@ -392,12 +349,8 @@ export default async function ProfilePage() {
             where: {
                 userId,
                 score: { not: null },
-                activity: {
-                    deletedAt: null,
-                    type: "quiz",
-                    category: {
-                        in: ["Spanish", "spanish", "Coding", "coding"],
-                    },
+                activityId: {
+                    in: [...SPANISH_GUIDE_IDS, ...CODING_GUIDE_IDS],
                 },
             },
             select: {
@@ -516,29 +469,22 @@ export default async function ProfilePage() {
             };
         });
 
-    const orderedReleasedGrammarGuideActivities = getOrderedGrammarGuidesForActivities(releasedGrammarGuideActivities);
-    const releasedMiniQuizActivities = orderedReleasedGrammarGuideActivities.filter((activity) =>
-        hasMiniQuiz(activity.content)
+    const activityById = new Map(
+        releasedMiniQuizGuideActivities.map((activity) => [activity.id, activity] as const)
     );
-
-    const releasedMiniQuizActivityIds = new Set(releasedMiniQuizActivities.map((activity) => activity.id));
-    const releasedMiniQuizIdByTitle = new Map(
-        releasedMiniQuizActivities.map((activity) => [normalizeGuideTitle(activity.title), activity.id] as const)
-    );
+    const orderedGuideIds = [...SPANISH_GUIDE_IDS, ...CODING_GUIDE_IDS];
+    const releasedMiniQuizActivities = orderedGuideIds
+        .map((id) => activityById.get(id))
+        .filter((activity): activity is NonNullable<typeof activity> => Boolean(activity))
+        .filter((activity) => hasMiniQuiz(activity.content));
 
     const latestMiniQuizSubmissionByActivityId = new Map<string, { score: number; submittedAt: Date }>();
-    for (const submission of grammarQuizSubmissions) {
+    for (const submission of miniQuizSubmissions) {
         if (submission.score === null) continue;
 
-        const canonicalActivityId = releasedMiniQuizActivityIds.has(submission.activityId)
-            ? submission.activityId
-            : releasedMiniQuizIdByTitle.get(normalizeGuideTitle(submission.activity.title));
-
-        if (!canonicalActivityId) continue;
-
-        const existing = latestMiniQuizSubmissionByActivityId.get(canonicalActivityId);
+        const existing = latestMiniQuizSubmissionByActivityId.get(submission.activityId);
         if (!existing || submission.updatedAt > existing.submittedAt) {
-            latestMiniQuizSubmissionByActivityId.set(canonicalActivityId, {
+            latestMiniQuizSubmissionByActivityId.set(submission.activityId, {
                 score: submission.score,
                 submittedAt: submission.updatedAt,
             });
@@ -555,42 +501,8 @@ export default async function ProfilePage() {
         };
     });
 
-    const latestTrackSubmissionByActivityId = new Map<string, { score: number; submittedAt: Date }>();
-    for (const submission of lmsTrackSubmissions) {
-        if (submission.score === null) continue;
-        const existing = latestTrackSubmissionByActivityId.get(submission.activityId);
-        if (!existing || submission.updatedAt > existing.submittedAt) {
-            latestTrackSubmissionByActivityId.set(submission.activityId, {
-                score: submission.score,
-                submittedAt: submission.updatedAt,
-            });
-        }
-    }
-
-    const trackActivities = lmsTrackActivities as LmsTrackActivityRow[];
-    const spanishQuizGrades: QuizGradeRow[] = trackActivities
-        .filter((activity) => activity.category?.toLowerCase() === "spanish")
-        .map((activity) => {
-            const submission = latestTrackSubmissionByActivityId.get(activity.id);
-            return {
-                id: activity.id,
-                title: activity.title,
-                score: submission?.score ?? null,
-                submittedAt: submission?.submittedAt ?? null,
-            };
-        });
-
-    const codingQuizGrades: QuizGradeRow[] = trackActivities
-        .filter((activity) => activity.category?.toLowerCase() === "coding")
-        .map((activity) => {
-            const submission = latestTrackSubmissionByActivityId.get(activity.id);
-            return {
-                id: activity.id,
-                title: activity.title,
-                score: submission?.score ?? null,
-                submittedAt: submission?.submittedAt ?? null,
-            };
-        });
+    const spanishQuizGrades: QuizGradeRow[] = miniQuizGrades.filter((quiz) => quiz.id.startsWith("spanish-"));
+    const codingQuizGrades: QuizGradeRow[] = miniQuizGrades.filter((quiz) => quiz.id.startsWith("coding-"));
 
     const gradedSpanishQuizCount = spanishQuizGrades.filter((quiz) => quiz.score !== null).length;
     const gradedCodingQuizCount = codingQuizGrades.filter((quiz) => quiz.score !== null).length;
