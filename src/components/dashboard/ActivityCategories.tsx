@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, type RefObject } from 'react';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { VOCAB_WEEKLY_UNITS } from "@/data/weekly-vocab-units";
@@ -20,6 +20,7 @@ import {
     CODING_ADVANCED_GUIDE_IDS,
     CODING_GAME_IDS,
 } from '@/content/coding/registry';
+import { type GuideHub } from '@/content/guide-hubs';
 
 interface Activity {
     id: string;
@@ -59,6 +60,12 @@ interface ActivityCategoriesProps {
     canFeatureActivities?: boolean;
     defaultClassId?: string | null;
     initialFeatureAssignments?: Record<string, { assignmentId: string; isFeatured: boolean }>;
+    /** Ref map for section labels — used by Quick-Jump pill nav to scroll to sections */
+    sectionRefs?: RefObject<Record<string, HTMLElement | null>>;
+    /** Hub definitions for the current subject — causes guide activities to render as hub cards */
+    guideHubs?: GuideHub[];
+    /** Called when a hub card is clicked */
+    onHubSelect?: (hub: GuideHub) => void;
 }
 
 const isSpanishActivity = (activity: Activity): boolean => {
@@ -1284,21 +1291,34 @@ const ActivityCard = React.memo(function ActivityCard({
 
     // Determine card state for styling
     const hasProgress = progressValue > 0 && progressValue < 100;
+    const isGuide = activity.type === 'guide';
 
     // Use tense texture color if provided, otherwise fall back to defaults
     const accentBorderColor = tenseTexture?.color || (isCompleted ? undefined : accentColor);
+    // Notebook binding color: use texture color, or warm sage fallback
+    const bindingColor = tenseTexture?.color ?? accentColor ?? '#7c8c6e';
 
     return (
         <div
-            className={`group relative block rounded-xl border bg-bg-secondary/90 p-4 transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 overflow-hidden
+            className={`group relative block rounded-xl border p-4 transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 overflow-hidden
                 ${isCompleted
-                    ? 'border-secondary/30 shadow-sm'
-                    : hasProgress
+                    ? 'bg-bg-secondary/90 border-secondary/30 shadow-sm'
+                    : isGuide
                         ? 'shadow-sm hover:shadow-md hover:-translate-y-0.5'
-                        : 'shadow-sm hover:shadow-md hover:-translate-y-0.5'
+                        : hasProgress
+                            ? 'bg-bg-secondary/90 shadow-sm hover:shadow-md hover:-translate-y-0.5'
+                            : 'bg-bg-secondary/90 shadow-sm hover:shadow-md hover:-translate-y-0.5'
                 }`}
             style={{
-                borderColor: isCompleted ? undefined : (accentBorderColor ? `${accentBorderColor}40` : undefined),
+                borderColor: isCompleted
+                    ? undefined
+                    : isGuide
+                        ? `${bindingColor}50`
+                        : (accentBorderColor ? `${accentBorderColor}40` : undefined),
+                // Notebook paper warm background for guides
+                backgroundColor: isGuide && !isCompleted
+                    ? 'rgba(254, 252, 245, 0.97)'
+                    : undefined,
             }}
         >
             {/* Tense texture background pattern */}
@@ -1307,6 +1327,54 @@ const ActivityCard = React.memo(function ActivityCard({
                     className="absolute inset-0 pointer-events-none opacity-60"
                     style={{ background: tenseTexture.gradient }}
                 />
+            )}
+
+            {/* Notebook paper treatment for guides */}
+            {isGuide && !isCompleted && (
+                <>
+                    {/* Left binding strip */}
+                    <div
+                        className="absolute left-0 top-0 bottom-0 w-8 pointer-events-none"
+                        style={{
+                            background: `linear-gradient(to right, ${bindingColor}22 0%, ${bindingColor}08 60%, transparent 100%)`,
+                            borderRight: `1.5px solid ${bindingColor}25`,
+                        }}
+                    />
+                    {/* Spiral rings */}
+                    <svg
+                        className="absolute left-0 top-0 bottom-0 h-full pointer-events-none"
+                        width="18"
+                        viewBox="0 0 18 100"
+                        preserveAspectRatio="none"
+                        aria-hidden
+                    >
+                        {[14, 28, 42, 56, 70, 84].map((y) => (
+                            <ellipse
+                                key={y}
+                                cx="9" cy={y} rx="5" ry="4"
+                                fill="none"
+                                stroke={bindingColor}
+                                strokeWidth="1.2"
+                                opacity="0.35"
+                            />
+                        ))}
+                    </svg>
+                    {/* Ruled lines overlay */}
+                    <svg
+                        className="absolute inset-0 w-full h-full pointer-events-none"
+                        preserveAspectRatio="none"
+                        aria-hidden
+                    >
+                        {[32, 52, 72, 92].map((y) => (
+                            <line
+                                key={y}
+                                x1="28" y1={`${y}%`} x2="100%" y2={`${y}%`}
+                                stroke="rgba(180,160,120,0.12)"
+                                strokeWidth="1"
+                            />
+                        ))}
+                    </svg>
+                </>
             )}
 
             {/* Wave pattern overlay for continuous tenses */}
@@ -1627,7 +1695,10 @@ export const ActivityCategories = React.memo(function ActivityCategories({
     filterCategory,
     canFeatureActivities = false,
     defaultClassId = null,
-    initialFeatureAssignments = {}
+    initialFeatureAssignments = {},
+    sectionRefs,
+    guideHubs,
+    onHubSelect,
 }: ActivityCategoriesProps) {
     const completedIdSet = useMemo(
         () => completedActivityIds instanceof Set ? completedActivityIds : new Set(completedActivityIds),
@@ -2205,7 +2276,20 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                         return (
                             <div key={section.rawLabel || section.label || sIdx} className="space-y-3">
                                 {section.label && (
-                                    <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/10 px-3 py-1.5">
+                                    <div
+                                        ref={(el) => {
+                                            if (sectionRefs?.current && section.label) {
+                                                sectionRefs.current[section.label] = el;
+                                            }
+                                        }}
+                                        className="flex items-center gap-3 px-3 py-2 rounded-xl"
+                                        style={{
+                                            background: sectionTexture
+                                                ? `linear-gradient(135deg, ${sectionTexture.color}0D 0%, transparent 100%)`
+                                                : 'transparent',
+                                            borderLeft: `3px solid ${accentColor}`,
+                                        }}
+                                    >
                                         {/* Category icon indicator */}
                                         {sectionTexture ? (
                                             <span
@@ -2215,14 +2299,9 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                             >
                                                 {sectionTexture.icon}
                                             </span>
-                                        ) : (
-                                            <div
-                                                className="w-1 h-5 rounded-full"
-                                                style={{ backgroundColor: accentColor }}
-                                            />
-                                        )}
+                                        ) : null}
                                         <p
-                                            className="text-sm font-extrabold uppercase tracking-[0.18em]"
+                                            className="text-sm font-extrabold uppercase tracking-[0.16em]"
                                             style={{ color: sectionTexture ? sectionTexture.color : 'var(--color-text)' }}
                                         >
                                             {section.label}
@@ -2231,8 +2310,8 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                             <span
                                                 className="text-[10px] font-medium px-2 py-0.5 rounded-full border"
                                                 style={{
-                                                    backgroundColor: sectionTexture ? `${sectionTexture.color}08` : 'white',
-                                                    borderColor: sectionTexture ? `${sectionTexture.color}20` : 'rgba(243, 244, 246, 1)',
+                                                    backgroundColor: sectionTexture ? `${sectionTexture.color}08` : 'transparent',
+                                                    borderColor: sectionTexture ? `${sectionTexture.color}25` : 'rgba(200, 200, 200, 0.4)',
                                                     color: sectionTexture ? sectionTexture.color : 'var(--text-muted)'
                                                 }}
                                             >
@@ -2241,9 +2320,115 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                         )}
                                     </div>
                                 )}
-                                <div className={`space-y-2.5 ${shouldUseGameGrid ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 space-y-0' : ''}`}>
-                                    {sortedActivities.map(activity => renderActivityCard(activity, accentColor, false, section.label))}
-                                </div>
+                                {(() => {
+                                    // Determine which guide activities are covered by a hub in this section
+                                    const sectionHubs = guideHubs && section.label
+                                        ? guideHubs.filter(h => h.sectionLabel === section.label)
+                                        : [];
+                                    const hubbedIds = new Set(sectionHubs.flatMap(h => h.guideIds));
+
+                                    // Activities NOT covered by a hub (or when no hubs provided)
+                                    const nonHubActivities = sectionHubs.length > 0
+                                        ? sortedActivities.filter(a => a.type !== 'guide' || !hubbedIds.has(a.id))
+                                        : sortedActivities;
+
+                                    return (
+                                        <div className={`space-y-2.5 ${shouldUseGameGrid ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 space-y-0' : ''}`}>
+                                            {/* Render hub cards for guide activities */}
+                                            {sectionHubs.map((hub) => {
+                                                // Check if any of this hub's guides are completed / in progress
+                                                const hubGuideActivities = sortedActivities.filter(a => hub.guideIds.includes(a.id));
+                                                const hubCompleted = hubGuideActivities.filter(a =>
+                                                    isActivityCompleted(a, completedIdSet, progressMap)
+                                                ).length;
+                                                const hubTotal = hubGuideActivities.length;
+                                                const firstGuide = hubGuideActivities[0];
+                                                const firstProgress = firstGuide ? (progressMap?.[firstGuide.id]?.progress ?? 0) : 0;
+                                                const isHubDone = hubTotal > 0 && hubCompleted === hubTotal;
+
+                                                return (
+                                                    <button
+                                                        key={hub.id}
+                                                        type="button"
+                                                        onClick={() => onHubSelect?.(hub)}
+                                                        className="group w-full text-left relative rounded-xl border overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/50"
+                                                        style={{
+                                                            borderColor: isHubDone ? 'var(--border)' : `${accentColor}45`,
+                                                            backgroundColor: isHubDone ? 'var(--bg-secondary)' : 'rgba(254, 252, 245, 0.97)',
+                                                        }}
+                                                    >
+                                                        {/* Notebook binding strip */}
+                                                        <div
+                                                            className="absolute left-0 top-0 bottom-0 w-7 flex flex-col items-center justify-around py-2 pointer-events-none"
+                                                            style={{
+                                                                background: `linear-gradient(to right, ${accentColor}20 0%, ${accentColor}08 60%, transparent 100%)`,
+                                                                borderRight: `1.5px solid ${accentColor}30`,
+                                                            }}
+                                                        >
+                                                            {[0, 1, 2, 3].map(i => (
+                                                                <div
+                                                                    key={i}
+                                                                    className="w-3 h-3 rounded-full border-2 flex-shrink-0"
+                                                                    style={{ borderColor: `${accentColor}50`, backgroundColor: 'var(--bg-secondary)' }}
+                                                                />
+                                                            ))}
+                                                        </div>
+
+                                                        {/* Main card content */}
+                                                        <div className="flex items-center pl-10 pr-4 py-4 gap-4">
+                                                            {/* Emoji */}
+                                                            <span className="text-2xl flex-shrink-0 select-none">{hub.emoji}</span>
+
+                                                            {/* Text */}
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="font-bold text-text text-sm sm:text-base leading-snug">
+                                                                    {hub.name}
+                                                                </p>
+                                                                <p className="text-xs text-text-muted mt-0.5 leading-relaxed">
+                                                                    {hub.tagline}
+                                                                </p>
+                                                                {/* Progress bar */}
+                                                                {!isHubDone && firstProgress > 0 && (
+                                                                    <div className="mt-2 flex items-center gap-2">
+                                                                        <div className="flex-1 h-1 bg-border/30 rounded-full overflow-hidden">
+                                                                            <div
+                                                                                className="h-full rounded-full transition-all duration-500"
+                                                                                style={{ width: `${Math.min(firstProgress, 100)}%`, backgroundColor: accentColor }}
+                                                                            />
+                                                                        </div>
+                                                                        <span className="text-[10px] text-text-muted font-medium flex-shrink-0">{Math.round(firstProgress)}%</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Badge & arrow */}
+                                                            <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
+                                                                {isHubDone ? (
+                                                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                                        ✓ Done
+                                                                    </span>
+                                                                ) : (
+                                                                    <span
+                                                                        className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                                                        style={{ backgroundColor: `${accentColor}12`, color: accentColor }}
+                                                                    >
+                                                                        📖 Guide
+                                                                    </span>
+                                                                )}
+                                                                <svg className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                );
+                                            })}
+
+                                            {/* Render non-guide activities normally */}
+                                            {nonHubActivities.map(activity => renderActivityCard(activity, accentColor, false, section.label))}
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         );
                     })}

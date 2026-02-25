@@ -339,24 +339,21 @@ export default async function DashboardPage() {
 
             {/* Explore CTA */}
             <section className="animate-fade-in-up delay-200">
-              <div className="glass-card rounded-2xl p-6 group cursor-pointer transition-all duration-300 hover:scale-[1.01] relative overflow-hidden">
-                <div className="absolute -top-12 -right-12 w-40 h-40 bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 rounded-full blur-3xl opacity-60 group-hover:opacity-80 transition-opacity"></div>
-                <div className="flex items-start justify-between gap-4 relative z-10">
+              <div className="glass-card rounded-2xl px-5 py-4 relative overflow-hidden">
+                <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 rounded-full blur-3xl opacity-60" />
+                <div className="flex items-center justify-between gap-4 relative z-10">
                   <div>
                     <p className="text-xs font-bold text-secondary tracking-widest uppercase flex items-center gap-2">
-                      <span className="w-6 h-[2px] bg-secondary rounded-full"></span>
+                      <span className="w-5 h-[2px] bg-secondary rounded-full" />
                       Journey
                     </p>
-                    <h2 className="text-2xl font-bold font-display text-text mt-2">
+                    <h2 className="text-lg font-bold font-display text-text mt-0.5">
                       All Subjects
                     </h2>
-                    <p className="text-sm text-text/70 mt-2 max-w-2xl leading-relaxed">
-                      Browse every subject in your workspace.
-                    </p>
                   </div>
                   <Link
                     href="/dashboard/subjects"
-                    className="shrink-0 px-5 py-2.5 rounded-xl bg-primary text-white hover:brightness-110 transition-all font-bold text-sm shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
+                    className="shrink-0 px-4 py-2 rounded-xl bg-primary text-white hover:brightness-110 transition-all font-bold text-sm shadow-md hover:shadow-lg active:scale-95 flex items-center gap-1.5"
                   >
                     See All Subjects
                     <span className="arrow-animate">→</span>

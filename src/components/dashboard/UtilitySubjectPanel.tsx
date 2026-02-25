@@ -22,6 +22,29 @@ interface UtilitySubjectPanelProps {
     subjectName: string;
 }
 
+const SUBJECT_CONFIG: Record<UtilitySubjectKey, {
+    emoji: string;
+    tagline: string;
+    color: string;
+    bgGradient: string;
+    badgeLabel: string;
+}> = {
+    health: {
+        emoji: '🩺',
+        tagline: 'Track appointments, notes, and important health links.',
+        color: '#0891b2',          // cyan-600
+        bgGradient: 'linear-gradient(135deg, rgba(8, 145, 178, 0.12) 0%, rgba(6, 182, 212, 0.06) 100%)',
+        badgeLabel: 'Wellness',
+    },
+    'job-search': {
+        emoji: '💼',
+        tagline: 'Stay on top of applications, your resume, and opportunities.',
+        color: '#6d28d9',          // violet-700
+        bgGradient: 'linear-gradient(135deg, rgba(109, 40, 217, 0.12) 0%, rgba(139, 92, 246, 0.06) 100%)',
+        badgeLabel: 'Career',
+    },
+};
+
 const DEFAULT_CHECKLISTS: Record<UtilitySubjectKey, UtilityChecklistItem[]> = {
     health: [
         { id: 'health-1', text: 'Review upcoming appointments', done: false },
@@ -41,7 +64,7 @@ const DEFAULT_LINKS: Record<UtilitySubjectKey, UtilityLinkItem[]> = {
         { id: 'health-link-2', label: 'Insurance Docs', href: '' },
     ],
     'job-search': [
-        { id: 'job-link-1', label: 'Resume', href: '' },
+        { id: 'job-link-1', label: 'My Resume', href: '' },
         { id: 'job-link-2', label: 'Job Tracker', href: '' },
     ],
 };
@@ -53,6 +76,7 @@ const withProtocol = (url: string): string => {
 };
 
 export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectPanelProps) {
+    const config = SUBJECT_CONFIG[subjectKey];
     const storagePrefix = `utility-subject:${subjectKey}`;
     const checklistStorageKey = `${storagePrefix}:checklist`;
     const linksStorageKey = `${storagePrefix}:links`;
@@ -64,6 +88,7 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
     const [linkUrl, setLinkUrl] = useState('');
     const [showAddLink, setShowAddLink] = useState(false);
     const [hydrated, setHydrated] = useState(false);
+    const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         try {
@@ -107,6 +132,14 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
     );
 
     const toggleChecklistItem = (id: string) => {
+        setAnimatingIds(prev => new Set(prev).add(id));
+        setTimeout(() => {
+            setAnimatingIds(prev => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+            });
+        }, 300);
         setChecklist((prev) =>
             prev.map((item) =>
                 item.id === id ? { ...item, done: !item.done } : item
@@ -117,7 +150,7 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
     const addChecklistItem = () => {
         const trimmed = newTask.trim();
         if (!trimmed) return;
-        if (checklist.length >= 8) return;
+        if (checklist.length >= 10) return;
 
         setChecklist((prev) => [
             ...prev,
@@ -157,70 +190,162 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
         setLinks((prev) => prev.filter((item) => item.id !== id));
     };
 
+    const pct = checklist.length === 0 ? 0 : Math.round((completedCount / checklist.length) * 100);
+
     return (
-        <section className="rounded-2xl border border-border/50 bg-bg-secondary/90 p-4 sm:p-5 shadow-sm mb-6">
-            <div className="flex items-center justify-between gap-3 mb-4">
-                <div>
-                    <h3 className="text-sm sm:text-base font-bold uppercase tracking-[0.12em] text-text-muted">
-                        {subjectName} Board
-                    </h3>
-                    <p className="text-xs text-text-muted mt-1">
-                        Low-noise checklist and essential links.
-                    </p>
+        <div className="space-y-5 animate-fade-in">
+            {/* ── Hero Banner ── */}
+            <div
+                className="rounded-2xl p-5 sm:p-6 relative overflow-hidden"
+                style={{
+                    background: config.bgGradient,
+                    border: `1.5px solid ${config.color}30`,
+                }}
+            >
+                {/* Subtle radial glow */}
+                <div
+                    className="absolute -top-12 -right-12 w-48 h-48 rounded-full blur-3xl opacity-30 pointer-events-none"
+                    style={{ backgroundColor: config.color }}
+                />
+
+                <div className="relative z-10 flex items-start gap-4">
+                    <div
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl flex-shrink-0 shadow-sm"
+                        style={{ backgroundColor: `${config.color}18`, border: `1.5px solid ${config.color}30` }}
+                    >
+                        {config.emoji}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <h2 className="text-xl sm:text-2xl font-bold font-display text-text">
+                                {subjectName}
+                            </h2>
+                            <span
+                                className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                                style={{ backgroundColor: `${config.color}18`, color: config.color }}
+                            >
+                                {config.badgeLabel}
+                            </span>
+                        </div>
+                        <p className="text-sm text-text-muted leading-relaxed">{config.tagline}</p>
+                    </div>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-                    {completedCount}/{checklist.length} done
-                </span>
+
+                {/* Progress bar */}
+                {checklist.length > 0 && (
+                    <div className="relative z-10 mt-4 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs text-text-muted font-medium">
+                                {completedCount} of {checklist.length} tasks done
+                            </span>
+                            <span
+                                className="text-xs font-bold"
+                                style={{ color: config.color }}
+                            >
+                                {pct}%
+                            </span>
+                        </div>
+                        <div className="h-1.5 bg-border/20 rounded-full overflow-hidden">
+                            <div
+                                className="h-full rounded-full transition-all duration-700 ease-out"
+                                style={{ width: `${pct}%`, backgroundColor: config.color }}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Quick actions */}
+                <div className="relative z-10 flex flex-wrap gap-2 mt-4">
+                    <Link
+                        href="/dashboard/calendar"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
+                        style={{
+                            backgroundColor: `${config.color}15`,
+                            color: config.color,
+                            border: `1px solid ${config.color}30`,
+                        }}
+                    >
+                        📅 View Reminders
+                    </Link>
+                    <Link
+                        href="/dashboard/calendar/new"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-95"
+                        style={{
+                            backgroundColor: `${config.color}15`,
+                            color: config.color,
+                            border: `1px solid ${config.color}30`,
+                        }}
+                    >
+                        ＋ Add Reminder
+                    </Link>
+                </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 mb-4">
-                <Link
-                    href="/dashboard/calendar"
-                    className="px-3 py-1.5 rounded-lg border border-border/60 text-text text-xs font-semibold hover:bg-bg-light transition-colors"
-                >
-                    View Reminders
-                </Link>
-                <Link
-                    href="/dashboard/calendar/new"
-                    className="px-3 py-1.5 rounded-lg border border-border/60 text-text text-xs font-semibold hover:bg-bg-light transition-colors"
-                >
-                    Add Reminder
-                </Link>
-            </div>
-
+            {/* ── Two-column body ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="rounded-lg border border-border/40 bg-bg-light/40 p-3">
-                    <p className="text-xs font-semibold text-text mb-2">Checklist</p>
-                    <div className="space-y-2 mb-3">
+
+                {/* Checklist Card */}
+                <div className="rounded-2xl border border-border/50 bg-bg-secondary/90 p-4 sm:p-5 shadow-sm space-y-3">
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm font-bold text-text flex items-center gap-2">
+                            <span>📋</span> Today's Tasks
+                        </p>
+                        {checklist.length > 0 && (
+                            <span
+                                className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                style={{ backgroundColor: `${config.color}12`, color: config.color }}
+                            >
+                                {completedCount}/{checklist.length}
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="space-y-2">
                         {checklist.map((item) => (
-                            <div key={item.id} className="flex items-start gap-2">
+                            <div
+                                key={item.id}
+                                className={`group flex items-center gap-3 p-2.5 rounded-xl transition-all duration-200 ${
+                                    item.done
+                                        ? 'bg-bg-light/30'
+                                        : 'hover:bg-bg-light/40'
+                                }`}
+                            >
                                 <button
                                     type="button"
                                     onClick={() => toggleChecklistItem(item.id)}
-                                    className={`mt-0.5 w-4 h-4 rounded border ${item.done ? 'bg-primary border-primary' : 'border-border'} transition-colors`}
+                                    className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                                        animatingIds.has(item.id) ? 'scale-90' : 'scale-100'
+                                    }`}
+                                    style={{
+                                        borderColor: item.done ? config.color : 'var(--border)',
+                                        backgroundColor: item.done ? config.color : 'transparent',
+                                    }}
                                     aria-label={item.done ? 'Mark as not done' : 'Mark as done'}
                                 >
                                     {item.done && (
-                                        <svg className="w-3 h-3 text-white mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                         </svg>
                                     )}
                                 </button>
-                                <p className={`text-sm flex-1 ${item.done ? 'text-text-muted line-through' : 'text-text'}`}>
+                                <p className={`text-sm flex-1 leading-snug transition-all duration-200 ${
+                                    item.done ? 'text-text-muted line-through' : 'text-text'
+                                }`}>
                                     {item.text}
                                 </p>
                                 <button
                                     type="button"
                                     onClick={() => removeChecklistItem(item.id)}
-                                    className="text-xs text-text-muted hover:text-error transition-colors"
+                                    className="opacity-0 group-hover:opacity-100 text-[11px] text-text-muted hover:text-error transition-all ml-auto flex-shrink-0 cursor-pointer"
                                     aria-label="Remove item"
                                 >
-                                    Remove
+                                    ✕
                                 </button>
                             </div>
                         ))}
                     </div>
-                    <div className="flex gap-2">
+
+                    <div className="flex gap-2 pt-1">
                         <input
                             value={newTask}
                             onChange={(e) => setNewTask(e.target.value)}
@@ -230,63 +355,88 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                                     addChecklistItem();
                                 }
                             }}
-                            placeholder="Add a checklist item"
-                            className="flex-1 rounded-lg border border-border/60 bg-bg-secondary px-2.5 py-1.5 text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                            placeholder="Add a task…"
+                            className="flex-1 rounded-xl border border-border/60 bg-bg-light/40 px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 transition-shadow"
+                            style={{ ['--tw-ring-color' as string]: `${config.color}40` }}
                         />
                         <button
                             type="button"
                             onClick={addChecklistItem}
-                            className="px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold hover:brightness-110 transition-[filter]"
+                            className="px-3 py-2 rounded-xl text-white text-xs font-bold hover:brightness-110 transition-[filter] active:scale-95 cursor-pointer"
+                            style={{ backgroundColor: config.color }}
                         >
                             Add
                         </button>
                     </div>
                 </div>
 
-                <div className="rounded-lg border border-border/40 bg-bg-light/40 p-3">
-                    <p className="text-xs font-semibold text-text mb-2">Important Links</p>
-                    <div className="space-y-2 mb-3">
-                        {links.map((item) => (
-                            <div key={item.id} className="flex items-center gap-2">
-                                {item.href ? (
-                                    <a
-                                        href={item.href}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-sm text-primary hover:underline flex-1"
+                {/* Links Card */}
+                <div className="rounded-2xl border border-border/50 bg-bg-secondary/90 p-4 sm:p-5 shadow-sm space-y-3">
+                    <p className="text-sm font-bold text-text flex items-center gap-2">
+                        <span>🔗</span> My Links
+                    </p>
+
+                    {links.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                            {links.map((item) => (
+                                <div key={item.id} className="group relative">
+                                    {item.href ? (
+                                        <a
+                                            href={item.href}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm active:scale-95"
+                                            style={{
+                                                backgroundColor: `${config.color}12`,
+                                                border: `1.5px solid ${config.color}30`,
+                                                color: config.color,
+                                            }}
+                                        >
+                                            🌐 {item.label}
+                                        </a>
+                                    ) : (
+                                        <span
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+                                            style={{
+                                                backgroundColor: 'var(--bg-light)',
+                                                border: '1.5px solid var(--border)',
+                                                color: 'var(--text-muted)',
+                                            }}
+                                        >
+                                            {item.label}
+                                        </span>
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={() => removeLinkItem(item.id)}
+                                        className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-error text-white text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer shadow-sm"
+                                        aria-label="Remove link"
                                     >
-                                        {item.label}
-                                    </a>
-                                ) : (
-                                    <p className="text-sm text-text-muted flex-1">{item.label}</p>
-                                )}
-                                <button
-                                    type="button"
-                                    onClick={() => removeLinkItem(item.id)}
-                                    className="text-xs text-text-muted hover:text-error transition-colors"
-                                    aria-label="Remove link"
-                                >
-                                    Remove
-                                </button>
-                            </div>
-                        ))}
-                    </div>
+                                        ✕
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-sm text-text-muted italic">No links saved yet.</p>
+                    )}
 
                     {!showAddLink ? (
                         <button
                             type="button"
                             onClick={() => setShowAddLink(true)}
-                            className="px-3 py-1.5 rounded-lg border border-border/60 text-text text-xs font-semibold hover:bg-bg-secondary transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-dashed border-border/70 text-text-muted text-xs font-semibold hover:border-border hover:text-text transition-colors cursor-pointer"
                         >
-                            Add Link
+                            ＋ Add Link
                         </button>
                     ) : (
-                        <div className="space-y-2">
+                        <div className="space-y-2 pt-1">
                             <input
                                 value={linkLabel}
                                 onChange={(e) => setLinkLabel(e.target.value)}
-                                placeholder="Label"
-                                className="w-full rounded-lg border border-border/60 bg-bg-secondary px-2.5 py-1.5 text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                placeholder="Label (e.g. My Resume)"
+                                className="w-full rounded-xl border border-border/60 bg-bg-light/40 px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 transition-shadow"
+                                style={{ ['--tw-ring-color' as string]: `${config.color}40` }}
                             />
                             <input
                                 value={linkUrl}
@@ -298,13 +448,15 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                                     }
                                 }}
                                 placeholder="URL"
-                                className="w-full rounded-lg border border-border/60 bg-bg-secondary px-2.5 py-1.5 text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                className="w-full rounded-xl border border-border/60 bg-bg-light/40 px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 transition-shadow"
+                                style={{ ['--tw-ring-color' as string]: `${config.color}40` }}
                             />
                             <div className="flex gap-2">
                                 <button
                                     type="button"
                                     onClick={addLinkItem}
-                                    className="px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold hover:brightness-110 transition-[filter]"
+                                    className="px-3 py-1.5 rounded-lg text-white text-xs font-bold hover:brightness-110 transition-[filter] active:scale-95 cursor-pointer"
+                                    style={{ backgroundColor: config.color }}
                                 >
                                     Save
                                 </button>
@@ -315,7 +467,7 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                                         setLinkLabel('');
                                         setLinkUrl('');
                                     }}
-                                    className="px-3 py-1.5 rounded-lg border border-border/60 text-text text-xs font-semibold hover:bg-bg-secondary transition-colors"
+                                    className="px-3 py-1.5 rounded-lg border border-border/60 text-text text-xs font-semibold hover:bg-bg-secondary transition-colors cursor-pointer"
                                 >
                                     Cancel
                                 </button>
@@ -324,7 +476,6 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
                     )}
                 </div>
             </div>
-        </section>
+        </div>
     );
 }
-

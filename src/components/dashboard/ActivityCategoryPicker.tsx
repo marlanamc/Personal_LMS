@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { Code } from 'lucide-react';
 import { UtilitySubjectPanel } from './UtilitySubjectPanel';
+import { GUIDE_HUBS, type GuideHub } from '@/content/guide-hubs';
 
 // Re-use the Activity type shape from ActivityCategories
 interface Activity {
@@ -80,6 +81,23 @@ interface CategoryCardDef {
     iconColor: string;     // icon stroke color
 }
 
+// Section definitions for quick-jump nav
+const ACADEMIC_SECTIONS: Record<string, { label: string; emoji: string }[]> = {
+    spanish: [
+        { label: 'Grammar', emoji: '📖' },
+        { label: 'Vocabulary', emoji: '🔤' },
+        { label: 'Verbs', emoji: '🔄' },
+        { label: 'Numbers', emoji: '🔢' },
+    ],
+    coding: [
+        { label: 'Foundations', emoji: '🧱' },
+        { label: 'Functions & Control Flow', emoji: '⚙️' },
+        { label: 'Intermediate', emoji: '📐' },
+        { label: 'Advanced', emoji: '🚀' },
+        { label: 'Practice', emoji: '🎮' },
+    ],
+};
+
 const CATEGORY_CARDS: CategoryCardDef[] = [
     {
         key: 'spanish',
@@ -87,7 +105,7 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
         name: 'Spanish',
         subtitle: 'Grammar · Vocabulary · Verbs',
         icon: <span className="text-3xl sm:text-4xl">🇪🇸</span>,
-        bgColor: '#fdf2f8',
+        bgColor: 'rgba(253, 242, 248, 0.9)',
         iconColor: '#9d174d',
     },
     {
@@ -96,16 +114,16 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
         name: 'Coding',
         subtitle: 'Basics · Functions · Practice',
         icon: <Code className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={1.5} />,
-        bgColor: '#e0f2fe',
+        bgColor: 'rgba(224, 242, 254, 0.9)',
         iconColor: '#0369a1',
     },
     {
         key: 'health',
         kind: 'utility',
         name: 'Health',
-        subtitle: 'Reminders · Forms · Notes',
+        subtitle: 'Appointments · Notes · Links',
         icon: <span className="text-3xl sm:text-4xl">🩺</span>,
-        bgColor: '#ecfeff',
+        bgColor: 'rgba(236, 254, 255, 0.9)',
         iconColor: '#0e7490',
     },
     {
@@ -114,7 +132,7 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
         name: 'Job Search',
         subtitle: 'Tasks · Resume · Links',
         icon: <span className="text-3xl sm:text-4xl">💼</span>,
-        bgColor: '#f5f3ff',
+        bgColor: 'rgba(245, 243, 255, 0.9)',
         iconColor: '#5b21b6',
     },
 ];
@@ -170,6 +188,27 @@ export function ActivityCategoryPicker({
         return map;
     }, [activities]);
 
+    // Per-card progress for academic subjects
+    const academicProgress = useMemo(() => {
+        const getProgress = (activityId: string) => progressMap?.[activityId]?.progress ?? 0;
+        const isTrackable = (a: Activity) => a.type !== 'game';
+        const isCompleted = (a: Activity) => isTrackable(a) && (completedIdSet.has(a.id) || getProgress(a.id) >= 100);
+
+        const spanishItems = activities.filter(a => isInSelectedSubject(a, 'spanish')).filter(isTrackable);
+        const codingItems = activities.filter(a => isInSelectedSubject(a, 'coding')).filter(isTrackable);
+
+        return {
+            spanish: {
+                completed: spanishItems.filter(isCompleted).length,
+                total: spanishItems.length,
+            },
+            coding: {
+                completed: codingItems.filter(isCompleted).length,
+                total: codingItems.length,
+            },
+        };
+    }, [activities, completedIdSet, progressMap]);
+
     const visibleCards = CATEGORY_CARDS.filter((c) => categoryHasActivities[c.key]);
     const requestedSubject = initialSubject ?? initialCategory;
     const validInitialSubject =
@@ -178,6 +217,15 @@ export function ActivityCategoryPicker({
             : null;
 
     const [selectedSubject, setSelectedSubject] = useState<string | null>(() => validInitialSubject);
+    const [selectedHub, setSelectedHub] = useState<GuideHub | null>(null);
+    const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+
+    const scrollToSection = useCallback((sectionLabel: string) => {
+        const el = sectionRefs.current[sectionLabel];
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, []);
     const subjectContext = useMemo(() => {
         if (!selectedSubject) return null;
 
@@ -262,34 +310,88 @@ export function ActivityCategoryPicker({
         const learningCards = visibleCards.filter((card) => card.kind === 'academic');
         const utilityCards = visibleCards.filter((card) => card.kind === 'utility');
 
-        const renderCard = (card: CategoryCardDef, idx: number) => (
+        const renderAcademicCard = (card: CategoryCardDef, idx: number) => {
+            const prog = academicProgress[card.key as keyof typeof academicProgress];
+            const pct = prog && prog.total > 0 ? Math.round((prog.completed / prog.total) * 100) : 0;
+            return (
+                <button
+                    key={card.key}
+                    onClick={() => setSelectedSubject(card.key)}
+                    className="category-card group flex flex-col rounded-2xl overflow-hidden bg-bg-secondary/90 border border-border/60 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 cursor-pointer"
+                    style={{ animationDelay: `${idx * 80}ms` }}
+                >
+                    <div
+                        className="flex items-center justify-center py-7 sm:py-9 transition-transform duration-300 relative"
+                        style={{ backgroundColor: card.bgColor }}
+                    >
+                        <div className="absolute inset-0 shadow-[inset_0_-8px_12px_-8px_rgba(0,0,0,0.08)]" />
+                        <span
+                            className="select-none group-hover:scale-110 transition-transform duration-300 relative z-10"
+                            style={{ color: card.iconColor }}
+                        >
+                            {card.icon}
+                        </span>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-1 py-3 sm:py-4 px-3 bg-bg-secondary/90">
+                        <span className="text-base sm:text-lg font-bold font-display text-text">
+                            {card.name}
+                        </span>
+                        <span className="text-[11px] sm:text-xs text-text-muted font-medium tracking-wide">
+                            {card.subtitle}
+                        </span>
+                        {prog && prog.total > 0 && (
+                            <div className="w-full mt-2 space-y-1">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] text-text-muted font-medium">{prog.completed}/{prog.total} done</span>
+                                    <span className="text-[10px] font-bold" style={{ color: card.iconColor }}>{pct}%</span>
+                                </div>
+                                <div className="h-1 bg-border/30 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full rounded-full transition-all duration-500"
+                                        style={{ width: `${pct}%`, backgroundColor: card.iconColor }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </button>
+            );
+        };
+
+        const renderUtilityCard = (card: CategoryCardDef, idx: number) => (
             <button
                 key={card.key}
                 onClick={() => setSelectedSubject(card.key)}
-                className="category-card group flex flex-col rounded-2xl overflow-hidden bg-bg-secondary/90 border border-border/60 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 cursor-pointer"
+                className="category-card group flex flex-col rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 cursor-pointer"
                 style={{
                     animationDelay: `${idx * 80}ms`,
+                    background: `linear-gradient(135deg, ${card.bgColor} 0%, var(--bg-secondary) 100%)`,
+                    border: `1.5px solid ${card.iconColor}30`,
                 }}
             >
                 <div
-                    className="flex items-center justify-center py-6 sm:py-8 transition-transform duration-300 relative"
-                    style={{ backgroundColor: card.bgColor }}
+                    className="flex items-center justify-center py-7 sm:py-9 relative"
+                    style={{ backgroundColor: `${card.iconColor}10` }}
                 >
-                    <div className="absolute inset-0 shadow-[inset_0_-8px_12px_-8px_rgba(0,0,0,0.08)]" />
-                    <span
-                        className="select-none group-hover:scale-110 transition-transform duration-300 relative z-10"
-                        style={{ color: card.iconColor }}
-                    >
+                    <div className="absolute inset-0 shadow-[inset_0_-6px_10px_-6px_rgba(0,0,0,0.06)]" />
+                    <span className="select-none group-hover:scale-110 transition-transform duration-300 relative z-10 text-3xl sm:text-4xl">
                         {card.icon}
                     </span>
                 </div>
 
-                <div className="flex flex-col items-center gap-1 py-3 sm:py-4 px-2 bg-bg-secondary/90">
+                <div className="flex flex-col items-center gap-1 py-3 sm:py-4 px-3">
                     <span className="text-base sm:text-lg font-bold font-display text-text">
                         {card.name}
                     </span>
-                    <span className="text-[11px] sm:text-xs text-text-muted font-medium tracking-wide">
+                    <span className="text-[11px] sm:text-xs font-medium tracking-wide" style={{ color: card.iconColor }}>
                         {card.subtitle}
+                    </span>
+                    <span
+                        className="mt-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                        style={{ backgroundColor: `${card.iconColor}15`, color: card.iconColor }}
+                    >
+                        Personal
                     </span>
                 </div>
             </button>
@@ -308,7 +410,7 @@ export function ActivityCategoryPicker({
                                 Learning
                             </p>
                             <div className="grid grid-cols-2 gap-4 sm:gap-6">
-                                {learningCards.map(renderCard)}
+                                {learningCards.map((card, idx) => renderAcademicCard(card, idx))}
                             </div>
                         </section>
                     )}
@@ -319,7 +421,7 @@ export function ActivityCategoryPicker({
                                 Life
                             </p>
                             <div className="grid grid-cols-2 gap-4 sm:gap-6">
-                                {utilityCards.map((card, idx) => renderCard(card, idx + learningCards.length))}
+                                {utilityCards.map((card, idx) => renderUtilityCard(card, idx + learningCards.length))}
                             </div>
                         </section>
                     )}
@@ -328,14 +430,95 @@ export function ActivityCategoryPicker({
         );
     }
 
-    // Activity list view for selected category
+    // ── Hub detail view ─────────────────────────────────────────
+    if (selectedSubject && selectedHub) {
+        const { current: refsMap } = sectionRefs;
+        void refsMap; // used by ActivityCategories via ref prop
+        const selectedCardDef2 = CATEGORY_CARDS.find((c) => c.key === selectedSubject);
+        // Resolve guide activities for this hub
+        const hubActivities = activities.filter((a) => selectedHub.guideIds.includes(a.id));
+
+        return (
+            <div className="animate-fade-in">
+                {/* Breadcrumb */}
+                <nav aria-label="Breadcrumb" className="mb-5">
+                    <ol className="flex items-center gap-2 text-sm font-medium text-text-muted flex-wrap">
+                        <li>
+                            <button
+                                onClick={() => { setSelectedSubject(null); setSelectedHub(null); }}
+                                className="inline-flex items-center gap-1 hover:text-primary transition-colors cursor-pointer active:scale-95"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Subjects
+                            </button>
+                        </li>
+                        <li aria-hidden="true" className="text-border">/</li>
+                        <li>
+                            <button
+                                onClick={() => setSelectedHub(null)}
+                                className="hover:text-primary transition-colors cursor-pointer"
+                            >
+                                {selectedCardDef2?.name}
+                            </button>
+                        </li>
+                        <li aria-hidden="true" className="text-border">/</li>
+                        <li className="text-text font-semibold">{selectedHub.name}</li>
+                    </ol>
+                </nav>
+
+                {/* Hub header */}
+                <div className="mb-5 flex items-center gap-3">
+                    <div
+                        className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
+                        style={{
+                            backgroundColor: selectedCardDef2 ? `${selectedCardDef2.iconColor}15` : 'var(--bg-light)',
+                            border: `1.5px solid ${selectedCardDef2?.iconColor ?? 'var(--border)'}30`,
+                        }}
+                    >
+                        {selectedHub.emoji}
+                    </div>
+                    <div>
+                        <h2 className="text-xl sm:text-2xl font-display font-bold text-text leading-tight">
+                            {selectedHub.name}
+                        </h2>
+                        <p className="text-sm text-text-muted mt-0.5">{selectedHub.tagline}</p>
+                    </div>
+                </div>
+
+                {/* Guide activities — notebook card rendering */}
+                <React.Suspense
+                    fallback={
+                        <div className="flex justify-center py-12">
+                            <div className="w-8 h-8 border-3 border-primary/30 border-t-primary rounded-full animate-spin" />
+                        </div>
+                    }
+                >
+                    <ActivityCategories
+                        activities={hubActivities}
+                        completedActivityIds={completedIdSet}
+                        progressMap={progressMap}
+                        canFeatureActivities={canFeatureActivities}
+                        defaultClassId={defaultClassId}
+                        initialFeatureAssignments={initialFeatureAssignments}
+                        filterCategory={selectedSubject}
+                        sectionRefs={sectionRefs}
+                    />
+                </React.Suspense>
+            </div>
+        );
+    }
+
+    // ── Activity list view for selected category ─────────────────
     const selectedCardDef = CATEGORY_CARDS.find((c) => c.key === selectedSubject);
     const isUtilitySubject = selectedCardDef?.kind === 'utility';
+    const sections = selectedSubject ? ACADEMIC_SECTIONS[selectedSubject] : null;
 
     return (
         <div className="animate-fade-in">
             {/* Breadcrumb */}
-            <nav aria-label="Breadcrumb" className="mb-6">
+            <nav aria-label="Breadcrumb" className="mb-5">
                 <ol className="flex items-center gap-2 text-sm font-medium text-text-muted">
                     <li>
                         <button
@@ -364,7 +547,7 @@ export function ActivityCategoryPicker({
             </nav>
 
             {/* Category header */}
-            <div className="flex items-center justify-center gap-3 mb-6 text-center">
+            <div className="flex items-center justify-center gap-3 mb-4 text-center">
                 {selectedCardDef && (
                     <div
                         className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center"
@@ -378,71 +561,53 @@ export function ActivityCategoryPicker({
                 </h2>
             </div>
 
+            {/* Quick-Jump Section Nav — Academic subjects only */}
+            {!isUtilitySubject && sections && sections.length > 0 && (
+                <div className="mb-6">
+                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide snap-x">
+                        {sections.map((section) => (
+                            <button
+                                key={section.label}
+                                onClick={() => scrollToSection(section.label)}
+                                className="flex-shrink-0 snap-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/60 bg-bg-secondary/80 text-xs font-semibold text-text hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all duration-200 active:scale-95 cursor-pointer"
+                            >
+                                <span>{section.emoji}</span>
+                                <span>{section.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {!isUtilitySubject && subjectContext && (
                 <section className="mb-6 rounded-2xl border border-border/50 bg-bg-secondary/90 p-4 sm:p-5 shadow-sm">
-                    <div className="flex items-center justify-between gap-3 mb-4">
-                        <h3 className="text-sm sm:text-base font-bold uppercase tracking-[0.12em] text-text-muted">
-                            Study Snapshot
-                        </h3>
-                        <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-                            {subjectContext.completionRate}% complete
-                        </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                        <div className="rounded-lg border border-border/40 bg-bg-light/40 p-3">
-                            <p className="text-[11px] uppercase tracking-wide text-text-muted font-semibold">Items</p>
-                            <p className="text-lg font-bold text-text">{subjectContext.totalItems}</p>
-                        </div>
-                        <div className="rounded-lg border border-border/40 bg-bg-light/40 p-3">
-                            <p className="text-[11px] uppercase tracking-wide text-text-muted font-semibold">Started</p>
-                            <p className="text-lg font-bold text-text">{subjectContext.startedItems}</p>
-                        </div>
-                        <div className="rounded-lg border border-border/40 bg-bg-light/40 p-3">
-                            <p className="text-[11px] uppercase tracking-wide text-text-muted font-semibold">In Progress</p>
-                            <p className="text-lg font-bold text-text">{subjectContext.activeItems}</p>
-                        </div>
-                        <div className="rounded-lg border border-border/40 bg-bg-light/40 p-3">
-                            <p className="text-[11px] uppercase tracking-wide text-text-muted font-semibold">Practice</p>
-                            <p className="text-lg font-bold text-text">
-                                {subjectContext.startedPracticeItems}/{subjectContext.practiceItems}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className="rounded-lg border border-border/40 bg-bg-light/40 p-3">
-                            <p className="text-xs font-semibold text-text mb-1">Study Habit</p>
-                            <p className="text-sm text-text-muted mb-2">{subjectContext.habitSummary}</p>
-                            <p className="text-xs text-text-muted">
-                                Preferred format: <span className="font-semibold text-text">{subjectContext.preferredTypeLabel}</span>
-                            </p>
-                        </div>
-                        <div className="rounded-lg border border-border/40 bg-bg-light/40 p-3">
-                            <p className="text-xs font-semibold text-text mb-1">Next Focus</p>
-                            {subjectContext.focusItem ? (
-                                <div className="flex items-center justify-between gap-3">
-                                    <p className="text-sm text-text-muted line-clamp-2">
-                                        {subjectContext.focusItem.title}
-                                    </p>
-                                    <Link
-                                        href={`/activity/${subjectContext.focusItem.id}`}
-                                        className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold hover:brightness-110 transition-[filter]"
-                                    >
-                                        {subjectContext.focusLabel}
-                                    </Link>
-                                </div>
-                            ) : (
-                                <p className="text-sm text-text-muted">
-                                    You’ve completed all tracked lessons here. Pick a practice game to reinforce.
-                                </p>
-                            )}
-                            {subjectContext.averageProgress > 0 && (
-                                <p className="text-xs text-text-muted mt-2">
-                                    Average progress across started items: <span className="font-semibold text-text">{subjectContext.averageProgress}%</span>
-                                </p>
+                    <div className="flex flex-wrap items-center gap-3">
+                        {/* Compact stats row */}
+                        <div className="flex items-center gap-2 flex-wrap flex-1">
+                            <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                                {subjectContext.completionRate}% complete
+                            </span>
+                            <span className="px-2.5 py-1 rounded-full bg-bg-light/70 border border-border/40 text-text-muted text-xs font-medium">
+                                {subjectContext.startedItems} started
+                            </span>
+                            <span className="px-2.5 py-1 rounded-full bg-bg-light/70 border border-border/40 text-text-muted text-xs font-medium">
+                                {subjectContext.activeItems} in progress
+                            </span>
+                            {subjectContext.practiceItems > 0 && (
+                                <span className="px-2.5 py-1 rounded-full bg-bg-light/70 border border-border/40 text-text-muted text-xs font-medium">
+                                    🎮 {subjectContext.startedPracticeItems}/{subjectContext.practiceItems} practice
+                                </span>
                             )}
                         </div>
+                        {subjectContext.focusItem && (
+                            <Link
+                                href={`/activity/${subjectContext.focusItem.id}`}
+                                className="shrink-0 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold hover:brightness-110 transition-[filter] flex items-center gap-1.5"
+                            >
+                                <span>{subjectContext.focusLabel}</span>
+                                <span className="opacity-80">→</span>
+                            </Link>
+                        )}
                     </div>
                 </section>
             )}
@@ -468,6 +633,9 @@ export function ActivityCategoryPicker({
                         defaultClassId={defaultClassId}
                         initialFeatureAssignments={initialFeatureAssignments}
                         filterCategory={selectedSubject}
+                        sectionRefs={sectionRefs}
+                        guideHubs={GUIDE_HUBS.filter(h => h.subjectKey === selectedSubject)}
+                        onHubSelect={setSelectedHub}
                     />
                 </React.Suspense>
             )}

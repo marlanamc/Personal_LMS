@@ -15,3 +15,5 @@ export * from './ActivityCategoryPicker';
 export * from './ClassAnnouncement';
 export * from './DailyChallengeBanner';
 export * from './StreakWarning';
+export * from './SubjectPreviewStrip';
+
