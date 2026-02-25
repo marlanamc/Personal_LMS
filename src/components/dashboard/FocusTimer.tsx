@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Play, Pause, Music, CheckSquare, Check } from 'lucide-react';
+import { Play, Pause, Music, CheckSquare, Check, ExternalLink } from 'lucide-react';
+import { useSession, signIn } from 'next-auth/react';
 
 // Helper to format MM:SS
 const formatTime = (timeInSeconds: number) => {
@@ -18,6 +19,8 @@ const triggerHaptic = (duration = 10) => {
 };
 
 export const FocusTimer = () => {
+    const { data: session } = useSession();
+    
     // Spotify Playlist state
     const [isMusicMenuOpen, setIsMusicMenuOpen] = useState(false);
     const [selectedTrack, setSelectedTrack] = useState<string>('No music');
@@ -209,6 +212,20 @@ export const FocusTimer = () => {
                     {/* Tiimo-Style Dropdown Menu */}
                     {isMusicMenuOpen && (
                         <div className="absolute top-12 left-0 w-64 bg-bg-elevated backdrop-blur-md rounded-3xl p-2 shadow-xl z-50 border border-border/50 animate-fade-in-up">
+                            {!session?.user?.spotifyConnected && (
+                                <div className="px-3 py-2 mb-2 border-b border-border/30">
+                                    <button
+                                        onClick={() => signIn('spotify')}
+                                        className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-[#1DB954] hover:bg-[#1ed760] text-black rounded-xl text-xs font-bold transition-colors shadow-sm"
+                                    >
+                                        <ExternalLink className="w-3 h-3" />
+                                        Connect Spotify Premium
+                                    </button>
+                                    <p className="text-[10px] text-text-muted mt-2 px-1 text-center leading-tight">
+                                        Login to fix the 30s preview limit.
+                                    </p>
+                                </div>
+                            )}
                             <div className="flex flex-col gap-1">
                                 {tracks.map((track) => (
                                     <button
