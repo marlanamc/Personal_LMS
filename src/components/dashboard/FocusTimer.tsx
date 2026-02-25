@@ -479,7 +479,9 @@ export const FocusTimer = () => {
     
     // The fraction of the 120 minute circle that our 'selectedMinutes' represents
     const selectedFraction = selectedMinutes / 120;
-    const startMarkerRotation = selectedFraction * 360 + 90;
+    const selectedArcLength = selectedFraction * circumference;
+    const remainingArcLength = currentProgressPercentage * selectedArcLength;
+    const elapsedArcLength = Math.max(selectedArcLength - remainingArcLength, 0);
     
     // Pattern for the Tiimo "ticks"
     // We want roughly 60-120 ticks around the whole 120min circle
@@ -609,9 +611,24 @@ export const FocusTimer = () => {
                         strokeWidth={strokeWidth}
                         fill="none"
                         strokeLinecap="round"
-                        strokeDasharray={`${currentProgressPercentage * selectedFraction * circumference} ${circumference}`}
+                        strokeDasharray={`${remainingArcLength} ${circumference}`}
                         strokeDashoffset={0}
                     />
+
+                    {/* Elapsed segment (muted) to show where session started */}
+                    {hasSessionProgress && elapsedArcLength > 0.5 && (
+                        <circle
+                            cx="160"
+                            cy="160"
+                            r={radius}
+                            className="stroke-white/15 transition-[stroke-dasharray,stroke-dashoffset] duration-300 ease-linear"
+                            strokeWidth={strokeWidth}
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeDasharray={`${elapsedArcLength} ${circumference}`}
+                            strokeDashoffset={-remainingArcLength}
+                        />
+                    )}
 
                     {/* Progress Fill Ticks (Tiimo texture) */}
                     <circle
@@ -637,32 +654,11 @@ export const FocusTimer = () => {
                                 strokeWidth={strokeWidth}
                                 fill="none"
                                 strokeLinecap="round"
-                                strokeDasharray={`${currentProgressPercentage * selectedFraction * circumference} ${circumference}`}
+                                strokeDasharray={`${remainingArcLength} ${circumference}`}
                                 strokeDashoffset={0}
                             />
                         </mask>
                     </defs>
-
-                    {/* Fixed marker showing where this session started */}
-                    {hasSessionProgress && (
-                        <g
-                            className="transition-opacity duration-200"
-                            style={{
-                                transformOrigin: '160px 160px',
-                                // SVG is rotated -90deg globally; +90 keeps marker aligned to ring math.
-                                transform: `rotate(${startMarkerRotation}deg)`
-                            }}
-                        >
-                            <circle
-                                cx="160"
-                                cy={160 - radius}
-                                r="7"
-                                fill="rgba(255,255,255,0.16)"
-                                stroke="rgba(255,255,255,0.75)"
-                                strokeWidth="1.5"
-                            />
-                        </g>
-                    )}
 
                     {/* Draggable Integrated Indicator (Tiimo Arrow) */}
                     <g 
