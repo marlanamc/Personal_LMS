@@ -51,8 +51,10 @@ export function NotebookCard({
       onClick={onClick}
       className="group w-full text-left relative rounded-xl border overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/50"
       style={{
-        borderColor: isNotebookDone ? 'var(--border)' : `${accentColor}45`,
-        backgroundColor: isNotebookDone ? 'var(--bg-secondary)' : 'rgba(254, 252, 245, 0.97)',
+        borderColor: isNotebookDone ? 'var(--color-border)' : `${accentColor}45`,
+        background: isNotebookDone
+          ? 'var(--color-bg-secondary)'
+          : `linear-gradient(135deg, ${accentColor}14 0%, var(--color-bg-secondary) 58%)`,
       }}
     >
       {/* Notebook binding strip */}
@@ -67,7 +69,7 @@ export function NotebookCard({
           <div
             key={i}
             className="w-3 h-3 rounded-full border-2 flex-shrink-0"
-            style={{ borderColor: `${accentColor}50`, backgroundColor: 'var(--bg-secondary)' }}
+            style={{ borderColor: `${accentColor}50`, backgroundColor: 'var(--color-bg-secondary)' }}
           />
         ))}
       </div>

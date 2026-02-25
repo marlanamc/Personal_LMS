@@ -2,12 +2,89 @@
 
 import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
-import { Code } from 'lucide-react';
 import { UtilitySubjectPanel } from './UtilitySubjectPanel';
 import { GUIDE_HUBS, type GuideHub } from '@/content/guide-hubs';
 import { getNotebooksForSubject, getAllNotebookActivityIds, type TopicNotebook } from '@/content/topic-notebooks';
 import { NotebookCard } from './NotebookCard';
 import { NotebookDetailView } from './NotebookDetailView';
+
+// Custom SVG Icons for each subject - "Neon Study Lounge" aesthetic
+const SpanishIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+        {/* Globe with speech bubble - language learning */}
+        <circle cx="22" cy="24" r="14" stroke="url(#spanishGrad)" strokeWidth="2.5" fill="none" />
+        <ellipse cx="22" cy="24" rx="6" ry="14" stroke="url(#spanishGrad)" strokeWidth="1.5" fill="none" />
+        <path d="M8 24h28" stroke="url(#spanishGrad)" strokeWidth="1.5" />
+        <path d="M10 17h24M10 31h24" stroke="url(#spanishGrad)" strokeWidth="1" opacity="0.6" />
+        {/* Speech bubble accent */}
+        <path d="M34 12c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6c-1.1 0-2.1-.3-3-.8l-3 2.8v-4.5c0-.5 0-1 0-1.5 0-1.1.4-2 1-2"
+              fill="url(#spanishGrad)" opacity="0.3" />
+        <circle cx="40" cy="12" r="4" stroke="url(#spanishGrad)" strokeWidth="2" fill="none" />
+        <defs>
+            <linearGradient id="spanishGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#ff6b6b" />
+                <stop offset="100%" stopColor="#ffa07a" />
+            </linearGradient>
+        </defs>
+    </svg>
+);
+
+const CodingIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+        {/* Terminal brackets with cursor */}
+        <path d="M14 14L6 24l8 10" stroke="url(#codingGrad)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        <path d="M34 14l8 10-8 10" stroke="url(#codingGrad)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        {/* Cursor line */}
+        <path d="M24 16v16" stroke="url(#codingGrad)" strokeWidth="2.5" strokeLinecap="round" opacity="0.8">
+            <animate attributeName="opacity" values="1;0.3;1" dur="1.2s" repeatCount="indefinite" />
+        </path>
+        {/* Dot accents */}
+        <circle cx="18" cy="24" r="2" fill="url(#codingGrad)" opacity="0.5" />
+        <circle cx="30" cy="24" r="2" fill="url(#codingGrad)" opacity="0.5" />
+        <defs>
+            <linearGradient id="codingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#00d9ff" />
+                <stop offset="100%" stopColor="#00ff88" />
+            </linearGradient>
+        </defs>
+    </svg>
+);
+
+const HealthIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+        {/* Heart with ECG line */}
+        <path d="M24 42s-16-10.5-16-21c0-6.1 4.9-11 11-11 3.7 0 5 1.9 5 1.9s1.3-1.9 5-1.9c6.1 0 11 4.9 11 11 0 10.5-16 21-16 21z"
+              stroke="url(#healthGrad)" strokeWidth="2.5" fill="none" />
+        {/* ECG line through heart */}
+        <path d="M8 24h8l2-6 4 12 4-12 2 6h12"
+              stroke="url(#healthGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.7" />
+        <defs>
+            <linearGradient id="healthGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#7bed9f" />
+                <stop offset="100%" stopColor="#26de81" />
+            </linearGradient>
+        </defs>
+    </svg>
+);
+
+const JobSearchIcon = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+        {/* Briefcase with ascending arrow */}
+        <rect x="6" y="16" width="28" height="22" rx="3" stroke="url(#jobGrad)" strokeWidth="2.5" fill="none" />
+        <path d="M14 16v-4a4 4 0 014-4h4a4 4 0 014 4v4" stroke="url(#jobGrad)" strokeWidth="2.5" fill="none" />
+        <path d="M6 24h28" stroke="url(#jobGrad)" strokeWidth="1.5" opacity="0.5" />
+        {/* Ascending rocket/arrow */}
+        <path d="M38 32V12m0 0l-5 5m5-5l5 5" stroke="url(#jobGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Star accent */}
+        <circle cx="42" cy="8" r="2" fill="url(#jobGrad)" opacity="0.6" />
+        <defs>
+            <linearGradient id="jobGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#a55eea" />
+                <stop offset="100%" stopColor="#8854d0" />
+            </linearGradient>
+        </defs>
+    </svg>
+);
 
 // Re-use the Activity type shape from ActivityCategories
 interface Activity {
@@ -181,36 +258,36 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
         kind: 'academic',
         name: 'Spanish',
         subtitle: 'Grammar · Vocabulary · Verbs',
-        icon: <span className="text-3xl sm:text-4xl">🇪🇸</span>,
-        bgColor: 'rgba(253, 242, 248, 0.9)',
-        iconColor: '#9d174d',
+        icon: <SpanishIcon className="w-full h-full" />,
+        bgColor: 'rgba(255, 107, 107, 0.08)',
+        iconColor: '#ff6b6b',
     },
     {
         key: 'coding',
         kind: 'academic',
         name: 'Coding',
         subtitle: 'Basics · Functions · Practice',
-        icon: <Code className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={1.5} />,
-        bgColor: 'rgba(224, 242, 254, 0.9)',
-        iconColor: '#0369a1',
+        icon: <CodingIcon className="w-full h-full" />,
+        bgColor: 'rgba(0, 217, 255, 0.08)',
+        iconColor: '#00d9ff',
     },
     {
         key: 'health',
         kind: 'utility',
         name: 'Health',
         subtitle: 'Appointments · Notes · Links',
-        icon: <span className="text-3xl sm:text-4xl">🩺</span>,
-        bgColor: 'rgba(236, 254, 255, 0.9)',
-        iconColor: '#0e7490',
+        icon: <HealthIcon className="w-full h-full" />,
+        bgColor: 'rgba(123, 237, 159, 0.08)',
+        iconColor: '#7bed9f',
     },
     {
         key: 'job-search',
         kind: 'utility',
         name: 'Job Search',
         subtitle: 'Tasks · Resume · Links',
-        icon: <span className="text-3xl sm:text-4xl">💼</span>,
-        bgColor: 'rgba(245, 243, 255, 0.9)',
-        iconColor: '#5b21b6',
+        icon: <JobSearchIcon className="w-full h-full" />,
+        bgColor: 'rgba(165, 94, 234, 0.08)',
+        iconColor: '#a55eea',
     },
 ];
 
@@ -411,47 +488,45 @@ export function ActivityCategoryPicker({
         const renderAcademicCard = (card: CategoryCardDef, idx: number) => {
             const prog = academicProgress[card.key as keyof typeof academicProgress];
             const pct = prog && prog.total > 0 ? Math.round((prog.completed / prog.total) * 100) : 0;
+            const isHighProgress = pct >= 75;
+
             return (
                 <button
                     key={card.key}
+                    data-subject={card.key}
                     onClick={() => {
                         setSelectedSubject(card.key);
                         setSelectedHub(null);
                         setSelectedNotebook(null);
                     }}
-                    className="category-card group flex flex-col rounded-2xl overflow-hidden bg-bg-secondary/90 border border-border/60 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 cursor-pointer"
-                    style={{ animationDelay: `${idx * 80}ms` }}
+                    className="subject-card subject-card-animate group"
+                    style={{ animationDelay: `${idx * 100}ms` }}
                 >
-                    <div
-                        className="flex items-center justify-center py-7 sm:py-9 transition-transform duration-300 relative"
-                        style={{ backgroundColor: card.bgColor }}
-                    >
-                        <div className="absolute inset-0 shadow-[inset_0_-8px_12px_-8px_rgba(0,0,0,0.08)]" />
-                        <span
-                            className="select-none group-hover:scale-110 transition-transform duration-300 relative z-10"
-                            style={{ color: card.iconColor }}
-                        >
+                    {/* Portal icon area */}
+                    <div className="subject-card-portal">
+                        <div className="subject-card-icon">
                             {card.icon}
-                        </span>
+                        </div>
                     </div>
 
-                    <div className="flex flex-col items-center gap-1 py-3 sm:py-4 px-3 bg-bg-secondary/90">
-                        <span className="text-base sm:text-lg font-bold font-display text-text">
-                            {card.name}
-                        </span>
-                        <span className="text-[11px] sm:text-xs text-text-muted font-medium tracking-wide">
-                            {card.subtitle}
-                        </span>
+                    {/* Content area */}
+                    <div className="subject-card-content">
+                        <h3 className="subject-card-title">{card.name}</h3>
+                        <p className="subject-card-subtitle">{card.subtitle}</p>
+
                         {prog && prog.total > 0 && (
-                            <div className="w-full mt-2 space-y-1">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[10px] text-text-muted font-medium">{prog.completed}/{prog.total} done</span>
-                                    <span className="text-[10px] font-bold" style={{ color: card.iconColor }}>{pct}%</span>
+                            <div className="subject-card-progress">
+                                <div className="subject-card-progress-header">
+                                    <span className="subject-card-progress-label">
+                                        {prog.completed}/{prog.total} done
+                                    </span>
+                                    <span className="subject-card-progress-value">{pct}%</span>
                                 </div>
-                                <div className="h-1 bg-border/30 rounded-full overflow-hidden">
+                                <div className="subject-card-progress-track">
                                     <div
-                                        className="h-full rounded-full transition-all duration-500"
-                                        style={{ width: `${pct}%`, backgroundColor: card.iconColor }}
+                                        className="subject-card-progress-fill"
+                                        data-high-progress={isHighProgress}
+                                        style={{ width: `${pct}%` }}
                                     />
                                 </div>
                             </div>
@@ -464,41 +539,27 @@ export function ActivityCategoryPicker({
         const renderUtilityCard = (card: CategoryCardDef, idx: number) => (
             <button
                 key={card.key}
+                data-subject={card.key}
                 onClick={() => {
                     setSelectedSubject(card.key);
                     setSelectedHub(null);
                     setSelectedNotebook(null);
                 }}
-                className="category-card group flex flex-col rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 cursor-pointer"
-                style={{
-                    animationDelay: `${idx * 80}ms`,
-                    background: `linear-gradient(135deg, ${card.bgColor} 0%, var(--bg-secondary) 100%)`,
-                    border: `1.5px solid ${card.iconColor}30`,
-                }}
+                className="subject-card subject-card-utility subject-card-animate group"
+                style={{ animationDelay: `${idx * 100}ms` }}
             >
-                <div
-                    className="flex items-center justify-center py-7 sm:py-9 relative"
-                    style={{ backgroundColor: `${card.iconColor}10` }}
-                >
-                    <div className="absolute inset-0 shadow-[inset_0_-6px_10px_-6px_rgba(0,0,0,0.06)]" />
-                    <span className="select-none group-hover:scale-110 transition-transform duration-300 relative z-10 text-3xl sm:text-4xl">
+                {/* Portal icon area */}
+                <div className="subject-card-portal">
+                    <div className="subject-card-icon">
                         {card.icon}
-                    </span>
+                    </div>
                 </div>
 
-                <div className="flex flex-col items-center gap-1 py-3 sm:py-4 px-3">
-                    <span className="text-base sm:text-lg font-bold font-display text-text">
-                        {card.name}
-                    </span>
-                    <span className="text-[11px] sm:text-xs font-medium tracking-wide" style={{ color: card.iconColor }}>
-                        {card.subtitle}
-                    </span>
-                    <span
-                        className="mt-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
-                        style={{ backgroundColor: `${card.iconColor}15`, color: card.iconColor }}
-                    >
-                        Personal
-                    </span>
+                {/* Content area */}
+                <div className="subject-card-content">
+                    <h3 className="subject-card-title">{card.name}</h3>
+                    <p className="subject-card-subtitle">{card.subtitle}</p>
+                    <span className="subject-card-badge mt-1">Personal</span>
                 </div>
             </button>
         );
@@ -579,8 +640,10 @@ export function ActivityCategoryPicker({
                     <div
                         className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
                         style={{
-                            backgroundColor: selectedCardDef2 ? `${selectedCardDef2.iconColor}15` : 'var(--bg-light)',
-                            border: `1.5px solid ${selectedCardDef2?.iconColor ?? 'var(--border)'}30`,
+                            backgroundColor: selectedCardDef2 ? `${selectedCardDef2.iconColor}15` : 'var(--color-bg-light)',
+                            border: selectedCardDef2
+                                ? `1.5px solid ${selectedCardDef2.iconColor}30`
+                                : '1.5px solid var(--color-border)',
                         }}
                     >
                         {selectedHub.emoji}

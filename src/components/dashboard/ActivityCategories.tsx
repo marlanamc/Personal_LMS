@@ -2312,7 +2312,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                                 style={{
                                                     backgroundColor: sectionTexture ? `${sectionTexture.color}08` : 'transparent',
                                                     borderColor: sectionTexture ? `${sectionTexture.color}25` : 'rgba(200, 200, 200, 0.4)',
-                                                    color: sectionTexture ? sectionTexture.color : 'var(--text-muted)'
+                                                    color: sectionTexture ? sectionTexture.color : 'var(--color-text-muted)'
                                                 }}
                                             >
                                                 {sectionCompleted}/{sectionTotal}
@@ -2353,8 +2353,10 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                                         onClick={() => onHubSelect?.(hub)}
                                                         className="group w-full text-left relative rounded-xl border overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer focus-visible:ring-2 focus-visible:ring-primary/50"
                                                         style={{
-                                                            borderColor: isHubDone ? 'var(--border)' : `${accentColor}45`,
-                                                            backgroundColor: isHubDone ? 'var(--bg-secondary)' : 'rgba(254, 252, 245, 0.97)',
+                                                            borderColor: isHubDone ? 'var(--color-border)' : `${accentColor}45`,
+                                                            background: isHubDone
+                                                                ? 'var(--color-bg-secondary)'
+                                                                : `linear-gradient(135deg, ${accentColor}14 0%, var(--color-bg-secondary) 58%)`,
                                                         }}
                                                     >
                                                         {/* Notebook binding strip */}
@@ -2369,7 +2371,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                                                                 <div
                                                                     key={i}
                                                                     className="w-3 h-3 rounded-full border-2 flex-shrink-0"
-                                                                    style={{ borderColor: `${accentColor}50`, backgroundColor: 'var(--bg-secondary)' }}
+                                                                    style={{ borderColor: `${accentColor}50`, backgroundColor: 'var(--color-bg-secondary)' }}
                                                                 />
                                                             ))}
                                                         </div>

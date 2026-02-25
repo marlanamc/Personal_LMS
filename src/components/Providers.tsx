@@ -4,8 +4,10 @@ import { SessionProvider } from "next-auth/react";
 import { ReactNode } from "react";
 import { SoundProvider } from "@/context/SoundContext";
 import { CelebrationProvider } from "@/context/CelebrationContext";
+import { FocusTimerProvider } from "@/context/FocusTimerContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { MilestoneCelebration } from "@/components/ui/MilestoneCelebration";
+import { FocusTimerDock } from "@/components/dashboard/FocusTimerDock";
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
@@ -17,12 +19,14 @@ export default function Providers({ children }: { children: ReactNode }) {
       >
         <SoundProvider>
           <CelebrationProvider>
-            {children}
-            <MilestoneCelebration />
+            <FocusTimerProvider>
+              {children}
+              <FocusTimerDock />
+              <MilestoneCelebration />
+            </FocusTimerProvider>
           </CelebrationProvider>
         </SoundProvider>
       </SessionProvider>
     </ThemeProvider>
   );
 }
-
