@@ -534,11 +534,11 @@ export const FocusTimer = () => {
     const tickDashArray = `${tickSpacing * 0.2} ${tickSpacing * 0.8}`; // 20% line, 80% gap
 
     return (
-        <div className="min-h-screen bg-bg-primary text-text font-display transition-colors duration-300 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-2 sm:pt-4 relative">
-            {/* Header / Top Nav area */}
-            <div className="flex items-center justify-between px-6 pt-4 pb-6 sm:pt-8 sm:pb-8 relative">
+        <div className="min-h-screen bg-bg-primary text-text font-display transition-colors duration-300 flex flex-col">
+            {/* Header / Top Nav area - Fixed at top */}
+            <header className="flex items-center justify-between px-6 py-4 sm:px-8 sm:py-5 shrink-0">
                 <div className="relative" ref={menuRef}>
-                    <button 
+                    <button
                         onClick={() => setIsMusicMenuOpen(!isMusicMenuOpen)}
                         className={`flex items-center gap-2 px-4 py-2 ${isMusicMenuOpen ? 'bg-bg-light border-primary/50 text-text' : 'bg-bg-secondary hover:bg-bg-light text-text/90'} rounded-full text-sm font-medium transition-colors border shadow-sm z-10`}
                         style={{ borderColor: isMusicMenuOpen ? 'var(--color-primary)' : 'var(--color-border)' }}
@@ -590,7 +590,7 @@ export const FocusTimer = () => {
                                         }}
                                         className={`flex items-center w-full px-4 py-3 rounded-2xl text-left text-sm font-medium transition-colors ${
                                             selectedTrackId === track.id
-                                                ? 'bg-primary/10 text-primary' 
+                                                ? 'bg-primary/10 text-primary'
                                                 : 'text-text/70 hover:bg-bg-light hover:text-text'
                                         }`}
                                     >
@@ -603,8 +603,6 @@ export const FocusTimer = () => {
                     )}
                 </div>
 
-                {/* Removed Moon/Sun toggle since theme handles it globally */}
-
                 <button
                     type="button"
                     onClick={() => setIsTasksPanelOpen(true)}
@@ -614,19 +612,21 @@ export const FocusTimer = () => {
                     <CheckSquare className="w-4 h-4 text-text/70" />
                     <span className="text-text/90">Tasks</span>
                 </button>
-            </div>
+            </header>
 
-            {spotifyNotice && (
-                <div className="px-6 pb-2">
-                    <p className="text-center text-xs font-semibold text-text-muted">{spotifyNotice}</p>
-                </div>
-            )}
+            {/* Centered Content Area */}
+            <main className="flex-1 flex items-center justify-center px-6 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+                <div className="w-full max-w-md flex flex-col items-center">
+                    {/* Spotify Notice */}
+                    {spotifyNotice && (
+                        <p className="text-center text-xs font-semibold text-text-muted mb-4">{spotifyNotice}</p>
+                    )}
 
-            {/* Title */}
-            <h1 className="text-center text-4xl font-display font-bold mb-8 sm:mb-12 tracking-tight">Focus</h1>
+                    {/* Title */}
+                    <h1 className="text-center text-4xl font-display font-bold mb-6 tracking-tight">Focus</h1>
 
-            {/* Timer Ring */}
-            <div className="relative flex justify-center items-center mb-10 sm:mb-16 select-none touch-none">
+                    {/* Timer Ring */}
+                    <div className="relative flex justify-center items-center mb-8 select-none touch-none">
                 <svg
                     ref={svgRef}
                     width="320"
@@ -744,70 +744,72 @@ export const FocusTimer = () => {
                     </span>
                 </div>
 
-                {/* Clock Markers */}
-                <div className="absolute inset-0 pointer-events-none w-[320px] h-[320px] mx-auto">
-                    {[120, 30, 60, 90].map((marker, i) => {
-                        const deg = i * 90;
-                        const markerRadius = radius - strokeWidth/2 - 20; // Text inside the ring
-                        const x = 160 + markerRadius * Math.sin((deg * Math.PI) / 180);
-                        const y = 160 - markerRadius * Math.cos((deg * Math.PI) / 180);
-                        return (
-                            <div 
-                                key={marker}
-                                className="absolute text-sm font-semibold -translate-x-1/2 -translate-y-1/2 text-text-muted/60"
-                                style={{ left: x, top: y }}
+                    {/* Clock Markers */}
+                    <div className="absolute inset-0 pointer-events-none w-[320px] h-[320px] mx-auto">
+                        {[120, 30, 60, 90].map((marker, i) => {
+                            const deg = i * 90;
+                            const markerRadius = radius - strokeWidth/2 - 20; // Text inside the ring
+                            const x = 160 + markerRadius * Math.sin((deg * Math.PI) / 180);
+                            const y = 160 - markerRadius * Math.cos((deg * Math.PI) / 180);
+                            return (
+                                <div
+                                    key={marker}
+                                    className="absolute text-sm font-semibold -translate-x-1/2 -translate-y-1/2 text-text-muted/60"
+                                    style={{ left: x, top: y }}
+                                >
+                                    {marker}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                    {/* Play/Pause Button */}
+                    <div className="flex justify-center flex-col items-center mb-8">
+                        <button
+                            onClick={() => {
+                                triggerHaptic(20);
+                                toggleTimer();
+                            }}
+                            className="flex items-center gap-3 px-8 py-4 bg-primary text-white hover:brightness-110 rounded-full text-lg font-bold transition-transform active:scale-95 shadow-md"
+                        >
+                            {isActive ? (
+                                <>Pause <Pause className="w-5 h-5 fill-current" /></>
+                            ) : (
+                                <>Start <Play className="w-5 h-5 fill-current" /></>
+                            )}
+                        </button>
+
+                        {isActive && (
+                            <button
+                                onClick={() => {
+                                    triggerHaptic(30);
+                                    resetTimer();
+                                }}
+                                className="mt-4 text-sm font-semibold underline text-text-muted hover:text-text transition-colors"
                             >
-                                {marker}
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+                                Reset Timer
+                            </button>
+                        )}
+                    </div>
 
-            {/* Play/Pause Button */}
-            <div className="flex justify-center flex-col items-center">
-                <button
-                    onClick={() => {
-                        triggerHaptic(20);
-                        toggleTimer();
-                    }}
-                    className="flex items-center gap-3 px-8 py-4 bg-primary text-white hover:brightness-110 rounded-full text-lg font-bold transition-transform active:scale-95 shadow-md"
-                >
-                    {isActive ? (
-                        <>Pause <Pause className="w-5 h-5 fill-current" /></>
-                    ) : (
-                        <>Start <Play className="w-5 h-5 fill-current" /></>
+                    {/* Spotify Player - Integrated below controls */}
+                    {selectedPlaylistId && (
+                        <div className="w-full max-w-[300px]">
+                            <iframe
+                                title="Spotify focus playlist"
+                                style={{ borderRadius: '12px' }}
+                                src={`https://open.spotify.com/embed/playlist/${selectedPlaylistId}?utm_source=generator&theme=0`}
+                                width="100%"
+                                height="152"
+                                frameBorder="0"
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                                loading="lazy"
+                            />
+                        </div>
                     )}
-                </button>
-
-                {isActive && (
-                    <button
-                        onClick={() => {
-                            triggerHaptic(30);
-                            resetTimer();
-                        }}
-                        className="mt-4 text-sm font-semibold underline text-text-muted hover:text-text transition-colors"
-                    >
-                        Reset Timer
-                    </button>
-                )}
-            </div>
-
-            {/* Spotify Player - Compact, below timer */}
-            {selectedPlaylistId && (
-                <div className="flex justify-center mt-8 px-6">
-                    <iframe
-                        title="Spotify focus playlist"
-                        style={{ borderRadius: '12px' }}
-                        src={`https://open.spotify.com/embed/playlist/${selectedPlaylistId}?utm_source=generator&theme=0`}
-                        width="300"
-                        height="152"
-                        frameBorder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
-                    />
                 </div>
-            )}
+            </main>
 
             <div
                 className={`fixed inset-0 z-[60] ${isTasksPanelOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
