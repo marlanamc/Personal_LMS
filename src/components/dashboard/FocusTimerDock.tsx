@@ -74,7 +74,7 @@ export function FocusTimerDock() {
   const hasSpotify = Boolean(selectedPlaylistId);
   const isSupportedRoute = pathname?.startsWith("/dashboard") || pathname?.startsWith("/activity/");
   const isTimerPage = pathname === "/dashboard/timer";
-  const shouldMount = isSupportedRoute && (isTimerPage ? hasManualSession || hasSpotify : isActive);
+  const shouldMount = isSupportedRoute && (hasSpotify || hasManualSession || isActive);
   const showCompactDock = isMobileViewport && isCompact;
 
   if (!shouldMount) {
