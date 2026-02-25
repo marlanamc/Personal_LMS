@@ -94,6 +94,7 @@ export const FocusTimer = () => {
         tracks,
         selectedTrackId,
         selectedTrackName,
+        selectedPlaylistId,
         selectedMinutes,
         timeLeft,
         isActive,
@@ -614,6 +615,22 @@ export const FocusTimer = () => {
             {spotifyNotice && (
                 <div className="px-6 pb-2">
                     <p className="text-center text-xs font-semibold text-text-muted">{spotifyNotice}</p>
+                </div>
+            )}
+
+            {/* Spotify Player */}
+            {selectedPlaylistId && (
+                <div className="flex justify-center px-6 mb-6">
+                    <iframe
+                        title="Spotify focus playlist"
+                        style={{ borderRadius: '12px' }}
+                        src={`https://open.spotify.com/embed/playlist/${selectedPlaylistId}?utm_source=generator&theme=0`}
+                        width="100%"
+                        height="152"
+                        frameBorder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                    />
                 </div>
             )}
 
