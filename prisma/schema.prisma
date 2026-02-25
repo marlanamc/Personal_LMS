@@ -32,6 +32,7 @@ model User {
   pointsLedger          PointsLedger[]
   quizResponses         QuizResponse[]
   speakingSubmissions   SpeakingSubmission[]
+  spotifyConnection     SpotifyConnection?
   submissions           Submission[]
   achievements          UserAchievement[]
 
@@ -55,6 +56,22 @@ model Class {
   enrollments    ClassEnrollment[]
 
   @@index([teacherId])
+}
+
+model SpotifyConnection {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  spotifyUserId String
+  displayName   String?
+  accessToken   String
+  refreshToken  String?
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([spotifyUserId])
+  @@index([expiresAt])
 }
 
 model ClassEnrollment {

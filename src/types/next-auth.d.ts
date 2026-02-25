@@ -9,7 +9,6 @@ declare module "next-auth" {
       role: UserRole;
       username: string;
       mustChangePassword: boolean;
-      spotifyConnected?: boolean;
     };
   }
 
@@ -29,11 +28,5 @@ declare module "next-auth/jwt" {
     username?: string;
     mustChangePassword?: boolean;
     isMobile?: boolean;
-    spotifyConnected?: boolean;
-    provider?: string;
-    accessToken?: string;
-    refreshToken?: string;
-    expiresAt?: number;
   }
 }
-

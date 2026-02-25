@@ -6,7 +6,6 @@ import bcrypt from "bcryptjs";
 import { trackLogin } from "./gamification";
 import { logger } from "./logger";
 import { headers } from "next/headers";
-import SpotifyProvider from "next-auth/providers/spotify";
 
 // Session durations
 const MOBILE_SESSION_DAYS = 30;
@@ -101,15 +100,6 @@ export const authOptions: NextAuthOptions = {
                     return null;
                 }
             }
-        }),
-        SpotifyProvider({
-            clientId: process.env.SPOTIFY_CLIENT_ID || "",
-            clientSecret: process.env.SPOTIFY_CLIENT_SECRET || "",
-            authorization: {
-                params: {
-                    scope: "user-read-email user-read-private user-library-read playlist-read-private playlist-read-collaborative"
-                }
-            }
         })
     ],
     pages: {
@@ -123,7 +113,7 @@ export const authOptions: NextAuthOptions = {
         maxAge: 30 * 24 * 60 * 60, // 30 days in seconds
     },
     callbacks: {
-        async jwt({ token, user, account }) {
+        async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
                 token.role = user.role;
@@ -139,13 +129,6 @@ export const authOptions: NextAuthOptions = {
                 token.exp = Math.floor(Date.now() / 1000) + maxAgeSeconds;
             }
 
-            if (account) {
-                token.accessToken = account.access_token;
-                token.refreshToken = account.refresh_token;
-                token.expiresAt = account.expires_at;
-                token.provider = account.provider;
-            }
-
             return token;
         },
         async session({ session, token }) {
@@ -155,9 +138,6 @@ export const authOptions: NextAuthOptions = {
                 session.user.username = (token.username as string) ?? session.user.username;
                 session.user.mustChangePassword =
                     (token.mustChangePassword as boolean) ?? session.user.mustChangePassword;
-                
-                // Expose provider info to detect if Spotify is linked
-                session.user.spotifyConnected = token.provider === 'spotify';
             }
             return session;
         },

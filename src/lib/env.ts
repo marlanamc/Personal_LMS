@@ -41,6 +41,22 @@ const envVars: EnvVar[] = [
     description: 'Secret for cron endpoints (required in production)',
     validate: (value) => value.length >= 32,
   },
+  {
+    key: 'SPOTIFY_CLIENT_ID',
+    required: false,
+    description: 'Spotify OAuth client ID for Focus Timer connection',
+  },
+  {
+    key: 'SPOTIFY_CLIENT_SECRET',
+    required: false,
+    description: 'Spotify OAuth client secret for Focus Timer connection',
+  },
+  {
+    key: 'SPOTIFY_REDIRECT_URI',
+    required: false,
+    description: 'Spotify OAuth callback URL override (optional)',
+    validate: (value) => value.startsWith('http://') || value.startsWith('https://'),
+  },
 ];
 
 /**
@@ -82,6 +98,14 @@ export function validateEnv(): void {
   if (!process.env.NEXTAUTH_SECRET && !process.env.AUTH_SECRET) {
     errors.push(
       `❌ Missing authentication secret\n   Set either NEXTAUTH_SECRET or AUTH_SECRET (min 32 characters)`
+    );
+  }
+
+  const hasSpotifyClientId = Boolean(process.env.SPOTIFY_CLIENT_ID);
+  const hasSpotifyClientSecret = Boolean(process.env.SPOTIFY_CLIENT_SECRET);
+  if (hasSpotifyClientId !== hasSpotifyClientSecret) {
+    errors.push(
+      `❌ Incomplete Spotify configuration\n   Set both SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET, or leave both unset`
     );
   }
 

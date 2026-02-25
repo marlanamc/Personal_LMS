@@ -2,7 +2,31 @@
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Play, Pause, Music, CheckSquare, Check, ExternalLink } from 'lucide-react';
-import { useSession, signIn } from 'next-auth/react';
+
+type SpotifyConnectionStatus = {
+    configured: boolean;
+    connected: boolean;
+    displayName: string | null;
+};
+
+type DragInputEvent =
+    | MouseEvent
+    | TouchEvent
+    | React.MouseEvent<SVGSVGElement>
+    | React.TouchEvent<SVGSVGElement>;
+
+const getEventCoordinates = (event: DragInputEvent): { x: number; y: number } | null => {
+    if ('touches' in event) {
+        const touch = event.touches[0] ?? event.changedTouches[0];
+        if (!touch) return null;
+        return { x: touch.clientX, y: touch.clientY };
+    }
+
+    return {
+        x: event.clientX,
+        y: event.clientY,
+    };
+};
 
 // Helper to format MM:SS
 const formatTime = (timeInSeconds: number) => {
@@ -19,12 +43,17 @@ const triggerHaptic = (duration = 10) => {
 };
 
 export const FocusTimer = () => {
-    const { data: session } = useSession();
-    
     // Spotify Playlist state
     const [isMusicMenuOpen, setIsMusicMenuOpen] = useState(false);
     const [selectedTrack, setSelectedTrack] = useState<string>('No music');
     const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
+    const [spotifyStatus, setSpotifyStatus] = useState<SpotifyConnectionStatus>({
+        configured: true,
+        connected: false,
+        displayName: null,
+    });
+    const [isLoadingSpotifyStatus, setIsLoadingSpotifyStatus] = useState(true);
+    const [spotifyNotice, setSpotifyNotice] = useState<string | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
     const tracks = useMemo(() => [
@@ -35,6 +64,25 @@ export const FocusTimer = () => {
         { id: 'acoustic', name: 'Acoustic', playlistId: '37i9dQZF1DWZIOAP995ogX' }, // Acoustic Favorites
         { id: 'none', name: 'No music', playlistId: null },
     ], []);
+
+    const fetchSpotifyStatus = useCallback(async (signal?: AbortSignal) => {
+        const response = await fetch('/api/spotify/status', {
+            method: 'GET',
+            cache: 'no-store',
+            signal,
+        });
+
+        if (!response.ok && response.status !== 401) {
+            throw new Error('Unable to load Spotify status');
+        }
+
+        const data = (await response.json()) as Partial<SpotifyConnectionStatus>;
+        setSpotifyStatus({
+            configured: Boolean(data.configured),
+            connected: Boolean(data.connected),
+            displayName: typeof data.displayName === 'string' ? data.displayName : null,
+        });
+    }, []);
     
     // Timer state
     const [selectedMinutes, setSelectedMinutes] = useState<number>(30); // Default to 30 (2 hours scale)
@@ -86,6 +134,66 @@ export const FocusTimer = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        const controller = new AbortController();
+
+        setIsLoadingSpotifyStatus(true);
+        fetchSpotifyStatus(controller.signal)
+            .catch(() => {
+                setSpotifyStatus({
+                    configured: true,
+                    connected: false,
+                    displayName: null,
+                });
+            })
+            .finally(() => {
+                if (!controller.signal.aborted) {
+                    setIsLoadingSpotifyStatus(false);
+                }
+            });
+
+        return () => controller.abort();
+    }, [fetchSpotifyStatus]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        const currentUrl = new URL(window.location.href);
+        const spotifyParam = currentUrl.searchParams.get('spotify');
+
+        if (!spotifyParam) {
+            return;
+        }
+
+        if (spotifyParam === 'connected') {
+            setSpotifyNotice('Spotify connected. Full playback is now available in this player.');
+            fetchSpotifyStatus().catch(() => null);
+        } else if (spotifyParam === 'connect_failed') {
+            setSpotifyNotice('Spotify connection failed. Please try again.');
+        } else if (spotifyParam === 'not_configured') {
+            setSpotifyNotice('Spotify is not configured yet. Add Spotify environment variables first.');
+        } else if (spotifyParam === 'denied') {
+            setSpotifyNotice('Spotify connection was canceled.');
+        } else {
+            setSpotifyNotice('Spotify connection could not be completed. Please try again.');
+        }
+
+        currentUrl.searchParams.delete('spotify');
+        window.history.replaceState({}, '', `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
+
+        const timeout = window.setTimeout(() => setSpotifyNotice(null), 5000);
+        return () => window.clearTimeout(timeout);
+    }, [fetchSpotifyStatus]);
+
+    const connectSpotify = useCallback(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+        window.location.assign('/api/spotify/connect?returnTo=%2Fdashboard%2Ftimer');
+    }, []);
+
     // Update selected playlist
     useEffect(() => {
         const track = tracks.find(t => t.name === selectedTrack);
@@ -94,67 +202,81 @@ export const FocusTimer = () => {
         }
     }, [selectedTrack, tracks]);
 
-    // Handle drag on the circle to set time
-    const handleDrag = useCallback(
-        (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
-            if (!isDragging || !svgRef.current) return;
-            
-            // Don't change time while playing
-            if (isActive) return;
+    const updateMinutesFromPointer = useCallback(
+        (clientX: number, clientY: number) => {
+            if (!svgRef.current || isActive) return;
 
             const svgRect = svgRef.current.getBoundingClientRect();
             const centerX = svgRect.left + svgRect.width / 2;
             const centerY = svgRect.top + svgRect.height / 2;
 
-            let clientX, clientY;
-            if ('touches' in e) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = (e as MouseEvent).clientX;
-                clientY = (e as MouseEvent).clientY;
-            }
-
             const dx = clientX - centerX;
             const dy = clientY - centerY;
-            
-            // Calculate angle in radians, 0 is top
+
+            // Angle with 0 at top, increasing clockwise
             let angle = Math.atan2(dx, -dy);
             if (angle < 0) angle += 2 * Math.PI;
 
-            // Map angle back to minutes (0 to 120)
             let mins = (angle / (2 * Math.PI)) * 120;
-            
-            // Snap to 5 minute intervals for ease of use
             mins = Math.round(mins / 5) * 5;
-            
-            if (mins <= 0) mins = 120; // Max out at top
-            
+
+            if (mins <= 0) mins = 120;
+
             setSelectedMinutes((prev) => {
                 if (prev !== mins) {
-                    triggerHaptic(15); // Subtle click feel on snap
+                    triggerHaptic(15);
                 }
                 return mins;
             });
         },
-        [isDragging, isActive]
+        [isActive]
+    );
+
+    const handleDrag = useCallback(
+        (event: DragInputEvent) => {
+            if (!isDragging || isActive) return;
+
+            const point = getEventCoordinates(event);
+            if (!point) return;
+
+            updateMinutesFromPointer(point.x, point.y);
+        },
+        [isDragging, isActive, updateMinutesFromPointer]
+    );
+
+    const handleDragStart = useCallback(
+        (event: React.MouseEvent<SVGSVGElement> | React.TouchEvent<SVGSVGElement>) => {
+            if (isActive) return;
+
+            const point = getEventCoordinates(event);
+            if (!point) return;
+
+            setIsDragging(true);
+            updateMinutesFromPointer(point.x, point.y);
+        },
+        [isActive, updateMinutesFromPointer]
     );
 
     useEffect(() => {
-        const handleMouseUp = () => setIsDragging(false);
+        const handleDragEnd = () => setIsDragging(false);
         const handleMouseMove = (e: MouseEvent) => handleDrag(e);
-        const handleTouchMove = (e: TouchEvent) => handleDrag(e);
+        const handleTouchMove = (e: TouchEvent) => {
+            e.preventDefault();
+            handleDrag(e);
+        };
 
         if (isDragging) {
-            window.addEventListener('mouseup', handleMouseUp);
-            window.addEventListener('touchend', handleMouseUp);
+            window.addEventListener('mouseup', handleDragEnd);
+            window.addEventListener('touchend', handleDragEnd);
+            window.addEventListener('touchcancel', handleDragEnd);
             window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('touchmove', handleTouchMove);
+            window.addEventListener('touchmove', handleTouchMove, { passive: false });
         }
 
         return () => {
-            window.removeEventListener('mouseup', handleMouseUp);
-            window.removeEventListener('touchend', handleMouseUp);
+            window.removeEventListener('mouseup', handleDragEnd);
+            window.removeEventListener('touchend', handleDragEnd);
+            window.removeEventListener('touchcancel', handleDragEnd);
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('touchmove', handleTouchMove);
         };
@@ -180,7 +302,7 @@ export const FocusTimer = () => {
     const tickDashArray = `${tickSpacing * 0.2} ${tickSpacing * 0.8}`; // 20% line, 80% gap
 
     return (
-        <div className="min-h-screen bg-bg-primary text-text font-display transition-colors duration-300 pb-24 pt-4 relative">
+        <div className="min-h-screen bg-bg-primary text-text font-display transition-colors duration-300 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-2 sm:pt-4 relative">
             {/* Spotify Player Area */}
             {selectedPlaylistId && (
                 <div className="flex justify-center px-6 mb-8 animate-fade-in">
@@ -198,7 +320,7 @@ export const FocusTimer = () => {
             )}
 
             {/* Header / Top Nav area */}
-            <div className="flex items-center justify-between px-6 pt-8 pb-8 relative">
+            <div className="flex items-center justify-between px-6 pt-4 pb-6 sm:pt-8 sm:pb-8 relative">
                 <div className="relative" ref={menuRef}>
                     <button 
                         onClick={() => setIsMusicMenuOpen(!isMusicMenuOpen)}
@@ -212,10 +334,10 @@ export const FocusTimer = () => {
                     {/* Tiimo-Style Dropdown Menu */}
                     {isMusicMenuOpen && (
                         <div className="absolute top-12 left-0 w-64 bg-bg-elevated backdrop-blur-md rounded-3xl p-2 shadow-xl z-50 border border-border/50 animate-fade-in-up">
-                            {!session?.user?.spotifyConnected && (
+                            {!isLoadingSpotifyStatus && spotifyStatus.configured && !spotifyStatus.connected && (
                                 <div className="px-3 py-2 mb-2 border-b border-border/30">
                                     <button
-                                        onClick={() => signIn('spotify')}
+                                        onClick={connectSpotify}
                                         className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-[#1DB954] hover:bg-[#1ed760] text-black rounded-xl text-xs font-bold transition-colors shadow-sm"
                                     >
                                         <ExternalLink className="w-3 h-3" />
@@ -223,6 +345,22 @@ export const FocusTimer = () => {
                                     </button>
                                     <p className="text-[10px] text-text-muted mt-2 px-1 text-center leading-tight">
                                         Login to fix the 30s preview limit.
+                                    </p>
+                                </div>
+                            )}
+                            {!isLoadingSpotifyStatus && !spotifyStatus.configured && (
+                                <div className="px-3 py-2 mb-2 border-b border-border/30">
+                                    <p className="text-[11px] text-text-muted text-center leading-tight">
+                                        Spotify is not configured yet.
+                                    </p>
+                                </div>
+                            )}
+                            {!isLoadingSpotifyStatus && spotifyStatus.connected && (
+                                <div className="px-3 py-2 mb-2 border-b border-border/30">
+                                    <p className="text-[11px] text-[#1DB954] text-center font-semibold">
+                                        {spotifyStatus.displayName
+                                            ? `Connected as ${spotifyStatus.displayName}`
+                                            : 'Spotify connected'}
                                     </p>
                                 </div>
                             )}
@@ -257,19 +395,25 @@ export const FocusTimer = () => {
                 </button>
             </div>
 
+            {spotifyNotice && (
+                <div className="px-6 pb-2">
+                    <p className="text-center text-xs font-semibold text-text-muted">{spotifyNotice}</p>
+                </div>
+            )}
+
             {/* Title */}
-            <h1 className="text-center text-4xl font-display font-bold mb-12 tracking-tight">Focus</h1>
+            <h1 className="text-center text-4xl font-display font-bold mb-8 sm:mb-12 tracking-tight">Focus</h1>
 
             {/* Timer Ring */}
-            <div className="relative flex justify-center items-center mb-16 select-none touch-none">
+            <div className="relative flex justify-center items-center mb-10 sm:mb-16 select-none touch-none">
                 <svg
                     ref={svgRef}
                     width="320"
                     height="320"
                     viewBox="0 0 320 320"
                     className="transform -rotate-90 cursor-pointer drop-shadow-lg"
-                    onMouseDown={() => !isActive && setIsDragging(true)}
-                    onTouchStart={() => !isActive && setIsDragging(true)}
+                    onMouseDown={handleDragStart}
+                    onTouchStart={handleDragStart}
                 >
                     {/* Background Track (Full Circle) */}
                     <circle
@@ -329,7 +473,8 @@ export const FocusTimer = () => {
                         className="transition-all duration-100"
                         style={{
                             transformOrigin: '160px 160px',
-                            transform: `rotate(${currentProgressPercentage * selectedFraction * 360}deg)`
+                            // SVG is rotated -90deg globally; +90 aligns indicator to the arc endpoint.
+                            transform: `rotate(${currentProgressPercentage * selectedFraction * 360 + 90}deg)`
                         }}
                     >
                         {/* A very subtle ghost circle to indicate drag area without being a heavy 'ball' */}
