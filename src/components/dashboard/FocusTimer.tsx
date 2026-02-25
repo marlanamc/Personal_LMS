@@ -622,22 +622,6 @@ export const FocusTimer = () => {
                 </div>
             )}
 
-            {/* Spotify Player */}
-            {selectedPlaylistId && (
-                <div className="flex justify-center px-6 mb-4">
-                    <iframe
-                        title="Spotify focus playlist"
-                        style={{ borderRadius: '12px' }}
-                        src={`https://open.spotify.com/embed/playlist/${selectedPlaylistId}?utm_source=generator&theme=0`}
-                        width="100%"
-                        height="80"
-                        frameBorder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
-                    />
-                </div>
-            )}
-
             {/* Title */}
             <h1 className="text-center text-4xl font-display font-bold mb-8 sm:mb-12 tracking-tight">Focus</h1>
 
@@ -782,7 +766,7 @@ export const FocusTimer = () => {
 
             {/* Play/Pause Button */}
             <div className="flex justify-center flex-col items-center">
-                <button 
+                <button
                     onClick={() => {
                         triggerHaptic(20);
                         toggleTimer();
@@ -795,9 +779,9 @@ export const FocusTimer = () => {
                         <>Start <Play className="w-5 h-5 fill-current" /></>
                     )}
                 </button>
-                
+
                 {isActive && (
-                    <button 
+                    <button
                         onClick={() => {
                             triggerHaptic(30);
                             resetTimer();
@@ -808,6 +792,22 @@ export const FocusTimer = () => {
                     </button>
                 )}
             </div>
+
+            {/* Spotify Player - Compact, below timer */}
+            {selectedPlaylistId && (
+                <div className="flex justify-center mt-8 px-6">
+                    <iframe
+                        title="Spotify focus playlist"
+                        style={{ borderRadius: '12px' }}
+                        src={`https://open.spotify.com/embed/playlist/${selectedPlaylistId}?utm_source=generator&theme=0`}
+                        width="300"
+                        height="80"
+                        frameBorder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                    />
+                </div>
+            )}
 
             <div
                 className={`fixed inset-0 z-[60] ${isTasksPanelOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
