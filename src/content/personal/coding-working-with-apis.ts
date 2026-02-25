@@ -10,7 +10,7 @@ export const codingWorkingWithApisContent: InteractiveGuideContent = {
             title: "Working with APIs: Connect to the World",
             icon: "🌐",
             explanation: `
-                <div style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <div style="background: rgba(20, 32, 47, 0.06); border: 1px solid rgba(20, 32, 47, 0.1); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
                     <p style="font-size: 1.125rem; margin-bottom: 0;">APIs let your code talk to servers and services. Fetch weather data, save user profiles, load products - it all happens through APIs!</p>
                 </div>
 
@@ -24,6 +24,11 @@ export const codingWorkingWithApisContent: InteractiveGuideContent = {
                     <li>Error handling best practices</li>
                 </ul>
             `,
+            tipBox: {
+                title: "Companion Guide",
+                content:
+                    "Pair this with Debugging & Dev Tools. Most API problems are diagnosed in the Network tab first, then confirmed with console traces and breakpoints.",
+            },
             exercises: [
                 {
                     id: "cwa-intro-1",
@@ -774,6 +779,79 @@ if (response.status === 401) {
                     ],
                 },
             ],
+        },
+        {
+            id: "practice-cadence-and-outcomes",
+            stepNumber: 99,
+            title: "Practice Cadence + I Can Now",
+            icon: "check-circle",
+            explanation: `
+                <h3>Standard Practice Cadence</h3>
+                <p>Use this repeatable sequence whenever you learn a new concept: concept check -> read code -> write code -> debug scenario.</p>
+            `,
+            exercises: [
+                {
+                    id: "wwa-cadence-concept",
+                    title: "Concept Check",
+                    instructions: "State one core rule from this lesson in your own words.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Write one sentence that captures the most important concept from this guide:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "wwa-cadence-read",
+                    title: "Read Code",
+                    instructions: "Practice code reading and explanation.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Find one existing code path in this project related to this lesson and explain what it does in 2-3 sentences:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "wwa-cadence-write",
+                    title: "Write Code",
+                    instructions: "Translate understanding into implementation.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Describe one small code change you would implement using this lesson's concepts and how you would validate it:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "wwa-cadence-debug",
+                    title: "Debug Scenario",
+                    instructions: "Choose the strongest debugging posture.",
+                    items: [
+                        {
+                            type: "radio",
+                            label: "If your change fails in review or testing, what is the best first response?",
+                            options: [
+                                { value: "narrow", label: "Narrow scope, reproduce, and collect evidence before additional edits" },
+                                { value: "guess", label: "Apply multiple untracked changes quickly" },
+                            ],
+                            expectedAnswer: "narrow",
+                        },
+                    ],
+                },
+            ],
+            postExplanation: `
+                <h4>I can now...</h4>
+                <ul>
+                    <li>Explain this lesson's core concept clearly to another developer.</li>
+                    <li>Read related project code and identify where this concept appears.</li>
+                    <li>Implement a small change with a concrete validation plan.</li>
+                    <li>Debug issues using a hypothesis-driven process instead of guesswork.</li>
+                </ul>
+            `,
         },
     ],
     miniQuiz: [

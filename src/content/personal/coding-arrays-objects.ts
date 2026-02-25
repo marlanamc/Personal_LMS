@@ -10,13 +10,18 @@ export const codingArraysObjectsContent: InteractiveGuideContent = {
             title: "Arrays & Objects: Organizing Complex Data",
             icon: "📦",
             explanation: `
-                <div style="background: linear-gradient(135deg, rgba(200, 107, 81, 0.1) 0%, rgba(110, 145, 118, 0.1) 100%); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <div style="background: rgba(20, 32, 47, 0.06); border: 1px solid rgba(20, 32, 47, 0.1); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
                     <p style="font-size: 1.125rem; margin-bottom: 0;">Variables store single values. But what if you need to store many values together? Arrays and objects let you organize complex data. These are essential for real-world programs!</p>
                 </div>
 
                 <h3>Why This Matters</h3>
                 <p>Every real application works with collections of data: lists of users, products, messages. Master arrays and objects and you can handle any data structure.</p>
             `,
+            tipBox: {
+                title: "Path Placement",
+                content:
+                    "This guide is your data-structure foundation. For advanced transformation patterns (map/filter/reduce chaining), continue to Array Method Mastery after this lesson.",
+            },
             exercises: [
                 {
                     id: "cao-intro-1",
@@ -178,7 +183,8 @@ items.push(4); // Add to end - [1, 2, 3, 4]`,
                         },
                         {
                             sentence: `const doubled = items.map(x => x * 2); // [4, 6]`,
-                            explanation: "map transforms each element.",
+                            explanation:
+                                "map transforms each element. We only introduce it here - full map/filter/reduce patterns are in Array Method Mastery.",
                         },
                     ],
                 },
@@ -708,6 +714,79 @@ obj1 === obj2; // false! (different objects)`,
                     ],
                 },
             ],
+        },
+        {
+            id: "practice-cadence-and-outcomes",
+            stepNumber: 99,
+            title: "Practice Cadence + I Can Now",
+            icon: "check-circle",
+            explanation: `
+                <h3>Standard Practice Cadence</h3>
+                <p>Use this repeatable sequence whenever you learn a new concept: concept check -> read code -> write code -> debug scenario.</p>
+            `,
+            exercises: [
+                {
+                    id: "ao-cadence-concept",
+                    title: "Concept Check",
+                    instructions: "State one core rule from this lesson in your own words.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Write one sentence that captures the most important concept from this guide:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "ao-cadence-read",
+                    title: "Read Code",
+                    instructions: "Practice code reading and explanation.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Find one existing code path in this project related to this lesson and explain what it does in 2-3 sentences:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "ao-cadence-write",
+                    title: "Write Code",
+                    instructions: "Translate understanding into implementation.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Describe one small code change you would implement using this lesson's concepts and how you would validate it:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "ao-cadence-debug",
+                    title: "Debug Scenario",
+                    instructions: "Choose the strongest debugging posture.",
+                    items: [
+                        {
+                            type: "radio",
+                            label: "If your change fails in review or testing, what is the best first response?",
+                            options: [
+                                { value: "narrow", label: "Narrow scope, reproduce, and collect evidence before additional edits" },
+                                { value: "guess", label: "Apply multiple untracked changes quickly" },
+                            ],
+                            expectedAnswer: "narrow",
+                        },
+                    ],
+                },
+            ],
+            postExplanation: `
+                <h4>I can now...</h4>
+                <ul>
+                    <li>Explain this lesson's core concept clearly to another developer.</li>
+                    <li>Read related project code and identify where this concept appears.</li>
+                    <li>Implement a small change with a concrete validation plan.</li>
+                    <li>Debug issues using a hypothesis-driven process instead of guesswork.</li>
+                </ul>
+            `,
         },
     ],
     miniQuiz: [

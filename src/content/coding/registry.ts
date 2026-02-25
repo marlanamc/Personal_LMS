@@ -19,6 +19,8 @@ export const CODING_FUNCTIONS_CONTROL_FLOW_GUIDE_IDS = [
 ] as const;
 
 export const CODING_INTERMEDIATE_GUIDE_IDS = [
+  "coding-react-fundamentals",
+  "coding-nextjs-architecture-decision-tree",
   "coding-dom-manipulation",
   "coding-classes-oop",
   "coding-modules-imports",
@@ -27,6 +29,18 @@ export const CODING_INTERMEDIATE_GUIDE_IDS = [
 ] as const;
 
 export const CODING_ADVANCED_GUIDE_IDS = [
+  "coding-implementation-discovery-scoping",
+  "coding-implementation-stakeholder-communication-system",
+  "coding-implementation-planning-mechanics",
+  "coding-implementation-change-management-adoption",
+  "coding-implementation-uat-defect-triage",
+  "coding-implementation-go-live-hypercare",
+  "coding-implementation-kpi-outcome-tracking",
+  "coding-implementation-cross-functional-decision-leadership",
+  "coding-git-pr-communication",
+  "coding-testing-fundamentals-confidence",
+  "coding-api-contract-prisma-workflow",
+  "coding-debugging-production-issues",
   "coding-typescript-deep-dive",
   "coding-array-method-mastery",
   "coding-debugging-devtools",

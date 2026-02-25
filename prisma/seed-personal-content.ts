@@ -7,6 +7,8 @@ import { codingAsyncPromisesContent } from '../src/content/personal/coding-async
 import { codingOperatorsExpressionsContent } from '../src/content/personal/coding-operators-expressions';
 import { codingStringsMethodsContent } from '../src/content/personal/coding-strings-methods';
 import { codingErrorHandlingContent } from '../src/content/personal/coding-error-handling';
+import { codingReactFundamentalsContent } from '../src/content/personal/coding-react-fundamentals';
+import { codingNextjsArchitectureDecisionTreeContent } from '../src/content/personal/coding-nextjs-architecture-decision-tree';
 import { codingDomManipulationContent } from '../src/content/personal/coding-dom-manipulation';
 import { codingClassesOopContent } from '../src/content/personal/coding-classes-oop';
 import { codingModulesImportsContent } from '../src/content/personal/coding-modules-imports';
@@ -15,6 +17,18 @@ import { codingTypescriptDeepDiveContent } from '../src/content/personal/coding-
 import { codingArrayMethodMasteryContent } from '../src/content/personal/coding-array-method-mastery';
 import { codingDebuggingDevtoolsContent } from '../src/content/personal/coding-debugging-devtools';
 import { codingJsTsInterviewPrepContent } from '../src/content/personal/coding-js-ts-interview-prep';
+import { codingGitPrCommunicationContent } from '../src/content/personal/coding-git-pr-communication';
+import { codingTestingFundamentalsConfidenceContent } from '../src/content/personal/coding-testing-fundamentals-confidence';
+import { codingApiContractPrismaWorkflowContent } from '../src/content/personal/coding-api-contract-prisma-workflow';
+import { codingDebuggingProductionIssuesContent } from '../src/content/personal/coding-debugging-production-issues';
+import { codingImplementationDiscoveryScopingContent } from '../src/content/personal/coding-implementation-discovery-scoping';
+import { codingImplementationStakeholderCommunicationSystemContent } from '../src/content/personal/coding-implementation-stakeholder-communication-system';
+import { codingImplementationPlanningMechanicsContent } from '../src/content/personal/coding-implementation-planning-mechanics';
+import { codingImplementationChangeManagementAdoptionContent } from '../src/content/personal/coding-implementation-change-management-adoption';
+import { codingImplementationUatDefectTriageContent } from '../src/content/personal/coding-implementation-uat-defect-triage';
+import { codingImplementationGoLiveHypercareContent } from '../src/content/personal/coding-implementation-go-live-hypercare';
+import { codingImplementationKpiOutcomeTrackingContent } from '../src/content/personal/coding-implementation-kpi-outcome-tracking';
+import { codingImplementationCrossFunctionalDecisionLeadershipContent } from '../src/content/personal/coding-implementation-cross-functional-decision-leadership';
 import { CODING_GUIDE_IDS } from '../src/content/coding/registry';
 
 const prisma = new PrismaClient();
@@ -106,6 +120,20 @@ const personalActivities = [
   },
   // New guides - Intermediate
   {
+    id: 'coding-react-fundamentals',
+    title: 'React Fundamentals',
+    description: 'Make strong React decisions for component boundaries, state modeling, rendering behavior, and effect usage.',
+    level: 'intermediate',
+    content: codingReactFundamentalsContent,
+  },
+  {
+    id: 'coding-nextjs-architecture-decision-tree',
+    title: 'Next.js Architecture Decision Tree',
+    description: 'Learn App Router mental models, server/client boundary decisions, data-fetch placement, and deployment triage reasoning.',
+    level: 'intermediate',
+    content: codingNextjsArchitectureDecisionTreeContent,
+  },
+  {
     id: 'coding-dom-manipulation',
     title: 'DOM Manipulation',
     description: 'Build interactive web pages with element selection, events, and dynamic content.',
@@ -134,6 +162,90 @@ const personalActivities = [
     content: codingWorkingWithApisContent,
   },
   // New guides - Advanced
+  {
+    id: 'coding-implementation-discovery-scoping',
+    title: 'Implementation Discovery + Scoping Discipline',
+    description: 'Run structured discovery, define scope boundaries, and build implementation-ready plans with clear ownership and risk controls.',
+    level: 'advanced',
+    content: codingImplementationDiscoveryScopingContent,
+  },
+  {
+    id: 'coding-implementation-stakeholder-communication-system',
+    title: 'Implementation Stakeholder Communication System',
+    description: 'Design communication cadences, escalation triggers, and update structures that keep stakeholders aligned and delivery decisions fast.',
+    level: 'advanced',
+    content: codingImplementationStakeholderCommunicationSystemContent,
+  },
+  {
+    id: 'coding-implementation-planning-mechanics',
+    title: 'Implementation Planning Mechanics',
+    description: 'Build workback plans, dependency maps, and RAID operations that keep execution predictable under changing constraints.',
+    level: 'advanced',
+    content: codingImplementationPlanningMechanicsContent,
+  },
+  {
+    id: 'coding-implementation-change-management-adoption',
+    title: 'Implementation Change Management + Adoption',
+    description: 'Plan rollout communications, enablement, resistance handling, and adoption metrics so behavior change follows launch.',
+    level: 'advanced',
+    content: codingImplementationChangeManagementAdoptionContent,
+  },
+  {
+    id: 'coding-implementation-uat-defect-triage',
+    title: 'Implementation UAT Leadership + Defect Triage',
+    description: 'Lead UAT with clear acceptance gates and triage defects by impact so launch decisions remain objective and safe.',
+    level: 'advanced',
+    content: codingImplementationUatDefectTriageContent,
+  },
+  {
+    id: 'coding-implementation-go-live-hypercare',
+    title: 'Implementation Go-Live + Hypercare Operations',
+    description: 'Run launch readiness gates, cutover runbooks, hypercare cadences, and support transition criteria with operational rigor.',
+    level: 'advanced',
+    content: codingImplementationGoLiveHypercareContent,
+  },
+  {
+    id: 'coding-implementation-kpi-outcome-tracking',
+    title: 'Implementation KPI Framework + Outcome Tracking',
+    description: 'Design KPI trees, define metric contracts, and run action-oriented review loops that connect implementation to business outcomes.',
+    level: 'advanced',
+    content: codingImplementationKpiOutcomeTrackingContent,
+  },
+  {
+    id: 'coding-implementation-cross-functional-decision-leadership',
+    title: 'Implementation Cross-Functional Decision Leadership',
+    description: 'Lead cross-functional decisions with clear tradeoff framing, conflict resolution, and decision records that keep execution aligned.',
+    level: 'advanced',
+    content: codingImplementationCrossFunctionalDecisionLeadershipContent,
+  },
+  {
+    id: 'coding-git-pr-communication',
+    title: 'Git + PR Communication for Real Teams',
+    description: 'Build high-signal branch, commit, PR, and review communication habits for safer collaboration and faster debugging.',
+    level: 'advanced',
+    content: codingGitPrCommunicationContent,
+  },
+  {
+    id: 'coding-testing-fundamentals-confidence',
+    title: 'Testing Fundamentals for Confidence',
+    description: 'Choose the right test layers, write regression protections, and communicate risk coverage for safer releases.',
+    level: 'advanced',
+    content: codingTestingFundamentalsConfidenceContent,
+  },
+  {
+    id: 'coding-api-contract-prisma-workflow',
+    title: 'API Contract + Prisma Workflow',
+    description: 'Design stable API contracts, run Prisma schema changes safely, and build seed/migration workflows with rollback awareness.',
+    level: 'advanced',
+    content: codingApiContractPrismaWorkflowContent,
+  },
+  {
+    id: 'coding-debugging-production-issues',
+    title: 'Debugging Production Issues',
+    description: 'Run incident triage for Vercel logs, environment failures, rollback vs forward-fix decisions, and prevention follow-ups.',
+    level: 'advanced',
+    content: codingDebuggingProductionIssuesContent,
+  },
   {
     id: 'coding-typescript-deep-dive',
     title: 'TypeScript Deep Dive',

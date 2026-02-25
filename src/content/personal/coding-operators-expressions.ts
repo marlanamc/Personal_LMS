@@ -10,7 +10,7 @@ export const codingOperatorsExpressionsContent: InteractiveGuideContent = {
             title: "Operators & Expressions: The Building Blocks",
             icon: "🧮",
             explanation: `
-                <div style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <div style="background: rgba(20, 32, 47, 0.06); border: 1px solid rgba(20, 32, 47, 0.1); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
                     <p style="font-size: 1.125rem; margin-bottom: 0;">Operators are symbols that perform operations on values. Expressions combine values and operators to produce new values. Master these and you'll write cleaner, more powerful code!</p>
                 </div>
 
@@ -875,6 +875,79 @@ if (score >= 60) {
                     ],
                 },
             ],
+        },
+        {
+            id: "practice-cadence-and-outcomes",
+            stepNumber: 99,
+            title: "Practice Cadence + I Can Now",
+            icon: "check-circle",
+            explanation: `
+                <h3>Standard Practice Cadence</h3>
+                <p>Use this repeatable sequence whenever you learn a new concept: concept check -> read code -> write code -> debug scenario.</p>
+            `,
+            exercises: [
+                {
+                    id: "oe-cadence-concept",
+                    title: "Concept Check",
+                    instructions: "State one core rule from this lesson in your own words.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Write one sentence that captures the most important concept from this guide:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "oe-cadence-read",
+                    title: "Read Code",
+                    instructions: "Practice code reading and explanation.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Find one existing code path in this project related to this lesson and explain what it does in 2-3 sentences:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "oe-cadence-write",
+                    title: "Write Code",
+                    instructions: "Translate understanding into implementation.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Describe one small code change you would implement using this lesson's concepts and how you would validate it:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "oe-cadence-debug",
+                    title: "Debug Scenario",
+                    instructions: "Choose the strongest debugging posture.",
+                    items: [
+                        {
+                            type: "radio",
+                            label: "If your change fails in review or testing, what is the best first response?",
+                            options: [
+                                { value: "narrow", label: "Narrow scope, reproduce, and collect evidence before additional edits" },
+                                { value: "guess", label: "Apply multiple untracked changes quickly" },
+                            ],
+                            expectedAnswer: "narrow",
+                        },
+                    ],
+                },
+            ],
+            postExplanation: `
+                <h4>I can now...</h4>
+                <ul>
+                    <li>Explain this lesson's core concept clearly to another developer.</li>
+                    <li>Read related project code and identify where this concept appears.</li>
+                    <li>Implement a small change with a concrete validation plan.</li>
+                    <li>Debug issues using a hypothesis-driven process instead of guesswork.</li>
+                </ul>
+            `,
         },
     ],
     miniQuiz: [

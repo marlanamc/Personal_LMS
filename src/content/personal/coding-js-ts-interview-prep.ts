@@ -9,7 +9,7 @@ export const codingJsTsInterviewPrepContent: InteractiveGuideContent = {
             title: "JS/TS Interview Prep Sprint",
             icon: "🎯",
             explanation: `
-                <div style="background: linear-gradient(135deg, rgba(217, 119, 87, 0.12) 0%, rgba(56, 189, 248, 0.12) 100%); padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 1.5rem;">
+                <div style="background: rgba(20, 32, 47, 0.06); border: 1px solid rgba(20, 32, 47, 0.1); padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 1.5rem;">
                     <p style="font-size: 1.06rem; margin: 0;">This guide is focused on the exact interview moves that help you pass JavaScript/TypeScript questions: clarify, plan, implement clearly, and test edge cases out loud.</p>
                 </div>
 
@@ -420,6 +420,79 @@ function topActiveNames(users: User[]): string[] {
                     ],
                 },
             ],
+        },
+        {
+            id: "practice-cadence-and-outcomes",
+            stepNumber: 99,
+            title: "Practice Cadence + I Can Now",
+            icon: "check-circle",
+            explanation: `
+                <h3>Standard Practice Cadence</h3>
+                <p>Use this repeatable sequence whenever you learn a new concept: concept check -> read code -> write code -> debug scenario.</p>
+            `,
+            exercises: [
+                {
+                    id: "jtip-cadence-concept",
+                    title: "Concept Check",
+                    instructions: "State one core rule from this lesson in your own words.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Write one sentence that captures the most important concept from this guide:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "jtip-cadence-read",
+                    title: "Read Code",
+                    instructions: "Practice code reading and explanation.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Find one existing code path in this project related to this lesson and explain what it does in 2-3 sentences:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "jtip-cadence-write",
+                    title: "Write Code",
+                    instructions: "Translate understanding into implementation.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Describe one small code change you would implement using this lesson's concepts and how you would validate it:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "jtip-cadence-debug",
+                    title: "Debug Scenario",
+                    instructions: "Choose the strongest debugging posture.",
+                    items: [
+                        {
+                            type: "radio",
+                            label: "If your change fails in review or testing, what is the best first response?",
+                            options: [
+                                { value: "narrow", label: "Narrow scope, reproduce, and collect evidence before additional edits" },
+                                { value: "guess", label: "Apply multiple untracked changes quickly" },
+                            ],
+                            expectedAnswer: "narrow",
+                        },
+                    ],
+                },
+            ],
+            postExplanation: `
+                <h4>I can now...</h4>
+                <ul>
+                    <li>Explain this lesson's core concept clearly to another developer.</li>
+                    <li>Read related project code and identify where this concept appears.</li>
+                    <li>Implement a small change with a concrete validation plan.</li>
+                    <li>Debug issues using a hypothesis-driven process instead of guesswork.</li>
+                </ul>
+            `,
         },
     ],
     miniQuiz: [

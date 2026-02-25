@@ -10,7 +10,7 @@ export const codingLoopsControlFlowContent: InteractiveGuideContent = {
             title: "Loops & Control Flow: Making Decisions & Repetitions",
             icon: "🔁",
             explanation: `
-                <div style="background: linear-gradient(135deg, rgba(200, 107, 81, 0.1) 0%, rgba(110, 145, 118, 0.1) 100%); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                <div style="background: rgba(20, 32, 47, 0.06); border: 1px solid rgba(20, 32, 47, 0.1); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
                     <p style="font-size: 1.125rem; margin-bottom: 0;">Control flow is how you tell your program to make decisions. Loops let you repeat code without typing it a hundred times. These are the building blocks of program logic!</p>
                 </div>
 
@@ -769,6 +769,79 @@ const count = items.reduce((acc, item) => {
                     ],
                 },
             ],
+        },
+        {
+            id: "practice-cadence-and-outcomes",
+            stepNumber: 99,
+            title: "Practice Cadence + I Can Now",
+            icon: "check-circle",
+            explanation: `
+                <h3>Standard Practice Cadence</h3>
+                <p>Use this repeatable sequence whenever you learn a new concept: concept check -> read code -> write code -> debug scenario.</p>
+            `,
+            exercises: [
+                {
+                    id: "lcf-cadence-concept",
+                    title: "Concept Check",
+                    instructions: "State one core rule from this lesson in your own words.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Write one sentence that captures the most important concept from this guide:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "lcf-cadence-read",
+                    title: "Read Code",
+                    instructions: "Practice code reading and explanation.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Find one existing code path in this project related to this lesson and explain what it does in 2-3 sentences:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "lcf-cadence-write",
+                    title: "Write Code",
+                    instructions: "Translate understanding into implementation.",
+                    items: [
+                        {
+                            type: "text",
+                            label: "Describe one small code change you would implement using this lesson's concepts and how you would validate it:",
+                            acceptAnyAttempt: true,
+                        },
+                    ],
+                },
+                {
+                    id: "lcf-cadence-debug",
+                    title: "Debug Scenario",
+                    instructions: "Choose the strongest debugging posture.",
+                    items: [
+                        {
+                            type: "radio",
+                            label: "If your change fails in review or testing, what is the best first response?",
+                            options: [
+                                { value: "narrow", label: "Narrow scope, reproduce, and collect evidence before additional edits" },
+                                { value: "guess", label: "Apply multiple untracked changes quickly" },
+                            ],
+                            expectedAnswer: "narrow",
+                        },
+                    ],
+                },
+            ],
+            postExplanation: `
+                <h4>I can now...</h4>
+                <ul>
+                    <li>Explain this lesson's core concept clearly to another developer.</li>
+                    <li>Read related project code and identify where this concept appears.</li>
+                    <li>Implement a small change with a concrete validation plan.</li>
+                    <li>Debug issues using a hypothesis-driven process instead of guesswork.</li>
+                </ul>
+            `,
         },
     ],
     miniQuiz: [
