@@ -801,7 +801,7 @@ export const FocusTimer = () => {
                         style={{ borderRadius: '12px' }}
                         src={`https://open.spotify.com/embed/playlist/${selectedPlaylistId}?utm_source=generator&theme=0`}
                         width="300"
-                        height="80"
+                        height="152"
                         frameBorder="0"
                         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                         loading="lazy"
