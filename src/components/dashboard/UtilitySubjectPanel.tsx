@@ -23,25 +23,16 @@ interface UtilitySubjectPanelProps {
 }
 
 const SUBJECT_CONFIG: Record<UtilitySubjectKey, {
-    emoji: string;
-    tagline: string;
     color: string;
     soft: string;
-    badgeLabel: string;
 }> = {
     health: {
-        emoji: '🩺',
-        tagline: 'Track appointments, notes, and important health links.',
         color: 'var(--color-accent-mint)',
         soft: 'color-mix(in srgb, var(--color-accent-mint) 16%, transparent)',
-        badgeLabel: 'Wellness',
     },
     'job-search': {
-        emoji: '💼',
-        tagline: 'Stay on top of applications, your resume, and opportunities.',
         color: 'var(--color-accent-amethyst)',
         soft: 'color-mix(in srgb, var(--color-accent-amethyst) 16%, transparent)',
-        badgeLabel: 'Career',
     },
 };
 
@@ -194,109 +185,28 @@ export function UtilitySubjectPanel({ subjectKey, subjectName }: UtilitySubjectP
 
     return (
         <div className="space-y-5 animate-fade-in">
-            {/* ── Hero Banner - Portal Style ── */}
-            <div
-                className="utility-hero rounded-2xl p-6 sm:p-8 relative overflow-hidden group/hero transition-all duration-500"
-                style={{
-                    ['--utility-color' as string]: config.color,
-                }}
-            >
-                <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
-                    <div
-                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-4xl sm:text-5xl flex-shrink-0 transition-all duration-300"
-                        style={{
-                            background: config.soft,
-                            border: `1px solid color-mix(in srgb, ${config.color} 28%, transparent)`,
-                        }}
-                    >
-                        {config.emoji}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 flex-wrap mb-2">
-                            <h2 className="text-2xl sm:text-3xl font-bold font-display text-text tracking-tight">
-                                {subjectName}
-                            </h2>
-                            <span
-                                className="text-[10px] font-semibold uppercase tracking-[0.1em] px-2.5 py-1 rounded-full"
-                                style={{
-                                    background: config.soft,
-                                    color: config.color,
-                                    border: `1px solid color-mix(in srgb, ${config.color} 24%, transparent)`,
-                                }}
-                            >
-                                {config.badgeLabel}
-                            </span>
-                        </div>
-                        <p className="text-sm sm:text-base text-text-muted leading-relaxed max-w-lg">{config.tagline}</p>
-                    </div>
-                </div>
-
-                {checklist.length > 0 && (
-                    <div className="relative z-10 mt-6 space-y-2.5">
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs sm:text-sm text-text-muted font-medium flex items-center gap-2">
-                                <span
-                                    className="inline-block w-2 h-2 rounded-full transition-all duration-300"
-                                    style={{
-                                        backgroundColor: completedCount === checklist.length ? config.color : 'var(--color-text-muted)',
-                                    }}
-                                />
-                                {completedCount} of {checklist.length} tasks done
-                            </span>
-                            <span
-                                className="text-sm font-bold"
-                                style={{ color: config.color }}
-                            >
-                                {pct}%
-                            </span>
-                        </div>
-                        <div className="h-2 rounded-full overflow-hidden border border-border-subtle" style={{ backgroundColor: 'var(--color-progress-track)' }}>
-                            <div
-                                className="h-full rounded-full transition-all duration-1000 ease-out"
-                                style={{
-                                    width: `${pct}%`,
-                                    backgroundColor: config.color,
-                                    opacity: 0.9,
-                                }}
-                            />
-                        </div>
-                    </div>
-                )}
-
-                <div className="relative z-10 flex flex-wrap gap-3 mt-6">
-                    <Link
-                        href="/dashboard/calendar"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation group"
-                        style={{
-                            background: config.soft,
-                            color: config.color,
-                            border: `1px solid color-mix(in srgb, ${config.color} 24%, transparent)`,
-                            ['--tw-ring-color' as string]: config.color,
-                        }}
-                    >
-                        <svg className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 20 20" fill="none">
-                            <rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                            <path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                        </svg>
-                        View Reminders
-                    </Link>
-                    <Link
-                        href="/dashboard/calendar/new"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none touch-manipulation group"
-                        style={{
-                            background: config.soft,
-                            color: config.color,
-                            border: `1px solid color-mix(in srgb, ${config.color} 24%, transparent)`,
-                            ['--tw-ring-color' as string]: config.color,
-                        }}
-                    >
-                        <svg className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" viewBox="0 0 20 20" fill="none">
-                            <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                        </svg>
-                        Add Reminder
-                    </Link>
-                </div>
+            <div className="flex items-center justify-end gap-2">
+                <Link
+                    href="/dashboard/calendar"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-border-subtle bg-bg-surface hover:border-border/70 hover:bg-bg-elevated transition-colors"
+                    style={{ color: config.color }}
+                >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                        <path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                    Reminders
+                </Link>
+                <Link
+                    href="/dashboard/calendar/new"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-border-subtle bg-bg-surface hover:border-border/70 hover:bg-bg-elevated transition-colors"
+                    style={{ color: config.color }}
+                >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                    Add Reminder
+                </Link>
             </div>
 
             {/* ── Two-column body ── */}
