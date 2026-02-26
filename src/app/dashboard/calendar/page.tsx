@@ -87,8 +87,8 @@ export default async function CalendarPage() {
 
             <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6 pb-24 md:pb-12">
                 {/* Calendar - Centered */}
-                <div className="flex justify-center">
-                    <div className="bg-bg-elevated border border-border-subtle shadow-lg rounded-2xl p-6 sm:p-8 w-full max-w-md">
+                <div className="flex justify-center min-w-0">
+                    <div className="bg-bg-elevated border border-border-subtle shadow-lg rounded-2xl p-4 sm:p-8 w-full max-w-md min-w-0">
                         <MiniCalendar events={calendarEvents} />
                     </div>
                 </div>

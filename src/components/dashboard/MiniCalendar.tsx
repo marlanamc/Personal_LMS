@@ -71,7 +71,7 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
     });
 
     return (
-        <div className="bg-bg-elevated p-5 rounded-xl shadow-md border border-border-subtle w-72">
+        <div className="bg-bg-elevated p-4 sm:p-5 rounded-xl shadow-md border border-border-subtle w-full max-w-[22rem] mx-auto min-w-0">
             <div className="flex flex-col items-center gap-2 mb-3">
                 <h3 className="text-sm font-semibold text-text font-display text-center">
                     {monthNames[viewMonth]} {viewYear}
@@ -159,11 +159,11 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
             </div>
 
             {/* Legend / Upcoming text */}
-            <div className="mt-3 pt-2 border-t border-border/40 flex items-center gap-2 text-[10px] text-text-muted flex-wrap">
+            <div className="mt-3 pt-2 border-t border-border/40 flex items-center gap-x-3 gap-y-1 text-[10px] text-text-muted flex-wrap">
                 <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Today</span>
-                <span className="flex items-center gap-1 ml-1"><span className="w-1.5 h-1.5 rounded-full bg-mineral-mint" /> Quiz/Test</span>
-                <span className="flex items-center gap-1 ml-1"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Due</span>
-                <span className="flex items-center gap-1 ml-1"><span className="w-1.5 h-1.5 rounded-full bg-mineral-teal" /> Holiday</span>
+                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-mineral-mint" /> Quiz/Test</span>
+                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Due</span>
+                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-mineral-teal" /> Holiday</span>
             </div>
         </div>
     );

@@ -342,10 +342,12 @@ export default async function DashboardPage() {
           </div>
 
           {/* Sidebar */}
-          <aside className="animate-fade-in-up delay-100 hidden md:block md:col-span-4 lg:col-span-3">
-            <div className="bg-bg-elevated border p-6 sticky top-24 border-border-subtle shadow-lg rounded-2xl space-y-5">
+          <aside className="animate-fade-in-up delay-100 hidden md:block md:col-span-4 lg:col-span-3 min-w-0">
+            <div className="bg-bg-elevated border p-6 sticky top-24 border-border-subtle shadow-lg rounded-2xl space-y-5 min-w-0">
               <h2 className="text-xl font-bold text-text">Calendar</h2>
-              <MiniCalendar events={calendarEvents} />
+              <div className="min-w-0">
+                <MiniCalendar events={calendarEvents} />
+              </div>
               <UpcomingEventsList
                 events={calendarEvents.filter((event) => {
                   const today = new Date();
