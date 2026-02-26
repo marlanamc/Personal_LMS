@@ -117,9 +117,9 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
 
                     const dayStyle: React.CSSProperties | undefined = isToday
                         ? {
-                            backgroundColor: "var(--color-accent-sakura-soft)",
+                            backgroundColor: "transparent",
                             color: "var(--color-accent-sakura)",
-                            border: "1px solid rgba(194, 109, 134, 0.18)",
+                            border: "2px solid color-mix(in srgb, var(--color-accent-sakura) 55%, transparent)",
                           }
                         : hasQuiz
                             ? {
@@ -128,8 +128,8 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
                               }
                             : hasDue
                                 ? {
-                                    backgroundColor: "var(--color-accent-sakura-soft)",
-                                    color: "var(--color-accent-sakura)",
+                                    backgroundColor: "color-mix(in srgb, var(--color-warning) 20%, transparent)",
+                                    color: "var(--color-warning)",
                                   }
                                 : hasHoliday
                                     ? {
@@ -160,9 +160,9 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
 
             {/* Legend / Upcoming text */}
             <div className="mt-3 pt-2 border-t border-border/40 flex items-center gap-x-3 gap-y-1 text-[10px] text-text-muted flex-wrap">
-                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Today</span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full border border-primary bg-transparent" /> Today</span>
                 <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-mineral-mint" /> Quiz/Test</span>
-                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Due</span>
+                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-warning" /> Due</span>
                 <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-mineral-teal" /> Holiday</span>
             </div>
         </div>
