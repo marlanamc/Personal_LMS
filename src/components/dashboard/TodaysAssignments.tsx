@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { stripVocabTypeSuffix, getVocabActivityType, VOCAB_CHIP_CONFIG } from '@/lib/vocab-display';
 import { parseCategoryData } from '@/lib/categoryData';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
-import { PenLine, Gamepad2, BookOpen, ClipboardList, Sparkles, Code2, HeartPulse, Briefcase, BookText } from 'lucide-react';
+import { PenLine, Gamepad2, BookOpen, ClipboardList, Code2, HeartPulse, Briefcase, BookText } from 'lucide-react';
 
 const SpanishSubjectIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg" aria-hidden>
@@ -64,7 +64,6 @@ export const TodaysAssignments: React.FC<Props> = ({
     variant = 'cards',
     actions,
 }) => {
-    const featuredNewBadgeClassName = "inline-flex items-center gap-1 rounded-full border border-border-subtle bg-sakura-soft text-primary";
     const [assignments, setAssignments] = useState<FeaturedAssignment[]>(initialAssignments || []);
     const [loading, setLoading] = useState(true);
 
@@ -72,7 +71,7 @@ export const TodaysAssignments: React.FC<Props> = ({
     const resolvedTitle = (() => {
         // If title is omitted, provide a sensible default by variant
         if (title === undefined) {
-            return variant === "checklist" ? "Weekly Checklist" : "This Week's Activities";
+            return variant === "checklist" ? "Daily Checklist" : "This Week's Activities";
         }
         // If title is explicitly set to empty/whitespace, treat as "hide title"
         if (title.trim() === "") return null;
@@ -184,10 +183,6 @@ export const TodaysAssignments: React.FC<Props> = ({
         return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     };
 
-    const isNewlyFeatured = (assignment: FeaturedAssignment): boolean => {
-        return assignment.isNewRelease === true;
-    };
-
     const getVocabProgress = (assignment: FeaturedAssignment) => {
         if (!assignment.activityId.startsWith('vocab-') || !assignment.categoryData) {
             return null;
@@ -259,7 +254,6 @@ export const TodaysAssignments: React.FC<Props> = ({
         const rows = assignments.map((assignment, index) => {
             const submission = assignment.submissions[0];
             const progressValue = typeof assignment.progress === 'number' ? assignment.progress : 0;
-            const isNew = isNewlyFeatured(assignment);
             const isGameRow = isGameActivity(assignment);
 
             // For vocabulary activities, check if all 4 sub-activities are complete
@@ -279,7 +273,7 @@ export const TodaysAssignments: React.FC<Props> = ({
             const categoryStyle = getCategoryStyle(assignment.activity.category);
             const dueLabel = formatDueDate(assignment.dueDate);
 
-            return { assignment, submission, isCompleted, isNew, isGameRow, displayTitle, categoryStyle, dueLabel, progressValue, index };
+            return { assignment, submission, isCompleted, isGameRow, displayTitle, categoryStyle, dueLabel, progressValue, index };
         });
 
         const getCategoryPriority = (category?: string | null): number => {
@@ -403,7 +397,7 @@ export const TodaysAssignments: React.FC<Props> = ({
 
 
         const renderChecklistRow = (
-            { assignment, isCompleted, isNew, displayTitle, dueLabel, progressValue }: typeof sortedRows[0],
+            { assignment, isCompleted, displayTitle, dueLabel, progressValue }: typeof sortedRows[0],
             categoryStyle: { label: string; bg: string; text: string; accent: string; accentBorder: string }
         ) => {
             const isGameRow = assignment.activity.type === 'game';
@@ -447,14 +441,6 @@ export const TodaysAssignments: React.FC<Props> = ({
                             }
                             return null;
                         })()}
-
-                        {isNew && (
-                            <span className={`${featuredNewBadgeClassName} px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide`}>
-                                <Sparkles className="h-2.5 w-2.5 text-primary" aria-hidden />
-                                New!
-                                <Sparkles className="h-2.5 w-2.5 text-primary" aria-hidden />
-                            </span>
-                        )}
 
                         {/* Only show due date if overdue */}
                         {!isGameRow && dueLabel && !isCompleted && new Date(assignment.dueDate as string) < new Date() && (
@@ -621,7 +607,6 @@ export const TodaysAssignments: React.FC<Props> = ({
                     {assignments.map((assignment, index) => {
                     const submission = assignment.submissions[0];
                     const isCompleted = submission?.completedAt;
-                    const isNew = isNewlyFeatured(assignment);
                     const categoryStyle = getCategoryStyle(assignment.activity.category);
                     const rawTitle = assignment.title || assignment.activity.title;
                     const displayTitle = stripVocabTypeSuffix(rawTitle.replace(/ - Complete Step-by-Step Guide$/i, ' Guide'));
@@ -657,14 +642,6 @@ export const TodaysAssignments: React.FC<Props> = ({
                                         >
                                             {categoryStyle.label}
                                         </span>
-
-                                        {isNew && (
-                                            <span className={`${featuredNewBadgeClassName} px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide`}>
-                                                <Sparkles className="h-2.5 w-2.5 text-primary" aria-hidden />
-                                                New!
-                                                <Sparkles className="h-2.5 w-2.5 text-primary" aria-hidden />
-                                            </span>
-                                        )}
 
                                         {/* Vocab type chip - next to category, before % done */}
                                         {(() => {

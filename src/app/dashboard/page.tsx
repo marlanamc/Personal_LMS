@@ -305,10 +305,10 @@ export default async function DashboardPage() {
               />
             )}
 
-            {/* Weekly Checklist (Personalized) */}
+            {/* Daily Checklist (Personalized) */}
             <section id="weekly-checklist" className="animate-fade-in-up delay-100 scroll-mt-24">
               <TodaysAssignments
-                title="Your Weekly Checklist"
+                title="Your Daily Checklist"
                 ctaLabel="Start"
                 initialAssignments={featuredAssignments}
                 variant="checklist"
