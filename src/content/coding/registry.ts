@@ -28,17 +28,29 @@ export const CODING_INTERMEDIATE_GUIDE_IDS = [
   "coding-async-promises",
 ] as const;
 
-export const CODING_ADVANCED_ENGINEERING_GUIDE_IDS = [
-  "coding-git-pr-communication",
+export const CODING_CODE_READING_AND_REVIEW_IDS = [
+  "coding-code-reading-non-authors",
+  "coding-code-review-both-sides",
   "coding-testing-fundamentals-confidence",
-  "coding-api-contract-prisma-workflow",
-  "coding-debugging-production-issues",
-  "coding-typescript-deep-dive",
-  "coding-array-method-mastery",
-  "coding-debugging-devtools",
 ] as const;
 
-export const CODING_ADVANCED_IMPLEMENTATION_GUIDE_IDS = [
+export const CODING_ARCHITECTURE_AND_PATTERNS_IDS = [
+  "coding-state-management-patterns",
+  "coding-api-contract-prisma-workflow",
+  "coding-dependency-management-decisions",
+  "coding-typescript-deep-dive",
+] as const;
+
+export const CODING_TECHNICAL_DEBUGGING_IDS = [
+  "coding-array-method-mastery",
+  "coding-debugging-devtools",
+  "coding-debugging-production-issues",
+  "coding-git-pr-communication",
+] as const;
+
+export const CODING_COMMUNICATION_AND_DELIVERY_IDS = [
+  "coding-estimation-scoping-communication",
+  "coding-live-incident-communication",
   "coding-implementation-discovery-scoping",
   "coding-implementation-stakeholder-communication-system",
   "coding-implementation-planning-mechanics",
@@ -47,16 +59,24 @@ export const CODING_ADVANCED_IMPLEMENTATION_GUIDE_IDS = [
   "coding-implementation-go-live-hypercare",
 ] as const;
 
-export const CODING_ADVANCED_LEADERSHIP_GUIDE_IDS = [
+export const CODING_GROWTH_AND_LEADERSHIP_IDS = [
+  "coding-personal-learning-metrics",
+  "coding-external-projects-skill-transfer",
   "coding-implementation-kpi-outcome-tracking",
   "coding-implementation-cross-functional-decision-leadership",
+] as const;
+
+export const CODING_INTERVIEW_PREP_IDS = [
   "coding-js-ts-interview-prep",
 ] as const;
 
 export const CODING_ADVANCED_GUIDE_IDS = [
-  ...CODING_ADVANCED_ENGINEERING_GUIDE_IDS,
-  ...CODING_ADVANCED_IMPLEMENTATION_GUIDE_IDS,
-  ...CODING_ADVANCED_LEADERSHIP_GUIDE_IDS,
+  ...CODING_CODE_READING_AND_REVIEW_IDS,
+  ...CODING_ARCHITECTURE_AND_PATTERNS_IDS,
+  ...CODING_TECHNICAL_DEBUGGING_IDS,
+  ...CODING_COMMUNICATION_AND_DELIVERY_IDS,
+  ...CODING_GROWTH_AND_LEADERSHIP_IDS,
+  ...CODING_INTERVIEW_PREP_IDS,
 ] as const;
 
 export const CODING_GAME_IDS = [

@@ -336,7 +336,7 @@ const personalActivities = [
     title: 'External Projects for Skill Transfer',
     description: 'Contribute to open-source, compare similar projects, build a public portfolio, and bring lessons back to your day job.',
     level: 'intermediate',
-    content: codingExternalProjectsSkillTransfer,
+    content: codingExternalProjectsSkillTransferContent,
   },
 ];
 

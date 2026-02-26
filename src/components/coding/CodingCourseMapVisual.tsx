@@ -5,9 +5,12 @@ import {
   CODING_FOUNDATIONS_GUIDE_IDS,
   CODING_FUNCTIONS_CONTROL_FLOW_GUIDE_IDS,
   CODING_INTERMEDIATE_GUIDE_IDS,
-  CODING_ADVANCED_ENGINEERING_GUIDE_IDS,
-  CODING_ADVANCED_IMPLEMENTATION_GUIDE_IDS,
-  CODING_ADVANCED_LEADERSHIP_GUIDE_IDS,
+  CODING_CODE_READING_AND_REVIEW_IDS,
+  CODING_ARCHITECTURE_AND_PATTERNS_IDS,
+  CODING_TECHNICAL_DEBUGGING_IDS,
+  CODING_COMMUNICATION_AND_DELIVERY_IDS,
+  CODING_GROWTH_AND_LEADERSHIP_IDS,
+  CODING_INTERVIEW_PREP_IDS,
 } from "@/content/coding/registry";
 import { GUIDE_HUBS } from "@/content/guide-hubs";
 
@@ -37,19 +40,34 @@ const SECTIONS: Array<{
     guideIds: CODING_INTERMEDIATE_GUIDE_IDS,
   },
   {
-    label: "Advanced: Engineering",
+    label: "Code Reading & Review",
     color: "var(--color-accent-amethyst)",
-    guideIds: CODING_ADVANCED_ENGINEERING_GUIDE_IDS,
+    guideIds: CODING_CODE_READING_AND_REVIEW_IDS,
   },
   {
-    label: "Advanced: Implementation",
-    color: "color-mix(in srgb, var(--color-accent-amethyst) 75%, var(--color-accent-teal))",
-    guideIds: CODING_ADVANCED_IMPLEMENTATION_GUIDE_IDS,
+    label: "Architecture & Patterns",
+    color: "color-mix(in srgb, var(--color-accent-amethyst) 85%, var(--color-accent-teal))",
+    guideIds: CODING_ARCHITECTURE_AND_PATTERNS_IDS,
   },
   {
-    label: "Advanced: Leadership",
-    color: "color-mix(in srgb, var(--color-accent-amethyst) 72%, var(--color-accent-sakura))",
-    guideIds: CODING_ADVANCED_LEADERSHIP_GUIDE_IDS,
+    label: "Technical Debugging",
+    color: "color-mix(in srgb, var(--color-accent-amethyst) 70%, var(--color-accent-teal))",
+    guideIds: CODING_TECHNICAL_DEBUGGING_IDS,
+  },
+  {
+    label: "Communication & Delivery",
+    color: "color-mix(in srgb, var(--color-accent-amethyst) 55%, var(--color-accent-sakura))",
+    guideIds: CODING_COMMUNICATION_AND_DELIVERY_IDS,
+  },
+  {
+    label: "Growth & Leadership",
+    color: "var(--color-accent-sakura)",
+    guideIds: CODING_GROWTH_AND_LEADERSHIP_IDS,
+  },
+  {
+    label: "Interview Prep",
+    color: "var(--color-accent-mint)",
+    guideIds: CODING_INTERVIEW_PREP_IDS,
   },
 ];
 

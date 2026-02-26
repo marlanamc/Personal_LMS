@@ -379,7 +379,7 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
     {
         key: 'health',
         kind: 'utility',
-        name: 'Health',
+        name: 'Health & Fitness',
         subtitle: 'Appointments · Notes · Links',
         icon: <HealthIcon className="w-full h-full" />,
         bgColor: 'color-mix(in srgb, var(--color-accent-mint) 16%, transparent)',
