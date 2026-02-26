@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import type { InteractiveGuideContent, FormulaPart, Exercise, MiniQuizQuestion } from "@/types/activity";
 import { BackButton } from "@/components/ui/BackButton";
 import { fetchActivityProgress, saveActivityProgress } from "@/lib/activityProgress";
+import { normalizeGuideExercise } from "@/lib/normalize-guide-exercises";
 
 interface Props {
     content: InteractiveGuideContent;
@@ -411,7 +412,7 @@ export default function InteractiveGuideViewer({
                                             {currentSection.exercises.map((exercise, idx) => (
                                                 <ExerciseGroup
                                                     key={`${currentSection.id || currentStep}-exercise-${idx}`}
-                                                    exercise={exercise}
+                                                    exercise={normalizeGuideExercise(exercise, idx)}
                                                     index={idx}
                                                     grammarVariant={isGrammarVariant}
                                                 />

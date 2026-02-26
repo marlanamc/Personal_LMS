@@ -66,6 +66,8 @@ export interface Exercise {
     id?: string; // For tracking completion
 }
 
+export type LegacyExercise = ExerciseItem;
+
 export interface UsageMeaning {
     title: string;
     description: string;
@@ -101,7 +103,7 @@ export interface InteractiveGuideSection {
     explanation?: string;
     formula?: FormulaPart[];
     examples?: string[];
-    exercises?: Exercise[];
+    exercises?: Array<Exercise | LegacyExercise>;
     usageMeanings?: UsageMeaning[]; // For meaning sections
     comparison?: {
         title: string;
@@ -287,7 +289,13 @@ export interface SpeakingActivityContent {
 }
 
 export interface InteractiveGuideContent {
-    type: "interactive-guide";
+    id?: string;
+    title?: string;
+    category?: string;
+    description?: string;
+    level?: string;
+    estimatedMinutes?: number;
+    type?: "interactive-guide";
     sections: InteractiveGuideSection[];
     miniQuiz?: MiniQuizQuestion[]; // Optional final comprehension check
     tableOfContents?: boolean; // Show TOC

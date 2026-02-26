@@ -40,9 +40,14 @@ export const codingCodeReadingNonAuthorsContent: InteractiveGuideContent = {
       },
       exercises: [
         {
-          type: "text",
-          label: "Why is reading code important to your role as an implementation manager? What situations have you faced where you needed to understand code quickly?",
-          acceptAnyAttempt: true
+          title: "Practice",
+          items: [
+            {
+              type: "text",
+              label: "Why is reading code important to your role as an implementation manager? What situations have you faced where you needed to understand code quickly?",
+              acceptAnyAttempt: true
+            }
+          ]
         }
       ]
     },
@@ -108,25 +113,30 @@ export const codingCodeReadingNonAuthorsContent: InteractiveGuideContent = {
       `,
       exercises: [
         {
-          type: "text",
-          label: "Think of a feature in a web app you use (Slack, Gmail, GitHub, etc.). What's the entry point (route, button, API call) that starts this feature?",
-          acceptAnyAttempt: true
-        },
-        {
-          type: "select",
-          label: "When reading a Next.js route file, what should you look for FIRST?",
-          options: [
-            "The smallest helper function defined in the file",
-            "The component export at the top level and what props it receives",
-            "How the styling is done",
-            "All the TypeScript types at the bottom"
-          ],
-          expectedAnswer: "The component export at the top level and what props it receives"
-        },
-        {
-          type: "text",
-          label: "⏱️ TIMED DRILL (10 minutes): Open this LMS codebase. Find where students click 'Submit' on an activity. Trace the entry point: route file → API handler → any functions it calls. List the files involved.",
-          acceptAnyAttempt: true
+          title: "Practice",
+          items: [
+            {
+              type: "text",
+              label: "Think of a feature in a web app you use (Slack, Gmail, GitHub, etc.). What's the entry point (route, button, API call) that starts this feature?",
+              acceptAnyAttempt: true
+            },
+            {
+              type: "select",
+              label: "When reading a Next.js route file, what should you look for FIRST?",
+              options: [
+                "The smallest helper function defined in the file",
+                "The component export at the top level and what props it receives",
+                "How the styling is done",
+                "All the TypeScript types at the bottom"
+              ],
+              expectedAnswer: "The component export at the top level and what props it receives"
+            },
+            {
+              type: "text",
+              label: "⏱️ TIMED DRILL (10 minutes): Open this LMS codebase. Find where students click 'Submit' on an activity. Trace the entry point: route file → API handler → any functions it calls. List the files involved.",
+              acceptAnyAttempt: true
+            }
+          ]
         }
       ]
     },
@@ -234,25 +244,30 @@ export const codingCodeReadingNonAuthorsContent: InteractiveGuideContent = {
       `,
       exercises: [
         {
-          type: "text",
-          label: "Draw or describe the data flow for one feature you use regularly (e.g., 'submitting a form', 'liking a post'). What are the 7 layers?",
-          acceptAnyAttempt: true
-        },
-        {
-          type: "radio",
-          label: "You're reading an API handler and see: `const score = req.body.score; await updateUserScore(score)`. What's a red flag here?",
-          options: [
-            { value: "a", label: "No validation—score could be negative, null, or a string" },
-            { value: "b", label: "The variable name isn't descriptive enough" },
-            { value: "c", label: "It should use snake_case instead of camelCase" },
-            { value: "d", label: "Nothing—this is fine" }
-          ],
-          expectedAnswer: "a"
-        },
-        {
-          type: "text",
-          label: "Find a route file in this LMS. Trace the data flow for ONE user action. List: (1) the component event handler, (2) the API endpoint called, (3) the database operation, (4) the UI update.",
-          acceptAnyAttempt: true
+          title: "Practice",
+          items: [
+            {
+              type: "text",
+              label: "Draw or describe the data flow for one feature you use regularly (e.g., 'submitting a form', 'liking a post'). What are the 7 layers?",
+              acceptAnyAttempt: true
+            },
+            {
+              type: "radio",
+              label: "You're reading an API handler and see: `const score = req.body.score; await updateUserScore(score)`. What's a red flag here?",
+              options: [
+                { value: "a", label: "No validation—score could be negative, null, or a string" },
+                { value: "b", label: "The variable name isn't descriptive enough" },
+                { value: "c", label: "It should use snake_case instead of camelCase" },
+                { value: "d", label: "Nothing—this is fine" }
+              ],
+              expectedAnswer: "a"
+            },
+            {
+              type: "text",
+              label: "Find a route file in this LMS. Trace the data flow for ONE user action. List: (1) the component event handler, (2) the API endpoint called, (3) the database operation, (4) the UI update.",
+              acceptAnyAttempt: true
+            }
+          ]
         }
       ]
     },
@@ -353,25 +368,30 @@ export const codingCodeReadingNonAuthorsContent: InteractiveGuideContent = {
       `,
       exercises: [
         {
-          type: "text",
-          label: "Find ONE test file in this LMS (probably in `__tests__` or `.test.ts`). List the test names. What does this test suite tell you the feature should do?",
-          acceptAnyAttempt: true
-        },
-        {
-          type: "radio",
-          label: "You read a test: `expect(calculateScore(answer, correctAnswer)).toBe(10)`. What are you learning?",
-          options: [
-            { value: "a", label: "How the function is implemented internally" },
-            { value: "b", label: "The expected output given a specific input (the behavior contract)" },
-            { value: "c", label: "The performance of the function" },
-            { value: "d", label: "Nothing useful—you should read the code instead" }
-          ],
-          expectedAnswer: "b"
-        },
-        {
-          type: "text",
-          label: "Pick a utility function in this LMS (like `awardPoints` or `updateStreak`). If it has tests, read them. If not, write pseudocode for what tests SHOULD exist for this function.",
-          acceptAnyAttempt: true
+          title: "Practice",
+          items: [
+            {
+              type: "text",
+              label: "Find ONE test file in this LMS (probably in `__tests__` or `.test.ts`). List the test names. What does this test suite tell you the feature should do?",
+              acceptAnyAttempt: true
+            },
+            {
+              type: "radio",
+              label: "You read a test: `expect(calculateScore(answer, correctAnswer)).toBe(10)`. What are you learning?",
+              options: [
+                { value: "a", label: "How the function is implemented internally" },
+                { value: "b", label: "The expected output given a specific input (the behavior contract)" },
+                { value: "c", label: "The performance of the function" },
+                { value: "d", label: "Nothing useful—you should read the code instead" }
+              ],
+              expectedAnswer: "b"
+            },
+            {
+              type: "text",
+              label: "Pick a utility function in this LMS (like `awardPoints` or `updateStreak`). If it has tests, read them. If not, write pseudocode for what tests SHOULD exist for this function.",
+              acceptAnyAttempt: true
+            }
+          ]
         }
       ]
     },
@@ -453,25 +473,30 @@ export const codingCodeReadingNonAuthorsContent: InteractiveGuideContent = {
       `,
       exercises: [
         {
-          type: "text",
-          label: "Read the awardPoints() function (in src/lib/gamification.ts or wherever it's defined). Write ONE high-signal question about this function using the framework: what I've read → what I understand → what I don't understand → my hypothesis → the question.",
-          acceptAnyAttempt: true
-        },
-        {
-          type: "select",
-          label: "Which of these is a high-signal question?",
-          options: [
-            "How does the leaderboard work?",
-            "I traced the getTimeframedLeaderboard function and see it filters by classId, but I don't understand why leaderboard queries exclude the 'marlie' test account. Is it a privacy concern or a testing artifact?",
-            "Why is this code so complicated?",
-            "Can you explain the whole gamification system?"
-          ],
-          expectedAnswer: "I traced the getTimeframedLeaderboard function and see it filters by classId, but I don't understand why leaderboard queries exclude the 'marlie' test account. Is it a privacy concern or a testing artifact?"
-        },
-        {
-          type: "text",
-          label: "Find ONE place in this codebase where two pieces of code do similar things (or the same thing in different ways). Ask a consistency question: 'Why are these different? Is this intentional or technical debt?'",
-          acceptAnyAttempt: true
+          title: "Practice",
+          items: [
+            {
+              type: "text",
+              label: "Read the awardPoints() function (in src/lib/gamification.ts or wherever it's defined). Write ONE high-signal question about this function using the framework: what I've read → what I understand → what I don't understand → my hypothesis → the question.",
+              acceptAnyAttempt: true
+            },
+            {
+              type: "select",
+              label: "Which of these is a high-signal question?",
+              options: [
+                "How does the leaderboard work?",
+                "I traced the getTimeframedLeaderboard function and see it filters by classId, but I don't understand why leaderboard queries exclude the 'marlie' test account. Is it a privacy concern or a testing artifact?",
+                "Why is this code so complicated?",
+                "Can you explain the whole gamification system?"
+              ],
+              expectedAnswer: "I traced the getTimeframedLeaderboard function and see it filters by classId, but I don't understand why leaderboard queries exclude the 'marlie' test account. Is it a privacy concern or a testing artifact?"
+            },
+            {
+              type: "text",
+              label: "Find ONE place in this codebase where two pieces of code do similar things (or the same thing in different ways). Ask a consistency question: 'Why are these different? Is this intentional or technical debt?'",
+              acceptAnyAttempt: true
+            }
+          ]
         }
       ]
     },
@@ -567,25 +592,30 @@ export const codingCodeReadingNonAuthorsContent: InteractiveGuideContent = {
       `,
       exercises: [
         {
-          type: "text",
-          label: "Find the awardPoints() function. Use your IDE to search for all references to it. How many places call this function? For 3 of them, describe: what does the caller do, and what would break if awardPoints() returned a different value?",
-          acceptAnyAttempt: true
-        },
-        {
-          type: "radio",
-          label: "You want to add a required parameter to a frequently-used function. What's the safest way to avoid breaking all the callers?",
-          options: [
-            { value: "a", label: "Make the new parameter optional with a sensible default value" },
-            { value: "b", label: "Change all callers at the same time" },
-            { value: "c", label: "Add the parameter as a breaking change and update version number" },
-            { value: "d", label: "Create a new function instead of modifying the old one" }
-          ],
-          expectedAnswer: "a"
-        },
-        {
-          type: "text",
-          label: "Imagine you want to change the achievement unlock criteria (e.g., 100 points instead of 50). Trace the blast radius: (1) Find where achievement unlock is checked, (2) list all places that code is called, (3) estimate the risk.",
-          acceptAnyAttempt: true
+          title: "Practice",
+          items: [
+            {
+              type: "text",
+              label: "Find the awardPoints() function. Use your IDE to search for all references to it. How many places call this function? For 3 of them, describe: what does the caller do, and what would break if awardPoints() returned a different value?",
+              acceptAnyAttempt: true
+            },
+            {
+              type: "radio",
+              label: "You want to add a required parameter to a frequently-used function. What's the safest way to avoid breaking all the callers?",
+              options: [
+                { value: "a", label: "Make the new parameter optional with a sensible default value" },
+                { value: "b", label: "Change all callers at the same time" },
+                { value: "c", label: "Add the parameter as a breaking change and update version number" },
+                { value: "d", label: "Create a new function instead of modifying the old one" }
+              ],
+              expectedAnswer: "a"
+            },
+            {
+              type: "text",
+              label: "Imagine you want to change the achievement unlock criteria (e.g., 100 points instead of 50). Trace the blast radius: (1) Find where achievement unlock is checked, (2) list all places that code is called, (3) estimate the risk.",
+              acceptAnyAttempt: true
+            }
+          ]
         }
       ]
     },
@@ -678,19 +708,24 @@ export const codingCodeReadingNonAuthorsContent: InteractiveGuideContent = {
       `,
       exercises: [
         {
-          type: "text",
-          label: "PRACTICE 1: Trace the Subject Filter feature. Write the one-paragraph summary + entry point + data flow (7 steps). This is a real exercise—take your time.",
-          acceptAnyAttempt: true
-        },
-        {
-          type: "text",
-          label: "PRACTICE 2: Trace the Points & Streak feature. Identify: (1) the main API endpoint, (2) the business logic function, (3) the database operations, (4) one edge case you found.",
-          acceptAnyAttempt: true
-        },
-        {
-          type: "text",
-          label: "PRACTICE 3: Trace the Achievements feature. Answer: (1) How are achievement unlock criteria defined? (2) When are they checked? (3) What could go wrong? (4) What's the blast radius if you change unlock criteria?",
-          acceptAnyAttempt: true
+          title: "Practice",
+          items: [
+            {
+              type: "text",
+              label: "PRACTICE 1: Trace the Subject Filter feature. Write the one-paragraph summary + entry point + data flow (7 steps). This is a real exercise—take your time.",
+              acceptAnyAttempt: true
+            },
+            {
+              type: "text",
+              label: "PRACTICE 2: Trace the Points & Streak feature. Identify: (1) the main API endpoint, (2) the business logic function, (3) the database operations, (4) one edge case you found.",
+              acceptAnyAttempt: true
+            },
+            {
+              type: "text",
+              label: "PRACTICE 3: Trace the Achievements feature. Answer: (1) How are achievement unlock criteria defined? (2) When are they checked? (3) What could go wrong? (4) What's the blast radius if you change unlock criteria?",
+              acceptAnyAttempt: true
+            }
+          ]
         }
       ]
     },
@@ -761,14 +796,19 @@ export const codingCodeReadingNonAuthorsContent: InteractiveGuideContent = {
       `,
       exercises: [
         {
-          type: "text",
-          label: "What's one feature in this LMS that you still don't fully understand? Write a plan to trace it this week using the systematic approach.",
-          acceptAnyAttempt: true
-        },
-        {
-          type: "text",
-          label: "Find a code review from this project (in git history or on GitHub). Does the reviewer ask high-signal questions about the code? What questions would you have asked?",
-          acceptAnyAttempt: true
+          title: "Practice",
+          items: [
+            {
+              type: "text",
+              label: "What's one feature in this LMS that you still don't fully understand? Write a plan to trace it this week using the systematic approach.",
+              acceptAnyAttempt: true
+            },
+            {
+              type: "text",
+              label: "Find a code review from this project (in git history or on GitHub). Does the reviewer ask high-signal questions about the code? What questions would you have asked?",
+              acceptAnyAttempt: true
+            }
+          ]
         }
       ]
     }

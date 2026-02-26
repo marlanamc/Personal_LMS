@@ -1,6 +1,7 @@
 import React from "react";
 import type { InteractiveGuideSection } from "@/types/activity";
 import { ExerciseSection, type ExerciseCompletionInfo } from "./exercises/ExerciseSection";
+import { normalizeGuideExercise } from "@/lib/normalize-guide-exercises";
 
 interface PracticePanelProps {
     section: InteractiveGuideSection;
@@ -49,20 +50,24 @@ export const PracticePanel = React.memo(function PracticePanel({
                         </p>
                     </div>
 
-                    {section.exercises!.map((exercise, index) => (
-                        <ExerciseSection
-                            key={exercise.id || index}
-                            exercise={exercise}
-                            exerciseIndex={index}
-                            sectionId={sectionId}
-                            answers={answers[exercise.id ?? `exercise-${index}`] || {}}
-                            onAnswerChange={(itemIndex, value) =>
-                                onAnswerChange(exercise.id ?? `exercise-${index}`, itemIndex, value)
-                            }
-                            onComplete={onSectionComplete}
-                            onExerciseComplete={onExerciseComplete}
-                        />
-                    ))}
+                    {section.exercises!.map((exercise, index) => {
+                        const normalizedExercise = normalizeGuideExercise(exercise, index);
+                        const exerciseKey = normalizedExercise.id ?? `exercise-${index}`;
+                        return (
+                            <ExerciseSection
+                                key={exerciseKey}
+                                exercise={normalizedExercise}
+                                exerciseIndex={index}
+                                sectionId={sectionId}
+                                answers={answers[exerciseKey] || {}}
+                                onAnswerChange={(itemIndex, value) =>
+                                    onAnswerChange(exerciseKey, itemIndex, value)
+                                }
+                                onComplete={onSectionComplete}
+                                onExerciseComplete={onExerciseComplete}
+                            />
+                        );
+                    })}
                 </div>
             ) : (
                 <div className="flex items-center justify-center h-full text-center">
