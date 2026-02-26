@@ -45,7 +45,7 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
         "July", "August", "September", "October", "November", "December"
     ];
 
-    const eventsByDay = new Map<number, { due: boolean; holiday: boolean; other: boolean; quiz: boolean }>();
+    const eventsByDay = new Map<number, { vacation: boolean; event: boolean }>();
 
     events.forEach((event) => {
         const start = new Date(event.date);
@@ -59,11 +59,9 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
         while (cursor.getTime() <= effectiveEnd.getTime()) {
             if (cursor.getMonth() === viewMonth && cursor.getFullYear() === viewYear) {
                 const day = cursor.getDate();
-                const existing = eventsByDay.get(day) || { due: false, holiday: false, other: false, quiz: false };
-                if (event.type === 'holiday') existing.holiday = true;
-                else if (event.type === 'quiz') existing.quiz = true;
-                else if (event.type === 'due' || event.type === 'reminder') existing.due = true;
-                else existing.other = true;
+                const existing = eventsByDay.get(day) || { vacation: false, event: false };
+                if (event.type === 'holiday') existing.vacation = true;
+                else existing.event = true;
                 eventsByDay.set(day, existing);
             }
             cursor.setDate(cursor.getDate() + 1);
@@ -108,10 +106,8 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
                 {days.map((day, idx) => {
                     const isToday = day === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
                     const flags = day ? eventsByDay.get(day) : undefined;
-                    const hasDue = flags?.due;
-                    const hasHoliday = flags?.holiday;
-                    const hasOther = flags?.other;
-                    const hasQuiz = flags?.quiz;
+                    const hasVacation = flags?.vacation;
+                    const hasEvent = flags?.event;
 
                     if (!day) return <div key={idx} />;
 
@@ -121,34 +117,24 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
                             color: "var(--color-accent-sakura)",
                             border: "2px solid color-mix(in srgb, var(--color-accent-sakura) 55%, transparent)",
                           }
-                        : hasQuiz
-                            ? {
-                                backgroundColor: "color-mix(in srgb, var(--color-accent-mint) 18%, transparent)",
-                                color: "var(--color-accent-mint)",
-                              }
-                            : hasDue
+                        : hasEvent
                                 ? {
                                     backgroundColor: "color-mix(in srgb, var(--color-warning) 20%, transparent)",
                                     color: "var(--color-warning)",
                                   }
-                                : hasHoliday
+                                : hasVacation
                                     ? {
                                         backgroundColor: "color-mix(in srgb, var(--color-accent-teal) 18%, transparent)",
                                         color: "var(--color-accent-teal)",
                                       }
-                                    : hasOther
-                                        ? {
-                                            backgroundColor: "color-mix(in srgb, var(--color-accent-amethyst) 18%, transparent)",
-                                            color: "var(--color-accent-amethyst)",
-                                          }
-                                        : undefined;
+                                    : undefined;
 
                     return (
                         <div
                             key={idx}
                             className={`
                                 text-xs w-6 h-6 flex items-center justify-center rounded-full mx-auto font-medium transition-colors cursor-default
-                                ${!isToday && !hasDue && !hasHoliday && !hasOther && !hasQuiz ? "text-text-secondary hover:bg-bg-elevated" : ""}
+                                ${!isToday && !hasEvent && !hasVacation ? "text-text-secondary hover:bg-bg-elevated" : ""}
                             `}
                             style={dayStyle}
                         >
@@ -161,9 +147,8 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
             {/* Legend / Upcoming text */}
             <div className="mt-3 pt-2 border-t border-border/40 flex items-center gap-x-3 gap-y-1 text-[10px] text-text-muted flex-wrap">
                 <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full border border-primary bg-transparent" /> Today</span>
-                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-mineral-mint" /> Quiz/Test</span>
-                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-warning" /> Due</span>
-                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-mineral-teal" /> Holiday</span>
+                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-warning" /> Event</span>
+                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-mineral-teal" /> Vacation</span>
             </div>
         </div>
     );
