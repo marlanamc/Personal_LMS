@@ -86,13 +86,13 @@ export function WordScrambleExercise({
         >
             <div className="mb-3">
                 <span className="text-sm text-text font-medium">
-                    <span className="font-semibold mr-2">{itemNumber}.</span>
+                    <span className="practice-question-number font-semibold mr-2">{itemNumber}.</span>
                     {item.label}
                 </span>
             </div>
 
             {/* Word Cards */}
-            <div className="word-cards bg-bg-light border-2 border-dashed border-border rounded-lg p-4 mb-4">
+            <div className="word-cards bg-bg-light border border-border rounded-lg p-4 mb-4">
                 <p className="text-xs text-text-muted mb-3">Click words to select them in order:</p>
                 <div className="flex flex-wrap gap-2">
                     {(scrambledIndices.length ? scrambledIndices : item.words.map((_, i) => i)).map((originalIndex, index) => {
@@ -106,9 +106,9 @@ export function WordScrambleExercise({
                                 type="button"
                                 onClick={() => handleWordClick(originalIndex)}
                                 disabled={submitted}
-                                className={`word-card px-4 py-2 rounded-lg font-semibold text-sm transition-[background-color,color,border-color,box-shadow] ${isSelected.has(originalIndex)
-                                        ? "bg-primary text-white shadow-md border-2 border-primary"
-                                        : "bg-bg-secondary/80 text-primary border-2 border-primary"
+                                className={`word-card practice-choice px-4 py-2 rounded-lg font-semibold text-sm transition-[background-color,color,border-color,box-shadow] ${isSelected.has(originalIndex)
+                                        ? "practice-choice-selected shadow-sm"
+                                        : "practice-choice-default"
                                     } ${submitted ? "cursor-not-allowed opacity-60" : "cursor-pointer"
                                     }`}
                                 initial={{ opacity: 0, scale: 0.8 }}
@@ -121,7 +121,7 @@ export function WordScrambleExercise({
                                     <AnimatePresence>
                                         {isSelected && (
                                             <motion.span
-                                                className="w-5 h-5 rounded-full bg-bg-secondary text-primary text-xs flex items-center justify-center font-bold"
+                                                className="w-5 h-5 rounded-full bg-bg-secondary text-[var(--subject-accent)] text-xs flex items-center justify-center font-bold"
                                                 initial={{ scale: 0, rotate: -180 }}
                                                 animate={{ scale: 1, rotate: 0 }}
                                                 exit={{ scale: 0, rotate: 180 }}
@@ -145,11 +145,11 @@ export function WordScrambleExercise({
                     Your Sentence:
                 </label>
                 <motion.div
-                    className={`w-full px-4 py-3 border-2 rounded-lg min-h-[50px] flex items-center ${submitted
+                    className={`practice-field w-full px-4 py-3 border rounded-lg min-h-[50px] flex items-center ${submitted
                             ? isCorrect
-                                ? "border-success bg-success/5"
-                                : "border-error bg-error/5"
-                            : "border-border bg-bg-secondary/80"
+                                ? "practice-choice-correct"
+                                : "practice-choice-wrong"
+                            : "practice-choice-default"
                         }`}
                     animate={submitted && isIncorrect ? { x: [-10, 10, -10, 10, 0] } : {}}
                     transition={{ duration: 0.4 }}

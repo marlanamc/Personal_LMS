@@ -159,7 +159,7 @@ function ActivityItem({
         }}
       />
 
-      <div className="relative flex items-center gap-3 p-4 pl-5">
+      <div className="relative flex flex-wrap items-start gap-3 p-4 pl-5">
         <div
           className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 group-hover:scale-105"
           style={{
@@ -213,7 +213,7 @@ function ActivityItem({
         </div>
 
         {/* Status badge & arrow */}
-        <div className="flex-shrink-0 flex items-center gap-2">
+        <div className="flex w-full flex-wrap items-center justify-end gap-2 pl-[3.25rem] sm:w-auto sm:flex-nowrap sm:justify-start sm:pl-0 sm:shrink-0">
           {isCompleted ? (
             <span
               className="text-[10px] font-bold px-2 py-1 rounded-full"

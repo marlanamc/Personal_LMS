@@ -261,7 +261,7 @@ export default async function SubjectsPage({ searchParams }: Props) {
     const initialType = type ?? null;
 
     return (
-        <div className="min-h-screen bg-bg">
+        <div className="min-h-screen bg-bg-base light-ambient-surface">
             <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 pb-24 md:pb-12">
                 <ActivityCategoryPicker
                     activities={visibleActivities}

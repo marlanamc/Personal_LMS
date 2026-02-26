@@ -228,7 +228,7 @@ export default async function DashboardPage() {
   ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
-    <div className="min-h-screen bg-bg-base">
+    <div className="min-h-screen bg-bg-base light-ambient-surface">
       <main className="container mx-auto pt-6 pb-24 md:pb-12 px-3 sm:px-6 lg:px-8 max-w-full lg:max-w-[1600px]">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           {/* Main Content Area - Left Side */}
@@ -331,7 +331,7 @@ export default async function DashboardPage() {
                   </div>
                   <Link
                     href="/dashboard/subjects"
-                    className="shrink-0 px-4 py-2 rounded-xl bg-primary text-bg-base hover:brightness-105 transition-all font-semibold text-sm shadow-sm active:scale-95 flex items-center gap-1.5"
+                    className="sakura-action shrink-0 px-4 py-2 rounded-xl hover:brightness-105 transition-all font-semibold text-sm active:scale-95 flex items-center gap-1.5"
                   >
                     See All Subjects
                     <span className="arrow-animate">→</span>

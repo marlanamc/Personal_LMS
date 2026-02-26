@@ -105,7 +105,7 @@ export const TodaysAssignments: React.FC<Props> = ({
     if (loading) {
         return (
             <div className="mb-8">
-                <div className="bg-bg-surface rounded-2xl border border-border-subtle shadow-lg overflow-hidden">
+                <div className="card-elevated rounded-2xl overflow-hidden">
                     {/* Skeleton header */}
                     <div className="p-4 border-b border-border/30 bg-bg-elevated">
                         <div className="flex items-center justify-between gap-3">
@@ -146,7 +146,7 @@ export const TodaysAssignments: React.FC<Props> = ({
     if (assignments.length === 0) {
         return (
             <div className="mb-8">
-                <div className="bg-bg-surface rounded-2xl border border-border-subtle shadow-lg overflow-hidden">
+                <div className="card-elevated rounded-2xl overflow-hidden">
                     {/* Header matching the normal checklist */}
                     <div className="px-4 py-3 border-b border-border/10 bg-bg-elevated flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-lg">
@@ -162,7 +162,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                     {/* Empty state content */}
                     <div className="p-8 text-center relative overflow-hidden">
                         <div className="relative z-10">
-                            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-sakura-soft border border-border-subtle flex items-center justify-center">
+                            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl sakura-soft-pill flex items-center justify-center">
                                 <span className="text-3xl">🎯</span>
                             </div>
                             <p className="text-lg font-display font-bold text-text mb-1">All caught up!</p>
@@ -463,7 +463,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                         if (vocabProgress && vocabProgress.completed < vocabProgress.total) {
                             return (
                                 <div className="flex items-center gap-2 mt-1.5">
-                                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-primary/10 text-primary border border-primary/30 shadow-sm">
+                                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold sakura-soft-pill shadow-sm">
                                         <span className="tracking-tight">{vocabProgress.completed} / {vocabProgress.total}</span>
                                         <div className="flex items-center gap-1">
                                             {vocabProgress.types.map(type => {
@@ -540,7 +540,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                             <div className="flex items-center gap-2 text-xs font-bold text-text/70">
                                 {actions && <div className="mr-2">{actions}</div>}
                                 <span className="hidden sm:inline-block px-2 py-1 rounded-md bg-bg-elevated border border-border-subtle">{completedCount}/{checklistRows.length} done</span>
-                                <span className={`px-2 py-1 rounded-md border ${isFullyComplete ? 'bg-sakura-soft border-border-subtle text-primary' : 'bg-bg-elevated border-border-subtle'}`}>{percent}%</span>
+                                <span className={`px-2 py-1 rounded-md border ${isFullyComplete ? 'sakura-soft-pill' : 'bg-bg-elevated border-border-subtle'}`}>{percent}%</span>
                             </div>
                         </div>
                         <div className="w-full rounded-full h-2 overflow-hidden" style={{ backgroundColor: "var(--color-progress-track)" }}>
@@ -602,7 +602,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                 <span className="w-1 h-6 rounded-full bg-primary"></span>
                 {title}
             </h2>
-            <div className="bg-bg-surface rounded-2xl p-5 border border-border-subtle shadow-sm">
+            <div className="bg-bg-surface rounded-2xl p-5 border border-border-subtle shadow-md">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                     {assignments.map((assignment, index) => {
                     const submission = assignment.submissions[0];
@@ -684,7 +684,7 @@ export const TodaysAssignments: React.FC<Props> = ({
                                 {/* CTA Button */}
                                 <Link
                                     href={`/activity/${assignment.activityId}?assignment=${assignment.id}`}
-                                    className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold transition-[box-shadow,transform,filter] hover:shadow-md active:scale-95 rounded-lg bg-primary text-bg-base hover:brightness-105 whitespace-nowrap sm:shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                                    className="sakura-action inline-flex items-center justify-center px-4 py-2 text-sm font-semibold transition-[box-shadow,transform,filter] hover:shadow-md active:scale-95 rounded-lg hover:brightness-105 whitespace-nowrap sm:shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
                                 >
                                     {isCompleted ? 'Review' : ctaLabel}
                                 </Link>

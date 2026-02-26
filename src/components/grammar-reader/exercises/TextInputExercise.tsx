@@ -35,7 +35,7 @@ export function TextInputExercise({
         >
             <label className="block mb-2">
                 <span className="text-sm text-text font-medium">
-                    <span className="font-semibold mr-2">{itemNumber}.</span>
+                    <span className="practice-question-number font-semibold mr-2">{itemNumber}.</span>
                     <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.label) }} />
                 </span>
             </label>
@@ -49,11 +49,11 @@ export function TextInputExercise({
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={item.placeholder || defaultPlaceholder || "Type your answer..."}
                     disabled={submitted}
-                    className={`w-full px-4 py-3 border-2 rounded-lg transition-[border-color,background-color] ${submitted
+                    className={`practice-field w-full px-4 py-3 rounded-xl transition-[border-color,background-color,box-shadow] ${submitted
                             ? isCorrect
-                                ? "border-success bg-success/5"
-                                : "border-error bg-error/5"
-                            : "border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                ? "practice-choice-correct"
+                                : "practice-choice-wrong"
+                            : "practice-choice-default focus:border-[var(--subject-accent)] focus:ring-2 focus:ring-[var(--subject-accent)]/25"
                         } disabled:cursor-not-allowed`}
                 />
             </motion.div>

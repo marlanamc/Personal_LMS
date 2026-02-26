@@ -34,7 +34,7 @@ export function RadioExercise({
         >
             <div className="mb-3">
                 <span className="text-sm text-text font-medium">
-                    <span className="font-semibold mr-2">{itemNumber}.</span>
+                    <span className="practice-question-number font-semibold mr-2">{itemNumber}.</span>
                     <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.label) }} />
                 </span>
             </div>
@@ -43,18 +43,19 @@ export function RadioExercise({
                     const isSelected = userAnswer === option.value;
                     const isCorrectOption = submitted && option.value === item.expectedAnswer;
                     const isWrongSelection = submitted && isSelected && !isCorrect;
+                    const stateClass =
+                        submitted && isCorrectOption
+                            ? "practice-choice-correct"
+                            : submitted && isWrongSelection
+                                ? "practice-choice-wrong"
+                                : isSelected
+                                    ? "practice-choice-selected"
+                                    : "practice-choice-default";
 
                     return (
                         <motion.label
                             key={option.value}
-                            className={`flex items-center p-3 rounded-lg border-2 transition-[border-color,background-color] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${submitted && isCorrectOption
-                                    ? "border-success bg-success/5"
-                                    : submitted && isWrongSelection
-                                        ? "border-error bg-error/5"
-                                        : isSelected
-                                            ? "border-primary bg-primary/5"
-                                            : "border-border hover:border-primary/50 hover:bg-bg-light"
-                                } ${submitted ? "cursor-not-allowed" : ""}`}
+                            className={`practice-choice ${stateClass} flex items-center p-3 rounded-xl transition-[border-color,background-color,color,box-shadow] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--subject-accent)]/35 focus-visible:ring-offset-0 ${submitted ? "cursor-not-allowed" : ""}`}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05, duration: 0.2 }}
@@ -68,10 +69,10 @@ export function RadioExercise({
                                 checked={isSelected}
                                 onChange={(e) => onChange(e.target.value)}
                                 disabled={submitted}
-                                className="w-5 h-5 text-primary focus:ring-2 focus:ring-primary/20"
+                                className="w-5 h-5 text-[var(--subject-accent)] focus:ring-2 focus:ring-[var(--subject-accent)]/35"
                             />
                             <span
-                                className="ml-3 text-sm text-text flex-1"
+                                className="ml-3 text-sm flex-1"
                                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(option.label) }}
                             />
 

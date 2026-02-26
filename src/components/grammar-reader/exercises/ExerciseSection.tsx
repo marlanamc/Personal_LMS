@@ -154,9 +154,9 @@ export function ExerciseSection({
     const totalCount = exercise.items.length;
 
     return (
-        <div className="exercise-section bg-bg-secondary/80 border border-border rounded-lg p-6 shadow-sm">
+        <div className="exercise-section exercise-shell rounded-xl p-6">
             <div className="mb-4 space-y-1">
-                <h4 className="text-lg font-bold text-primary mb-2">{exercise.title}</h4>
+                <h4 className="text-lg font-semibold text-[var(--subject-accent)] mb-2">{exercise.title}</h4>
                 {exercise.instructions && (
                     <p className="text-sm text-text-muted italic">{exercise.instructions}</p>
                 )}
@@ -183,7 +183,7 @@ export function ExerciseSection({
                     };
 
                     return (
-                        <div key={index}>
+                        <div key={index} className="practice-question-block rounded-xl p-4">
                             {item.type === "text" && (
                                 <TextInputExercise
                                     item={item}
@@ -211,8 +211,8 @@ export function ExerciseSection({
             {submitted && (
                 <div
                     className={`mt-6 p-4 rounded-lg border-l-4 ${correctCount === totalCount
-                            ? "bg-success/10 border-success"
-                            : "bg-warning/10 border-warning"
+                            ? "practice-results-correct"
+                            : "practice-results-warning"
                         }`}
                 >
                     <div className="flex items-center gap-2">
@@ -240,13 +240,13 @@ export function ExerciseSection({
                     variant="primary"
                     onClick={handleCheck}
                     disabled={!allAnswered || submitted}
-                    className="flex-1"
+                    className="practice-check-button flex-1"
                 >
                     Check Answers
                 </Button>
                 {submitted && (
-                    <Button variant="outline" onClick={handleReset} className="flex-1">
-                        Try Again
+                    <Button variant="outline" onClick={handleReset} className="practice-reset-button flex-1">
+                        Reset
                     </Button>
                 )}
             </div>

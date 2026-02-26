@@ -33,6 +33,26 @@ export default function InteractiveGuideViewer({
     const hasMiniQuiz = Array.isArray(content.miniQuiz) && content.miniQuiz.length > 0;
     const totalSteps = sections.length;
     const currentSection = sections[currentStep];
+    const displayedStepNumber = useMemo(() => {
+        const stepNumber = currentSection?.stepNumber;
+        if (
+            typeof stepNumber === "number" &&
+            Number.isFinite(stepNumber) &&
+            stepNumber >= 1 &&
+            stepNumber <= totalSteps
+        ) {
+            return stepNumber;
+        }
+        return currentStep + 1;
+    }, [currentSection?.stepNumber, currentStep, totalSteps]);
+    const practiceSubject = useMemo(() => {
+        const id = `${activityId || ""} ${title || ""}`.toLowerCase();
+        if (id.includes("coding") || id.includes("javascript") || id.includes("typescript")) return "coding";
+        if (id.includes("spanish")) return "spanish";
+        if (id.includes("health")) return "health";
+        if (id.includes("job-search") || id.includes("job search")) return "job-search";
+        return "spanish";
+    }, [activityId, title]);
     const canGoPrev = showMiniQuiz ? totalSteps > 0 : currentStep > 0;
     const canGoNext = showMiniQuiz ? false : (currentStep < totalSteps - 1 || (hasMiniQuiz && currentStep === totalSteps - 1));
 
@@ -184,9 +204,10 @@ export default function InteractiveGuideViewer({
 
     return (
         <div
-            className={`interactive-guide-viewer ${containerLayout} z-fixed flex flex-col text-text font-body selection:bg-primary/20 lg:overflow-hidden bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-tertiary ${
+            className={`interactive-guide-viewer grammar-reader-themed ${containerLayout} z-fixed flex flex-col text-text font-body selection:bg-primary/20 lg:overflow-hidden bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-tertiary ${
                 isGrammarVariant ? "grammar-reader-variant" : ""
             }`}
+            data-subject={practiceSubject}
         >
             {showHeader && (
                 <>
@@ -301,7 +322,7 @@ export default function InteractiveGuideViewer({
                         <button
                             onClick={handlePrevious}
                             disabled={!canGoPrev}
-                            className={`hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 z-20 w-14 h-14 items-center justify-center rounded-full bg-bg-secondary/95 shadow-lg border border-border transition-[transform,color] hover:scale-110 active:scale-95 text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${!canGoPrev ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:text-text'}`}
+                            className={`practice-nav-button hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 z-20 w-14 h-14 items-center justify-center rounded-full transition-[transform,color] active:scale-95 focus-visible:outline-none ${!canGoPrev ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                             aria-label="Previous section"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
@@ -310,7 +331,7 @@ export default function InteractiveGuideViewer({
                         <button
                             onClick={handleNext}
                             disabled={!canGoNext}
-                            className={`hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 z-20 w-14 h-14 items-center justify-center rounded-full bg-bg-secondary/95 shadow-lg border border-border transition-[transform,color] hover:scale-110 active:scale-95 text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${!canGoNext ? 'opacity-0 pointer-events-none' : 'opacity-100 hover:text-text'}`}
+                            className={`practice-nav-button hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 z-20 w-14 h-14 items-center justify-center rounded-full transition-[transform,color] active:scale-95 focus-visible:outline-none ${!canGoNext ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
                             aria-label="Next section"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
@@ -327,9 +348,9 @@ export default function InteractiveGuideViewer({
                             }`}
                         >
                             <div className="w-full lg:max-w-2xl lg:mx-auto animate-fade-in-up space-y-4 sm:space-y-6">
-                                {currentSection.stepNumber && (
+                                {currentSection && (
                                     <span className="inline-block text-xs font-bold tracking-widest text-primary uppercase mb-4 border-b-2 border-primary/30 pb-1">
-                                        Part {currentSection.stepNumber}
+                                        Part {displayedStepNumber}
                                     </span>
                                 )}
                                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-text mb-6 md:mb-8 leading-tight">
@@ -370,18 +391,21 @@ export default function InteractiveGuideViewer({
 
                         {/* Right Panel: Practice/Interaction */}
                         <div
-                            className={`w-full flex-none min-h-0 lg:flex-1 lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain bg-bg-primary border-t lg:border-t-0 lg:border-l border-border p-5 sm:p-7 lg:pr-24 lg:pl-12 flex flex-col lg:justify-start ${
+                            className={`practice-column-lane w-full flex-none min-h-0 lg:flex-1 lg:w-1/2 lg:overflow-y-auto lg:overscroll-contain bg-bg-primary border-t lg:border-t-0 lg:border-l border-border p-5 sm:p-7 lg:pr-24 lg:pl-12 flex flex-col lg:justify-start ${
                                 isGrammarVariant ? "practice-panel" : ""
                             }`}
                         >
                             <div className="w-full lg:max-w-2xl lg:mx-auto animate-fade-in-up delay-100 space-y-4 sm:space-y-6">
                                 {currentSection.exercises && currentSection.exercises.length > 0 ? (
-                                    <div className="bg-gradient-to-br from-bg-secondary to-bg-tertiary rounded-3xl p-6 sm:p-8 shadow-xl border border-border relative overflow-hidden">
+                                    <div className="practice-panel-shell bg-gradient-to-br from-bg-secondary to-bg-tertiary rounded-3xl p-6 sm:p-8 shadow-xl border border-border relative overflow-hidden">
                                         <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                                        <h3 className="flex items-center gap-2 text-lg font-display font-bold text-text-muted mb-6 relative z-10">
-                                            <span className="text-xl">✍️</span> Practice
-                                        </h3>
+                                        <div className="practice-panel-header mb-6 relative z-10">
+                                            <h3 className="flex items-center gap-2 text-lg font-display font-semibold text-text">
+                                                <span className="practice-panel-icon-pill text-sm">✍️</span>
+                                                <span className="practice-panel-title">Practice</span>
+                                            </h3>
+                                        </div>
 
                                         <div className="space-y-8 relative z-10">
                                             {currentSection.exercises.map((exercise, idx) => (
@@ -545,15 +569,15 @@ function MiniQuizPanel({ questions, onBack }: { questions: MiniQuizQuestion[]; o
                     const selected = answers[question.id] || "";
                     const isCorrect = selected === question.correctAnswer;
                     return (
-                        <div key={question.id} className="rounded-xl border border-border bg-bg-secondary/90 p-4">
+                        <div key={question.id} className="practice-question-block rounded-xl border border-border bg-bg-secondary/90 p-4">
                             <p className="text-text font-semibold mb-3">
-                                <span className="text-text-muted mr-2">{index + 1}.</span>
+                                <span className="practice-question-number mr-2">{index + 1}.</span>
                                 {question.question}
                             </p>
 
                             <div className="space-y-2 pl-1">
                                 {question.options.map((opt) => (
-                                    <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
+                                    <label key={opt.value} className="practice-choice practice-choice-default flex items-center gap-3 cursor-pointer group rounded-xl p-2.5">
                                         <input
                                             type="radio"
                                             name={`mini-${question.id}`}
@@ -563,9 +587,9 @@ function MiniQuizPanel({ questions, onBack }: { questions: MiniQuizQuestion[]; o
                                                 setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }));
                                                 if (submitted) setSubmitted(false);
                                             }}
-                                            className="appearance-none w-5 h-5 border-2 border-border-dark rounded-full checked:border-primary checked:bg-primary transition-[border-color,background-color]"
+                                            className="appearance-none w-5 h-5 border border-border-dark rounded-full checked:border-[var(--subject-accent)] checked:bg-[var(--subject-accent)] transition-[border-color,background-color]"
                                         />
-                                        <span className="text-text group-hover:text-primary transition-colors">{opt.label}</span>
+                                        <span className="text-text group-hover:text-[var(--subject-accent)] transition-colors">{opt.label}</span>
                                     </label>
                                 ))}
                             </div>
@@ -585,14 +609,14 @@ function MiniQuizPanel({ questions, onBack }: { questions: MiniQuizQuestion[]; o
                     type="button"
                     onClick={handleSubmit}
                     disabled={!allAnswered}
-                    className="px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="practice-check-button relative px-4 py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Check Answers
                 </button>
                 <button
                     type="button"
                     onClick={handleReset}
-                    className="px-4 py-2 rounded-lg border border-border text-text hover:bg-bg-light transition-colors"
+                    className="practice-reset-button px-4 py-2 rounded-lg transition-colors"
                 >
                     Reset
                 </button>
@@ -646,11 +670,12 @@ function ExerciseGroup({
 
     const totalItems = exercise.items.length;
     const correctItems = Object.values(results).filter(Boolean).length;
+    const allAnswered = exercise.items.every((_, idx) => (answers[idx] ?? "").trim().length > 0);
 
     return (
-        <div className={`space-y-6 ${grammarVariant ? "exercise-section" : ""}`}>
+        <div className={`space-y-6 exercise-shell p-5 rounded-2xl ${grammarVariant ? "exercise-section" : ""}`}>
             {exercise.title && (
-                <p className="text-sm font-semibold text-text-muted uppercase tracking-wider">{exercise.title}</p>
+                <p className="text-sm font-semibold text-[var(--subject-accent)] uppercase tracking-wider">{exercise.title}</p>
             )}
 
             <div className="space-y-4">
@@ -662,16 +687,16 @@ function ExerciseGroup({
                         return (
                     <div
                         key={idx}
-                        className={`bg-bg-secondary/90 p-5 rounded-xl border transition-colors ${
+                        className={`practice-question-block bg-bg-secondary/90 p-5 rounded-xl border transition-colors ${
                             showResult
                                 ? results[idx]
-                                    ? "border-success/80"
-                                    : "border-error/80"
-                                : "border-border hover:border-primary/50"
+                                    ? "practice-choice-correct"
+                                    : "practice-choice-wrong"
+                                : "border-border hover:border-[var(--subject-accent)]/50"
                         }`}
                     >
                         <p className="text-text font-medium text-lg mb-3">
-                            <span className="text-text-muted font-bold mr-2 text-sm">{idx + 1}.</span>
+                            <span className="practice-question-number font-bold mr-2 text-sm">{idx + 1}.</span>
                             {item.label}
                         </p>
 
@@ -679,7 +704,7 @@ function ExerciseGroup({
                             <select
                                 value={answerValue}
                                 onChange={(e) => handleAnswerChange(idx, e.target.value)}
-                                className="w-full p-3 rounded-lg border border-border bg-bg-primary text-text focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-[border-color] shadow-sm focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                                className="practice-field w-full p-3 rounded-lg border bg-bg-primary text-text focus:ring-2 focus:ring-[var(--subject-accent)]/30 focus:border-[var(--subject-accent)] outline-none transition-[border-color] shadow-sm focus-visible:ring-2 focus-visible:ring-[var(--subject-accent)]/50 focus-visible:ring-offset-2"
                             >
                                 <option value="">Choose…</option>
                                 {item.options.map((opt, i) => (
@@ -694,14 +719,14 @@ function ExerciseGroup({
                                 value={answerValue}
                                 onChange={(e) => handleAnswerChange(idx, e.target.value)}
                                 placeholder={item.placeholder || "Type your answer…"}
-                                className="w-full p-3 rounded-lg border border-border bg-bg-primary text-text focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-[border-color] shadow-sm focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                                className="practice-field w-full p-3 rounded-lg border bg-bg-primary text-text focus:ring-2 focus:ring-[var(--subject-accent)]/30 focus:border-[var(--subject-accent)] outline-none transition-[border-color] shadow-sm focus-visible:ring-2 focus-visible:ring-[var(--subject-accent)]/50 focus-visible:ring-offset-2"
                             />
                         )}
 
                         {item.type === 'radio' && (
                             <div className="space-y-2 pl-2">
                                 {item.options.map((opt, i) => (
-                                    <label key={i} className="flex items-center gap-3 cursor-pointer group">
+                                    <label key={i} className="practice-choice practice-choice-default flex items-center gap-3 cursor-pointer group rounded-xl p-2.5">
                                         <div className="relative flex items-center">
                                             <input
                                                 type="radio"
@@ -709,11 +734,11 @@ function ExerciseGroup({
                                                 value={opt.value}
                                                 checked={answerValue === opt.value}
                                                 onChange={(e) => handleAnswerChange(idx, e.target.value)}
-                                                className="peer appearance-none w-5 h-5 border-2 border-border-dark rounded-full checked:border-primary checked:bg-primary transition-[border-color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                                                className="peer appearance-none w-5 h-5 border border-border-dark rounded-full checked:border-[var(--subject-accent)] checked:bg-[var(--subject-accent)] transition-[border-color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--subject-accent)]/50 focus-visible:ring-offset-2"
                                             />
                                             <div className="absolute inset-0 m-auto w-2 h-2 rounded-full bg-bg-secondary opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></div>
                                         </div>
-                                        <span className="text-text group-hover:text-primary transition-colors">{opt.label}</span>
+                                        <span className="text-text group-hover:text-[var(--subject-accent)] transition-colors">{opt.label}</span>
                                     </label>
                                 ))}
                             </div>
@@ -738,14 +763,15 @@ function ExerciseGroup({
                 <button
                     type="button"
                     onClick={handleCheckAnswers}
-                    className="px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                    disabled={!allAnswered}
+                    className="practice-check-button relative px-4 py-2 rounded-lg font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--subject-accent)]/60 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Check Answers
                 </button>
                 <button
                     type="button"
                     onClick={handleReset}
-                    className="px-4 py-2 rounded-lg border border-border text-text hover:bg-bg-light transition-colors"
+                    className="practice-reset-button px-4 py-2 rounded-lg transition-colors"
                 >
                     Reset
                 </button>

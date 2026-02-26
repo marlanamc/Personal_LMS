@@ -23,6 +23,7 @@ const STORAGE_KEY = "focus-timer:state:v1";
 
 const TRACKS: FocusTrack[] = [
   { id: "deep-focus", name: "Deep Focus", playlistId: "37i9dQZF1DWZeKCadgRdKQ" },
+  { id: "shared-focus-playlist", name: "Peaceful Rhythms", playlistId: "37i9dQZF1DWUZBIhSC4FGF" },
   { id: "lofi-beats", name: "Lo-Fi Beats", playlistId: "37i9dQZF1DWWQRwui0ExPn" },
   { id: "brain-food", name: "Brain Food", playlistId: "37i9dQZF1DWXLeA8Omikj7" },
   { id: "intense-studying", name: "Intense Studying", playlistId: "37i9dQZF1DX8NTLI2TtZa6" },

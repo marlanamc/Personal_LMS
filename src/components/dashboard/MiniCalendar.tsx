@@ -71,7 +71,7 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
     });
 
     return (
-        <div className="bg-bg-elevated p-5 rounded-xl shadow-sm border border-border-subtle w-72">
+        <div className="bg-bg-elevated p-5 rounded-xl shadow-md border border-border-subtle w-72">
             <div className="flex flex-col items-center gap-2 mb-3">
                 <h3 className="text-sm font-semibold text-text font-display text-center">
                     {monthNames[viewMonth]} {viewYear}
@@ -119,7 +119,7 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
                         ? {
                             backgroundColor: "var(--color-accent-sakura-soft)",
                             color: "var(--color-accent-sakura)",
-                            border: "1px solid color-mix(in srgb, var(--color-accent-sakura) 28%, transparent)",
+                            border: "1px solid rgba(194, 109, 134, 0.18)",
                           }
                         : hasQuiz
                             ? {
@@ -148,7 +148,7 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
                             key={idx}
                             className={`
                                 text-xs w-6 h-6 flex items-center justify-center rounded-full mx-auto font-medium transition-colors cursor-default
-                                ${!isToday && !hasDue && !hasHoliday && !hasOther && !hasQuiz ? "text-text hover:bg-bg-surface" : ""}
+                                ${!isToday && !hasDue && !hasHoliday && !hasOther && !hasQuiz ? "text-text-secondary hover:bg-bg-elevated" : ""}
                             `}
                             style={dayStyle}
                         >

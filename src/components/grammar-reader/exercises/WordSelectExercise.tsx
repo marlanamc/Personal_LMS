@@ -61,7 +61,7 @@ export function WordSelectExercise({
             <p className="sr-only">{item.label}</p>
             <div className="mb-2">
                 <p className="text-sm text-text font-medium mb-1">
-                    <span className="font-semibold mr-2">{itemNumber}.</span>
+                    <span className="practice-question-number font-semibold mr-2">{itemNumber}.</span>
                     {item.label}
                 </p>
                 <p className="text-xs text-text-muted">
@@ -88,14 +88,14 @@ export function WordSelectExercise({
 
                     const className =
                         state === "correct"
-                            ? "bg-success/20 border-success/40 text-text"
+                            ? "practice-choice-correct"
                         : state === "missed"
                             ? "bg-warning/15 border-warning/40 text-text"
                         : state === "wrong"
-                            ? "bg-error/15 border-error/40 text-text"
+                            ? "practice-choice-wrong"
                         : state === "selected"
-                            ? "bg-primary/20 border-primary/60 text-text ring-2 ring-primary/25 font-semibold"
-                        : "bg-bg-secondary/80 border-border text-text hover:border-primary/40 hover:bg-bg-light";
+                            ? "practice-choice-selected ring-2 ring-[var(--subject-accent)]/25 font-semibold"
+                        : "practice-choice-default";
 
                     if (!isClickable) {
                         return (
@@ -112,7 +112,7 @@ export function WordSelectExercise({
                             type="button"
                             onClick={() => toggleIndex(index)}
                             disabled={submitted}
-                            className={`inline-flex items-center rounded-lg border px-2 py-1 text-sm transition-[colors,box-shadow,transform] duration-150 ${className} ${submitted ? "cursor-not-allowed" : "cursor-pointer active:scale-[0.98]"}`}
+                            className={`practice-choice inline-flex items-center rounded-lg border px-2 py-1 text-sm transition-[colors,box-shadow,transform] duration-150 ${className} ${submitted ? "cursor-not-allowed" : "cursor-pointer active:scale-[0.98]"}`}
                             aria-pressed={isSelected}
                         >
                             <span>{token.text}</span>

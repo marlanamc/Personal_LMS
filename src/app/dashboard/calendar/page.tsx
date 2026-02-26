@@ -75,8 +75,8 @@ export default async function CalendarPage() {
     ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return (
-        <div className="min-h-screen bg-bg">
-            <header className="sticky top-0 backdrop-blur-md border-b z-50 bg-bg-secondary/90 border-border shadow-sm">
+        <div className="min-h-screen bg-bg-base light-ambient-surface">
+            <header className="sticky top-0 backdrop-blur-md border-b z-50 bg-bg-secondary/90 border-border-subtle shadow-sm">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                     <div>
                         <p className="text-xs font-semibold text-primary tracking-widest uppercase">Schedule</p>
@@ -88,13 +88,13 @@ export default async function CalendarPage() {
             <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6 pb-24 md:pb-12">
                 {/* Calendar - Centered */}
                 <div className="flex justify-center">
-                    <div className="bg-bg-secondary/90 border border-border shadow-lg rounded-2xl p-6 sm:p-8 w-full max-w-md">
+                    <div className="bg-bg-elevated border border-border-subtle shadow-lg rounded-2xl p-6 sm:p-8 w-full max-w-md">
                         <MiniCalendar events={calendarEvents} />
                     </div>
                 </div>
 
                 {/* Upcoming Events - Full Width */}
-                <div className="bg-bg-secondary/90 border border-border shadow-lg rounded-2xl p-4 sm:p-6">
+                <div className="bg-bg-surface border border-border-subtle shadow-lg rounded-2xl p-4 sm:p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-bold font-display text-text flex items-center gap-3">
                             <span className="w-1.5 h-6 rounded-full bg-primary"></span>

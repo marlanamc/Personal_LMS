@@ -24,7 +24,7 @@ export const PracticePanel = React.memo(function PracticePanel({
     const hasExercises = section.exercises && section.exercises.length > 0;
 
     return (
-        <div className="practice-panel bg-bg-light/50 p-4 sm:p-8 overflow-y-auto max-h-[50vh] lg:max-h-[600px]">
+        <div className="practice-panel practice-panel-shell p-4 sm:p-8 overflow-y-auto max-h-[50vh] lg:max-h-[600px]">
             {hasExercises && !unlocked ? (
                 <div className="h-full flex items-center justify-center text-center">
                     <div className="max-w-md space-y-2">
@@ -37,24 +37,14 @@ export const PracticePanel = React.memo(function PracticePanel({
                 </div>
             ) : hasExercises ? (
                 <div className="space-y-6">
-                    <div className="mb-4">
-                        <h3 className="text-xl font-bold text-primary font-display flex items-center gap-2">
-                            <svg
-                                className="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                                />
-                            </svg>
-                            Practice Exercises
-                        </h3>
-                        <p className="text-sm text-text-muted mt-1">
+                    <div className="practice-panel-header mb-4">
+                        <div className="flex items-center gap-2">
+                            <span className="practice-panel-icon-pill" aria-hidden="true">✦</span>
+                            <h3 className="practice-panel-title text-xl font-semibold text-text">
+                                Practice
+                            </h3>
+                        </div>
+                        <p className="practice-panel-subtitle text-sm font-medium text-text-muted mt-1">
                             Complete these exercises to practice what you learned
                         </p>
                     </div>

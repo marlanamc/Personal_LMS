@@ -299,6 +299,35 @@ export const FocusTimer = () => {
         window.location.assign('/api/spotify/connect?returnTo=%2Fdashboard%2Ftimer');
     }, []);
 
+    const disconnectSpotify = useCallback(async () => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/spotify/disconnect', {
+                method: 'DELETE',
+            });
+
+            if (!response.ok && response.status !== 401) {
+                throw new Error('Unable to disconnect Spotify');
+            }
+
+            setSpotifyStatus((prev) => ({
+                ...prev,
+                connected: false,
+                displayName: null,
+            }));
+            setSpotifyConnectedOverride(false);
+            setHasAutoSelectedSpotifyTrack(false);
+            window.localStorage.removeItem(SPOTIFY_CONNECTED_STORAGE_KEY);
+            window.localStorage.removeItem(SPOTIFY_AUTO_TRACK_SELECTED_STORAGE_KEY);
+            setSpotifyNotice('Spotify disconnected. Reconnect to restore full playback.');
+        } catch {
+            setSpotifyNotice('Unable to disconnect Spotify right now. Please try again.');
+        }
+    }, []);
+
     useEffect(() => {
         if (typeof window === 'undefined') {
             return;
@@ -784,7 +813,7 @@ export const FocusTimer = () => {
     }, []);
     
     return (
-        <div className="min-h-screen bg-bg-primary text-text font-display transition-colors duration-300 flex flex-col">
+        <div className="min-h-screen bg-bg-base light-ambient-surface focus-timer-ambient text-text font-display transition-colors duration-300 flex flex-col">
             {/* Header / Top Nav area - Fixed at top */}
             <header className="flex items-center justify-between px-6 py-4 sm:px-8 sm:py-5 shrink-0">
                 <div className="relative" ref={menuRef}>
@@ -833,6 +862,22 @@ export const FocusTimer = () => {
                                             ? `✅ Connected to Spotify (${spotifyStatus.displayName})`
                                             : '✅ Connected to Spotify'}
                                     </p>
+                                    <div className="mt-2 grid grid-cols-2 gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={connectSpotify}
+                                            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors bg-bg-secondary hover:bg-bg-light text-text"
+                                        >
+                                            Reconnect
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={disconnectSpotify}
+                                            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold border transition-colors bg-bg-secondary hover:bg-bg-light text-text"
+                                        >
+                                            Disconnect
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                             <div className="flex flex-col gap-1">
@@ -881,7 +926,7 @@ export const FocusTimer = () => {
                     )}
 
                     {/* Timer Ring */}
-                    <div className="relative flex justify-center items-center mb-8 select-none touch-none">
+                    <div className="focus-timer-well relative flex justify-center items-center mb-8 select-none touch-none">
                 <svg
                     ref={svgRef}
                     width="400"
@@ -905,7 +950,7 @@ export const FocusTimer = () => {
                         cy="160"
                         r={radius}
                         className="transition-colors duration-300"
-                        stroke="var(--color-progress-track)"
+                        stroke="var(--color-focus-orbit-track)"
                         strokeWidth={strokeWidth}
                         fill="none"
                     />

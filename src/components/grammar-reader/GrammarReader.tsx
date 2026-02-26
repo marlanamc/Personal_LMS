@@ -73,6 +73,14 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
         }
         return { name: 'Grammar', href: '/dashboard/subjects' };
     }, [activityId, completionKey]);
+    const practiceSubject = useMemo(() => {
+        const id = (activityId || completionKey || "").toLowerCase();
+        if (id.includes("coding")) return "coding";
+        if (id.includes("spanish")) return "spanish";
+        if (id.includes("health")) return "health";
+        if (id.includes("job-search") || id.includes("job_search")) return "job-search";
+        return "spanish";
+    }, [activityId, completionKey]);
     const sectionKeys = useMemo(
         () => content.sections.map((section, index) => section.id || `section-${index}`),
         [content.sections]
@@ -555,7 +563,10 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
     }, [awardCompletion, buildMiniQuizCertificateHref, onComplete, router]);
 
     return (
-        <div className="grammar-reader-container min-h-screen bg-bg">
+        <div
+            className="grammar-reader-container grammar-reader-themed min-h-screen bg-bg"
+            data-subject={practiceSubject}
+        >
             {/* Points Toast */}
             {pointsToast && (
                 <PointsToast
@@ -567,7 +578,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
 
             {/* Main Content Container - Everything in one card */}
             <main className="container mx-auto px-4 py-4 pb-24 md:pb-4">
-                <div className="grammar-reader-split-screen bg-bg-secondary/95 rounded-xl shadow-lg border border-border overflow-hidden">
+                <div className="grammar-reader-split-screen practice-split-shell bg-bg-secondary/95 rounded-xl shadow-lg border border-border overflow-hidden">
                     {/* Compact Header: Breadcrumb + Progress + TOC */}
                     <div className="border-b border-border bg-bg-light">
                         <div className="px-6 py-3 group">
@@ -671,7 +682,10 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                             />
 
                             {/* Related practice & spiral review (Spanish guides) */}
-                            {activityId && activityId.startsWith("spanish-") && activityId.endsWith("-guide") && (
+                            {activityId &&
+                                activityId.startsWith("spanish-") &&
+                                activityId.endsWith("-guide") &&
+                                currentSectionIndex === 0 && (
                                 <div className="px-6 pt-2">
                                     <RelatedPracticeSection activityId={activityId} />
                                 </div>
@@ -697,7 +711,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                                         ref={practicePanelRef}
                                         tabIndex={-1}
                                         aria-live="polite"
-                                        className="outline-none"
+                                        className="practice-column-lane outline-none"
                                     >
                                         <PracticePanel
                                             section={effectiveSection!}
@@ -757,7 +771,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                             <button
                                 onClick={handlePrevious}
                                 disabled={!showQuiz && isFirstSection}
-                                className="fixed left-4 top-1/2 -translate-y-1/2 z-40 w-14 h-14 rounded-full bg-bg-secondary/95 shadow-lg border-2 border-border hover:border-primary hover:bg-primary hover:text-white transition-[border-color,background-color,color] duration-200 flex items-center justify-center group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-bg-secondary/95 disabled:hover:border-border disabled:hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                                className="practice-nav-button practice-nav-button-prev fixed left-4 top-1/2 -translate-y-1/2 z-40 w-14 h-14 rounded-full flex items-center justify-center group disabled:opacity-50 disabled:cursor-not-allowed"
                                 aria-label="Previous section"
                             >
                                 <svg
@@ -783,7 +797,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                         <button
                             onClick={handleNext}
                             disabled={showQuiz && !content.miniQuiz}
-                            className="fixed right-4 top-1/2 -translate-y-1/2 z-40 w-14 h-14 rounded-full bg-primary text-white shadow-lg hover:bg-primary-dark hover:scale-110 transition-[background-color,transform] duration-200 flex items-center justify-center group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+                            className="practice-nav-button practice-nav-button-next fixed right-4 top-1/2 -translate-y-1/2 z-40 w-14 h-14 rounded-full flex items-center justify-center group disabled:opacity-50 disabled:cursor-not-allowed"
                             aria-label="Next section"
                         >
                             <svg
