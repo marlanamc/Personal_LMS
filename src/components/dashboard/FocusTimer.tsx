@@ -52,8 +52,18 @@ type FeaturedAssignmentTask = {
 };
 
 const FOCUS_TASKS_STORAGE_KEY = 'focus-timer:tasks:v1';
+const FOCUS_SESSION_HISTORY_STORAGE_KEY = 'focus-timer:sessions:v1';
 const SPOTIFY_CONNECTED_STORAGE_KEY = 'focus-timer:spotify-connected:v1';
 const SPOTIFY_AUTO_TRACK_SELECTED_STORAGE_KEY = 'focus-timer:spotify-auto-track-selected:v1';
+const MAX_STORED_SESSIONS = 20;
+
+type CompletedFocusSession = {
+    id: string;
+    title: string;
+    durationMinutes: number;
+    completedAt: string;
+    pointsAwarded?: number;
+};
 
 type DragInputEvent =
     | MouseEvent
@@ -131,7 +141,13 @@ export const FocusTimer = () => {
     const [isActivityPanelOpen, setIsActivityPanelOpen] = useState(false);
     const [activeActivityId, setActiveActivityId] = useState<string | null>(null);
     const [activeAssignmentId, setActiveAssignmentId] = useState<string | null>(null);
+    const [sessionTitleInput, setSessionTitleInput] = useState('');
+    const [hasCustomSessionTitle, setHasCustomSessionTitle] = useState(false);
+    const [activeSessionTitle, setActiveSessionTitle] = useState<string | null>(null);
+    const [completedSessions, setCompletedSessions] = useState<CompletedFocusSession[]>([]);
+    const [sessionNotice, setSessionNotice] = useState<string | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
+    const prevIsActiveRef = useRef(isActive);
 
     const fetchSpotifyStatus = useCallback(async (signal?: AbortSignal) => {
         const response = await fetch('/api/spotify/status', {
@@ -348,6 +364,15 @@ export const FocusTimer = () => {
         return () => window.clearTimeout(timeout);
     }, [tasksNotice]);
 
+    useEffect(() => {
+        if (!sessionNotice) {
+            return;
+        }
+
+        const timeout = window.setTimeout(() => setSessionNotice(null), 4000);
+        return () => window.clearTimeout(timeout);
+    }, [sessionNotice]);
+
     const updateMinutesFromPointer = useCallback(
         (clientX: number, clientY: number) => {
             if (!svgRef.current || isActive) return;
@@ -430,6 +455,30 @@ export const FocusTimer = () => {
         () => tasks.filter((task) => task.done).length,
         [tasks]
     );
+    const sessionTopic = useMemo(() => {
+        const taskText = tasks
+            .filter((task) => !task.done)
+            .map((task) => task.text.toLowerCase())
+            .join(' ');
+
+        if (/\b(spanish|preterite|imperfect|verb|conjugation|esol)\b/.test(taskText)) {
+            return 'Spanish';
+        }
+
+        if (/\b(coding|javascript|typescript|js\/ts|react|next\.js|operator|array)\b/.test(taskText)) {
+            return 'Coding';
+        }
+
+        if (/\b(game|matching|flashcard|flash card|speed|race|challenge|practice)\b/.test(taskText)) {
+            return 'Practice';
+        }
+
+        return 'Focus';
+    }, [tasks]);
+    const suggestedSessionTitle = useMemo(
+        () => `${sessionTopic} ${selectedMinutes} min`,
+        [sessionTopic, selectedMinutes]
+    );
 
     const addTask = useCallback(() => {
         const trimmed = newTaskText.trim();
@@ -462,6 +511,155 @@ export const FocusTimer = () => {
     const clearCompletedTasks = useCallback(() => {
         setTasks((prev) => prev.filter((task) => !task.done));
     }, []);
+
+    const saveSessionToServer = useCallback(async (session: CompletedFocusSession) => {
+        try {
+            const response = await fetch('/api/focus-timer/sessions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    sessionId: session.id,
+                    title: session.title,
+                    durationMinutes: session.durationMinutes,
+                    completedAt: session.completedAt,
+                }),
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json() as {
+                pointsAwarded?: number;
+                session?: CompletedFocusSession;
+            };
+
+            if (data.session) {
+                setCompletedSessions((prev) => {
+                    const merged = prev.map((entry) =>
+                        entry.id === data.session?.id
+                            ? { ...entry, pointsAwarded: data.session.pointsAwarded ?? entry.pointsAwarded }
+                            : entry
+                    );
+                    return merged;
+                });
+            }
+
+            if (typeof data.pointsAwarded === 'number' && data.pointsAwarded > 0) {
+                setSessionNotice(`+${data.pointsAwarded} points for focus time`);
+            }
+        } catch {
+            // Keep local history if network sync fails.
+        }
+    }, []);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        try {
+            const raw = window.localStorage.getItem(FOCUS_SESSION_HISTORY_STORAGE_KEY);
+            if (!raw) {
+                setCompletedSessions([]);
+                return;
+            }
+
+            const parsed = JSON.parse(raw) as CompletedFocusSession[];
+            if (!Array.isArray(parsed)) {
+                setCompletedSessions([]);
+                return;
+            }
+
+            setCompletedSessions(
+                parsed.filter((session) =>
+                    session &&
+                    typeof session.id === 'string' &&
+                    typeof session.title === 'string' &&
+                    typeof session.durationMinutes === 'number' &&
+                    typeof session.completedAt === 'string'
+                )
+            );
+        } catch {
+            setCompletedSessions([]);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        window.localStorage.setItem(
+            FOCUS_SESSION_HISTORY_STORAGE_KEY,
+            JSON.stringify(completedSessions.slice(0, MAX_STORED_SESSIONS))
+        );
+    }, [completedSessions]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const loadServerSessions = async () => {
+            try {
+                const response = await fetch('/api/focus-timer/sessions', {
+                    method: 'GET',
+                    cache: 'no-store',
+                });
+
+                if (!response.ok || cancelled) {
+                    return;
+                }
+
+                const data = await response.json() as { sessions?: CompletedFocusSession[] };
+                if (!Array.isArray(data.sessions) || cancelled) {
+                    return;
+                }
+
+                setCompletedSessions(data.sessions.slice(0, MAX_STORED_SESSIONS));
+            } catch {
+                // Fall back to local history.
+            }
+        };
+
+        void loadServerSessions();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    useEffect(() => {
+        const hasStartedSession = isActive || timeLeft < selectedMinutes * 60;
+
+        if (hasStartedSession || hasCustomSessionTitle) {
+            return;
+        }
+
+        setSessionTitleInput(suggestedSessionTitle);
+    }, [isActive, timeLeft, selectedMinutes, hasCustomSessionTitle, suggestedSessionTitle]);
+
+    useEffect(() => {
+        const wasActive = prevIsActiveRef.current;
+        const sessionCompleted = wasActive && !isActive && timeLeft === 0;
+
+        if (sessionCompleted) {
+            const completedTitle = (activeSessionTitle || sessionTitleInput || suggestedSessionTitle).trim();
+            const completedSession: CompletedFocusSession = {
+                id: `session-${Date.now()}`,
+                title: completedTitle,
+                durationMinutes: selectedMinutes,
+                completedAt: new Date().toISOString(),
+            };
+
+            setCompletedSessions((prev) => [completedSession, ...prev].slice(0, MAX_STORED_SESSIONS));
+            void saveSessionToServer(completedSession);
+            setActiveSessionTitle(null);
+            setHasCustomSessionTitle(false);
+        }
+
+        prevIsActiveRef.current = isActive;
+    }, [isActive, timeLeft, activeSessionTitle, sessionTitleInput, suggestedSessionTitle, selectedMinutes, saveSessionToServer]);
 
     const importTasksFromSubjects = useCallback(async () => {
         setIsImportingTasks(true);
@@ -678,6 +876,9 @@ export const FocusTimer = () => {
                     {spotifyNotice && (
                         <p className="text-center text-xs font-semibold text-text-muted mb-4">{spotifyNotice}</p>
                     )}
+                    {sessionNotice && (
+                        <p className="text-center text-xs font-semibold text-mineral-mint mb-4">{sessionNotice}</p>
+                    )}
 
                     {/* Timer Ring */}
                     <div className="relative flex justify-center items-center mb-8 select-none touch-none">
@@ -802,9 +1003,32 @@ export const FocusTimer = () => {
 
                     {/* Play/Pause Button */}
                     <div className="flex justify-center flex-col items-center mb-8">
+                        {!isActive && !hasSessionProgress && (
+                            <div className="w-full max-w-[300px] mb-4">
+                                <label htmlFor="session-title" className="block text-xs font-semibold text-text-muted mb-1">
+                                    Session title (optional)
+                                </label>
+                                <input
+                                    id="session-title"
+                                    value={sessionTitleInput}
+                                    onChange={(event) => {
+                                        const nextValue = event.target.value;
+                                        setSessionTitleInput(nextValue);
+                                        setHasCustomSessionTitle(nextValue.trim() !== '' && nextValue.trim() !== suggestedSessionTitle);
+                                    }}
+                                    placeholder={suggestedSessionTitle}
+                                    className="w-full px-3 py-2 rounded-xl border border-border bg-bg-secondary text-sm text-text placeholder:text-text-muted outline-none focus:border-primary"
+                                    maxLength={80}
+                                />
+                            </div>
+                        )}
                         <button
                             onClick={() => {
                                 triggerHaptic(20);
+                                if (!isActive) {
+                                    const normalizedTitle = sessionTitleInput.trim();
+                                    setActiveSessionTitle(normalizedTitle || suggestedSessionTitle);
+                                }
                                 toggleTimer();
                             }}
                             className="focus-timer-main-button flex items-center gap-3 px-8 py-4 rounded-full text-lg font-semibold transition-transform active:scale-95"
@@ -820,6 +1044,7 @@ export const FocusTimer = () => {
                             <button
                                 onClick={() => {
                                     triggerHaptic(30);
+                                    setActiveSessionTitle(null);
                                     resetTimer();
                                 }}
                                 className="mt-4 text-sm font-semibold underline text-text-muted hover:text-text transition-colors"
@@ -828,6 +1053,23 @@ export const FocusTimer = () => {
                             </button>
                         )}
                     </div>
+
+                    {completedSessions.length > 0 && (
+                        <div className="w-full max-w-[300px] mb-8 rounded-2xl border border-border/60 bg-bg-secondary/70 p-4">
+                            <h3 className="text-sm font-bold text-text mb-3">Completed Sessions</h3>
+                            <div className="space-y-2.5">
+                                {completedSessions.slice(0, 3).map((session) => (
+                                    <div key={session.id} className="rounded-xl border border-border/50 bg-bg-elevated/70 px-3 py-2">
+                                        <p className="text-sm font-semibold text-text truncate">{session.title}</p>
+                                        <p className="text-xs text-text-muted">
+                                            {session.durationMinutes} min · {new Date(session.completedAt).toLocaleDateString()} {new Date(session.completedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                                            {typeof session.pointsAwarded === 'number' && ` · +${session.pointsAwarded} pts`}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Spotify Player - Integrated below controls */}
                     {selectedPlaylistId && (

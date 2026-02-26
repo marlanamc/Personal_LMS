@@ -54,9 +54,9 @@ export function CertificateMedal({
     // Determine icon color based on tier for contrast
     const iconColorClass = {
         bronze: "text-amber-900",
-        silver: "text-slate-700",
+        silver: "text-slate-800",
         gold: "text-amber-800",
-        platinum: "text-slate-600",
+        platinum: "text-slate-800",
     }[tier];
 
     return (

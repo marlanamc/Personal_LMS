@@ -30,26 +30,39 @@ export function MiniCertificateCard({ certificate, className = "" }: MiniCertifi
 
     const href = `/dashboard/certificates/mini-quiz?activityId=${encodeURIComponent(certificate.activityId)}&slug=${encodeURIComponent(certificate.slug)}`;
 
-    // Background gradient based on tier
-    const bgGradient = {
-        bronze: "from-amber-50/80 via-orange-50/60 to-amber-50/80",
-        silver: "from-slate-50/80 via-gray-50/60 to-slate-50/80",
-        gold: "from-amber-50/90 via-yellow-50/70 to-amber-50/90",
-        platinum: "from-cyan-50/80 via-sky-50/60 to-cyan-50/80",
-    }[tier];
-
-    const borderColor = {
-        bronze: "border-amber-300/60 hover:border-amber-400/80",
-        silver: "border-slate-300/60 hover:border-slate-400/80",
-        gold: "border-amber-300/70 hover:border-amber-400/90",
-        platinum: "border-cyan-300/60 hover:border-cyan-400/80",
-    }[tier];
-
-    const tierBadgeStyle = {
-        bronze: "bg-amber-100 text-amber-700 border-amber-200",
-        silver: "bg-slate-100 text-slate-600 border-slate-200",
-        gold: "bg-amber-100 text-amber-700 border-amber-200",
-        platinum: "bg-cyan-100 text-cyan-700 border-cyan-200",
+    const palette = {
+        bronze: {
+            bgGradient: "from-amber-100 via-orange-50 to-amber-100",
+            border: "border-amber-300 hover:border-amber-500",
+            badge: "bg-amber-100 text-amber-800 border-amber-300",
+            title: "text-amber-950 group-hover:text-amber-800",
+            score: "text-amber-950",
+            date: "text-amber-900/80",
+        },
+        silver: {
+            bgGradient: "from-slate-100 via-gray-50 to-slate-100",
+            border: "border-slate-300 hover:border-slate-500",
+            badge: "bg-slate-100 text-slate-800 border-slate-300",
+            title: "text-slate-900 group-hover:text-slate-700",
+            score: "text-slate-950",
+            date: "text-slate-700",
+        },
+        gold: {
+            bgGradient: "from-amber-100 via-yellow-50 to-amber-100",
+            border: "border-amber-300 hover:border-amber-500",
+            badge: "bg-amber-100 text-amber-800 border-amber-300",
+            title: "text-amber-950 group-hover:text-amber-800",
+            score: "text-amber-950",
+            date: "text-amber-900/80",
+        },
+        platinum: {
+            bgGradient: "from-cyan-100 via-sky-50 to-cyan-100",
+            border: "border-cyan-300 hover:border-cyan-500",
+            badge: "bg-cyan-100 text-cyan-800 border-cyan-300",
+            title: "text-slate-900 group-hover:text-cyan-800",
+            score: "text-slate-950",
+            date: "text-slate-700",
+        },
     }[tier];
 
     return (
@@ -58,8 +71,8 @@ export function MiniCertificateCard({ certificate, className = "" }: MiniCertifi
             className={`
                 group relative flex flex-col items-center
                 min-w-[180px] max-w-[220px] flex-1
-                rounded-2xl border-2 ${borderColor}
-                bg-gradient-to-br ${bgGradient}
+                rounded-2xl border-2 ${palette.border}
+                bg-gradient-to-br ${palette.bgGradient}
                 p-5 shadow-sm
                 transition-all duration-300
                 hover:-translate-y-1 hover:shadow-lg
@@ -80,24 +93,24 @@ export function MiniCertificateCard({ certificate, className = "" }: MiniCertifi
             <div
                 className={`
                     mb-2 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider
-                    border ${tierBadgeStyle}
+                    border ${palette.badge}
                 `}
             >
                 {tierLabel}
             </div>
 
             {/* Title */}
-            <p className="text-center text-sm font-bold text-text leading-tight line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+            <p className={`text-center text-sm font-bold leading-tight line-clamp-2 mb-2 transition-colors ${palette.title}`}>
                 {certificate.title}
             </p>
 
             {/* Score */}
             <div className="flex items-center gap-1.5">
-                <span className="text-lg font-bold text-text">{certificate.score}%</span>
+                <span className={`text-lg font-bold ${palette.score}`}>{certificate.score}%</span>
             </div>
 
             {/* Date */}
-            <p className="mt-1 text-xs text-text-muted">
+            <p className={`mt-1 text-xs ${palette.date}`}>
                 {certificate.issuedAt
                     ? certificate.issuedAt.toLocaleDateString()
                     : "Recently earned"}

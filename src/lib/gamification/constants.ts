@@ -67,6 +67,7 @@ export const POINTS = {
   CODE_CONCEPT_MATCH: 5,
   CODING_STREAK_5: 10,
   CODING_PERFECT_ROUND: 15,
+  FOCUS_TIMER_30_MIN: 5,
 } as const;
 
 export type PointsKey = keyof typeof POINTS;
