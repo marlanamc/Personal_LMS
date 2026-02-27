@@ -424,10 +424,7 @@ export default function VerbConjugationGame({
             {/* Verb info */}
             <div className="text-center mb-6">
               <div className="inline-block bg-white rounded-2xl shadow-lg px-6 py-5 border-2 border-emerald-200 mb-4">
-                <p className="text-emerald-700 text-xs sm:text-sm font-semibold tracking-[0.08em] uppercase mb-2">
-                  Conjugate this verb
-                </p>
-                <p className="text-5xl sm:text-7xl font-extrabold text-emerald-700 leading-none tracking-wide mb-2">
+                <p className="text-6xl sm:text-8xl font-black text-teal-600 leading-none tracking-wide mb-2">
                   {gameState.currentVerb.infinitive}
                 </p>
                 <p className="text-gray-600 font-medium">({gameState.currentVerb.english})</p>
