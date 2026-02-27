@@ -319,7 +319,7 @@ export default function VerbConjugationGame({
 
   if (isComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex flex-col">
         {pointsToast && (
           <PointsToast
             key={pointsToast.key}
@@ -333,27 +333,27 @@ export default function VerbConjugationGame({
         )}
 
         <div className="flex-1 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-emerald-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-emerald-200 dark:border-emerald-800/60">
             <div className="text-6xl mb-4">🏆</div>
-            <h2 className="text-3xl font-bold text-emerald-800 mb-2">¡Muy Bien!</h2>
-            <p className="text-lg text-emerald-600 mb-6">Verb Practice Complete!</p>
+            <h2 className="text-3xl font-bold text-emerald-800 dark:text-emerald-300 mb-2">¡Muy Bien!</h2>
+            <div className="text-lg text-emerald-600 dark:text-emerald-400 mb-6">Verb Practice Complete!</div>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                <div className="text-3xl font-bold text-green-600">{gameState.score}</div>
-                <div className="text-sm text-green-700">Points</div>
+              <div className="bg-green-50 dark:bg-green-950/30 rounded-xl p-4 border border-green-200 dark:border-green-800/60">
+                <div className="text-3xl font-bold text-green-600 dark:text-green-300">{gameState.score}</div>
+                <div className="text-sm text-green-700 dark:text-green-400">Points</div>
               </div>
-              <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-                <div className="text-3xl font-bold text-blue-600">{accuracy}%</div>
-                <div className="text-sm text-blue-700">Accuracy</div>
+              <div className="bg-blue-50 dark:bg-blue-950/30 rounded-xl p-4 border border-blue-200 dark:border-blue-800/60">
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-300">{accuracy}%</div>
+                <div className="text-sm text-blue-700 dark:text-blue-400">Accuracy</div>
               </div>
-              <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
-                <div className="text-3xl font-bold text-purple-600">{gameState.maxStreak}</div>
-                <div className="text-sm text-purple-700">Best Streak</div>
+              <div className="bg-purple-50 dark:bg-purple-950/30 rounded-xl p-4 border border-purple-200 dark:border-purple-800/60">
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-300">{gameState.maxStreak}</div>
+                <div className="text-sm text-purple-700 dark:text-purple-400">Best Streak</div>
               </div>
-              <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
-                <div className="text-3xl font-bold text-emerald-600">{gameState.questionCount}</div>
-                <div className="text-sm text-emerald-700">Correct</div>
+              <div className="bg-emerald-50 dark:bg-emerald-950/30 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800/60">
+                <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-300">{gameState.questionCount}</div>
+                <div className="text-sm text-emerald-700 dark:text-emerald-400">Correct</div>
               </div>
             </div>
 
@@ -371,7 +371,7 @@ export default function VerbConjugationGame({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex flex-col">
       {pointsToast && (
         <PointsToast
           key={pointsToast.key}
@@ -385,14 +385,14 @@ export default function VerbConjugationGame({
       )}
 
       {/* Header */}
-      <div className="bg-white border-b-2 border-emerald-200 px-4 py-3 flex items-center justify-between">
+      <div className="bg-white dark:bg-slate-900/80 border-b-2 border-emerald-200 dark:border-emerald-800/50 px-4 py-3 flex items-center justify-between">
         <BackButton onClick={() => window.history.back()} />
 
         <div className="flex items-center gap-4">
           {timedMode && (
-            <div className="flex items-center gap-1 bg-emerald-100 px-3 py-1.5 rounded-full">
-              <Clock className="w-4 h-4 text-emerald-600" />
-              <span className="font-mono font-bold text-emerald-800">{timeRemaining}s</span>
+            <div className="flex items-center gap-1 bg-emerald-100 dark:bg-emerald-900/40 px-3 py-1.5 rounded-full border border-emerald-200 dark:border-emerald-800/60">
+              <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-300" />
+              <span className="font-mono font-bold text-emerald-800 dark:text-emerald-200">{timeRemaining}s</span>
             </div>
           )}
 
@@ -403,14 +403,14 @@ export default function VerbConjugationGame({
             </div>
           )}
 
-          <div className="bg-green-100 px-3 py-1.5 rounded-full">
-            <span className="font-bold text-green-800">{gameState.score} pts</span>
+          <div className="bg-green-100 dark:bg-green-900/40 px-3 py-1.5 rounded-full border border-green-200 dark:border-green-800/60">
+            <span className="font-bold text-green-800 dark:text-green-200">{gameState.score} pts</span>
           </div>
         </div>
       </div>
 
       {/* Progress bar */}
-      <div className="h-2 bg-emerald-100">
+      <div className="h-2 bg-emerald-100 dark:bg-emerald-950/50">
         <div
           className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-300"
           style={{ width: `${progress}%` }}
@@ -423,51 +423,51 @@ export default function VerbConjugationGame({
           <>
             {/* Verb info */}
             <div className="text-center mb-6">
-              <div className="inline-block bg-white rounded-2xl shadow-lg px-6 py-5 border-2 border-emerald-200 mb-4">
+              <div className="inline-block bg-white dark:bg-slate-900 rounded-2xl shadow-lg px-6 py-5 border-2 border-emerald-200 dark:border-emerald-700/70 mb-4">
                 <h2
                   className="leading-none tracking-wide mb-2"
                   style={{
-                    color: "#0d9488",
+                    color: "#14b8a6",
                     fontWeight: 900,
                     fontSize: "clamp(3rem, 9vw, 5.5rem)",
                   }}
                 >
                   {gameState.currentVerb.infinitive}
                 </h2>
-                <p className="text-gray-600 font-medium">({gameState.currentVerb.english})</p>
+                <div className="text-slate-600 dark:text-slate-300 font-medium">({gameState.currentVerb.english})</div>
               </div>
 
               {/* Tense and Subject */}
               <div className="flex items-center justify-center gap-4">
-                <div className="bg-teal-100 px-4 py-2 rounded-xl">
-                  <span className="text-sm text-teal-600">Tense:</span>
-                  <span className="ml-2 font-bold text-teal-800">{TENSE_LABELS[gameState.currentTense]}</span>
+                <div className="bg-teal-100 dark:bg-teal-900/40 border border-teal-200 dark:border-teal-800/60 px-4 py-2 rounded-xl">
+                  <span className="text-sm text-teal-700 dark:text-teal-300">Tense:</span>
+                  <span className="ml-2 font-bold text-teal-900 dark:text-teal-200">{TENSE_LABELS[gameState.currentTense]}</span>
                 </div>
-                <div className="bg-cyan-100 px-4 py-2 rounded-xl">
-                  <span className="text-sm text-cyan-600">Subject:</span>
-                  <span className="ml-2 font-bold text-cyan-800">{currentSubjectInfo?.spanish}</span>
-                  <span className="ml-1 text-cyan-600 text-sm">({currentSubjectInfo?.label})</span>
+                <div className="bg-cyan-100 dark:bg-cyan-900/40 border border-cyan-200 dark:border-cyan-800/60 px-4 py-2 rounded-xl">
+                  <span className="text-sm text-cyan-700 dark:text-cyan-300">Subject:</span>
+                  <span className="ml-2 font-bold text-cyan-900 dark:text-cyan-200">{currentSubjectInfo?.spanish}</span>
+                  <span className="ml-1 text-cyan-700 dark:text-cyan-300 text-sm">({currentSubjectInfo?.label})</span>
                 </div>
               </div>
             </div>
 
             {/* Stats row */}
             <div className="flex items-center justify-center gap-6 text-sm mb-6">
-              <div className="text-emerald-600">
-                <span className="font-bold text-emerald-800">{gameState.questionCount}</span> / {questionsPerRound}
+              <div className="text-emerald-700 dark:text-emerald-300">
+                <span className="font-bold text-emerald-900 dark:text-emerald-100">{gameState.questionCount}</span> / {questionsPerRound}
               </div>
-              <div className="text-green-600">
-                Streak: <span className="font-bold text-green-800">{gameState.streak}</span>
+              <div className="text-green-700 dark:text-green-300">
+                Streak: <span className="font-bold text-green-900 dark:text-green-100">{gameState.streak}</span>
               </div>
-              <div className="text-blue-600">
-                Accuracy: <span className="font-bold text-blue-800">{accuracy}%</span>
+              <div className="text-blue-700 dark:text-blue-300">
+                Accuracy: <span className="font-bold text-blue-900 dark:text-blue-100">{accuracy}%</span>
               </div>
             </div>
 
             {/* Input area */}
             <div className="w-full max-w-md">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xl font-bold text-emerald-800">{currentSubjectInfo?.spanish}</span>
+                <span className="text-xl font-bold text-emerald-800 dark:text-emerald-200">{currentSubjectInfo?.spanish}</span>
                 <input
                   ref={inputRef}
                   type="text"
@@ -476,12 +476,12 @@ export default function VerbConjugationGame({
                   onKeyDown={handleKeyDown}
                   placeholder="conjugation..."
                   disabled={feedback === "correct"}
-                  className={`flex-1 text-2xl p-4 rounded-2xl border-3 text-center font-medium transition-all
+                  className={`flex-1 text-2xl p-4 rounded-2xl border-2 text-center font-medium transition-all placeholder:text-slate-500 dark:placeholder:text-slate-400
                     ${feedback === "correct"
-                      ? "border-green-400 bg-green-50 text-green-800"
+                      ? "border-green-400 dark:border-green-600 bg-green-50 dark:bg-green-950/30 text-green-800 dark:text-green-200"
                       : feedback === "incorrect"
-                      ? "border-red-400 bg-red-50 text-red-800"
-                      : "border-emerald-300 bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200"
+                      ? "border-red-400 dark:border-red-600 bg-red-50 dark:bg-red-950/30 text-red-800 dark:text-red-200"
+                      : "border-emerald-300 dark:border-emerald-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:border-emerald-500 dark:focus:border-emerald-500 focus:ring-4 focus:ring-emerald-200 dark:focus:ring-emerald-900/50"
                     }
                   `}
                 />
@@ -491,17 +491,17 @@ export default function VerbConjugationGame({
               {feedback === "correct" && (
                 <div className="mt-4 text-center animate-bounce">
                   <span className="text-4xl">✓</span>
-                  <p className="text-green-600 font-bold">¡Correcto!</p>
+                  <div className="text-green-600 dark:text-green-300 font-bold">¡Correcto!</div>
                 </div>
               )}
 
               {feedback === "incorrect" && showAnswer && (
                 <div className="mt-4 text-center">
-                  <p className="text-red-600 font-medium mb-2">The correct answer was:</p>
-                  <p className="text-2xl font-bold text-emerald-800">
-                    {currentSubjectInfo?.spanish} <span className="text-teal-600">{getCorrectAnswer()}</span>
-                  </p>
-                  <p className="text-sm text-gray-500 mt-2">Press Enter to continue</p>
+                  <div className="text-red-600 dark:text-red-300 font-medium mb-2">The correct answer was:</div>
+                  <div className="text-2xl font-bold text-emerald-800 dark:text-emerald-200">
+                    {currentSubjectInfo?.spanish} <span className="text-teal-600 dark:text-teal-300">{getCorrectAnswer()}</span>
+                  </div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400 mt-2">Press Enter to continue</div>
                 </div>
               )}
 
@@ -510,7 +510,7 @@ export default function VerbConjugationGame({
                 <button
                   onClick={checkAnswer}
                   disabled={!userAnswer.trim()}
-                  className="w-full mt-4 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full mt-4 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed dark:from-emerald-600 dark:to-teal-600"
                 >
                   Check Answer
                 </button>
@@ -519,7 +519,7 @@ export default function VerbConjugationGame({
 
             {/* Verb type indicator */}
             {gameState.currentVerb.irregularNote && (
-              <div className="mt-6 px-4 py-2 bg-amber-100 rounded-lg text-amber-800 text-sm">
+              <div className="mt-6 px-4 py-2 bg-amber-100 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-lg text-amber-800 dark:text-amber-300 text-sm">
                 ⚠️ Irregular: {gameState.currentVerb.irregularNote}
               </div>
             )}
@@ -529,7 +529,7 @@ export default function VerbConjugationGame({
 
       {/* Mode indicator */}
       <div className="text-center pb-4">
-        <span className="text-xs text-emerald-500 uppercase tracking-wider">
+        <span className="text-xs text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
           {tense === "mixed" ? "Mixed Tenses" : TENSE_LABELS[tense as Tense]} • {verbTypes.join(", ")} verbs
         </span>
       </div>
