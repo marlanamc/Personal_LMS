@@ -424,9 +424,16 @@ export default function VerbConjugationGame({
             {/* Verb info */}
             <div className="text-center mb-6">
               <div className="inline-block bg-white rounded-2xl shadow-lg px-6 py-5 border-2 border-emerald-200 mb-4">
-                <p className="text-6xl sm:text-8xl font-black text-teal-600 leading-none tracking-wide mb-2">
+                <h2
+                  className="leading-none tracking-wide mb-2"
+                  style={{
+                    color: "#0d9488",
+                    fontWeight: 900,
+                    fontSize: "clamp(3rem, 9vw, 5.5rem)",
+                  }}
+                >
                   {gameState.currentVerb.infinitive}
-                </p>
+                </h2>
                 <p className="text-gray-600 font-medium">({gameState.currentVerb.english})</p>
               </div>
 
