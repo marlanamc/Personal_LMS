@@ -564,7 +564,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
 
     return (
         <div
-            className="grammar-reader-container grammar-reader-themed min-h-screen bg-bg"
+            className="grammar-reader-container grammar-reader-themed min-h-[100dvh] bg-bg"
             data-subject={practiceSubject}
         >
             {/* Points Toast */}
@@ -577,11 +577,11 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
             )}
 
             {/* Main Content Container - Everything in one card */}
-            <main className="container mx-auto px-4 py-4 pb-24 md:pb-4">
-                <div className="grammar-reader-split-screen practice-split-shell bg-bg-secondary/95 rounded-xl shadow-lg border border-border overflow-hidden">
+            <main className="mx-auto w-full max-w-screen-2xl px-0 py-0 pb-24 sm:px-3 sm:py-3 md:px-4 md:py-4 md:pb-4">
+                <div className="grammar-reader-split-screen practice-split-shell min-h-[100dvh] md:min-h-0 bg-bg-secondary/95 rounded-none md:rounded-xl shadow-none md:shadow-lg border-0 md:border md:border-border overflow-hidden">
                     {/* Compact Header: Breadcrumb + Progress + TOC */}
                     <div className="border-b border-border bg-bg-light">
-                        <div className="px-6 py-3 group">
+                        <div className="px-4 sm:px-6 py-3 group">
                             {/* Top Row: Breadcrumb and TOC Button */}
                             <div className="flex items-center justify-between gap-4 mb-3">
                                 <nav className="flex items-center gap-1.5 text-xs overflow-x-auto flex-1 min-w-0">
@@ -642,7 +642,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
 
                         {/* Table of Contents - Expandable */}
                         {content.tableOfContents && showTOC && (
-                            <div className="px-6 pb-4 border-t border-border">
+                            <div className="px-4 sm:px-6 pb-4 border-t border-border">
                                 <div className="pt-4">
                                     <TableOfContents
                                         sections={content.sections}
@@ -686,7 +686,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                                 activityId.startsWith("spanish-") &&
                                 activityId.endsWith("-guide") &&
                                 currentSectionIndex === 0 && (
-                                <div className="px-6 pt-2">
+                                <div className="px-4 sm:px-6 pt-2">
                                     <RelatedPracticeSection activityId={activityId} />
                                 </div>
                             )}
@@ -743,7 +743,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
 
                     {/* Section Counter Footer - Just shows current section */}
                     {!showTOC && (
-                        <div className="px-6 py-3 border-t border-border bg-bg-light">
+                        <div className="px-4 sm:px-6 py-3 border-t border-border bg-bg-light">
                             <div className="text-center">
                                 <div className="text-sm text-text-muted">
                                     {showQuiz
