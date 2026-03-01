@@ -66,10 +66,11 @@ function mergeStateWithTemplates(state: DailyAnchorState, templates: DailyAnchor
   };
 }
 
-async function persistStoreToServer(store: DailyAnchorsStore): Promise<void> {
+async function persistStoreToServer(store: DailyAnchorsStore, keepalive = false): Promise<void> {
   await fetch('/api/daily-anchors', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    keepalive,
     body: JSON.stringify({ store }),
   });
 }
@@ -82,41 +83,50 @@ export function useDailyAnchors(storageScope: string) {
 
   const readyToPersistRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestStoreRef = useRef<DailyAnchorsStore>(store);
 
   const storageKey = useMemo(() => getLegacyStorageKey(storageScope), [storageScope]);
+
+  useEffect(() => {
+    latestStoreRef.current = store;
+  }, [store]);
 
   useEffect(() => {
     let cancelled = false;
 
     const load = async () => {
       setIsLoaded(false);
+      const legacyRaw = window.localStorage.getItem(storageKey);
+      const legacyStore = normalizeDailyAnchorsStore(legacyRaw ? JSON.parse(legacyRaw) : null);
+      const hasLegacyData = Object.keys(legacyStore.states).length > 0;
+
       try {
         const response = await fetch('/api/daily-anchors', { method: 'GET', cache: 'no-store' });
         if (!response.ok) throw new Error('Failed to load daily anchors from server');
 
         const payload = (await response.json()) as { store?: unknown };
         const serverStore = normalizeDailyAnchorsStore(payload.store);
+        const hasServerData = Object.keys(serverStore.states).length > 0;
 
         if (!cancelled) {
-          if (Object.keys(serverStore.states).length > 0) {
-            setStore(serverStore);
-          } else {
-            const legacyRaw = window.localStorage.getItem(storageKey);
-            const legacyStore = normalizeDailyAnchorsStore(legacyRaw ? JSON.parse(legacyRaw) : null);
+          // Prefer local backup when present and different so recent in-tab edits survive route changes.
+          if (hasLegacyData && (!hasServerData || JSON.stringify(legacyStore) !== JSON.stringify(serverStore))) {
+            setStore(legacyStore);
+            await persistStoreToServer(legacyStore);
+            return;
+          }
 
-            if (Object.keys(legacyStore.states).length > 0) {
-              setStore(legacyStore);
-              await persistStoreToServer(legacyStore);
-              window.localStorage.removeItem(storageKey);
-            } else {
-              setStore(createEmptyStore());
-            }
+          if (hasServerData) {
+            setStore(serverStore);
+          } else if (hasLegacyData) {
+            setStore(legacyStore);
+            await persistStoreToServer(legacyStore);
+          } else {
+            setStore(createEmptyStore());
           }
         }
       } catch (error) {
         console.error('[DailyAnchors] Failed loading from server, using local fallback', error);
-        const legacyRaw = window.localStorage.getItem(storageKey);
-        const legacyStore = normalizeDailyAnchorsStore(legacyRaw ? JSON.parse(legacyRaw) : null);
         if (!cancelled) {
           setStore(legacyStore);
           setSaveError('Sync is temporarily unavailable. Changes will retry.');
@@ -135,6 +145,12 @@ export function useDailyAnchors(storageScope: string) {
       cancelled = true;
     };
   }, [storageKey]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!isLoaded) return;
+    window.localStorage.setItem(storageKey, JSON.stringify(store));
+  }, [isLoaded, storageKey, store]);
 
   useEffect(() => {
     const handleUpdate = (event: Event) => {
@@ -176,6 +192,16 @@ export function useDailyAnchors(storageScope: string) {
       }
     };
   }, [isLoaded, store]);
+
+  useEffect(() => {
+    return () => {
+      if (!readyToPersistRef.current) return;
+      if (!saveTimerRef.current) return;
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+      void persistStoreToServer(latestStoreRef.current, true);
+    };
+  }, []);
 
   const updateStore = useCallback((next: DailyAnchorsStore) => {
     setStore(next);

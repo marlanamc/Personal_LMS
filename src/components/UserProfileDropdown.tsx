@@ -4,9 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { signOut } from "next-auth/react";
 import { clearServiceWorkerCache } from "@/lib/clearCache";
 import { useRouter } from "next/navigation";
-import SelectedAvatarDisplay from "@/components/ui/SelectedAvatarDisplay";
+import { Code2, UserRound } from "lucide-react";
 import { UserIcon } from "@/components/icons/Icons";
-import { DEFAULT_AVATAR, DEFAULT_COLOR } from "@/lib/avatar-constants";
 import { useTheme } from "@/context/ThemeContext";
 import type { ThemePreference } from "@/context/ThemeContext";
 
@@ -16,8 +15,6 @@ interface UserProfileDropdownProps {
 
 export default function UserProfileDropdown({ userName }: UserProfileDropdownProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const [avatarId, setAvatarId] = useState<string>(DEFAULT_AVATAR);
-    const [colorId, setColorId] = useState<string>(DEFAULT_COLOR);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const {
@@ -44,23 +41,6 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
         };
     }, [isOpen]);
 
-    // Fetch avatar data
-    useEffect(() => {
-        async function fetchAvatar() {
-            try {
-                const res = await fetch("/api/user/avatar");
-                if (res.ok) {
-                    const data = await res.json();
-                    setAvatarId(data.avatar || DEFAULT_AVATAR);
-                    setColorId(data.avatarColor || DEFAULT_COLOR);
-                }
-            } catch (error) {
-                console.error("Failed to fetch avatar:", error);
-            }
-        }
-        fetchAvatar();
-    }, []);
-
     const handleLogout = async () => {
         await clearServiceWorkerCache();
         signOut({ callbackUrl: "/login" });
@@ -69,12 +49,6 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
     const handleProfileClick = () => {
         setIsOpen(false);
         router.push("/dashboard/profile");
-    };
-
-    const handleAvatarClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setIsOpen(false);
-        router.push("/dashboard/avatar");
     };
 
     const getThemeOptionClasses = (option: ThemePreference) =>
@@ -95,11 +69,10 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
                 aria-expanded={isOpen}
                 aria-haspopup="true"
             >
-                <SelectedAvatarDisplay 
-                    avatarId={avatarId}
-                    colorId={colorId}
-                    size="md" 
-                />
+                <span className="relative inline-flex items-center justify-center">
+                    <UserRound className="w-5 h-5 text-text" />
+                    <Code2 className="w-3 h-3 text-primary absolute -right-1 -bottom-1 bg-bg-secondary rounded-full p-[1px]" />
+                </span>
             </button>
 
             {isOpen && (
@@ -107,18 +80,6 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
                     <div className="px-4 py-2 border-b border-border/40 bg-bg-light/45">
                         <p className="text-sm font-medium text-text truncate">{userName}</p>
                     </div>
-                    <button
-                        onClick={handleAvatarClick}
-                        className="w-full text-left px-4 py-2 text-sm font-medium text-text hover:bg-bg-light/90 transition-colors flex items-center gap-2"
-                    >
-                        <SelectedAvatarDisplay 
-                            avatarId={avatarId}
-                            colorId={colorId}
-                            size="sm" 
-                            className="pointer-events-none" 
-                        />
-                        Change Avatar
-                    </button>
                     <button
                         onClick={handleProfileClick}
                         className="w-full text-left px-4 py-2 text-sm font-medium text-text hover:bg-bg-light/90 transition-colors flex items-center gap-2"

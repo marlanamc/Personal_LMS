@@ -1,77 +1,62 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import SelectedAvatarDisplay from "./SelectedAvatarDisplay";
-import { DEFAULT_AVATAR, DEFAULT_COLOR } from "@/lib/avatar-constants";
+import { Code2, UserRound } from "lucide-react";
 
 interface ClickableAvatarDisplayProps {
     size?: "sm" | "md" | "lg" | "xl";
     className?: string;
 }
 
-/**
- * A clickable avatar that fetches the current user's avatar from the API
- * and navigates to the avatar customization page when clicked.
- */
 export default function ClickableAvatarDisplay({ 
     size = "md",
     className = "" 
 }: ClickableAvatarDisplayProps) {
-    const router = useRouter();
-    const [avatarId, setAvatarId] = useState<string>(DEFAULT_AVATAR);
-    const [colorId, setColorId] = useState<string>(DEFAULT_COLOR);
-    const [isLoading, setIsLoading] = useState(true);
+    const sizeClasses = {
+        sm: "w-8 h-8",
+        md: "w-12 h-12",
+        lg: "w-16 h-16",
+        xl: "w-24 h-24",
+    } as const;
 
-    // Fetch user's avatar from API on mount
-    useEffect(() => {
-        async function fetchAvatar() {
-            try {
-                const res = await fetch("/api/user/avatar");
-                if (res.ok) {
-                    const data = await res.json();
-                    setAvatarId(data.avatar || DEFAULT_AVATAR);
-                    setColorId(data.avatarColor || DEFAULT_COLOR);
-                }
-            } catch (error) {
-                console.error("Failed to fetch avatar:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        fetchAvatar();
-    }, []);
+    const iconClasses = {
+        sm: "w-4 h-4",
+        md: "w-6 h-6",
+        lg: "w-8 h-8",
+        xl: "w-12 h-12",
+    } as const;
 
-    const handleClick = () => {
-        router.push("/dashboard/avatar");
-    };
+    const badgeClasses = {
+        sm: "w-3 h-3 p-[1px]",
+        md: "w-4 h-4 p-[1px]",
+        lg: "w-5 h-5 p-[2px]",
+        xl: "w-6 h-6 p-[2px]",
+    } as const;
 
-    if (isLoading) {
-        return (
-            <div 
-                className={`cursor-pointer hover:scale-105 transition-transform ${className}`}
-                title="Change your avatar"
-            >
-                <div className={`
-                    ${size === "sm" ? "w-8 h-8" : size === "lg" ? "w-16 h-16" : size === "xl" ? "w-24 h-24" : "w-12 h-12"}
-                    rounded-full bg-bg-gray animate-pulse
-                `} />
-            </div>
-        );
-    }
+    const badgeOffsetClasses = {
+        sm: "-right-0.5 -bottom-0.5",
+        md: "-right-1 -bottom-1",
+        lg: "-right-1 -bottom-1",
+        xl: "-right-1.5 -bottom-1.5",
+    } as const;
+
+    const badgeIconClasses = {
+        sm: "w-2 h-2",
+        md: "w-2.5 h-2.5",
+        lg: "w-3 h-3",
+        xl: "w-3.5 h-3.5",
+    } as const;
 
     return (
-        <div 
-            onClick={handleClick}
-            className={`cursor-pointer hover:scale-105 transition-transform ${className}`}
-            title="Change your avatar"
+        <div
+            className={`${sizeClasses[size]} rounded-full bg-bg-secondary border-2 border-border-dark flex items-center justify-center ${className}`}
+            aria-hidden="true"
         >
-            <SelectedAvatarDisplay 
-                avatarId={avatarId} 
-                colorId={colorId} 
-                size={size} 
-                className="pointer-events-none" 
-            />
+            <span className="relative inline-flex items-center justify-center">
+                <UserRound className={`${iconClasses[size]} text-text`} />
+                <span className={`absolute ${badgeOffsetClasses[size]} ${badgeClasses[size]} rounded-full bg-bg-secondary border border-border-subtle flex items-center justify-center`}>
+                    <Code2 className={`${badgeIconClasses[size]} text-primary`} />
+                </span>
+            </span>
         </div>
     );
 }

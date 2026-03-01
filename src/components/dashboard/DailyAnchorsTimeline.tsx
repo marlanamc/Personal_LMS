@@ -153,7 +153,7 @@ function arraysEqualByValue(a?: DayOfWeek[], b?: DayOfWeek[]): boolean {
 }
 
 export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps) {
-  const { anchors, activeAnchor, toggleAnchor, anchorTemplates, setAnchorTemplates, isLoaded } =
+  const { anchors, activeAnchor, toggleAnchor, anchorTemplates, setTodayAnchors, setAnchorTemplates, isLoaded } =
     useDailyAnchorsForToday(storageScope);
 
   const [hoveredAnchor, setHoveredAnchor] = useState<AnchorId | null>(null);
@@ -240,13 +240,13 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
       return;
     }
 
-    const updatedTemplates = anchorTemplates.map((template) =>
-      template.id === draggingAnchor ? { ...template, scheduledTime: dragPreviewTime } : template,
+    const updatedTodayAnchors = anchors.map((anchor) =>
+      anchor.id === draggingAnchor ? { ...anchor, scheduledTime: dragPreviewTime } : anchor,
     );
-    setAnchorTemplates(updatedTemplates);
+    setTodayAnchors(updatedTodayAnchors);
     setDraggingAnchor(null);
     setDragPreviewTime(null);
-  }, [draggingAnchor, dragPreviewTime, anchorTemplates, setAnchorTemplates]);
+  }, [draggingAnchor, dragPreviewTime, anchors, setTodayAnchors]);
 
   useEffect(() => {
     if (!draggingAnchor) return;

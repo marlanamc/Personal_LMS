@@ -51,12 +51,12 @@ export function CertificateMedal({
         return null;
     }
 
-    // Determine icon color based on tier for contrast
-    const iconColorClass = {
-        bronze: "text-amber-900",
-        silver: "text-slate-800",
-        gold: "text-amber-800",
-        platinum: "text-slate-800",
+    // Use fixed icon colors so dark-mode utility overrides cannot wash out medal glyphs.
+    const iconColor = {
+        bronze: "#78350f",
+        silver: "#334155",
+        gold: "#92400e",
+        platinum: "#334155",
     }[tier];
 
     return (
@@ -105,11 +105,13 @@ export function CertificateMedal({
                     }}
                 >
                     {/* Icon */}
-                    <MedalIconRenderer
-                        score={score}
-                        size={dimensions.icon}
-                        className={`relative z-10 ${iconColorClass} drop-shadow-sm`}
-                    />
+                    <span className="relative z-10 drop-shadow-sm" style={{ color: iconColor }}>
+                        <MedalIconRenderer
+                            score={score}
+                            size={dimensions.icon}
+                            className=""
+                        />
+                    </span>
 
                     {/* Shine Overlay */}
                     <div
