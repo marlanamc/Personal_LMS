@@ -488,6 +488,13 @@ export function ActivityCategoryPicker({
     const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
     useEffect(() => {
+        if (!requestedSubject) return;
+        setSelectedSubject(validInitialSubject);
+        setSelectedHub(null);
+        setSelectedNotebook(null);
+    }, [requestedSubject, validInitialSubject]);
+
+    useEffect(() => {
         if (!selectedSubject) {
             setSelectedNotebookFilter('all');
             setShowNotebookFilters(false);

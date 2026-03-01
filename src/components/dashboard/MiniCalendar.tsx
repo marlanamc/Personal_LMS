@@ -9,10 +9,21 @@ export type CalendarEvent = {
     endDate?: Date | string | null;
     type?: 'due' | 'holiday' | 'event' | 'reminder' | 'quiz';
     title?: string | null;
+    description?: string | null;
 };
 
 interface MiniCalendarProps {
     events?: CalendarEvent[];
+}
+
+export const CALENDAR_ACCENTS = {
+    today: "var(--color-accent-sunrise-today)",
+    event: "var(--color-accent-terracotta)",
+    vacation: "var(--color-accent-sage)",
+} as const;
+
+export function getCalendarMarkerColor(type?: CalendarEvent["type"]) {
+    return type === "holiday" ? CALENDAR_ACCENTS.vacation : CALENDAR_ACCENTS.event;
 }
 
 export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
@@ -69,9 +80,9 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
     });
 
     return (
-        <div className="bg-bg-elevated p-4 sm:p-5 rounded-xl shadow-md border border-border-subtle w-full max-w-[22rem] mx-auto min-w-0">
-            <div className="flex flex-col items-center gap-2 mb-3">
-                <h3 className="text-sm font-semibold text-text font-display text-center">
+        <div className="cloud-panel bg-bg-elevated p-3 sm:p-4 rounded-xl shadow-md border border-border-subtle w-full max-w-[20.5rem] mx-auto min-w-0">
+            <div className="flex flex-col items-center gap-1.5 mb-2">
+                <h3 className="text-card font-display text-text text-center leading-none">
                     {monthNames[viewMonth]} {viewYear}
                 </h3>
                 <div className="flex items-center gap-3">
@@ -79,7 +90,7 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
                         type="button"
                         aria-label="Previous month"
                         onClick={() => setViewDate(new Date(viewYear, viewMonth - 1, 1))}
-                        className="text-xs font-semibold text-text-secondary border border-border-subtle rounded-md px-3 py-2 min-h-[44px] min-w-[44px] hover:bg-bg-surface flex items-center justify-center"
+                        className="text-meta text-text-secondary border border-border-subtle rounded-md px-3 py-2 min-h-[44px] min-w-[44px] hover:bg-bg-surface flex items-center justify-center"
                     >
                         ←
                     </button>
@@ -87,16 +98,16 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
                         type="button"
                         aria-label="Next month"
                         onClick={() => setViewDate(new Date(viewYear, viewMonth + 1, 1))}
-                        className="text-xs font-semibold text-text-secondary border border-border-subtle rounded-md px-3 py-2 min-h-[44px] min-w-[44px] hover:bg-bg-surface flex items-center justify-center"
+                        className="text-meta text-text-secondary border border-border-subtle rounded-md px-3 py-2 min-h-[44px] min-w-[44px] hover:bg-bg-surface flex items-center justify-center"
                     >
                         →
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-1 text-center mb-1">
+            <div className="grid grid-cols-7 gap-1 text-center mb-0.5">
                 {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
-                    <div key={`${day}-${idx}`} className="text-[10px] font-bold text-text-muted/60 uppercase tracking-wider">
+                    <div key={`${day}-${idx}`} className="text-meta text-text-muted/60 uppercase tracking-wider">
                         {day}
                     </div>
                 ))}
@@ -113,19 +124,30 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
 
                     const dayStyle: React.CSSProperties | undefined = isToday
                         ? {
-                            backgroundColor: "transparent",
-                            color: "var(--color-accent-sakura)",
-                            border: "2px solid color-mix(in srgb, var(--color-accent-sakura) 55%, transparent)",
+                            backgroundColor: "var(--color-calendar-today-fill)",
+                            color: "var(--color-text-primary)",
+                            border: hasEvent
+                                ? "1.5px solid var(--color-calendar-event-ring)"
+                                : hasVacation
+                                    ? "1.5px solid var(--color-calendar-vacation-ring)"
+                                    : "1.5px solid color-mix(in srgb, var(--color-calendar-today-fill) 70%, transparent)",
+                            boxShadow: hasEvent
+                                ? "inset 0 1px 0 rgba(255,255,255,0.75), 0 0 0 1px rgba(0,0,0,0.04)"
+                                : "inset 0 1px 0 rgba(255,255,255,0.75)",
                           }
                         : hasEvent
                                 ? {
-                                    backgroundColor: "color-mix(in srgb, var(--color-warning) 20%, transparent)",
-                                    color: "var(--color-warning)",
+                                    backgroundColor: "var(--color-calendar-event-fill)",
+                                    color: "var(--color-text-secondary)",
+                                    border: "1.5px solid var(--color-calendar-event-ring)",
+                                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
                                   }
                                 : hasVacation
                                     ? {
-                                        backgroundColor: "color-mix(in srgb, var(--color-accent-teal) 18%, transparent)",
-                                        color: "var(--color-accent-teal)",
+                                        backgroundColor: "var(--color-calendar-vacation-fill)",
+                                        color: "var(--color-text-secondary)",
+                                        border: "1.5px solid var(--color-calendar-vacation-ring)",
+                                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
                                       }
                                     : undefined;
 
@@ -133,7 +155,8 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
                         <div
                             key={idx}
                             className={`
-                                text-xs w-6 h-6 flex items-center justify-center rounded-full mx-auto font-medium transition-colors cursor-default
+                                text-body relative w-6 h-6 flex items-center justify-center rounded-full mx-auto transition-colors cursor-default
+                                ${isToday ? "font-semibold" : "font-medium"}
                                 ${!isToday && !hasEvent && !hasVacation ? "text-text-secondary hover:bg-bg-elevated" : ""}
                             `}
                             style={dayStyle}
@@ -145,10 +168,10 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
             </div>
 
             {/* Legend / Upcoming text */}
-            <div className="mt-3 pt-2 border-t border-border/40 flex items-center gap-x-3 gap-y-1 text-[10px] text-text-muted flex-wrap">
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full border border-primary bg-transparent" /> Today</span>
-                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-warning" /> Event</span>
-                <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-mineral-teal" /> Vacation</span>
+            <div className="mt-2.5 pt-2 border-t border-border/40 flex items-center gap-x-3 gap-y-1 text-meta text-text-muted flex-wrap">
+                <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: CALENDAR_ACCENTS.today }} /> Today</span>
+                <span className="flex items-center gap-1"><span className="inline-block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: CALENDAR_ACCENTS.event }} /> Event</span>
+                <span className="flex items-center gap-1"><span className="inline-block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: CALENDAR_ACCENTS.vacation }} /> Vacation</span>
             </div>
         </div>
     );

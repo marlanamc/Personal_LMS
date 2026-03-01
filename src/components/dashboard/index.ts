@@ -17,3 +17,13 @@ export * from './DailyChallengeBanner';
 export * from './StreakWarning';
 export * from './SubjectPreviewStrip';
 
+// New ADHD-friendly dashboard components
+export * from './FocusHero';
+export * from './DailyAnchorsTimeline';
+export * from './FlatChecklist';
+export * from './CalendarPanel';
+export * from './ContextSidebar';
+export * from './useZenMode';
+export * from './DashboardContent';
+export * from './NavigationSidePanel';
+

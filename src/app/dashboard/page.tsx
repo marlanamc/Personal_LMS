@@ -5,26 +5,18 @@ import { prisma } from "@/lib/prisma";
 import { trackLogin } from "@/lib/gamification";
 import { parseCategoryData } from "@/lib/categoryData";
 import { getEffectiveStreak, hasActivityToday } from "@/lib/gamification/streak-utils";
-import Link from "next/link";
 import { BottomNav } from "@/components/ui";
 import {
   HomeIcon,
   BookOpenIcon,
   TrophyIcon,
-  CalendarIcon,
-  FlameIcon,
 } from "@/components/icons/Icons";
 import {
-  MiniCalendar,
   CalendarEvent,
-  UpcomingEventsList,
-  TodaysAssignments,
-  ClearFeaturedButton,
-  StreakWarning,
+  DashboardContent,
 } from "@/components/dashboard";
-
-
-
+import type { ChecklistItem } from "@/components/dashboard/checklist-item.types";
+import { getChecklistAnchorId } from "@/lib/anchors";
 
 type StudentEnrollment = {
   classId: string;
@@ -41,6 +33,7 @@ type StudentEnrollment = {
         title: string;
         description: string | null;
         type: string;
+        content: string | null;
       };
       isFeatured: boolean;
       dueDate: Date | null;
@@ -123,8 +116,9 @@ export default async function DashboardPage() {
   ]);
 
   // Consolidate Assignments
-  const filterReleasedActivities = (assignment: any) => {
+  const filterReleasedActivities = (assignment: { activity: { type: string; content: string | null } }) => {
     if (assignment.activity.type !== "speaking") return true;
+    if (!assignment.activity.content) return false;
     try {
       const content = JSON.parse(assignment.activity.content);
       return content.released === true;
@@ -178,12 +172,18 @@ export default async function DashboardPage() {
           orderBy: { updatedAt: "desc" },
         });
 
-  const featuredProgressMap = (featuredProgressRows as any[]).reduce(
-    (map, row) => {
+  const featuredProgressMap = featuredProgressRows.reduce(
+    (
+      map: Map<
+        string,
+        { progress: number; status: string; categoryData: ReturnType<typeof parseCategoryData> }
+      >,
+      row,
+    ) => {
       if (!map.has(row.activityId)) {
         map.set(row.activityId, {
-          progress: row.progress,
-          status: row.status,
+          progress: row.progress ?? 0,
+          status: row.status ?? "in_progress",
           categoryData: parseCategoryData(row.categoryData),
         });
       }
@@ -192,7 +192,7 @@ export default async function DashboardPage() {
     new Map(),
   );
 
-  const featuredAssignments = featuredAssignmentsRaw
+  const featuredAssignments: ChecklistItem[] = featuredAssignmentsRaw
     .filter(filterReleasedActivities)
     .map((a) => {
       const p = featuredProgressMap.get(a.activityId);
@@ -203,6 +203,7 @@ export default async function DashboardPage() {
         progress: p?.progress ?? 0,
         progressStatus: p?.status ?? "in_progress",
         categoryData: p?.categoryData ?? null,
+        anchorId: getChecklistAnchorId(a.id, a.activityId),
       };
     });
 
@@ -219,6 +220,7 @@ export default async function DashboardPage() {
       })),
     ...[...createdClasses, ...enrollments.map((e) => e.class)].flatMap((cls) =>
       cls.calendarEvents.map((ev) => ({
+        id: ev.id,
         date: ev.date,
         endDate: ev.endDate || null,
         type: (ev.type as CalendarEvent["type"]) || "holiday",
@@ -230,152 +232,15 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-bg-base light-ambient-surface">
       <main className="container mx-auto pt-6 pb-24 md:pb-12 px-3 sm:px-6 lg:px-8 max-w-full lg:max-w-[1600px]">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          {/* Main Content Area - Left Side */}
-          <div className="md:col-span-8 lg:col-span-9 space-y-6">
-            {/* Welcome Header */}
-            <div className="animate-fade-in-up">
-              <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
-                <h1 className="text-3xl sm:text-4xl font-display font-bold text-text leading-tight tracking-tight">
-                  Welcome,{" "}
-                  <span className="handwritten text-primary relative inline-block">
-                    {currentUser?.name || session.user.name}
-                    <span className="absolute -bottom-1 left-0 right-0 h-2 bg-accent/40 -z-10 rounded-sm transform -rotate-1"></span>
-                  </span>
-                  !
-                </h1>
-
-                <div className="flex items-center gap-3 flex-wrap">
-                  {/* Streak */}
-                  {effectiveCurrentStreak > 0 && (
-                    <Link
-                      href="/dashboard/profile"
-                      className="flex items-center gap-2.5 bg-bg-surface border border-border-subtle rounded-full pl-2.5 pr-4 py-2 shadow-sm hover:shadow-md transition-all"
-                    >
-                      <div className="w-8 h-8 bg-sakura-soft rounded-full flex items-center justify-center">
-                        <FlameIcon className="text-primary streak-icon-pulse" size={16} />
-                      </div>
-                      <div>
-                        <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted leading-none">
-                          Streak
-                        </div>
-                        <div className="text-lg font-bold text-text leading-tight">
-                          {effectiveCurrentStreak}{" "}
-                          <span className="text-xs font-semibold text-text-muted">
-                            days
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  )}
-
-                  {/* Total Points */}
-                  {(currentUser?.points ?? 0) > 0 && (
-                    <Link
-                      href="/dashboard/profile"
-                      className="flex items-center gap-2.5 bg-bg-surface border border-border-subtle rounded-full pl-2.5 pr-4 py-2 shadow-sm hover:shadow-md transition-all"
-                    >
-                      <div className="w-8 h-8 bg-mineral-mint/20 rounded-full flex items-center justify-center">
-                        <TrophyIcon className="text-mineral-mint" size={16} />
-                      </div>
-                      <div>
-                        <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted leading-none">
-                          Total
-                        </div>
-                        <div className="text-lg font-bold text-text leading-tight">
-                          {currentUser?.points}{" "}
-                          <span className="text-xs font-semibold text-text-muted">
-                            pts
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  )}
-
-                </div>
-              </div>
-            </div>
-
-            {/* Streak Warning - shows when streak is at risk */}
-            {effectiveCurrentStreak > 0 && !didActivityToday && (
-              <StreakWarning
-                currentStreak={effectiveCurrentStreak}
-                lastActivityDate={currentUser?.lastActivityDate ?? null}
-                hasActivityToday={didActivityToday}
-              />
-            )}
-
-            {/* Daily Checklist (Personalized) */}
-            <section id="weekly-checklist" className="animate-fade-in-up delay-100 scroll-mt-24">
-              <TodaysAssignments
-                title="Your Daily Checklist"
-                ctaLabel="Start"
-                initialAssignments={featuredAssignments}
-                variant="checklist"
-                actions={<ClearFeaturedButton />}
-              />
-            </section>
-
-            {/* Explore CTA */}
-            <section className="animate-fade-in-up delay-200">
-              <div className="glass-card rounded-2xl px-5 py-4 relative overflow-hidden">
-                <div className="flex items-center justify-between gap-4 relative z-10">
-                  <div>
-                    <p className="text-xs font-semibold text-text-secondary tracking-[0.14em] uppercase flex items-center gap-2">
-                      <span className="w-5 h-[2px] bg-primary rounded-full" />
-                      Journey
-                    </p>
-                    <h2 className="text-lg font-bold font-display text-text mt-0.5">
-                      All Subjects
-                    </h2>
-                  </div>
-                  <Link
-                    href="/dashboard/subjects"
-                    className="sakura-action shrink-0 px-4 py-2 rounded-xl hover:brightness-105 transition-all font-semibold text-sm active:scale-95 flex items-center gap-1.5"
-                  >
-                    See All Subjects
-                    <span className="arrow-animate">→</span>
-                  </Link>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          {/* Sidebar */}
-          <aside className="animate-fade-in-up delay-100 hidden md:block md:col-span-4 lg:col-span-3 min-w-0">
-            <div className="bg-bg-elevated border p-6 sticky top-24 border-border-subtle shadow-lg rounded-2xl space-y-5 min-w-0">
-              <h2 className="text-xl font-bold text-text">Calendar</h2>
-              <div className="min-w-0">
-                <MiniCalendar events={calendarEvents} />
-              </div>
-              <UpcomingEventsList
-                events={calendarEvents.filter((event) => {
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  const eventEndDate = event.endDate
-                    ? new Date(event.endDate)
-                    : new Date(event.date);
-                  eventEndDate.setHours(0, 0, 0, 0);
-                  return eventEndDate >= today;
-                })}
-                allowDelete={true}
-              />
-
-              <div className="pt-4 mt-4 border-t border-border/40 space-y-4">
-                <h3 className="text-sm font-semibold text-text">Calendar</h3>
-                <div className="flex flex-col gap-1.5">
-                  <Link
-                    href="/dashboard/calendar/new"
-                    className="quick-link w-full px-3 py-2 text-text border border-border/50 rounded-lg flex items-center gap-2.5"
-                  >
-                    <CalendarIcon className="w-4 h-4 shrink-0" />
-                    <span className="text-sm font-semibold">New Event</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
+        <DashboardContent
+          userName={currentUser?.name || session.user.name || "there"}
+          currentStreak={effectiveCurrentStreak}
+          totalPoints={currentUser?.points ?? 0}
+          hasActivityToday={didActivityToday}
+          storageScope={userId}
+          assignments={featuredAssignments}
+          calendarEvents={calendarEvents}
+        />
       </main>
 
       <BottomNav

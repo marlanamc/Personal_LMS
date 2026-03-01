@@ -15,6 +15,16 @@ type ProgressEntry = {
     updatedAt: Date;
 };
 
+function isPrismaConnectivityError(error: unknown): boolean {
+    if (!error || typeof error !== "object") return false;
+    const maybeError = error as { code?: string; message?: string };
+    return (
+        maybeError.code === "P1001" ||
+        maybeError.code === "P1017" ||
+        (typeof maybeError.message === "string" && maybeError.message.includes("Can't reach database server"))
+    );
+}
+
 function parseCategoryData(raw: string | null): Record<string, unknown> | null {
     if (!raw) return null;
     try {
@@ -180,100 +190,120 @@ export default async function SubjectsPage({ searchParams }: Props) {
 
     const userId = session.user?.id;
     const canFeatureActivities = Boolean(userId);
-
-    // Personal LMS uses a unified role experience on subjects.
-    const activities = await prisma.activity.findMany({
-        where: { deletedAt: null },
-        orderBy: { createdAt: "desc" },
-    });
-    const visibleActivities = collapseEdPronunciationActivities(activities);
-
-    const progressEntries = await prisma.activityProgress.findMany({
-        where: { userId },
-        select: { activityId: true, progress: true, categoryData: true, updatedAt: true },
-    });
-    const progressMap = buildProgressMap(progressEntries as ProgressEntry[]);
-
-    const completedActivities = await prisma.submission.findMany({
-        where: {
-            userId,
-            status: { in: ["submitted", "graded"] },
-            completedAt: { not: null }
-        },
-        select: { activityId: true }
-    });
-    const completedActivityIds = completedActivities.map((s: { activityId: string }) => s.activityId);
-
-    const [ownedClasses, enrolledClasses] = canFeatureActivities
-        ? await Promise.all([
-            prisma.class.findMany({
-                where: { teacherId: userId },
-                select: { id: true },
-                orderBy: { createdAt: "asc" },
-            }),
-            prisma.classEnrollment.findMany({
-                where: { studentId: userId },
-                select: { classId: true },
-            }),
-        ])
-        : [[], []] as const;
-
-    const classIds = Array.from(
-        new Set([
-            ...ownedClasses.map((classRow) => classRow.id),
-            ...enrolledClasses.map((enrollment) => enrollment.classId),
-        ])
-    );
-    const defaultClassId = ownedClasses[0]?.id ?? enrolledClasses[0]?.classId ?? null;
-
-    const activityIds = visibleActivities.map((a) => a.id);
-    const assignmentRows =
-        canFeatureActivities && classIds.length > 0 && activityIds.length > 0
-            ? await prisma.assignment.findMany({
-                where: {
-                    classId: { in: classIds },
-                    activityId: { in: activityIds },
-                },
-                select: {
-                    id: true,
-                    activityId: true,
-                    isFeatured: true,
-                    updatedAt: true,
-                },
-                orderBy: { updatedAt: "desc" },
-            })
-            : [];
-
-    const initialFeatureAssignments = assignmentRows.reduce<Record<string, { assignmentId: string; isFeatured: boolean }>>(
-        (acc, row) => {
-            if (!acc[row.activityId]) {
-                acc[row.activityId] = {
-                    assignmentId: row.id,
-                    isFeatured: row.isFeatured,
-                };
-            }
-            return acc;
-        },
-        {}
-    );
     const { subject, category, type } = await searchParams;
     const initialSubject = subject ?? category ?? null;
     const initialType = type ?? null;
 
-    return (
-        <div className="min-h-screen bg-bg-base light-ambient-surface">
-            <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 pb-24 md:pb-12">
-                <ActivityCategoryPicker
-                    activities={visibleActivities}
-                    completedActivityIds={completedActivityIds}
-                    progressMap={progressMap}
-                    canFeatureActivities={canFeatureActivities}
-                    defaultClassId={defaultClassId}
-                    initialFeatureAssignments={initialFeatureAssignments}
-                    initialSubject={initialSubject}
-                    initialType={initialType}
-                />
-            </main>
-        </div>
-    );
+    try {
+        // Personal LMS uses a unified role experience on subjects.
+        const activities = await prisma.activity.findMany({
+            where: { deletedAt: null },
+            orderBy: { createdAt: "desc" },
+        });
+        const visibleActivities = collapseEdPronunciationActivities(activities);
+
+        const progressEntries = await prisma.activityProgress.findMany({
+            where: { userId },
+            select: { activityId: true, progress: true, categoryData: true, updatedAt: true },
+        });
+        const progressMap = buildProgressMap(progressEntries as ProgressEntry[]);
+
+        const completedActivities = await prisma.submission.findMany({
+            where: {
+                userId,
+                status: { in: ["submitted", "graded"] },
+                completedAt: { not: null }
+            },
+            select: { activityId: true }
+        });
+        const completedActivityIds = completedActivities.map((s: { activityId: string }) => s.activityId);
+
+        const [ownedClasses, enrolledClasses] = canFeatureActivities
+            ? await Promise.all([
+                prisma.class.findMany({
+                    where: { teacherId: userId },
+                    select: { id: true },
+                    orderBy: { createdAt: "asc" },
+                }),
+                prisma.classEnrollment.findMany({
+                    where: { studentId: userId },
+                    select: { classId: true },
+                }),
+            ])
+            : [[], []] as const;
+
+        const classIds = Array.from(
+            new Set([
+                ...ownedClasses.map((classRow) => classRow.id),
+                ...enrolledClasses.map((enrollment) => enrollment.classId),
+            ])
+        );
+        const defaultClassId = ownedClasses[0]?.id ?? enrolledClasses[0]?.classId ?? null;
+
+        const activityIds = visibleActivities.map((a) => a.id);
+        const assignmentRows =
+            canFeatureActivities && classIds.length > 0 && activityIds.length > 0
+                ? await prisma.assignment.findMany({
+                    where: {
+                        classId: { in: classIds },
+                        activityId: { in: activityIds },
+                    },
+                    select: {
+                        id: true,
+                        activityId: true,
+                        isFeatured: true,
+                        updatedAt: true,
+                    },
+                    orderBy: { updatedAt: "desc" },
+                })
+                : [];
+
+        const initialFeatureAssignments = assignmentRows.reduce<Record<string, { assignmentId: string; isFeatured: boolean }>>(
+            (acc, row) => {
+                if (!acc[row.activityId]) {
+                    acc[row.activityId] = {
+                        assignmentId: row.id,
+                        isFeatured: row.isFeatured,
+                    };
+                }
+                return acc;
+            },
+            {}
+        );
+
+        return (
+            <div className="min-h-screen bg-bg-base light-ambient-surface">
+                <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 pb-24 md:pb-12">
+                    <ActivityCategoryPicker
+                        activities={visibleActivities}
+                        completedActivityIds={completedActivityIds}
+                        progressMap={progressMap}
+                        canFeatureActivities={canFeatureActivities}
+                        defaultClassId={defaultClassId}
+                        initialFeatureAssignments={initialFeatureAssignments}
+                        initialSubject={initialSubject}
+                        initialType={initialType}
+                    />
+                </main>
+            </div>
+        );
+    } catch (error: unknown) {
+        if (!isPrismaConnectivityError(error)) {
+            throw error;
+        }
+        console.error("[SubjectsPage] Database unavailable:", error);
+
+        return (
+            <div className="min-h-screen bg-bg-base light-ambient-surface">
+                <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 pb-24 md:pb-12">
+                    <section className="rounded-2xl border border-border-subtle bg-bg-elevated p-6 shadow-sm">
+                        <h1 className="text-lg font-semibold text-text">Subjects are temporarily unavailable</h1>
+                        <p className="mt-2 text-sm text-text-muted">
+                            The app cannot connect to the database right now. Please try again in a minute.
+                        </p>
+                    </section>
+                </main>
+            </div>
+        );
+    }
 }

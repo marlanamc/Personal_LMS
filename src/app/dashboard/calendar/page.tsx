@@ -1,7 +1,8 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { MiniCalendar, UpcomingEventsList, CalendarEvent } from "@/components/dashboard";
+import { UpcomingEventsList, CalendarEvent } from "@/components/dashboard";
+import CalendarPlanner from "@/components/dashboard/CalendarPlanner";
 import { redirect } from "next/navigation";
 
 export default async function CalendarPage() {
@@ -63,35 +64,22 @@ export default async function CalendarPage() {
                     : ("due" as const),
                 title: `${assignment.title || assignment.activity.title || "Assignment"}`,
             })),
-        ...classes.flatMap((classItem) =>
+                ...classes.flatMap((classItem) =>
             classItem.calendarEvents.map((eventItem) => ({
                 id: eventItem.id,
                 date: eventItem.date,
                 endDate: eventItem.endDate || null,
                 type: (eventItem.type as CalendarEvent["type"]) || "holiday",
                 title: `${eventItem.title}`,
+                description: eventItem.description,
             }))
         ),
     ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return (
         <div className="min-h-screen bg-bg-base light-ambient-surface">
-            <header className="sticky top-0 backdrop-blur-md border-b z-50 bg-bg-secondary/90 border-border-subtle shadow-sm">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-                    <div>
-                        <p className="text-xs font-semibold text-primary tracking-widest uppercase">Schedule</p>
-                        <h1 className="text-2xl font-display font-bold text-text">Calendar</h1>
-                    </div>
-                </div>
-            </header>
-
-            <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6 pb-24 md:pb-12">
-                {/* Calendar - Centered */}
-                <div className="flex justify-center min-w-0">
-                    <div className="bg-bg-elevated border border-border-subtle shadow-lg rounded-2xl p-4 sm:p-8 w-full max-w-md min-w-0">
-                        <MiniCalendar events={calendarEvents} />
-                    </div>
-                </div>
+            <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 md:py-8 space-y-6 pb-24 md:pb-12">
+                <CalendarPlanner events={calendarEvents} storageScope={userId} />
 
                 {/* Upcoming Events - Full Width */}
                 <div className="bg-bg-surface border border-border-subtle shadow-lg rounded-2xl p-4 sm:p-6">
@@ -110,7 +98,6 @@ export default async function CalendarPage() {
                             return eventEndDate >= today;
                         })}
                         allowDelete={ownedClasses.length > 0}
-                        showSyncedLabel={false}
                     />
                 </div>
             </main>

@@ -112,7 +112,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [resolvedTheme]);
 
   useEffect(() => {
-    const themeColor = resolvedTheme === "light" ? "#F3F4F8" : "#122033";
+    const themeColor = resolvedTheme === "light" ? "#F2E7DA" : "#122033";
     const metaSelector = 'meta[name="theme-color"][data-runtime-theme="true"]';
     let runtimeMeta = document.head.querySelector<HTMLMetaElement>(metaSelector);
 

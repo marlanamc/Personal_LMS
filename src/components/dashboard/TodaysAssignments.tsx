@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { stripVocabTypeSuffix, getVocabActivityType, VOCAB_CHIP_CONFIG } from '@/lib/vocab-display';
 import { parseCategoryData } from '@/lib/categoryData';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
-import { PenLine, Gamepad2, BookOpen, ClipboardList, Code2, HeartPulse, Briefcase, BookText } from 'lucide-react';
+import type { ChecklistItem, VocabCategoryData } from './checklist-item.types';
+import { Anchor, PenLine, Gamepad2, BookOpen, ClipboardList, Code2, HeartPulse, Briefcase, BookText } from 'lucide-react';
 
 const SpanishSubjectIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg" aria-hidden>
@@ -16,41 +17,8 @@ const SpanishSubjectIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
-interface VocabCategoryData {
-    'word-list'?: { completed: boolean; progress: number; completedAt?: string };
-    'flashcards'?: { completed: boolean; progress: number; completedAt?: string };
-    'matching'?: { completed: boolean; progress: number; completedAt?: string };
-    'fill-blank'?: { completed: boolean; progress: number; completedAt?: string };
-}
-
-interface FeaturedAssignment {
-    id: string;
-    title?: string | null;
-    activityId: string;
-    dueDate?: string | Date | null;
-    featuredAt?: string | Date | null;
-    updatedAt?: string | Date | null;
-    createdAt?: string | Date | null;
-    isNewRelease?: boolean;
-    progress?: number;
-    progressStatus?: string;
-    categoryData?: VocabCategoryData | string | null;
-    activity: {
-        title: string;
-        description: string | null;
-        type: string;
-        category?: string | null;
-    };
-    submissions: Array<{
-        id: string;
-        status: string;
-        completedAt: string | Date | null;
-        score: number | null;
-    }>;
-}
-
 interface Props {
-    initialAssignments?: FeaturedAssignment[];
+    initialAssignments?: ChecklistItem[];
     title?: string;
     ctaLabel?: string;
     variant?: 'cards' | 'checklist';
@@ -64,7 +32,7 @@ export const TodaysAssignments: React.FC<Props> = ({
     variant = 'cards',
     actions,
 }) => {
-    const [assignments, setAssignments] = useState<FeaturedAssignment[]>(initialAssignments || []);
+    const [assignments, setAssignments] = useState<ChecklistItem[]>(initialAssignments || []);
     const [loading, setLoading] = useState(true);
 
 
@@ -183,7 +151,7 @@ export const TodaysAssignments: React.FC<Props> = ({
         return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     };
 
-    const getVocabProgress = (assignment: FeaturedAssignment) => {
+    const getVocabProgress = (assignment: ChecklistItem) => {
         if (!assignment.activityId.startsWith('vocab-') || !assignment.categoryData) {
             return null;
         }
@@ -222,11 +190,11 @@ export const TodaysAssignments: React.FC<Props> = ({
         return categoryStyles[categoryKey] || categoryStyles.default;
     };
 
-    const isGameActivity = (assignment: FeaturedAssignment): boolean => {
+    const isGameActivity = (assignment: ChecklistItem): boolean => {
         return assignment.activity.type === "game";
     };
 
-    const getSubjectCueIcon = (assignment: FeaturedAssignment): React.ReactNode => {
+    const getSubjectCueIcon = (assignment: ChecklistItem): React.ReactNode => {
         const category = (assignment.activity.category || '').toLowerCase();
         const title = `${assignment.title || ''} ${assignment.activity.title || ''}`.toLowerCase();
         const activityId = (assignment.activityId || '').toLowerCase();
@@ -428,6 +396,11 @@ export const TodaysAssignments: React.FC<Props> = ({
                             <span className="inline-flex items-center justify-center w-5 h-5 rounded-md border border-border-subtle bg-bg-elevated/70" aria-hidden>
                                 {getSubjectCueIcon(assignment)}
                             </span>
+                            {assignment.anchorId && (
+                                <span className="inline-flex items-center justify-center w-4 h-4 rounded-sm text-accent" title="Tagged to a daily anchor" aria-label="Tagged to a daily anchor">
+                                    <Anchor size={12} />
+                                </span>
+                            )}
                             {/* Mobile-only badges row */}
                             {(() => {
                                 const vocabType = getVocabActivityType(assignment.activityId);
