@@ -430,7 +430,7 @@ export function FlatChecklist({ assignments, title = 'Your Daily Checklist', act
                                   shrink-0 px-3 py-1.5 rounded-lg text-body font-semibold transition-colors
                                   ${
                                     rowCompleted
-                                      ? 'cloud-surface text-text-muted border border-border-subtle hover:border-accent-teal/45'
+                                      ? 'cloud-surface text-text border border-border-subtle hover:text-accent-teal hover:border-accent-teal/55'
                                       : 'sakura-action hover:brightness-105 active:scale-95'
                                   }
                                 `}
