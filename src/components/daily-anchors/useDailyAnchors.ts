@@ -109,16 +109,10 @@ export function useDailyAnchors(storageScope: string) {
         const hasServerData = Object.keys(serverStore.states).length > 0;
 
         if (!cancelled) {
-          // Prefer local backup when present and different so recent in-tab edits survive route changes.
-          if (hasLegacyData && (!hasServerData || JSON.stringify(legacyStore) !== JSON.stringify(serverStore))) {
-            setStore(legacyStore);
-            await persistStoreToServer(legacyStore);
-            return;
-          }
-
           if (hasServerData) {
             setStore(serverStore);
           } else if (hasLegacyData) {
+            // One-time recovery for users who only have legacy local data.
             setStore(legacyStore);
             await persistStoreToServer(legacyStore);
           } else {
@@ -145,6 +139,51 @@ export function useDailyAnchors(storageScope: string) {
       cancelled = true;
     };
   }, [storageKey]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const syncFromServer = async () => {
+      if (saveTimerRef.current || isSaving) return;
+
+      try {
+        const response = await fetch('/api/daily-anchors', { method: 'GET', cache: 'no-store' });
+        if (!response.ok) return;
+
+        const payload = (await response.json()) as { store?: unknown };
+        const serverStore = normalizeDailyAnchorsStore(payload.store);
+
+        if (JSON.stringify(serverStore) !== JSON.stringify(latestStoreRef.current)) {
+          setStore(serverStore);
+        }
+      } catch {
+        // Keep current state and retry on next focus/interval.
+      }
+    };
+
+    const handleFocus = () => {
+      void syncFromServer();
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void syncFromServer();
+      }
+    };
+
+    const syncIntervalId = window.setInterval(() => {
+      void syncFromServer();
+    }, 60000);
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(syncIntervalId);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [isLoaded, isSaving]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

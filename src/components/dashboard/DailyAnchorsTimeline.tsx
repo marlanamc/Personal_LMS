@@ -382,13 +382,13 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
       <div className={`daily-anchors-card relative rounded-2xl ${isEditingAnchors ? 'overflow-visible z-40' : 'overflow-hidden'}`}>
         <div aria-hidden className="absolute inset-0 daily-anchors-nebula pointer-events-none" />
 
-        <div className="relative p-5 z-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <h2 className="text-card font-display text-text tracking-wide">Daily Anchors</h2>
+        <div className="relative p-4 sm:p-5 z-10">
+          <div className="flex items-center justify-between gap-3 mb-5 sm:mb-6">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <h2 className="text-card font-display text-text tracking-wide truncate">Daily Anchors</h2>
               <span
                 className={`
-                  text-meta font-semibold px-2.5 py-1 rounded-full
+                  text-meta font-semibold px-2 py-1 rounded-full shrink-0
                   ${isAllComplete ? 'bg-secondary/15 text-secondary' : 'bg-bg-surface/80 text-text-muted'}
                 `}
               >
@@ -396,8 +396,8 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
               </span>
             </div>
 
-            <div className="relative w-9 h-9">
-              <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 shrink-0">
+              <svg className="w-8 h-8 sm:w-9 sm:h-9 -rotate-90" viewBox="0 0 36 36">
                 <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeWidth="3" className="text-bg-surface/60" />
                 <circle
                   cx="18"
@@ -414,7 +414,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
               </svg>
               {isAllComplete && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Check size={12} className="text-secondary" strokeWidth={3} />
+                  <Check size={11} className="text-secondary sm:w-3 sm:h-3" strokeWidth={3} />
                 </div>
               )}
             </div>
@@ -561,14 +561,14 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
             </div>
           </div>
 
-          <div className="sm:hidden mt-2">
+          <div className="sm:hidden mt-1.5">
             {sortedAnchors.length === 0 ? (
               <div className="rounded-xl border border-border-subtle bg-bg-elevated px-3 py-3">
                 <span className="text-xs text-text-muted">No anchors scheduled for today</span>
               </div>
             ) : (
-              <div className="relative pr-1">
-                <div className="daily-anchors-mobile-track-line absolute left-[14px] top-3 bottom-3 w-[2px] rounded-full" />
+              <div className="relative">
+                <div className="daily-anchors-mobile-track-line absolute left-[16px] top-3 bottom-3 w-[2px] rounded-full" />
                 {sortedAnchors.map((anchor, idx) => {
                   const Icon = iconByName[anchor.icon] || Moon;
                   const isActive = anchor.id === activeAnchor.id;
@@ -586,13 +586,13 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                   const statusLabel = isDone ? 'Done' : isMissed ? 'Missed' : timeUntil;
 
                   return (
-                    <div key={`mobile-timeline-${anchor.id}`} className={`${isLast ? '' : 'mb-3'} relative flex items-center gap-2`}>
+                    <div key={`mobile-timeline-${anchor.id}`} className={`${isLast ? '' : 'mb-2.5'} relative flex items-center gap-2`}>
                       <button
                         type="button"
                         onClick={() => toggleAnchor(anchor.id)}
                         disabled={!isLoaded}
                         className={`
-                          flex-1 min-w-0 flex items-start gap-3 rounded-xl px-1.5 py-2.5 text-left
+                          flex-1 min-w-0 min-h-[52px] flex items-start gap-3 rounded-2xl px-2 py-2.5 text-left
                           transition-colors duration-200
                           ${
                             isActive
@@ -604,19 +604,19 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                           ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                         `}
                       >
-                        <span className="relative mt-0.5 w-7 h-7 shrink-0 flex items-center justify-center">
+                        <span className="relative mt-0.5 w-8 h-8 shrink-0 flex items-center justify-center">
                           <span
                             className={`
-                              daily-anchors-mobile-orb relative w-7 h-7 rounded-full flex items-center justify-center
+                              daily-anchors-mobile-orb relative w-8 h-8 rounded-full flex items-center justify-center
                               transition-all duration-200 ${stateClass}
                               ${!isDone && !isMissed && !isActive ? 'scale-[0.92] opacity-80' : ''}
                             `}
                           >
                             {isDone ? (
-                              <Check size={14} strokeWidth={3} />
+                              <Check size={15} strokeWidth={3} />
                             ) : (
                               <Icon
-                                size={14}
+                                size={15}
                                 strokeWidth={1.8}
                                 className={isMissed ? 'opacity-55' : !isActive ? 'opacity-70' : 'opacity-90'}
                               />
@@ -625,7 +625,12 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                         </span>
 
                         <span className="min-w-0 pt-0.5">
-                          <span className={`block text-card leading-tight truncate ${isActive ? 'text-text' : 'text-text-muted/95'}`}>
+                          <span
+                            className={`
+                              block text-[0.95rem] max-[390px]:text-[0.9rem] font-semibold leading-tight truncate
+                              ${isActive ? 'text-text' : 'text-text-muted/95'}
+                            `}
+                          >
                             {anchor.label}
                           </span>
                           {isActive && !isDone && !isMissed && (
@@ -635,7 +640,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                           )}
                           <span
                             className={`
-                              block text-meta leading-snug truncate mt-0.5
+                              block text-[11px] max-[390px]:text-[10px] leading-snug mt-0.5
                               ${isDone ? 'text-secondary' : isMissed ? 'text-error/70' : 'text-text-muted'}
                             `}
                           >
@@ -667,19 +672,25 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
         createPortal(
           <div className="fixed inset-0 z-[9999]">
             <div className="absolute inset-0 bg-bg-base/70 backdrop-blur-sm" onClick={closeAnchorEditor} aria-hidden />
-            <div className="absolute inset-0 overflow-y-auto">
-              <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-                <div className="sticky top-0 z-20 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 bg-bg-base/95 backdrop-blur-sm border-b border-border-subtle mb-4">
-                  <div className="flex items-center justify-between gap-3">
+            <div className="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain">
+              <div
+                className="max-w-6xl mx-auto px-3 sm:px-6 pb-4 sm:pb-6"
+                style={{
+                  paddingTop: 'max(0.75rem, env(safe-area-inset-top))',
+                  paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+                }}
+              >
+                <div className="sticky top-0 z-20 -mx-3 sm:-mx-6 px-3 sm:px-6 py-3 bg-bg-base/95 backdrop-blur-sm border-b border-border-subtle mb-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-sm font-semibold uppercase tracking-[0.12em] text-text-muted">Edit Anchors</p>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                       <button
                         type="button"
                         onClick={addAnchor}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-border-subtle text-text-muted hover:text-text hover:border-accent-teal/50"
+                        className="inline-flex items-center justify-center sm:justify-start gap-1.5 min-w-0 flex-1 sm:flex-none px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-border-subtle text-text-muted hover:text-text hover:border-accent-teal/50"
                       >
                         <Plus size={12} />
-                        Add Anchor
+                        <span className="truncate">Add Anchor</span>
                       </button>
                       <button
                         type="button"
@@ -704,42 +715,48 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                 <div className="space-y-3 pb-8">
                   {draftTemplates.map((anchor) => (
                     <div key={`edit-${anchor.id}`} className="rounded-lg border border-border-subtle bg-bg-surface/60 p-2.5 space-y-2">
-                      <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-center">
+                      <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] sm:items-center sm:gap-2">
                         <input
                           type="text"
                           value={anchor.label}
                           onChange={(e) => updateDraftTemplate(anchor.id, { label: e.target.value })}
-                          className="h-9 rounded-lg border border-border-subtle bg-bg-surface px-2.5 text-sm text-text"
+                          className="h-9 min-w-0 rounded-lg border border-border-subtle bg-bg-surface px-2.5 text-sm text-text"
                           aria-label={`Edit ${anchor.id} label`}
+                          name={`anchor-label-${anchor.id}`}
+                          autoComplete="off"
                         />
-                        <input
-                          type="time"
-                          value={anchor.scheduledTime}
-                          onChange={(e) => updateDraftTemplate(anchor.id, { scheduledTime: e.target.value })}
-                          className="h-9 rounded-lg border border-border-subtle bg-bg-surface px-2 text-sm text-text"
-                          aria-label={`Edit ${anchor.id} time`}
-                        />
-                        <select
-                          value={anchor.icon}
-                          onChange={(e) => updateDraftTemplate(anchor.id, { icon: e.target.value as AnchorIcon })}
-                          className="h-9 rounded-lg border border-border-subtle bg-bg-surface px-2 text-sm text-text"
-                          aria-label={`Edit ${anchor.id} icon`}
-                        >
-                          {ICON_OPTIONS.map((option) => (
-                            <option key={`${anchor.id}-${option.value}`} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          type="button"
-                          onClick={() => removeAnchor(anchor.id)}
-                          className="h-9 w-9 inline-flex items-center justify-center rounded-lg border border-border-subtle text-text-muted hover:text-error hover:border-error/40"
-                          aria-label={`Remove ${anchor.label || 'anchor'}`}
-                          title="Remove anchor"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2 sm:contents">
+                          <input
+                            type="time"
+                            value={anchor.scheduledTime}
+                            onChange={(e) => updateDraftTemplate(anchor.id, { scheduledTime: e.target.value })}
+                            className="h-9 w-full sm:w-auto rounded-lg border border-border-subtle bg-bg-surface px-2 text-sm text-text"
+                            aria-label={`Edit ${anchor.id} time`}
+                            name={`anchor-time-${anchor.id}`}
+                          />
+                          <select
+                            value={anchor.icon}
+                            onChange={(e) => updateDraftTemplate(anchor.id, { icon: e.target.value as AnchorIcon })}
+                            className="h-9 w-full sm:w-auto rounded-lg border border-border-subtle bg-bg-surface px-2 text-sm text-text min-w-0"
+                            aria-label={`Edit ${anchor.id} icon`}
+                            name={`anchor-icon-${anchor.id}`}
+                          >
+                            {ICON_OPTIONS.map((option) => (
+                              <option key={`${anchor.id}-${option.value}`} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => removeAnchor(anchor.id)}
+                            className="h-9 w-9 inline-flex items-center justify-center rounded-lg border border-border-subtle text-text-muted hover:text-error hover:border-error/40 shrink-0"
+                            aria-label={`Remove ${anchor.label || 'anchor'}`}
+                            title="Remove anchor"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-1.5 flex-wrap">
