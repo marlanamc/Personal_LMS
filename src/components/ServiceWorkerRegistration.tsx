@@ -13,6 +13,11 @@ export default function ServiceWorkerRegistration() {
     ) {
       let registration: ServiceWorkerRegistration | null = null;
       let updateInterval: NodeJS.Timeout | null = null;
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          checkForUpdates();
+        }
+      };
 
       const checkForUpdates = () => {
         if (registration) {
@@ -24,7 +29,7 @@ export default function ServiceWorkerRegistration() {
       };
 
       navigator.serviceWorker
-        .register('/sw.js', { updateViaCache: 'none' })
+        .register(`/sw.js?build=${encodeURIComponent((window as { __NEXT_DATA__?: { buildId?: string } }).__NEXT_DATA__?.buildId || 'dev')}`, { updateViaCache: 'none' })
         .then((reg) => {
           registration = reg;
           console.log('[SW] Registered successfully:', reg.scope);
@@ -76,11 +81,7 @@ export default function ServiceWorkerRegistration() {
           }, 5 * 60 * 1000);
 
           // Also check on visibility change (when tab becomes visible)
-          document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-              checkForUpdates();
-            }
-          });
+          document.addEventListener('visibilitychange', handleVisibilityChange);
         })
         .catch((error) => {
           console.error('[SW] Registration failed:', error);
@@ -92,11 +93,10 @@ export default function ServiceWorkerRegistration() {
         }
         window.removeEventListener('focus', checkForUpdates);
         window.removeEventListener('online', checkForUpdates);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
       };
     }
   }, []);
 
   return null;
 }
-
-

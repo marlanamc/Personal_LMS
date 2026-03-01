@@ -32,7 +32,7 @@ export default function PWAUpdateNotification() {
 
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         window.location.reload();
-      });
+      }, { once: true });
 
       // Fallback reload after 3 seconds if controllerchange doesn't fire
       setTimeout(() => {

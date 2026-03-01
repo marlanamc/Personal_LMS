@@ -1,11 +1,14 @@
 // Service Worker for Class Companion PWA
-// Cache version is based on build time - auto-increments on each deployment
-const CACHE_VERSION = '2026-02-20-v2'; // Bump to force fresh runtime assets
+// Cache version is derived from the build id passed in sw.js?build=<id>.
+const SW_URL = new URL(self.location.href);
+const BUILD_HASH = SW_URL.searchParams.get('build') || 'dev';
+const CACHE_VERSION = `build-${BUILD_HASH}`;
 const CACHE_NAME = `class-companion-${CACHE_VERSION}`;
 
 // Only cache essential shell files - content should be network-first
 const SHELL_CACHE = [
   '/manifest.json',
+  '/offline',
 ];
 
 // Routes that should ALWAYS use network-first (fresh content)
@@ -72,6 +75,12 @@ self.addEventListener('fetch', (event) => {
   }
 
   const url = new URL(event.request.url);
+  const isSameOrigin = url.origin === self.location.origin;
+
+  // Only handle same-origin requests.
+  if (!isSameOrigin) {
+    return;
+  }
 
   // Never cache the service worker file itself
   if (url.pathname === '/sw.js') {
@@ -125,7 +134,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For HTML pages - NETWORK-FIRST with cache fallback
+  // For HTML pages/navigation - NETWORK-FIRST with cache fallback
   event.respondWith(
     fetch(event.request)
       .then((response) => {
@@ -139,9 +148,28 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => {
         return caches.match(event.request).then((cachedResponse) => {
-          return cachedResponse || caches.match('/');
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+
+          // If this is a document navigation and cache is empty, serve the offline page.
+          if (event.request.mode === 'navigate') {
+            return caches.match('/offline').then((offlineResponse) => {
+              if (offlineResponse) {
+                return offlineResponse;
+              }
+              return new Response('Offline. Please reconnect and try again.', {
+                status: 503,
+                headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+              });
+            });
+          }
+
+          return new Response('Offline', {
+            status: 503,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+          });
         });
       })
   );
 });
-

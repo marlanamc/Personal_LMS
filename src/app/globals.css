@@ -218,6 +218,13 @@
     0 18px 32px rgba(177, 139, 118, 0.2);
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
 body {
   background:
     radial-gradient(
