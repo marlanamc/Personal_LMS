@@ -5,21 +5,11 @@ import Link from 'next/link';
 import { UtilitySubjectPanel } from './UtilitySubjectPanel';
 import { GUIDE_HUBS, type GuideHub } from '@/content/guide-hubs';
 import { getNotebooksForSubject, getAllNotebookActivityIds, type TopicNotebook } from '@/content/topic-notebooks';
+import { SpanishSubjectIcon } from '@/components/icons/SpanishSubjectIcon';
 import { NotebookCard } from './NotebookCard';
 import { NotebookDetailView } from './NotebookDetailView';
 
 // Custom SVG Icons for each subject
-const SpanishIcon = ({ className }: { className?: string }) => (
-    <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
-        <circle cx="22" cy="24" r="14" stroke="currentColor" strokeWidth="2.5" fill="none" />
-        <ellipse cx="22" cy="24" rx="6" ry="14" stroke="currentColor" strokeWidth="1.5" fill="none" />
-        <path d="M8 24h28" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M10 17h24M10 31h24" stroke="currentColor" strokeWidth="1" opacity="0.6" />
-        <path d="M34 12c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6c-1.1 0-2.1-.3-3-.8l-3 2.8v-4.5c0-.5 0-1 0-1.5 0-1.1.4-2 1-2"
-              fill="currentColor" opacity="0.2" />
-        <circle cx="40" cy="12" r="4" stroke="currentColor" strokeWidth="2" fill="none" />
-    </svg>
-);
 
 const CodingIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
@@ -363,7 +353,7 @@ const CATEGORY_CARDS: CategoryCardDef[] = [
         kind: 'academic',
         name: 'Spanish',
         subtitle: 'Grammar · Vocabulary · Verbs',
-        icon: <SpanishIcon className="w-full h-full" />,
+        icon: <SpanishSubjectIcon className="w-full h-full" />,
         bgColor: 'var(--color-accent-sakura-soft)',
         iconColor: 'var(--color-accent-sakura)',
     },

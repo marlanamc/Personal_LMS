@@ -2,10 +2,11 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { BriefcaseBusiness, ClipboardList, Code2, Heart, Languages, Sparkles } from 'lucide-react';
+import { BriefcaseBusiness, ClipboardList, Code2, Heart, Sparkles } from 'lucide-react';
 import { stripVocabTypeSuffix, getVocabActivityType, VOCAB_CHIP_CONFIG } from '@/lib/vocab-display';
 import { parseCategoryData } from '@/lib/categoryData';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
+import { SpanishSubjectIcon } from '@/components/icons/SpanishSubjectIcon';
 import type { ChecklistItem, VocabCategoryData } from './checklist-item.types';
 
 interface FlatChecklistProps {
@@ -53,7 +54,7 @@ const SUBJECT_META: Record<SubjectKey, SubjectCardMeta> = {
   spanish: {
     key: 'spanish',
     label: 'Spanish',
-    icon: <Languages size={16} strokeWidth={2.2} />,
+    icon: <SpanishSubjectIcon size={16} strokeWidth={2.2} />,
     accent: 'var(--color-light-subject-spanish, color-mix(in srgb, var(--color-accent-sakura) 78%, var(--color-text-muted) 22%))',
     softAccent: 'var(--color-accent-sakura-soft)',
     textClass: 'text-primary',
@@ -296,7 +297,7 @@ export function FlatChecklist({ assignments, title = 'Your Daily Checklist', act
         </div>
       </div>
 
-      <div className="p-4 sm:p-5">
+      <div className="px-4 sm:px-5 pt-2.5 pb-4 sm:pb-5">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           {subjectCards.map((subjectCard) => {
             const { meta, items, completedItems, totalItems, isCompleted } = subjectCard;

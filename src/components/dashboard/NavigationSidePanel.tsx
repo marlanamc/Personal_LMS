@@ -3,7 +3,8 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { X, BookOpen, Timer, User, Home, Code, Languages, Heart, Briefcase, Calendar } from 'lucide-react';
+import { X, BookOpen, Timer, User, Home, Code, Heart, Briefcase, Calendar } from 'lucide-react';
+import { SpanishSubjectIcon } from '@/components/icons/SpanishSubjectIcon';
 
 interface NavigationSidePanelProps {
   isOpen: boolean;
@@ -11,7 +12,7 @@ interface NavigationSidePanelProps {
 }
 
 const subjects = [
-  { href: '/dashboard/subjects?subject=spanish', label: 'Spanish', icon: Languages, color: 'text-rose-400' },
+  { href: '/dashboard/subjects?subject=spanish', label: 'Spanish', icon: SpanishSubjectIcon, color: 'text-rose-400' },
   { href: '/dashboard/subjects?subject=coding', label: 'Coding', icon: Code, color: 'text-sky-400' },
   { href: '/dashboard/subjects?subject=health', label: 'Health', icon: Heart, color: 'text-emerald-400' },
   { href: '/dashboard/subjects?subject=job-search', label: 'Job Search', icon: Briefcase, color: 'text-amber-400' },

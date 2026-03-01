@@ -571,7 +571,6 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                   const isDone = anchor.status === 'done';
                   const isMissed = anchor.status === 'missed';
                   const timeUntil = getTimeUntil(anchor.scheduledTime);
-                  const canEdit = !isDone && !isMissed;
                   const isLast = idx === sortedAnchors.length - 1;
                   const stateClass = isDone
                     ? 'is-done'
@@ -640,23 +639,6 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                           </span>
                         </span>
                       </button>
-
-                      {canEdit ? (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (!isEditingAnchors) openAnchorEditor();
-                          }}
-                          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border-subtle bg-bg-surface/65 text-text-muted/70 opacity-75 hover:opacity-100 hover:text-text hover:border-accent-teal/50 transition-colors"
-                          aria-label={`Edit ${anchor.label}`}
-                          title={`Edit ${anchor.label}`}
-                        >
-                          <Pencil size={11} />
-                        </button>
-                      ) : (
-                        <span className="h-6 w-6 shrink-0" />
-                      )}
                     </div>
                   );
                 })}
@@ -764,11 +746,12 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                               key={`${anchor.id}-${day.value}`}
                               type="button"
                               onClick={() => toggleTemplateDay(anchor.id, day.value)}
+                              aria-pressed={enabled}
                               className={`
                                 h-7 min-w-7 px-2 rounded-md text-[11px] font-semibold border transition-colors
                                 ${
                                   enabled
-                                    ? 'bg-accent-teal/15 text-accent-teal border-accent-teal/45'
+                                    ? 'bg-accent-teal/15 text-accent-teal border-accent-teal/70 ring-1 ring-accent-teal/60'
                                     : 'bg-bg-elevated text-text-muted border-border-subtle hover:text-text'
                                 }
                               `}

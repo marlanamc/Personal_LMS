@@ -73,11 +73,11 @@ export default function ClearFeaturedButton({ variant = "subtle" }: ClearFeature
     return (
         <button
             onClick={() => setShowConfirm(true)}
-            className="inline-flex items-center gap-1.5 px-1.5 py-1 text-meta font-medium text-text-muted hover:text-text transition-colors"
+            className="inline-flex items-center justify-center h-6 w-6 text-text-muted hover:text-text transition-colors"
             aria-label="Clear all featured assignments"
+            title="Clear all featured"
         >
             <X className="h-3.5 w-3.5" aria-hidden />
-            Clear all featured
         </button>
     );
 }

@@ -5,17 +5,9 @@ import Link from 'next/link';
 import { stripVocabTypeSuffix, getVocabActivityType, VOCAB_CHIP_CONFIG } from '@/lib/vocab-display';
 import { parseCategoryData } from '@/lib/categoryData';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
+import { SpanishSubjectIcon } from '@/components/icons/SpanishSubjectIcon';
 import type { ChecklistItem, VocabCategoryData } from './checklist-item.types';
 import { Anchor, PenLine, Gamepad2, BookOpen, ClipboardList, Code2, HeartPulse, Briefcase, BookText } from 'lucide-react';
-
-const SpanishSubjectIcon = ({ className }: { className?: string }) => (
-    <svg viewBox="0 0 48 48" fill="none" className={className} xmlns="http://www.w3.org/2000/svg" aria-hidden>
-        <circle cx="22" cy="24" r="14" stroke="currentColor" strokeWidth="2.5" />
-        <ellipse cx="22" cy="24" rx="6" ry="14" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M8 24h28" stroke="currentColor" strokeWidth="1.5" />
-        <circle cx="40" cy="12" r="4" stroke="currentColor" strokeWidth="2" />
-    </svg>
-);
 
 interface Props {
     initialAssignments?: ChecklistItem[];
