@@ -42,6 +42,19 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
             day: "numeric",
         });
 
+    const formatDateLabel = (date: Date) => {
+        const today = new Date();
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const dayDiff = Math.floor((dateStart.getTime() - todayStart.getTime()) / (24 * 60 * 60 * 1000));
+
+        if (dayDiff >= 0 && dayDiff < 7) {
+            return date.toLocaleDateString("en-US", { weekday: "long" });
+        }
+
+        return formatShortDate(date);
+    };
+
     return (
         <div>
             {error && <p className="text-meta text-error mb-2">{error}</p>}
@@ -54,14 +67,14 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
                         const endDate = ev.endDate ? new Date(ev.endDate) : startDate;
                         const sameDay = startDate.toDateString() === endDate.toDateString();
                         const dateLabel = sameDay
-                            ? formatShortDate(startDate)
-                            : `${formatShortDate(startDate)} - ${formatShortDate(endDate)}`;
+                            ? formatDateLabel(startDate)
+                            : `${formatDateLabel(startDate)} - ${formatDateLabel(endDate)}`;
 
                         const canDelete = allowDelete && Boolean(ev.id);
 
                         return (
-                            <div key={`${ev.title}-${idx}`} className="cloud-surface flex items-start border border-border-subtle rounded-lg px-3 py-1.5 bg-bg-surface gap-3 shadow-sm">
-                                <div className="flex items-start gap-2 min-w-0 flex-1">
+                            <div key={`${ev.title}-${idx}`} className="cloud-surface flex items-center border border-border-subtle rounded-md px-2.5 py-1 bg-bg-surface gap-2 shadow-sm">
+                                <div className="flex items-center gap-2 min-w-0 flex-1">
                                     <span
                                         className="inline-block w-2 h-2 rounded-full shrink-0"
                                         style={{
@@ -70,14 +83,14 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
                                     />
                                     <span className="text-body font-medium text-text whitespace-normal break-words">{ev.title}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-meta text-text-muted ml-auto whitespace-nowrap shrink-0">
+                                <div className="flex items-center gap-1.5 text-meta text-text-muted ml-auto whitespace-nowrap shrink-0">
                                     <span className="text-meta text-right">{dateLabel}</span>
                                     {canDelete && (
                                         <button
                                             type="button"
                                             onClick={() => handleDelete(ev.id)}
                                             disabled={isDeleting === ev.id}
-                                            className="text-meta text-error hover:brightness-90 border border-border-subtle px-2 py-1 rounded-md bg-sakura-soft disabled:opacity-50"
+                                            className="inline-flex items-center justify-center h-6 w-6 text-meta text-error hover:brightness-90 border border-border-subtle rounded-md bg-sakura-soft disabled:opacity-50"
                                             aria-label={isDeleting === ev.id ? "Deleting event" : "Delete event"}
                                             title={isDeleting === ev.id ? "Deleting event" : "Delete event"}
                                         >
