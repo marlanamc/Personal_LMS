@@ -137,7 +137,8 @@ function toStateAnchor(template: DailyAnchorTemplate, existing?: DailyAnchor): D
     id: template.id,
     label: template.label,
     icon: template.icon,
-    scheduledTime: template.scheduledTime,
+    // Preserve per-day time overrides when a state anchor already exists.
+    scheduledTime: existing?.scheduledTime ?? template.scheduledTime,
     ...(template.daysOfWeek ? { daysOfWeek: template.daysOfWeek } : {}),
     status: existing?.status ?? 'waiting',
     actualTime: existing?.actualTime,
