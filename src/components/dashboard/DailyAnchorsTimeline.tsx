@@ -127,6 +127,20 @@ function formatShortTime(timeStr: string): string {
   return formatTimeLabel(timeStr).replace(':00 ', '').replace(' AM', 'a').replace(' PM', 'p');
 }
 
+function formatDuration(minutes: number): string {
+  const safeMinutes = Math.max(0, minutes);
+  const hours = Math.floor(safeMinutes / 60);
+  const mins = safeMinutes % 60;
+  if (mins === 0) return `${hours}h`;
+  return `${hours}h ${mins}m`;
+}
+
+function getOvernightMinutesUntil(startTime: string, nextDayTime: string): number {
+  const startMinutes = parseHHMMToMinutes(startTime);
+  const endMinutes = parseHHMMToMinutes(nextDayTime);
+  return (24 * 60 - startMinutes) + endMinutes;
+}
+
 function arraysEqualByValue(a?: DayOfWeek[], b?: DayOfWeek[]): boolean {
   const left = a ? [...a].sort((x, y) => x - y) : [];
   const right = b ? [...b].sort((x, y) => x - y) : [];
@@ -154,6 +168,10 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   const completedCount = todaysAnchors.filter((anchor) => anchor.status === 'done').length;
   const totalCount = todaysAnchors.length;
   const isAllComplete = totalCount > 0 && completedCount === totalCount;
+  const wakeTemplate = useMemo(
+    () => anchorTemplates.find((template) => template.id === 'wake') || anchorTemplates.find((template) => template.icon === 'sunrise'),
+    [anchorTemplates],
+  );
 
   const sortedAnchors = useMemo(() => {
     return [...todaysAnchors].sort((a, b) => parseHHMMToMinutes(a.scheduledTime) - parseHHMMToMinutes(b.scheduledTime));
@@ -445,6 +463,11 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                 const displayTime = isDragging && dragPreviewTime ? dragPreviewTime : anchor.scheduledTime;
                 const position = getTimePosition(displayTime);
                 const timeUntil = getTimeUntil(anchor.scheduledTime);
+                const isLightsOutAnchor = anchor.id === 'lightsOut' || anchor.icon === 'moon';
+                const sleepWindowLabel =
+                  isLightsOutAnchor && wakeTemplate
+                    ? formatDuration(getOvernightMinutesUntil(displayTime, wakeTemplate.scheduledTime))
+                    : null;
                 const stateClass = isDone
                   ? 'is-done'
                   : isMissed
@@ -473,6 +496,11 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                       {!isDragging && (
                         <div className={`text-[10px] ${isDone ? 'text-secondary' : isMissed ? 'text-error/70' : 'text-text-muted'}`}>
                           {isDone ? 'Completed' : isMissed ? 'Missed' : timeUntil}
+                        </div>
+                      )}
+                      {!isDragging && sleepWindowLabel && (
+                        <div className="text-[10px] text-text-muted">
+                          Sleep window: {sleepWindowLabel}
                         </div>
                       )}
                       {isDragging && <div className="text-[10px] text-primary">Release to set</div>}
