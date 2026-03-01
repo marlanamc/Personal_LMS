@@ -1,6 +1,6 @@
 'use client';
 
-import { BriefcaseBusiness, Dumbbell, Moon } from 'lucide-react';
+import { BriefcaseBusiness, Dumbbell, Flower2, Moon } from 'lucide-react';
 import { useMemo } from 'react';
 import { formatTimeLabel, type AnchorIcon, type DailyAnchor } from '@/lib/anchors';
 import { useDailyAnchors } from './useDailyAnchors';
@@ -13,6 +13,7 @@ interface DailyAnchorsDateSummaryProps {
 function iconForAnchor(icon: AnchorIcon) {
   if (icon === 'dumbbell') return Dumbbell;
   if (icon === 'briefcase') return BriefcaseBusiness;
+  if (icon === 'flower-2') return Flower2;
   return Moon;
 }
 

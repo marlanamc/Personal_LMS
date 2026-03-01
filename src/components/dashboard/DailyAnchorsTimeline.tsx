@@ -10,6 +10,7 @@ import {
   Code2,
   Coffee,
   Dumbbell,
+  Flower2,
   GripVertical,
   Heart,
   Moon,
@@ -49,6 +50,7 @@ const WEEKDAY_OPTIONS: Array<{ value: DayOfWeek; short: string; label: string }>
 
 const ICON_OPTIONS: Array<{ value: AnchorIcon; label: string }> = [
   { value: 'sunrise', label: 'Sunrise' },
+  { value: 'flower-2', label: 'Meditation' },
   { value: 'dumbbell', label: 'Dumbbell' },
   { value: 'briefcase', label: 'Briefcase' },
   { value: 'moon', label: 'Moon' },
@@ -62,6 +64,7 @@ const ICON_OPTIONS: Array<{ value: AnchorIcon; label: string }> = [
 
 const iconByName: Record<AnchorIcon, typeof Sunrise> = {
   sunrise: Sunrise,
+  'flower-2': Flower2,
   dumbbell: Dumbbell,
   briefcase: Briefcase,
   moon: Moon,
@@ -77,6 +80,7 @@ function gradientByIcon(icon: AnchorIcon): string {
   if (icon === 'dumbbell') return 'from-emerald-400/20 to-teal-300/10';
   if (icon === 'briefcase' || icon === 'code') return 'from-sky-400/20 to-blue-300/10';
   if (icon === 'sunrise' || icon === 'coffee') return 'from-amber-400/20 to-orange-300/10';
+  if (icon === 'flower-2') return 'from-cyan-400/20 to-teal-300/10';
   if (icon === 'heart') return 'from-rose-400/20 to-pink-300/10';
   if (icon === 'target') return 'from-purple-400/20 to-fuchsia-300/10';
   if (icon === 'book-open' || icon === 'calendar') return 'from-indigo-400/20 to-violet-300/10';

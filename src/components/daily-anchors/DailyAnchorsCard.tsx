@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, BriefcaseBusiness, Calendar, Check, Code2, Coffee, Dumbbell, Heart, Moon, Sunrise, Target } from 'lucide-react';
+import { BookOpen, BriefcaseBusiness, Calendar, Check, Code2, Coffee, Dumbbell, Flower2, Heart, Moon, Sunrise, Target } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { ChecklistItem } from '@/components/dashboard/checklist-item.types';
 import {
@@ -24,6 +24,7 @@ function iconForAnchor(icon: AnchorIcon) {
   if (icon === 'dumbbell') return Dumbbell;
   if (icon === 'briefcase') return BriefcaseBusiness;
   if (icon === 'sunrise') return Sunrise;
+  if (icon === 'flower-2') return Flower2;
   if (icon === 'book-open') return BookOpen;
   if (icon === 'code') return Code2;
   if (icon === 'heart') return Heart;
@@ -177,6 +178,7 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
                     aria-label={`Edit ${anchor.id} icon`}
                   >
                     <option value="moon">Moon</option>
+                    <option value="flower-2">Meditation</option>
                     <option value="dumbbell">Dumbbell</option>
                     <option value="briefcase">Briefcase</option>
                   </select>

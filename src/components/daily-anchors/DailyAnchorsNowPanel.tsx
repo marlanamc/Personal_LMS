@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { AnchorIcon, BookOpen, Briefcase, Calendar, Code2, Coffee, Dumbbell, Heart, Moon, Play, Sunrise, Target, Timer } from 'lucide-react';
+import { AnchorIcon, BookOpen, Briefcase, Calendar, Code2, Coffee, Dumbbell, Flower2, Heart, Moon, Play, Sunrise, Target, Timer } from 'lucide-react';
 import type { ChecklistItem } from '@/components/dashboard/checklist-item.types';
 import { formatTimeLabel } from '@/lib/anchors';
 import { useDailyAnchorsForToday } from './useDailyAnchors';
@@ -17,6 +17,7 @@ function IconForAnchor({ icon }: { icon: string }) {
   if (icon === 'dumbbell') return <Dumbbell size={16} />;
   if (icon === 'briefcase') return <Briefcase size={16} />;
   if (icon === 'sunrise') return <Sunrise size={16} />;
+  if (icon === 'flower-2') return <Flower2 size={16} />;
   if (icon === 'book-open') return <BookOpen size={16} />;
   if (icon === 'code') return <Code2 size={16} />;
   if (icon === 'heart') return <Heart size={16} />;

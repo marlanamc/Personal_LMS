@@ -5,6 +5,7 @@ export type AnchorIcon =
   | 'dumbbell'
   | 'briefcase'
   | 'sunrise'
+  | 'flower-2'
   | 'book-open'
   | 'code'
   | 'heart'
@@ -58,6 +59,7 @@ const VALID_ICONS = new Set<AnchorIcon>([
   'dumbbell',
   'briefcase',
   'sunrise',
+  'flower-2',
   'book-open',
   'code',
   'heart',
