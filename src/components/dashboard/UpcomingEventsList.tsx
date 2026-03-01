@@ -36,6 +36,12 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
         }
     };
 
+    const formatShortDate = (date: Date) =>
+        date.toLocaleDateString("en-US", {
+            month: "numeric",
+            day: "numeric",
+        });
+
     return (
         <div>
             {error && <p className="text-meta text-error mb-2">{error}</p>}
@@ -48,23 +54,23 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
                         const endDate = ev.endDate ? new Date(ev.endDate) : startDate;
                         const sameDay = startDate.toDateString() === endDate.toDateString();
                         const dateLabel = sameDay
-                            ? startDate.toLocaleDateString()
-                            : `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+                            ? formatShortDate(startDate)
+                            : `${formatShortDate(startDate)} - ${formatShortDate(endDate)}`;
 
                         const canDelete = allowDelete && Boolean(ev.id);
 
                         return (
-                            <div key={`${ev.title}-${idx}`} className="cloud-surface flex items-center border border-border-subtle rounded-lg px-3 py-1.5 bg-bg-surface gap-3 shadow-sm">
-                                <div className="flex items-center gap-2 min-w-0">
+                            <div key={`${ev.title}-${idx}`} className="cloud-surface flex items-start border border-border-subtle rounded-lg px-3 py-1.5 bg-bg-surface gap-3 shadow-sm">
+                                <div className="flex items-start gap-2 min-w-0 flex-1">
                                     <span
                                         className="inline-block w-2 h-2 rounded-full shrink-0"
                                         style={{
                                             backgroundColor: getCalendarMarkerColor(ev.type),
                                         }}
                                     />
-                                    <span className="text-body font-medium text-text truncate">{ev.title}</span>
+                                    <span className="text-body font-medium text-text whitespace-normal break-words">{ev.title}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-meta text-text-muted ml-auto whitespace-nowrap">
+                                <div className="flex items-center gap-2 text-meta text-text-muted ml-auto whitespace-nowrap shrink-0">
                                     <span className="text-meta text-right">{dateLabel}</span>
                                     {canDelete && (
                                         <button
