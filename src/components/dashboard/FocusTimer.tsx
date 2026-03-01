@@ -115,8 +115,10 @@ export const FocusTimer = () => {
         selectedMinutes,
         timeLeft,
         isActive,
+        activeSessionLabel,
         setSelectedTrack,
         setSelectedMinutes,
+        setActiveSessionLabel,
         toggleTimer,
         resetTimer,
     } = useFocusTimer();
@@ -143,7 +145,6 @@ export const FocusTimer = () => {
     const [activeAssignmentId, setActiveAssignmentId] = useState<string | null>(null);
     const [sessionTitleInput, setSessionTitleInput] = useState('');
     const [hasCustomSessionTitle, setHasCustomSessionTitle] = useState(false);
-    const [activeSessionTitle, setActiveSessionTitle] = useState<string | null>(null);
     const [completedSessions, setCompletedSessions] = useState<CompletedFocusSession[]>([]);
     const [sessionNotice, setSessionNotice] = useState<string | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -484,6 +485,33 @@ export const FocusTimer = () => {
         () => tasks.filter((task) => task.done).length,
         [tasks]
     );
+    const sessionTally = useMemo(() => {
+        const totalSessions = completedSessions.length;
+        const totalMinutes = completedSessions.reduce((sum, session) => sum + session.durationMinutes, 0);
+
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const tomorrowStart = todayStart + 24 * 60 * 60 * 1000;
+        const sessionsToday = completedSessions.filter((session) => {
+            const ts = new Date(session.completedAt).getTime();
+            return ts >= todayStart && ts < tomorrowStart;
+        }).length;
+
+        const byDuration = new Map<number, number>();
+        for (const session of completedSessions) {
+            byDuration.set(session.durationMinutes, (byDuration.get(session.durationMinutes) || 0) + 1);
+        }
+        const topDurationEntry = Array.from(byDuration.entries()).sort((a, b) => b[1] - a[1])[0] || null;
+
+        return {
+            totalSessions,
+            totalMinutes,
+            sessionsToday,
+            topDurationMinutes: topDurationEntry?.[0] ?? null,
+            topDurationCount: topDurationEntry?.[1] ?? null,
+        };
+    }, [completedSessions]);
+
     const sessionTopic = useMemo(() => {
         const taskText = tasks
             .filter((task) => !task.done)
@@ -673,7 +701,7 @@ export const FocusTimer = () => {
         const sessionCompleted = wasActive && !isActive && timeLeft === 0;
 
         if (sessionCompleted) {
-            const completedTitle = (activeSessionTitle || sessionTitleInput || suggestedSessionTitle).trim();
+            const completedTitle = (activeSessionLabel || sessionTitleInput || suggestedSessionTitle).trim();
             const completedSession: CompletedFocusSession = {
                 id: `session-${Date.now()}`,
                 title: completedTitle,
@@ -683,12 +711,12 @@ export const FocusTimer = () => {
 
             setCompletedSessions((prev) => [completedSession, ...prev].slice(0, MAX_STORED_SESSIONS));
             void saveSessionToServer(completedSession);
-            setActiveSessionTitle(null);
+            setActiveSessionLabel(null);
             setHasCustomSessionTitle(false);
         }
 
         prevIsActiveRef.current = isActive;
-    }, [isActive, timeLeft, activeSessionTitle, sessionTitleInput, suggestedSessionTitle, selectedMinutes, saveSessionToServer]);
+    }, [isActive, timeLeft, activeSessionLabel, sessionTitleInput, suggestedSessionTitle, selectedMinutes, saveSessionToServer, setActiveSessionLabel]);
 
     const importTasksFromSubjects = useCallback(async () => {
         setIsImportingTasks(true);
@@ -811,6 +839,48 @@ export const FocusTimer = () => {
             isGame: false,
         };
     }, []);
+
+    const CompletedSessionsPanel = ({ className = '' }: { className?: string }) => {
+        if (completedSessions.length === 0) return null;
+
+        return (
+            <div className={`w-full max-w-[320px] rounded-3xl border border-border/60 bg-bg-secondary/70 p-4 ${className}`.trim()}>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                    <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">Completed Sessions</h3>
+                    <span className="text-xs text-text-muted whitespace-nowrap">{completedSessions.length} total</span>
+                </div>
+                <div className="mb-3 rounded-2xl border border-border/50 bg-bg-elevated/60 px-3 py-2">
+                    <div className="flex items-center justify-between gap-2 text-xs text-text-muted">
+                        <span>Today: {sessionTally.sessionsToday}</span>
+                        <span>{sessionTally.totalMinutes} min focused</span>
+                    </div>
+                    {sessionTally.topDurationMinutes !== null && (sessionTally.topDurationCount || 0) > 1 && (
+                        <p className="mt-1 text-[11px] font-semibold text-text">
+                            {sessionTally.topDurationMinutes} min × {sessionTally.topDurationCount}
+                        </p>
+                    )}
+                </div>
+                <div className="space-y-2">
+                    {completedSessions.slice(0, 3).map((session) => {
+                        const completedAt = new Date(session.completedAt);
+                        const stamp = `${completedAt.toLocaleDateString([], { month: 'short', day: 'numeric' })} · ${completedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+
+                        return (
+                            <div key={session.id} className="rounded-2xl border border-border/50 bg-bg-elevated/70 px-3 py-2.5">
+                                <div className="flex items-center justify-between gap-2">
+                                    <p className="text-sm font-semibold text-text truncate">{session.title}</p>
+                                    <span className="text-xs font-medium text-text-muted whitespace-nowrap">{session.durationMinutes} min</span>
+                                </div>
+                                <div className="mt-1.5">
+                                    <p className="text-xs text-text-muted">{stamp}</p>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
     
     return (
         <div className="min-h-screen bg-bg-base light-ambient-surface focus-timer-ambient text-text font-display transition-colors duration-300 flex flex-col">
@@ -903,15 +973,18 @@ export const FocusTimer = () => {
                     )}
                 </div>
 
-                <button
-                    type="button"
-                    onClick={() => setIsTasksPanelOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-light rounded-full text-sm font-medium transition-colors border border-border/50 shadow-sm"
-                    aria-label="Open tasks panel"
-                >
-                    <CheckSquare className="w-4 h-4 text-text/70" />
-                    <span className="text-text/90">Tasks</span>
-                </button>
+                <div className="relative">
+                    <button
+                        type="button"
+                        onClick={() => setIsTasksPanelOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-light rounded-full text-sm font-medium transition-colors border border-border/50 shadow-sm"
+                        aria-label="Open tasks panel"
+                    >
+                        <CheckSquare className="w-4 h-4 text-text/70" />
+                        <span className="text-text/90">Tasks</span>
+                    </button>
+                    <CompletedSessionsPanel className="hidden md:block absolute right-0 top-full mt-2 !w-[320px] max-w-none z-20" />
+                </div>
             </header>
 
             {/* Centered Content Area */}
@@ -1072,7 +1145,7 @@ export const FocusTimer = () => {
                                 triggerHaptic(20);
                                 if (!isActive) {
                                     const normalizedTitle = sessionTitleInput.trim();
-                                    setActiveSessionTitle(normalizedTitle || suggestedSessionTitle);
+                                    setActiveSessionLabel(normalizedTitle || suggestedSessionTitle);
                                 }
                                 toggleTimer();
                             }}
@@ -1089,7 +1162,7 @@ export const FocusTimer = () => {
                             <button
                                 onClick={() => {
                                     triggerHaptic(30);
-                                    setActiveSessionTitle(null);
+                                    setActiveSessionLabel(null);
                                     resetTimer();
                                 }}
                                 className="mt-4 text-sm font-semibold underline text-text-muted hover:text-text transition-colors"
@@ -1099,26 +1172,9 @@ export const FocusTimer = () => {
                         )}
                     </div>
 
-                    {completedSessions.length > 0 && (
-                        <div className="w-full max-w-[300px] mb-8 rounded-2xl border border-border/60 bg-bg-secondary/70 p-4">
-                            <h3 className="text-sm font-bold text-text mb-3">Completed Sessions</h3>
-                            <div className="space-y-2.5">
-                                {completedSessions.slice(0, 3).map((session) => (
-                                    <div key={session.id} className="rounded-xl border border-border/50 bg-bg-elevated/70 px-3 py-2">
-                                        <p className="text-sm font-semibold text-text truncate">{session.title}</p>
-                                        <p className="text-xs text-text-muted">
-                                            {session.durationMinutes} min · {new Date(session.completedAt).toLocaleDateString()} {new Date(session.completedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-                                            {typeof session.pointsAwarded === 'number' && ` · +${session.pointsAwarded} pts`}
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
                     {/* Spotify Player - Integrated below controls */}
                     {selectedPlaylistId && (
-                        <div className="w-full max-w-[300px]">
+                        <div className="w-full max-w-[300px] mb-4 md:mb-0">
                             <iframe
                                 title="Spotify focus playlist"
                                 style={{ borderRadius: '12px' }}
@@ -1131,6 +1187,8 @@ export const FocusTimer = () => {
                             />
                         </div>
                     )}
+
+                    <CompletedSessionsPanel className="md:hidden mb-8" />
                 </div>
             </main>
 

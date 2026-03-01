@@ -41,6 +41,7 @@ type PersistedFocusTimerState = {
   isActive?: boolean;
   endTimeMs?: number | null;
   selectedTrackId?: string;
+  activeSessionLabel?: string | null;
 };
 
 type FocusTimerContextType = {
@@ -51,9 +52,11 @@ type FocusTimerContextType = {
   selectedMinutes: number;
   timeLeft: number;
   isActive: boolean;
+  activeSessionLabel: string | null;
   formattedTime: string;
   setSelectedTrack: (trackId: string) => void;
   setSelectedMinutes: (minutes: number) => void;
+  setActiveSessionLabel: (label: string | null) => void;
   toggleTimer: () => void;
   resetTimer: () => void;
 };
@@ -79,6 +82,7 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
   const [selectedMinutes, setSelectedMinutesState] = useState<number>(DEFAULT_MINUTES);
   const [timeLeft, setTimeLeft] = useState<number>(DEFAULT_MINUTES * 60);
   const [isActive, setIsActive] = useState<boolean>(false);
+  const [activeSessionLabel, setActiveSessionLabel] = useState<string | null>(null);
 
   const endTimeRef = useRef<number | null>(null);
   const isHydratedRef = useRef(false);
@@ -130,6 +134,10 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
 
       const savedEndTimeMs = typeof parsed.endTimeMs === "number" ? parsed.endTimeMs : null;
       const savedIsActive = Boolean(parsed.isActive && savedEndTimeMs);
+      const savedLabel =
+        typeof parsed.activeSessionLabel === "string" && parsed.activeSessionLabel.trim()
+          ? parsed.activeSessionLabel.trim()
+          : null;
 
       if (savedIsActive && savedEndTimeMs) {
         const remaining = Math.max(0, Math.ceil((savedEndTimeMs - Date.now()) / 1000));
@@ -137,6 +145,7 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
           endTimeRef.current = savedEndTimeMs;
           setTimeLeft(remaining);
           setIsActive(true);
+          setActiveSessionLabel(savedLabel);
           completionFiredRef.current = false;
           return;
         }
@@ -145,12 +154,14 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       const savedTimeLeft = Number(parsed.timeLeft ?? savedMinutes * 60);
       setTimeLeft(Number.isFinite(savedTimeLeft) ? Math.max(0, Math.floor(savedTimeLeft)) : savedMinutes * 60);
       setIsActive(false);
+      setActiveSessionLabel(null);
       endTimeRef.current = null;
     } catch {
       setSelectedTrackId("none");
       setSelectedMinutesState(DEFAULT_MINUTES);
       setTimeLeft(DEFAULT_MINUTES * 60);
       setIsActive(false);
+      setActiveSessionLabel(null);
       endTimeRef.current = null;
     } finally {
       isHydratedRef.current = true;
@@ -167,11 +178,12 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       selectedMinutes,
       timeLeft,
       isActive,
+      activeSessionLabel,
       endTimeMs: endTimeRef.current,
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  }, [selectedTrackId, selectedMinutes, timeLeft, isActive]);
+  }, [selectedTrackId, selectedMinutes, timeLeft, isActive, activeSessionLabel]);
 
   useEffect(() => {
     if (!isActive) {
@@ -190,6 +202,7 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       if (remaining <= 0) {
         endTimeRef.current = null;
         setIsActive(false);
+        setActiveSessionLabel(null);
         triggerCompletion();
       }
     };
@@ -235,6 +248,7 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
     completionFiredRef.current = false;
     endTimeRef.current = null;
     setIsActive(false);
+    setActiveSessionLabel(null);
     setTimeLeft(selectedMinutes * 60);
   }, [selectedMinutes]);
 
@@ -247,9 +261,11 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       selectedMinutes,
       timeLeft,
       isActive,
+      activeSessionLabel,
       formattedTime: formatTime(timeLeft),
       setSelectedTrack,
       setSelectedMinutes,
+      setActiveSessionLabel,
       toggleTimer,
       resetTimer,
     }),
@@ -259,8 +275,10 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       selectedMinutes,
       timeLeft,
       isActive,
+      activeSessionLabel,
       setSelectedTrack,
       setSelectedMinutes,
+      setActiveSessionLabel,
       toggleTimer,
       resetTimer,
     ]

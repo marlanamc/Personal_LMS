@@ -13,7 +13,7 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ userName = "" }: DashboardHeaderProps) {
     const [isNavOpen, setIsNavOpen] = useState(false);
-    const { isActive, formattedTime } = useFocusTimer();
+    const { isActive, formattedTime, activeSessionLabel } = useFocusTimer();
 
     return (
         <>
@@ -49,7 +49,12 @@ export function DashboardHeader({ userName = "" }: DashboardHeaderProps) {
                             {isActive ? (
                                 <>
                                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-mint animate-pulse" />
-                                    {formattedTime}
+                                    <span className="flex flex-col leading-tight">
+                                        <span className="text-[10px] tracking-[0.04em] text-text">
+                                            {(activeSessionLabel || "Focus Timer").slice(0, 28)}
+                                        </span>
+                                        <span className="text-sm text-text">{formattedTime}</span>
+                                    </span>
                                 </>
                             ) : (
                                 "Focus Timer"

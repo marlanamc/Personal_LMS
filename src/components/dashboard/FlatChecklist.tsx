@@ -27,16 +27,13 @@ interface SubjectCardMeta {
   order: number;
 }
 
-const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string; emoji: string }> = {
-  vocab: { bg: 'bg-accent-teal/12', text: 'text-accent-teal', border: 'border-accent-teal/25', emoji: '📚' },
-  vocabulary: { bg: 'bg-accent-teal/12', text: 'text-accent-teal', border: 'border-accent-teal/25', emoji: '📚' },
-  grammar: { bg: 'bg-accent-mint/12', text: 'text-accent-mint', border: 'border-accent-mint/25', emoji: '✏️' },
-  quizzes: { bg: 'bg-accent-amethyst/12', text: 'text-accent-amethyst', border: 'border-accent-amethyst/25', emoji: '🎯' },
-  quiz: { bg: 'bg-accent-amethyst/12', text: 'text-accent-amethyst', border: 'border-accent-amethyst/25', emoji: '🎯' },
-  spanish: { bg: 'bg-primary/12', text: 'text-primary', border: 'border-primary/25', emoji: '🇪🇸' },
-  coding: { bg: 'bg-accent-teal/12', text: 'text-accent-teal', border: 'border-accent-teal/25', emoji: '💻' },
-  personal: { bg: 'bg-bg-elevated/85', text: 'text-text-secondary', border: 'border-border-subtle', emoji: '✨' },
-  default: { bg: 'bg-bg-elevated/85', text: 'text-text-secondary', border: 'border-border-subtle', emoji: '📋' },
+const TYPE_CHIP_STYLES: Record<string, { label: string; bg: string; text: string; border: string }> = {
+  guide: { label: 'Guide', bg: 'bg-accent-mint/12', text: 'text-accent-mint', border: 'border-accent-mint/25' },
+  game: { label: 'Game', bg: 'bg-accent-amethyst/12', text: 'text-accent-amethyst', border: 'border-accent-amethyst/25' },
+  quiz: { label: 'Quiz', bg: 'bg-accent-amethyst/12', text: 'text-accent-amethyst', border: 'border-accent-amethyst/25' },
+  worksheet: { label: 'Worksheet', bg: 'bg-accent-teal/12', text: 'text-accent-teal', border: 'border-accent-teal/25' },
+  speaking: { label: 'Speaking', bg: 'bg-primary/12', text: 'text-primary', border: 'border-primary/25' },
+  default: { label: 'Activity', bg: 'bg-bg-elevated/85', text: 'text-text-secondary', border: 'border-border-subtle' },
 };
 
 const PRIORITY_ORDER: Record<string, number> = {
@@ -107,26 +104,9 @@ const SUBJECT_META: Record<SubjectKey, SubjectCardMeta> = {
   },
 };
 
-function getCategoryStyle(category?: string | null) {
-  const key = (category || '').toLowerCase();
-  return CATEGORY_COLORS[key] || CATEGORY_COLORS.default;
-}
-
-function getCategoryLabel(category?: string | null): string {
-  const key = (category || '').toLowerCase();
-  const labels: Record<string, string> = {
-    vocab: 'Vocab',
-    vocabulary: 'Vocab',
-    grammar: 'Grammar',
-    quizzes: 'Quiz',
-    quiz: 'Quiz',
-    spanish: 'Spanish',
-    coding: 'Coding',
-    personal: 'Personal',
-    health: 'Health',
-    'job-search': 'Job Search',
-  };
-  return labels[key] || 'Activity';
+function getTypeChip(activityType?: string | null) {
+  const key = (activityType || '').toLowerCase();
+  return TYPE_CHIP_STYLES[key] || TYPE_CHIP_STYLES.default;
 }
 
 function getVocabProgress(assignment: ChecklistItem) {
@@ -352,8 +332,7 @@ export function FlatChecklist({ assignments, title = 'Your Daily Checklist', act
                     const displayTitle = stripVocabTypeSuffix(
                       (item.title || item.activity.title).replace(/ - Complete Step-by-Step Guide$/i, ' Guide')
                     );
-                    const categoryStyle = getCategoryStyle(item.activity.category);
-                    const categoryLabel = getCategoryLabel(item.activity.category);
+                    const typeChip = getTypeChip(item.activity.type);
                     const progress = typeof item.progress === 'number' ? item.progress : 0;
                     const vocabProgress = getVocabProgress(item);
                     const vocabType = getVocabActivityType(item.activityId);
@@ -410,9 +389,9 @@ export function FlatChecklist({ assignments, title = 'Your Daily Checklist', act
 
                                 <div className="mt-1.5 flex items-center flex-wrap gap-1.5">
                                   <span
-                                    className={`inline-flex shrink-0 px-1.5 py-0.5 rounded text-meta font-semibold border ${categoryStyle.bg} ${categoryStyle.text} ${categoryStyle.border}`}
+                                    className={`inline-flex shrink-0 px-1.5 py-0.5 rounded text-meta font-semibold border ${typeChip.bg} ${typeChip.text} ${typeChip.border}`}
                                   >
-                                    {categoryLabel}
+                                    {typeChip.label}
                                   </span>
 
                                   {vocabType && (
