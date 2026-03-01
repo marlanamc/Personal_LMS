@@ -57,9 +57,9 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
 
     return (
         <div>
-            {error && <p className="text-meta text-error mb-2">{error}</p>}
+            {error && <p className="text-xs text-error mb-2">{error}</p>}
             {events.length === 0 ? (
-                <p className="text-body text-text-muted italic cloud-surface bg-bg-light/60 border border-border/30 rounded-lg px-3 py-2">No dates yet.</p>
+                <p className="text-sm text-text-muted italic bg-bg-light/60 border border-border/30 rounded-xl px-2.5 py-2">No dates yet.</p>
             ) : (
                 <div className="space-y-1.5">
                     {events.slice(0, 6).map((ev, idx) => {
@@ -68,12 +68,12 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
                         const sameDay = startDate.toDateString() === endDate.toDateString();
                         const dateLabel = sameDay
                             ? formatDateLabel(startDate)
-                            : `${formatDateLabel(startDate)} - ${formatDateLabel(endDate)}`;
+                            : `${formatDateLabel(startDate)}–${formatDateLabel(endDate)}`;
 
                         const canDelete = allowDelete && Boolean(ev.id);
 
                         return (
-                            <div key={`${ev.title}-${idx}`} className="cloud-surface flex items-center border border-border-subtle rounded-md px-2.5 py-1 bg-bg-surface gap-2 shadow-sm">
+                            <div key={`${ev.title}-${idx}`} className="flex min-h-10 items-center border border-border-subtle/50 rounded-xl px-2.5 py-2 bg-bg-surface/80 gap-2">
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
                                     <span
                                         className="inline-block w-2 h-2 rounded-full shrink-0"
@@ -81,16 +81,16 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
                                             backgroundColor: getCalendarMarkerColor(ev.type),
                                         }}
                                     />
-                                    <span className="text-body font-medium text-text whitespace-normal break-words">{ev.title}</span>
+                                    <span className="text-sm font-medium text-text whitespace-normal break-words">{ev.title}</span>
                                 </div>
-                                <div className="flex items-center gap-1.5 text-meta text-text-muted ml-auto whitespace-nowrap shrink-0">
-                                    <span className="text-meta text-right">{dateLabel}</span>
+                                <div className="flex items-center gap-1.5 text-xs text-text-muted ml-auto whitespace-nowrap shrink-0 font-medium">
+                                    <span className="text-right">{dateLabel}</span>
                                     {canDelete && (
                                         <button
                                             type="button"
                                             onClick={() => handleDelete(ev.id)}
                                             disabled={isDeleting === ev.id}
-                                            className="inline-flex items-center justify-center h-6 w-6 text-meta text-error hover:brightness-90 border border-border-subtle rounded-md bg-sakura-soft disabled:opacity-50"
+                                            className="inline-flex items-center justify-center h-6 w-6 text-xs text-error hover:brightness-90 border border-border-subtle rounded-full bg-sakura-soft disabled:opacity-50"
                                             aria-label={isDeleting === ev.id ? "Deleting event" : "Delete event"}
                                             title={isDeleting === ev.id ? "Deleting event" : "Delete event"}
                                         >

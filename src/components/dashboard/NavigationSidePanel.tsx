@@ -89,7 +89,7 @@ export function NavigationSidePanel({ isOpen, onClose }: NavigationSidePanelProp
         id="dashboard-side-nav"
         className={`
           fixed top-0 left-0 z-[70] h-full w-72 max-w-[85vw]
-          bg-bg-elevated border-r border-border-subtle shadow-2xl
+          nav-side-panel-earthy bg-bg-elevated border-r border-border-subtle shadow-2xl
           transform transition-transform duration-300 ease-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full pointer-events-none'}
         `}

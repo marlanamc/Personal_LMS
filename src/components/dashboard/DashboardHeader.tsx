@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BookOpenIcon, TimerIcon } from "@/components/icons/Icons";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
 import { NavigationSidePanel } from "./NavigationSidePanel";
+import { useFocusTimer } from "@/context/FocusTimerContext";
 
 interface DashboardHeaderProps {
     userName?: string;
@@ -12,6 +13,7 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ userName = "" }: DashboardHeaderProps) {
     const [isNavOpen, setIsNavOpen] = useState(false);
+    const { isActive, formattedTime } = useFocusTimer();
 
     return (
         <>
@@ -38,11 +40,20 @@ export function DashboardHeader({ userName = "" }: DashboardHeaderProps) {
                     <div className="flex items-center gap-4 animate-fade-in-up delay-100">
                         <Link
                             href="/dashboard/timer"
-                            className="focus-timer-chip hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors font-semibold text-sm border"
-                            aria-label="Focus Timer"
+                            className={`focus-timer-chip items-center gap-2 px-3 py-1.5 rounded-full transition-colors font-semibold text-sm border ${
+                                isActive ? "inline-flex" : "hidden md:inline-flex"
+                            }`}
+                            aria-label={isActive ? `Focus Timer running: ${formattedTime} remaining` : "Focus Timer"}
                         >
                             <TimerIcon className="w-4 h-4" />
-                            Focus Timer
+                            {isActive ? (
+                                <>
+                                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-mint animate-pulse" />
+                                    {formattedTime}
+                                </>
+                            ) : (
+                                "Focus Timer"
+                            )}
                         </Link>
                         <UserProfileDropdown userName={userName} />
                     </div>
