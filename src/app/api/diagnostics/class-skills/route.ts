@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { canAccessClass } from "@/lib/class-access";
 
 export async function GET(request: Request) {
     const session = await getServerSession(authOptions);
@@ -13,49 +12,24 @@ export async function GET(request: Request) {
     const userId = session.user.id;
 
     const { searchParams } = new URL(request.url);
-    const classId = searchParams.get("classId");
     const activityId = searchParams.get("activityId");
     const difficulty = searchParams.get("difficulty");
 
-    if (!classId || !activityId) {
+    if (!activityId) {
         return NextResponse.json(
-            { error: "Missing classId or activityId" },
+            { error: "Missing activityId" },
             { status: 400 }
         );
     }
 
-    const hasClassAccess = await canAccessClass(userId, classId);
-    if (!hasClassAccess) {
-        return NextResponse.json(
-            { error: "Class not found or access denied" },
-            { status: 404 }
-        );
-    }
-
-    // Get student IDs in class
-    const enrollments = await prisma.classEnrollment.findMany({
-        where: { classId },
-        select: { studentId: true },
-    });
-    const studentIds = enrollments.map((e) => e.studentId);
-
-    if (studentIds.length === 0) {
-        return NextResponse.json({
-            classId,
-            activityId,
-            totalStudents: 0,
-            skills: [],
-        });
-    }
-
     // Build where clause for difficulty filter
     const whereClause: {
-        userId: { in: string[] };
+        userId: string;
         activityId: string;
         skillTag: { not: null };
         difficulty?: string;
     } = {
-        userId: { in: studentIds },
+        userId,
         activityId,
         skillTag: { not: null },
     };
@@ -71,11 +45,10 @@ export async function GET(request: Request) {
         _count: { id: true },
     });
 
-    // Get individual responses to calculate correct counts and struggling students
+    // Get individual responses to calculate correct counts
     const allResponses = await prisma.quizResponse.findMany({
         where: whereClause,
         select: {
-            userId: true,
             skillTag: true,
             isCorrect: true,
         },
@@ -87,7 +60,6 @@ export async function GET(request: Request) {
         {
             totalAttempts: number;
             correctAttempts: number;
-            studentScores: Map<string, { correct: number; total: number }>;
         }
     >();
 
@@ -97,7 +69,6 @@ export async function GET(request: Request) {
             skillMap.set(r.skillTag, {
                 totalAttempts: r._count.id,
                 correctAttempts: 0,
-                studentScores: new Map(),
             });
         }
     });
@@ -112,17 +83,6 @@ export async function GET(request: Request) {
         if (r.isCorrect) {
             skill.correctAttempts++;
         }
-
-        // Track per-student performance
-        const studentScore = skill.studentScores.get(r.userId) || {
-            correct: 0,
-            total: 0,
-        };
-        studentScore.total++;
-        if (r.isCorrect) {
-            studentScore.correct++;
-        }
-        skill.studentScores.set(r.userId, studentScore);
     });
 
     // Format results
@@ -132,24 +92,11 @@ export async function GET(request: Request) {
                 ? Math.round((data.correctAttempts / data.totalAttempts) * 100)
                 : 0;
 
-        // Count students with <60% on this skill
-        let studentsStruggling = 0;
-        data.studentScores.forEach((studentScore) => {
-            const studentPercent =
-                studentScore.total > 0
-                    ? (studentScore.correct / studentScore.total) * 100
-                    : 0;
-            if (studentPercent < 60) {
-                studentsStruggling++;
-            }
-        });
-
         return {
             skillTag,
             totalAttempts: data.totalAttempts,
             correctAttempts: data.correctAttempts,
             percentCorrect,
-            studentsStruggling,
         };
     });
 
@@ -157,9 +104,7 @@ export async function GET(request: Request) {
     skills.sort((a, b) => a.percentCorrect - b.percentCorrect);
 
     return NextResponse.json({
-        classId,
         activityId,
-        totalStudents: studentIds.length,
         skills,
     });
 }

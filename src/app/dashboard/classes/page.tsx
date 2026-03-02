@@ -19,14 +19,8 @@ export default async function ClassesIndexPage() {
     }
 
     const classes = await prisma.class.findMany({
-        where: {
-            OR: [
-                { teacherId: userId },
-                { enrollments: { some: { studentId: userId } } },
-            ],
-        },
+        where: { ownerId: userId },
         include: {
-            enrollments: true,
             assignments: true,
         },
         orderBy: { createdAt: "desc" },
@@ -37,7 +31,7 @@ export default async function ClassesIndexPage() {
             <header className="sticky top-0 bg-bg-secondary/80 backdrop-blur-md border-b border-border/40 shadow-sm z-50">
                 <div className="container mx-auto py-4 px-4 flex justify-between items-center">
                     <div>
-                        <p className="text-xs font-bold text-primary tracking-widest uppercase">Marlie LMS</p>
+                        <p className="text-xs font-bold text-primary tracking-widest uppercase">Personal LMS</p>
                         <h1 className="text-2xl font-display font-bold text-text">Your Classes</h1>
                     </div>
                     <div className="flex items-center gap-3">
@@ -74,7 +68,6 @@ export default async function ClassesIndexPage() {
                             id: string;
                             name: string;
                             description: string | null;
-                            enrollments: { id: string }[];
                             assignments: { id: string }[];
                         }) => (
                             <Card key={cls.id} className="p-4 border border-border/40 shadow-sm bg-bg-secondary/80">
@@ -91,8 +84,6 @@ export default async function ClassesIndexPage() {
                                     <p className="text-sm text-text-muted mb-3">{cls.description}</p>
                                 )}
                                 <div className="flex items-center gap-4 text-sm text-text-muted">
-                                    <span>{cls.enrollments.length} member{cls.enrollments.length === 1 ? "" : "s"}</span>
-                                    <span className="w-px h-4 bg-border/60" />
                                     <span>{cls.assignments.length} assignment{cls.assignments.length === 1 ? "" : "s"}</span>
                                 </div>
                             </Card>

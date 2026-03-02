@@ -6,13 +6,12 @@ const prisma = new PrismaClient();
 const DEFAULT_PASSWORD = 'password123';
 const BCRYPT_ROUNDS = 12;
 
-async function upsertUser(username: string, name: string, role = 'student', mustChangePassword = false) {
+async function upsertUser(username: string, name: string, mustChangePassword = false) {
   const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, BCRYPT_ROUNDS);
   return prisma.user.upsert({
     where: { username },
     update: {
       name,
-      role,
       password: passwordHash,
       mustChangePassword,
     },
@@ -20,7 +19,6 @@ async function upsertUser(username: string, name: string, role = 'student', must
       username,
       name,
       password: passwordHash,
-      role,
       mustChangePassword,
     },
   });
@@ -29,21 +27,21 @@ async function upsertUser(username: string, name: string, role = 'student', must
 async function main() {
   console.log('👤 Setting up personal LMS account...\n');
 
-  // Create the single personal account (as teacher for full access)
-  const marlie = await upsertUser('marlie', 'Marlie', 'teacher', false);
+  // Create the single personal account
+  const marlie = await upsertUser('marlie', 'Marlie', false);
   console.log('  ✅ Account created: marlie');
 
   // Create default class owned by marlie
   const marlieClass = await prisma.class.upsert({
-    where: { code: 'MARLIE101' },
+    where: { id: 'marlie-lms-class' },
     update: {
-      teacherId: marlie.id,
+      ownerId: marlie.id,
     },
     create: {
+      id: 'marlie-lms-class',
       name: 'Marlie LMS',
       description: 'Personal learning workspace',
-      code: 'MARLIE101',
-      teacherId: marlie.id,
+      ownerId: marlie.id,
     },
   });
   console.log('  📚 Class:', marlieClass.name);

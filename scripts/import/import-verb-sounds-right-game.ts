@@ -191,16 +191,16 @@ async function importGame() {
     validateGameContent(gameContent);
     console.log('✓ Content validation passed (no duplicate options)\n');
 
-    const teacher = await prisma.user.findFirst({
-      where: { role: 'teacher' }
+    const owner = await prisma.user.findFirst({
+      where: { username: 'marlie' }
     });
 
-    if (!teacher) {
-      console.error('❌ No teacher account found. Please create a teacher account first.');
+    if (!owner) {
+      console.error('❌ No owner account found. Please run the user seed first.');
       process.exit(1);
     }
 
-    console.log(`✓ Found teacher: ${teacher.name || teacher.username}\n`);
+    console.log(`✓ Found owner: ${owner.name || owner.username}\n`);
 
     const activityId = 'verb-sounds-right-quiz-1-7';
 
@@ -229,7 +229,7 @@ async function importGame() {
         data: {
           id: activityId,
           ...data,
-          createdBy: teacher.id
+          createdBy: owner.id
         }
       });
       console.log('✅ Activity created successfully!\n');

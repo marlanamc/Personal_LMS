@@ -28,13 +28,7 @@ export default async function ClassDetailPage({ params }: Props) {
     const classItem = await prisma.class.findUnique({
         where: { id },
         include: {
-            teacher: true,
-            enrollments: {
-                include: {
-                    student: true,
-                },
-                orderBy: { joinedAt: "desc" },
-            },
+            owner: true,
             assignments: {
                 include: {
                     activity: true,
@@ -48,13 +42,8 @@ export default async function ClassDetailPage({ params }: Props) {
         notFound();
     }
 
-    // Personal LMS access: class owner or enrolled member.
-    const canManage = classItem.teacherId === userId;
-    const isEnrolled = classItem.enrollments.some(
-        (enrollment: { studentId: string }) => enrollment.studentId === userId
-    );
-
-    if (!canManage && !isEnrolled) {
+    // Personal LMS: only owner can access
+    if (classItem.ownerId !== userId) {
         redirect("/dashboard");
     }
 
@@ -74,114 +63,38 @@ export default async function ClassDetailPage({ params }: Props) {
             </header>
             <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div className="px-4 py-6 sm:px-0 space-y-8">
-                    {canManage && (
-                        <ClassAnnouncementEditor
-                            classId={classItem.id}
-                            initialAnnouncement={classItem.announcement}
-                        />
-                    )}
+                    <ClassAnnouncementEditor
+                        classId={classItem.id}
+                        initialAnnouncement={classItem.announcement}
+                    />
 
                     {/* Class Info */}
                     <section className="bg-bg-secondary/90 shadow rounded-lg p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-semibold">Class Information</h2>
-                            {canManage && (
-                                <span className="px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
-                                    Class Code: {classItem.code}
-                                </span>
-                            )}
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <p className="text-sm text-text-muted">Members</p>
-                                <p className="text-2xl font-bold">{classItem.enrollments.length}</p>
-                            </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <p className="text-sm text-text-muted">Assignments</p>
                                 <p className="text-2xl font-bold">{classItem.assignments.length}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-text-muted">Owner</p>
-                                <p className="text-lg font-medium">{classItem.teacher.name}</p>
+                                <p className="text-lg font-medium">{classItem.owner.name || classItem.owner.username}</p>
                             </div>
                         </div>
                     </section>
-
-                    {/* Members Section */}
-                    {canManage && (
-                        <section>
-                            <h2 className="text-xl font-semibold mb-4">Members</h2>
-                            {classItem.enrollments.length === 0 ? (
-                                <div className="bg-bg-secondary/90 shadow rounded-lg p-6 text-center">
-                                    <p className="text-text-muted">No members yet.</p>
-                                    <p className="text-sm text-text-light mt-2">
-                                        Share the class code <strong>{classItem.code}</strong> to connect this class.
-                                    </p>
-                                </div>
-                            ) : (
-                                <div className="bg-bg-secondary/90 shadow rounded-lg overflow-hidden">
-                                    <table className="min-w-full divide-y divide-border">
-                                        <thead className="bg-gray-50">
-                                            <tr>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                                                    Name
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                                                    Username
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
-                                                    Joined
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="bg-bg-secondary/90 divide-y divide-border">
-                                            {classItem.enrollments.map((enrollment: {
-                                                id: string;
-                                                student: {
-                                                    id: string;
-                                                    name: string | null;
-                                                    username: string;
-                                                    points?: number | null;
-                                                    currentStreak?: number | null;
-                                                };
-                                                joinedAt: Date;
-                                            }) => (
-                                                <tr key={enrollment.id} className="hover:bg-bg-tertiary/70">
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text">
-                                                        <Link
-                                                            href={`/dashboard/students/${enrollment.student.id}`}
-                                                            className="text-indigo-600 hover:text-indigo-900 hover:underline"
-                                                        >
-                                                            {enrollment.student.name || "No name"}
-                                                        </Link>
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">
-                                                        {enrollment.student.username}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">
-                                                        {new Date(enrollment.joinedAt).toLocaleDateString()}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </section>
-                    )}
 
                     {/* Assignments Section */}
                     <section>
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-xl font-semibold">Assignments</h2>
-                            {canManage && (
-                                <Link
-                                    href={`/dashboard/classes/${id}/assignments/new`}
-                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-bg-base bg-primary hover:brightness-110"
-                                >
-                                    + New Assignment
-                                </Link>
-                            )}
+                            <Link
+                                href={`/dashboard/classes/${id}/assignments/new`}
+                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-bg-base bg-primary hover:brightness-110"
+                            >
+                                + New Assignment
+                            </Link>
                         </div>
                         {classItem.assignments.length === 0 ? (
                             <div className="bg-bg-secondary/90 shadow rounded-lg p-6 text-center">
@@ -230,22 +143,18 @@ export default async function ClassDetailPage({ params }: Props) {
                                                     href={`/activity/${assignment.activity.id}?assignment=${assignment.id}`}
                                                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-bg-base bg-primary hover:brightness-110"
                                                 >
-                                                    {canManage ? "View" : "Start"}
+                                                    View
                                                 </Link>
-                                                {canManage && (
-                                                    <>
-                                                        <FeatureToggleButton
-                                                            assignmentId={assignment.id}
-                                                            initialIsFeatured={assignment.isFeatured}
-                                                        />
-                                                        <Link
-                                                            href={`/dashboard/classes/${id}/assignments/${assignment.id}/submissions`}
-                                                            className="inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md shadow-sm text-text bg-bg-secondary/90 hover:bg-bg-tertiary/70"
-                                                        >
-                                                            Submissions
-                                                        </Link>
-                                                    </>
-                                                )}
+                                                <FeatureToggleButton
+                                                    assignmentId={assignment.id}
+                                                    initialIsFeatured={assignment.isFeatured}
+                                                />
+                                                <Link
+                                                    href={`/dashboard/classes/${id}/assignments/${assignment.id}/submissions`}
+                                                    className="inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md shadow-sm text-text bg-bg-secondary/90 hover:bg-bg-tertiary/70"
+                                                >
+                                                    Submissions
+                                                </Link>
                                             </div>
                                         </div>
                                     </div>

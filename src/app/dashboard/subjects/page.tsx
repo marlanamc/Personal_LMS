@@ -218,27 +218,16 @@ export default async function SubjectsPage({ searchParams }: Props) {
         });
         const completedActivityIds = completedActivities.map((s: { activityId: string }) => s.activityId);
 
-        const [ownedClasses, enrolledClasses] = canFeatureActivities
-            ? await Promise.all([
-                prisma.class.findMany({
-                    where: { teacherId: userId },
-                    select: { id: true },
-                    orderBy: { createdAt: "asc" },
-                }),
-                prisma.classEnrollment.findMany({
-                    where: { studentId: userId },
-                    select: { classId: true },
-                }),
-            ])
-            : [[], []] as const;
+        const ownedClasses = canFeatureActivities
+            ? await prisma.class.findMany({
+                where: { ownerId: userId },
+                select: { id: true },
+                orderBy: { createdAt: "asc" },
+            })
+            : [];
 
-        const classIds = Array.from(
-            new Set([
-                ...ownedClasses.map((classRow) => classRow.id),
-                ...enrolledClasses.map((enrollment) => enrollment.classId),
-            ])
-        );
-        const defaultClassId = ownedClasses[0]?.id ?? enrolledClasses[0]?.classId ?? null;
+        const classIds = ownedClasses.map((classRow) => classRow.id);
+        const defaultClassId = ownedClasses[0]?.id ?? null;
 
         const activityIds = visibleActivities.map((a) => a.id);
         const assignmentRows =

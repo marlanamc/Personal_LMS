@@ -11,43 +11,19 @@ export async function GET(request: Request) {
 
     const userId = session.user.id;
     const { searchParams } = new URL(request.url);
-    const studentId = searchParams.get("studentId");
     const activityId = searchParams.get("activityId");
 
-    if (!studentId || !activityId) {
+    if (!activityId) {
         return NextResponse.json(
-            { error: "Missing studentId or activityId" },
+            { error: "Missing activityId" },
             { status: 400 }
         );
     }
 
-    // Verify access: same user, or both users are in at least one shared class.
-    if (userId !== studentId) {
-        const sharedClass = await prisma.classEnrollment.findFirst({
-            where: {
-                studentId,
-                class: {
-                    OR: [
-                        { teacherId: userId },
-                        { enrollments: { some: { studentId: userId } } },
-                    ],
-                },
-            },
-            select: { classId: true },
-        });
-
-        if (!sharedClass) {
-            return NextResponse.json(
-                { error: "Access denied" },
-                { status: 403 }
-            );
-        }
-    }
-
-    // Get all responses for this student and activity
+    // For personal LMS, just get the current user's skills
     const responses = await prisma.quizResponse.findMany({
         where: {
-            userId: studentId,
+            userId,
             activityId,
             skillTag: { not: null },
         },
@@ -109,7 +85,6 @@ export async function GET(request: Request) {
     skills.sort((a, b) => a.percentCorrect - b.percentCorrect);
 
     return NextResponse.json({
-        studentId,
         activityId,
         skills,
     });

@@ -18,38 +18,35 @@ import {
 import type { ChecklistItem } from "@/components/dashboard/checklist-item.types";
 import { getChecklistAnchorId } from "@/lib/anchors";
 
-type StudentEnrollment = {
-  classId: string;
-  class: {
-    name: string;
-    announcement: string | null;
-    assignments: {
-      id: string;
-      title: string | null;
-      activityId: string;
-      classId: string;
-      activity: {
-        id: string;
-        title: string;
-        description: string | null;
-        type: string;
-        content: string | null;
-      };
-      isFeatured: boolean;
-      dueDate: Date | null;
-      createdAt: Date;
-      updatedAt: Date;
-    }[];
-    calendarEvents: {
+type OwnedClass = {
+  id: string;
+  name: string;
+  announcement: string | null;
+  assignments: {
+    id: string;
+    title: string | null;
+    activityId: string;
+    classId: string;
+    activity: {
       id: string;
       title: string;
-      date: Date;
-      endDate: Date | null;
+      description: string | null;
       type: string;
-    }[];
-  };
+      content: string | null;
+    };
+    isFeatured: boolean;
+    dueDate: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }[];
+  calendarEvents: {
+    id: string;
+    title: string;
+    date: Date;
+    endDate: Date | null;
+    type: string;
+  }[];
 };
-type DashboardClass = StudentEnrollment["class"] & { id: string };
 
 const NEW_RELEASE_WINDOW_MS = 24 * 60 * 60 * 1000;
 
@@ -99,8 +96,7 @@ export default async function DashboardPage() {
     points: number;
     lastActivityDate: Date | null;
   } | null = null;
-  let createdClasses: DashboardClass[] = [];
-  let enrollments: StudentEnrollment[] = [];
+  let ownedClasses: OwnedClass[] = [];
   let featuredAssignments: ChecklistItem[] = [];
 
   try {
@@ -116,36 +112,18 @@ export default async function DashboardPage() {
       },
     });
 
-    // Fetch Classes and Enrollments
-    [createdClasses, enrollments] = await Promise.all([
-      prisma.class.findMany({
-        where: { teacherId: userId },
-        include: {
-          assignments: { include: { activity: true } },
-          calendarEvents: true,
-        },
-      }),
-      prisma.classEnrollment.findMany({
-        where: { studentId: userId },
-        include: {
-          class: {
-            include: {
-              assignments: { include: { activity: true } },
-              calendarEvents: true,
-            },
-          },
-        },
-      }),
-    ]);
+    // Fetch owned classes
+    ownedClasses = await prisma.class.findMany({
+      where: { ownerId: userId },
+      include: {
+        assignments: { include: { activity: true } },
+        calendarEvents: true,
+      },
+    });
 
     const featuredAssignmentsRaw = await prisma.assignment.findMany({
       where: {
-        classId: {
-          in: [
-            ...createdClasses.map((c) => c.id),
-            ...enrollments.map((e) => e.classId),
-          ],
-        },
+        classId: { in: ownedClasses.map((c) => c.id) },
         isFeatured: true,
         activity: { id: { not: "" } },
       },
@@ -229,24 +207,21 @@ export default async function DashboardPage() {
     ? hasActivityToday(currentUser.lastActivityDate)
     : false;
 
-  const studentAssignments = enrollments.flatMap((e: StudentEnrollment) =>
-    e.class.assignments
-      .filter(filterReleasedActivities)
-      .map((a) => ({ ...a, className: e.class.name })),
-  );
-
-  // Consolidate Calendar Events
+  // Consolidate Calendar Events from owned classes
   const calendarEvents: CalendarEvent[] = [
-    ...studentAssignments
-      .filter((a) => a.dueDate)
-      .map((a) => ({
-        date: a.dueDate as Date,
-        type: (a.title || a.activity.title || "").toLowerCase().includes("quiz")
-          ? ("quiz" as const)
-          : ("due" as const),
-        title: `${a.title || a.activity.title || "Assignment"}`,
-      })),
-    ...[...createdClasses, ...enrollments.map((e) => e.class)].flatMap((cls) =>
+    ...ownedClasses.flatMap((cls) =>
+      cls.assignments
+        .filter(filterReleasedActivities)
+        .filter((a) => a.dueDate)
+        .map((a) => ({
+          date: a.dueDate as Date,
+          type: (a.title || a.activity.title || "").toLowerCase().includes("quiz")
+            ? ("quiz" as const)
+            : ("due" as const),
+          title: `${a.title || a.activity.title || "Assignment"}`,
+        })),
+    ),
+    ...ownedClasses.flatMap((cls) =>
       cls.calendarEvents.map((ev) => ({
         id: ev.id,
         date: ev.date,

@@ -276,15 +276,11 @@ export default async function ProfilePage() {
                     earnedAt: 'desc',
                 },
             },
-            classes: {
-                include: {
-                    class: true,
-                },
-            },
+            ownedClasses: true,
             _count: {
                 select: {
                     submissions: true,
-                    classes: true,
+                    ownedClasses: true,
                 },
             },
         },

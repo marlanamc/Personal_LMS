@@ -17,42 +17,18 @@ export default async function CalendarPage() {
         redirect("/dashboard");
     }
 
-    const [ownedClasses, enrollments] = await Promise.all([
-        prisma.class.findMany({
-            where: { teacherId: userId },
-            include: {
-                assignments: {
-                    include: { activity: true },
-                },
-                calendarEvents: true,
+    const ownedClasses = await prisma.class.findMany({
+        where: { ownerId: userId },
+        include: {
+            assignments: {
+                include: { activity: true },
             },
-            orderBy: { createdAt: "desc" },
-        }),
-        prisma.classEnrollment.findMany({
-            where: { studentId: userId },
-            include: {
-                class: {
-                    include: {
-                        assignments: {
-                            include: { activity: true },
-                        },
-                        calendarEvents: true,
-                    },
-                },
-            },
-        }),
-    ]);
+            calendarEvents: true,
+        },
+        orderBy: { createdAt: "desc" },
+    });
 
-    const classMap = new Map<string, (typeof ownedClasses)[number]>();
-    for (const classItem of ownedClasses) {
-        classMap.set(classItem.id, classItem);
-    }
-    for (const enrollment of enrollments) {
-        classMap.set(enrollment.class.id, enrollment.class);
-    }
-    const classes = Array.from(classMap.values());
-
-    const allAssignments = classes.flatMap((classItem) => classItem.assignments);
+    const allAssignments = ownedClasses.flatMap((classItem) => classItem.assignments);
     const calendarEvents: CalendarEvent[] = [
         ...allAssignments
             .filter((assignment) => assignment.dueDate)
@@ -64,7 +40,7 @@ export default async function CalendarPage() {
                     : ("due" as const),
                 title: `${assignment.title || assignment.activity.title || "Assignment"}`,
             })),
-                ...classes.flatMap((classItem) =>
+        ...ownedClasses.flatMap((classItem) =>
             classItem.calendarEvents.map((eventItem) => ({
                 id: eventItem.id,
                 date: eventItem.date,

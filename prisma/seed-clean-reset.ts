@@ -13,7 +13,6 @@ async function main() {
   await prisma.userAchievement.deleteMany({});
   await prisma.pointsLedger.deleteMany({});
   await prisma.calendarEvent.deleteMany({});
-  await prisma.classEnrollment.deleteMany({});
   await prisma.assignment.deleteMany({});
   await prisma.achievement.deleteMany({});
   await prisma.activity.deleteMany({});

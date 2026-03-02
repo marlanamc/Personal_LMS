@@ -21,7 +21,7 @@ export default async function CalendarAddPage() {
     }
 
     const classes = await prisma.class.findMany({
-        where: { teacherId: userId },
+        where: { ownerId: userId },
         select: {
             id: true,
             name: true,

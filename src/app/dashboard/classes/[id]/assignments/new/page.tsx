@@ -27,7 +27,7 @@ export default async function NewAssignmentPage({ params }: Props) {
     const classItem = await prisma.class.findUnique({
         where: { id },
         include: {
-            teacher: true,
+            owner: true,
         },
     });
 

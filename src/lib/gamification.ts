@@ -217,11 +217,9 @@ export async function getTimeframedLeaderboard(
 
   const since = getRangeStart(range);
 
-  // First, get all students (excluding test accounts and admin accounts)
+  // Get all users (excluding test accounts)
   const studentWhere: Prisma.UserWhereInput = {
-    role: "student",
-    username: { notIn: ["marlie", "leah"] }, // Exclude test and admin accounts from leaderboard
-    ...(classId ? { classes: { some: { classId } } } : {}),
+    username: { notIn: ["marlie", "leah"] }, // Exclude test accounts from leaderboard
   };
 
   const allStudents = await prisma.user.findMany({
@@ -237,13 +235,11 @@ export async function getTimeframedLeaderboard(
     },
   });
 
-  // Then get points from ledger for this timeframe (excluding test accounts and admin accounts)
+  // Get points from ledger for this timeframe (excluding test accounts)
   const whereLedger: Prisma.PointsLedgerWhereInput = {
     createdAt: { gte: since },
     user: {
-      role: "student",
-      username: { notIn: ["marlie", "leah"] }, // Exclude test and admin accounts from leaderboard
-      ...(classId ? { classes: { some: { classId } } } : {}),
+      username: { notIn: ["marlie", "leah"] }, // Exclude test accounts from leaderboard
     },
   };
 
@@ -390,18 +386,8 @@ export async function getWeeklyLeaderboard(limit: number = 10, classId?: string)
   const safeLimit = Math.min(Math.max(1, Math.floor(limit)), 100);
 
   const whereClause: Prisma.UserWhereInput = {
-    role: 'student',
-    username: { notIn: ['marlie', 'leah'] }, // Exclude test and admin accounts from leaderboard
+    username: { notIn: ['marlie', 'leah'] }, // Exclude test accounts from leaderboard
   };
-
-  // If classId provided, filter by students in that class
-  if (classId) {
-    whereClause.classes = {
-      some: {
-        classId: classId,
-      },
-    };
-  }
 
   const students = await prisma.user.findMany({
     where: {
@@ -464,9 +450,8 @@ export async function resetWeeklyPoints() {
         data: { lastWeekRank: ranking.rank },
       })
     ),
-    // Reset weekly points for all students
+    // Reset weekly points for all users
     prisma.user.updateMany({
-      where: { role: 'student' },
       data: { weeklyPoints: 0 },
     }),
   ]);
@@ -494,11 +479,10 @@ export async function getUserGamificationStats(userId: string) {
 
   if (!user) return null;
 
-  // Get user's rank in weekly leaderboard (excluding test accounts and admin accounts)
+  // Get user's rank in weekly leaderboard (excluding test accounts)
   const allStudents = await prisma.user.findMany({
-    where: { 
-      role: 'student',
-      username: { notIn: ['marlie', 'leah'] }, // Exclude test and admin accounts from leaderboard
+    where: {
+      username: { notIn: ['marlie', 'leah'] }, // Exclude test accounts from leaderboard
     },
     orderBy: { weeklyPoints: 'desc' },
     select: { id: true },

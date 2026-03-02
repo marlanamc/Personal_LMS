@@ -89,8 +89,8 @@ const isCodingActivity = (activity: Activity): boolean => {
 
 const isInPersonalTrackCategory = (activity: Activity, track: 'spanish' | 'coding'): boolean => {
     const category = (activity.category || '').toLowerCase();
-    if (track === 'spanish') return category === 'personal' || category === 'spanish';
-    return category === 'personal' || category === 'coding';
+    if (track === 'spanish') return category === 'spanish';
+    return category === 'coding';
 };
 
 const isTrackGameActivity = (activity: Activity): boolean => {

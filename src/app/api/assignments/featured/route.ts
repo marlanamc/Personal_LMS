@@ -25,24 +25,13 @@ export async function GET() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Get student's enrolled classes
-        const enrollments: { classId: string }[] = await prisma.classEnrollment.findMany({
-            where: { studentId: userId },
-            select: { classId: true }
-        });
-
-        // Personal LMS: always include classes owned by this user.
+        // Get user's owned classes
         const ownedClasses = await prisma.class.findMany({
-            where: { teacherId: userId },
+            where: { ownerId: userId },
             select: { id: true },
         });
 
-        const classIds = Array.from(
-            new Set([
-                ...enrollments.map((enrollment) => enrollment.classId),
-                ...ownedClasses.map((classRow) => classRow.id),
-            ])
-        );
+        const classIds = ownedClasses.map((c) => c.id);
 
         // Get featured assignments for those classes
         const featuredAssignments = classIds.length === 0 ? [] : await prisma.assignment.findMany({
@@ -134,22 +123,13 @@ export async function DELETE() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Personal LMS: clear featured tasks for all classes this user can access.
-        const [ownedClasses, enrollments] = await Promise.all([
-            prisma.class.findMany({
-                where: { teacherId: userId },
-                select: { id: true }
-            }),
-            prisma.classEnrollment.findMany({
-                where: { studentId: userId },
-                select: { classId: true },
-            }),
-        ]);
+        // Get user's owned classes
+        const ownedClasses = await prisma.class.findMany({
+            where: { ownerId: userId },
+            select: { id: true }
+        });
 
-        const classIds = Array.from(new Set([
-            ...ownedClasses.map((c) => c.id),
-            ...enrollments.map((e) => e.classId),
-        ]));
+        const classIds = ownedClasses.map((c) => c.id);
 
         if (classIds.length === 0) {
             return NextResponse.json({
@@ -159,7 +139,7 @@ export async function DELETE() {
             });
         }
 
-        // Unfeature assignments in classes the user can access.
+        // Unfeature assignments in user's classes
         const result = await prisma.assignment.updateMany({
             where: {
                 classId: { in: classIds },

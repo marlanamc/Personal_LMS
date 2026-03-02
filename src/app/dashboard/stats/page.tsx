@@ -1,15 +1,12 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
 import { BackButton } from "@/components/ui/BackButton";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getEffectiveStreak } from "@/lib/gamification/streak-utils";
 import { StatCard, BottomNav } from "@/components/ui";
-import { UsersIcon, UserIcon, ClipboardIcon, BookOpenIcon, HomeIcon, BarChartIcon } from "@/components/icons/Icons";
-import StudentEngagementTable from "@/components/dashboard/StudentEngagementTable";
-import VerbQuizWeekSelector from "@/components/dashboard/VerbQuizWeekSelector";
+import { TrophyIcon, FlameIcon, BookOpenIcon, HomeIcon, BarChartIcon, UsersIcon } from "@/components/icons/Icons";
 
 export default async function StatsPage() {
     const session = await getServerSession(authOptions);
@@ -23,56 +20,10 @@ export default async function StatsPage() {
         redirect("/dashboard");
     }
 
-    const classes = await prisma.class.findMany({
-        where: {
-            OR: [
-                { teacherId: userId },
-                { enrollments: { some: { studentId: userId } } },
-            ],
-        },
-        include: {
-            enrollments: {
-                include: {
-                    student: {
-                        select: {
-                            id: true,
-                            name: true,
-                            username: true,
-                        }
-                    }
-                }
-            },
-            assignments: true,
-        },
-        orderBy: { createdAt: "desc" },
-    });
-
-    const allAssignments = classes.flatMap((c) => c.assignments);
-    const allActivities = await prisma.activity.findMany({
-        orderBy: { createdAt: "desc" },
+    // Get user's personal stats
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
         select: {
-            id: true,
-            title: true,
-            category: true,
-            type: true,
-        },
-    });
-
-    // Get unique students with full gamification data
-    const students = await prisma.user.findMany({
-        where: {
-            id: {
-                in: Array.from(
-                    new Set(
-                        classes.flatMap((c) =>
-                            c.enrollments.map((e) => e.student.id)
-                        )
-                    )
-                )
-            }
-        },
-        select: {
-            id: true,
             name: true,
             username: true,
             points: true,
@@ -81,52 +32,50 @@ export default async function StatsPage() {
             longestStreak: true,
             lastActivityDate: true,
         },
-        orderBy: { name: 'asc' }
     });
 
-    const studentIds = students.map((s) => s.id);
+    // Get owned classes
+    const classes = await prisma.class.findMany({
+        where: { ownerId: userId },
+        include: {
+            assignments: true,
+        },
+        orderBy: { createdAt: "desc" },
+    });
 
-    // Get last activity for each student from points ledger
-    const recentActivity = studentIds.length
-        ? await prisma.pointsLedger.groupBy({
-            by: ['userId'],
-            where: { userId: { in: studentIds } },
-            _max: { createdAt: true }
-        })
-        : [];
+    // Count activities completed (submissions with pointsAwarded > 0)
+    const completedActivities = await prisma.submission.count({
+        where: {
+            userId,
+            pointsAwarded: { gt: 0 },
+        },
+    });
 
-    const lastActiveMap = recentActivity.reduce((acc, entry) => {
-        acc[entry.userId] = entry._max.createdAt;
-        return acc;
-    }, {} as Record<string, Date | null>);
+    // Get recent activity from points ledger
+    const recentPoints = await prisma.pointsLedger.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        take: 10,
+        select: {
+            points: true,
+            reason: true,
+            source: true,
+            createdAt: true,
+        },
+    });
 
-    // Get activity counts for "today"
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Get achievements
+    const achievements = await prisma.userAchievement.findMany({
+        where: { userId },
+        include: { achievement: true },
+        orderBy: { earnedAt: "desc" },
+    });
 
-    const activitiesToday = studentIds.length
-        ? await prisma.pointsLedger.groupBy({
-            by: ['userId'],
-            where: {
-                userId: { in: studentIds },
-                createdAt: { gte: today }
-            },
-            _count: true
-        })
-        : [];
+    const effectiveStreak = user
+        ? getEffectiveStreak(user.currentStreak, user.lastActivityDate)
+        : 0;
 
-    const activitiesTodayMap = activitiesToday.reduce((acc, entry) => {
-        acc[entry.userId] = entry._count;
-        return acc;
-    }, {} as Record<string, number>);
-
-    // Enrich students with last active and activity counts
-    const enrichedStudents = students.map(student => ({
-        ...student,
-        currentStreak: getEffectiveStreak(student.currentStreak, student.lastActivityDate),
-        lastActive: lastActiveMap[student.id] || null,
-        activitiesToday: activitiesTodayMap[student.id] || 0
-    }));
+    const allAssignments = classes.flatMap((c) => c.assignments);
 
     return (
         <div className="min-h-screen bg-bg">
@@ -135,10 +84,10 @@ export default async function StatsPage() {
                     <div>
                         <BackButton href="/dashboard" className="mb-1">Back to Dashboard</BackButton>
                         <h1 className="text-2xl md:text-3xl font-display font-bold text-text mt-1">
-                            Class Stats
+                            Your Stats
                         </h1>
                         <p className="text-sm text-text-muted">
-                            Quick snapshot of your classes, members, assignments, and activities.
+                            Track your learning progress and achievements.
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -151,68 +100,114 @@ export default async function StatsPage() {
             </header>
 
             <main className="container mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 py-8 pb-24 space-y-8">
-                <section className="animate-fade-in-up delay-50">
-                    <div className="bg-bg-secondary/90 rounded-2xl border border-border/40 shadow-sm p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div>
-                            <h2 className="text-lg font-semibold text-text">Quick Links</h2>
-                            <p className="text-sm text-text-muted">
-                                Jump to specific results and submissions.
-                            </p>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-4">
-                            <VerbQuizWeekSelector />
-                            <div className="h-8 w-px bg-border/40 hidden sm:block"></div>
-                            <Link
-                                href="/dashboard/gradebook"
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-bg-base text-sm font-semibold hover:brightness-110 transition shadow-sm"
-                            >
-                                <ClipboardIcon className="w-4 h-4" />
-                                Grammar Gradebook
-                            </Link>
-                        </div>
-                    </div>
-                </section>
+                {/* Stats Overview */}
                 <section className="animate-fade-in-up delay-100">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         <StatCard
-                            label="Total Classes"
-                            value={classes.length}
-                            icon={<UsersIcon className="w-full h-full" />}
+                            label="Total Points"
+                            value={user?.points ?? 0}
+                            icon={<TrophyIcon className="w-full h-full" />}
                             color="primary"
                             className="delay-100"
                         />
                         <StatCard
-                            label="Total Members"
-                            value={classes.reduce((sum, c) => sum + c.enrollments.length, 0)}
-                            icon={<UserIcon className="w-full h-full" />}
+                            label="Current Streak"
+                            value={`${effectiveStreak} day${effectiveStreak === 1 ? '' : 's'}`}
+                            icon={<FlameIcon className="w-full h-full" />}
                             color="secondary"
                             className="delay-200"
                         />
                         <StatCard
-                            label="Assignments"
-                            value={allAssignments.length}
-                            icon={<ClipboardIcon className="w-full h-full" />}
+                            label="Activities Completed"
+                            value={completedActivities}
+                            icon={<BookOpenIcon className="w-full h-full" />}
                             color="warning"
                             className="delay-300"
                         />
                         <StatCard
-                            label="Activities"
-                            value={allActivities.length}
-                            icon={<BookOpenIcon className="w-full h-full" />}
+                            label="Achievements Earned"
+                            value={achievements.length}
+                            icon={<TrophyIcon className="w-full h-full" />}
                             color="accent"
                             className="delay-400"
                         />
                     </div>
                 </section>
 
-                <section className="animate-fade-in-up delay-150">
-                    {enrichedStudents.length === 0 ? (
+                {/* Achievements Section */}
+                {achievements.length > 0 && (
+                    <section className="animate-fade-in-up delay-150">
+                        <h2 className="text-xl font-semibold text-text mb-4">Your Achievements</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {achievements.map((ua) => (
+                                <div
+                                    key={ua.id}
+                                    className="bg-bg-secondary/90 rounded-xl border border-border/40 p-4 flex items-center gap-4"
+                                >
+                                    <span className="text-3xl">{ua.achievement.icon}</span>
+                                    <div>
+                                        <h3 className="font-semibold text-text">{ua.achievement.name}</h3>
+                                        <p className="text-sm text-text-muted">{ua.achievement.description}</p>
+                                        <p className="text-xs text-text-light mt-1">
+                                            Earned {new Date(ua.earnedAt).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Recent Activity */}
+                <section className="animate-fade-in-up delay-200">
+                    <h2 className="text-xl font-semibold text-text mb-4">Recent Activity</h2>
+                    {recentPoints.length === 0 ? (
                         <div className="border border-dashed border-border/50 rounded-xl p-6 bg-bg-secondary/70 text-text-muted text-sm">
-                            No members yet. Add or join a class to view stats here.
+                            No recent activity. Complete some activities to see your progress here!
                         </div>
                     ) : (
-                        <StudentEngagementTable students={enrichedStudents} />
+                        <div className="bg-bg-secondary/90 rounded-xl border border-border/40 overflow-hidden">
+                            <table className="w-full">
+                                <thead className="bg-bg-tertiary/50">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Activity</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Points</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-border/30">
+                                    {recentPoints.map((entry, index) => (
+                                        <tr key={index} className="hover:bg-bg-tertiary/30">
+                                            <td className="px-4 py-3 text-sm text-text">
+                                                {entry.reason || entry.source || 'Activity'}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm font-semibold text-primary">
+                                                +{entry.points}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-text-muted">
+                                                {new Date(entry.createdAt).toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
+                </section>
+
+                {/* Class Overview */}
+                <section className="animate-fade-in-up delay-250">
+                    <h2 className="text-xl font-semibold text-text mb-4">Your Classes</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="bg-bg-secondary/90 rounded-xl border border-border/40 p-4">
+                            <p className="text-text-muted text-sm">Total Classes</p>
+                            <p className="text-2xl font-bold text-text">{classes.length}</p>
+                        </div>
+                        <div className="bg-bg-secondary/90 rounded-xl border border-border/40 p-4">
+                            <p className="text-text-muted text-sm">Total Assignments</p>
+                            <p className="text-2xl font-bold text-text">{allAssignments.length}</p>
+                        </div>
+                    </div>
                 </section>
             </main>
 

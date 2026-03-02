@@ -3,12 +3,12 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  const teacher = await prisma.user.findFirst({
-    where: { role: 'teacher' }
+  const owner = await prisma.user.findFirst({
+    where: { username: 'marlie' }
   });
 
-  if (!teacher) {
-    console.error('Teacher user not found. Please run main seed first.');
+  if (!owner) {
+    console.error('Owner user not found. Please run main seed first.');
     return;
   }
 
@@ -55,7 +55,7 @@ try,tries,trying,tried,tried,No`;
       ui: 'verb-forms',
       level: 'intermediate',
       content: csvContent,
-      createdBy: teacher.id,
+      createdBy: owner.id,
       isReleased: true,
     }
   });

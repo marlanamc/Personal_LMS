@@ -45,7 +45,7 @@ export async function POST(request: Request) {
         try {
             // Get all classes owned by this user.
             const classes = await prisma.class.findMany({
-                where: { teacherId: userId },
+                where: { ownerId: userId },
                 select: { id: true }
             });
 

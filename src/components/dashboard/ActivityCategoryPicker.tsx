@@ -80,11 +80,19 @@ const isInSelectedSubject = (activity: Activity, subject: string): boolean => {
     const category = (activity.category || '').toLowerCase();
 
     if (subject === 'spanish') {
-        return (category === 'personal' || category === 'spanish') && isSpanishActivity(activity);
+        return category === 'spanish' || isSpanishActivity(activity);
     }
 
     if (subject === 'coding') {
-        return (category === 'personal' || category === 'coding') && isCodingActivity(activity);
+        return category === 'coding' || isCodingActivity(activity);
+    }
+
+    if (subject === 'health') {
+        return category === 'health';
+    }
+
+    if (subject === 'job-search') {
+        return category === 'job-search' || category === 'job search';
     }
 
     return false;

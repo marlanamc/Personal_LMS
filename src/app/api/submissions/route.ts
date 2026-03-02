@@ -26,14 +26,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Verify assignment exists and user can access the class.
+        // Verify assignment exists and user owns the class
         const assignment = await prisma.assignment.findUnique({
             where: { id: assignmentId },
             include: {
                 class: {
-                    include: {
-                        enrollments: true,
-                    },
+                    select: { ownerId: true },
                 },
             },
         });
@@ -42,11 +40,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
         }
 
-        const hasClassAccess = assignment.class.teacherId === userId || assignment.class.enrollments.some(
-            (enrollment: { studentId: string }) => enrollment.studentId === userId
-        );
-
-        if (!hasClassAccess) {
+        if (assignment.class.ownerId !== userId) {
             return NextResponse.json({ error: "You do not have access to this class" }, { status: 403 });
         }
 
@@ -134,6 +128,3 @@ export async function PUT(request: NextRequest) {
         return handleApiError(error, "api/submissions:PUT");
     }
 }
-
-
-

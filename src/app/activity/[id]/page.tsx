@@ -77,31 +77,11 @@ export default async function ActivityPage({ params, searchParams }: Props) {
             redirect("/dashboard");
         }
 
-        // Verify current user can access assignment class (owner or enrolled member).
+        // Verify current user owns the assignment's class.
         if (assignment?.class) {
-            let enrollment = null;
-            try {
-                enrollment = await prisma.classEnrollment.findUnique({
-                    where: {
-                        classId_studentId: {
-                            classId: assignment.classId,
-                            studentId: userId,
-                        },
-                    },
-                    select: { classId: true },
-                });
-            } catch (error) {
-                console.error("Failed to verify class enrollment", {
-                    assignmentId,
-                    classId: assignment.classId,
-                    userId,
-                    error,
-                });
-                redirect("/dashboard");
-            }
-
-            const hasAccess = assignment.class.teacherId === userId || Boolean(enrollment);
-            if (!hasAccess) {
+            // Using type assertion since schema now uses ownerId
+            const classData = assignment.class as { ownerId?: string };
+            if (classData.ownerId !== userId) {
                 redirect("/dashboard");
             }
         } else if (assignmentId) {
@@ -215,7 +195,6 @@ export default async function ActivityPage({ params, searchParams }: Props) {
         (
             spanishGuideIds.includes(activity.id) ||
             categoryRaw === "spanish" ||
-            (categoryRaw === "personal" && !isCodingGuideLike) ||
             idLower.startsWith("spanish-") ||
             titleLower.includes("spanish")
         );

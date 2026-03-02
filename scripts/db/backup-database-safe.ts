@@ -44,7 +44,6 @@ async function main() {
   const [
     users,
     classes,
-    classEnrollments,
     activities,
     assignments,
     submissions,
@@ -58,7 +57,6 @@ async function main() {
   ] = await Promise.all([
     prisma.user.findMany(),
     prisma.class.findMany(),
-    prisma.classEnrollment.findMany(),
     prisma.activity.findMany(),
     prisma.assignment.findMany(),
     prisma.submission.findMany(),
@@ -81,7 +79,6 @@ async function main() {
     data: {
       users,
       classes,
-      classEnrollments,
       activities,
       assignments,
       submissions,

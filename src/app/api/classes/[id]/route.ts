@@ -41,7 +41,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         const existingClass = await prisma.class.findFirst({
             where: {
                 id,
-                teacherId: session.user.id,
+                ownerId: session.user.id,
             },
             select: { id: true },
         });

@@ -4,31 +4,13 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/api-error";
 
-async function getClassAccess(userId: string, classId: string): Promise<{ exists: boolean; hasAccess: boolean }> {
+async function userOwnsClass(userId: string, classId: string): Promise<boolean> {
     const classItem = await prisma.class.findUnique({
         where: { id: classId },
-        select: { teacherId: true },
+        select: { ownerId: true },
     });
 
-    if (!classItem) {
-        return { exists: false, hasAccess: false };
-    }
-
-    if (classItem.teacherId === userId) {
-        return { exists: true, hasAccess: true };
-    }
-
-    const enrollment = await prisma.classEnrollment.findUnique({
-        where: {
-            classId_studentId: {
-                classId,
-                studentId: userId,
-            },
-        },
-        select: { classId: true },
-    });
-
-    return { exists: true, hasAccess: Boolean(enrollment) };
+    return classItem?.ownerId === userId;
 }
 
 export async function POST(request: NextRequest) {
@@ -53,13 +35,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const classAccess = await getClassAccess(userId, classId);
-        if (!classAccess.exists) {
+        const ownsClass = await userOwnsClass(userId, classId);
+        if (!ownsClass) {
             return NextResponse.json({ error: "Class not found" }, { status: 404 });
-        }
-
-        if (!classAccess.hasAccess) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
         // Verify activity exists
@@ -115,26 +93,14 @@ export async function PATCH(request: NextRequest) {
 
         const assignment = await prisma.assignment.findUnique({
             where: { id: assignmentId },
-            select: { id: true, classId: true, class: { select: { teacherId: true } } }
+            select: { id: true, classId: true, class: { select: { ownerId: true } } }
         });
 
         if (!assignment) {
             return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
         }
 
-        const hasClassAccess = assignment.class.teacherId === userId || Boolean(
-            await prisma.classEnrollment.findUnique({
-                where: {
-                    classId_studentId: {
-                        classId: assignment.classId,
-                        studentId: userId,
-                    },
-                },
-                select: { classId: true },
-            })
-        );
-
-        if (!hasClassAccess) {
+        if (assignment.class.ownerId !== userId) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -148,4 +114,3 @@ export async function PATCH(request: NextRequest) {
         return handleApiError(error, "api/assignments:PATCH");
     }
 }
-
