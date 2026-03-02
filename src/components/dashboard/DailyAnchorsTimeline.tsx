@@ -215,9 +215,16 @@ function MobileAnchorItem({
   nextEventLabel,
 }: MobileAnchorItemProps) {
   const [isTimeScrubberOpen, setIsTimeScrubberOpen] = useState(false);
+  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const Icon = iconByName[anchor.icon] || Moon;
   const isDone = anchor.status === 'done';
   const isMissed = anchor.status === 'missed';
+
+  useEffect(() => {
+    return () => {
+      if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+    };
+  }, []);
 
   return (
     <div className="relative" style={{ animationDelay: `${index * 80}ms` }}>
