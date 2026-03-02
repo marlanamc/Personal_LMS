@@ -45,40 +45,52 @@ function AnchorProgressRing({ anchors }: { anchors: DailyAnchor[] }) {
   const count = anchors.length;
   const completed = anchors.filter((a) => a.status === 'done').length;
 
+  const segments = useMemo(() => {
+    if (count === 0) return [];
+
+    const totalGap = count * SEGMENT_GAP;
+    const usable = RING_CIRCUMFERENCE - totalGap;
+    const segLen = usable / count;
+
+    let offset = -RING_CIRCUMFERENCE * 0.25;
+
+    return anchors.map((anchor, i) => {
+      const color = anchorColor(anchor.icon);
+      const isDone = anchor.status === 'done';
+      const dashArray = `${segLen} ${RING_CIRCUMFERENCE - segLen}`;
+      const dashOffset = -offset;
+      offset += segLen + SEGMENT_GAP;
+
+      return {
+        key: anchor.id || i,
+        color,
+        isDone,
+        dashArray,
+        dashOffset,
+      };
+    });
+  }, [anchors, count]);
+
   if (count === 0) return null;
-
-  const totalGap = count * SEGMENT_GAP;
-  const usable = RING_CIRCUMFERENCE - totalGap;
-  const segLen = usable / count;
-
-  let offset = -RING_CIRCUMFERENCE * 0.25;
 
   return (
     <div className="relative shrink-0" style={{ width: RING_SIZE, height: RING_SIZE }}>
       <svg width={RING_SIZE} height={RING_SIZE} viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}>
-        {anchors.map((anchor, i) => {
-          const color = anchorColor(anchor.icon);
-          const isDone = anchor.status === 'done';
-          const dashArray = `${segLen} ${RING_CIRCUMFERENCE - segLen}`;
-          const dashOffset = -offset;
-          offset += segLen + SEGMENT_GAP;
-
-          return (
-            <circle
-              key={anchor.id || i}
-              cx={RING_SIZE / 2}
-              cy={RING_SIZE / 2}
-              r={RING_RADIUS}
-              fill="none"
-              stroke={isDone ? color : 'var(--color-progress-track)'}
-              strokeWidth={RING_STROKE}
-              strokeLinecap="round"
-              strokeDasharray={dashArray}
-              strokeDashoffset={dashOffset}
-              style={{ transition: 'stroke 400ms ease, stroke-dasharray 400ms ease' }}
-            />
-          );
-        })}
+        {segments.map((seg) => (
+          <circle
+            key={seg.key}
+            cx={RING_SIZE / 2}
+            cy={RING_SIZE / 2}
+            r={RING_RADIUS}
+            fill="none"
+            stroke={seg.isDone ? seg.color : 'var(--color-progress-track)'}
+            strokeWidth={RING_STROKE}
+            strokeLinecap="round"
+            strokeDasharray={seg.dashArray}
+            strokeDashoffset={seg.dashOffset}
+            style={{ transition: 'stroke 400ms ease, stroke-dasharray 400ms ease' }}
+          />
+        ))}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-sm font-semibold text-text leading-none">{completed}/{count}</span>

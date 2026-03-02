@@ -8,6 +8,7 @@ import {
   Briefcase,
   Calendar,
   Check,
+  Clock,
   Code2,
   Coffee,
   Dumbbell,
@@ -23,6 +24,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
+import { MobileTimeScrubber } from './MobileTimeScrubber';
 import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
 import {
   formatTimeLabel,
@@ -184,18 +186,27 @@ interface MobileAnchorItemProps {
   isFirst: boolean;
   isLoaded: boolean;
   onToggle: () => void;
+  onTimeChange: (anchorId: AnchorId, newTime: string) => void;
   iconByName: Record<AnchorIcon, typeof Sunrise>;
   index: number;
 }
 
-function MobileAnchorItem({ anchor, isActive, isLast, isFirst, isLoaded, onToggle, iconByName, index }: MobileAnchorItemProps) {
+function MobileAnchorItem({ anchor, isActive, isLast, isFirst, isLoaded, onToggle, onTimeChange, iconByName, index }: MobileAnchorItemProps) {
   const dragControls = useDragControls();
+  const [isTimeScrubberOpen, setIsTimeScrubberOpen] = useState(false);
+  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const Icon = iconByName[anchor.icon] || Moon;
   const isDone = anchor.status === 'done';
   const isMissed = anchor.status === 'missed';
   const timeUntil = getTimeUntil(anchor.scheduledTime);
   const gradient = getRiverFlowGradient(anchor.icon);
   const statusLabel = isDone ? 'Complete' : isMissed ? 'Missed' : timeUntil;
+
+  useEffect(() => {
+    return () => {
+      if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+    };
+  }, []);
 
   return (
     <Reorder.Item
@@ -331,9 +342,18 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst, isLoaded, onToggl
                     {anchor.label}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[11px] text-text-muted tabular-nums">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsTimeScrubberOpen(!isTimeScrubberOpen);
+                      }}
+                      className="inline-flex items-center gap-1 text-[11px] text-text-muted tabular-nums hover:text-primary transition-colors"
+                      aria-label="Adjust time"
+                    >
+                      <Clock size={10} className={isTimeScrubberOpen ? 'text-primary' : ''} />
                       {formatTimeLabel(anchor.scheduledTime)}
-                    </span>
+                    </button>
                     <span className="text-text-muted/40">·</span>
                     <span
                       className={`
@@ -366,6 +386,20 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst, isLoaded, onToggl
             </div>
           </div>
         </button>
+
+        {/* Mobile Time Scrubber */}
+        <MobileTimeScrubber
+          isOpen={isTimeScrubberOpen}
+          currentTime={anchor.scheduledTime}
+          onTimeChange={(newTime) => {
+            onTimeChange(anchor.id, newTime);
+            if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+            autoCloseTimerRef.current = setTimeout(() => {
+              setIsTimeScrubberOpen(false);
+            }, 1500);
+          }}
+          onClose={() => setIsTimeScrubberOpen(false)}
+        />
       </div>
     </Reorder.Item>
   );
@@ -494,6 +528,13 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   const closeAnchorEditor = useCallback(() => {
     setIsEditingAnchors(false);
   }, []);
+
+  const handleMobileTimeChange = useCallback((anchorId: AnchorId, newTime: string) => {
+    const updatedAnchors = anchors.map((anchor) =>
+      anchor.id === anchorId ? { ...anchor, scheduledTime: newTime } : anchor
+    );
+    setTodayAnchors(updatedAnchors);
+  }, [anchors, setTodayAnchors]);
 
   const updateDraftTemplate = useCallback(
     (anchorId: AnchorId, patch: Partial<Pick<DailyAnchorTemplate, 'label' | 'scheduledTime' | 'icon' | 'daysOfWeek'>>) => {
@@ -855,6 +896,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                       isLast={idx === sortedAnchors.length - 1}
                       isLoaded={isLoaded}
                       onToggle={() => toggleAnchor(anchor.id)}
+                      onTimeChange={handleMobileTimeChange}
                       iconByName={iconByName}
                       index={idx}
                     />

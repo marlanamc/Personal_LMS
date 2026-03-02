@@ -443,7 +443,11 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
   const handlePromptToggle = (promptId: string) => {
     setSelectedPrompts((prev) => {
       const next = new Set(prev);
-      next.has(promptId) ? next.delete(promptId) : next.add(promptId);
+      if (next.has(promptId)) {
+        next.delete(promptId);
+      } else {
+        next.add(promptId);
+      }
       return next;
     });
   };
@@ -451,7 +455,11 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
   const handleSoloStepToggle = (stepId: string) => {
     setCompletedSoloSteps((prev) => {
       const next = new Set(prev);
-      next.has(stepId) ? next.delete(stepId) : next.add(stepId);
+      if (next.has(stepId)) {
+        next.delete(stepId);
+      } else {
+        next.add(stepId);
+      }
       return next;
     });
   };
@@ -459,7 +467,11 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
   const handleSpeakingStepToggle = (stepId: string) => {
     setCompletedSpeakingSteps((prev) => {
       const next = new Set(prev);
-      next.has(stepId) ? next.delete(stepId) : next.add(stepId);
+      if (next.has(stepId)) {
+        next.delete(stepId);
+      } else {
+        next.add(stepId);
+      }
       return next;
     });
   };
@@ -467,7 +479,11 @@ export default function SpeakingActivityRenderer({ content, activityId, assignme
   const togglePromptTips = (promptId: string) => {
     setExpandedPromptTips((prev) => {
       const next = new Set(prev);
-      next.has(promptId) ? next.delete(promptId) : next.add(promptId);
+      if (next.has(promptId)) {
+        next.delete(promptId);
+      } else {
+        next.add(promptId);
+      }
       return next;
     });
   };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getCalendarMarkerColor, type CalendarEvent } from "./MiniCalendar";
 import { DailyAnchorsDateSummary } from "@/components/daily-anchors";
 import UpcomingEventsList from "./UpcomingEventsList";
@@ -93,6 +93,7 @@ export default function CalendarPlanner({ events, storageScope = "default" }: Ca
   const [newTaskText, setNewTaskText] = useState("");
   const [notesDraft, setNotesDraft] = useState("");
   const [notesSavedNotice, setNotesSavedNotice] = useState(false);
+  const taskIdCounter = useRef(0);
 
   const { getPlan, updatePlan, isSaving, saveError } = useCalendarPlanner(storageScope);
   const eventsByDate = useMemo(() => buildEventsByDate(events), [events]);
@@ -129,7 +130,8 @@ export default function CalendarPlanner({ events, storageScope = "default" }: Ca
   const addTask = () => {
     const text = newTaskText.trim();
     if (!text) return;
-    const nextTask = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, text, done: false };
+    taskIdCounter.current += 1;
+    const nextTask = { id: `task-${taskIdCounter.current}-${selectedKey}`, text, done: false };
     updatePlan(selectedKey, { ...selectedPlan, tasks: [...selectedPlan.tasks, nextTask] });
     setNewTaskText("");
   };
