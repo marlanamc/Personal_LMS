@@ -584,6 +584,7 @@ export function FlatChecklist({ assignments, title = 'Your Daily Checklist', act
                       (item.title || item.activity.title).replace(/ - Complete Step-by-Step Guide$/i, ' Guide')
                     );
                     const typeChip = getTypeChip(item.activity.type);
+                    const gradient = getActivityGradient(item.activity.type || 'default');
                     const progress = typeof item.progress === 'number' ? item.progress : 0;
                     const vocabProgress = getVocabProgress(item);
                     const vocabType = getVocabActivityType(item.activityId);
@@ -594,12 +595,23 @@ export function FlatChecklist({ assignments, title = 'Your Daily Checklist', act
                       <article
                         key={item.id}
                         className={`
-                          cloud-surface rounded-xl border border-border/40 bg-bg-surface/70 px-3 py-3
-                          transition-opacity
+                          desktop-checklist-card group/card relative cloud-surface rounded-xl border border-border/40 px-3 py-3
+                          transition-all duration-300 overflow-hidden
                           ${rowCompleted ? 'opacity-60' : ''}
                         `}
                       >
-                        <div className="flex items-start gap-3">
+                        {/* Subtle gradient background based on activity type */}
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-br ${gradient.from} ${gradient.to} opacity-30 transition-opacity duration-300 group-hover/card:opacity-50`}
+                          aria-hidden
+                        />
+
+                        {/* Shimmer effect on hover for incomplete items */}
+                        {!rowCompleted && !isGame && (
+                          <div className="desktop-card-shimmer absolute inset-0 pointer-events-none opacity-0 group-hover/card:opacity-100 transition-opacity duration-300" aria-hidden />
+                        )}
+
+                        <div className="relative flex items-start gap-3">
                           <div className="pt-0.5 shrink-0">
                             {isGame ? (
                               <span className="text-body" aria-hidden>
@@ -608,16 +620,36 @@ export function FlatChecklist({ assignments, title = 'Your Daily Checklist', act
                                   title: item.title || item.activity.title,
                                 })}
                               </span>
+                            ) : rowCompleted ? (
+                              <motion.div
+                                className="w-5 h-5 rounded-md bg-secondary/15 border border-secondary/30 flex items-center justify-center"
+                                initial={{ scale: 0.8 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                              >
+                                <motion.svg
+                                  className="w-3 h-3 text-secondary"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={3}
+                                  initial={{ pathLength: 0 }}
+                                  animate={{ pathLength: 1 }}
+                                  transition={{ duration: 0.3, delay: 0.1 }}
+                                >
+                                  <motion.path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M5 13l4 4L19 7"
+                                    initial={{ pathLength: 0 }}
+                                    animate={{ pathLength: 1 }}
+                                    transition={{ duration: 0.3 }}
+                                  />
+                                </motion.svg>
+                              </motion.div>
                             ) : (
                               <div
-                                className={`
-                                  w-5 h-5 rounded-md border flex items-center justify-center transition-colors
-                                  ${
-                                    rowCompleted
-                                      ? 'bg-secondary/15 border-secondary/30 text-secondary'
-                                      : 'bg-bg-surface border-border-subtle text-transparent'
-                                  }
-                                `}
+                                className="w-5 h-5 rounded-md border border-border-subtle bg-bg-surface/80 flex items-center justify-center text-transparent"
                                 aria-hidden
                               >
                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
@@ -632,7 +664,7 @@ export function FlatChecklist({ assignments, title = 'Your Daily Checklist', act
                               <div className="min-w-0">
                                 <p
                                   className={`text-body font-semibold truncate ${
-                                    rowCompleted ? 'text-text-muted' : 'text-text'
+                                    rowCompleted ? 'text-text-muted line-through decoration-secondary/40' : 'text-text'
                                   }`}
                                 >
                                   {displayTitle}
@@ -658,11 +690,11 @@ export function FlatChecklist({ assignments, title = 'Your Daily Checklist', act
                               <Link
                                 href={`/activity/${item.activityId}?assignment=${item.id}`}
                                 className={`
-                                  shrink-0 px-3 py-1.5 rounded-lg text-body font-semibold transition-colors
+                                  shrink-0 px-3 py-1.5 rounded-lg text-body font-semibold transition-all duration-200
                                   ${
                                     rowCompleted
                                       ? 'cloud-surface text-text border border-border-subtle hover:text-accent-teal hover:border-accent-teal/55'
-                                      : 'sakura-action hover:brightness-105 active:scale-95'
+                                      : 'sakura-action hover:brightness-105 hover:shadow-md active:scale-95'
                                   }
                                 `}
                               >
@@ -673,24 +705,28 @@ export function FlatChecklist({ assignments, title = 'Your Daily Checklist', act
                             {showInlineProgress && (
                               <div className="mt-2 flex items-center gap-2">
                                 <div className="h-1.5 flex-1 rounded-full bg-bg-progress overflow-hidden">
-                                  <div
-                                    className="h-full rounded-full bg-primary/65"
-                                    style={{ width: `${Math.round(progress)}%` }}
+                                  <motion.div
+                                    className="h-full rounded-full bg-gradient-to-r from-primary to-accent-teal"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${Math.round(progress)}%` }}
+                                    transition={{ duration: 0.5, ease: 'easeOut' }}
                                   />
                                 </div>
-                                <span className="text-meta text-text-muted">{Math.round(progress)}%</span>
+                                <span className="text-meta text-text-muted tabular-nums">{Math.round(progress)}%</span>
                               </div>
                             )}
 
                             {showVocabProgress && vocabProgress && (
                               <div className="mt-2 flex items-center gap-2">
                                 <div className="h-1.5 flex-1 rounded-full bg-bg-progress overflow-hidden">
-                                  <div
-                                    className="h-full rounded-full bg-primary/65"
-                                    style={{ width: `${Math.round((vocabProgress.completed / vocabProgress.total) * 100)}%` }}
+                                  <motion.div
+                                    className="h-full rounded-full bg-gradient-to-r from-primary to-accent-teal"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${Math.round((vocabProgress.completed / vocabProgress.total) * 100)}%` }}
+                                    transition={{ duration: 0.5, ease: 'easeOut' }}
                                   />
                                 </div>
-                                <span className="text-meta text-text-muted">
+                                <span className="text-meta text-text-muted tabular-nums">
                                   {vocabProgress.completed}/{vocabProgress.total}
                                 </span>
                               </div>

@@ -650,13 +650,16 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
               </div>
 
               <div className="relative h-20 py-2">
-              <div className="daily-anchors-track-base absolute top-1/2 left-0 right-0 h-1.5 -translate-y-1/2 rounded-full bg-gradient-to-r from-bg-surface/40 via-bg-surface/60 to-bg-surface/40" />
+              <div className="daily-anchors-track-base absolute top-1/2 left-0 right-0 h-1.5 -translate-y-1/2 rounded-full bg-gradient-to-r from-bg-surface/40 via-bg-surface/60 to-bg-surface/40 overflow-hidden">
+                {/* Subtle shimmer on track */}
+                <div className="desktop-track-shimmer absolute inset-0 pointer-events-none" aria-hidden />
+              </div>
 
-              <div
-                className="daily-anchors-track-progress absolute top-1/2 left-0 h-1.5 -translate-y-1/2 rounded-full transition-[width] duration-500"
-                style={{
-                  width: `${progressPercent}%`,
-                }}
+              <motion.div
+                className="daily-anchors-track-progress absolute top-1/2 left-0 h-1.5 -translate-y-1/2 rounded-full bg-gradient-to-r from-secondary via-primary to-accent-teal"
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
               />
 
               {currentTimePosition !== null && currentTimePosition >= 0 && currentTimePosition <= 100 && (
@@ -748,8 +751,8 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                         onClick={() => !isDragging && toggleAnchor(anchor.id)}
                         disabled={!isLoaded || isDragging}
                         className={`
-                          daily-anchors-dot relative w-12 h-12 rounded-2xl flex items-center justify-center
-                          transition-all duration-200 shadow-md
+                          daily-anchors-dot desktop-anchor-node group/node relative w-12 h-12 rounded-2xl flex items-center justify-center
+                          transition-all duration-300 shadow-md overflow-hidden
                           ${
                             isDone
                               ? 'bg-gradient-to-br from-secondary to-secondary/80 text-white border-2 border-secondary/50'
@@ -757,7 +760,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                                 ? 'bg-bg-surface/50 text-text-muted/40 border-2 border-border-subtle/50'
                                 : isActive
                                   ? `bg-gradient-to-br ${gradientByIcon(anchor.icon)} border-2 border-primary/30 text-text`
-                                  : 'bg-bg-surface/80 border-2 border-border-subtle text-text-muted'
+                                  : `bg-gradient-to-br ${gradientByIcon(anchor.icon)} border-2 border-border-subtle text-text-muted`
                           }
                           ${stateClass}
                           ${isActive && !isDone && !isMissed ? 'ring-2 ring-accent-teal/25 animate-pulse-subtle' : ''}
@@ -765,8 +768,40 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                           ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                           ${isDragging ? 'is-dragging scale-110 shadow-xl ring-2 ring-accent-teal/35' : ''}
                         `}
+                        style={
+                          !isDone && !isMissed && !isDragging
+                            ? { ['--node-glow' as string]: getRiverFlowGradient(anchor.icon).glow }
+                            : undefined
+                        }
                       >
-                        {isDone ? <Check size={20} strokeWidth={2.5} /> : <Icon size={20} strokeWidth={1.7} className={isActive ? 'text-text' : ''} />}
+                        {/* Subtle gradient overlay */}
+                        {!isDone && !isMissed && (
+                          <div
+                            className={`absolute inset-0 bg-gradient-to-br ${getRiverFlowGradient(anchor.icon).from} ${getRiverFlowGradient(anchor.icon).to} opacity-40 transition-opacity duration-300 group-hover/node:opacity-70`}
+                            aria-hidden
+                          />
+                        )}
+                        {/* Hover glow effect */}
+                        {!isDone && !isMissed && (
+                          <div
+                            className="desktop-anchor-glow absolute inset-0 opacity-0 group-hover/node:opacity-100 transition-opacity duration-300 pointer-events-none"
+                            style={{ boxShadow: `inset 0 0 12px var(--node-glow), 0 0 16px var(--node-glow)` }}
+                            aria-hidden
+                          />
+                        )}
+                        <span className="relative z-10">
+                          {isDone ? (
+                            <motion.div
+                              initial={{ scale: 0, rotate: -45 }}
+                              animate={{ scale: 1, rotate: 0 }}
+                              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                            >
+                              <Check size={20} strokeWidth={2.5} />
+                            </motion.div>
+                          ) : (
+                            <Icon size={20} strokeWidth={1.7} className={isActive ? 'text-text' : ''} />
+                          )}
+                        </span>
                       </button>
 
                       <span className={`absolute -bottom-5 text-[10px] font-semibold whitespace-nowrap ${isActive ? 'text-text' : 'text-text-muted/70'}`}>

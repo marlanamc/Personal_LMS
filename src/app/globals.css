@@ -4075,57 +4075,66 @@ kbd {
   }
 }
 
-/* Light Theme Overrides */
+/* Light Theme Overrides - River Flow (Mobile) */
 :where(:root[data-theme="light"], :root.light) .river-flow-card {
   background: linear-gradient(
-    180deg,
+    135deg,
     var(--color-bg-surface) 0%,
-    color-mix(in srgb, var(--color-bg-surface) 96%, var(--color-bg-elevated) 4%) 100%
+    color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-light-card-bottom) 6%) 100%
   );
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.7),
-    var(--color-card-shadow);
+    0 3px 12px rgba(158, 132, 112, 0.14);
 }
 
 :where(:root[data-theme="light"], :root.light) .river-flow-card:hover {
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.8),
-    var(--color-card-shadow-hover);
+    0 6px 20px rgba(158, 132, 112, 0.2);
 }
 
 :where(:root[data-theme="light"], :root.light) .river-flow-card-done {
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--color-bg-surface) 92%, var(--color-secondary) 8%) 0%,
-    var(--color-bg-surface) 100%
+    color-mix(in srgb, var(--color-bg-surface) 90%, var(--color-accent-mint) 10%) 0%,
+    color-mix(in srgb, var(--color-bg-surface) 96%, var(--color-light-card-bottom) 4%) 100%
   );
-  border-color: color-mix(in srgb, var(--color-secondary) 35%, var(--color-border-subtle) 65%);
+  border-color: color-mix(in srgb, var(--color-accent-mint) 40%, var(--color-border-subtle) 60%);
 }
 
 :where(:root[data-theme="light"], :root.light) .river-flow-card-active {
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--color-bg-surface) 90%, var(--color-primary) 10%) 0%,
-    var(--color-bg-surface) 100%
+    color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-light-nebula-start) 12%) 0%,
+    color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-light-nebula-end) 6%) 100%
   );
-  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border-subtle) 55%);
+  border-color: color-mix(in srgb, var(--color-accent-sakura) 50%, var(--color-border-subtle) 50%);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.7),
-    0 0 0 1px color-mix(in srgb, var(--color-primary) 25%, transparent),
-    0 8px 20px color-mix(in srgb, var(--color-primary) 12%, transparent),
-    var(--color-card-shadow);
+    0 1px 0 rgba(255, 255, 255, 0.75),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 30%, transparent),
+    0 8px 24px color-mix(in srgb, var(--color-accent-sakura) 18%, transparent),
+    0 2px 8px rgba(158, 132, 112, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .river-flow-card-future {
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-surface) 0%,
+    color-mix(in srgb, var(--color-bg-surface) 97%, var(--color-light-card-bottom) 3%) 100%
+  );
 }
 
 :where(:root[data-theme="light"], :root.light) .river-flow-shimmer {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    color-mix(in srgb, var(--color-primary) 8%, transparent) 25%,
-    color-mix(in srgb, var(--color-primary) 15%, transparent) 50%,
-    color-mix(in srgb, var(--color-primary) 8%, transparent) 75%,
+    color-mix(in srgb, var(--color-light-nebula-start) 12%, transparent) 20%,
+    color-mix(in srgb, var(--color-accent-sakura) 18%, transparent) 40%,
+    color-mix(in srgb, var(--color-light-nebula-mid) 15%, transparent) 60%,
+    color-mix(in srgb, var(--color-light-nebula-end) 10%, transparent) 80%,
     transparent 100%
   );
-  background-size: 200% 100%;
+  background-size: 250% 100%;
 }
 
 :where(:root[data-theme="light"], :root.light) .river-flow-track-progress {
@@ -4135,16 +4144,66 @@ kbd {
     var(--color-accent-sakura) 50%,
     var(--color-accent-teal) 100%
   );
-  opacity: 0.8;
+  opacity: 0.85;
+  box-shadow: 0 0 6px color-mix(in srgb, var(--color-accent-sakura) 25%, transparent);
 }
 
 :where(:root[data-theme="light"], :root.light) .river-flow-now-badge {
-  background: var(--color-accent-sakura);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-accent-sakura) 30%, transparent);
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-sakura) 0%,
+    color-mix(in srgb, var(--color-accent-sakura) 85%, var(--color-light-nebula-mid) 15%) 100%
+  );
+  box-shadow:
+    0 2px 8px color-mix(in srgb, var(--color-accent-sakura) 35%, transparent),
+    0 1px 0 rgba(255, 255, 255, 0.3) inset;
 }
 
 :where(:root[data-theme="light"], :root.light) .river-flow-orb {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 2px 8px rgba(158, 132, 112, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.5) inset;
+}
+
+/* Light theme gradient overlays for River Flow cards */
+:where(:root[data-theme="light"], :root.light) .river-flow-card .bg-gradient-to-br.from-amber-400\/20 {
+  --tw-gradient-from: rgba(246, 207, 180, 0.28);
+  --tw-gradient-to: rgba(229, 155, 164, 0.15);
+}
+
+:where(:root[data-theme="light"], :root.light) .river-flow-card .bg-gradient-to-br.from-emerald-400\/20 {
+  --tw-gradient-from: rgba(150, 180, 155, 0.25);
+  --tw-gradient-to: rgba(157, 184, 236, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .river-flow-card .bg-gradient-to-br.from-sky-400\/20 {
+  --tw-gradient-from: rgba(157, 184, 236, 0.25);
+  --tw-gradient-to: rgba(150, 180, 155, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .river-flow-card .bg-gradient-to-br.from-rose-400\/20 {
+  --tw-gradient-from: rgba(229, 155, 164, 0.25);
+  --tw-gradient-to: rgba(209, 138, 122, 0.15);
+}
+
+:where(:root[data-theme="light"], :root.light) .river-flow-card .bg-gradient-to-br.from-violet-400\/20 {
+  --tw-gradient-from: rgba(114, 143, 203, 0.25);
+  --tw-gradient-to: rgba(157, 184, 236, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .river-flow-card .bg-gradient-to-br.from-purple-400\/20 {
+  --tw-gradient-from: rgba(114, 143, 203, 0.25);
+  --tw-gradient-to: rgba(209, 138, 122, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .river-flow-card .bg-gradient-to-br.from-indigo-400\/20 {
+  --tw-gradient-from: rgba(114, 143, 203, 0.22);
+  --tw-gradient-to: rgba(157, 184, 236, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .river-flow-card .bg-gradient-to-br.from-cyan-400\/20 {
+  --tw-gradient-from: rgba(157, 184, 236, 0.22);
+  --tw-gradient-to: rgba(150, 180, 155, 0.12);
 }
 
 /* ========== Checklist River Flow (Mobile) ========== */
@@ -4260,28 +4319,320 @@ kbd {
     var(--color-card-shadow-hover);
 }
 
+:where(:root[data-theme="light"], :root.light) .checklist-river-card {
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-surface) 0%,
+    color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-light-card-bottom) 6%) 100%
+  );
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65),
+    0 3px 10px rgba(158, 132, 112, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .checklist-river-card:hover {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.75),
+    0 5px 16px rgba(158, 132, 112, 0.18);
+}
+
 :where(:root[data-theme="light"], :root.light) .checklist-river-card-done {
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-secondary) 6%) 0%,
-    var(--color-bg-surface) 100%
+    color-mix(in srgb, var(--color-bg-surface) 90%, var(--color-accent-mint) 10%) 0%,
+    color-mix(in srgb, var(--color-bg-surface) 96%, var(--color-light-card-bottom) 4%) 100%
   );
+  border-color: color-mix(in srgb, var(--color-accent-mint) 35%, var(--color-border-subtle) 65%);
+}
+
+:where(:root[data-theme="light"], :root.light) .checklist-river-card-pending:hover {
+  border-color: color-mix(in srgb, var(--color-accent-sakura) 35%, var(--color-border-subtle) 65%);
 }
 
 :where(:root[data-theme="light"], :root.light) .checklist-river-orb {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 2px 6px rgba(158, 132, 112, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.4) inset;
+}
+
+/* Light theme completed orb */
+:where(:root[data-theme="light"], :root.light) .checklist-river-orb.bg-gradient-to-br.from-secondary {
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-mint) 0%,
+    color-mix(in srgb, var(--color-accent-mint) 85%, var(--color-accent-teal) 15%) 100%
+  ) !important;
+  box-shadow:
+    0 3px 10px color-mix(in srgb, var(--color-accent-mint) 25%, transparent),
+    0 1px 0 rgba(255, 255, 255, 0.4) inset;
 }
 
 :where(:root[data-theme="light"], :root.light) .checklist-river-shimmer {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    color-mix(in srgb, var(--color-primary) 6%, transparent) 25%,
-    color-mix(in srgb, var(--color-primary) 12%, transparent) 50%,
-    color-mix(in srgb, var(--color-primary) 6%, transparent) 75%,
+    color-mix(in srgb, var(--color-light-nebula-start) 10%, transparent) 15%,
+    color-mix(in srgb, var(--color-accent-sakura) 15%, transparent) 35%,
+    color-mix(in srgb, var(--color-light-nebula-mid) 12%, transparent) 55%,
+    color-mix(in srgb, var(--color-light-nebula-end) 10%, transparent) 75%,
+    transparent 100%
+  );
+  background-size: 250% 100%;
+}
+
+/* Light theme checklist progress track */
+:where(:root[data-theme="light"], :root.light) .checklist-river-track .bg-gradient-to-b.from-secondary {
+  background: linear-gradient(
+    180deg,
+    var(--color-accent-mint) 0%,
+    var(--color-accent-sakura) 50%,
+    var(--color-accent-teal) 100%
+  ) !important;
+  box-shadow: 0 0 5px color-mix(in srgb, var(--color-accent-sakura) 20%, transparent);
+}
+
+/* Light theme gradient overlays for checklist cards */
+:where(:root[data-theme="light"], :root.light) .checklist-river-card .bg-gradient-to-br.from-emerald-400\/15 {
+  --tw-gradient-from: rgba(150, 180, 155, 0.22);
+  --tw-gradient-to: rgba(157, 184, 236, 0.1);
+}
+
+:where(:root[data-theme="light"], :root.light) .checklist-river-card .bg-gradient-to-br.from-purple-400\/15 {
+  --tw-gradient-from: rgba(114, 143, 203, 0.22);
+  --tw-gradient-to: rgba(209, 138, 122, 0.1);
+}
+
+:where(:root[data-theme="light"], :root.light) .checklist-river-card .bg-gradient-to-br.from-amber-400\/15 {
+  --tw-gradient-from: rgba(246, 207, 180, 0.26);
+  --tw-gradient-to: rgba(229, 155, 164, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .checklist-river-card .bg-gradient-to-br.from-sky-400\/15 {
+  --tw-gradient-from: rgba(157, 184, 236, 0.22);
+  --tw-gradient-to: rgba(150, 180, 155, 0.1);
+}
+
+:where(:root[data-theme="light"], :root.light) .checklist-river-card .bg-gradient-to-br.from-rose-400\/15 {
+  --tw-gradient-from: rgba(229, 155, 164, 0.22);
+  --tw-gradient-to: rgba(209, 138, 122, 0.1);
+}
+
+/* ========== Desktop Enhancements ========== */
+
+/* Desktop Anchor Node Enhancements */
+.desktop-anchor-node {
+  position: relative;
+}
+
+.desktop-anchor-glow {
+  border-radius: inherit;
+  transition: opacity 0.3s ease;
+}
+
+/* Desktop Timeline Track Shimmer */
+.desktop-track-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-primary) 5%, transparent) 30%,
+    color-mix(in srgb, var(--color-accent-teal) 8%, transparent) 50%,
+    color-mix(in srgb, var(--color-primary) 5%, transparent) 70%,
     transparent 100%
   );
   background-size: 200% 100%;
+  animation: desktopTrackShimmer 4s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+@keyframes desktopTrackShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Desktop Checklist Card Enhancements */
+.desktop-checklist-card {
+  position: relative;
+  background: var(--color-bg-surface);
+}
+
+.desktop-checklist-card:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 25%, var(--color-border-subtle) 75%);
+  transform: translateY(-1px);
+  box-shadow: var(--color-card-shadow-hover);
+}
+
+/* Desktop Card Shimmer Effect */
+.desktop-card-shimmer {
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-primary) 4%, transparent) 20%,
+    color-mix(in srgb, var(--color-primary) 8%, transparent) 40%,
+    color-mix(in srgb, var(--color-accent-teal) 6%, transparent) 60%,
+    color-mix(in srgb, var(--color-primary) 4%, transparent) 80%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: desktopCardShimmer 2.5s ease-in-out infinite;
+  border-radius: inherit;
+}
+
+@keyframes desktopCardShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Light Theme Desktop Enhancements */
+
+/* Desktop Anchor Node - Light Theme */
+:where(:root[data-theme="light"], :root.light) .desktop-anchor-node {
+  box-shadow:
+    0 2px 8px rgba(158, 132, 112, 0.15),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
+}
+
+:where(:root[data-theme="light"], :root.light) .desktop-anchor-node:hover {
+  box-shadow:
+    0 4px 16px rgba(158, 132, 112, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
+}
+
+:where(:root[data-theme="light"], :root.light) .desktop-anchor-glow {
+  opacity: 0.85 !important;
+  mix-blend-mode: soft-light;
+}
+
+/* Desktop Timeline Track - Light Theme with warm gradient */
+:where(:root[data-theme="light"], :root.light) .daily-anchors-track-progress {
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-mint) 0%,
+    var(--color-accent-sakura) 50%,
+    var(--color-accent-teal) 100%
+  ) !important;
+  opacity: 0.85;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent-sakura) 30%, transparent);
+}
+
+:where(:root[data-theme="light"], :root.light) .desktop-track-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-light-nebula-start) 15%, transparent) 25%,
+    color-mix(in srgb, var(--color-light-nebula-mid) 20%, transparent) 50%,
+    color-mix(in srgb, var(--color-light-nebula-end) 15%, transparent) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  opacity: 0.7;
+}
+
+/* Desktop Checklist Card - Light Theme */
+:where(:root[data-theme="light"], :root.light) .desktop-checklist-card {
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-surface) 0%,
+    color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-light-card-bottom) 6%) 100%
+  );
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65),
+    0 2px 8px rgba(158, 132, 112, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .desktop-checklist-card:hover {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-bg-surface) 96%, var(--color-accent-sakura) 4%) 0%,
+    color-mix(in srgb, var(--color-bg-surface) 92%, var(--color-light-card-bottom) 8%) 100%
+  );
+  border-color: color-mix(in srgb, var(--color-accent-sakura) 30%, var(--color-border-subtle) 70%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.75),
+    0 6px 20px rgba(158, 132, 112, 0.18),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 10%, transparent);
+}
+
+/* Desktop Card Shimmer - Light Theme with warm sakura tones */
+:where(:root[data-theme="light"], :root.light) .desktop-card-shimmer {
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-light-nebula-start) 10%, transparent) 15%,
+    color-mix(in srgb, var(--color-accent-sakura) 12%, transparent) 35%,
+    color-mix(in srgb, var(--color-light-nebula-mid) 15%, transparent) 50%,
+    color-mix(in srgb, var(--color-accent-teal) 10%, transparent) 65%,
+    color-mix(in srgb, var(--color-light-nebula-end) 8%, transparent) 85%,
+    transparent 100%
+  );
+  background-size: 250% 100%;
+}
+
+/* Light theme activity type gradients - warmer and more visible */
+:where(:root[data-theme="light"], :root.light) .desktop-checklist-card .bg-gradient-to-br.from-emerald-400\/15 {
+  --tw-gradient-from: rgba(150, 180, 155, 0.22);
+  --tw-gradient-to: rgba(157, 184, 236, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .desktop-checklist-card .bg-gradient-to-br.from-purple-400\/15 {
+  --tw-gradient-from: rgba(114, 143, 203, 0.22);
+  --tw-gradient-to: rgba(209, 138, 122, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .desktop-checklist-card .bg-gradient-to-br.from-amber-400\/15 {
+  --tw-gradient-from: rgba(246, 207, 180, 0.28);
+  --tw-gradient-to: rgba(229, 155, 164, 0.15);
+}
+
+:where(:root[data-theme="light"], :root.light) .desktop-checklist-card .bg-gradient-to-br.from-sky-400\/15 {
+  --tw-gradient-from: rgba(157, 184, 236, 0.22);
+  --tw-gradient-to: rgba(150, 180, 155, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .desktop-checklist-card .bg-gradient-to-br.from-rose-400\/15 {
+  --tw-gradient-from: rgba(229, 155, 164, 0.22);
+  --tw-gradient-to: rgba(209, 138, 122, 0.12);
+}
+
+/* Light theme progress bars - warmer gradient */
+:where(:root[data-theme="light"], :root.light) .desktop-checklist-card .bg-gradient-to-r.from-primary {
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-sakura) 0%,
+    var(--color-accent-teal) 100%
+  ) !important;
+  opacity: 0.8;
+}
+
+/* Light theme completed checkmark styling */
+:where(:root[data-theme="light"], :root.light) .desktop-checklist-card .bg-secondary\/15 {
+  background: color-mix(in srgb, var(--color-accent-mint) 18%, transparent);
+  border-color: color-mix(in srgb, var(--color-accent-mint) 35%, transparent);
+}
+
+/* Desktop anchor nodes in light theme - icon-specific warm gradients */
+:where(:root[data-theme="light"], :root.light) .desktop-anchor-node.is-active {
+  box-shadow:
+    0 4px 20px color-mix(in srgb, var(--color-accent-sakura) 35%, transparent),
+    0 1px 0 rgba(255, 255, 255, 0.7) inset;
+}
+
+:where(:root[data-theme="light"], :root.light) .desktop-anchor-node.is-done {
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-mint) 0%,
+    color-mix(in srgb, var(--color-accent-mint) 85%, var(--color-accent-teal) 15%) 100%
+  ) !important;
+  box-shadow:
+    0 3px 12px color-mix(in srgb, var(--color-accent-mint) 30%, transparent),
+    0 1px 0 rgba(255, 255, 255, 0.5) inset;
 }
 
 /* Zen Mode transitions */
