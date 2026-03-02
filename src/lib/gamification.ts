@@ -6,6 +6,16 @@ export { POINTS } from "./gamification/constants";
 export { getActivityPoints, resolveActivityGameUi } from "./gamification/activity-points";
 export { calculateQuizPoints } from "./gamification/quiz-points";
 
+function isPrismaConnectivityError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const maybeError = error as { code?: string; message?: string };
+  return (
+    maybeError.code === "P1001" ||
+    maybeError.code === "P1017" ||
+    (typeof maybeError.message === "string" && maybeError.message.includes("Can't reach database server"))
+  );
+}
+
 /**
  * Award points to a user and update their total
  */
@@ -80,6 +90,10 @@ export async function trackLogin(userId: string) {
       }
     }
   } catch (err) {
+    if (isPrismaConnectivityError(err)) {
+      console.warn('[Gamification] Skipping login tracking because database is unreachable');
+      return;
+    }
     console.error('[Gamification] Failed to track login', err);
   }
 }

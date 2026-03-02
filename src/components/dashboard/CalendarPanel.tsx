@@ -8,31 +8,40 @@ import UpcomingEventsList from './UpcomingEventsList';
 interface CalendarPanelProps {
   calendarEvents: CalendarEvent[];
   onToggle?: () => void;
+  showJumpToToday?: boolean;
+  selectedDate?: Date | null;
+  onDateSelect?: (date: Date) => void;
 }
 
-export function CalendarPanel({ calendarEvents, onToggle }: CalendarPanelProps) {
+export function CalendarPanel({ calendarEvents, onToggle, showJumpToToday = false, selectedDate: selectedDateProp, onDateSelect }: CalendarPanelProps) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  // Events happening today (start date is today, or today falls within a multi-day event)
+  // Use selected date for filtering when provided (calendar page); otherwise use actual today
+  const focusDate = selectedDateProp ?? today;
+  const focusDateStart = new Date(focusDate);
+  focusDateStart.setHours(0, 0, 0, 0);
+  const focusDateTomorrow = new Date(focusDateStart);
+  focusDateTomorrow.setDate(focusDateTomorrow.getDate() + 1);
+
+  // Events for the focus date (today/selected)
   const todayEvents = calendarEvents.filter((event) => {
     const eventStart = new Date(event.date);
     eventStart.setHours(0, 0, 0, 0);
     const eventEnd = event.endDate ? new Date(event.endDate) : eventStart;
     eventEnd.setHours(0, 0, 0, 0);
-    return eventStart <= today && eventEnd >= today;
+    return eventStart <= focusDateStart && eventEnd >= focusDateStart;
   });
 
-  // Future events (starting tomorrow or later)
+  // Future events (starting the day after focus date)
   const upcomingEvents = calendarEvents.filter((event) => {
     const eventStart = new Date(event.date);
     eventStart.setHours(0, 0, 0, 0);
     const eventEnd = event.endDate ? new Date(event.endDate) : eventStart;
     eventEnd.setHours(0, 0, 0, 0);
-    // Show if event ends on or after tomorrow (and isn't already shown in today)
-    return eventEnd >= tomorrow && eventStart > today;
+    return eventEnd >= focusDateTomorrow && eventStart > focusDateStart;
   });
 
   return (
@@ -67,14 +76,21 @@ export function CalendarPanel({ calendarEvents, onToggle }: CalendarPanelProps) 
 
       {/* Mini calendar - now with its own container styling */}
       <div className="min-w-0">
-        <MiniCalendar events={calendarEvents} />
+        <MiniCalendar
+          events={calendarEvents}
+          showJumpToToday={showJumpToToday}
+          selectedDate={selectedDateProp}
+          onDateSelect={onDateSelect}
+        />
       </div>
 
-      {/* Today's events section */}
+      {/* Today/Selected date's events section */}
       {todayEvents.length > 0 && (
         <div className="pt-3 border-t border-border-subtle/30 space-y-2">
           <div className="flex items-center justify-between px-1">
-            <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-accent-sakura">Today</span>
+            <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-accent-sakura">
+              {focusDateStart.getTime() !== today.getTime() ? "Selected" : "Today"}
+            </span>
           </div>
           <div className="px-0.5 rounded-xl bg-accent-sakura/8 border border-accent-sakura/20 p-2">
             <UpcomingEventsList

@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { CalendarIcon } from 'lucide-react';
 
 export type CalendarEvent = {
     id?: string;
@@ -14,6 +15,9 @@ export type CalendarEvent = {
 
 interface MiniCalendarProps {
     events?: CalendarEvent[];
+    showJumpToToday?: boolean;
+    selectedDate?: Date | null;
+    onDateSelect?: (date: Date) => void;
 }
 
 export const CALENDAR_ACCENTS = {
@@ -26,7 +30,7 @@ export function getCalendarMarkerColor(type?: CalendarEvent["type"]) {
     return type === "holiday" ? CALENDAR_ACCENTS.vacation : CALENDAR_ACCENTS.event;
 }
 
-export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
+export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [], showJumpToToday = false, selectedDate: selectedDateProp, onDateSelect }) => {
     // Calculate today fresh on every render to avoid caching issues
     const today = new Date();
 
@@ -124,24 +128,40 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
             <div className="grid grid-cols-7 gap-1 text-center font-body">
                 {days.map((day, idx) => {
                     const isToday = day === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
+                    const isSelected = selectedDateProp && day === selectedDateProp.getDate() && viewMonth === selectedDateProp.getMonth() && viewYear === selectedDateProp.getFullYear();
                     const flags = day ? eventsByDay.get(day) : undefined;
                     const hasVacation = flags?.vacation;
                     const hasEvent = flags?.event;
+                    const isClickable = Boolean(onDateSelect);
 
                     if (!day) return <div key={idx} className="h-7 w-7" />;
 
+                    const handleClick = () => {
+                        if (onDateSelect) onDateSelect(new Date(viewYear, viewMonth, day));
+                    };
+
+                    const Cell = isClickable ? 'button' : 'div';
+
                     return (
-                        <div
+                        <Cell
                             key={idx}
+                            type={isClickable ? 'button' : undefined}
+                            onClick={isClickable ? handleClick : undefined}
                             className={`
-                                relative w-7 h-7 flex items-center justify-center rounded-full mx-auto transition-all cursor-default text-xs
+                                relative w-7 h-7 flex items-center justify-center rounded-full mx-auto transition-all text-xs
                                 ${isToday ? "font-bold z-10" : "font-medium"}
-                                ${!isToday && !hasEvent && !hasVacation ? "text-text-secondary hover:bg-bg-elevated/60 hover:text-text" : ""}
+                                ${isClickable ? "cursor-pointer active:scale-95" : "cursor-default"}
+                                ${!isToday && !isSelected && !hasEvent && !hasVacation ? "text-text-secondary hover:bg-bg-elevated/60 hover:text-text" : ""}
                             `}
                             style={isToday ? {
                                 background: 'var(--color-calendar-today-fill)',
                                 color: 'var(--color-text-primary)',
                                 boxShadow: '0 2px 6px color-mix(in srgb, var(--color-accent-sakura) 14%, transparent), inset 0 1px 0 rgba(255,255,255,0.2)',
+                            } : isSelected ? {
+                                background: 'color-mix(in srgb, var(--color-accent-sakura) 25%, transparent)',
+                                color: 'var(--color-text-primary)',
+                                border: '1.5px solid color-mix(in srgb, var(--color-accent-sakura) 50%, transparent)',
+                                boxShadow: '0 0 6px color-mix(in srgb, var(--color-accent-sakura) 12%, transparent)',
                             } : hasEvent ? {
                                 background: 'transparent',
                                 color: 'var(--color-text-primary)',
@@ -154,7 +174,7 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
                             } : {}}
                         >
                             {day}
-                        </div>
+                        </Cell>
                     );
                 })}
             </div>
@@ -168,6 +188,22 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [] }) => {
                     <span className="w-1.5 h-1.5 rounded-full bg-accent-teal" /> Vacation
                 </span>
             </div>
+
+            {showJumpToToday && (
+                <button
+                    type="button"
+                    onClick={() => {
+                        const d = new Date();
+                        d.setDate(1);
+                        setViewDate(d);
+                        onDateSelect?.(new Date());
+                    }}
+                    className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium text-text-muted/80 bg-bg-surface/30 border border-border-subtle/40 hover:bg-bg-surface/50 hover:border-border-subtle/60 transition-all"
+                >
+                    <CalendarIcon className="w-3 h-3" />
+                    Today
+                </button>
+            )}
         </div>
     );
 };

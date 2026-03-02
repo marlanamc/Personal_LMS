@@ -96,7 +96,8 @@
   --z-fixed: 100;
 
   /* Layout */
-  --bottom-nav-height: 64px;
+  --bottom-nav-height: 52px;
+  --bottom-nav-offset: 10px;
 }
 
 :root {
@@ -1512,7 +1513,66 @@ textarea {
 
 /* ========== Mobile Bottom Navigation ========== */
 .bottom-nav-spacer {
+  height: calc(
+    var(--bottom-nav-height) + var(--bottom-nav-offset) + env(safe-area-inset-bottom)
+  );
+}
+
+.bottom-nav-dock {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--bottom-nav-offset) + env(safe-area-inset-bottom));
+  width: min(22rem, calc(100% - 1.25rem));
   height: var(--bottom-nav-height);
+  padding: 0.25rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 68%, transparent);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(16px) saturate(145%);
+  -webkit-backdrop-filter: blur(16px) saturate(145%);
+}
+
+.bottom-nav-item {
+  height: 100%;
+  border-radius: 999px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav-item.is-timer {
+  width: 2.75rem;
+  height: 2.75rem;
+  justify-self: center;
+  align-self: center;
+  transform: translateY(-0.3rem);
+  background: color-mix(in srgb, var(--color-secondary) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-secondary) 42%, transparent);
+  box-shadow:
+    0 10px 20px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+.bottom-nav-item.is-active {
+  background: color-mix(in srgb, var(--color-bg-elevated) 72%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.bottom-nav-item.is-timer.is-active {
+  background: color-mix(in srgb, var(--color-secondary) 30%, transparent);
+  border-color: color-mix(in srgb, var(--color-secondary) 65%, transparent);
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26);
+}
+
+.bottom-nav-icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 /* ========== Loading States ========== */
@@ -2406,7 +2466,7 @@ kbd {
   }
 
   .bottom-nav {
-    padding-bottom: max(var(--spacing-md), env(safe-area-inset-bottom));
+    bottom: calc(var(--bottom-nav-offset) + env(safe-area-inset-bottom));
   }
 }
 /* ========== Interactive Guide Rich Content ========== */

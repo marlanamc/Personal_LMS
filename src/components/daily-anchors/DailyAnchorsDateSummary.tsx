@@ -117,29 +117,47 @@ export function DailyAnchorsDateSummary({ storageScope, date }: DailyAnchorsDate
     : 0;
 
   return (
-    <div className="rounded-3xl border px-6 py-4 elevation-2 bg-[#EDE3D7] border-[#D9C8B5] dark:bg-bg-elevated dark:border-border-subtle/50">
+    <div className="rounded-3xl border px-4 sm:px-6 py-4 elevation-2 bg-[#EDE3D7] border-[#D9C8B5] dark:bg-bg-elevated dark:border-border-subtle/50">
+      {/* Header with progress bar on mobile */}
       <div className="flex items-center justify-between gap-3 mb-3">
         <h4 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.18em]">Daily Anchors</h4>
-        <span className="text-xs text-text-muted">
-          {completedCount} of {filteredAndSortedAnchors.length} done • {completionPercent}%
+        <span className="text-xs text-text-muted tabular-nums">
+          {completedCount} of {filteredAndSortedAnchors.length} done
         </span>
       </div>
 
-      <div className="flex gap-3 items-center">
+      {/* Mobile progress bar */}
+      {filteredAndSortedAnchors.length > 0 && (
+        <div className="sm:hidden mb-3 h-1.5 rounded-full bg-bg-surface/60 overflow-hidden">
+          <div
+            className="h-full rounded-full bg-accent-mint transition-all duration-500 ease-out"
+            style={{ width: `${completionPercent}%` }}
+          />
+        </div>
+      )}
+
+      <div className="flex gap-3 items-start">
         <div className="flex-1 space-y-2 min-w-0">
           {filteredAndSortedAnchors.map((anchor: DailyAnchor) => {
             const Icon = iconForAnchor(anchor.icon);
             const dotColor = anchorColor(anchor.icon);
             return (
-              <div key={anchor.id} className="flex items-center justify-between gap-3 rounded-2xl border border-border-subtle bg-bg-surface px-3 py-2 hover:border-[#8A5A44]/25 dark:hover:border-accent-sakura/35 transition-colors">
-                <div className="flex items-center gap-2">
-                  <Icon size={14} style={{ color: dotColor }} />
-                  <span className="text-sm text-text font-medium">
-                    {formatTimeLabel(anchor.scheduledTime)} {anchor.label}
-                  </span>
+              <div key={anchor.id} className="flex items-center justify-between gap-3 rounded-2xl border border-border-subtle bg-bg-surface px-3 py-2.5 hover:border-[#8A5A44]/25 dark:hover:border-accent-sakura/35 transition-colors">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${dotColor}20` }}>
+                    <Icon size={16} style={{ color: dotColor }} />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-sm text-text font-medium block truncate">
+                      {anchor.label}
+                    </span>
+                    <span className="text-xs text-text-muted">
+                      {formatTimeLabel(anchor.scheduledTime)}
+                    </span>
+                  </div>
                 </div>
-                <span className={`text-xs font-medium ${anchor.status === 'done' ? 'text-accent-mint' : anchor.status === 'missed' ? 'text-warning' : 'text-text-muted'}`}>
-                  {anchor.status === 'done' ? 'DONE' : anchor.status === 'missed' ? 'MISSED' : 'PENDING'}
+                <span className={`shrink-0 text-xs font-semibold uppercase ${anchor.status === 'done' ? 'text-accent-mint' : anchor.status === 'missed' ? 'text-warning' : 'text-text-muted'}`}>
+                  {anchor.status === 'done' ? 'Done' : anchor.status === 'missed' ? 'Missed' : 'Pending'}
                 </span>
               </div>
             );
@@ -149,8 +167,11 @@ export function DailyAnchorsDateSummary({ storageScope, date }: DailyAnchorsDate
           )}
         </div>
 
+        {/* Desktop only: circular progress ring */}
         {filteredAndSortedAnchors.length > 0 && (
-          <AnchorProgressRing anchors={filteredAndSortedAnchors} />
+          <div className="hidden sm:block">
+            <AnchorProgressRing anchors={filteredAndSortedAnchors} />
+          </div>
         )}
       </div>
     </div>

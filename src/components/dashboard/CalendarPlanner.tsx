@@ -1,23 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getCalendarMarkerColor, type CalendarEvent } from "./MiniCalendar";
+import { type CalendarEvent } from "./MiniCalendar";
+import { CalendarPanel } from "./CalendarPanel";
 import { DailyAnchorsDateSummary } from "@/components/daily-anchors";
-import UpcomingEventsList from "./UpcomingEventsList";
-import { CalendarIcon, ChevronLeft, ChevronRight, PlusCircle, StickyNote, CheckCircle2, ListTodo } from "lucide-react";
+import { PlusCircle, StickyNote, CheckCircle2, ListTodo } from "lucide-react";
 import { useCalendarPlanner } from "./useCalendarPlanner";
 
 interface CalendarPlannerProps {
   events: CalendarEvent[];
   storageScope?: string;
 }
-
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
-const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function dayStart(date: Date) {
   const d = new Date(date);
@@ -72,23 +65,8 @@ function buildEventsByDate(events: CalendarEvent[]) {
   return byDate;
 }
 
-function classifyDay(events: CalendarEvent[]) {
-  let hasHoliday = false;
-  let hasQuiz = false;
-  let hasDue = false;
-  let hasEvent = false;
-  for (const event of events) {
-    if (event.type === "holiday") hasHoliday = true;
-    else if (event.type === "quiz") hasQuiz = true;
-    else if (event.type === "due" || event.type === "reminder") hasDue = true;
-    else hasEvent = true;
-  }
-  return { hasHoliday, hasQuiz, hasDue, hasEvent };
-}
-
 export default function CalendarPlanner({ events, storageScope = "default" }: CalendarPlannerProps) {
   const today = useMemo(() => dayStart(new Date()), []);
-  const [viewDate, setViewDate] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [newTaskText, setNewTaskText] = useState("");
   const [notesDraft, setNotesDraft] = useState("");
@@ -147,29 +125,10 @@ export default function CalendarPlanner({ events, storageScope = "default" }: Ca
     updatePlan(selectedKey, { ...selectedPlan, tasks: selectedPlan.tasks.filter((task) => task.id !== taskId) });
   };
 
-  const upcomingEvents = useMemo(() => {
-    return events.filter((event) => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const eventEndDate = event.endDate ? new Date(event.endDate) : new Date(event.date);
-      eventEndDate.setHours(0, 0, 0, 0);
-      return eventEndDate >= today;
-    }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  }, [events]);
-
-  const viewMonth = viewDate.getMonth();
-  const viewYear = viewDate.getFullYear();
-  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-  const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay();
-
-  const dayCells: Array<number | null> = [];
-  for (let i = 0; i < firstDayOfMonth; i++) dayCells.push(null);
-  for (let i = 1; i <= daysInMonth; i++) dayCells.push(i);
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 lg:gap-10 lg:items-start animate-fadeIn">
       {/* Left Column: Date Focus - primary stage with sunrise gradient */}
-      <section className="rounded-3xl relative overflow-hidden order-1 elevation-1 border border-border-subtle/40">
+      <section className="rounded-3xl relative overflow-hidden order-2 lg:order-1 elevation-1 border border-border-subtle/40">
         {/* Stage gradient: cooler sky tint at top, warmer sand at bottom */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -300,118 +259,17 @@ export default function CalendarPlanner({ events, storageScope = "default" }: Ca
         </div>
       </section>
 
-      {/* Right Column: Calendar & Upcoming - grouped as one contextual block */}
-      <div className="space-y-4 order-2">
-        <section
-          className="rounded-3xl px-6 py-5 overflow-hidden relative shadow-md border bg-[#F6EBDD] border-[#E8D7C4] dark:bg-bg-surface dark:border-border-subtle/50"
-        >
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">Timeline</p>
-          <div className="flex items-center justify-between mt-2 mb-3">
-              <h2 className="text-lg font-semibold text-text leading-tight">
-                {MONTH_NAMES[viewMonth]} {viewYear}
-              </h2>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  aria-label="Previous month"
-                  onClick={() => setViewDate(new Date(viewYear, viewMonth - 1, 1))}
-                  className="w-8 h-8 rounded-full bg-white/80 shadow-sm text-text border border-white/70 hover:bg-white dark:bg-bg-elevated dark:border-border-subtle dark:text-text-secondary dark:hover:text-text dark:hover:bg-bg-secondary transition-all flex items-center justify-center active:scale-95"
-                >
-                  <ChevronLeft size={18} />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Next month"
-                  onClick={() => setViewDate(new Date(viewYear, viewMonth + 1, 1))}
-                  className="w-8 h-8 rounded-full bg-white/80 shadow-sm text-text border border-white/70 hover:bg-white dark:bg-bg-elevated dark:border-border-subtle dark:text-text-secondary dark:hover:text-text dark:hover:bg-bg-secondary transition-all flex items-center justify-center active:scale-95"
-                >
-                  <ChevronRight size={18} />
-                </button>
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-white/70 border border-white/60 dark:bg-bg-elevated/70 dark:border-border-subtle/60 px-3 py-3 sm:px-4 sm:py-4">
-              <div className="grid grid-cols-7 gap-1.5 text-center mb-2">
-                {WEEKDAY_LABELS.map((label) => (
-                  <div key={label} className="text-[11px] font-medium text-text-muted">
-                    {label.charAt(0)}
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-7 gap-1.5 text-center">
-                {dayCells.map((day, index) => {
-                  if (!day) return <div key={`blank-${index}`} className="h-9 w-9 mx-auto" />;
-                  const cellDate = dayStart(new Date(viewYear, viewMonth, day));
-                  const key = dateKey(cellDate);
-                  const isToday = key === dateKey(today);
-                  const isSelected = key === selectedKey;
-                  const dayEvents = eventsByDate.get(key) || [];
-                  const dayFlags = classifyDay(dayEvents);
-                  const hasEvent = dayFlags.hasQuiz || dayFlags.hasDue || dayFlags.hasEvent || dayFlags.hasHoliday;
-                  const firstEventColor = dayEvents[0] ? getCalendarMarkerColor(dayEvents[0].type) : undefined;
-
-                  const baseClass = "relative w-9 h-9 flex items-center justify-center rounded-full mx-auto text-sm font-medium transition-all cursor-pointer";
-                  const emptyClass = "text-text-secondary hover:bg-bg-elevated/50 hover:text-text";
-
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => setSelectedDate(cellDate)}
-                      className={`${baseClass} ${!isToday && !isSelected && !hasEvent ? emptyClass : ""} ${
-                        isToday && !isSelected ? "ring-1 ring-[#e8b69e]" : ""
-                      }`}
-                      style={
-                        isSelected
-                          ? {
-                              background: "linear-gradient(145deg, #d89073 0%, #c97b5e 100%)",
-                              color: "white",
-                              boxShadow: "0 6px 14px rgba(201,123,94,0.28)",
-                            }
-                          : undefined
-                      }
-                    >
-                      {day}
-                      {hasEvent && (
-                        <span
-                          className={`absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white/90" : ""}`}
-                          style={!isSelected ? { backgroundColor: firstEventColor } : undefined}
-                        />
-                      )}
-                      {isToday && !isSelected && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 rounded-full bg-[#d89073]/80" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedDate(today);
-                setViewDate(new Date(today.getFullYear(), today.getMonth(), 1));
-              }}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold bg-white/80 border border-white/70 shadow-sm text-text hover:bg-white dark:bg-bg-elevated dark:border-border-subtle dark:text-text-secondary dark:hover:text-text dark:hover:bg-bg-secondary transition-all"
-            >
-              <CalendarIcon className="w-4 h-4" />
-              JUMP TO TODAY
-            </button>
-        </section>
-
-        {/* Upcoming Events - grouped with calendar, flows from same gradient */}
-        <section
-          className="rounded-3xl px-5 py-3 shadow-md border bg-[#F6EBDD] border-[#E8D7C4] dark:bg-bg-surface dark:border-border-subtle/50 relative"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">Upcoming</h2>
-            <span className="text-xs text-text-muted">{upcomingEvents.length} total</span>
-          </div>
-          <UpcomingEventsList
-            events={upcomingEvents}
-            allowDelete={true}
-          />
-        </section>
+      {/* Right Column: Calendar & Upcoming - 360px to match dashboard sidebar width */}
+      <div className="order-1 lg:order-2">
+        <CalendarPanel
+          calendarEvents={events}
+          showJumpToToday
+          selectedDate={selectedDate}
+          onDateSelect={(date) => {
+            if (notesDirty) updatePlan(selectedKey, { ...selectedPlan, notes: notesDraft });
+            setSelectedDate(dayStart(date));
+          }}
+        />
       </div>
     </div>
   );

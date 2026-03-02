@@ -49,13 +49,35 @@ type StudentEnrollment = {
     }[];
   };
 };
+type DashboardClass = StudentEnrollment["class"] & { id: string };
 
 const NEW_RELEASE_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+function isPrismaConnectivityError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const maybeError = error as { code?: string; message?: string };
+  return (
+    maybeError.code === "P1001" ||
+    maybeError.code === "P1017" ||
+    (typeof maybeError.message === "string" && maybeError.message.includes("Can't reach database server"))
+  );
+}
 
 function isWithinNewReleaseWindow(date: Date | null | undefined): boolean {
   if (!date) return false;
   const ageMs = Date.now() - date.getTime();
   return ageMs >= 0 && ageMs <= NEW_RELEASE_WINDOW_MS;
+}
+
+function filterReleasedActivities(assignment: { activity: { type: string; content: string | null } }) {
+  if (assignment.activity.type !== "speaking") return true;
+  if (!assignment.activity.content) return false;
+  try {
+    const content = JSON.parse(assignment.activity.content);
+    return content.released === true;
+  } catch {
+    return false;
+  }
 }
 
 export default async function DashboardPage() {
@@ -70,17 +92,131 @@ export default async function DashboardPage() {
   // Count daily app opens toward streak even when session is still active.
   await trackLogin(userId);
 
-  // Fetch User data for stats
-  const currentUser = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      name: true,
-      currentStreak: true,
-      longestStreak: true,
-      points: true,
-      lastActivityDate: true,
-    },
-  });
+  let currentUser: {
+    name: string | null;
+    currentStreak: number;
+    longestStreak: number;
+    points: number;
+    lastActivityDate: Date | null;
+  } | null = null;
+  let createdClasses: DashboardClass[] = [];
+  let enrollments: StudentEnrollment[] = [];
+  let featuredAssignments: ChecklistItem[] = [];
+
+  try {
+    // Fetch User data for stats
+    currentUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        name: true,
+        currentStreak: true,
+        longestStreak: true,
+        points: true,
+        lastActivityDate: true,
+      },
+    });
+
+    // Fetch Classes and Enrollments
+    [createdClasses, enrollments] = await Promise.all([
+      prisma.class.findMany({
+        where: { teacherId: userId },
+        include: {
+          assignments: { include: { activity: true } },
+          calendarEvents: true,
+        },
+      }),
+      prisma.classEnrollment.findMany({
+        where: { studentId: userId },
+        include: {
+          class: {
+            include: {
+              assignments: { include: { activity: true } },
+              calendarEvents: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    const featuredAssignmentsRaw = await prisma.assignment.findMany({
+      where: {
+        classId: {
+          in: [
+            ...createdClasses.map((c) => c.id),
+            ...enrollments.map((e) => e.classId),
+          ],
+        },
+        isFeatured: true,
+        activity: { id: { not: "" } },
+      },
+      include: {
+        activity: true,
+        submissions: {
+          where: { userId },
+          select: { id: true, status: true, completedAt: true, score: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const featuredActivityIds = Array.from(
+      new Set(featuredAssignmentsRaw.map((a) => a.activityId)),
+    );
+    const featuredProgressRows =
+      featuredActivityIds.length === 0
+        ? []
+        : await prisma.activityProgress.findMany({
+            where: { userId, activityId: { in: featuredActivityIds } },
+            select: {
+              activityId: true,
+              progress: true,
+              status: true,
+              categoryData: true,
+              updatedAt: true,
+            },
+            orderBy: { updatedAt: "desc" },
+          });
+
+    const featuredProgressMap = featuredProgressRows.reduce(
+      (
+        map: Map<
+          string,
+          { progress: number; status: string; categoryData: ReturnType<typeof parseCategoryData> }
+        >,
+        row,
+      ) => {
+        if (!map.has(row.activityId)) {
+          map.set(row.activityId, {
+            progress: row.progress ?? 0,
+            status: row.status ?? "in_progress",
+            categoryData: parseCategoryData(row.categoryData),
+          });
+        }
+        return map;
+      },
+      new Map(),
+    );
+
+    featuredAssignments = featuredAssignmentsRaw
+      .filter(filterReleasedActivities)
+      .map((a) => {
+        const p = featuredProgressMap.get(a.activityId);
+        return {
+          ...a,
+          featuredAt: a.updatedAt ?? a.createdAt,
+          isNewRelease: isWithinNewReleaseWindow(a.updatedAt ?? a.createdAt),
+          progress: p?.progress ?? 0,
+          progressStatus: p?.status ?? "in_progress",
+          categoryData: p?.categoryData ?? null,
+          anchorId: getChecklistAnchorId(a.id, a.activityId),
+        };
+      });
+  } catch (error) {
+    if (!isPrismaConnectivityError(error)) {
+      throw error;
+    }
+    console.warn("[Dashboard] Database is unreachable, rendering with empty dashboard data");
+  }
 
   const effectiveCurrentStreak = currentUser
     ? getEffectiveStreak(
@@ -93,119 +229,11 @@ export default async function DashboardPage() {
     ? hasActivityToday(currentUser.lastActivityDate)
     : false;
 
-  // Fetch Classes and Enrollments
-  const [createdClasses, enrollments] = await Promise.all([
-    prisma.class.findMany({
-      where: { teacherId: userId },
-      include: {
-        assignments: { include: { activity: true } },
-        calendarEvents: true,
-      },
-    }),
-    prisma.classEnrollment.findMany({
-      where: { studentId: userId },
-      include: {
-        class: {
-          include: {
-            assignments: { include: { activity: true } },
-            calendarEvents: true,
-          },
-        },
-      },
-    }),
-  ]);
-
-  // Consolidate Assignments
-  const filterReleasedActivities = (assignment: { activity: { type: string; content: string | null } }) => {
-    if (assignment.activity.type !== "speaking") return true;
-    if (!assignment.activity.content) return false;
-    try {
-      const content = JSON.parse(assignment.activity.content);
-      return content.released === true;
-    } catch {
-      return false;
-    }
-  };
-
   const studentAssignments = enrollments.flatMap((e: StudentEnrollment) =>
     e.class.assignments
       .filter(filterReleasedActivities)
       .map((a) => ({ ...a, className: e.class.name })),
   );
-
-  const featuredAssignmentsRaw = await prisma.assignment.findMany({
-    where: {
-      classId: {
-        in: [
-          ...createdClasses.map((c) => c.id),
-          ...enrollments.map((e) => e.classId),
-        ],
-      },
-      isFeatured: true,
-      activity: { id: { not: "" } },
-    },
-    include: {
-      activity: true,
-      submissions: {
-        where: { userId },
-        select: { id: true, status: true, completedAt: true, score: true },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const featuredActivityIds = Array.from(
-    new Set(featuredAssignmentsRaw.map((a) => a.activityId)),
-  );
-  const featuredProgressRows =
-    featuredActivityIds.length === 0
-      ? []
-      : await prisma.activityProgress.findMany({
-          where: { userId, activityId: { in: featuredActivityIds } },
-          select: {
-            activityId: true,
-            progress: true,
-            status: true,
-            categoryData: true,
-            updatedAt: true,
-          },
-          orderBy: { updatedAt: "desc" },
-        });
-
-  const featuredProgressMap = featuredProgressRows.reduce(
-    (
-      map: Map<
-        string,
-        { progress: number; status: string; categoryData: ReturnType<typeof parseCategoryData> }
-      >,
-      row,
-    ) => {
-      if (!map.has(row.activityId)) {
-        map.set(row.activityId, {
-          progress: row.progress ?? 0,
-          status: row.status ?? "in_progress",
-          categoryData: parseCategoryData(row.categoryData),
-        });
-      }
-      return map;
-    },
-    new Map(),
-  );
-
-  const featuredAssignments: ChecklistItem[] = featuredAssignmentsRaw
-    .filter(filterReleasedActivities)
-    .map((a) => {
-      const p = featuredProgressMap.get(a.activityId);
-      return {
-        ...a,
-        featuredAt: a.updatedAt ?? a.createdAt,
-        isNewRelease: isWithinNewReleaseWindow(a.updatedAt ?? a.createdAt),
-        progress: p?.progress ?? 0,
-        progressStatus: p?.status ?? "in_progress",
-        categoryData: p?.categoryData ?? null,
-        anchorId: getChecklistAnchorId(a.id, a.activityId),
-      };
-    });
 
   // Consolidate Calendar Events
   const calendarEvents: CalendarEvent[] = [

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Reorder, useDragControls, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   BookOpen,
   Briefcase,
@@ -112,9 +112,8 @@ function positionToTime(positionPercent: number): string {
   return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
 }
 
-function getTimeUntil(timeStr: string): string {
-  const now = new Date();
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+function getTimeUntil(timeStr: string, nowMinutes: number | null): string {
+  if (nowMinutes === null) return 'Soon';
   const targetMinutes = parseHHMMToMinutes(timeStr);
   const diffMinutes = targetMinutes - nowMinutes;
 
@@ -146,6 +145,13 @@ function getOvernightMinutesUntil(startTime: string, nextDayTime: string): numbe
   const startMinutes = parseHHMMToMinutes(startTime);
   const endMinutes = parseHHMMToMinutes(nextDayTime);
   return (24 * 60 - startMinutes) + endMinutes;
+}
+
+function getMinutesBetweenEvents(currentTime: string, nextTime: string): number {
+  const currentMinutes = parseHHMMToMinutes(currentTime);
+  const nextMinutes = parseHHMMToMinutes(nextTime);
+  const diff = nextMinutes - currentMinutes;
+  return diff >= 0 ? diff : (24 * 60) + diff;
 }
 
 function arraysEqualByValue(a?: DayOfWeek[], b?: DayOfWeek[]): boolean {
@@ -189,18 +195,16 @@ interface MobileAnchorItemProps {
   onTimeChange: (anchorId: AnchorId, newTime: string) => void;
   iconByName: Record<AnchorIcon, typeof Sunrise>;
   index: number;
+  nowMinutes: number | null;
 }
 
-function MobileAnchorItem({ anchor, isActive, isLast, isFirst, isLoaded, onToggle, onTimeChange, iconByName, index }: MobileAnchorItemProps) {
-  const dragControls = useDragControls();
+function MobileAnchorItem({ anchor, isActive, isLast, isFirst: _isFirst, isLoaded, onToggle, onTimeChange, iconByName, index, nowMinutes: _nowMinutes }: MobileAnchorItemProps) {
   const [isTimeScrubberOpen, setIsTimeScrubberOpen] = useState(false);
   const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const Icon = iconByName[anchor.icon] || Moon;
   const isDone = anchor.status === 'done';
   const isMissed = anchor.status === 'missed';
-  const timeUntil = getTimeUntil(anchor.scheduledTime);
   const gradient = getRiverFlowGradient(anchor.icon);
-  const statusLabel = isDone ? 'Complete' : isMissed ? 'Missed' : timeUntil;
 
   useEffect(() => {
     return () => {
@@ -209,73 +213,38 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst, isLoaded, onToggl
   }, []);
 
   return (
-    <Reorder.Item
-      value={anchor}
-      dragListener={false}
-      dragControls={dragControls}
-      className="relative"
-      style={{ animationDelay: `${index * 80}ms` }}
-      whileDrag={{
-        scale: 1.02,
-        boxShadow: '0 12px 28px rgba(0,0,0,0.2)',
-        zIndex: 50,
-      }}
-      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-    >
-      {/* River Flow Connector - curved SVG path */}
-      {!isFirst && (
-        <svg
-          className="river-flow-connector absolute -top-5 left-6 w-8 h-6 overflow-visible"
-          viewBox="0 0 32 24"
-          fill="none"
-          aria-hidden
-        >
-          <path
-            d="M16 0 C16 8, 8 12, 16 24"
-            stroke="url(#riverGradient)"
-            strokeWidth="2"
-            strokeLinecap="round"
-            className={`river-flow-path ${isDone || isActive ? 'river-flow-path-active' : 'river-flow-path-future'}`}
-          />
-          <defs>
-            <linearGradient id="riverGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="var(--color-accent-teal)" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="var(--color-accent-sakura)" stopOpacity="0.3" />
-            </linearGradient>
-          </defs>
-        </svg>
-      )}
-
-      <div className={`relative flex items-start gap-2 ${isLast ? 'pb-0' : 'pb-5'}`}>
-        {/* Drag Handle - repositioned */}
-        <motion.div
-          className="touch-none cursor-grab active:cursor-grabbing mt-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-text-muted/35 hover:text-text-muted/70 hover:bg-bg-surface/50 transition-colors"
-          onPointerDown={(e) => dragControls.start(e)}
-          whileTap={{ scale: 0.95 }}
-          aria-label={`Drag ${anchor.label} anchor`}
+    <div className="relative" style={{ animationDelay: `${index * 80}ms` }}>
+      <div className={`relative ${isLast ? 'pb-0' : 'pb-3'}`}>
+        {/* Main Card - Horizontal layout with more breathing room */}
+        <div
           role="button"
-        >
-          <GripVertical size={20} strokeWidth={2.3} />
-        </motion.div>
-
-        {/* Main Card */}
-        <button
-          type="button"
-          onClick={onToggle}
-          disabled={!isLoaded}
+          tabIndex={isLoaded ? 0 : -1}
+          aria-disabled={!isLoaded}
+          onClick={() => {
+            if (!isLoaded) return;
+            onToggle();
+          }}
+          onKeyDown={(e) => {
+            if (!isLoaded) return;
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onToggle();
+            }
+          }}
           className={`
-            river-flow-card group relative flex-1 min-w-0 rounded-2xl p-3 text-left
+            river-flow-card group relative w-full rounded-2xl px-4 py-3.5 text-left
             transition-all duration-300 ease-out overflow-hidden
-            ${isDone ? 'river-flow-card-done' : ''}
-            ${isActive && !isDone ? 'river-flow-card-active' : ''}
-            ${isMissed ? 'river-flow-card-missed' : ''}
-            ${!isDone && !isActive && !isMissed ? 'river-flow-card-future' : ''}
-            ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+            border
+            ${isDone ? 'border-secondary/30 bg-secondary/5' : ''}
+            ${isActive && !isDone ? 'border-primary/40 bg-primary/5' : ''}
+            ${isMissed ? 'border-border-subtle/50 bg-bg-surface/30' : ''}
+            ${!isDone && !isActive && !isMissed ? 'border-border-subtle/60 bg-bg-elevated/60' : ''}
+            ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}
           `}
         >
-          {/* Gradient background based on icon */}
+          {/* Subtle gradient overlay */}
           <div
-            className={`absolute inset-0 bg-gradient-to-br ${gradient.from} ${gradient.to} opacity-60 transition-opacity duration-300 group-hover:opacity-80`}
+            className={`absolute inset-0 bg-gradient-to-r ${gradient.from} ${gradient.to} opacity-30 transition-opacity duration-300`}
             aria-hidden
           />
 
@@ -284,27 +253,22 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst, isLoaded, onToggl
             <div className="river-flow-shimmer absolute inset-0 pointer-events-none" aria-hidden />
           )}
 
-          {/* Ripple effect container for completed */}
-          {isDone && (
-            <div className="river-flow-ripple absolute inset-0 pointer-events-none" aria-hidden />
-          )}
-
-          <div className="relative flex items-center gap-3">
-            {/* Icon Orb */}
+          <div className="relative flex items-center gap-4">
+            {/* Icon Orb - slightly larger for better touch */}
             <div
               className={`
-                river-flow-orb relative w-11 h-11 rounded-xl flex items-center justify-center shrink-0
+                river-flow-orb relative w-12 h-12 rounded-xl flex items-center justify-center shrink-0
                 transition-all duration-300
                 ${isDone
-                  ? 'bg-gradient-to-br from-secondary to-secondary/80 text-white shadow-lg'
+                  ? 'bg-gradient-to-br from-secondary to-secondary/80 text-white shadow-md'
                   : isMissed
                     ? 'bg-bg-surface/60 text-text-muted/50'
                     : isActive
-                      ? 'bg-gradient-to-br from-primary/90 to-accent/70 text-white shadow-lg'
-                      : 'bg-bg-surface/80 text-text-muted border border-border-subtle/50'
+                      ? 'bg-gradient-to-br from-primary/90 to-accent/70 text-white shadow-md'
+                      : 'bg-bg-surface/90 text-text-muted border border-border-subtle/50'
                 }
               `}
-              style={isActive && !isDone ? { boxShadow: `0 4px 20px ${gradient.glow}` } : undefined}
+              style={isActive && !isDone ? { boxShadow: `0 4px 16px ${gradient.glow}` } : undefined}
             >
               {isDone ? (
                 <motion.div
@@ -312,11 +276,11 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst, isLoaded, onToggl
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 15 }}
                 >
-                  <Check size={20} strokeWidth={2.5} />
+                  <Check size={22} strokeWidth={2.5} />
                 </motion.div>
               ) : (
                 <Icon
-                  size={20}
+                  size={22}
                   strokeWidth={1.8}
                   className={`transition-transform duration-300 ${isActive ? 'scale-110' : ''}`}
                 />
@@ -328,66 +292,59 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst, isLoaded, onToggl
               )}
             </div>
 
-            {/* Content */}
-            <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p
-                    className={`
-                      text-[0.95rem] font-semibold leading-tight truncate
-                      ${isDone ? 'text-text-muted line-through decoration-secondary/50' : ''}
-                      ${isActive && !isDone ? 'text-text' : ''}
-                      ${isMissed ? 'text-text-muted/60' : ''}
-                      ${!isDone && !isActive && !isMissed ? 'text-text-secondary' : ''}
-                    `}
-                  >
-                    {anchor.label}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsTimeScrubberOpen(!isTimeScrubberOpen);
-                      }}
-                      className="inline-flex items-center gap-1 text-[11px] text-text-muted tabular-nums hover:text-primary transition-colors"
-                      aria-label="Adjust time"
-                    >
-                      <Clock size={10} className={isTimeScrubberOpen ? 'text-primary' : ''} />
-                      {formatTimeLabel(anchor.scheduledTime)}
-                    </button>
-                    <span className="text-text-muted/40">·</span>
-                    <span
-                      className={`
-                        text-[11px] font-medium
-                        ${isDone ? 'text-secondary' : ''}
-                        ${isMissed ? 'text-error/70' : ''}
-                        ${isActive && !isDone && !isMissed ? 'text-primary font-semibold' : ''}
-                        ${!isDone && !isActive && !isMissed ? 'text-text-muted' : ''}
-                      `}
-                    >
-                      {statusLabel}
-                    </span>
-                  </div>
-                </div>
+            {/* Content - single row layout */}
+            <div className="min-w-0 flex-1 flex items-center justify-between gap-3">
+              {/* Label and time */}
+              <div className="min-w-0 flex-1">
+                <p
+                  className={`
+                    text-base font-semibold leading-snug
+                    ${isDone ? 'text-text-muted line-through decoration-secondary/50' : ''}
+                    ${isActive && !isDone ? 'text-text' : ''}
+                    ${isMissed ? 'text-text-muted/60' : ''}
+                    ${!isDone && !isActive && !isMissed ? 'text-text' : ''}
+                  `}
+                >
+                  {anchor.label}
+                </p>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsTimeScrubberOpen(!isTimeScrubberOpen);
+                  }}
+                  className="inline-flex items-center gap-1.5 mt-0.5 text-sm text-text-muted tabular-nums hover:text-primary transition-colors"
+                  aria-label="Adjust time"
+                >
+                  <Clock size={12} className={isTimeScrubberOpen ? 'text-primary' : ''} />
+                  {formatTimeLabel(anchor.scheduledTime)}
+                </button>
+              </div>
 
-                {/* NOW badge for active */}
-                {isActive && !isDone && !isMissed && (
-                  <span className="river-flow-now-badge shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary text-white shadow-sm">
+              {/* Status badge - right aligned */}
+              <div className="shrink-0">
+                {isDone ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide bg-secondary/15 text-secondary">
+                    <Check size={12} strokeWidth={3} />
+                    Done
+                  </span>
+                ) : isActive && !isMissed ? (
+                  <span className="river-flow-now-badge px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide bg-primary text-white shadow-sm">
                     Now
                   </span>
-                )}
-
-                {/* Done checkmark badge */}
-                {isDone && (
-                  <span className="shrink-0 w-6 h-6 rounded-full bg-secondary/20 flex items-center justify-center">
-                    <Check size={12} strokeWidth={3} className="text-secondary" />
+                ) : isMissed ? (
+                  <span className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide bg-error/10 text-error/70">
+                    Missed
+                  </span>
+                ) : (
+                  <span className="px-3 py-1.5 rounded-full text-xs font-medium uppercase tracking-wide bg-bg-surface/80 text-text-muted">
+                    Pending
                   </span>
                 )}
               </div>
             </div>
           </div>
-        </button>
+        </div>
 
         {/* Mobile Time Scrubber */}
         <MobileTimeScrubber
@@ -403,7 +360,7 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst, isLoaded, onToggl
           onClose={() => setIsTimeScrubberOpen(false)}
         />
       </div>
-    </Reorder.Item>
+    </div>
   );
 }
 
@@ -444,6 +401,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   }, [sortedAnchors, completedCount]);
 
   const [currentTimePosition, setCurrentTimePosition] = useState<number | null>(null);
+  const [nowMinutes, setNowMinutes] = useState<number | null>(null);
 
   useEffect(() => {
     setIsPortalReady(true);
@@ -463,7 +421,10 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   useEffect(() => {
     const updateCurrentTime = () => {
       const now = new Date();
-      const nowStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const nowStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+      setNowMinutes(hours * 60 + minutes);
       setCurrentTimePosition(getTimePosition(nowStr));
     };
 
@@ -645,7 +606,8 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
         <div aria-hidden className="absolute inset-0 daily-anchors-nebula pointer-events-none" />
 
         <div className="relative p-4 sm:p-5 z-10">
-          <div className="flex items-center justify-between gap-3 mb-5 sm:mb-6">
+          {/* Desktop header - side by side */}
+          <div className="hidden sm:flex items-center justify-between gap-3 mb-6">
             <div className="flex items-center gap-2.5 min-w-0">
               <h2 className="text-card font-display text-text tracking-wide truncate">Daily Anchors</h2>
               <span
@@ -658,8 +620,8 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
               </span>
             </div>
 
-            <div className="relative w-8 h-8 sm:w-9 sm:h-9 shrink-0">
-              <svg className="w-8 h-8 sm:w-9 sm:h-9 -rotate-90" viewBox="0 0 36 36">
+            <div className="relative w-9 h-9 shrink-0">
+              <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
                 <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeWidth="3" className="text-bg-surface/60" />
                 <circle
                   cx="18"
@@ -676,9 +638,33 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
               </svg>
               {isAllComplete && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Check size={11} className="text-secondary sm:w-3 sm:h-3" strokeWidth={3} />
+                  <Check size={11} className="text-secondary" strokeWidth={3} />
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Mobile header - compact with progress bar */}
+          <div className="sm:hidden mb-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-card font-display text-text tracking-wide">Daily Anchors</h2>
+              <span
+                className={`
+                  text-sm font-semibold tabular-nums
+                  ${isAllComplete ? 'text-secondary' : 'text-text-muted'}
+                `}
+              >
+                {completedCount} of {totalCount}
+              </span>
+            </div>
+            {/* Horizontal progress bar for mobile */}
+            <div className="mt-2.5 h-1.5 rounded-full bg-bg-surface/60 overflow-hidden">
+              <motion.div
+                className={`h-full rounded-full ${isAllComplete ? 'bg-secondary' : 'bg-primary'}`}
+                initial={{ width: 0 }}
+                animate={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              />
             </div>
           </div>
 
@@ -721,7 +707,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                 </div>
               )}
 
-              {sortedAnchors.map((anchor) => {
+              {sortedAnchors.map((anchor, index) => {
                 const Icon = iconByName[anchor.icon] || Moon;
                 const isActive = anchor.id === activeAnchor.id;
                 const isDragging = anchor.id === draggingAnchor;
@@ -731,8 +717,15 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
 
                 const displayTime = isDragging && dragPreviewTime ? dragPreviewTime : anchor.scheduledTime;
                 const position = getTimePosition(displayTime);
-                const timeUntil = getTimeUntil(anchor.scheduledTime);
+                const timeUntil = getTimeUntil(anchor.scheduledTime, nowMinutes);
+                const inLabel = timeUntil.startsWith('in ') ? timeUntil.slice(3) : timeUntil;
                 const isLightsOutAnchor = anchor.id === 'lightsOut' || anchor.icon === 'moon';
+                const nextScheduledAnchor = sortedAnchors[index + 1];
+                const timeToNextEventLabel = nextScheduledAnchor
+                  ? formatDuration(getMinutesBetweenEvents(anchor.scheduledTime, nextScheduledAnchor.scheduledTime))
+                  : wakeTemplate
+                    ? formatDuration(getOvernightMinutesUntil(anchor.scheduledTime, wakeTemplate.scheduledTime))
+                    : null;
                 const sleepWindowLabel =
                   isLightsOutAnchor && wakeTemplate
                     ? formatDuration(getOvernightMinutesUntil(displayTime, wakeTemplate.scheduledTime))
@@ -764,7 +757,18 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                       <div className="text-xs font-bold text-text">{formatShortTime(displayTime)}</div>
                       {!isDragging && (
                         <div className={`text-[10px] ${isDone ? 'text-secondary' : isMissed ? 'text-error/70' : 'text-text-muted'}`}>
-                          {isDone ? 'Completed' : isMissed ? 'Missed' : timeUntil}
+                          {isDone
+                            ? 'Completed'
+                            : isMissed
+                              ? 'Missed'
+                              : isLightsOutAnchor
+                                ? timeUntil
+                                : `In: ${inLabel}`}
+                        </div>
+                      )}
+                      {!isDragging && !isDone && !isMissed && !isLightsOutAnchor && timeToNextEventLabel && (
+                        <div className="text-[10px] text-text-muted">
+                          Next Event: {timeToNextEventLabel}
                         </div>
                       )}
                       {!isDragging && sleepWindowLabel && (
@@ -858,8 +862,8 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
             </div>
           </div>
 
-          {/* Mobile River Flow Layout */}
-          <div className="sm:hidden mt-2">
+          {/* Mobile Layout - Clean card list */}
+          <div className="sm:hidden mt-3">
             {sortedAnchors.length === 0 ? (
               <div className="rounded-2xl border border-border-subtle bg-bg-elevated/50 px-4 py-6 text-center">
                 <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center">
@@ -869,41 +873,22 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                 <p className="text-xs text-text-muted/60 mt-1">Tap the pencil to add your daily anchors</p>
               </div>
             ) : (
-              <div className="relative river-flow-container">
-                {/* Progress Track - flows down the left side */}
-                <div className="river-flow-track absolute left-[26px] top-6 bottom-6 w-[3px] rounded-full overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-b from-border-subtle/40 via-border-subtle/20 to-border-subtle/40" />
-                  <motion.div
-                    className="river-flow-track-progress absolute top-0 left-0 right-0 bg-gradient-to-b from-secondary via-primary to-accent-teal rounded-full"
-                    initial={{ height: '0%' }}
-                    animate={{ height: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}
-                    transition={{ duration: 0.6, ease: 'easeOut' }}
+              <div className="space-y-2">
+                {sortedAnchors.map((anchor, idx) => (
+                  <MobileAnchorItem
+                    key={anchor.id}
+                    anchor={anchor}
+                    isActive={anchor.id === activeAnchor.id}
+                    isFirst={idx === 0}
+                    isLast={idx === sortedAnchors.length - 1}
+                    isLoaded={isLoaded}
+                    onToggle={() => toggleAnchor(anchor.id)}
+                    onTimeChange={handleMobileTimeChange}
+                    iconByName={iconByName}
+                    index={idx}
+                    nowMinutes={nowMinutes}
                   />
-                </div>
-
-                <Reorder.Group
-                  axis="y"
-                  values={sortedAnchors}
-                  onReorder={(reordered) => {
-                    setTodayAnchors(reordered);
-                  }}
-                  className="relative space-y-0"
-                >
-                  {sortedAnchors.map((anchor, idx) => (
-                    <MobileAnchorItem
-                      key={anchor.id}
-                      anchor={anchor}
-                      isActive={anchor.id === activeAnchor.id}
-                      isFirst={idx === 0}
-                      isLast={idx === sortedAnchors.length - 1}
-                      isLoaded={isLoaded}
-                      onToggle={() => toggleAnchor(anchor.id)}
-                      onTimeChange={handleMobileTimeChange}
-                      iconByName={iconByName}
-                      index={idx}
-                    />
-                  ))}
-                </Reorder.Group>
+                ))}
               </div>
             )}
           </div>
