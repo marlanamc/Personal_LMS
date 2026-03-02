@@ -30,9 +30,17 @@ ALTER TABLE "Submission" DROP CONSTRAINT "Submission_userId_fkey";
 DROP INDEX "Class_code_key";
 
 -- AlterTable
-ALTER TABLE "Class" DROP COLUMN "code",
-DROP COLUMN "teacherId",
-ADD COLUMN     "ownerId" TEXT NOT NULL;
+ALTER TABLE "Class" DROP COLUMN "code";
+
+-- Add as nullable first so existing rows can be backfilled before NOT NULL is enforced.
+ALTER TABLE "Class" ADD COLUMN "ownerId" TEXT;
+
+UPDATE "Class"
+SET "ownerId" = "teacherId"
+WHERE "ownerId" IS NULL;
+
+ALTER TABLE "Class" ALTER COLUMN "ownerId" SET NOT NULL;
+ALTER TABLE "Class" DROP COLUMN "teacherId";
 
 -- AlterTable
 ALTER TABLE "User" DROP COLUMN "role";
