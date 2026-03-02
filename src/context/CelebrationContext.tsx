@@ -97,7 +97,7 @@ const CelebrationContext = createContext<CelebrationContextType | null>(null);
 
 export function CelebrationProvider({ children }: { children: ReactNode }) {
   const [currentMilestone, setCurrentMilestone] = useState<Milestone | null>(null);
-  const [queue, setQueue] = useState<Milestone[]>([]);
+  const [_queue, setQueue] = useState<Milestone[]>([]);
 
   const showMilestone = useCallback(
     (type: MilestoneType, customData?: Partial<Milestone>) => {

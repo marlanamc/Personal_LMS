@@ -249,11 +249,13 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst, isLoaded, onToggl
       <div className={`relative flex items-start gap-2 ${isLast ? 'pb-0' : 'pb-5'}`}>
         {/* Drag Handle - repositioned */}
         <motion.div
-          className="touch-none cursor-grab active:cursor-grabbing p-1 mt-3 text-text-muted/30 hover:text-text-muted/60 transition-colors"
+          className="touch-none cursor-grab active:cursor-grabbing mt-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-text-muted/35 hover:text-text-muted/70 hover:bg-bg-surface/50 transition-colors"
           onPointerDown={(e) => dragControls.start(e)}
           whileTap={{ scale: 0.95 }}
+          aria-label={`Drag ${anchor.label} anchor`}
+          role="button"
         >
-          <GripVertical size={14} />
+          <GripVertical size={20} strokeWidth={2.3} />
         </motion.div>
 
         {/* Main Card */}
@@ -909,11 +911,11 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
           <button
             type="button"
             onClick={() => (isEditingAnchors ? closeAnchorEditor() : openAnchorEditor())}
-            className="absolute right-3 bottom-3 sm:right-4 sm:bottom-4 z-50 inline-flex items-center justify-center w-8 h-8 rounded-full border border-border-subtle bg-bg-surface/90 text-text-muted hover:text-text hover:border-accent-teal/50 transition-colors"
+            className="absolute right-3 bottom-3 sm:right-4 sm:bottom-4 z-50 inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-border-subtle bg-bg-surface/95 text-text-muted hover:text-text hover:border-accent-teal/50 transition-colors shadow-sm"
             aria-label={isEditingAnchors ? 'Close anchor editor' : 'Edit anchors'}
             title={isEditingAnchors ? 'Close anchor editor' : 'Edit anchors'}
           >
-            {isEditingAnchors ? <X size={14} /> : <Pencil size={14} />}
+            {isEditingAnchors ? <X size={16} className="sm:w-[14px] sm:h-[14px]" /> : <Pencil size={16} className="sm:w-[14px] sm:h-[14px]" />}
           </button>
         </div>
       </div>
@@ -925,120 +927,152 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
             <div className="absolute inset-0 bg-bg-base/70 backdrop-blur-sm" onClick={closeAnchorEditor} aria-hidden />
             <div className="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain">
               <div
-                className="max-w-6xl mx-auto px-3 sm:px-6 pb-4 sm:pb-6"
+                className="mx-auto h-full w-full max-w-6xl"
                 style={{
-                  paddingTop: 'max(0.75rem, env(safe-area-inset-top))',
-                  paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+                  paddingTop: 'max(0rem, env(safe-area-inset-top))',
+                  paddingBottom: 'max(0rem, env(safe-area-inset-bottom))',
                 }}
               >
-                <div className="sticky top-0 z-20 -mx-3 sm:-mx-6 px-3 sm:px-6 py-3 bg-bg-base/95 backdrop-blur-sm border-b border-border-subtle mb-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-sm font-semibold uppercase tracking-[0.12em] text-text-muted">Edit Anchors</p>
-                    <div className="flex items-center gap-2 min-w-0">
+                <div className="min-h-full bg-bg-base sm:my-4 sm:rounded-2xl sm:border sm:border-border-subtle sm:bg-bg-base/95 sm:backdrop-blur-sm sm:shadow-xl">
+                  <div
+                    className="sticky top-0 z-20 px-4 sm:px-6 py-3 bg-bg-base/95 backdrop-blur-sm border-b border-border-subtle"
+                    style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm sm:text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">Edit Anchors</p>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <button
+                          type="button"
+                          onClick={closeAnchorEditor}
+                          className="inline-flex items-center justify-center h-11 px-3 rounded-xl border border-border-subtle text-sm font-semibold text-text-muted hover:text-text hover:border-accent-teal/50 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={saveAnchorEdits}
+                          className="inline-flex items-center gap-1.5 h-11 px-4 rounded-xl text-sm font-semibold sakura-action"
+                        >
+                          <Save size={14} />
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-2">
                       <button
                         type="button"
                         onClick={addAnchor}
-                        className="inline-flex items-center justify-center sm:justify-start gap-1.5 min-w-0 flex-1 sm:flex-none px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-border-subtle text-text-muted hover:text-text hover:border-accent-teal/50"
+                        className="inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-xl text-sm font-semibold border border-border-subtle text-text-muted hover:text-text hover:border-accent-teal/50"
                       >
-                        <Plus size={12} />
-                        <span className="truncate">Add Anchor</span>
+                        <Plus size={14} />
+                        Add Anchor
                       </button>
+                    </div>
+                  </div>
+
+                  <div
+                    className="space-y-3 px-4 sm:px-6 py-4 sm:py-5"
+                    style={{ paddingBottom: 'max(7rem, env(safe-area-inset-bottom))' }}
+                  >
+                    {draftTemplates.map((anchor) => (
+                      <div key={`edit-${anchor.id}`} className="rounded-2xl border border-border-subtle bg-bg-surface/70 p-4 space-y-3">
+                        <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] sm:items-center sm:gap-2">
+                          <input
+                            type="text"
+                            value={anchor.label}
+                            onChange={(e) => updateDraftTemplate(anchor.id, { label: e.target.value })}
+                            className="h-11 min-w-0 rounded-xl border border-border-subtle bg-bg-surface px-3 text-base text-text"
+                            aria-label={`Edit ${anchor.id} label`}
+                            name={`anchor-label-${anchor.id}`}
+                            autoComplete="off"
+                          />
+                          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2 sm:contents">
+                            <input
+                              type="time"
+                              value={anchor.scheduledTime}
+                              onChange={(e) => updateDraftTemplate(anchor.id, { scheduledTime: e.target.value })}
+                              className="h-11 w-full sm:w-auto rounded-xl border border-border-subtle bg-bg-surface px-3 text-base text-text"
+                              aria-label={`Edit ${anchor.id} time`}
+                              name={`anchor-time-${anchor.id}`}
+                            />
+                            <select
+                              value={anchor.icon}
+                              onChange={(e) => updateDraftTemplate(anchor.id, { icon: e.target.value as AnchorIcon })}
+                              className="h-11 w-full sm:w-auto rounded-xl border border-border-subtle bg-bg-surface px-3 text-base text-text min-w-0"
+                              aria-label={`Edit ${anchor.id} icon`}
+                              name={`anchor-icon-${anchor.id}`}
+                            >
+                              {ICON_OPTIONS.map((option) => (
+                                <option key={`${anchor.id}-${option.value}`} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              type="button"
+                              onClick={() => removeAnchor(anchor.id)}
+                              className="h-11 w-11 inline-flex items-center justify-center rounded-xl border border-border-subtle text-text-muted hover:text-error hover:border-error/40 shrink-0"
+                              aria-label={`Remove ${anchor.label || 'anchor'}`}
+                              title="Remove anchor"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {WEEKDAY_OPTIONS.map((day) => {
+                            const enabled = anchor.daysOfWeek?.includes(day.value) ?? false;
+                            return (
+                              <button
+                                key={`${anchor.id}-${day.value}`}
+                                type="button"
+                                onClick={() => toggleTemplateDay(anchor.id, day.value)}
+                                aria-pressed={enabled}
+                                className={`
+                                  h-9 min-w-9 px-2.5 rounded-lg text-xs font-semibold border transition-colors
+                                  ${
+                                    enabled
+                                      ? 'bg-accent-teal/15 text-accent-teal border-accent-teal/70 ring-1 ring-accent-teal/60'
+                                      : 'bg-bg-elevated text-text-muted border-border-subtle hover:text-text'
+                                  }
+                                `}
+                                title={day.label}
+                              >
+                                {day.short}
+                              </button>
+                            );
+                          })}
+                          <span className="ml-1 text-xs text-text-muted">
+                            {anchor.daysOfWeek && anchor.daysOfWeek.length > 0 ? 'Runs on selected days' : 'Runs every day'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div
+                    className="fixed inset-x-0 bottom-0 z-30 border-t border-border-subtle bg-bg-base/95 backdrop-blur-sm px-4 py-3 sm:hidden"
+                    style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+                  >
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={closeAnchorEditor}
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border-subtle text-text-muted hover:text-text hover:border-accent-teal/50 transition-colors"
-                        aria-label="Close anchor editor"
+                        className="inline-flex items-center justify-center h-11 flex-1 rounded-xl border border-border-subtle text-sm font-semibold text-text-muted hover:text-text hover:border-accent-teal/50 transition-colors"
                       >
-                        <X size={14} />
+                        Cancel
                       </button>
                       <button
                         type="button"
                         onClick={saveAnchorEdits}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold sakura-action"
+                        className="inline-flex items-center justify-center gap-1.5 h-11 flex-1 rounded-xl text-sm font-semibold sakura-action"
                       >
-                        <Save size={12} />
+                        <Save size={14} />
                         Save
                       </button>
                     </div>
                   </div>
-                </div>
-
-                <div className="space-y-3 pb-8">
-                  {draftTemplates.map((anchor) => (
-                    <div key={`edit-${anchor.id}`} className="rounded-lg border border-border-subtle bg-bg-surface/60 p-2.5 space-y-2">
-                      <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] sm:items-center sm:gap-2">
-                        <input
-                          type="text"
-                          value={anchor.label}
-                          onChange={(e) => updateDraftTemplate(anchor.id, { label: e.target.value })}
-                          className="h-9 min-w-0 rounded-lg border border-border-subtle bg-bg-surface px-2.5 text-sm text-text"
-                          aria-label={`Edit ${anchor.id} label`}
-                          name={`anchor-label-${anchor.id}`}
-                          autoComplete="off"
-                        />
-                        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2 sm:contents">
-                          <input
-                            type="time"
-                            value={anchor.scheduledTime}
-                            onChange={(e) => updateDraftTemplate(anchor.id, { scheduledTime: e.target.value })}
-                            className="h-9 w-full sm:w-auto rounded-lg border border-border-subtle bg-bg-surface px-2 text-sm text-text"
-                            aria-label={`Edit ${anchor.id} time`}
-                            name={`anchor-time-${anchor.id}`}
-                          />
-                          <select
-                            value={anchor.icon}
-                            onChange={(e) => updateDraftTemplate(anchor.id, { icon: e.target.value as AnchorIcon })}
-                            className="h-9 w-full sm:w-auto rounded-lg border border-border-subtle bg-bg-surface px-2 text-sm text-text min-w-0"
-                            aria-label={`Edit ${anchor.id} icon`}
-                            name={`anchor-icon-${anchor.id}`}
-                          >
-                            {ICON_OPTIONS.map((option) => (
-                              <option key={`${anchor.id}-${option.value}`} value={option.value}>
-                                {option.label}
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            type="button"
-                            onClick={() => removeAnchor(anchor.id)}
-                            className="h-9 w-9 inline-flex items-center justify-center rounded-lg border border-border-subtle text-text-muted hover:text-error hover:border-error/40 shrink-0"
-                            aria-label={`Remove ${anchor.label || 'anchor'}`}
-                            title="Remove anchor"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {WEEKDAY_OPTIONS.map((day) => {
-                          const enabled = anchor.daysOfWeek?.includes(day.value) ?? false;
-                          return (
-                            <button
-                              key={`${anchor.id}-${day.value}`}
-                              type="button"
-                              onClick={() => toggleTemplateDay(anchor.id, day.value)}
-                              aria-pressed={enabled}
-                              className={`
-                                h-7 min-w-7 px-2 rounded-md text-[11px] font-semibold border transition-colors
-                                ${
-                                  enabled
-                                    ? 'bg-accent-teal/15 text-accent-teal border-accent-teal/70 ring-1 ring-accent-teal/60'
-                                    : 'bg-bg-elevated text-text-muted border-border-subtle hover:text-text'
-                                }
-                              `}
-                              title={day.label}
-                            >
-                              {day.short}
-                            </button>
-                          );
-                        })}
-                        <span className="ml-1 text-[11px] text-text-muted">
-                          {anchor.daysOfWeek && anchor.daysOfWeek.length > 0 ? 'Runs on selected days' : 'Runs every day'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>

@@ -2,14 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { SpeakingActivityContent, SpeakingSubmission } from "@/types/activity";
+import type { SpeakingActivityContent } from "@/types/activity";
 import { saveActivityProgress } from "@/lib/activityProgress";
 import { PointsToast } from "@/components/ui/PointsToast";
 import {
   getSpeakingSubmission,
   saveDraft,
   loadDraft,
-  clearDraft,
   submitSpeakingWarmup,
   type SpeakingSubmissionPayload,
 } from "@/lib/speakingSubmissions";

@@ -400,7 +400,7 @@ export async function parseRequestBody<T = unknown>(request: Request): Promise<T
     try {
         const body = await request.json();
         return body as T;
-    } catch (error) {
+    } catch {
         throw new ValidationError('Invalid JSON in request body', 'body', 'INVALID_JSON');
     }
 }

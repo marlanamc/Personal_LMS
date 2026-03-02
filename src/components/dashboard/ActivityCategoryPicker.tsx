@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { UtilitySubjectPanel } from './UtilitySubjectPanel';
 import { GUIDE_HUBS, type GuideHub } from '@/content/guide-hubs';

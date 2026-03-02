@@ -44,7 +44,7 @@ const SoundContext = createContext<SoundContextType | null>(null);
 export function SoundProvider({ children }: { children: ReactNode }) {
   const [enabled, setEnabled] = useState(true);
   const [isHydrated, setIsHydrated] = useState(false);
-  const [useSynth, setUseSynth] = useState(false);
+  const [useSynth, _setUseSynth] = useState(false);
   const audioCache = useRef<Map<SoundType, HTMLAudioElement>>(new Map());
   const failedLoads = useRef<Set<SoundType>>(new Set());
 

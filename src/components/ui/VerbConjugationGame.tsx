@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { saveActivityProgress } from "@/lib/activityProgress";
-import { RotateCcw, Clock, Zap, Trophy } from "lucide-react";
+import { RotateCcw, Clock, Zap } from "lucide-react";
 import { BackButton } from "@/components/ui/BackButton";
 import { PointsToast } from "@/components/ui/PointsToast";
 import CelebrationAnimation from "@/components/ui/CelebrationAnimation";
 import {
-  verbConjugations,
   getVerbsByType,
   checkConjugation,
 } from "@/content/spanish/vocabulary/common-verbs";

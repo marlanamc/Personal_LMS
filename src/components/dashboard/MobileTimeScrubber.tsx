@@ -15,16 +15,6 @@ const TIMELINE_START_HOUR = 6;
 const TIMELINE_END_HOUR = 24;
 const TIMELINE_TOTAL_MINUTES = (TIMELINE_END_HOUR - TIMELINE_START_HOUR) * 60;
 
-const HOUR_MARKERS = [
-  { hour: 6, label: '6a' },
-  { hour: 9, label: '9a' },
-  { hour: 12, label: '12p' },
-  { hour: 15, label: '3p' },
-  { hour: 18, label: '6p' },
-  { hour: 21, label: '9p' },
-  { hour: 24, label: '12a' },
-];
-
 function getTimePosition(timeStr: string): number {
   const minutes = parseHHMMToMinutes(timeStr);
   const startMinutes = TIMELINE_START_HOUR * 60;
@@ -130,33 +120,26 @@ export function MobileTimeScrubber({
           className="overflow-hidden"
         >
           <div className="pt-2 pb-1 px-1">
-            <div className="flex justify-between mb-1 px-2">
-              {HOUR_MARKERS.map(({ hour, label }) => (
-                <span
-                  key={hour}
-                  className="text-[9px] text-text-muted/50 font-medium tabular-nums"
-                >
-                  {label}
-                </span>
-              ))}
+            <div className="mb-2 px-1 text-center">
+              <span className="text-[11px] font-medium text-text-muted/70">Drag to set time</span>
             </div>
 
             <div
               ref={trackRef}
-              className="relative h-8 touch-none"
+              className="relative h-11 touch-none"
               onTouchStart={handleTouchStart}
             >
-              <div className="absolute top-1/2 left-0 right-0 h-2 -translate-y-1/2 rounded-full bg-gradient-to-r from-bg-surface/60 via-bg-surface/80 to-bg-surface/60" />
+              <div className="absolute top-1/2 left-0 right-0 h-3 -translate-y-1/2 rounded-full bg-gradient-to-r from-bg-surface/60 via-bg-surface/80 to-bg-surface/60" />
 
               <div
-                className="absolute top-1/2 left-0 h-2 -translate-y-1/2 rounded-full bg-gradient-to-r from-primary/30 via-accent/40 to-secondary/30"
+                className="absolute top-1/2 left-0 h-3 -translate-y-1/2 rounded-full bg-gradient-to-r from-primary/30 via-accent/40 to-secondary/30"
                 style={{ width: `${knobPosition}%` }}
               />
 
               <motion.div
                 className={`
                   absolute top-1/2 -translate-y-1/2 -translate-x-1/2
-                  w-6 h-6 rounded-full shadow-lg
+                  w-9 h-9 rounded-full shadow-lg
                   flex items-center justify-center
                   ${isDragging
                     ? 'bg-primary scale-110'
@@ -167,7 +150,7 @@ export function MobileTimeScrubber({
                 animate={{ scale: isDragging ? 1.15 : 1 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
               >
-                <div className={`w-2 h-2 rounded-full ${isDragging ? 'bg-white' : 'bg-primary'}`} />
+                <div className={`w-3 h-3 rounded-full ${isDragging ? 'bg-white' : 'bg-primary'}`} />
               </motion.div>
             </div>
 

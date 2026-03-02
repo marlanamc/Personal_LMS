@@ -913,7 +913,7 @@ export const FocusTimer = () => {
             const remainder = minutes % 60;
             return remainder === 0 ? `${hours}h` : `${hours}h ${remainder}m`;
         };
-        const formatSessionsLabel = (count: number) => `${count} session${count === 1 ? '' : 's'}`;
+        const _formatSessionsLabel = (count: number) => `${count} session${count === 1 ? '' : 's'}`;
 
         return (
             <div
@@ -1069,6 +1069,20 @@ export const FocusTimer = () => {
                                 </div>
                             </div>
                         )}
+
+                        {/* Clear data button */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (window.confirm('Clear all session history? This cannot be undone.')) {
+                                    setCompletedSessions([]);
+                                    window.localStorage.removeItem(FOCUS_SESSION_HISTORY_STORAGE_KEY);
+                                }
+                            }}
+                            className="w-full py-1.5 text-[10px] font-medium text-text-muted hover:text-error transition-colors"
+                        >
+                            Clear session data
+                        </button>
                     </div>
                 </div>
             </div>

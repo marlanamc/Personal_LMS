@@ -12,6 +12,7 @@ import { CategoryProgressDisplay } from "@/components/CategoryProgressDisplay";
 import { numbersGameCategoryNames } from "@/data/numbersGameCategories";
 import { resolveActivityGameUi } from "@/lib/gamification/activity-points";
 import { SPANISH_GUIDE_IDS } from "@/content/spanish/registry";
+import { getSafeRedirectUrl } from "@/utils/safe-redirect";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -170,10 +171,14 @@ export default async function ActivityPage({ params, searchParams }: Props) {
     }
 
     // If activity is an external URL wrapper, redirect server-side to avoid flash
+    // Validate URL to prevent open redirect attacks (javascript:, data:, etc.)
     if (parsedContent && typeof parsedContent === "object") {
-        const externalUrl = (parsedContent as Record<string, unknown>).externalUrl;
-        if (typeof externalUrl === "string") {
-            redirect(externalUrl);
+        const rawUrl = (parsedContent as Record<string, unknown>).externalUrl;
+        if (typeof rawUrl === "string") {
+            const safeUrl = getSafeRedirectUrl(rawUrl);
+            if (safeUrl) {
+                redirect(safeUrl);
+            }
         }
     }
 

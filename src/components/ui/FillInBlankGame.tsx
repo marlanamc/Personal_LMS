@@ -304,13 +304,14 @@ function parseQuestions(content: string): FillInBlankQuestion[] {
     try {
         const parsed = JSON.parse(content);
         if (parsed && typeof parsed === 'object' && 'sentences' in parsed && Array.isArray(parsed.sentences)) {
-            return parsed.sentences
-                .filter((s: any) => s && s.text && s.correctAnswers && s.options)
-                .map((s: any, index: number) => ({
+            const sentences = parsed.sentences as Array<{ id?: number; text?: string; correctAnswers?: unknown; options?: unknown[]; explanation?: string }>;
+            return sentences
+                .filter((s) => s && s.text && s.correctAnswers && s.options)
+                .map((s, index) => ({
                     id: s.id ?? index + 1,
                     sentence: String(s.text).trim(),
                     correctAnswer: Array.isArray(s.correctAnswers) ? s.correctAnswers[0] : String(s.correctAnswers),
-                    options: Array.isArray(s.options) ? s.options.map((o: any) => String(o).trim()) : [],
+                    options: Array.isArray(s.options) ? s.options.map((o) => String(o).trim()) : [],
                     explanation: s.explanation ? String(s.explanation).trim() : ''
                 }));
         }

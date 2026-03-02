@@ -223,7 +223,7 @@ export default function SpanishNumbersGame({
   useEffect(() => {
     if (!isComplete || !activityId) return;
 
-    const accuracy =
+    const _accuracy =
       gameState.totalQuestions > 0
         ? Math.round((gameState.questionCount / gameState.totalQuestions) * 100)
         : 0;

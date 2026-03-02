@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { useCelebration, Milestone } from "@/context/CelebrationContext";
+import { useCelebration } from "@/context/CelebrationContext";
 import { useSound } from "@/context/SoundContext";
 
 export function MilestoneCelebration() {

@@ -36,7 +36,7 @@ export interface AuditLogEntry {
  * In production, this should write to a database table or external logging service
  */
 export function auditLog(entry: Omit<AuditLogEntry, 'timestamp'>): void {
-  const fullEntry: AuditLogEntry = {
+  const _fullEntry: AuditLogEntry = {
     ...entry,
     timestamp: new Date(),
   };

@@ -13,7 +13,7 @@ export function ActivityProgressBadge({
     activityId,
     assignmentId = null,
     initialProgress = 0,
-    userRole: _userRole,
+    userRole: _userRole, // Intentionally unused - reserved for future role-based UI
 }: Props) {
     const [progress, setProgress] = useState(initialProgress ?? 0);
     const normalizedAssignmentId =

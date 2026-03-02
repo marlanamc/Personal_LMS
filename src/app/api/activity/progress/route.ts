@@ -397,7 +397,6 @@ export async function POST(request: Request) {
 
     if (category || "_guide" in currentData || vocabType) {
         updatedCategoryData = JSON.stringify(currentData);
-        console.log('[VOCAB DEBUG] Setting categoryData:', { vocabType, currentData, updatedCategoryData: updatedCategoryData.substring(0, 100) });
     }
 
     if (aggregatedNumbersProgress !== undefined) {
@@ -424,9 +423,6 @@ export async function POST(request: Request) {
     };
     if (updatedCategoryData) {
         Object.assign(progressData, { categoryData: updatedCategoryData });
-        console.log('[VOCAB DEBUG] Progress data includes categoryData:', Object.keys(progressData));
-    } else {
-        console.log('[VOCAB DEBUG] No categoryData to include in progressData');
     }
 
     let record;

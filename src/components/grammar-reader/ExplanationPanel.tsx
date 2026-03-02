@@ -41,6 +41,11 @@ export const ExplanationPanel = React.memo(function ExplanationPanel({
         return sanitizeHtml(section.explanation, { allowStyles: true });
     }, [section.explanation]);
 
+    const sanitizedPostExplanation = useMemo(() => {
+        if (!section.postExplanation) return "";
+        return sanitizeHtml(section.postExplanation, { allowStyles: true });
+    }, [section.postExplanation]);
+
     return (
         <div
             className={`explanation-panel bg-transparent ${
@@ -89,7 +94,7 @@ export const ExplanationPanel = React.memo(function ExplanationPanel({
                 {section.postExplanation && (
                     <div
                         className="explanation-content mb-6 mt-6"
-                        dangerouslySetInnerHTML={{ __html: section.postExplanation }}
+                        dangerouslySetInnerHTML={{ __html: sanitizedPostExplanation }}
                     />
                 )}
 

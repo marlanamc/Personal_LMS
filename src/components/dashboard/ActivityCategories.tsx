@@ -532,7 +532,7 @@ const parseTitleDateMs = (title?: string | null) => {
     return dt.getTime();
 };
 
-const compareByTitleDateDesc = (a: Activity, b: Activity) => {
+const _compareByTitleDateDesc = (a: Activity, b: Activity) => {
     const aDate = parseTitleDateMs(a.title);
     const bDate = parseTitleDateMs(b.title);
     if (aDate !== null && bDate !== null) return bDate - aDate;
@@ -1613,7 +1613,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
         }
     }, [canFeatureActivities, defaultClassId, featureAssignments]);
 
-    const buildGrammarSubCategories = useCallback((): SubCategory[] => {
+    const _buildGrammarSubCategories = useCallback((): SubCategory[] => {
         const grammarActivities = activities.filter((a: Activity) => a.category === "grammar");
 
         const normalizeTitle = (title?: string | null) => displayTitle(title || "").toLowerCase();

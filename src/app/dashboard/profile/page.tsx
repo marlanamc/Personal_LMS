@@ -65,7 +65,7 @@ const cleanGuideTitle = (title: string): string => {
         .trim();
 };
 
-const getOrderedGrammarGuidesForActivities = <T extends { title: string }>(guides: T[]): T[] => {
+const _getOrderedGrammarGuidesForActivities = <T extends { title: string }>(guides: T[]): T[] => {
     const normalizeTitle = (title?: string | null) => cleanGuideTitle(title || "").toLowerCase();
     const sortAlpha = (list: T[]) =>
         list.sort((a, b) => cleanGuideTitle(a.title || "").localeCompare(cleanGuideTitle(b.title || "")));

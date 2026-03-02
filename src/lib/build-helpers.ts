@@ -24,7 +24,7 @@ export async function getActivityIdSafely(
             select: { id: true }
         });
         return activity?.id;
-    } catch (error) {
+    } catch {
         // Database unavailable during build - this is expected in build environments
         console.warn(`Could not fetch activity "${title}" during build. This is normal for static generation.`);
         return undefined;

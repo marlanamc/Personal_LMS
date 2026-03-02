@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import type {
     ActivityContent,
-    GuideContent,
     InteractiveGuideContent,
     LegacyGuideResponse,
     QuizContent,
@@ -27,7 +26,7 @@ import {
 import InteractiveGuideViewer from "./InteractiveGuideViewer";
 import { GrammarReader } from "@/components/grammar-reader/GrammarReader";
 import { sanitizeCss, sanitizeHtml } from "@/utils/sanitize";
-import Link from "next/link";
+import { getSafeRedirectUrl } from "@/utils/safe-redirect";
 import FlashcardCarousel from "./ui/FlashcardCarousel";
 import FillInBlankGame from "./ui/FillInBlankGame";
 import MatchingGame from "./ui/MatchingGame";
@@ -105,9 +104,12 @@ export default function ActivityRenderer({ activity, assignmentId, existingSubmi
         );
     }
 
-    // Check for external URL redirect
+    // Check for external URL redirect (validate to prevent open redirect attacks)
     if (content && 'externalUrl' in content && typeof content.externalUrl === 'string') {
-        return <ExternalUrlRedirect url={content.externalUrl} />;
+        const safeUrl = getSafeRedirectUrl(content.externalUrl);
+        if (safeUrl) {
+            return <ExternalUrlRedirect url={safeUrl} />;
+        }
     }
 
     const renderActivityContent = () => {
@@ -378,23 +380,6 @@ function SlidesRenderer({ content }: { content: SlidesContent }) {
                     Use the arrow keys to navigate between slides.
                 </p>
             </div>
-        </div>
-    );
-}
-
-function GuideRenderer({ content }: { content: GuideContent }) {
-    return (
-        <div className="prose max-w-none">
-            {content.title && <h3 className="text-xl font-semibold mb-4">{content.title}</h3>}
-            {content.sections?.map((section, index: number) => (
-                <div key={index} className="mb-6">
-                    <h4 className="text-lg font-semibold mb-2">{section.heading}</h4>
-                    <p className="text-text">{section.content}</p>
-                </div>
-            ))}
-            {content.content && (
-                <div className="whitespace-pre-wrap text-text">{content.content}</div>
-            )}
         </div>
     );
 }

@@ -368,7 +368,6 @@ function CountableMatchingUI({
                 explanationAutoDismissTimeoutRef.current = null;
             }
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameState.showExplanation]);
 
     // Save progress after each correct answer
@@ -404,7 +403,7 @@ function CountableMatchingUI({
         };
 
         void saveRoundProgress();
-    }, [activityId, currentRound, isRoundComplete, assignmentId, overallProgressPercent]);
+    }, [activityId, currentRound, isRoundComplete, assignmentId, overallProgressPercent, vocabType]);
 
     // Resume from saved round progress (categoryData keys like "round-1", "round-2", ...)
     useEffect(() => {
@@ -480,7 +479,6 @@ function CountableMatchingUI({
         return () => {
             cancelled = true;
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activityId, assignmentId, rounds.length]);
 
     const handleWordDragStart = (e: React.DragEvent<HTMLDivElement>) => {
@@ -948,7 +946,7 @@ function VocabMatchingUI({
     const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
     const [matchedTermIds, setMatchedTermIds] = useState<Set<number>>(new Set());
     const [wrongFlash, setWrongFlash] = useState<number | null>(null);
-    const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
+    const [_pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
 
     const progressPercent =
         pairs.length > 0 ? Math.round((matchedTermIds.size / pairs.length) * 100) : 0;
@@ -2475,10 +2473,11 @@ function parseVocabPairs(content: string): VocabPair[] {
     try {
         const parsed = JSON.parse(content);
         if (parsed && typeof parsed === 'object' && 'pairs' in parsed && Array.isArray(parsed.pairs)) {
-            return parsed.pairs
-                .filter((p: any) => p && p.term && p.definition)
-                .map((p: any, index: number) => ({
-                    id: p.id ?? index + 1,
+            const pairs = parsed.pairs as Array<{ id?: number; term?: string; definition?: string }>;
+            return pairs
+                .filter((p) => p && p.term && p.definition)
+                .map((p, index) => ({
+                    id: p?.id ?? index + 1,
                     term: String(p.term).trim(),
                     definition: String(p.definition).trim()
                 }));

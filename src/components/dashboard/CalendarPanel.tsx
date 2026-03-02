@@ -11,12 +11,28 @@ interface CalendarPanelProps {
 }
 
 export function CalendarPanel({ calendarEvents, onToggle }: CalendarPanelProps) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // Events happening today (start date is today, or today falls within a multi-day event)
+  const todayEvents = calendarEvents.filter((event) => {
+    const eventStart = new Date(event.date);
+    eventStart.setHours(0, 0, 0, 0);
+    const eventEnd = event.endDate ? new Date(event.endDate) : eventStart;
+    eventEnd.setHours(0, 0, 0, 0);
+    return eventStart <= today && eventEnd >= today;
+  });
+
+  // Future events (starting tomorrow or later)
   const upcomingEvents = calendarEvents.filter((event) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const eventEndDate = event.endDate ? new Date(event.endDate) : new Date(event.date);
-    eventEndDate.setHours(0, 0, 0, 0);
-    return eventEndDate >= today;
+    const eventStart = new Date(event.date);
+    eventStart.setHours(0, 0, 0, 0);
+    const eventEnd = event.endDate ? new Date(event.endDate) : eventStart;
+    eventEnd.setHours(0, 0, 0, 0);
+    // Show if event ends on or after tomorrow (and isn't already shown in today)
+    return eventEnd >= tomorrow && eventStart > today;
   });
 
   return (
@@ -54,26 +70,58 @@ export function CalendarPanel({ calendarEvents, onToggle }: CalendarPanelProps) 
         <MiniCalendar events={calendarEvents} />
       </div>
 
+      {/* Today's events section */}
+      {todayEvents.length > 0 && (
+        <div className="pt-3 border-t border-border-subtle/30 space-y-2">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-accent-sakura">Today</span>
+          </div>
+          <div className="px-0.5 rounded-xl bg-accent-sakura/8 border border-accent-sakura/20 p-2">
+            <UpcomingEventsList
+              events={todayEvents}
+              allowDelete={true}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Upcoming events section */}
-      <div className="pt-3 border-t border-border-subtle/30 space-y-2">
-        <div className="flex items-center justify-between px-1">
-          <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-text-muted">Upcoming</span>
-          {upcomingEvents.length > 4 && (
-            <Link
-              href="/dashboard/calendar"
-              className="text-[10px] font-bold text-accent-sakura hover:underline transition-all"
-            >
-              All →
-            </Link>
-          )}
+      {upcomingEvents.length > 0 && (
+        <div className={`${todayEvents.length === 0 ? 'pt-3 border-t border-border-subtle/30' : 'pt-2'} space-y-2`}>
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-text-muted">Upcoming</span>
+            {(todayEvents.length + upcomingEvents.length) > 4 && (
+              <Link
+                href="/dashboard/calendar"
+                className="text-[10px] font-bold text-accent-sakura hover:underline transition-all"
+              >
+                All →
+              </Link>
+            )}
+          </div>
+          <div className="px-0.5">
+            <UpcomingEventsList
+              events={upcomingEvents.slice(0, todayEvents.length > 0 ? 2 : 4)}
+              allowDelete={true}
+            />
+          </div>
         </div>
-        <div className="px-0.5">
-          <UpcomingEventsList
-            events={upcomingEvents.slice(0, 4)}
-            allowDelete={true}
-          />
+      )}
+
+      {/* Empty state when no events */}
+      {todayEvents.length === 0 && upcomingEvents.length === 0 && (
+        <div className="pt-3 border-t border-border-subtle/30 space-y-2">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-text-muted">Upcoming</span>
+          </div>
+          <div className="px-0.5">
+            <UpcomingEventsList
+              events={[]}
+              allowDelete={true}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Quick links - refined as side-by-side buttons or clear actions */}
       <div className="pt-3 border-t border-border-subtle/30 grid grid-cols-2 gap-2">
