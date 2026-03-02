@@ -4,6 +4,7 @@ import { POINTS } from "./gamification/constants";
 import { shouldAwardStreak, getEffectiveStreak, getNextStreakState } from "./gamification/streak-utils";
 export { POINTS } from "./gamification/constants";
 export { getActivityPoints, resolveActivityGameUi } from "./gamification/activity-points";
+export { calculateQuizPoints } from "./gamification/quiz-points";
 
 /**
  * Award points to a user and update their total
@@ -160,28 +161,6 @@ export async function updateStreak(userId: string, activityPoints: number): Prom
   }
 
   return { streakUpdated, newStreak, pointsAwarded };
-}
-
-/**
- * Calculate points for a quiz based on score
- * Points are ONLY awarded based on accuracy - no participation points
- */
-export function calculateQuizPoints(score: number | null): number {
-  if (score === null) return 0;
-
-  // Score-based points only - must earn through accuracy
-  if (score === 100) {
-    return POINTS.QUIZ_PERFECT_SCORE; // 15 points
-  } else if (score >= 90) {
-    return POINTS.QUIZ_HIGH_SCORE; // 10 points
-  } else if (score >= 80) {
-    return POINTS.QUIZ_GOOD_SCORE; // 5 points
-  } else if (score >= 70) {
-    return POINTS.QUIZ_PASSING_SCORE; // 2 points
-  }
-  
-  // Below 70% = 0 points - need to study more!
-  return 0;
 }
 
 export type LeaderboardRange = 'day' | 'week' | 'month';

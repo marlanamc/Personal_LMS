@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { POINTS } from "@/lib/gamification/constants";
 import { getActivityPoints, resolveActivityGameUi } from "@/lib/gamification/activity-points";
 import { determineGrammarCompletionPoints } from "@/lib/gamification/grammar-points";
-import { calculateQuizPoints } from "@/lib/gamification";
+import { calculateQuizPoints } from "@/lib/gamification/quiz-points";
 import { getEffectiveStreak, getNextStreakState, shouldAwardStreak } from "@/lib/gamification/streak-utils";
 
 describe("gamification helpers", () => {
