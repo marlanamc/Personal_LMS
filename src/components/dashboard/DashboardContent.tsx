@@ -71,8 +71,11 @@ export function DashboardContent({
             <div className="mt-2.5">
               <div className="h-1 rounded-full bg-bg-surface/70 overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-primary/55 transition-[width] duration-500 ease-out"
-                  style={{ width: `${todaySummary.completionPercent}%` }}
+                  className="h-full rounded-full shadow-[0_0_10px_rgba(214,148,172,0.36)] transition-[width] duration-500 ease-out"
+                  style={{
+                    width: `${todaySummary.completionPercent}%`,
+                    background: 'linear-gradient(90deg, var(--color-accent-mint) 0%, var(--color-accent-sakura) 52%, var(--color-accent-teal) 100%)',
+                  }}
                 />
               </div>
             </div>
