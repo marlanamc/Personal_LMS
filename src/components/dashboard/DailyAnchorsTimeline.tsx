@@ -300,25 +300,27 @@ function MobileAnchorItem({
             <div className="min-w-0 flex-1 flex items-center justify-between gap-3">
               {/* Label and time */}
               <div className="min-w-0 flex-1">
-                <p
-                  className={`
-                    text-base font-semibold leading-snug
-                    ${isDone ? 'text-text' : ''}
-                    ${isActive && !isDone ? 'text-text' : ''}
-                    ${isMissed ? 'text-text-muted/60' : ''}
-                    ${!isDone && !isActive && !isMissed ? 'text-text' : ''}
-                  `}
-                >
-                  {anchor.label}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p
+                    className={`
+                      text-base font-semibold leading-snug
+                      ${isDone ? 'text-text' : ''}
+                      ${isActive && !isDone ? 'text-text' : ''}
+                      ${isMissed ? 'text-text-muted/60' : ''}
+                      ${!isDone && !isActive && !isMissed ? 'text-text' : ''}
+                    `}
+                  >
+                    {anchor.label}
+                  </p>
+                  {isWithinNowWindow(anchor.scheduledTime, nowMinutes) && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-[0.08em] bg-primary/15 text-primary">
+                      Now
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="relative shrink-0 text-right flex flex-col items-end">
-                {isWithinNowWindow(anchor.scheduledTime, nowMinutes) && (
-                  <span className="inline-flex items-center px-2 py-0.5 mb-1 rounded-full text-[10px] font-semibold uppercase tracking-[0.08em] bg-primary/15 text-primary">
-                    Now
-                  </span>
-                )}
                 <button
                   type="button"
                   onClick={(e) => {
