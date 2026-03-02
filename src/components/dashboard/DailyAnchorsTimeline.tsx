@@ -215,35 +215,9 @@ function MobileAnchorItem({
   nextEventLabel,
 }: MobileAnchorItemProps) {
   const [isTimeScrubberOpen, setIsTimeScrubberOpen] = useState(false);
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
-  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const longPressTriggeredRef = useRef(false);
   const Icon = iconByName[anchor.icon] || Moon;
   const isDone = anchor.status === 'done';
   const isMissed = anchor.status === 'missed';
-
-  useEffect(() => {
-    return () => {
-      if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
-      if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
-    };
-  }, []);
-
-  const clearLongPress = useCallback(() => {
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-  }, []);
-
-  const openInfoBubble = useCallback(() => {
-    setIsInfoOpen(true);
-    if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
-    autoCloseTimerRef.current = setTimeout(() => {
-      setIsInfoOpen(false);
-    }, 2600);
-  }, []);
 
   return (
     <div className="relative" style={{ animationDelay: `${index * 80}ms` }}>
@@ -331,70 +305,33 @@ function MobileAnchorItem({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                  }}
-                  onPointerDown={(e) => {
-                    e.stopPropagation();
-                    longPressTriggeredRef.current = false;
-                    clearLongPress();
-                    longPressTimerRef.current = setTimeout(() => {
-                      longPressTriggeredRef.current = true;
-                      openInfoBubble();
-                    }, 380);
-                  }}
-                  onPointerUp={(e) => {
-                    e.stopPropagation();
-                    clearLongPress();
-                    if (longPressTriggeredRef.current) {
-                      longPressTriggeredRef.current = false;
-                      return;
-                    }
-                    setIsTimeScrubberOpen(!isTimeScrubberOpen);
-                  }}
-                  onPointerLeave={clearLongPress}
-                  onPointerCancel={clearLongPress}
-                  onContextMenu={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    openInfoBubble();
+                    setIsTimeScrubberOpen((open) => !open);
                   }}
                   className="text-xl font-medium text-text-secondary tabular-nums hover:text-primary transition-colors"
                   aria-label={`Adjust ${anchor.label} time`}
                 >
                   {formatTimeLabel(anchor.scheduledTime)}
                 </button>
-                {isInfoOpen && (
-                  <div
-                    className={`absolute right-0 z-20 w-36 rounded-2xl border border-border-subtle bg-bg-elevated/95 px-3 py-2 shadow-xl backdrop-blur-sm text-left ${
-                      isFirst ? 'top-full mt-2' : 'bottom-full mb-2'
-                    }`}
-                  >
-                    <p className="text-xl font-semibold leading-tight text-text tabular-nums">
-                      {formatShortTime(anchor.scheduledTime)}
-                    </p>
-                    <p className="mt-1 text-xs text-text-muted">
-                      In: {timeUntilLabel}
-                    </p>
-                    {nextEventLabel && (
-                      <p className="text-xs text-text-muted">
-                        Next event: {nextEventLabel}
-                      </p>
-                    )}
-                    {nowMinutes === null && (
-                      <p className="text-[11px] text-text-muted/70">Live time unavailable</p>
-                    )}
-                    <div
-                      className={`absolute right-5 h-2 w-2 rotate-45 bg-bg-elevated/95 ${
-                        isFirst
-                          ? '-top-1 border-l border-t border-border-subtle'
-                          : '-bottom-1 border-r border-b border-border-subtle'
-                      }`}
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
+
+        {isTimeScrubberOpen && (
+          <div className="mt-2 rounded-2xl border border-border-subtle bg-bg-elevated/90 px-4 py-3 text-center shadow-sm">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted/70">
+              Anchor Time
+            </p>
+            <p className="mt-1 text-2xl font-semibold leading-tight text-text tabular-nums">
+              {formatShortTime(anchor.scheduledTime)}
+            </p>
+            <div className="mt-2 flex flex-col items-center gap-1 text-sm">
+              <p className="text-text-muted">In: <span className="font-medium text-text">{timeUntilLabel}</span></p>
+              {nextEventLabel && <p className="text-text-muted">Next event: <span className="font-medium text-text">{nextEventLabel}</span></p>}
+              {nowMinutes === null && <p className="text-[11px] text-text-muted/70">Live time unavailable</p>}
+            </div>
+          </div>
+        )}
 
         <MobileTimeScrubber
           isOpen={isTimeScrubberOpen}

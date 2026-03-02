@@ -113,15 +113,15 @@ export function MobileTimeScrubber({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: 'auto', opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          initial={{ height: 0, opacity: 0, y: -4 }}
+          animate={{ height: 'auto', opacity: 1, y: 0 }}
+          exit={{ height: 0, opacity: 0, y: -4 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
           className="overflow-hidden"
         >
           <div className="pt-2 pb-1 px-1">
             <div className="mb-2 px-1 text-center">
-              <span className="text-[11px] font-medium text-text-muted/70">Drag to set time</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted/70">Drag To Set Time</span>
             </div>
 
             <div
@@ -157,10 +157,10 @@ export function MobileTimeScrubber({
             <div className="flex justify-center mt-1">
               <span
                 className={`
-                  text-xs font-bold tabular-nums px-2 py-0.5 rounded-md
+                  text-sm font-semibold tabular-nums px-3 py-1 rounded-full border
                   ${isDragging
-                    ? 'bg-primary/20 text-primary'
-                    : 'text-text-muted'
+                    ? 'bg-primary/15 border-primary/30 text-primary'
+                    : 'bg-bg-surface/80 border-border-subtle text-text-muted'
                   }
                 `}
               >
