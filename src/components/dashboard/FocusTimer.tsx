@@ -53,9 +53,11 @@ type FeaturedAssignmentTask = {
 
 const FOCUS_TASKS_STORAGE_KEY = 'focus-timer:tasks:v1';
 const FOCUS_SESSION_HISTORY_STORAGE_KEY = 'focus-timer:sessions:v1';
+const FOCUS_WEEK_WINDOW_STORAGE_KEY = 'focus-timer:week-window:v1';
 const SPOTIFY_CONNECTED_STORAGE_KEY = 'focus-timer:spotify-connected:v1';
 const SPOTIFY_AUTO_TRACK_SELECTED_STORAGE_KEY = 'focus-timer:spotify-auto-track-selected:v1';
 const MAX_STORED_SESSIONS = 20;
+type WeekWindowMode = 'calendar-week' | 'last-7-days';
 
 type CompletedFocusSession = {
     id: string;
@@ -146,6 +148,7 @@ export const FocusTimer = () => {
     const [sessionTitleInput, setSessionTitleInput] = useState('');
     const [hasCustomSessionTitle, setHasCustomSessionTitle] = useState(false);
     const [completedSessions, setCompletedSessions] = useState<CompletedFocusSession[]>([]);
+    const [weekWindowMode, setWeekWindowMode] = useState<WeekWindowMode>('calendar-week');
     const [sessionNotice, setSessionNotice] = useState<string | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
     const prevIsActiveRef = useRef(isActive);
@@ -222,7 +225,20 @@ export const FocusTimer = () => {
         if (persistedAutoTrackSelected) {
             setHasAutoSelectedSpotifyTrack(true);
         }
+
+        const persistedWeekWindow = window.localStorage.getItem(FOCUS_WEEK_WINDOW_STORAGE_KEY);
+        if (persistedWeekWindow === 'calendar-week' || persistedWeekWindow === 'last-7-days') {
+            setWeekWindowMode(persistedWeekWindow);
+        }
     }, []);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        window.localStorage.setItem(FOCUS_WEEK_WINDOW_STORAGE_KEY, weekWindowMode);
+    }, [weekWindowMode]);
 
     useEffect(() => {
         if (typeof window === 'undefined') {
@@ -486,31 +502,77 @@ export const FocusTimer = () => {
         [tasks]
     );
     const sessionTally = useMemo(() => {
-        const totalSessions = completedSessions.length;
-        const totalMinutes = completedSessions.reduce((sum, session) => sum + session.durationMinutes, 0);
-
         const now = new Date();
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
         const tomorrowStart = todayStart + 24 * 60 * 60 * 1000;
-        const sessionsToday = completedSessions.filter((session) => {
-            const ts = new Date(session.completedAt).getTime();
-            return ts >= todayStart && ts < tomorrowStart;
-        }).length;
+        const weekStartDate = new Date(todayStart);
+        const dayOfWeek = weekStartDate.getDay();
+        const daysSinceMonday = (dayOfWeek + 6) % 7;
+        weekStartDate.setDate(weekStartDate.getDate() - daysSinceMonday);
+        const calendarWeekStart = weekStartDate.getTime();
+        const rollingWeekStart = todayStart - 6 * 24 * 60 * 60 * 1000;
+        const activeWeekStart = weekWindowMode === 'last-7-days' ? rollingWeekStart : calendarWeekStart;
 
-        const byDuration = new Map<number, number>();
+        let totalMinutes = 0;
+        let sessionsToday = 0;
+        let minutesToday = 0;
+        let sessionsInSelectedWeekWindow = 0;
+        let minutesInSelectedWeekWindow = 0;
+        const dayRollup = new Map<string, { dayLabel: string; sortTime: number; sessions: number; minutes: number }>();
+
         for (const session of completedSessions) {
-            byDuration.set(session.durationMinutes, (byDuration.get(session.durationMinutes) || 0) + 1);
+            const ts = new Date(session.completedAt).getTime();
+            totalMinutes += session.durationMinutes;
+
+            if (ts >= todayStart && ts < tomorrowStart) {
+                sessionsToday += 1;
+                minutesToday += session.durationMinutes;
+            }
+
+            if (ts >= activeWeekStart && ts < tomorrowStart) {
+                sessionsInSelectedWeekWindow += 1;
+                minutesInSelectedWeekWindow += session.durationMinutes;
+            }
+
+            const date = new Date(ts);
+            const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+            const dayKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+            const existing = dayRollup.get(dayKey);
+
+            if (existing) {
+                existing.sessions += 1;
+                existing.minutes += session.durationMinutes;
+            } else {
+                let dayLabel = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                if (dayStart === todayStart) {
+                    dayLabel = 'Today';
+                } else if (dayStart === todayStart - 24 * 60 * 60 * 1000) {
+                    dayLabel = 'Yesterday';
+                }
+
+                dayRollup.set(dayKey, {
+                    dayLabel,
+                    sortTime: dayStart,
+                    sessions: 1,
+                    minutes: session.durationMinutes,
+                });
+            }
         }
-        const topDurationEntry = Array.from(byDuration.entries()).sort((a, b) => b[1] - a[1])[0] || null;
+
+        const recentDays = Array.from(dayRollup.values())
+            .sort((a, b) => b.sortTime - a.sortTime)
+            .slice(0, 4);
 
         return {
-            totalSessions,
+            totalSessions: completedSessions.length,
             totalMinutes,
             sessionsToday,
-            topDurationMinutes: topDurationEntry?.[0] ?? null,
-            topDurationCount: topDurationEntry?.[1] ?? null,
+            minutesToday,
+            sessionsInSelectedWeekWindow,
+            minutesInSelectedWeekWindow,
+            recentDays,
         };
-    }, [completedSessions]);
+    }, [completedSessions, weekWindowMode]);
 
     const sessionTopic = useMemo(() => {
         const taskText = tasks
@@ -843,40 +905,71 @@ export const FocusTimer = () => {
     const CompletedSessionsPanel = ({ className = '' }: { className?: string }) => {
         if (completedSessions.length === 0) return null;
 
+        const formatMinutesLabel = (minutes: number) => {
+            if (minutes < 60) return `${minutes}m`;
+            const hours = Math.floor(minutes / 60);
+            const remainder = minutes % 60;
+            return remainder === 0 ? `${hours}h` : `${hours}h ${remainder}m`;
+        };
+
         return (
             <div className={`w-full max-w-[320px] rounded-3xl border border-border/60 bg-bg-secondary/70 p-4 ${className}`.trim()}>
                 <div className="flex items-center justify-between gap-2 mb-3">
                     <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">Completed Sessions</h3>
                     <span className="text-xs text-text-muted whitespace-nowrap">{completedSessions.length} total</span>
                 </div>
-                <div className="mb-3 rounded-2xl border border-border/50 bg-bg-elevated/60 px-3 py-2">
-                    <div className="flex items-center justify-between gap-2 text-xs text-text-muted">
-                        <span>Today: {sessionTally.sessionsToday}</span>
-                        <span>{sessionTally.totalMinutes} min focused</span>
+                <div className="mb-3 grid grid-cols-3 gap-2">
+                    <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-2.5 py-2">
+                        <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">Today</p>
+                        <p className="mt-1 text-sm font-semibold text-text">{formatMinutesLabel(sessionTally.minutesToday)}</p>
+                        <p className="text-[11px] text-text-muted">{sessionTally.sessionsToday} sessions</p>
                     </div>
-                    {sessionTally.topDurationMinutes !== null && (sessionTally.topDurationCount || 0) > 1 && (
-                        <p className="mt-1 text-[11px] font-semibold text-text">
-                            {sessionTally.topDurationMinutes} min × {sessionTally.topDurationCount}
-                        </p>
-                    )}
+                    <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-2.5 py-2">
+                        <div className="flex items-center gap-1">
+                            <button
+                                type="button"
+                                onClick={() => setWeekWindowMode('calendar-week')}
+                                className={`rounded-md px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] transition-colors ${
+                                    weekWindowMode === 'calendar-week'
+                                        ? 'bg-primary/20 text-primary'
+                                        : 'text-text-muted hover:bg-bg-light/70'
+                                }`}
+                            >
+                                Week
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setWeekWindowMode('last-7-days')}
+                                className={`rounded-md px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] transition-colors ${
+                                    weekWindowMode === 'last-7-days'
+                                        ? 'bg-primary/20 text-primary'
+                                        : 'text-text-muted hover:bg-bg-light/70'
+                                }`}
+                            >
+                                7D
+                            </button>
+                        </div>
+                        <p className="mt-1 text-sm font-semibold text-text">{formatMinutesLabel(sessionTally.minutesInSelectedWeekWindow)}</p>
+                        <p className="text-[11px] text-text-muted">{sessionTally.sessionsInSelectedWeekWindow} sessions</p>
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-2.5 py-2">
+                        <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">All Time</p>
+                        <p className="mt-1 text-sm font-semibold text-text">{formatMinutesLabel(sessionTally.totalMinutes)}</p>
+                        <p className="text-[11px] text-text-muted">{sessionTally.totalSessions} sessions</p>
+                    </div>
                 </div>
-                <div className="space-y-2">
-                    {completedSessions.slice(0, 3).map((session) => {
-                        const completedAt = new Date(session.completedAt);
-                        const stamp = `${completedAt.toLocaleDateString([], { month: 'short', day: 'numeric' })} · ${completedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
-
-                        return (
-                            <div key={session.id} className="rounded-2xl border border-border/50 bg-bg-elevated/70 px-3 py-2.5">
-                                <div className="flex items-center justify-between gap-2">
-                                    <p className="text-sm font-semibold text-text truncate">{session.title}</p>
-                                    <span className="text-xs font-medium text-text-muted whitespace-nowrap">{session.durationMinutes} min</span>
-                                </div>
-                                <div className="mt-1.5">
-                                    <p className="text-xs text-text-muted">{stamp}</p>
-                                </div>
+                <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-3 py-2.5">
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">Recent Activity</p>
+                    <div className="mt-2 space-y-1.5">
+                        {sessionTally.recentDays.map((day) => (
+                            <div key={day.sortTime} className="flex items-center justify-between gap-3 text-xs">
+                                <span className="text-text">{day.dayLabel}</span>
+                                <span className="text-text-muted">
+                                    {formatMinutesLabel(day.minutes)} • {day.sessions} sessions
+                                </span>
                             </div>
-                        );
-                    })}
+                        ))}
+                    </div>
                 </div>
             </div>
         );
