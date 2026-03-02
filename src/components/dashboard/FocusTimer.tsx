@@ -911,6 +911,7 @@ export const FocusTimer = () => {
             const remainder = minutes % 60;
             return remainder === 0 ? `${hours}h` : `${hours}h ${remainder}m`;
         };
+        const formatSessionsLabel = (count: number) => `${count} session${count === 1 ? '' : 's'}`;
 
         return (
             <div className={`w-full max-w-[320px] rounded-3xl border border-border/60 bg-bg-secondary/70 p-4 ${className}`.trim()}>
@@ -918,49 +919,54 @@ export const FocusTimer = () => {
                     <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">Completed Sessions</h3>
                     <span className="text-xs text-text-muted whitespace-nowrap">{completedSessions.length} total</span>
                 </div>
-                <div className="mb-3 grid grid-cols-3 gap-2">
-                    <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-2.5 py-2">
-                        <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">Today</p>
-                        <p className="mt-1 text-sm font-semibold text-text">{formatMinutesLabel(sessionTally.minutesToday)}</p>
-                        <p className="text-[11px] text-text-muted">{sessionTally.sessionsToday} sessions</p>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-2.5 py-2">
-                        <div className="flex items-center gap-1">
-                            <button
-                                type="button"
-                                onClick={() => setWeekWindowMode('calendar-week')}
-                                className={`rounded-md px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] transition-colors ${
-                                    weekWindowMode === 'calendar-week'
-                                        ? 'bg-primary/20 text-primary'
-                                        : 'text-text-muted hover:bg-bg-light/70'
-                                }`}
-                            >
-                                Week
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setWeekWindowMode('last-7-days')}
-                                className={`rounded-md px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] transition-colors ${
-                                    weekWindowMode === 'last-7-days'
-                                        ? 'bg-primary/20 text-primary'
-                                        : 'text-text-muted hover:bg-bg-light/70'
-                                }`}
-                            >
-                                7D
-                            </button>
-                        </div>
-                        <p className="mt-1 text-sm font-semibold text-text">{formatMinutesLabel(sessionTally.minutesInSelectedWeekWindow)}</p>
-                        <p className="text-[11px] text-text-muted">{sessionTally.sessionsInSelectedWeekWindow} sessions</p>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-2.5 py-2">
-                        <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">All Time</p>
-                        <p className="mt-1 text-sm font-semibold text-text">{formatMinutesLabel(sessionTally.totalMinutes)}</p>
-                        <p className="text-[11px] text-text-muted">{sessionTally.totalSessions} sessions</p>
+                <div className="mb-2 flex items-center justify-end">
+                    <div className="inline-flex items-center rounded-lg border border-border/50 bg-bg-elevated/60 p-0.5">
+                        <button
+                            type="button"
+                            onClick={() => setWeekWindowMode('calendar-week')}
+                            className={`rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors ${
+                                weekWindowMode === 'calendar-week'
+                                    ? 'bg-primary/20 text-primary'
+                                    : 'text-text-muted hover:bg-bg-light/70'
+                            }`}
+                        >
+                            Week
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setWeekWindowMode('last-7-days')}
+                            className={`rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors ${
+                                weekWindowMode === 'last-7-days'
+                                    ? 'bg-primary/20 text-primary'
+                                    : 'text-text-muted hover:bg-bg-light/70'
+                            }`}
+                        >
+                            7D
+                        </button>
                     </div>
                 </div>
-                <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-3 py-2.5">
+                <div className="mb-2.5 grid grid-cols-3 gap-2">
+                    <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-2.5 py-1.5">
+                        <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">Today</p>
+                        <p className="mt-1 text-base font-semibold leading-none text-text">{formatMinutesLabel(sessionTally.minutesToday)}</p>
+                        <p className="mt-0.5 text-[11px] text-text-muted">{formatSessionsLabel(sessionTally.sessionsToday)}</p>
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-2.5 py-1.5">
+                        <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">
+                            {weekWindowMode === 'calendar-week' ? 'Week' : 'Last 7 Days'}
+                        </p>
+                        <p className="mt-1 text-base font-semibold leading-none text-text">{formatMinutesLabel(sessionTally.minutesInSelectedWeekWindow)}</p>
+                        <p className="mt-0.5 text-[11px] text-text-muted">{formatSessionsLabel(sessionTally.sessionsInSelectedWeekWindow)}</p>
+                    </div>
+                    <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-2.5 py-1.5">
+                        <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">All Time</p>
+                        <p className="mt-1 text-base font-semibold leading-none text-text">{formatMinutesLabel(sessionTally.totalMinutes)}</p>
+                        <p className="mt-0.5 text-[11px] text-text-muted">{formatSessionsLabel(sessionTally.totalSessions)}</p>
+                    </div>
+                </div>
+                <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-3 py-2">
                     <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">Recent Activity</p>
-                    <div className="mt-2 space-y-1.5">
+                    <div className="mt-1.5 space-y-1">
                         {sessionTally.recentDays.map((day) => (
                             <div key={day.sortTime} className="flex items-center justify-between gap-3 text-xs">
                                 <span className="text-text">{day.dayLabel}</span>
