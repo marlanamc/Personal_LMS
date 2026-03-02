@@ -29,7 +29,6 @@ export default async function ActivityPage({ params, searchParams }: Props) {
     }
 
     const userId = session.user.id;
-    const userRole = session.user.role;
 
     const activity = await (async () => {
         try {
@@ -276,8 +275,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                                     activityId={id}
                                     assignmentId={assignmentId ?? null}
                                     initialProgress={progressValue}
-                                    userRole={userRole}
-                                />
+                                                                    />
                             )}
                         </div>
                     </div>
@@ -314,8 +312,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                                     activityId={id}
                                     assignmentId={assignmentId ?? null}
                                     initialProgress={progressValue}
-                                    userRole={userRole}
-                                />
+                                                                    />
                             )}
                         </div>
                     </div>
@@ -364,8 +361,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                                         activityId={id}
                                         assignmentId={assignmentId ?? null}
                                         initialProgress={progressValue}
-                                        userRole={userRole}
-                                    />
+                                                                            />
                                 )}
                             </div>
                             <h1 className="text-base sm:text-lg font-bold text-text line-clamp-2 leading-snug">
@@ -403,8 +399,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                                     activityId={id}
                                     assignmentId={assignmentId ?? null}
                                     initialProgress={progressValue}
-                                    userRole={userRole}
-                                />
+                                                                    />
                             )}
                         </div>
                     </div>
@@ -437,8 +432,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                                     activityId={id}
                                     assignmentId={assignmentId ?? null}
                                     initialProgress={progressValue}
-                                    userRole={userRole}
-                                />
+                                                                    />
                             )}
                         </div>
                         <h1 className="text-base sm:text-lg font-bold text-text line-clamp-2 leading-snug">
@@ -477,8 +471,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
                                 activityId={id}
                                 assignmentId={assignmentId ?? null}
                                 initialProgress={progressValue}
-                                userRole={userRole}
-                            />
+                                                            />
                         )}
                     </div>
                 </div>

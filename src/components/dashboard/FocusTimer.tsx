@@ -148,6 +148,7 @@ export const FocusTimer = () => {
     const [sessionTitleInput, setSessionTitleInput] = useState('');
     const [hasCustomSessionTitle, setHasCustomSessionTitle] = useState(false);
     const [completedSessions, setCompletedSessions] = useState<CompletedFocusSession[]>([]);
+    const [isClearingSessionData, setIsClearingSessionData] = useState(false);
     const [weekWindowMode, setWeekWindowMode] = useState<WeekWindowMode>('calendar-week');
     const [sessionNotice, setSessionNotice] = useState<string | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -834,6 +835,37 @@ export const FocusTimer = () => {
         }
     }, []);
 
+    const clearSessionData = useCallback(async () => {
+        if (typeof window === 'undefined' || isClearingSessionData) {
+            return;
+        }
+
+        const shouldClear = window.confirm('Clear all session history? This cannot be undone.');
+        if (!shouldClear) {
+            return;
+        }
+
+        setIsClearingSessionData(true);
+
+        try {
+            const response = await fetch('/api/focus-timer/sessions', {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error('Unable to clear focus sessions');
+            }
+
+            setCompletedSessions([]);
+            window.localStorage.removeItem(FOCUS_SESSION_HISTORY_STORAGE_KEY);
+            setSessionNotice('Session history cleared.');
+        } catch {
+            setSessionNotice('Could not clear session history right now. Please try again.');
+        } finally {
+            setIsClearingSessionData(false);
+        }
+    }, [isClearingSessionData]);
+
     // Variables for the SVG Ring
     const radius = 120;
     const strokeWidth = 18;
@@ -1073,15 +1105,11 @@ export const FocusTimer = () => {
                         {/* Clear data button */}
                         <button
                             type="button"
-                            onClick={() => {
-                                if (window.confirm('Clear all session history? This cannot be undone.')) {
-                                    setCompletedSessions([]);
-                                    window.localStorage.removeItem(FOCUS_SESSION_HISTORY_STORAGE_KEY);
-                                }
-                            }}
+                            onClick={() => void clearSessionData()}
+                            disabled={isClearingSessionData}
                             className="w-full py-1.5 text-[10px] font-medium text-text-muted hover:text-error transition-colors"
                         >
-                            Clear session data
+                            {isClearingSessionData ? 'Clearing...' : 'Clear session data'}
                         </button>
                     </div>
                 </div>

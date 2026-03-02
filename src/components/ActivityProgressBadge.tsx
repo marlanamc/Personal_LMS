@@ -6,14 +6,12 @@ type Props = {
     activityId: string;
     assignmentId?: string | null;
     initialProgress?: number | null;
-    userRole?: string | null;
 };
 
 export function ActivityProgressBadge({
     activityId,
     assignmentId = null,
     initialProgress = 0,
-    userRole: _userRole, // Intentionally unused - reserved for future role-based UI
 }: Props) {
     const [progress, setProgress] = useState(initialProgress ?? 0);
     const normalizedAssignmentId =

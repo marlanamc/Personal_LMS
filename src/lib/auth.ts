@@ -1,5 +1,4 @@
 import { NextAuthOptions } from "next-auth";
-import { UserRole } from "@/types/next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import bcrypt from "bcryptjs";
@@ -69,7 +68,6 @@ export const authOptions: NextAuthOptions = {
                     logger.info('User logged in successfully', {
                         username: user.username,
                         userId: user.id,
-                        role: user.role,
                     });
 
                     // Track login for activity calendar
@@ -78,8 +76,6 @@ export const authOptions: NextAuthOptions = {
                             userId: user.id,
                         });
                     });
-
-                    const role = user.role === "teacher" ? "teacher" : "student";
 
                     // Detect if login is from mobile device
                     const headersList = await headers();
@@ -91,7 +87,6 @@ export const authOptions: NextAuthOptions = {
                         email: null,
                         name: user.name ?? user.username,
                         username: user.username,
-                        role,
                         mustChangePassword: user.mustChangePassword,
                         isMobile,
                     };
@@ -116,7 +111,6 @@ export const authOptions: NextAuthOptions = {
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
-                token.role = user.role;
                 token.username = user.username;
                 token.mustChangePassword = user.mustChangePassword;
                 token.isMobile = user.isMobile;
@@ -134,7 +128,6 @@ export const authOptions: NextAuthOptions = {
         async session({ session, token }) {
             if (session.user) {
                 session.user.id = (token.id as string) ?? session.user.id;
-                session.user.role = (token.role as UserRole) ?? session.user.role;
                 session.user.username = (token.username as string) ?? session.user.username;
                 session.user.mustChangePassword =
                     (token.mustChangePassword as boolean) ?? session.user.mustChangePassword;

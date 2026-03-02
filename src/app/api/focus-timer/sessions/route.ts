@@ -226,3 +226,26 @@ export async function POST(request: NextRequest) {
     return handleApiError(error, "api/focus-timer/sessions:POST");
   }
 }
+
+export async function DELETE() {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const result = await prisma.pointsLedger.deleteMany({
+      where: {
+        userId: session.user.id,
+        source: SOURCE,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      deletedCount: result.count,
+    });
+  } catch (error) {
+    return handleApiError(error, "api/focus-timer/sessions:DELETE");
+  }
+}

@@ -67,14 +67,26 @@ export async function POST(req: NextRequest) {
       ? calculateQuizPoints(score)
       : getActivityPoints(activityTypeFromDb, submission.activity ?? undefined);
 
-    // Award points
-    await awardPoints(userId, points, `Completed activity ${submission.activityId}`);
-
-    // Update submission with points awarded
-    await prisma.submission.update({
-      where: { id: submissionId },
+    // Use transaction to prevent race conditions (double-awarding points)
+    // The WHERE clause ensures we only update if points haven't been awarded yet
+    const updatedSubmission = await prisma.submission.updateMany({
+      where: {
+        id: submissionId,
+        pointsAwarded: 0  // Only update if no points awarded yet (atomic check)
+      },
       data: { pointsAwarded: points },
     });
+
+    // If no rows updated, points were already awarded by a concurrent request
+    if (updatedSubmission.count === 0) {
+      return NextResponse.json({
+        message: 'Points already awarded for this submission',
+        pointsAwarded: submission.pointsAwarded,
+      });
+    }
+
+    // Award points to user (only happens if submission update succeeded)
+    await awardPoints(userId, points, `Completed activity ${submission.activityId}`);
 
     // Update streak
     const streakResult = await updateStreak(userId, points);

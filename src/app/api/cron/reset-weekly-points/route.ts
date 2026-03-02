@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { resetWeeklyPoints } from "@/lib/gamification";
 import { handleApiError } from "@/lib/api-error";
+import crypto from "crypto";
 
 /**
  * Cron job to reset weekly leaderboard points
@@ -22,10 +23,18 @@ export async function GET(request: NextRequest) {
         );
     }
 
-    // Verify this request is from Vercel Cron
-    const authHeader = request.headers.get('authorization');
+    // Verify this request is from Vercel Cron using timing-safe comparison
+    const authHeader = request.headers.get('authorization') ?? '';
+    const expectedHeader = `Bearer ${cronSecret}`;
 
-    if (authHeader !== `Bearer ${cronSecret}`) {
+    // Use timing-safe comparison to prevent timing attacks
+    const isValidLength = authHeader.length === expectedHeader.length;
+    const isValidSecret = isValidLength && crypto.timingSafeEqual(
+        Buffer.from(authHeader),
+        Buffer.from(expectedHeader)
+    );
+
+    if (!isValidSecret) {
         console.warn('[Cron] Unauthorized cron attempt - invalid authorization header');
         return NextResponse.json(
             { error: 'Unauthorized' },

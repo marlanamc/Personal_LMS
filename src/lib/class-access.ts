@@ -1,70 +1,47 @@
 import { prisma } from "@/lib/prisma";
 
+/**
+ * Get all class IDs owned by the user.
+ * Simplified for personal LMS - no enrollment concept needed.
+ */
 export async function getAccessibleClassIds(userId: string): Promise<string[]> {
-    const [ownedClasses, enrollments] = await Promise.all([
-        prisma.class.findMany({
-            where: { teacherId: userId },
-            select: { id: true },
-        }),
-        prisma.classEnrollment.findMany({
-            where: { studentId: userId },
-            select: { classId: true },
-        }),
-    ]);
+    const ownedClasses = await prisma.class.findMany({
+        where: { ownerId: userId },
+        select: { id: true },
+    });
 
-    return Array.from(
-        new Set([
-            ...ownedClasses.map((row) => row.id),
-            ...enrollments.map((row) => row.classId),
-        ])
-    );
+    return ownedClasses.map((row) => row.id);
 }
 
+/**
+ * Get the user's primary (first created) class ID.
+ */
 export async function getPrimaryClassId(userId: string): Promise<string | null> {
-    const [ownedClass, enrollment] = await Promise.all([
-        prisma.class.findFirst({
-            where: { teacherId: userId },
-            orderBy: { createdAt: "asc" },
-            select: { id: true },
-        }),
-        prisma.classEnrollment.findFirst({
-            where: { studentId: userId },
-            orderBy: { joinedAt: "asc" },
-            select: { classId: true },
-        }),
-    ]);
+    const ownedClass = await prisma.class.findFirst({
+        where: { ownerId: userId },
+        orderBy: { createdAt: "asc" },
+        select: { id: true },
+    });
 
-    return ownedClass?.id ?? enrollment?.classId ?? null;
+    return ownedClass?.id ?? null;
 }
 
+/**
+ * Check if user can access a class (owns it).
+ */
 export async function canAccessClass(userId: string, classId: string): Promise<boolean> {
     const classItem = await prisma.class.findUnique({
         where: { id: classId },
-        select: { teacherId: true },
+        select: { ownerId: true },
     });
 
-    if (!classItem) return false;
-    if (classItem.teacherId === userId) return true;
-
-    const enrollment = await prisma.classEnrollment.findUnique({
-        where: {
-            classId_studentId: {
-                classId,
-                studentId: userId,
-            },
-        },
-        select: { classId: true },
-    });
-
-    return Boolean(enrollment);
+    return classItem?.ownerId === userId;
 }
 
+/**
+ * Check if user can manage a class (owns it).
+ * For personal LMS, this is the same as canAccessClass.
+ */
 export async function canManageClass(userId: string, classId: string): Promise<boolean> {
-    const classItem = await prisma.class.findUnique({
-        where: { id: classId },
-        select: { teacherId: true },
-    });
-
-    if (!classItem) return false;
-    return classItem.teacherId === userId;
+    return canAccessClass(userId, classId);
 }

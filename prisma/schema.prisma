@@ -12,7 +12,6 @@ model User {
   username              String               @unique
   name                  String?
   password              String
-  role                  String               @default("student")
   mustChangePassword    Boolean              @default(true)
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
@@ -26,8 +25,7 @@ model User {
   avatarColor           String?
   activityProgress      ActivityProgress[]
   calendarEventsCreated CalendarEvent[]
-  createdClasses        Class[]              @relation("ClassTeacher")
-  classes               ClassEnrollment[]
+  ownedClasses          Class[]              @relation("ClassOwner")
   dailyChallenges       UserDailyChallenge[]
   pointsLedger          PointsLedger[]
   quizResponses         QuizResponse[]
@@ -37,9 +35,7 @@ model User {
   achievements          UserAchievement[]
   utilitySubjectStates  UtilitySubjectState[]
 
-  @@index([role])
   @@index([weeklyPoints])
-  @@index([role, weeklyPoints])
 }
 
 model Class {
@@ -47,16 +43,14 @@ model Class {
   name           String
   description    String?
   announcement   String?
-  code           String            @unique
-  teacherId      String
+  ownerId        String
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
   assignments    Assignment[]
   calendarEvents CalendarEvent[]
-  teacher        User              @relation("ClassTeacher", fields: [teacherId], references: [id])
-  enrollments    ClassEnrollment[]
+  owner          User              @relation("ClassOwner", fields: [ownerId], references: [id])
 
-  @@index([teacherId])
+  @@index([ownerId])
 }
 
 model SpotifyConnection {
@@ -73,17 +67,6 @@ model SpotifyConnection {
 
   @@index([spotifyUserId])
   @@index([expiresAt])
-}
-
-model ClassEnrollment {
-  id        String   @id @default(cuid())
-  classId   String
-  studentId String
-  joinedAt  DateTime @default(now())
-  class     Class    @relation(fields: [classId], references: [id])
-  student   User     @relation(fields: [studentId], references: [id])
-
-  @@unique([classId, studentId])
 }
 
 model Activity {
