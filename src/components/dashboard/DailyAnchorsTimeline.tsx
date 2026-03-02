@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { Reorder, useDragControls, motion } from 'framer-motion';
 import {
   BookOpen,
   Briefcase,
@@ -150,6 +151,224 @@ function arraysEqualByValue(a?: DayOfWeek[], b?: DayOfWeek[]): boolean {
   const right = b ? [...b].sort((x, y) => x - y) : [];
   if (left.length !== right.length) return false;
   return left.every((value, idx) => value === right[idx]);
+}
+
+// River Flow color schemes for different icon types
+function getRiverFlowGradient(icon: AnchorIcon): { from: string; to: string; glow: string } {
+  const gradients: Record<string, { from: string; to: string; glow: string }> = {
+    sunrise: { from: 'from-amber-400/20', to: 'to-orange-300/10', glow: 'rgba(251, 191, 36, 0.3)' },
+    coffee: { from: 'from-amber-400/20', to: 'to-orange-300/10', glow: 'rgba(251, 191, 36, 0.3)' },
+    dumbbell: { from: 'from-emerald-400/20', to: 'to-teal-300/10', glow: 'rgba(52, 211, 153, 0.3)' },
+    'flower-2': { from: 'from-cyan-400/20', to: 'to-teal-300/10', glow: 'rgba(34, 211, 238, 0.3)' },
+    briefcase: { from: 'from-sky-400/20', to: 'to-blue-300/10', glow: 'rgba(56, 189, 248, 0.3)' },
+    code: { from: 'from-sky-400/20', to: 'to-blue-300/10', glow: 'rgba(56, 189, 248, 0.3)' },
+    'book-open': { from: 'from-indigo-400/20', to: 'to-violet-300/10', glow: 'rgba(129, 140, 248, 0.3)' },
+    calendar: { from: 'from-indigo-400/20', to: 'to-violet-300/10', glow: 'rgba(129, 140, 248, 0.3)' },
+    target: { from: 'from-purple-400/20', to: 'to-fuchsia-300/10', glow: 'rgba(192, 132, 252, 0.3)' },
+    heart: { from: 'from-rose-400/20', to: 'to-pink-300/10', glow: 'rgba(251, 113, 133, 0.3)' },
+    moon: { from: 'from-violet-400/20', to: 'to-purple-300/10', glow: 'rgba(167, 139, 250, 0.3)' },
+  };
+  return gradients[icon] || { from: 'from-primary/20', to: 'to-accent/10', glow: 'rgba(212, 138, 166, 0.3)' };
+}
+
+interface MobileAnchorItemProps {
+  anchor: {
+    id: AnchorId;
+    label: string;
+    icon: AnchorIcon;
+    scheduledTime: string;
+    status: 'waiting' | 'done' | 'missed';
+  };
+  isActive: boolean;
+  isLast: boolean;
+  isFirst: boolean;
+  isLoaded: boolean;
+  onToggle: () => void;
+  iconByName: Record<AnchorIcon, typeof Sunrise>;
+  index: number;
+}
+
+function MobileAnchorItem({ anchor, isActive, isLast, isFirst, isLoaded, onToggle, iconByName, index }: MobileAnchorItemProps) {
+  const dragControls = useDragControls();
+  const Icon = iconByName[anchor.icon] || Moon;
+  const isDone = anchor.status === 'done';
+  const isMissed = anchor.status === 'missed';
+  const timeUntil = getTimeUntil(anchor.scheduledTime);
+  const gradient = getRiverFlowGradient(anchor.icon);
+  const statusLabel = isDone ? 'Complete' : isMissed ? 'Missed' : timeUntil;
+
+  return (
+    <Reorder.Item
+      value={anchor}
+      dragListener={false}
+      dragControls={dragControls}
+      className="relative"
+      style={{ animationDelay: `${index * 80}ms` }}
+      whileDrag={{
+        scale: 1.02,
+        boxShadow: '0 12px 28px rgba(0,0,0,0.2)',
+        zIndex: 50,
+      }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+    >
+      {/* River Flow Connector - curved SVG path */}
+      {!isFirst && (
+        <svg
+          className="river-flow-connector absolute -top-5 left-6 w-8 h-6 overflow-visible"
+          viewBox="0 0 32 24"
+          fill="none"
+          aria-hidden
+        >
+          <path
+            d="M16 0 C16 8, 8 12, 16 24"
+            stroke="url(#riverGradient)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            className={`river-flow-path ${isDone || isActive ? 'river-flow-path-active' : 'river-flow-path-future'}`}
+          />
+          <defs>
+            <linearGradient id="riverGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="var(--color-accent-teal)" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="var(--color-accent-sakura)" stopOpacity="0.3" />
+            </linearGradient>
+          </defs>
+        </svg>
+      )}
+
+      <div className={`relative flex items-start gap-2 ${isLast ? 'pb-0' : 'pb-5'}`}>
+        {/* Drag Handle - repositioned */}
+        <motion.div
+          className="touch-none cursor-grab active:cursor-grabbing p-1 mt-3 text-text-muted/30 hover:text-text-muted/60 transition-colors"
+          onPointerDown={(e) => dragControls.start(e)}
+          whileTap={{ scale: 0.95 }}
+        >
+          <GripVertical size={14} />
+        </motion.div>
+
+        {/* Main Card */}
+        <button
+          type="button"
+          onClick={onToggle}
+          disabled={!isLoaded}
+          className={`
+            river-flow-card group relative flex-1 min-w-0 rounded-2xl p-3 text-left
+            transition-all duration-300 ease-out overflow-hidden
+            ${isDone ? 'river-flow-card-done' : ''}
+            ${isActive && !isDone ? 'river-flow-card-active' : ''}
+            ${isMissed ? 'river-flow-card-missed' : ''}
+            ${!isDone && !isActive && !isMissed ? 'river-flow-card-future' : ''}
+            ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+          `}
+        >
+          {/* Gradient background based on icon */}
+          <div
+            className={`absolute inset-0 bg-gradient-to-br ${gradient.from} ${gradient.to} opacity-60 transition-opacity duration-300 group-hover:opacity-80`}
+            aria-hidden
+          />
+
+          {/* Shimmer effect for active anchor */}
+          {isActive && !isDone && !isMissed && (
+            <div className="river-flow-shimmer absolute inset-0 pointer-events-none" aria-hidden />
+          )}
+
+          {/* Ripple effect container for completed */}
+          {isDone && (
+            <div className="river-flow-ripple absolute inset-0 pointer-events-none" aria-hidden />
+          )}
+
+          <div className="relative flex items-center gap-3">
+            {/* Icon Orb */}
+            <div
+              className={`
+                river-flow-orb relative w-11 h-11 rounded-xl flex items-center justify-center shrink-0
+                transition-all duration-300
+                ${isDone
+                  ? 'bg-gradient-to-br from-secondary to-secondary/80 text-white shadow-lg'
+                  : isMissed
+                    ? 'bg-bg-surface/60 text-text-muted/50'
+                    : isActive
+                      ? 'bg-gradient-to-br from-primary/90 to-accent/70 text-white shadow-lg'
+                      : 'bg-bg-surface/80 text-text-muted border border-border-subtle/50'
+                }
+              `}
+              style={isActive && !isDone ? { boxShadow: `0 4px 20px ${gradient.glow}` } : undefined}
+            >
+              {isDone ? (
+                <motion.div
+                  initial={{ scale: 0, rotate: -45 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                >
+                  <Check size={20} strokeWidth={2.5} />
+                </motion.div>
+              ) : (
+                <Icon
+                  size={20}
+                  strokeWidth={1.8}
+                  className={`transition-transform duration-300 ${isActive ? 'scale-110' : ''}`}
+                />
+              )}
+
+              {/* Active pulse ring */}
+              {isActive && !isDone && !isMissed && (
+                <span className="absolute inset-0 rounded-xl ring-2 ring-primary/40 animate-ping opacity-75" aria-hidden />
+              )}
+            </div>
+
+            {/* Content */}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p
+                    className={`
+                      text-[0.95rem] font-semibold leading-tight truncate
+                      ${isDone ? 'text-text-muted line-through decoration-secondary/50' : ''}
+                      ${isActive && !isDone ? 'text-text' : ''}
+                      ${isMissed ? 'text-text-muted/60' : ''}
+                      ${!isDone && !isActive && !isMissed ? 'text-text-secondary' : ''}
+                    `}
+                  >
+                    {anchor.label}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[11px] text-text-muted tabular-nums">
+                      {formatTimeLabel(anchor.scheduledTime)}
+                    </span>
+                    <span className="text-text-muted/40">·</span>
+                    <span
+                      className={`
+                        text-[11px] font-medium
+                        ${isDone ? 'text-secondary' : ''}
+                        ${isMissed ? 'text-error/70' : ''}
+                        ${isActive && !isDone && !isMissed ? 'text-primary font-semibold' : ''}
+                        ${!isDone && !isActive && !isMissed ? 'text-text-muted' : ''}
+                      `}
+                    >
+                      {statusLabel}
+                    </span>
+                  </div>
+                </div>
+
+                {/* NOW badge for active */}
+                {isActive && !isDone && !isMissed && (
+                  <span className="river-flow-now-badge shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary text-white shadow-sm">
+                    Now
+                  </span>
+                )}
+
+                {/* Done checkmark badge */}
+                {isDone && (
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-secondary/20 flex items-center justify-center">
+                    <Check size={12} strokeWidth={3} className="text-secondary" />
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </button>
+      </div>
+    </Reorder.Item>
+  );
 }
 
 export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps) {
@@ -561,96 +780,51 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
             </div>
           </div>
 
-          <div className="sm:hidden mt-1.5">
+          {/* Mobile River Flow Layout */}
+          <div className="sm:hidden mt-2">
             {sortedAnchors.length === 0 ? (
-              <div className="rounded-xl border border-border-subtle bg-bg-elevated px-3 py-3">
-                <span className="text-xs text-text-muted">No anchors scheduled for today</span>
+              <div className="rounded-2xl border border-border-subtle bg-bg-elevated/50 px-4 py-6 text-center">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center">
+                  <Sunrise size={24} className="text-primary/60" />
+                </div>
+                <p className="text-sm text-text-muted">No anchors scheduled for today</p>
+                <p className="text-xs text-text-muted/60 mt-1">Tap the pencil to add your daily anchors</p>
               </div>
             ) : (
-              <div className="relative">
-                <div className="daily-anchors-mobile-track-line absolute left-[16px] top-3 bottom-3 w-[2px] rounded-full" />
-                {sortedAnchors.map((anchor, idx) => {
-                  const Icon = iconByName[anchor.icon] || Moon;
-                  const isActive = anchor.id === activeAnchor.id;
-                  const isDone = anchor.status === 'done';
-                  const isMissed = anchor.status === 'missed';
-                  const timeUntil = getTimeUntil(anchor.scheduledTime);
-                  const isLast = idx === sortedAnchors.length - 1;
-                  const stateClass = isDone
-                    ? 'is-done'
-                    : isMissed
-                      ? 'is-missed'
-                      : isActive
-                        ? 'is-active'
-                        : 'is-future';
-                  const statusLabel = isDone ? 'Done' : isMissed ? 'Missed' : timeUntil;
+              <div className="relative river-flow-container">
+                {/* Progress Track - flows down the left side */}
+                <div className="river-flow-track absolute left-[26px] top-6 bottom-6 w-[3px] rounded-full overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-b from-border-subtle/40 via-border-subtle/20 to-border-subtle/40" />
+                  <motion.div
+                    className="river-flow-track-progress absolute top-0 left-0 right-0 bg-gradient-to-b from-secondary via-primary to-accent-teal rounded-full"
+                    initial={{ height: '0%' }}
+                    animate={{ height: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                  />
+                </div>
 
-                  return (
-                    <div key={`mobile-timeline-${anchor.id}`} className={`${isLast ? '' : 'mb-2.5'} relative flex items-center gap-2`}>
-                      <button
-                        type="button"
-                        onClick={() => toggleAnchor(anchor.id)}
-                        disabled={!isLoaded}
-                        className={`
-                          flex-1 min-w-0 min-h-[52px] flex items-start gap-3 rounded-2xl px-2 py-2.5 text-left
-                          transition-colors duration-200
-                          ${
-                            isActive
-                              ? 'bg-primary/8'
-                              : isDone
-                                ? 'bg-secondary/6'
-                                : 'bg-transparent'
-                          }
-                          ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                        `}
-                      >
-                        <span className="relative mt-0.5 w-8 h-8 shrink-0 flex items-center justify-center">
-                          <span
-                            className={`
-                              daily-anchors-mobile-orb relative w-8 h-8 rounded-full flex items-center justify-center
-                              transition-all duration-200 ${stateClass}
-                              ${!isDone && !isMissed && !isActive ? 'scale-[0.92] opacity-80' : ''}
-                            `}
-                          >
-                            {isDone ? (
-                              <Check size={15} strokeWidth={3} />
-                            ) : (
-                              <Icon
-                                size={15}
-                                strokeWidth={1.8}
-                                className={isMissed ? 'opacity-55' : !isActive ? 'opacity-70' : 'opacity-90'}
-                              />
-                            )}
-                          </span>
-                        </span>
-
-                        <span className="min-w-0 pt-0.5">
-                          <span
-                            className={`
-                              block text-[0.95rem] max-[390px]:text-[0.9rem] font-semibold leading-tight truncate
-                              ${isActive ? 'text-text' : 'text-text-muted/95'}
-                            `}
-                          >
-                            {anchor.label}
-                          </span>
-                          {isActive && !isDone && !isMissed && (
-                            <span className="daily-anchors-now-label block text-meta leading-tight uppercase tracking-[0.14em] text-primary/90 mt-0.5">
-                              NOW
-                            </span>
-                          )}
-                          <span
-                            className={`
-                              block text-[11px] max-[390px]:text-[10px] leading-snug mt-0.5
-                              ${isDone ? 'text-secondary' : isMissed ? 'text-error/70' : 'text-text-muted'}
-                            `}
-                          >
-                            {formatTimeLabel(anchor.scheduledTime)} · {statusLabel}
-                          </span>
-                        </span>
-                      </button>
-                    </div>
-                  );
-                })}
+                <Reorder.Group
+                  axis="y"
+                  values={sortedAnchors}
+                  onReorder={(reordered) => {
+                    setTodayAnchors(reordered);
+                  }}
+                  className="relative space-y-0"
+                >
+                  {sortedAnchors.map((anchor, idx) => (
+                    <MobileAnchorItem
+                      key={anchor.id}
+                      anchor={anchor}
+                      isActive={anchor.id === activeAnchor.id}
+                      isFirst={idx === 0}
+                      isLast={idx === sortedAnchors.length - 1}
+                      isLoaded={isLoaded}
+                      onToggle={() => toggleAnchor(anchor.id)}
+                      iconByName={iconByName}
+                      index={idx}
+                    />
+                  ))}
+                </Reorder.Group>
               </div>
             )}
           </div>

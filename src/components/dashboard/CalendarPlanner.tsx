@@ -305,96 +305,96 @@ export default function CalendarPlanner({ events, storageScope = "default" }: Ca
         >
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">Timeline</p>
           <div className="flex items-center justify-between mt-2 mb-3">
-            <h2 className="text-lg font-semibold text-text leading-tight">
-              {MONTH_NAMES[viewMonth]} {viewYear}
-            </h2>
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                aria-label="Previous month"
-                onClick={() => setViewDate(new Date(viewYear, viewMonth - 1, 1))}
-                className="w-8 h-8 rounded-full bg-white/80 shadow-sm text-text border border-white/70 hover:bg-white dark:bg-bg-elevated dark:border-border-subtle dark:text-text-secondary dark:hover:text-text dark:hover:bg-bg-secondary transition-all flex items-center justify-center active:scale-95"
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <button
-                type="button"
-                aria-label="Next month"
-                onClick={() => setViewDate(new Date(viewYear, viewMonth + 1, 1))}
-                className="w-8 h-8 rounded-full bg-white/80 shadow-sm text-text border border-white/70 hover:bg-white dark:bg-bg-elevated dark:border-border-subtle dark:text-text-secondary dark:hover:text-text dark:hover:bg-bg-secondary transition-all flex items-center justify-center active:scale-95"
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-white/70 border border-white/60 dark:bg-bg-elevated/70 dark:border-border-subtle/60 px-3 py-3 sm:px-4 sm:py-4">
-            <div className="grid grid-cols-7 gap-1.5 text-center mb-2">
-              {WEEKDAY_LABELS.map((label) => (
-                <div key={label} className="text-[11px] font-medium text-text-muted">
-                  {label.charAt(0)}
-                </div>
-              ))}
+              <h2 className="text-lg font-semibold text-text leading-tight">
+                {MONTH_NAMES[viewMonth]} {viewYear}
+              </h2>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  aria-label="Previous month"
+                  onClick={() => setViewDate(new Date(viewYear, viewMonth - 1, 1))}
+                  className="w-8 h-8 rounded-full bg-white/80 shadow-sm text-text border border-white/70 hover:bg-white dark:bg-bg-elevated dark:border-border-subtle dark:text-text-secondary dark:hover:text-text dark:hover:bg-bg-secondary transition-all flex items-center justify-center active:scale-95"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next month"
+                  onClick={() => setViewDate(new Date(viewYear, viewMonth + 1, 1))}
+                  className="w-8 h-8 rounded-full bg-white/80 shadow-sm text-text border border-white/70 hover:bg-white dark:bg-bg-elevated dark:border-border-subtle dark:text-text-secondary dark:hover:text-text dark:hover:bg-bg-secondary transition-all flex items-center justify-center active:scale-95"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-1.5 text-center">
-              {dayCells.map((day, index) => {
-                if (!day) return <div key={`blank-${index}`} className="h-9 w-9 mx-auto" />;
-                const cellDate = dayStart(new Date(viewYear, viewMonth, day));
-                const key = dateKey(cellDate);
-                const isToday = key === dateKey(today);
-                const isSelected = key === selectedKey;
-                const dayEvents = eventsByDate.get(key) || [];
-                const dayFlags = classifyDay(dayEvents);
-                const hasEvent = dayFlags.hasQuiz || dayFlags.hasDue || dayFlags.hasEvent || dayFlags.hasHoliday;
-                const firstEventColor = dayEvents[0] ? getCalendarMarkerColor(dayEvents[0].type) : undefined;
+            <div className="rounded-2xl bg-white/70 border border-white/60 dark:bg-bg-elevated/70 dark:border-border-subtle/60 px-3 py-3 sm:px-4 sm:py-4">
+              <div className="grid grid-cols-7 gap-1.5 text-center mb-2">
+                {WEEKDAY_LABELS.map((label) => (
+                  <div key={label} className="text-[11px] font-medium text-text-muted">
+                    {label.charAt(0)}
+                  </div>
+                ))}
+              </div>
 
-                const baseClass = "relative w-9 h-9 flex items-center justify-center rounded-full mx-auto text-sm font-medium transition-all cursor-pointer";
-                const emptyClass = "text-text-secondary hover:bg-bg-elevated/50 hover:text-text";
+              <div className="grid grid-cols-7 gap-1.5 text-center">
+                {dayCells.map((day, index) => {
+                  if (!day) return <div key={`blank-${index}`} className="h-9 w-9 mx-auto" />;
+                  const cellDate = dayStart(new Date(viewYear, viewMonth, day));
+                  const key = dateKey(cellDate);
+                  const isToday = key === dateKey(today);
+                  const isSelected = key === selectedKey;
+                  const dayEvents = eventsByDate.get(key) || [];
+                  const dayFlags = classifyDay(dayEvents);
+                  const hasEvent = dayFlags.hasQuiz || dayFlags.hasDue || dayFlags.hasEvent || dayFlags.hasHoliday;
+                  const firstEventColor = dayEvents[0] ? getCalendarMarkerColor(dayEvents[0].type) : undefined;
 
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setSelectedDate(cellDate)}
-                    className={`${baseClass} ${!isToday && !isSelected && !hasEvent ? emptyClass : ""} ${
-                      isToday && !isSelected ? "ring-1 ring-[#e8b69e]" : ""
-                    }`}
-                    style={
-                      isSelected
-                        ? {
-                            background: "linear-gradient(145deg, #d89073 0%, #c97b5e 100%)",
-                            color: "white",
-                            boxShadow: "0 6px 14px rgba(201,123,94,0.28)",
-                          }
-                        : undefined
-                    }
-                  >
-                    {day}
-                    {hasEvent && (
-                      <span
-                        className={`absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white/90" : ""}`}
-                        style={!isSelected ? { backgroundColor: firstEventColor } : undefined}
-                      />
-                    )}
-                    {isToday && !isSelected && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 rounded-full bg-[#d89073]/80" />}
-                  </button>
-                );
-              })}
+                  const baseClass = "relative w-9 h-9 flex items-center justify-center rounded-full mx-auto text-sm font-medium transition-all cursor-pointer";
+                  const emptyClass = "text-text-secondary hover:bg-bg-elevated/50 hover:text-text";
+
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setSelectedDate(cellDate)}
+                      className={`${baseClass} ${!isToday && !isSelected && !hasEvent ? emptyClass : ""} ${
+                        isToday && !isSelected ? "ring-1 ring-[#e8b69e]" : ""
+                      }`}
+                      style={
+                        isSelected
+                          ? {
+                              background: "linear-gradient(145deg, #d89073 0%, #c97b5e 100%)",
+                              color: "white",
+                              boxShadow: "0 6px 14px rgba(201,123,94,0.28)",
+                            }
+                          : undefined
+                      }
+                    >
+                      {day}
+                      {hasEvent && (
+                        <span
+                          className={`absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white/90" : ""}`}
+                          style={!isSelected ? { backgroundColor: firstEventColor } : undefined}
+                        />
+                      )}
+                      {isToday && !isSelected && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 rounded-full bg-[#d89073]/80" />}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedDate(today);
-              setViewDate(new Date(today.getFullYear(), today.getMonth(), 1));
-            }}
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold bg-white/80 border border-white/70 shadow-sm text-text hover:bg-white dark:bg-bg-elevated dark:border-border-subtle dark:text-text-secondary dark:hover:text-text dark:hover:bg-bg-secondary transition-all"
-          >
-            <CalendarIcon className="w-4 h-4" />
-            JUMP TO TODAY
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedDate(today);
+                setViewDate(new Date(today.getFullYear(), today.getMonth(), 1));
+              }}
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold bg-white/80 border border-white/70 shadow-sm text-text hover:bg-white dark:bg-bg-elevated dark:border-border-subtle dark:text-text-secondary dark:hover:text-text dark:hover:bg-bg-secondary transition-all"
+            >
+              <CalendarIcon className="w-4 h-4" />
+              JUMP TO TODAY
+            </button>
         </section>
 
         {/* Upcoming Events - grouped with calendar, flows from same gradient */}
