@@ -97,7 +97,6 @@
 
   /* Layout */
   --bottom-nav-height: 52px;
-  --bottom-nav-offset: 2px;
 }
 
 :root {
@@ -1514,14 +1513,15 @@ textarea {
 /* ========== Mobile Bottom Navigation ========== */
 .bottom-nav-spacer {
   height: calc(
-    var(--bottom-nav-height) + var(--bottom-nav-offset) + env(safe-area-inset-bottom)
+    var(--bottom-nav-height) +
+      max(2px, calc(env(safe-area-inset-bottom) - 26px))
   );
 }
 
 .bottom-nav-dock {
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(var(--bottom-nav-offset) + env(safe-area-inset-bottom));
+  bottom: max(2px, calc(env(safe-area-inset-bottom) - 26px));
   width: min(22rem, calc(100% - 1.25rem));
   height: var(--bottom-nav-height);
   padding: 0.25rem;
@@ -2466,7 +2466,7 @@ kbd {
   }
 
   .bottom-nav {
-    bottom: calc(var(--bottom-nav-offset) + env(safe-area-inset-bottom));
+    bottom: max(2px, calc(env(safe-area-inset-bottom) - 26px));
   }
 }
 /* ========== Interactive Guide Rich Content ========== */
