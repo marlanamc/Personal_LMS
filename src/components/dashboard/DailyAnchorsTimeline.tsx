@@ -204,7 +204,7 @@ function MobileAnchorItem({
   anchor,
   isActive,
   isLast: _isLast,
-  isFirst,
+  isFirst: _isFirst,
   isLoaded,
   onToggle,
   onTimeChange,

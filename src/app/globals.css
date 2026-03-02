@@ -4008,6 +4008,15 @@ kbd {
     0 8px 22px rgba(156, 126, 98, 0.14) !important;
 }
 
+@media (max-width: 639px) {
+  :where(:root[data-theme="light"], :root.light) .dashboard-header-shell {
+    background: transparent !important;
+    border-bottom-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
 /* ========== River Flow Daily Anchors (Mobile) ========== */
 
 /* Container */
