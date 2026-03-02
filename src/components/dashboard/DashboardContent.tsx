@@ -39,8 +39,14 @@ export function DashboardContent({
             ${isZenMode ? 'md:col-span-12' : 'md:col-span-8 lg:col-span-9'}
           `}
         >
+          <div className="md:hidden flex items-center gap-3 -mb-1" aria-hidden>
+            <span className="h-px flex-1 bg-gradient-to-r from-transparent via-border-subtle to-border-subtle/40" />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted/70">Daily Anchors</span>
+            <span className="h-px flex-1 bg-gradient-to-l from-transparent via-border-subtle to-border-subtle/40" />
+          </div>
+
           {/* Focus Hero */}
-          <section className="animate-fade-in-up relative cosmic-hero-field">
+          <section className="animate-fade-in-up relative cosmic-hero-field focus-hero-mobile-plain-field">
             <FocusHero
               userName={userName}
               currentStreak={currentStreak}
@@ -51,6 +57,12 @@ export function DashboardContent({
               onRestoreCalendar={toggleZenMode}
             />
           </section>
+
+          <div className="md:hidden flex items-center gap-3 -mt-1 mb-1" aria-hidden>
+            <span className="h-px flex-1 bg-gradient-to-r from-transparent via-border-subtle to-border-subtle/40" />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted/70">Checklist</span>
+            <span className="h-px flex-1 bg-gradient-to-l from-transparent via-border-subtle to-border-subtle/40" />
+          </div>
 
           {/* Flat Checklist */}
           <section id="daily-checklist" className="animate-fade-in-up delay-100 scroll-mt-24">

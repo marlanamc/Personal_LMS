@@ -10,7 +10,11 @@ async function upsertUser(username, name, mustChangePassword = true) {
   const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, BCRYPT_ROUNDS);
   return prisma.user.upsert({
     where: { username },
-    update: { name },
+    update: {
+      name,
+      password: passwordHash,
+      mustChangePassword,
+    },
     create: {
       username,
       name,

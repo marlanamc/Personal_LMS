@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { X, BookOpen, Timer, User, Home, Code, Heart, Briefcase, Calendar } from 'lucide-react';
+import { X, BookOpen, Timer, User, Home, Code, Heart, Briefcase, Calendar, Pencil } from 'lucide-react';
 import { SpanishSubjectIcon } from '@/components/icons/SpanishSubjectIcon';
 
 interface NavigationSidePanelProps {
@@ -20,6 +20,7 @@ const subjects = [
 
 const quickLinks = [
   { href: '/dashboard', label: 'Home', icon: Home },
+  { href: '/dashboard?anchors=edit', label: 'Edit Anchors', icon: Pencil },
   { href: '/dashboard/subjects', label: 'All Subjects', icon: BookOpen },
   { href: '/dashboard/timer', label: 'Focus Timer', icon: Timer },
   { href: '/dashboard/calendar', label: 'Calendar', icon: Calendar },
@@ -57,8 +58,15 @@ export function NavigationSidePanel({ isOpen, onClose }: NavigationSidePanelProp
   }, [isOpen]);
 
   const isPathActive = (href: string): boolean => {
-    const hrefPath = href.split('?')[0];
+    const [hrefPath, hrefQuery = ''] = href.split('?');
     if (!hrefPath) return false;
+    if (hrefQuery) {
+      if (pathname !== hrefPath) return false;
+      const targetParams = new URLSearchParams(hrefQuery);
+      return Array.from(targetParams.entries()).every(
+        ([key, value]) => searchParams.get(key) === value,
+      );
+    }
     if (hrefPath === '/dashboard') return pathname === '/dashboard';
     return pathname === hrefPath || pathname.startsWith(`${hrefPath}/`);
   };

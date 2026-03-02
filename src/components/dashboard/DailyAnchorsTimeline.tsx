@@ -3,12 +3,12 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   BookOpen,
   Briefcase,
   Calendar,
   Check,
-  Clock,
   Code2,
   Coffee,
   Dumbbell,
@@ -196,25 +196,58 @@ interface MobileAnchorItemProps {
   iconByName: Record<AnchorIcon, typeof Sunrise>;
   index: number;
   nowMinutes: number | null;
+  timeUntilLabel: string;
+  nextEventLabel: string | null;
 }
 
-function MobileAnchorItem({ anchor, isActive, isLast, isFirst: _isFirst, isLoaded, onToggle, onTimeChange, iconByName, index, nowMinutes: _nowMinutes }: MobileAnchorItemProps) {
+function MobileAnchorItem({
+  anchor,
+  isActive,
+  isLast: _isLast,
+  isFirst,
+  isLoaded,
+  onToggle,
+  onTimeChange,
+  iconByName,
+  index,
+  nowMinutes,
+  timeUntilLabel,
+  nextEventLabel,
+}: MobileAnchorItemProps) {
   const [isTimeScrubberOpen, setIsTimeScrubberOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
   const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTriggeredRef = useRef(false);
   const Icon = iconByName[anchor.icon] || Moon;
   const isDone = anchor.status === 'done';
   const isMissed = anchor.status === 'missed';
-  const gradient = getRiverFlowGradient(anchor.icon);
 
   useEffect(() => {
     return () => {
       if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+      if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
     };
+  }, []);
+
+  const clearLongPress = useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }, []);
+
+  const openInfoBubble = useCallback(() => {
+    setIsInfoOpen(true);
+    if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+    autoCloseTimerRef.current = setTimeout(() => {
+      setIsInfoOpen(false);
+    }, 2600);
   }, []);
 
   return (
     <div className="relative" style={{ animationDelay: `${index * 80}ms` }}>
-      <div className={`relative ${isLast ? 'pb-0' : 'pb-3'}`}>
+      <div className="relative">
         {/* Main Card - Horizontal layout with more breathing room */}
         <div
           role="button"
@@ -232,43 +265,31 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst: _isFirst, isLoade
             }
           }}
           className={`
-            river-flow-card group relative w-full rounded-2xl px-4 py-3.5 text-left
-            transition-all duration-300 ease-out overflow-hidden
-            border
-            ${isDone ? 'border-secondary/30 bg-secondary/5' : ''}
-            ${isActive && !isDone ? 'border-primary/40 bg-primary/5' : ''}
-            ${isMissed ? 'border-border-subtle/50 bg-bg-surface/30' : ''}
-            ${!isDone && !isActive && !isMissed ? 'border-border-subtle/60 bg-bg-elevated/60' : ''}
-            ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}
+            river-flow-card mobile-anchor-row group relative w-full rounded-none px-4 py-3.5 text-left
+            transition-colors duration-200 ease-out overflow-visible
+            border-0
+            ${isDone ? 'mobile-anchor-row-done' : ''}
+            ${isActive && !isDone ? 'mobile-anchor-row-active' : ''}
+            ${isMissed ? 'mobile-anchor-row-missed' : ''}
+            ${!isDone && !isActive && !isMissed ? 'mobile-anchor-row-future' : ''}
+            ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
           `}
         >
-          {/* Subtle gradient overlay */}
-          <div
-            className={`absolute inset-0 bg-gradient-to-r ${gradient.from} ${gradient.to} opacity-30 transition-opacity duration-300`}
-            aria-hidden
-          />
-
-          {/* Shimmer effect for active anchor */}
-          {isActive && !isDone && !isMissed && (
-            <div className="river-flow-shimmer absolute inset-0 pointer-events-none" aria-hidden />
-          )}
-
           <div className="relative flex items-center gap-4">
             {/* Icon Orb - slightly larger for better touch */}
             <div
               className={`
-                river-flow-orb relative w-12 h-12 rounded-xl flex items-center justify-center shrink-0
-                transition-all duration-300
+                river-flow-orb mobile-anchor-orb relative w-12 h-12 rounded-2xl flex items-center justify-center shrink-0
+                transition-colors duration-200
                 ${isDone
-                  ? 'bg-gradient-to-br from-secondary to-secondary/80 text-white shadow-md'
+                  ? 'mobile-anchor-orb-done'
                   : isMissed
-                    ? 'bg-bg-surface/60 text-text-muted/50'
+                    ? 'mobile-anchor-orb-missed'
                     : isActive
-                      ? 'bg-gradient-to-br from-primary/90 to-accent/70 text-white shadow-md'
-                      : 'bg-bg-surface/90 text-text-muted border border-border-subtle/50'
+                      ? 'mobile-anchor-orb-active'
+                      : 'mobile-anchor-orb-future'
                 }
               `}
-              style={isActive && !isDone ? { boxShadow: `0 4px 16px ${gradient.glow}` } : undefined}
             >
               {isDone ? (
                 <motion.div
@@ -280,15 +301,10 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst: _isFirst, isLoade
                 </motion.div>
               ) : (
                 <Icon
-                  size={22}
+                  size={21}
                   strokeWidth={1.8}
-                  className={`transition-transform duration-300 ${isActive ? 'scale-110' : ''}`}
+                  className="transition-transform duration-200"
                 />
-              )}
-
-              {/* Active pulse ring */}
-              {isActive && !isDone && !isMissed && (
-                <span className="absolute inset-0 rounded-xl ring-2 ring-primary/40 animate-ping opacity-75" aria-hidden />
               )}
             </div>
 
@@ -299,7 +315,7 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst: _isFirst, isLoade
                 <p
                   className={`
                     text-base font-semibold leading-snug
-                    ${isDone ? 'text-text-muted line-through decoration-secondary/50' : ''}
+                    ${isDone ? 'text-text' : ''}
                     ${isActive && !isDone ? 'text-text' : ''}
                     ${isMissed ? 'text-text-muted/60' : ''}
                     ${!isDone && !isActive && !isMissed ? 'text-text' : ''}
@@ -307,46 +323,79 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst: _isFirst, isLoade
                 >
                   {anchor.label}
                 </p>
+              </div>
+
+              <div className="relative shrink-0 text-right">
                 <button
                   type="button"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
+                  }}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    longPressTriggeredRef.current = false;
+                    clearLongPress();
+                    longPressTimerRef.current = setTimeout(() => {
+                      longPressTriggeredRef.current = true;
+                      openInfoBubble();
+                    }, 380);
+                  }}
+                  onPointerUp={(e) => {
+                    e.stopPropagation();
+                    clearLongPress();
+                    if (longPressTriggeredRef.current) {
+                      longPressTriggeredRef.current = false;
+                      return;
+                    }
                     setIsTimeScrubberOpen(!isTimeScrubberOpen);
                   }}
-                  className="inline-flex items-center gap-1.5 mt-0.5 text-sm text-text-muted tabular-nums hover:text-primary transition-colors"
-                  aria-label="Adjust time"
+                  onPointerLeave={clearLongPress}
+                  onPointerCancel={clearLongPress}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openInfoBubble();
+                  }}
+                  className="text-xl font-medium text-text-secondary tabular-nums hover:text-primary transition-colors"
+                  aria-label={`Adjust ${anchor.label} time`}
                 >
-                  <Clock size={12} className={isTimeScrubberOpen ? 'text-primary' : ''} />
                   {formatTimeLabel(anchor.scheduledTime)}
                 </button>
-              </div>
-
-              {/* Status badge - right aligned */}
-              <div className="shrink-0">
-                {isDone ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide bg-secondary/15 text-secondary">
-                    <Check size={12} strokeWidth={3} />
-                    Done
-                  </span>
-                ) : isActive && !isMissed ? (
-                  <span className="river-flow-now-badge px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide bg-primary text-white shadow-sm">
-                    Now
-                  </span>
-                ) : isMissed ? (
-                  <span className="px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide bg-error/10 text-error/70">
-                    Missed
-                  </span>
-                ) : (
-                  <span className="px-3 py-1.5 rounded-full text-xs font-medium uppercase tracking-wide bg-bg-surface/80 text-text-muted">
-                    Pending
-                  </span>
+                {isInfoOpen && (
+                  <div
+                    className={`absolute right-0 z-20 w-36 rounded-2xl border border-border-subtle bg-bg-elevated/95 px-3 py-2 shadow-xl backdrop-blur-sm text-left ${
+                      isFirst ? 'top-full mt-2' : 'bottom-full mb-2'
+                    }`}
+                  >
+                    <p className="text-xl font-semibold leading-tight text-text tabular-nums">
+                      {formatShortTime(anchor.scheduledTime)}
+                    </p>
+                    <p className="mt-1 text-xs text-text-muted">
+                      In: {timeUntilLabel}
+                    </p>
+                    {nextEventLabel && (
+                      <p className="text-xs text-text-muted">
+                        Next event: {nextEventLabel}
+                      </p>
+                    )}
+                    {nowMinutes === null && (
+                      <p className="text-[11px] text-text-muted/70">Live time unavailable</p>
+                    )}
+                    <div
+                      className={`absolute right-5 h-2 w-2 rotate-45 bg-bg-elevated/95 ${
+                        isFirst
+                          ? '-top-1 border-l border-t border-border-subtle'
+                          : '-bottom-1 border-r border-b border-border-subtle'
+                      }`}
+                    />
+                  </div>
                 )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile Time Scrubber */}
         <MobileTimeScrubber
           isOpen={isTimeScrubberOpen}
           currentTime={anchor.scheduledTime}
@@ -365,6 +414,9 @@ function MobileAnchorItem({ anchor, isActive, isLast, isFirst: _isFirst, isLoade
 }
 
 export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { anchors, activeAnchor, toggleAnchor, anchorTemplates, setTodayAnchors, setAnchorTemplates, isLoaded } =
     useDailyAnchorsForToday(storageScope);
 
@@ -499,6 +551,16 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
     setTodayAnchors(updatedAnchors);
   }, [anchors, setTodayAnchors]);
 
+  useEffect(() => {
+    if (searchParams.get('anchors') !== 'edit' || isEditingAnchors) return;
+    openAnchorEditor();
+
+    const next = new URLSearchParams(searchParams.toString());
+    next.delete('anchors');
+    const query = next.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [searchParams, isEditingAnchors, openAnchorEditor, router, pathname]);
+
   const updateDraftTemplate = useCallback(
     (anchorId: AnchorId, patch: Partial<Pick<DailyAnchorTemplate, 'label' | 'scheduledTime' | 'icon' | 'daysOfWeek'>>) => {
       setDraftTemplates((current) =>
@@ -602,10 +664,10 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
 
   return (
     <>
-      <div className={`daily-anchors-card relative rounded-2xl ${isEditingAnchors ? 'overflow-visible z-40' : 'overflow-hidden'}`}>
+      <div className={`daily-anchors-card mobile-anchors-plain relative rounded-none sm:rounded-2xl ${isEditingAnchors ? 'overflow-visible z-40' : 'overflow-hidden'}`}>
         <div aria-hidden className="absolute inset-0 daily-anchors-nebula pointer-events-none" />
 
-        <div className="relative p-4 sm:p-5 z-10">
+        <div className="relative p-0 sm:p-5 z-10">
           {/* Desktop header - side by side */}
           <div className="hidden sm:flex items-center justify-between gap-3 mb-6">
             <div className="flex items-center gap-2.5 min-w-0">
@@ -641,30 +703,6 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                   <Check size={11} className="text-secondary" strokeWidth={3} />
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Mobile header - compact with progress bar */}
-          <div className="sm:hidden mb-4">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-card font-display text-text tracking-wide">Daily Anchors</h2>
-              <span
-                className={`
-                  text-sm font-semibold tabular-nums
-                  ${isAllComplete ? 'text-secondary' : 'text-text-muted'}
-                `}
-              >
-                {completedCount} of {totalCount}
-              </span>
-            </div>
-            {/* Horizontal progress bar for mobile */}
-            <div className="mt-2.5 h-1.5 rounded-full bg-bg-surface/60 overflow-hidden">
-              <motion.div
-                className={`h-full rounded-full ${isAllComplete ? 'bg-secondary' : 'bg-primary'}`}
-                initial={{ width: 0 }}
-                animate={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-              />
             </div>
           </div>
 
@@ -863,7 +901,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
           </div>
 
           {/* Mobile Layout - Clean card list */}
-          <div className="sm:hidden mt-3">
+          <div className="sm:hidden mt-0">
             {sortedAnchors.length === 0 ? (
               <div className="rounded-2xl border border-border-subtle bg-bg-elevated/50 px-4 py-6 text-center">
                 <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center">
@@ -873,22 +911,38 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                 <p className="text-xs text-text-muted/60 mt-1">Tap the pencil to add your daily anchors</p>
               </div>
             ) : (
-              <div className="space-y-2">
-                {sortedAnchors.map((anchor, idx) => (
-                  <MobileAnchorItem
-                    key={anchor.id}
-                    anchor={anchor}
-                    isActive={anchor.id === activeAnchor.id}
-                    isFirst={idx === 0}
-                    isLast={idx === sortedAnchors.length - 1}
-                    isLoaded={isLoaded}
-                    onToggle={() => toggleAnchor(anchor.id)}
-                    onTimeChange={handleMobileTimeChange}
-                    iconByName={iconByName}
-                    index={idx}
-                    nowMinutes={nowMinutes}
-                  />
-                ))}
+              <div className="mobile-anchor-stack relative overflow-visible rounded-[2.2rem]">
+                <div className="rounded-[2.2rem] border border-border-subtle/70 bg-bg-surface/75 overflow-hidden">
+                  {sortedAnchors.map((anchor, idx) => (
+                    <MobileAnchorItem
+                      key={anchor.id}
+                      anchor={anchor}
+                      isActive={anchor.id === activeAnchor.id}
+                      isFirst={idx === 0}
+                      isLast={idx === sortedAnchors.length - 1}
+                      isLoaded={isLoaded}
+                      onToggle={() => toggleAnchor(anchor.id)}
+                      onTimeChange={handleMobileTimeChange}
+                      iconByName={iconByName}
+                      index={idx}
+                      nowMinutes={nowMinutes}
+                      timeUntilLabel={(() => {
+                        const raw = getTimeUntil(anchor.scheduledTime, nowMinutes);
+                        return raw.startsWith('in ') ? raw.slice(3) : raw;
+                      })()}
+                      nextEventLabel={(() => {
+                        const nextScheduledAnchor = sortedAnchors[idx + 1];
+                        if (nextScheduledAnchor) {
+                          return formatDuration(getMinutesBetweenEvents(anchor.scheduledTime, nextScheduledAnchor.scheduledTime));
+                        }
+                        if (wakeTemplate) {
+                          return formatDuration(getOvernightMinutesUntil(anchor.scheduledTime, wakeTemplate.scheduledTime));
+                        }
+                        return null;
+                      })()}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -896,7 +950,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
           <button
             type="button"
             onClick={() => (isEditingAnchors ? closeAnchorEditor() : openAnchorEditor())}
-            className="absolute right-3 bottom-3 sm:right-4 sm:bottom-4 z-50 inline-flex items-center justify-center w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-border-subtle bg-bg-surface/95 text-text-muted hover:text-text hover:border-accent-teal/50 transition-colors shadow-sm"
+            className="hidden sm:inline-flex absolute right-4 bottom-4 z-50 items-center justify-center w-8 h-8 rounded-full border border-border-subtle bg-bg-surface/95 text-text-muted hover:text-text hover:border-accent-teal/50 transition-colors shadow-sm"
             aria-label={isEditingAnchors ? 'Close anchor editor' : 'Edit anchors'}
             title={isEditingAnchors ? 'Close anchor editor' : 'Edit anchors'}
           >

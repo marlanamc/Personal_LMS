@@ -548,7 +548,7 @@ export default async function ProfilePage() {
                                 </div>
 
                                 <div className="text-center sm:text-left flex-1 min-w-0">
-                                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold font-display text-text mb-1 tracking-tight">
+                                    <h1 className="hidden sm:block text-2xl sm:text-3xl md:text-4xl font-bold font-display text-text mb-1 tracking-tight">
                                         Hi, {user.name?.split(' ')[0] || 'there'}! 👋
                                     </h1>
                                     <p className="text-base sm:text-lg text-text-muted font-medium">

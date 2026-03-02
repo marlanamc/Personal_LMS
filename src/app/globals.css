@@ -1234,6 +1234,16 @@ textarea {
     );
 }
 
+@media (max-width: 639px) {
+  :where(:root[data-theme="light"], :root.light) .light-ambient-surface {
+    background: linear-gradient(
+      180deg,
+      #f3cdb8 0%,
+      #d5c7de 100%
+    );
+  }
+}
+
 :where(:root[data-theme="light"], :root.light) .focus-timer-ambient {
   box-shadow: inset 0 0 180px rgba(156, 126, 98, 0.08);
 }
@@ -3530,6 +3540,28 @@ kbd {
   mix-blend-mode: overlay;
 }
 
+@media (max-width: 639px) {
+  .focus-hero-mobile-plain .focus-hero {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .focus-hero-mobile-plain-field::before {
+    display: none;
+  }
+
+  .mobile-anchors-plain.daily-anchors-card {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .mobile-anchors-plain .daily-anchors-nebula {
+    display: none;
+  }
+}
+
 /* Focus card inner styling */
 .focus-card {
   transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
@@ -3983,6 +4015,56 @@ kbd {
   padding-left: 0.25rem;
 }
 
+.mobile-anchor-stack .mobile-anchor-row + .mobile-anchor-row {
+  border-top: 1px solid color-mix(in srgb, var(--color-border-subtle) 78%, transparent);
+}
+
+.mobile-anchor-row {
+  background: color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-bg-elevated) 12%);
+}
+
+.mobile-anchor-row-done {
+  background: color-mix(in srgb, var(--color-secondary) 8%, var(--color-bg-surface) 92%);
+}
+
+.mobile-anchor-row-active {
+  background: color-mix(in srgb, var(--color-primary) 7%, var(--color-bg-surface) 93%);
+}
+
+.mobile-anchor-row-missed {
+  background: color-mix(in srgb, var(--color-warning) 8%, var(--color-bg-surface) 92%);
+}
+
+.mobile-anchor-row-future {
+  background: color-mix(in srgb, var(--color-bg-surface) 94%, white 6%);
+}
+
+.mobile-anchor-orb {
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 72%, transparent);
+  background: color-mix(in srgb, var(--color-bg-elevated) 90%, var(--color-bg-surface) 10%);
+  color: var(--color-text-muted);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+.mobile-anchor-orb-done {
+  background: color-mix(in srgb, var(--color-secondary) 28%, white 72%);
+  border-color: color-mix(in srgb, var(--color-secondary) 28%, var(--color-border-subtle) 72%);
+  color: color-mix(in srgb, var(--color-secondary) 85%, #2b4a3d 15%);
+}
+
+.mobile-anchor-orb-active {
+  background: color-mix(in srgb, var(--color-primary) 26%, white 74%);
+  border-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-border-subtle) 70%);
+  color: color-mix(in srgb, var(--color-primary) 85%, #2f3d5a 15%);
+}
+
+.mobile-anchor-orb-missed,
+.mobile-anchor-orb-future {
+  background: color-mix(in srgb, var(--color-bg-surface) 92%, white 8%);
+  border-color: color-mix(in srgb, var(--color-border-subtle) 80%, transparent);
+  color: color-mix(in srgb, var(--color-text-muted) 86%, var(--color-text-secondary) 14%);
+}
+
 /* Progress Track */
 .river-flow-track {
   background: transparent;
@@ -4223,6 +4305,38 @@ kbd {
   box-shadow:
     0 2px 8px rgba(158, 132, 112, 0.12),
     0 1px 0 rgba(255, 255, 255, 0.5) inset;
+}
+
+:where(:root[data-theme="light"], :root.light) .mobile-anchor-stack {
+  background: color-mix(in srgb, var(--color-bg-surface) 90%, var(--color-light-card-bottom) 10%);
+  border-color: color-mix(in srgb, var(--color-border-subtle) 90%, white 10%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.72),
+    0 10px 24px rgba(158, 132, 112, 0.1);
+}
+
+:where(:root[data-theme="light"], :root.light) .mobile-anchor-row {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-bg-surface) 95%, white 5%) 0%,
+    color-mix(in srgb, var(--color-bg-surface) 90%, var(--color-light-card-bottom) 10%) 100%
+  );
+}
+
+:where(:root[data-theme="light"], :root.light) .mobile-anchor-row-done {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-accent-mint) 14%, white 86%) 0%,
+    color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-accent-mint) 6%) 100%
+  );
+}
+
+:where(:root[data-theme="light"], :root.light) .mobile-anchor-row-missed {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-warning) 15%, white 85%) 0%,
+    color-mix(in srgb, var(--color-bg-surface) 95%, var(--color-warning) 5%) 100%
+  );
 }
 
 /* Light theme gradient overlays for River Flow cards */
