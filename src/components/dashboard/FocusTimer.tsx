@@ -945,7 +945,7 @@ export const FocusTimer = () => {
             const remainder = minutes % 60;
             return remainder === 0 ? `${hours}h` : `${hours}h ${remainder}m`;
         };
-        const _formatSessionsLabel = (count: number) => `${count} session${count === 1 ? '' : 's'}`;
+        const formatSessionsLabel = (count: number) => `${count} session${count === 1 ? "" : "s"}`;
 
         return (
             <div
@@ -981,7 +981,7 @@ export const FocusTimer = () => {
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-text-muted">{completedSessions.length} sessions</span>
+                        <span className="text-[10px] text-text-muted">{formatSessionsLabel(completedSessions.length)}</span>
                         <svg
                             className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isSessionsPanelExpanded ? 'rotate-180' : ''}`}
                             fill="none"
@@ -1056,7 +1056,7 @@ export const FocusTimer = () => {
                                     <p className="text-base font-semibold text-text-primary mt-0.5" style={{ fontFamily: 'var(--font-body)' }}>
                                         {formatMinutesLabel(sessionTally.minutesToday)}
                                     </p>
-                                    <p className="text-[10px] text-text-muted">{sessionTally.sessionsToday} sess</p>
+                                    <p className="text-[9px] leading-tight text-text-muted whitespace-nowrap">{formatSessionsLabel(sessionTally.sessionsToday)}</p>
                                 </div>
                                 <div className="px-3 py-3 text-center">
                                     <p className="text-[10px] font-medium uppercase tracking-wide text-text-muted">
@@ -1065,14 +1065,14 @@ export const FocusTimer = () => {
                                     <p className="text-base font-semibold text-text-primary mt-0.5" style={{ fontFamily: 'var(--font-body)' }}>
                                         {formatMinutesLabel(sessionTally.minutesInSelectedWeekWindow)}
                                     </p>
-                                    <p className="text-[10px] text-text-muted">{sessionTally.sessionsInSelectedWeekWindow} sess</p>
+                                    <p className="text-[9px] leading-tight text-text-muted whitespace-nowrap">{formatSessionsLabel(sessionTally.sessionsInSelectedWeekWindow)}</p>
                                 </div>
                                 <div className="px-3 py-3 text-center">
                                     <p className="text-[10px] font-medium uppercase tracking-wide text-text-muted">Total</p>
                                     <p className="text-base font-semibold mt-0.5" style={{ fontFamily: 'var(--font-body)', color: 'var(--color-accent-sakura)' }}>
                                         {formatMinutesLabel(sessionTally.totalMinutes)}
                                     </p>
-                                    <p className="text-[10px] text-text-muted">{sessionTally.totalSessions} sess</p>
+                                    <p className="text-[9px] leading-tight text-text-muted whitespace-nowrap">{formatSessionsLabel(sessionTally.totalSessions)}</p>
                                 </div>
                             </div>
                         </div>
@@ -1094,7 +1094,7 @@ export const FocusTimer = () => {
                                             <span className="text-text-muted" style={{ fontFamily: 'var(--font-body)' }}>
                                                 <span style={{ color: 'var(--color-accent-teal)' }}>{formatMinutesLabel(day.minutes)}</span>
                                                 <span className="mx-1 opacity-50">·</span>
-                                                {day.sessions} sess
+                                                {formatSessionsLabel(day.sessions)}
                                             </span>
                                         </div>
                                     ))}
