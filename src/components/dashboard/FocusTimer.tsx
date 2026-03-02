@@ -902,6 +902,8 @@ export const FocusTimer = () => {
         };
     }, []);
 
+    const [isSessionsPanelExpanded, setIsSessionsPanelExpanded] = useState(false);
+
     const CompletedSessionsPanel = ({ className = '' }: { className?: string }) => {
         if (completedSessions.length === 0) return null;
 
@@ -914,67 +916,159 @@ export const FocusTimer = () => {
         const formatSessionsLabel = (count: number) => `${count} session${count === 1 ? '' : 's'}`;
 
         return (
-            <div className={`w-full max-w-[320px] rounded-3xl border border-border/60 bg-bg-secondary/70 p-4 ${className}`.trim()}>
-                <div className="flex items-center justify-between gap-2 mb-3">
-                    <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">Completed Sessions</h3>
-                    <span className="text-xs text-text-muted whitespace-nowrap">{completedSessions.length} total</span>
-                </div>
-                <div className="mb-2 flex items-center justify-end">
-                    <div className="inline-flex items-center rounded-lg border border-border/50 bg-bg-elevated/60 p-0.5">
-                        <button
-                            type="button"
-                            onClick={() => setWeekWindowMode('calendar-week')}
-                            className={`rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors ${
-                                weekWindowMode === 'calendar-week'
-                                    ? 'bg-primary/20 text-primary'
-                                    : 'text-text-muted hover:bg-bg-light/70'
-                            }`}
+            <div
+                className={`w-full max-w-[320px] rounded-2xl overflow-hidden transition-all duration-300 ${className}`.trim()}
+                style={{
+                    background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 98%, white 2%) 0%, color-mix(in srgb, var(--color-bg-elevated) 94%, var(--color-accent-sakura) 2%) 100%)',
+                    boxShadow: 'var(--color-card-shadow)',
+                    border: '1px solid var(--color-border-subtle)',
+                }}
+            >
+                {/* Accent top border */}
+                <div className="h-1 bg-gradient-to-r from-accent-amethyst via-accent-sakura to-accent-teal opacity-60" />
+
+                {/* Collapsible header */}
+                <button
+                    type="button"
+                    onClick={() => setIsSessionsPanelExpanded(!isSessionsPanelExpanded)}
+                    className="w-full px-4 py-3 flex items-center justify-between gap-2 hover:bg-bg-surface/30 transition-colors"
+                >
+                    <div className="flex items-center gap-2">
+                        <div
+                            className="inline-flex items-center justify-center rounded-full px-2.5 py-1 text-[10px] font-bold tracking-[0.12em] uppercase backdrop-blur-md border"
+                            style={{
+                                backgroundColor: 'var(--color-accent-sakura-soft)',
+                                borderColor: 'color-mix(in srgb, var(--color-accent-sakura) 30%, transparent)',
+                                color: 'var(--color-accent-sakura)',
+                            }}
                         >
-                            Week
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setWeekWindowMode('last-7-days')}
-                            className={`rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors ${
-                                weekWindowMode === 'last-7-days'
-                                    ? 'bg-primary/20 text-primary'
-                                    : 'text-text-muted hover:bg-bg-light/70'
-                            }`}
+                            {formatMinutesLabel(sessionTally.totalMinutes)}
+                        </div>
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-secondary">
+                            Focus Time
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-text-muted">{completedSessions.length} sessions</span>
+                        <svg
+                            className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isSessionsPanelExpanded ? 'rotate-180' : ''}`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
                         >
-                            7D
-                        </button>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
                     </div>
-                </div>
-                <div className="mb-2.5 grid grid-cols-3 gap-2">
-                    <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-2.5 py-1.5">
-                        <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">Today</p>
-                        <p className="mt-1 text-base font-semibold leading-none text-text">{formatMinutesLabel(sessionTally.minutesToday)}</p>
-                        <p className="mt-0.5 text-[11px] text-text-muted">{formatSessionsLabel(sessionTally.sessionsToday)}</p>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-2.5 py-1.5">
-                        <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">
-                            {weekWindowMode === 'calendar-week' ? 'Week' : 'Last 7 Days'}
-                        </p>
-                        <p className="mt-1 text-base font-semibold leading-none text-text">{formatMinutesLabel(sessionTally.minutesInSelectedWeekWindow)}</p>
-                        <p className="mt-0.5 text-[11px] text-text-muted">{formatSessionsLabel(sessionTally.sessionsInSelectedWeekWindow)}</p>
-                    </div>
-                    <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-2.5 py-1.5">
-                        <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">All Time</p>
-                        <p className="mt-1 text-base font-semibold leading-none text-text">{formatMinutesLabel(sessionTally.totalMinutes)}</p>
-                        <p className="mt-0.5 text-[11px] text-text-muted">{formatSessionsLabel(sessionTally.totalSessions)}</p>
-                    </div>
-                </div>
-                <div className="rounded-2xl border border-border/50 bg-bg-elevated/60 px-3 py-2">
-                    <p className="text-[10px] uppercase tracking-[0.14em] text-text-muted">Recent Activity</p>
-                    <div className="mt-1.5 space-y-1">
-                        {sessionTally.recentDays.map((day) => (
-                            <div key={day.sortTime} className="flex items-center justify-between gap-3 text-xs">
-                                <span className="text-text">{day.dayLabel}</span>
-                                <span className="text-text-muted">
-                                    {formatMinutesLabel(day.minutes)} • {day.sessions} sessions
-                                </span>
+                </button>
+
+                {/* Expandable content */}
+                <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        isSessionsPanelExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                    }`}
+                >
+                    <div className="px-4 pb-4 space-y-3">
+                        {/* Week toggle */}
+                        <div className="flex items-center justify-end">
+                            <div
+                                className="inline-flex items-center rounded-lg p-0.5"
+                                style={{
+                                    backgroundColor: 'var(--color-bg-surface)',
+                                    border: '1px solid var(--color-border-subtle)',
+                                }}
+                            >
+                                <button
+                                    type="button"
+                                    onClick={() => setWeekWindowMode('calendar-week')}
+                                    className={`rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] transition-all duration-200 ${
+                                        weekWindowMode === 'calendar-week'
+                                            ? 'text-text-primary shadow-sm'
+                                            : 'text-text-muted hover:text-text-secondary'
+                                    }`}
+                                    style={weekWindowMode === 'calendar-week' ? {
+                                        backgroundColor: 'var(--color-accent-sakura-soft)',
+                                        color: 'var(--color-accent-sakura)',
+                                    } : {}}
+                                >
+                                    Week
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setWeekWindowMode('last-7-days')}
+                                    className={`rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] transition-all duration-200 ${
+                                        weekWindowMode === 'last-7-days'
+                                            ? 'text-text-primary shadow-sm'
+                                            : 'text-text-muted hover:text-text-secondary'
+                                    }`}
+                                    style={weekWindowMode === 'last-7-days' ? {
+                                        backgroundColor: 'var(--color-accent-sakura-soft)',
+                                        color: 'var(--color-accent-sakura)',
+                                    } : {}}
+                                >
+                                    7D
+                                </button>
                             </div>
-                        ))}
+                        </div>
+
+                        {/* Stats row - horizontal layout */}
+                        <div
+                            className="rounded-xl border overflow-hidden"
+                            style={{
+                                backgroundColor: 'var(--color-bg-surface)',
+                                borderColor: 'var(--color-border-subtle)',
+                            }}
+                        >
+                            <div className="grid grid-cols-3 divide-x divide-border-subtle">
+                                <div className="px-3 py-3 text-center">
+                                    <p className="text-[10px] font-medium uppercase tracking-wide text-text-muted">Today</p>
+                                    <p className="text-base font-semibold text-text-primary mt-0.5" style={{ fontFamily: 'var(--font-body)' }}>
+                                        {formatMinutesLabel(sessionTally.minutesToday)}
+                                    </p>
+                                    <p className="text-[10px] text-text-muted">{sessionTally.sessionsToday} sess</p>
+                                </div>
+                                <div className="px-3 py-3 text-center">
+                                    <p className="text-[10px] font-medium uppercase tracking-wide text-text-muted">
+                                        {weekWindowMode === 'calendar-week' ? 'Week' : '7 Days'}
+                                    </p>
+                                    <p className="text-base font-semibold text-text-primary mt-0.5" style={{ fontFamily: 'var(--font-body)' }}>
+                                        {formatMinutesLabel(sessionTally.minutesInSelectedWeekWindow)}
+                                    </p>
+                                    <p className="text-[10px] text-text-muted">{sessionTally.sessionsInSelectedWeekWindow} sess</p>
+                                </div>
+                                <div className="px-3 py-3 text-center">
+                                    <p className="text-[10px] font-medium uppercase tracking-wide text-text-muted">Total</p>
+                                    <p className="text-base font-semibold mt-0.5" style={{ fontFamily: 'var(--font-body)', color: 'var(--color-accent-sakura)' }}>
+                                        {formatMinutesLabel(sessionTally.totalMinutes)}
+                                    </p>
+                                    <p className="text-[10px] text-text-muted">{sessionTally.totalSessions} sess</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Recent activity */}
+                        {sessionTally.recentDays.length > 0 && (
+                            <div
+                                className="rounded-xl px-3 py-2.5 border"
+                                style={{
+                                    backgroundColor: 'var(--color-bg-surface)',
+                                    borderColor: 'var(--color-border-subtle)',
+                                }}
+                            >
+                                <p className="text-[10px] font-medium uppercase tracking-wide text-text-muted mb-2">Recent</p>
+                                <div className="space-y-1">
+                                    {sessionTally.recentDays.map((day) => (
+                                        <div key={day.sortTime} className="flex items-center justify-between gap-3 text-[11px]">
+                                            <span className="text-text-primary" style={{ fontFamily: 'var(--font-body)' }}>{day.dayLabel}</span>
+                                            <span className="text-text-muted" style={{ fontFamily: 'var(--font-body)' }}>
+                                                <span style={{ color: 'var(--color-accent-teal)' }}>{formatMinutesLabel(day.minutes)}</span>
+                                                <span className="mx-1 opacity-50">·</span>
+                                                {day.sessions} sess
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
