@@ -4,6 +4,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { awardPoints, updateStreak, checkAndAwardAchievements, calculateQuizPoints, getActivityPoints } from "@/lib/gamification";
 import { updateChallengeProgress } from "@/lib/daily-challenge";
+import { enforceRateLimit } from "@/lib/rate-limit";
+import { ApiError, handleApiError } from "@/lib/api-error";
+import { logger } from "@/lib/logger";
 
 type SubmissionRecord = {
     id: string;
@@ -134,17 +137,26 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        const rateLimitResponse = await enforceRateLimit({
+            request,
+            limiterName: "activity-submit",
+            userId: session.user.id,
+        });
+        if (rateLimitResponse) {
+            return rateLimitResponse;
+        }
+
         // SECURITY: Never trust points from client - calculate server-side only
         let body: { activityId?: string; content?: unknown; score?: number; assignmentId?: string | null };
         try {
             body = await request.json();
         } catch {
-            return NextResponse.json({ error: "Invalid JSON in request body" }, { status: 400 });
+            throw new ApiError(400, "invalid_json", "Invalid JSON in request body");
         }
         const { activityId, content, score, assignmentId } = body;
 
         if (!activityId || typeof activityId !== "string") {
-            return NextResponse.json({ error: "activityId is required" }, { status: 400 });
+            throw new ApiError(400, "missing_activity_id", "activityId is required");
         }
 
         const userId = session.user.id;
@@ -159,7 +171,7 @@ export async function POST(request: Request) {
         });
 
         if (!activity) {
-            return NextResponse.json({ error: "Activity not found" }, { status: 404 });
+            throw new ApiError(404, "activity_not_found", "Activity not found");
         }
 
         // Calculate points SERVER-SIDE based on activity type and score
@@ -243,7 +255,11 @@ export async function POST(request: Request) {
             challengeBonusPoints = challengeResult.bonusPoints;
         } catch (error) {
             // Daily challenge table might not exist yet (before migration)
-            console.error("Failed to update daily challenge:", error);
+            logger.warn("api/activity/submit: daily challenge update failed", {
+                error,
+                userId,
+                activityId,
+            });
         }
 
         // Detect milestones
@@ -269,8 +285,6 @@ export async function POST(request: Request) {
             milestones,
         });
     } catch (error) {
-        console.error("[api/activity/submit] Error:", error);
-        const message = error instanceof Error ? error.message : "Failed to submit activity";
-        return NextResponse.json({ error: message }, { status: 500 });
+        return handleApiError(error, "api/activity/submit");
     }
 }

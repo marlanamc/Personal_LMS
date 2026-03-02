@@ -27,6 +27,12 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: API integration tests
+        run: npm run test:api
+
       - name: Build
         run: npm run build
 
@@ -54,4 +60,3 @@ jobs:
           E2E_USERNAME: marlie
           E2E_PASSWORD: password123
         run: npm run test:e2e
-

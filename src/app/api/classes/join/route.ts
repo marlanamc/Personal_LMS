@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 export async function POST(request: NextRequest) {
     try {
@@ -72,15 +73,9 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ classId: classItem.id, message: "Successfully joined class" });
     } catch (error: unknown) {
-        console.error("Error joining class:", error);
-        // SECURITY: Don't expose internal error details to user
-        return NextResponse.json(
-            { error: "Failed to join class. Please try again." },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/classes/join:POST");
     }
 }
-
 
 
 

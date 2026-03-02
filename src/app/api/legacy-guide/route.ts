@@ -3,6 +3,7 @@ import path from "path";
 import { promises as fs } from "fs";
 import { parse } from "node-html-parser";
 import type { LegacyGuideResponse } from "@/types/activity";
+import { handleApiError } from "@/lib/api-error";
 
 const LEGACY_BASE = path.join(process.cwd(), "_legacy", "activities");
 
@@ -94,7 +95,7 @@ export async function GET(req: Request) {
         };
 
         return NextResponse.json(payload);
-    } catch {
-        return NextResponse.json({ error: "Failed to read legacy guide" }, { status: 500 });
+    } catch (error) {
+        return handleApiError(error, "api/legacy-guide:GET");
     }
 }

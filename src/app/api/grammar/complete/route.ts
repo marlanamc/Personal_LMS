@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 type CompletePayload = {
   activityId?: string;
@@ -88,8 +89,6 @@ export async function POST(request: NextRequest) {
       score: percentScore,
     });
   } catch (error) {
-    console.error("Failed to save mini quiz completion", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return handleApiError(error, "api/grammar/complete:POST");
   }
 }
-

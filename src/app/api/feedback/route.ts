@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { handleApiError } from "@/lib/api-error";
 
 export async function POST(request: NextRequest) {
     try {
@@ -46,10 +47,6 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Error saving feedback:", error);
-        return NextResponse.json(
-            { error: "Failed to save feedback" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/feedback:POST");
     }
 }

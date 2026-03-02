@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getUserGamificationStats } from '@/lib/gamification';
+import { handleApiError } from '@/lib/api-error';
 
 /**
  * GET /api/gamification/stats
@@ -23,7 +24,6 @@ export async function GET() {
 
     return NextResponse.json({ stats });
   } catch (error) {
-    console.error('[Gamification Stats] Error:', error);
-    return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });
+    return handleApiError(error, 'api/gamification/stats:GET');
   }
 }

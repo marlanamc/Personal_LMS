@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseCategoryData } from "@/lib/categoryData";
+import { handleApiError } from "@/lib/api-error";
 
 const NEW_RELEASE_WINDOW_MS = 24 * 60 * 60 * 1000;
 
@@ -117,12 +118,7 @@ export async function GET() {
 
         return NextResponse.json(withProgress);
     } catch (error: unknown) {
-        console.error("Error fetching featured assignments:", error);
-        const message = error instanceof Error ? error.message : undefined;
-        return NextResponse.json(
-            { error: message || "Failed to fetch featured assignments" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/assignments/featured:GET");
     }
 }
 
@@ -178,11 +174,6 @@ export async function DELETE() {
             message: `Cleared ${result.count} featured assignment${result.count === 1 ? '' : 's'}`
         });
     } catch (error: unknown) {
-        console.error("Error clearing featured assignments:", error);
-        const message = error instanceof Error ? error.message : undefined;
-        return NextResponse.json(
-            { error: message || "Failed to clear featured assignments" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/assignments/featured:DELETE");
     }
 }

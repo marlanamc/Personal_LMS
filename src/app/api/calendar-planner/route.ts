@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { Prisma } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { handleApiError } from '@/lib/api-error';
 
 const SUBJECT_KEY = 'calendar-planner';
 
@@ -79,8 +80,7 @@ export async function GET() {
       updatedAt: row?.updatedAt ?? null,
     });
   } catch (error) {
-    console.error('[CalendarPlanner] GET error', error);
-    return NextResponse.json({ error: 'Failed to fetch planner state' }, { status: 500 });
+    return handleApiError(error, 'api/calendar-planner:GET');
   }
 }
 
@@ -117,7 +117,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, updatedAt: state.updatedAt });
   } catch (error) {
-    console.error('[CalendarPlanner] POST error', error);
-    return NextResponse.json({ error: 'Failed to save planner state' }, { status: 500 });
+    return handleApiError(error, 'api/calendar-planner:POST');
   }
 }

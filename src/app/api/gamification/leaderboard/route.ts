@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getTimeframedLeaderboard, LeaderboardRange } from '@/lib/gamification';
+import { handleApiError } from '@/lib/api-error';
 
 /**
  * GET /api/gamification/leaderboard
@@ -24,7 +25,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ leaderboard });
   } catch (error) {
-    console.error('[Leaderboard] Error:', error);
-    return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 });
+    return handleApiError(error, 'api/gamification/leaderboard:GET');
   }
 }

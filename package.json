@@ -13,6 +13,9 @@
     "analyze": "ANALYZE=true next build",
     "analyze:server": "BUNDLE_ANALYZE=server ANALYZE=true next build",
     "analyze:browser": "BUNDLE_ANALYZE=browser ANALYZE=true next build",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:api": "vitest run tests/api",
     "test:gamification": "node --import tsx scripts/tests/gamification-helpers.test.ts",
     "test:activity-submit": "node --import tsx scripts/tests/activity-submit-assignmentid.test.ts",
     "test:e2e": "npx playwright test",
@@ -37,6 +40,8 @@
   "dependencies": {
     "@playwright/test": "^1.58.2",
     "@prisma/client": "^6.19.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.3",
     "@vercel/analytics": "^1.6.1",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.23.25",
@@ -62,6 +67,8 @@
     "prisma": "^6.19.0",
     "tailwindcss": "^4",
     "tsx": "^4.19.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^3.2.4"
   }
 }

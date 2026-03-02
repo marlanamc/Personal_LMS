@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 async function getClassAccess(userId: string, classId: string): Promise<{ exists: boolean; hasAccess: boolean }> {
     const classItem = await prisma.class.findUnique({
@@ -86,12 +87,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(assignment);
     } catch (error: unknown) {
-        console.error("Error creating assignment:", error);
-        const message = error instanceof Error ? error.message : undefined;
-        return NextResponse.json(
-            { error: message || "Failed to create assignment" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/assignments:POST");
     }
 }
 
@@ -149,13 +145,7 @@ export async function PATCH(request: NextRequest) {
 
         return NextResponse.json(updatedAssignment);
     } catch (error: unknown) {
-        console.error("Error updating assignment:", error);
-        const message = error instanceof Error ? error.message : undefined;
-        return NextResponse.json(
-            { error: message || "Failed to update assignment" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/assignments:PATCH");
     }
 }
-
 

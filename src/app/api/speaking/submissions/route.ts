@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
+import { handleApiError } from '@/lib/api-error';
 
 const prisma = new PrismaClient();
 
@@ -92,11 +93,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ success: true, submission });
     } catch (error) {
-        console.error('Error submitting speaking warm-up:', error);
-        return NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 }
-        );
+        return handleApiError(error, 'api/speaking/submissions:POST');
     }
 }
 
@@ -157,10 +154,6 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({ submission: transformedSubmission });
     } catch (error) {
-        console.error('Error fetching speaking submission:', error);
-        return NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 }
-        );
+        return handleApiError(error, 'api/speaking/submissions:GET');
     }
 }

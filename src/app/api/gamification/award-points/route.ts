@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { awardPoints, updateStreak, calculateQuizPoints, getActivityPoints, checkAndAwardAchievements } from '@/lib/gamification';
 import { prisma } from '@/lib/prisma';
+import { enforceRateLimit } from '@/lib/rate-limit';
+import { ApiError, handleApiError } from '@/lib/api-error';
 
 /**
  * POST /api/gamification/award-points
@@ -16,10 +18,19 @@ export async function POST(req: NextRequest) {
     }
 
     const userId = session.user.id;
+    const rateLimitResponse = await enforceRateLimit({
+      request: req,
+      limiterName: 'award-points',
+      userId,
+    });
+    if (rateLimitResponse) {
+      return rateLimitResponse;
+    }
+
     const { submissionId, activityType, score } = await req.json();
 
     if (!submissionId) {
-      return NextResponse.json({ error: 'Missing submissionId' }, { status: 400 });
+      throw new ApiError(400, 'missing_submission_id', 'Missing submissionId');
     }
 
     // Check if points already awarded for this submission
@@ -38,7 +49,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!submission) {
-      return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
+      throw new ApiError(404, 'submission_not_found', 'Submission not found');
     }
 
     if (submission.pointsAwarded > 0) {
@@ -94,7 +105,6 @@ export async function POST(req: NextRequest) {
       user,
     });
   } catch (error) {
-    console.error('[Award Points] Error:', error);
-    return NextResponse.json({ error: 'Failed to award points' }, { status: 500 });
+    return handleApiError(error, 'api/gamification/award-points');
   }
 }

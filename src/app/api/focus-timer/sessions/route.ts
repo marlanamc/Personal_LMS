@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { POINTS } from "@/lib/gamification/constants";
 import { checkAndAwardAchievements, updateStreak } from "@/lib/gamification";
+import { handleApiError } from "@/lib/api-error";
 
 const SOURCE = "focus_timer";
 const SESSION_REASON_VERSION = 1;
@@ -91,8 +92,7 @@ export async function GET() {
 
     return NextResponse.json({ sessions, totals });
   } catch (error) {
-    console.error("[Focus Timer Sessions][GET] Error:", error);
-    return NextResponse.json({ error: "Failed to load focus sessions" }, { status: 500 });
+    return handleApiError(error, "api/focus-timer/sessions:GET");
   }
 }
 
@@ -223,7 +223,6 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[Focus Timer Sessions][POST] Error:", error);
-    return NextResponse.json({ error: "Failed to save focus session" }, { status: 500 });
+    return handleApiError(error, "api/focus-timer/sessions:POST");
   }
 }

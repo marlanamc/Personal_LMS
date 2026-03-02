@@ -42,6 +42,17 @@ const envVars: EnvVar[] = [
     validate: (value) => value.length >= 32,
   },
   {
+    key: 'UPSTASH_REDIS_REST_URL',
+    required: false,
+    description: 'Upstash Redis REST URL for API rate limiting',
+    validate: (value) => value.startsWith('https://'),
+  },
+  {
+    key: 'UPSTASH_REDIS_REST_TOKEN',
+    required: false,
+    description: 'Upstash Redis REST token for API rate limiting',
+  },
+  {
     key: 'SPOTIFY_CLIENT_ID',
     required: false,
     description: 'Spotify OAuth client ID for Focus Timer connection',
@@ -106,6 +117,14 @@ export function validateEnv(): void {
   if (hasSpotifyClientId !== hasSpotifyClientSecret) {
     errors.push(
       `❌ Incomplete Spotify configuration\n   Set both SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET, or leave both unset`
+    );
+  }
+
+  const hasUpstashUrl = Boolean(process.env.UPSTASH_REDIS_REST_URL);
+  const hasUpstashToken = Boolean(process.env.UPSTASH_REDIS_REST_TOKEN);
+  if (hasUpstashUrl !== hasUpstashToken) {
+    errors.push(
+      `❌ Incomplete Upstash configuration\n   Set both UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN, or leave both unset`
     );
   }
 

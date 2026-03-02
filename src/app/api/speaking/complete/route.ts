@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 import { awardPoints, updateStreak, checkAndAwardAchievements } from '@/lib/gamification';
+import { handleApiError } from '@/lib/api-error';
 
 const prisma = new PrismaClient();
 
@@ -124,10 +125,6 @@ export async function POST(request: NextRequest) {
             currentStreak: updatedUser.currentStreak,
         });
     } catch (error) {
-        console.error('Error completing warmup activity:', error);
-        return NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 }
-        );
+        return handleApiError(error, 'api/speaking/complete:POST');
     }
 }

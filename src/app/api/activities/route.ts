@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { collapseEdPronunciationActivities } from "@/lib/activity-list-dedupe";
+import { handleApiError } from "@/lib/api-error";
 
 export async function POST(request: NextRequest) {
     try {
@@ -40,12 +41,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(activity);
     } catch (error: unknown) {
-        console.error("Error creating activity:", error);
-        const message = error instanceof Error ? error.message : undefined;
-        return NextResponse.json(
-            { error: message || "Failed to create activity" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/activities:POST");
     }
 }
 
@@ -62,14 +58,8 @@ export async function GET() {
 
         return NextResponse.json(collapseEdPronunciationActivities(activities));
     } catch (error: unknown) {
-        console.error("Error fetching activities:", error);
-        const message = error instanceof Error ? error.message : undefined;
-        return NextResponse.json(
-            { error: message || "Failed to fetch activities" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/activities:GET");
     }
 }
-
 
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { resetWeeklyPoints } from "@/lib/gamification";
+import { handleApiError } from "@/lib/api-error";
 
 /**
  * Cron job to reset weekly leaderboard points
@@ -43,10 +44,6 @@ export async function GET(request: NextRequest) {
             resetDate: new Date().toISOString()
         });
     } catch (error) {
-        console.error('[Cron] Error resetting weekly points:', error);
-        return NextResponse.json(
-            { error: "Failed to reset weekly points" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/cron/reset-weekly-points:GET");
     }
 }

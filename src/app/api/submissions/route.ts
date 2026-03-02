@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 export async function POST(request: NextRequest) {
     try {
@@ -73,12 +74,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(submission);
     } catch (error: unknown) {
-        console.error("Error creating submission:", error);
-        const message = error instanceof Error ? error.message : undefined;
-        return NextResponse.json(
-            { error: message || "Failed to create submission" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/submissions:POST");
     }
 }
 
@@ -135,15 +131,9 @@ export async function PUT(request: NextRequest) {
 
         return NextResponse.json(updated);
     } catch (error: unknown) {
-        console.error("Error updating submission:", error);
-        const message = error instanceof Error ? error.message : undefined;
-        return NextResponse.json(
-            { error: message || "Failed to update submission" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/submissions:PUT");
     }
 }
-
 
 
 

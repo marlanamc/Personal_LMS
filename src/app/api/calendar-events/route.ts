@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canManageClass } from "@/lib/class-access";
+import { handleApiError } from "@/lib/api-error";
 
 export async function POST(request: NextRequest) {
     try {
@@ -67,12 +68,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(event);
     } catch (error: unknown) {
-        console.error("Error creating calendar event:", error);
-        const message = error instanceof Error ? error.message : undefined;
-        return NextResponse.json(
-            { error: message || "Failed to create calendar event" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/calendar-events:POST");
     }
 }
 
@@ -112,11 +108,6 @@ export async function DELETE(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error: unknown) {
-        console.error("Error deleting calendar event:", error);
-        const message = error instanceof Error ? error.message : undefined;
-        return NextResponse.json(
-            { error: message || "Failed to delete calendar event" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/calendar-events:DELETE");
     }
 }

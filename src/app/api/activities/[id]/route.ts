@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -52,12 +53,7 @@ export async function PUT(request: NextRequest, { params }: Props) {
 
         return NextResponse.json(activity);
     } catch (error: unknown) {
-        console.error("Error updating activity:", error);
-        const message = error instanceof Error ? error.message : undefined;
-        return NextResponse.json(
-            { error: message || "Failed to update activity" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/activities/[id]:PUT");
     }
 }
 
@@ -93,15 +89,9 @@ export async function DELETE(request: NextRequest, { params }: Props) {
 
         return NextResponse.json({ message: "Activity archived successfully" });
     } catch (error: unknown) {
-        console.error("Error deleting activity:", error);
-        const message = error instanceof Error ? error.message : undefined;
-        return NextResponse.json(
-            { error: message || "Failed to delete activity" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/activities/[id]:DELETE");
     }
 }
-
 
 
 

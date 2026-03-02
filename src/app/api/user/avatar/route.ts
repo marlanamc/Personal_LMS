@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { handleApiError } from '@/lib/api-error';
 import {
   isValidAvatarId,
   isValidColorId,
@@ -39,8 +40,7 @@ export async function GET() {
       avatarColor: user.avatarColor || DEFAULT_COLOR,
     });
   } catch (error) {
-    console.error('[Avatar] Error fetching avatar:', error);
-    return NextResponse.json({ error: 'Failed to fetch avatar' }, { status: 500 });
+    return handleApiError(error, 'api/user/avatar:GET');
   }
 }
 
@@ -97,7 +97,6 @@ export async function POST(req: NextRequest) {
       avatarColor: user.avatarColor || DEFAULT_COLOR,
     });
   } catch (error) {
-    console.error('[Avatar] Error updating avatar:', error);
-    return NextResponse.json({ error: 'Failed to update avatar' }, { status: 500 });
+    return handleApiError(error, 'api/user/avatar:POST');
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 const VALID_SUBJECTS = new Set(["health", "job-search"] as const);
 
@@ -82,8 +83,7 @@ export async function GET(
       updatedAt: state?.updatedAt ?? null,
     });
   } catch (error) {
-    console.error("[UtilitySubject] GET error:", error);
-    return NextResponse.json({ error: "Failed to fetch state" }, { status: 500 });
+    return handleApiError(error, "api/utility-subjects/[subjectKey]:GET");
   }
 }
 
@@ -138,7 +138,6 @@ export async function POST(
 
     return NextResponse.json({ ok: true, updatedAt: state.updatedAt });
   } catch (error) {
-    console.error("[UtilitySubject] POST error:", error);
-    return NextResponse.json({ error: "Failed to save state" }, { status: 500 });
+    return handleApiError(error, "api/utility-subjects/[subjectKey]:POST");
   }
 }

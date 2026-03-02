@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 
 const MAX_ANNOUNCEMENT_LENGTH = 1000;
 
@@ -63,10 +64,6 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
         return NextResponse.json(updatedClass);
     } catch (error: unknown) {
-        console.error("Error updating class announcement:", error);
-        return NextResponse.json(
-            { error: "Failed to update class announcement" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/classes/[id]:PATCH");
     }
 }

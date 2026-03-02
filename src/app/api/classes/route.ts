@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateUniqueClassCode, isValidClassCodeFormat } from "@/lib/generateClassCode";
+import { handleApiError } from "@/lib/api-error";
 
 export async function GET() {
     try {
@@ -35,11 +36,7 @@ export async function GET() {
 
         return NextResponse.json(classes);
     } catch (error: unknown) {
-        console.error("Error fetching classes:", error);
-        return NextResponse.json(
-            { error: "Failed to fetch classes" },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/classes:GET");
     }
 }
 
@@ -103,15 +100,9 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(newClass);
     } catch (error: unknown) {
-        console.error("Error creating class:", error);
-        // SECURITY: Don't expose internal error details to user
-        return NextResponse.json(
-            { error: "Failed to create class. Please try again." },
-            { status: 500 }
-        );
+        return handleApiError(error, "api/classes:POST");
     }
 }
-
 
 
 

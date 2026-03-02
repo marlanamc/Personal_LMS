@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getTodayChallengeWithProgress } from "@/lib/daily-challenge";
+import { handleApiError } from "@/lib/api-error";
 
 export async function GET() {
   try {
@@ -16,10 +17,6 @@ export async function GET() {
 
     return NextResponse.json(challenge);
   } catch (error) {
-    console.error("[Daily Challenge] Error fetching challenge:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch daily challenge" },
-      { status: 500 }
-    );
+    return handleApiError(error, "api/daily-challenge:GET");
   }
 }
