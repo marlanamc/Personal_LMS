@@ -4317,7 +4317,12 @@ kbd {
 }
 
 :where(:root[data-theme="light"], :root.light) .mobile-anchor-stack {
-  background: color-mix(in srgb, var(--color-bg-surface) 90%, var(--color-light-card-bottom) 10%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent-mint) 7%, var(--color-bg-surface) 93%) 0%,
+    color-mix(in srgb, var(--color-accent-sakura) 7%, var(--color-bg-surface) 93%) 52%,
+    color-mix(in srgb, var(--color-accent-teal) 7%, var(--color-bg-surface) 93%) 100%
+  );
   border-color: color-mix(in srgb, var(--color-border-subtle) 90%, white 10%);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.72),

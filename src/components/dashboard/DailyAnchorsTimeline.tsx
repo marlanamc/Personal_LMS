@@ -154,6 +154,13 @@ function getMinutesBetweenEvents(currentTime: string, nextTime: string): number 
   return diff >= 0 ? diff : (24 * 60) + diff;
 }
 
+function isWithinNowWindow(timeStr: string, nowMinutes: number | null): boolean {
+  if (nowMinutes === null) return false;
+  const scheduledMinutes = parseHHMMToMinutes(timeStr);
+  const diff = nowMinutes - scheduledMinutes;
+  return diff >= 0 && diff <= 30;
+}
+
 function arraysEqualByValue(a?: DayOfWeek[], b?: DayOfWeek[]): boolean {
   const left = a ? [...a].sort((x, y) => x - y) : [];
   const right = b ? [...b].sort((x, y) => x - y) : [];
@@ -306,7 +313,12 @@ function MobileAnchorItem({
                 </p>
               </div>
 
-              <div className="relative shrink-0 text-right">
+              <div className="relative shrink-0 text-right flex flex-col items-end">
+                {isWithinNowWindow(anchor.scheduledTime, nowMinutes) && (
+                  <span className="inline-flex items-center px-2 py-0.5 mb-1 rounded-full text-[10px] font-semibold uppercase tracking-[0.08em] bg-primary/15 text-primary">
+                    Now
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={(e) => {
@@ -314,7 +326,7 @@ function MobileAnchorItem({
                     e.stopPropagation();
                     setIsTimeScrubberOpen((open) => !open);
                   }}
-                  className="text-xl font-medium text-text-secondary tabular-nums hover:text-primary transition-colors"
+                  className="text-xl font-medium text-text-secondary/70 tabular-nums hover:text-text-secondary transition-colors"
                   aria-label={`Adjust ${anchor.label} time`}
                 >
                   {formatTimeLabel(anchor.scheduledTime)}
@@ -907,7 +919,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
         isEditingAnchors &&
         createPortal(
           <div className="fixed inset-0 z-[9999]">
-            <div className="absolute inset-0 bg-bg-base/70 backdrop-blur-sm" onClick={closeAnchorEditor} aria-hidden />
+            <div className="absolute inset-0 bg-bg-base/78 backdrop-blur-md" onClick={closeAnchorEditor} aria-hidden />
             <div className="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain">
               <div
                 className="mx-auto h-full w-full max-w-6xl"
@@ -916,36 +928,36 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                   paddingBottom: 'max(0rem, env(safe-area-inset-bottom))',
                 }}
               >
-                <div className="min-h-full bg-bg-base sm:my-4 sm:rounded-2xl sm:border sm:border-border-subtle sm:bg-bg-base/95 sm:backdrop-blur-sm sm:shadow-xl">
+                <div className="min-h-full bg-bg-base/98 sm:my-4 sm:rounded-3xl sm:border sm:border-border-subtle sm:bg-bg-base/95 sm:backdrop-blur-sm sm:shadow-xl">
                   <div
-                    className="sticky top-0 z-20 px-4 sm:px-6 py-3 bg-bg-base/95 backdrop-blur-sm border-b border-border-subtle"
+                    className="sticky top-0 z-20 px-4 sm:px-6 py-3 bg-bg-base/92 backdrop-blur-md border-b border-border-subtle/70"
                     style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm sm:text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">Edit Anchors</p>
-                      <div className="flex items-center gap-2 min-w-0">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm sm:text-xs font-semibold uppercase tracking-[0.14em] text-text-muted/85">Edit Anchors</p>
+                      <div className="hidden sm:flex items-center gap-2.5 min-w-0">
                         <button
                           type="button"
                           onClick={closeAnchorEditor}
-                          className="inline-flex items-center justify-center h-11 px-3 rounded-xl border border-border-subtle text-sm font-semibold text-text-muted hover:text-text hover:border-accent-teal/50 transition-colors"
+                          className="inline-flex items-center justify-center h-10 px-3.5 rounded-xl border border-border-subtle/80 text-sm font-semibold text-text-muted hover:text-text hover:border-accent-teal/45 transition-colors"
                         >
                           Cancel
                         </button>
                         <button
                           type="button"
                           onClick={saveAnchorEdits}
-                          className="inline-flex items-center gap-1.5 h-11 px-4 rounded-xl text-sm font-semibold sakura-action"
+                          className="inline-flex items-center gap-1.5 h-10 px-4.5 rounded-xl text-sm font-semibold sakura-action"
                         >
                           <Save size={14} />
                           Save
                         </button>
                       </div>
                     </div>
-                    <div className="mt-2">
+                    <div className="mt-2.5">
                       <button
                         type="button"
                         onClick={addAnchor}
-                        className="inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-xl text-sm font-semibold border border-border-subtle text-text-muted hover:text-text hover:border-accent-teal/50"
+                        className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl text-sm font-semibold border border-border-subtle/80 bg-bg-surface/35 text-text-muted hover:text-text hover:border-accent-teal/45 transition-colors"
                       >
                         <Plus size={14} />
                         Add Anchor
@@ -954,34 +966,34 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                   </div>
 
                   <div
-                    className="space-y-3 px-4 sm:px-6 py-4 sm:py-5"
+                    className="space-y-4 px-4 sm:px-6 py-4 sm:py-5"
                     style={{ paddingBottom: 'max(7rem, env(safe-area-inset-bottom))' }}
                   >
                     {draftTemplates.map((anchor) => (
-                      <div key={`edit-${anchor.id}`} className="rounded-2xl border border-border-subtle bg-bg-surface/70 p-4 space-y-3">
-                        <div className="flex flex-col gap-2 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] sm:items-center sm:gap-2">
+                      <div key={`edit-${anchor.id}`} className="rounded-3xl border border-border-subtle/75 bg-bg-surface/55 p-4.5 sm:p-5 space-y-3.5 shadow-[0_10px_28px_rgba(0,0,0,0.12)]">
+                        <div className="flex flex-col gap-2.5 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] sm:items-center sm:gap-2.5">
                           <input
                             type="text"
                             value={anchor.label}
                             onChange={(e) => updateDraftTemplate(anchor.id, { label: e.target.value })}
-                            className="h-11 min-w-0 rounded-xl border border-border-subtle bg-bg-surface px-3 text-base text-text"
+                            className="h-11 min-w-0 rounded-2xl border border-border-subtle/80 bg-bg-surface/50 px-3.5 text-base text-text placeholder:text-text-muted/55"
                             aria-label={`Edit ${anchor.id} label`}
                             name={`anchor-label-${anchor.id}`}
                             autoComplete="off"
                           />
-                          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2 sm:contents">
+                          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2.5 sm:contents">
                             <input
                               type="time"
                               value={anchor.scheduledTime}
                               onChange={(e) => updateDraftTemplate(anchor.id, { scheduledTime: e.target.value })}
-                              className="h-11 w-full sm:w-auto rounded-xl border border-border-subtle bg-bg-surface px-3 text-base text-text"
+                              className="h-11 w-full sm:w-auto rounded-2xl border border-border-subtle/80 bg-bg-surface/50 px-3.5 text-base text-text"
                               aria-label={`Edit ${anchor.id} time`}
                               name={`anchor-time-${anchor.id}`}
                             />
                             <select
                               value={anchor.icon}
                               onChange={(e) => updateDraftTemplate(anchor.id, { icon: e.target.value as AnchorIcon })}
-                              className="h-11 w-full sm:w-auto rounded-xl border border-border-subtle bg-bg-surface px-3 text-base text-text min-w-0"
+                              className="h-11 w-full sm:w-auto rounded-2xl border border-border-subtle/80 bg-bg-surface/50 px-3.5 text-base text-text min-w-0"
                               aria-label={`Edit ${anchor.id} icon`}
                               name={`anchor-icon-${anchor.id}`}
                             >
@@ -994,7 +1006,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                             <button
                               type="button"
                               onClick={() => removeAnchor(anchor.id)}
-                              className="h-11 w-11 inline-flex items-center justify-center rounded-xl border border-border-subtle text-text-muted hover:text-error hover:border-error/40 shrink-0"
+                              className="h-11 w-11 inline-flex items-center justify-center rounded-2xl border border-border-subtle/80 text-text-muted hover:text-error hover:border-error/45 hover:bg-error/5 transition-colors shrink-0"
                               aria-label={`Remove ${anchor.label || 'anchor'}`}
                               title="Remove anchor"
                             >
@@ -1003,7 +1015,8 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 flex-wrap">
+                        <div className="space-y-2">
+                          <div className="grid grid-cols-7 gap-2">
                           {WEEKDAY_OPTIONS.map((day) => {
                             const enabled = anchor.daysOfWeek?.includes(day.value) ?? false;
                             return (
@@ -1013,11 +1026,11 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                                 onClick={() => toggleTemplateDay(anchor.id, day.value)}
                                 aria-pressed={enabled}
                                 className={`
-                                  h-9 min-w-9 px-2.5 rounded-lg text-xs font-semibold border transition-colors
+                                  h-9 min-w-0 px-0 rounded-xl text-sm font-semibold border transition-colors
                                   ${
                                     enabled
-                                      ? 'bg-accent-teal/15 text-accent-teal border-accent-teal/70 ring-1 ring-accent-teal/60'
-                                      : 'bg-bg-elevated text-text-muted border-border-subtle hover:text-text'
+                                      ? 'bg-accent-teal/18 text-accent-teal border-accent-teal/70 ring-1 ring-accent-teal/55'
+                                      : 'bg-bg-elevated/65 text-text-muted border-border-subtle/80 hover:text-text'
                                   }
                                 `}
                                 title={day.label}
@@ -1026,7 +1039,8 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                               </button>
                             );
                           })}
-                          <span className="ml-1 text-xs text-text-muted">
+                          </div>
+                          <span className="block text-xs text-text-muted/85">
                             {anchor.daysOfWeek && anchor.daysOfWeek.length > 0 ? 'Runs on selected days' : 'Runs every day'}
                           </span>
                         </div>
@@ -1035,14 +1049,14 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                   </div>
 
                   <div
-                    className="fixed inset-x-0 bottom-0 z-30 border-t border-border-subtle bg-bg-base/95 backdrop-blur-sm px-4 py-3 sm:hidden"
+                    className="fixed inset-x-0 bottom-0 z-30 border-t border-border-subtle/75 bg-bg-base/93 backdrop-blur-md px-4 py-3 sm:hidden"
                     style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
                   >
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={closeAnchorEditor}
-                        className="inline-flex items-center justify-center h-11 flex-1 rounded-xl border border-border-subtle text-sm font-semibold text-text-muted hover:text-text hover:border-accent-teal/50 transition-colors"
+                        className="inline-flex items-center justify-center h-11 flex-1 rounded-xl border border-border-subtle/80 text-sm font-semibold text-text-muted hover:text-text hover:border-accent-teal/45 transition-colors"
                       >
                         Cancel
                       </button>
