@@ -10,6 +10,7 @@ import {
   resolveAnchorStatuses,
   toDateKey,
   type AnchorId,
+  type AnchorStatus,
   type DailyAnchor,
   type DailyAnchorState,
   type DailyAnchorTemplate,
@@ -346,6 +347,25 @@ export function useDailyAnchors(storageScope: string) {
     [setAnchorsForDate, store],
   );
 
+  const setAnchorStatusForDate = useCallback(
+    (date: Date, anchorId: AnchorId, status: AnchorStatus) => {
+      const dateKey = toDateKey(date);
+      const currentState = ensureDailyState(store, dateKey);
+
+      const nextAnchors = currentState.anchors.map((anchor) => {
+        if (anchor.id !== anchorId) return anchor;
+        return {
+          ...anchor,
+          status,
+          actualTime: status === 'done' ? new Date().toISOString() : undefined,
+        } satisfies DailyAnchor;
+      });
+
+      setAnchorsForDate(date, nextAnchors);
+    },
+    [setAnchorsForDate, store],
+  );
+
   return {
     isLoaded,
     isSaving,
@@ -354,6 +374,7 @@ export function useDailyAnchors(storageScope: string) {
     sleepRhythmStreakDays,
     getStateForDate,
     toggleAnchorForDate,
+    setAnchorStatusForDate,
     setAnchorsForDate,
     setAnchorTemplates,
   };
@@ -368,6 +389,7 @@ export function useDailyAnchorsForToday(storageScope: string) {
     sleepRhythmStreakDays,
     getStateForDate,
     toggleAnchorForDate,
+    setAnchorStatusForDate,
     setAnchorsForDate,
     setAnchorTemplates,
   } = useDailyAnchors(storageScope);
@@ -392,6 +414,13 @@ export function useDailyAnchorsForToday(storageScope: string) {
     [setAnchorsForDate],
   );
 
+  const setTodayAnchorStatus = useCallback(
+    (anchorId: AnchorId, status: AnchorStatus) => {
+      setAnchorStatusForDate(new Date(), anchorId, status);
+    },
+    [setAnchorStatusForDate],
+  );
+
   return {
     isLoaded,
     isSaving,
@@ -403,6 +432,7 @@ export function useDailyAnchorsForToday(storageScope: string) {
     sleepRhythmStreakDays,
     toggleAnchor,
     setTodayAnchors,
+    setTodayAnchorStatus,
     setAnchorTemplates,
   };
 }

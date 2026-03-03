@@ -227,6 +227,8 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
                           ? `Started at ${actualTimeLabel}`
                           : anchor.status === 'missed'
                             ? 'Missed'
+                            : anchor.status === 'skipped'
+                              ? 'Skipped today'
                             : anchor.attachedTaskCount
                               ? `${anchor.attachedTaskCount} tagged ${anchor.attachedTaskCount === 1 ? 'task' : 'tasks'}`
                               : 'Waiting'}

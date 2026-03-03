@@ -156,8 +156,8 @@ export function DailyAnchorsDateSummary({ storageScope, date }: DailyAnchorsDate
                     </span>
                   </div>
                 </div>
-                <span className={`shrink-0 text-xs font-semibold uppercase ${anchor.status === 'done' ? 'text-accent-mint' : anchor.status === 'missed' ? 'text-warning' : 'text-text-muted'}`}>
-                  {anchor.status === 'done' ? 'Done' : anchor.status === 'missed' ? 'Missed' : 'Pending'}
+                <span className={`shrink-0 text-xs font-semibold uppercase ${anchor.status === 'done' ? 'text-accent-mint' : anchor.status === 'missed' ? 'text-warning' : anchor.status === 'skipped' ? 'text-accent-teal' : 'text-text-muted'}`}>
+                  {anchor.status === 'done' ? 'Done' : anchor.status === 'missed' ? 'Missed' : anchor.status === 'skipped' ? 'Skipped' : 'Pending'}
                 </span>
               </div>
             );

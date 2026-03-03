@@ -192,13 +192,14 @@ interface MobileAnchorItemProps {
     label: string;
     icon: AnchorIcon;
     scheduledTime: string;
-    status: 'waiting' | 'done' | 'missed';
+    status: 'waiting' | 'done' | 'missed' | 'skipped';
   };
   isActive: boolean;
   isLast: boolean;
   isFirst: boolean;
   isLoaded: boolean;
   onToggle: () => void;
+  onToggleSkip: () => void;
   onTimeChange: (anchorId: AnchorId, newTime: string) => void;
   iconByName: Record<AnchorIcon, typeof Sunrise>;
   index: number;
@@ -214,6 +215,7 @@ function MobileAnchorItem({
   isFirst: _isFirst,
   isLoaded,
   onToggle,
+  onToggleSkip,
   onTimeChange,
   iconByName,
   index,
@@ -226,6 +228,7 @@ function MobileAnchorItem({
   const Icon = iconByName[anchor.icon] || Moon;
   const isDone = anchor.status === 'done';
   const isMissed = anchor.status === 'missed';
+  const isSkipped = anchor.status === 'skipped';
 
   useEffect(() => {
     return () => {
@@ -259,7 +262,8 @@ function MobileAnchorItem({
             ${isDone ? 'mobile-anchor-row-done' : ''}
             ${isActive && !isDone ? 'mobile-anchor-row-active' : ''}
             ${isMissed ? 'mobile-anchor-row-missed' : ''}
-            ${!isDone && !isActive && !isMissed ? 'mobile-anchor-row-future' : ''}
+            ${isSkipped ? 'mobile-anchor-row-skipped' : ''}
+            ${!isDone && !isActive && !isMissed && !isSkipped ? 'mobile-anchor-row-future' : ''}
             ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
           `}
         >
@@ -273,6 +277,8 @@ function MobileAnchorItem({
                   ? 'mobile-anchor-orb-done'
                   : isMissed
                     ? 'mobile-anchor-orb-missed'
+                    : isSkipped
+                      ? 'mobile-anchor-orb-skipped'
                     : isActive
                       ? 'mobile-anchor-orb-active'
                       : 'mobile-anchor-orb-future'
@@ -307,7 +313,8 @@ function MobileAnchorItem({
                       ${isDone ? 'text-text' : ''}
                       ${isActive && !isDone ? 'text-text' : ''}
                       ${isMissed ? 'text-text-muted/60' : ''}
-                      ${!isDone && !isActive && !isMissed ? 'text-text' : ''}
+                      ${isSkipped ? 'text-text-muted/75' : ''}
+                      ${!isDone && !isActive && !isMissed && !isSkipped ? 'text-text' : ''}
                     `}
                   >
                     {anchor.label}
@@ -351,6 +358,17 @@ function MobileAnchorItem({
               {nextEventLabel && <p className="text-text-muted">Next event: <span className="font-medium text-text">{nextEventLabel}</span></p>}
               {nowMinutes === null && <p className="text-[11px] text-text-muted/70">Live time unavailable</p>}
             </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleSkip();
+              }}
+              className="mt-3 text-xs font-semibold tracking-[0.02em] text-text-secondary/80 underline underline-offset-2 hover:text-text transition-colors"
+            >
+              {isSkipped ? 'Undo skip' : 'Skip today'}
+            </button>
           </div>
         )}
 
@@ -375,7 +393,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { anchors, activeAnchor, toggleAnchor, anchorTemplates, setTodayAnchors, setAnchorTemplates, isLoaded } =
+  const { anchors, activeAnchor, toggleAnchor, anchorTemplates, setTodayAnchors, setTodayAnchorStatus, setAnchorTemplates, isLoaded } =
     useDailyAnchorsForToday(storageScope);
 
   const [hoveredAnchor, setHoveredAnchor] = useState<AnchorId | null>(null);
@@ -508,6 +526,10 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
     );
     setTodayAnchors(updatedAnchors);
   }, [anchors, setTodayAnchors]);
+
+  const handleToggleSkipToday = useCallback((anchorId: AnchorId, isSkipped: boolean) => {
+    setTodayAnchorStatus(anchorId, isSkipped ? 'waiting' : 'skipped');
+  }, [setTodayAnchorStatus]);
 
   useEffect(() => {
     if (searchParams.get('anchors') !== 'edit' || isEditingAnchors) return;
@@ -880,6 +902,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                       isLast={idx === sortedAnchors.length - 1}
                       isLoaded={isLoaded}
                       onToggle={() => toggleAnchor(anchor.id)}
+                      onToggleSkip={() => handleToggleSkipToday(anchor.id, anchor.status === 'skipped')}
                       onTimeChange={handleMobileTimeChange}
                       iconByName={iconByName}
                       index={idx}

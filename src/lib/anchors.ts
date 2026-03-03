@@ -15,7 +15,7 @@ export type AnchorIcon =
 
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
-export type AnchorStatus = 'waiting' | 'done' | 'missed';
+export type AnchorStatus = 'waiting' | 'done' | 'missed' | 'skipped';
 
 export interface DailyAnchor {
   id: AnchorId;
@@ -239,7 +239,11 @@ function normalizeAnchor(dateKey: string, raw: unknown, fallbackTemplate?: Daily
   const statusFromLegacy =
     candidate.isComplete === true ? 'done' : candidate.isComplete === false ? 'waiting' : undefined;
   const statusCandidate = typeof candidate.status === 'string' ? candidate.status : undefined;
-  const status = statusCandidate === 'done' || statusCandidate === 'missed' || statusCandidate === 'waiting'
+  const status =
+    statusCandidate === 'done' ||
+    statusCandidate === 'missed' ||
+    statusCandidate === 'waiting' ||
+    statusCandidate === 'skipped'
     ? statusCandidate
     : statusFromLegacy || 'waiting';
 
@@ -367,7 +371,7 @@ export function resolveAnchorStatuses(state: DailyAnchorState, now: Date): Daily
       return { ...anchor, status: 'waiting', actualTime: undefined };
     }
 
-    if (anchor.status === 'done') return anchor;
+    if (anchor.status === 'done' || anchor.status === 'skipped') return anchor;
     const scheduledMinutes = parseHHMMToMinutes(anchor.scheduledTime);
 
     if (isPastDay) {
