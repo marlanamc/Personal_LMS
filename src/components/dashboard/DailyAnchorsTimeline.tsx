@@ -262,7 +262,7 @@ function MobileAnchorItem({
             ${isDone ? 'mobile-anchor-row-done' : ''}
             ${isActive && !isDone ? 'mobile-anchor-row-active' : ''}
             ${isMissed ? 'mobile-anchor-row-missed' : ''}
-            ${isSkipped ? 'mobile-anchor-row-skipped' : ''}
+            ${isSkipped ? 'mobile-anchor-row-skipped mobile-anchor-row-muted' : ''}
             ${!isDone && !isActive && !isMissed && !isSkipped ? 'mobile-anchor-row-future' : ''}
             ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
           `}
@@ -278,7 +278,7 @@ function MobileAnchorItem({
                   : isMissed
                     ? 'mobile-anchor-orb-missed'
                     : isSkipped
-                      ? 'mobile-anchor-orb-skipped'
+                      ? 'mobile-anchor-orb-skipped mobile-anchor-orb-muted'
                     : isActive
                       ? 'mobile-anchor-orb-active'
                       : 'mobile-anchor-orb-future'
@@ -313,13 +313,13 @@ function MobileAnchorItem({
                       ${isDone ? 'text-text' : ''}
                       ${isActive && !isDone ? 'text-text' : ''}
                       ${isMissed ? 'text-text-muted/60' : ''}
-                      ${isSkipped ? 'text-text-muted/75' : ''}
+                      ${isSkipped ? 'text-text-muted/65 line-through decoration-text-muted/40' : ''}
                       ${!isDone && !isActive && !isMissed && !isSkipped ? 'text-text' : ''}
                     `}
                   >
                     {anchor.label}
                   </p>
-                  {isWithinNowWindow(anchor.scheduledTime, nowMinutes) && (
+                  {!isSkipped && isWithinNowWindow(anchor.scheduledTime, nowMinutes) && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-[0.08em] bg-primary/15 text-primary">
                       Now
                     </span>
@@ -335,7 +335,10 @@ function MobileAnchorItem({
                     e.stopPropagation();
                     setIsTimeScrubberOpen((open) => !open);
                   }}
-                  className="text-xl font-medium text-text-secondary/70 tabular-nums hover:text-text-secondary transition-colors"
+                  className={`
+                    text-xl font-medium tabular-nums transition-colors
+                    ${isSkipped ? 'text-text-muted/50 line-through decoration-text-muted/40' : 'text-text-secondary/70 hover:text-text-secondary'}
+                  `}
                   aria-label={`Adjust ${anchor.label} time`}
                 >
                   {formatTimeLabel(anchor.scheduledTime)}
@@ -354,8 +357,14 @@ function MobileAnchorItem({
               {formatShortTime(anchor.scheduledTime)}
             </p>
             <div className="mt-2 flex flex-col items-center gap-1 text-sm">
-              <p className="text-text-muted">In: <span className="font-medium text-text">{timeUntilLabel}</span></p>
-              {nextEventLabel && <p className="text-text-muted">Next event: <span className="font-medium text-text">{nextEventLabel}</span></p>}
+              {isSkipped ? (
+                <p className="text-text-muted">Skipped for today</p>
+              ) : (
+                <>
+                  <p className="text-text-muted">In: <span className="font-medium text-text">{timeUntilLabel}</span></p>
+                  {nextEventLabel && <p className="text-text-muted">Next event: <span className="font-medium text-text">{nextEventLabel}</span></p>}
+                </>
+              )}
               {nowMinutes === null && <p className="text-[11px] text-text-muted/70">Live time unavailable</p>}
             </div>
             <button
@@ -732,6 +741,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                 const isHovered = anchor.id === hoveredAnchor;
                 const isDone = anchor.status === 'done';
                 const isMissed = anchor.status === 'missed';
+                const isSkipped = anchor.status === 'skipped';
 
                 const displayTime = isDragging && dragPreviewTime ? dragPreviewTime : anchor.scheduledTime;
                 const position = getTimePosition(displayTime);
@@ -752,6 +762,8 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                   ? 'is-done'
                   : isMissed
                     ? 'is-missed'
+                    : isSkipped
+                      ? 'is-skipped'
                     : isActive
                       ? 'is-active'
                       : 'is-future';
@@ -774,22 +786,24 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                     >
                       <div className="text-xs font-bold text-text">{formatShortTime(displayTime)}</div>
                       {!isDragging && (
-                        <div className={`text-[10px] ${isDone ? 'text-secondary' : isMissed ? 'text-error/70' : 'text-text-muted'}`}>
+                        <div className={`text-[10px] ${isDone ? 'text-secondary' : isMissed ? 'text-error/70' : isSkipped ? 'text-text-muted/70' : 'text-text-muted'}`}>
                           {isDone
                             ? 'Completed'
                             : isMissed
                               ? 'Missed'
+                              : isSkipped
+                                ? 'Skipped'
                               : isLightsOutAnchor
                                 ? timeUntil
                                 : `In: ${inLabel}`}
                         </div>
                       )}
-                      {!isDragging && !isDone && !isMissed && !isLightsOutAnchor && timeToNextEventLabel && (
+                      {!isDragging && !isDone && !isMissed && !isSkipped && !isLightsOutAnchor && timeToNextEventLabel && (
                         <div className="text-[10px] text-text-muted">
                           Next Event: {timeToNextEventLabel}
                         </div>
                       )}
-                      {!isDragging && sleepWindowLabel && (
+                      {!isDragging && !isSkipped && sleepWindowLabel && (
                         <div className="text-[10px] text-text-muted">
                           Sleep window: {sleepWindowLabel}
                         </div>
@@ -823,31 +837,33 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                               ? 'bg-gradient-to-br from-secondary to-secondary/80 text-white border-2 border-secondary/50'
                               : isMissed
                                 ? 'bg-bg-surface/50 text-text-muted/40 border-2 border-border-subtle/50'
+                                : isSkipped
+                                  ? 'bg-bg-surface/40 text-text-muted/45 border-2 border-border-subtle/45 grayscale'
                                 : isActive
                                   ? `bg-gradient-to-br ${gradientByIcon(anchor.icon)} border-2 border-primary/30 text-text`
                                   : `bg-gradient-to-br ${gradientByIcon(anchor.icon)} border-2 border-border-subtle text-text-muted`
                           }
                           ${stateClass}
-                          ${isActive && !isDone && !isMissed ? 'ring-2 ring-accent-teal/25 animate-pulse-subtle' : ''}
+                          ${isActive && !isDone && !isMissed && !isSkipped ? 'ring-2 ring-accent-teal/25 animate-pulse-subtle' : ''}
                           hover:scale-105 active:scale-95
                           ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                           ${isDragging ? 'is-dragging scale-110 shadow-xl ring-2 ring-accent-teal/35' : ''}
                         `}
                         style={
-                          !isDone && !isMissed && !isDragging
+                          !isDone && !isMissed && !isSkipped && !isDragging
                             ? { ['--node-glow' as string]: getRiverFlowGradient(anchor.icon).glow }
                             : undefined
                         }
                       >
                         {/* Subtle gradient overlay */}
-                        {!isDone && !isMissed && (
+                        {!isDone && !isMissed && !isSkipped && (
                           <div
                             className={`absolute inset-0 bg-gradient-to-br ${getRiverFlowGradient(anchor.icon).from} ${getRiverFlowGradient(anchor.icon).to} opacity-40 transition-opacity duration-300 group-hover/node:opacity-70`}
                             aria-hidden
                           />
                         )}
                         {/* Hover glow effect */}
-                        {!isDone && !isMissed && (
+                        {!isDone && !isMissed && !isSkipped && (
                           <div
                             className="desktop-anchor-glow absolute inset-0 opacity-0 group-hover/node:opacity-100 transition-opacity duration-300 pointer-events-none"
                             style={{ boxShadow: `inset 0 0 12px var(--node-glow), 0 0 16px var(--node-glow)` }}

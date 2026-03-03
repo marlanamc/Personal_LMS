@@ -4048,6 +4048,11 @@ kbd {
   background: color-mix(in srgb, var(--color-accent-sakura) 6%, var(--color-bg-surface) 94%);
 }
 
+.mobile-anchor-row-muted {
+  opacity: 0.62;
+  filter: grayscale(0.38) saturate(0.72);
+}
+
 .mobile-anchor-row-future {
   background: color-mix(in srgb, var(--color-bg-surface) 94%, white 6%);
 }
@@ -4098,6 +4103,10 @@ kbd {
   );
   border-color: color-mix(in srgb, var(--color-accent-sakura) 24%, var(--color-border-subtle) 76%);
   color: color-mix(in srgb, var(--color-text-muted) 74%, var(--color-accent-teal) 26%);
+}
+
+.mobile-anchor-orb-muted {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 .mobile-anchor-orb-missed,
