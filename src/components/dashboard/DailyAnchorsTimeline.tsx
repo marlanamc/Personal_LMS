@@ -669,6 +669,19 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                         </div>
                       )}
                       {isDragging && <div className="text-[10px] text-primary">Release to set</div>}
+                      {!isDragging && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleToggleSkipToday(anchor.id, isSkipped);
+                          }}
+                          className="mt-2 block w-full text-center text-[10px] font-semibold tracking-[0.02em] text-text-secondary/80 underline underline-offset-2 hover:text-text transition-colors"
+                        >
+                          {isSkipped ? 'Undo skip' : 'Skip today'}
+                        </button>
+                      )}
                       <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-bg-elevated border-r border-b border-border-subtle rotate-45" />
                     </div>
 
