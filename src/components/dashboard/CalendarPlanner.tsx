@@ -37,6 +37,23 @@ function parseEventDate(input: Date | string) {
   return Number.isNaN(parsed.getTime()) ? null : dayStart(parsed);
 }
 
+function formatOptionalEventTime(input: Date | string): string | null {
+  const parsed = new Date(input);
+  if (Number.isNaN(parsed.getTime())) return null;
+  // Noon is our sentinel for "all-day / no explicit time".
+  if (parsed.getHours() === 12 && parsed.getMinutes() === 0) return null;
+  return parsed.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
+
+function formatOptionalEventTimeRange(startInput: Date | string, endInput?: Date | string | null): string | null {
+  const startLabel = formatOptionalEventTime(startInput);
+  if (!endInput) return startLabel;
+  const endLabel = formatOptionalEventTime(endInput);
+  if (!startLabel) return endLabel;
+  if (!endLabel || endLabel === startLabel) return startLabel;
+  return `${startLabel} - ${endLabel}`;
+}
+
 function eventTouchesDate(event: CalendarEvent, day: Date) {
   const start = parseEventDate(event.date);
   if (!start) return false;
@@ -157,15 +174,25 @@ export default function CalendarPlanner({ events, storageScope = "default" }: Ca
 
             {selectedEvents.length > 0 && (
               <div className="space-y-2 mt-4">
-                {selectedEvents.map((event, idx) => (
-                  <div key={`${event.id || event.title || "event"}-${idx}`} className="rounded-xl border border-border-subtle/50 bg-bg-elevated/60 px-4 py-3 elevation-3 hover:border-accent-sakura/30 transition-all group">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-medium text-text group-hover:text-accent-sakura transition-colors">{event.title || "Untitled event"}</p>
-                      <span className="px-2 py-0.5 rounded-full bg-bg-surface border border-border-subtle text-xs font-medium uppercase tracking-wide text-text-muted">{event.type || "event"}</span>
+                {selectedEvents.map((event, idx) => {
+                  const eventTime = formatOptionalEventTimeRange(event.date, event.endDate);
+                  return (
+                    <div key={`${event.id || event.title || "event"}-${idx}`} className="rounded-xl border border-border-subtle/50 bg-bg-elevated/60 px-4 py-3 elevation-3 hover:border-accent-sakura/30 transition-all group">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-medium text-text group-hover:text-accent-sakura transition-colors">{event.title || "Untitled event"}</p>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {eventTime && (
+                            <span className="px-2 py-0.5 rounded-full bg-bg-surface border border-border-subtle text-xs font-medium text-text-secondary">
+                              {eventTime}
+                            </span>
+                          )}
+                          <span className="px-2 py-0.5 rounded-full bg-bg-surface border border-border-subtle text-xs font-medium uppercase tracking-wide text-text-muted">{event.type || "event"}</span>
+                        </div>
+                      </div>
+                      {event.description && <p className="text-sm text-text-secondary mt-1.5 leading-relaxed">{event.description}</p>}
                     </div>
-                    {event.description && <p className="text-sm text-text-secondary mt-1.5 leading-relaxed">{event.description}</p>}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 

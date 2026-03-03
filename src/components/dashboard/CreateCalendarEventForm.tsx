@@ -17,6 +17,8 @@ export default function CreateCalendarEventForm({ classes }: Props) {
     const [classId, setClassId] = useState(classes[0]?.id || "");
     const [title, setTitle] = useState("");
     const [date, setDate] = useState("");
+    const [time, setTime] = useState("");
+    const [endTime, setEndTime] = useState("");
     const [type, setType] = useState<"holiday" | "event" | "due" | "quiz">("holiday");
     const [description, setDescription] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -43,7 +45,9 @@ export default function CreateCalendarEventForm({ classes }: Props) {
                     classId,
                     title,
                     date,
+                    time: time || undefined,
                     endDate: endDate || undefined,
+                    endTime: endTime || undefined,
                     type,
                     description: description || undefined,
                 }),
@@ -57,6 +61,8 @@ export default function CreateCalendarEventForm({ classes }: Props) {
             setSuccess("Saved and shared.");
             setTitle("");
             setDate("");
+            setTime("");
+            setEndTime("");
             setDescription("");
             setEndDate("");
             router.refresh();
@@ -103,9 +109,9 @@ export default function CreateCalendarEventForm({ classes }: Props) {
                     />
                 </div>
 
-                    <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="space-y-1">
-                            <label className="text-xs font-semibold text-text-muted uppercase tracking-wide">Start Date</label>
+                        <label className="text-xs font-semibold text-text-muted uppercase tracking-wide">Start Date</label>
                         <input
                             type="date"
                             value={date}
@@ -113,17 +119,43 @@ export default function CreateCalendarEventForm({ classes }: Props) {
                             className="w-full rounded-lg border border-border/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
                         />
                     </div>
-                        <div className="space-y-1">
-                            <label className="text-xs font-semibold text-text-muted uppercase tracking-wide">End Date (Optional)</label>
-                            <input
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full rounded-lg border border-border/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                                placeholder="For multi-day breaks"
-                            />
-                            <p className="text-[11px] text-text-muted">Use for holiday breaks; leave blank for single-day events.</p>
-                        </div>
+                    <div className="space-y-1">
+                        <label className="text-xs font-semibold text-text-muted uppercase tracking-wide">Time (Optional)</label>
+                        <input
+                            type="time"
+                            value={time}
+                            onChange={(e) => setTime(e.target.value)}
+                            className="w-full rounded-lg border border-border/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        />
+                        <p className="text-[11px] text-text-muted">Leave blank for all-day items.</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                        <label className="text-xs font-semibold text-text-muted uppercase tracking-wide">End Date (Optional)</label>
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="w-full rounded-lg border border-border/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                            placeholder="For multi-day breaks"
+                        />
+                        <p className="text-[11px] text-text-muted">Use for holiday breaks; leave blank for single-day events.</p>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-xs font-semibold text-text-muted uppercase tracking-wide">End Time (Optional)</label>
+                        <input
+                            type="time"
+                            value={endTime}
+                            onChange={(e) => setEndTime(e.target.value)}
+                            className="w-full rounded-lg border border-border/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        />
+                        <p className="text-[11px] text-text-muted">If set without end date, it uses the start date.</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="space-y-1">
                         <label className="text-xs font-semibold text-text-muted uppercase tracking-wide">Type</label>
                         <select
@@ -142,6 +174,7 @@ export default function CreateCalendarEventForm({ classes }: Props) {
                             <option value="quiz">Quiz/Test</option>
                         </select>
                     </div>
+                    <div />
                 </div>
 
                 <div className="space-y-1">

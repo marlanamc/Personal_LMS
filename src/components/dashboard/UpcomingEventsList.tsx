@@ -42,6 +42,23 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
             day: "numeric",
         });
 
+    const formatOptionalTime = (input: Date | string) => {
+        const date = new Date(input);
+        if (Number.isNaN(date.getTime())) return null;
+        // Noon is our sentinel for "all-day / no explicit time".
+        if (date.getHours() === 12 && date.getMinutes() === 0) return null;
+        return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    };
+
+    const formatOptionalTimeRange = (startInput: Date | string, endInput?: Date | string | null) => {
+        const startLabel = formatOptionalTime(startInput);
+        if (!endInput) return startLabel;
+        const endLabel = formatOptionalTime(endInput);
+        if (!startLabel) return endLabel;
+        if (!endLabel || endLabel === startLabel) return startLabel;
+        return `${startLabel} - ${endLabel}`;
+    };
+
     const formatDateLabel = (date: Date) => {
         const today = new Date();
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -66,6 +83,7 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
                         const startDate = new Date(ev.date);
                         const endDate = ev.endDate ? new Date(ev.endDate) : startDate;
                         const sameDay = startDate.toDateString() === endDate.toDateString();
+                        const timeLabel = formatOptionalTimeRange(ev.date, ev.endDate);
                         const dateLabel = sameDay
                             ? formatDateLabel(startDate)
                             : `${formatDateLabel(startDate)}–${formatDateLabel(endDate)}`;
@@ -84,7 +102,7 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
                                     <span className="text-sm font-medium text-text whitespace-normal break-words">{ev.title}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-xs text-text-muted ml-auto whitespace-nowrap shrink-0 font-medium">
-                                    <span className="text-right">{dateLabel}</span>
+                                    <span className="text-right">{timeLabel ? `${dateLabel} · ${timeLabel}` : dateLabel}</span>
                                     {canDelete && (
                                         <button
                                             type="button"
