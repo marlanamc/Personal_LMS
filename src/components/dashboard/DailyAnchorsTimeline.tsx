@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -17,53 +16,26 @@ import {
   Heart,
   Moon,
   Pencil,
-  Plus,
-  Save,
   Sunrise,
   Target,
-  Trash2,
   X,
 } from 'lucide-react';
+import { EditAnchorsSheet } from './EditAnchorsSheet';
 import { MobileTimeScrubber } from './MobileTimeScrubber';
 import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
 import {
   formatTimeLabel,
   isAnchorScheduledForDate,
   parseHHMMToMinutes,
-  sanitizeAnchorId,
   type AnchorIcon,
   type AnchorId,
   type DailyAnchorTemplate,
-  type DayOfWeek,
 } from '@/lib/anchors';
 
 interface DailyAnchorsTimelineProps {
   storageScope: string;
 }
 
-const WEEKDAY_OPTIONS: Array<{ value: DayOfWeek; short: string; label: string }> = [
-  { value: 0, short: 'S', label: 'Sunday' },
-  { value: 1, short: 'M', label: 'Monday' },
-  { value: 2, short: 'T', label: 'Tuesday' },
-  { value: 3, short: 'W', label: 'Wednesday' },
-  { value: 4, short: 'T', label: 'Thursday' },
-  { value: 5, short: 'F', label: 'Friday' },
-  { value: 6, short: 'S', label: 'Saturday' },
-];
-
-const ICON_OPTIONS: Array<{ value: AnchorIcon; label: string }> = [
-  { value: 'sunrise', label: 'Sunrise' },
-  { value: 'flower-2', label: 'Meditation' },
-  { value: 'dumbbell', label: 'Dumbbell' },
-  { value: 'briefcase', label: 'Briefcase' },
-  { value: 'moon', label: 'Moon' },
-  { value: 'book-open', label: 'Book' },
-  { value: 'code', label: 'Code' },
-  { value: 'target', label: 'Target' },
-  { value: 'coffee', label: 'Coffee' },
-  { value: 'heart', label: 'Heart' },
-  { value: 'calendar', label: 'Calendar' },
-];
 
 const iconByName: Record<AnchorIcon, typeof Sunrise> = {
   sunrise: Sunrise,
@@ -161,12 +133,6 @@ function isWithinNowWindow(timeStr: string, nowMinutes: number | null): boolean 
   return diff >= 0 && diff <= 30;
 }
 
-function arraysEqualByValue(a?: DayOfWeek[], b?: DayOfWeek[]): boolean {
-  const left = a ? [...a].sort((x, y) => x - y) : [];
-  const right = b ? [...b].sort((x, y) => x - y) : [];
-  if (left.length !== right.length) return false;
-  return left.every((value, idx) => value === right[idx]);
-}
 
 // River Flow color schemes for different icon types
 function getRiverFlowGradient(icon: AnchorIcon): { from: string; to: string; glow: string } {
@@ -409,8 +375,6 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   const [draggingAnchor, setDraggingAnchor] = useState<AnchorId | null>(null);
   const [dragPreviewTime, setDragPreviewTime] = useState<string | null>(null);
   const [isEditingAnchors, setIsEditingAnchors] = useState(false);
-  const [isPortalReady, setIsPortalReady] = useState(false);
-  const [draftTemplates, setDraftTemplates] = useState<DailyAnchorTemplate[]>([]);
   const timelineRef = useRef<HTMLDivElement>(null);
 
   const todaysAnchors = useMemo(() => {
@@ -439,21 +403,6 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
 
   const [currentTimePosition, setCurrentTimePosition] = useState<number | null>(null);
   const [nowMinutes, setNowMinutes] = useState<number | null>(null);
-
-  useEffect(() => {
-    setIsPortalReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isPortalReady) return;
-    const originalOverflow = document.body.style.overflow;
-    if (isEditingAnchors) {
-      document.body.style.overflow = 'hidden';
-    }
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isEditingAnchors, isPortalReady]);
 
   useEffect(() => {
     const updateCurrentTime = () => {
@@ -521,9 +470,8 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   }, [draggingAnchor, handleDragMove, handleDragEnd]);
 
   const openAnchorEditor = useCallback(() => {
-    setDraftTemplates(anchorTemplates.map((template) => ({ ...template })));
     setIsEditingAnchors(true);
-  }, [anchorTemplates]);
+  }, []);
 
   const closeAnchorEditor = useCallback(() => {
     setIsEditingAnchors(false);
@@ -550,97 +498,9 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [searchParams, isEditingAnchors, openAnchorEditor, router, pathname]);
 
-  const updateDraftTemplate = useCallback(
-    (anchorId: AnchorId, patch: Partial<Pick<DailyAnchorTemplate, 'label' | 'scheduledTime' | 'icon' | 'daysOfWeek'>>) => {
-      setDraftTemplates((current) =>
-        current.map((template) => (template.id === anchorId ? { ...template, ...patch } : template)),
-      );
-    },
-    [],
-  );
-
-  const toggleTemplateDay = useCallback((anchorId: AnchorId, day: DayOfWeek) => {
-    setDraftTemplates((current) =>
-      current.map((template) => {
-        if (template.id !== anchorId) return template;
-
-        const currentDays = template.daysOfWeek ? [...template.daysOfWeek] : [];
-        const hasDay = currentDays.includes(day);
-        const nextDays = hasDay ? currentDays.filter((entry) => entry !== day) : [...currentDays, day].sort((a, b) => a - b);
-
-        return {
-          ...template,
-          ...(nextDays.length > 0 ? { daysOfWeek: nextDays } : {}),
-          ...(nextDays.length === 0 ? { daysOfWeek: undefined } : {}),
-        };
-      }),
-    );
-  }, []);
-
-  const addAnchor = useCallback(() => {
-    setDraftTemplates((current) => {
-      const base = sanitizeAnchorId(`anchor-${current.length + 1}`);
-      let unique = base;
-      let suffix = 2;
-      while (current.some((template) => template.id === unique)) {
-        unique = `${base}-${suffix}`;
-        suffix += 1;
-      }
-
-      return [
-        ...current,
-        {
-          id: unique,
-          label: 'New Anchor',
-          icon: 'calendar',
-          scheduledTime: '12:00',
-        },
-      ];
-    });
-  }, []);
-
-  const removeAnchor = useCallback((anchorId: AnchorId) => {
-    setDraftTemplates((current) => current.filter((template) => template.id !== anchorId));
-  }, []);
-
-  const saveAnchorEdits = useCallback(() => {
-    const normalized = draftTemplates
-      .map((template, idx) => {
-        const normalizedId = sanitizeAnchorId(template.id || `anchor-${idx + 1}`);
-        const normalizedTime = /^\d{2}:\d{2}$/.test(template.scheduledTime) ? template.scheduledTime : '08:00';
-        const normalizedLabel = template.label.trim() || 'Anchor';
-        const normalizedDays = template.daysOfWeek?.length ? Array.from(new Set(template.daysOfWeek)).sort((a, b) => a - b) : undefined;
-
-        return {
-          id: normalizedId,
-          label: normalizedLabel,
-          icon: template.icon,
-          scheduledTime: normalizedTime,
-          ...(normalizedDays ? { daysOfWeek: normalizedDays } : {}),
-        } satisfies DailyAnchorTemplate;
-      })
-      .filter((template, idx, arr) => arr.findIndex((entry) => entry.id === template.id) === idx);
-
-    const changed =
-      normalized.length !== anchorTemplates.length ||
-      normalized.some((nextTemplate, idx) => {
-        const current = anchorTemplates[idx];
-        if (!current) return true;
-        return (
-          nextTemplate.id !== current.id ||
-          nextTemplate.label !== current.label ||
-          nextTemplate.icon !== current.icon ||
-          nextTemplate.scheduledTime !== current.scheduledTime ||
-          !arraysEqualByValue(nextTemplate.daysOfWeek, current.daysOfWeek)
-        );
-      });
-
-    if (changed) {
-      setAnchorTemplates(normalized);
-    }
-
-    closeAnchorEditor();
-  }, [draftTemplates, anchorTemplates, setAnchorTemplates, closeAnchorEditor]);
+  const handleSaveAnchors = useCallback((templates: DailyAnchorTemplate[]) => {
+    setAnchorTemplates(templates);
+  }, [setAnchorTemplates]);
 
   const hourMarkers = useMemo(() => {
     const markers = [];
@@ -956,167 +816,12 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
         </div>
       </div>
 
-      {isPortalReady &&
-        isEditingAnchors &&
-        createPortal(
-          <div className="fixed inset-0 z-[9999]">
-            <div className="absolute inset-0 bg-bg-base/78 backdrop-blur-md" onClick={closeAnchorEditor} aria-hidden />
-            <div className="absolute inset-0 overflow-y-auto overflow-x-hidden overscroll-contain">
-              <div
-                className="mx-auto h-full w-full max-w-6xl"
-                style={{
-                  paddingTop: 'max(0rem, env(safe-area-inset-top))',
-                  paddingBottom: 'max(0rem, env(safe-area-inset-bottom))',
-                }}
-              >
-                <div className="min-h-full bg-bg-base/98 sm:my-4 sm:rounded-3xl sm:border sm:border-border-subtle sm:bg-bg-base/95 sm:backdrop-blur-sm sm:shadow-xl">
-                  <div
-                    className="sticky top-0 z-20 px-4 sm:px-6 py-3 bg-bg-base/92 backdrop-blur-md border-b border-border-subtle/70"
-                    style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm sm:text-xs font-semibold uppercase tracking-[0.14em] text-text-muted/85">Edit Anchors</p>
-                      <div className="hidden sm:flex items-center gap-2.5 min-w-0">
-                        <button
-                          type="button"
-                          onClick={closeAnchorEditor}
-                          className="inline-flex items-center justify-center h-10 px-3.5 rounded-xl border border-border-subtle/80 text-sm font-semibold text-text-muted hover:text-text hover:border-accent-teal/45 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="button"
-                          onClick={saveAnchorEdits}
-                          className="inline-flex items-center gap-1.5 h-10 px-4.5 rounded-xl text-sm font-semibold sakura-action"
-                        >
-                          <Save size={14} />
-                          Save
-                        </button>
-                      </div>
-                    </div>
-                    <div className="mt-2.5">
-                      <button
-                        type="button"
-                        onClick={addAnchor}
-                        className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl text-sm font-semibold border border-border-subtle/80 bg-bg-surface/35 text-text-muted hover:text-text hover:border-accent-teal/45 transition-colors"
-                      >
-                        <Plus size={14} />
-                        Add Anchor
-                      </button>
-                    </div>
-                  </div>
-
-                  <div
-                    className="space-y-4 px-4 sm:px-6 py-4 sm:py-5"
-                    style={{ paddingBottom: 'max(7rem, env(safe-area-inset-bottom))' }}
-                  >
-                    {draftTemplates.map((anchor) => (
-                      <div key={`edit-${anchor.id}`} className="rounded-3xl border border-border-subtle/75 bg-bg-surface/55 p-4.5 sm:p-5 space-y-3.5 shadow-[0_10px_28px_rgba(0,0,0,0.12)]">
-                        <div className="flex flex-col gap-2.5 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] sm:items-center sm:gap-2.5">
-                          <input
-                            type="text"
-                            value={anchor.label}
-                            onChange={(e) => updateDraftTemplate(anchor.id, { label: e.target.value })}
-                            className="h-11 min-w-0 rounded-2xl border border-border-subtle/80 bg-bg-surface/50 px-3.5 text-base text-text placeholder:text-text-muted/55"
-                            aria-label={`Edit ${anchor.id} label`}
-                            name={`anchor-label-${anchor.id}`}
-                            autoComplete="off"
-                          />
-                          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2.5 sm:contents">
-                            <input
-                              type="time"
-                              value={anchor.scheduledTime}
-                              onChange={(e) => updateDraftTemplate(anchor.id, { scheduledTime: e.target.value })}
-                              className="h-11 w-full sm:w-auto rounded-2xl border border-border-subtle/80 bg-bg-surface/50 px-3.5 text-base text-text"
-                              aria-label={`Edit ${anchor.id} time`}
-                              name={`anchor-time-${anchor.id}`}
-                            />
-                            <select
-                              value={anchor.icon}
-                              onChange={(e) => updateDraftTemplate(anchor.id, { icon: e.target.value as AnchorIcon })}
-                              className="h-11 w-full sm:w-auto rounded-2xl border border-border-subtle/80 bg-bg-surface/50 px-3.5 text-base text-text min-w-0"
-                              aria-label={`Edit ${anchor.id} icon`}
-                              name={`anchor-icon-${anchor.id}`}
-                            >
-                              {ICON_OPTIONS.map((option) => (
-                                <option key={`${anchor.id}-${option.value}`} value={option.value}>
-                                  {option.label}
-                                </option>
-                              ))}
-                            </select>
-                            <button
-                              type="button"
-                              onClick={() => removeAnchor(anchor.id)}
-                              className="h-11 w-11 inline-flex items-center justify-center rounded-2xl border border-border-subtle/80 text-text-muted hover:text-error hover:border-error/45 hover:bg-error/5 transition-colors shrink-0"
-                              aria-label={`Remove ${anchor.label || 'anchor'}`}
-                              title="Remove anchor"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="grid grid-cols-7 gap-2">
-                          {WEEKDAY_OPTIONS.map((day) => {
-                            const enabled = anchor.daysOfWeek?.includes(day.value) ?? false;
-                            return (
-                              <button
-                                key={`${anchor.id}-${day.value}`}
-                                type="button"
-                                onClick={() => toggleTemplateDay(anchor.id, day.value)}
-                                aria-pressed={enabled}
-                                className={`
-                                  h-9 min-w-0 px-0 rounded-xl text-sm font-semibold border transition-colors
-                                  ${
-                                    enabled
-                                      ? 'bg-accent-teal/18 text-accent-teal border-accent-teal/70 ring-1 ring-accent-teal/55'
-                                      : 'bg-bg-elevated/65 text-text-muted border-border-subtle/80 hover:text-text'
-                                  }
-                                `}
-                                title={day.label}
-                              >
-                                {day.short}
-                              </button>
-                            );
-                          })}
-                          </div>
-                          <span className="block text-xs text-text-muted/85">
-                            {anchor.daysOfWeek && anchor.daysOfWeek.length > 0 ? 'Runs on selected days' : 'Runs every day'}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div
-                    className="fixed inset-x-0 bottom-0 z-30 border-t border-border-subtle/75 bg-bg-base/93 backdrop-blur-md px-4 py-3 sm:hidden"
-                    style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={closeAnchorEditor}
-                        className="inline-flex items-center justify-center h-11 flex-1 rounded-xl border border-border-subtle/80 text-sm font-semibold text-text-muted hover:text-text hover:border-accent-teal/45 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        onClick={saveAnchorEdits}
-                        className="inline-flex items-center justify-center gap-1.5 h-11 flex-1 rounded-xl text-sm font-semibold sakura-action"
-                      >
-                        <Save size={14} />
-                        Save
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
+      <EditAnchorsSheet
+        isOpen={isEditingAnchors}
+        onClose={closeAnchorEditor}
+        anchorTemplates={anchorTemplates}
+        onSave={handleSaveAnchors}
+      />
     </>
   );
 }
