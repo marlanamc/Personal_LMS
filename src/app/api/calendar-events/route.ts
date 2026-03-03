@@ -18,7 +18,18 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { classId, title, date, time, endDate, endTime, type = "holiday", description } = body;
+        const {
+            classId,
+            title,
+            date,
+            time,
+            endDate,
+            endTime,
+            startDateTime,
+            endDateTime,
+            type = "holiday",
+            description,
+        } = body;
 
         if (!classId || !title || !date) {
             return NextResponse.json({ error: "classId, title, and date are required" }, { status: 400 });
@@ -59,9 +70,19 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Invalid time format" }, { status: 400 });
         }
 
-        const start = parseDateWithOptionalTime(date, time);
+        const parseIsoDateTime = (value?: string) => {
+            if (!value || typeof value !== "string") return null;
+            const parsed = new Date(value);
+            if (Number.isNaN(parsed.getTime())) return null;
+            return parsed;
+        };
+
+        const startFromClient = parseIsoDateTime(startDateTime);
+        const endFromClient = parseIsoDateTime(endDateTime);
+
+        const start = startFromClient || parseDateWithOptionalTime(date, time);
         const resolvedEndDate = endDate || date;
-        const end = parseDateWithOptionalTime(resolvedEndDate, endTime);
+        const end = endFromClient || parseDateWithOptionalTime(resolvedEndDate, endTime);
         if (!start || !end || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
             return NextResponse.json({ error: "Invalid date values" }, { status: 400 });
         }

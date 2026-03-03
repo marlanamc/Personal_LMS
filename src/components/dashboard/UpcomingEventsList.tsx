@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CalendarDays, Clock3, Trash2 } from "lucide-react";
 import { CalendarEvent, getCalendarMarkerColor } from "./MiniCalendar";
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 export default function UpcomingEventsList({ events, allowDelete = true }: Props) {
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
+    const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
     const [error, setError] = useState("");
 
     const handleDelete = async (id?: string) => {
@@ -36,40 +38,43 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
         }
     };
 
-    const formatShortDate = (date: Date) =>
-        date.toLocaleDateString("en-US", {
-            month: "numeric",
-            day: "numeric",
-        });
-
-    const formatOptionalTime = (input: Date | string) => {
+    const formatEventTimeToken = (input: Date | string) => {
         const date = new Date(input);
         if (Number.isNaN(date.getTime())) return null;
         // Noon is our sentinel for "all-day / no explicit time".
         if (date.getHours() === 12 && date.getMinutes() === 0) return null;
-        return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+        const hour24 = date.getHours();
+        const minutes = date.getMinutes();
+        const period = hour24 >= 12 ? "PM" : "AM";
+        const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+        if (minutes === 0) return `${hour12} ${period}`;
+        return `${hour12}:${String(minutes).padStart(2, "0")} ${period}`;
     };
 
-    const formatOptionalTimeRange = (startInput: Date | string, endInput?: Date | string | null) => {
-        const startLabel = formatOptionalTime(startInput);
+    const formatOptionalTimeRange = (startInput: Date | string, endInput?: Date | string | null): string | null => {
+        const startDate = new Date(startInput);
+        if (Number.isNaN(startDate.getTime())) return null;
+        const startLabel = formatEventTimeToken(startInput);
         if (!endInput) return startLabel;
-        const endLabel = formatOptionalTime(endInput);
+
+        const endDate = new Date(endInput);
+        if (Number.isNaN(endDate.getTime())) return startLabel;
+        const endLabel = formatEventTimeToken(endInput);
+
         if (!startLabel) return endLabel;
         if (!endLabel || endLabel === startLabel) return startLabel;
-        return `${startLabel} - ${endLabel}`;
+
+        const startPeriod = startDate.getHours() >= 12 ? "PM" : "AM";
+        const endPeriod = endDate.getHours() >= 12 ? "PM" : "AM";
+        if (startPeriod === endPeriod) {
+            return `${startLabel.replace(` ${startPeriod}`, "")}-${endLabel}`;
+        }
+
+        return `${startLabel}-${endLabel}`;
     };
 
     const formatDateLabel = (date: Date) => {
-        const today = new Date();
-        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        const dayDiff = Math.floor((dateStart.getTime() - todayStart.getTime()) / (24 * 60 * 60 * 1000));
-
-        if (dayDiff >= 0 && dayDiff < 7) {
-            return date.toLocaleDateString("en-US", { weekday: "long" });
-        }
-
-        return formatShortDate(date);
+        return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
     };
 
     return (
@@ -78,7 +83,7 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
             {events.length === 0 ? (
                 <p className="text-sm text-text-muted italic bg-bg-light/60 border border-border/30 rounded-xl px-2.5 py-2">No dates yet.</p>
             ) : (
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                     {events.slice(0, 6).map((ev, idx) => {
                         const startDate = new Date(ev.date);
                         const endDate = ev.endDate ? new Date(ev.endDate) : startDate;
@@ -89,33 +94,73 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
                             : `${formatDateLabel(startDate)}–${formatDateLabel(endDate)}`;
 
                         const canDelete = allowDelete && Boolean(ev.id);
+                        const isPendingDelete = pendingDeleteId === ev.id;
 
                         return (
-                            <div key={`${ev.title}-${idx}`} className="flex min-h-10 items-center border border-border-subtle/50 rounded-xl px-2.5 py-2 bg-bg-surface/80 gap-2">
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <div key={`${ev.title}-${idx}`} className="border border-border-subtle/50 rounded-2xl px-3 py-2.5 bg-bg-surface/85 shadow-sm">
+                                <div className="flex items-start gap-2.5">
                                     <span
                                         className="inline-block w-2 h-2 rounded-full shrink-0"
+                                        aria-hidden
                                         style={{
                                             backgroundColor: getCalendarMarkerColor(ev.type),
                                         }}
                                     />
-                                    <span className="text-sm font-medium text-text whitespace-normal break-words">{ev.title}</span>
-                                </div>
-                                <div className="flex items-center gap-1.5 text-xs text-text-muted ml-auto whitespace-nowrap shrink-0 font-medium">
-                                    <span className="text-right">{timeLabel ? `${dateLabel} · ${timeLabel}` : dateLabel}</span>
-                                    {canDelete && (
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-sm font-semibold text-text whitespace-normal break-words leading-snug">
+                                            {ev.title}
+                                        </p>
+                                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                            <span className="inline-flex items-center gap-1 rounded-full border border-border-subtle/70 bg-bg-elevated/60 px-2 py-0.5 text-[11px] font-medium text-text-muted">
+                                                <CalendarDays size={12} />
+                                                {dateLabel}
+                                            </span>
+                                            <span className="inline-flex items-center gap-1 rounded-full border border-border-subtle/70 bg-bg-elevated/60 px-2 py-0.5 text-[11px] font-medium text-text-muted">
+                                                <Clock3 size={12} />
+                                                {timeLabel || "All day"}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {canDelete && !isPendingDelete && (
                                         <button
                                             type="button"
-                                            onClick={() => handleDelete(ev.id)}
+                                            onClick={() => setPendingDeleteId(ev.id || null)}
                                             disabled={isDeleting === ev.id}
-                                            className="inline-flex items-center justify-center h-6 w-6 text-xs text-error hover:brightness-90 border border-border-subtle rounded-full bg-sakura-soft disabled:opacity-50"
-                                            aria-label={isDeleting === ev.id ? "Deleting event" : "Delete event"}
-                                            title={isDeleting === ev.id ? "Deleting event" : "Delete event"}
+                                            className="inline-flex items-center justify-center h-8 w-8 text-text-muted hover:text-error border border-border-subtle/70 rounded-full bg-bg-elevated/45 hover:bg-error/10 transition-colors disabled:opacity-50"
+                                            aria-label="Open delete confirmation"
+                                            title="Delete event"
                                         >
-                                            {isDeleting === ev.id ? "…" : "×"}
+                                            {isDeleting === ev.id ? "…" : <Trash2 size={14} />}
                                         </button>
                                     )}
                                 </div>
+
+                                {canDelete && isPendingDelete && (
+                                    <div className="mt-2 pt-2 border-t border-border-subtle/40 flex items-center justify-between gap-2">
+                                        <p className="text-[11px] font-medium text-text-muted">Delete this event?</p>
+                                        <div className="flex items-center gap-1.5">
+                                            <button
+                                                type="button"
+                                                onClick={() => setPendingDeleteId(null)}
+                                                className="h-7 px-2.5 rounded-full border border-border-subtle text-xs font-medium text-text-muted hover:text-text hover:bg-bg-elevated/60 transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    void handleDelete(ev.id);
+                                                    setPendingDeleteId(null);
+                                                }}
+                                                disabled={isDeleting === ev.id}
+                                                className="h-7 px-2.5 rounded-full border border-error/40 bg-error/10 text-xs font-semibold text-error hover:bg-error/15 transition-colors disabled:opacity-50"
+                                            >
+                                                {isDeleting === ev.id ? "Deleting..." : "Delete"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         );
                     })}

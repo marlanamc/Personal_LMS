@@ -26,6 +26,11 @@ export default function CreateCalendarEventForm({ classes }: Props) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState("");
 
+    const buildLocalDateTimeIso = (dateValue: string, timeValue: string) => {
+        const local = new Date(`${dateValue}T${timeValue}:00`);
+        return Number.isNaN(local.getTime()) ? null : local.toISOString();
+    };
+
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -33,6 +38,27 @@ export default function CreateCalendarEventForm({ classes }: Props) {
 
         if (!classId || !title || !date) {
             setError("Please complete class, title, and date.");
+            return;
+        }
+        if (endTime && !time) {
+            setError("Add a start time before setting an end time.");
+            return;
+        }
+
+        const startDateTime = time ? buildLocalDateTimeIso(date, time) : null;
+        const effectiveEndDate = endDate || date;
+        const endDateTime = endTime ? buildLocalDateTimeIso(effectiveEndDate, endTime) : null;
+
+        if (time && !startDateTime) {
+            setError("Start time is invalid.");
+            return;
+        }
+        if (endTime && !endDateTime) {
+            setError("End time is invalid.");
+            return;
+        }
+        if (startDateTime && endDateTime && new Date(endDateTime).getTime() < new Date(startDateTime).getTime()) {
+            setError("End time must be after start time.");
             return;
         }
 
@@ -48,6 +74,9 @@ export default function CreateCalendarEventForm({ classes }: Props) {
                     time: time || undefined,
                     endDate: endDate || undefined,
                     endTime: endTime || undefined,
+                    startDateTime: startDateTime || undefined,
+                    endDateTime: endDateTime || undefined,
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                     type,
                     description: description || undefined,
                 }),

@@ -669,19 +669,6 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                         </div>
                       )}
                       {isDragging && <div className="text-[10px] text-primary">Release to set</div>}
-                      {!isDragging && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleToggleSkipToday(anchor.id, isSkipped);
-                          }}
-                          className="mt-2 block w-full text-center text-[10px] font-semibold tracking-[0.02em] text-text-secondary/80 underline underline-offset-2 hover:text-text transition-colors"
-                        >
-                          {isSkipped ? 'Undo skip' : 'Skip today'}
-                        </button>
-                      )}
                       <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-bg-elevated border-r border-b border-border-subtle rotate-45" />
                     </div>
 
@@ -701,7 +688,14 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                       <button
                         type="button"
                         onClick={() => !isDragging && toggleAnchor(anchor.id)}
+                        onContextMenu={(e) => {
+                          if (isDragging) return;
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleToggleSkipToday(anchor.id, isSkipped);
+                        }}
                         disabled={!isLoaded || isDragging}
+                        title={isSkipped ? 'Right-click to undo skip' : 'Right-click to skip today'}
                         className={`
                           daily-anchors-dot desktop-anchor-node group/node relative w-12 h-12 rounded-2xl flex items-center justify-center
                           transition-all duration-300 shadow-md overflow-hidden

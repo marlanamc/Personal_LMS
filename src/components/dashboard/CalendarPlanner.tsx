@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { type CalendarEvent } from "./MiniCalendar";
 import { CalendarPanel } from "./CalendarPanel";
 import { DailyAnchorsDateSummary } from "@/components/daily-anchors";
-import { PlusCircle, StickyNote, CheckCircle2, ListTodo } from "lucide-react";
+import { PlusCircle, StickyNote, CheckCircle2, ListTodo, CalendarDays, Clock3 } from "lucide-react";
 import { useCalendarPlanner } from "./useCalendarPlanner";
 
 interface CalendarPlannerProps {
@@ -37,21 +37,39 @@ function parseEventDate(input: Date | string) {
   return Number.isNaN(parsed.getTime()) ? null : dayStart(parsed);
 }
 
-function formatOptionalEventTime(input: Date | string): string | null {
+function formatEventTimeToken(input: Date | string): string | null {
   const parsed = new Date(input);
   if (Number.isNaN(parsed.getTime())) return null;
   // Noon is our sentinel for "all-day / no explicit time".
   if (parsed.getHours() === 12 && parsed.getMinutes() === 0) return null;
-  return parsed.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  const hour24 = parsed.getHours();
+  const minutes = parsed.getMinutes();
+  const period = hour24 >= 12 ? "PM" : "AM";
+  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+  if (minutes === 0) return `${hour12} ${period}`;
+  return `${hour12}:${String(minutes).padStart(2, "0")} ${period}`;
 }
 
 function formatOptionalEventTimeRange(startInput: Date | string, endInput?: Date | string | null): string | null {
-  const startLabel = formatOptionalEventTime(startInput);
+  const startDate = new Date(startInput);
+  if (Number.isNaN(startDate.getTime())) return null;
+  const startLabel = formatEventTimeToken(startInput);
   if (!endInput) return startLabel;
-  const endLabel = formatOptionalEventTime(endInput);
+
+  const endDate = new Date(endInput);
+  if (Number.isNaN(endDate.getTime())) return startLabel;
+  const endLabel = formatEventTimeToken(endInput);
+
   if (!startLabel) return endLabel;
   if (!endLabel || endLabel === startLabel) return startLabel;
-  return `${startLabel} - ${endLabel}`;
+
+  const startPeriod = startDate.getHours() >= 12 ? "PM" : "AM";
+  const endPeriod = endDate.getHours() >= 12 ? "PM" : "AM";
+  if (startPeriod === endPeriod) {
+    return `${startLabel.replace(` ${startPeriod}`, "")}-${endLabel}`;
+  }
+
+  return `${startLabel}-${endLabel}`;
 }
 
 function eventTouchesDate(event: CalendarEvent, day: Date) {
@@ -176,18 +194,24 @@ export default function CalendarPlanner({ events, storageScope = "default" }: Ca
               <div className="space-y-2 mt-4">
                 {selectedEvents.map((event, idx) => {
                   const eventTime = formatOptionalEventTimeRange(event.date, event.endDate);
+                  const eventDay = new Date(event.date).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
                   return (
                     <div key={`${event.id || event.title || "event"}-${idx}`} className="rounded-xl border border-border-subtle/50 bg-bg-elevated/60 px-4 py-3 elevation-3 hover:border-accent-sakura/30 transition-all group">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-medium text-text group-hover:text-accent-sakura transition-colors">{event.title || "Untitled event"}</p>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          {eventTime && (
-                            <span className="px-2 py-0.5 rounded-full bg-bg-surface border border-border-subtle text-xs font-medium text-text-secondary">
-                              {eventTime}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-text group-hover:text-accent-sakura transition-colors">{event.title || "Untitled event"}</p>
+                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                            <span className="inline-flex items-center gap-1 rounded-full border border-border-subtle/70 bg-bg-surface px-2 py-0.5 text-[11px] font-medium text-text-muted">
+                              <CalendarDays size={12} />
+                              {eventDay}
                             </span>
-                          )}
-                          <span className="px-2 py-0.5 rounded-full bg-bg-surface border border-border-subtle text-xs font-medium uppercase tracking-wide text-text-muted">{event.type || "event"}</span>
+                            <span className="inline-flex items-center gap-1 rounded-full border border-border-subtle/70 bg-bg-surface px-2 py-0.5 text-[11px] font-medium text-text-muted">
+                              <Clock3 size={12} />
+                              {eventTime || "All day"}
+                            </span>
+                          </div>
                         </div>
+                        <span className="px-2 py-0.5 rounded-full bg-bg-surface border border-border-subtle text-xs font-medium uppercase tracking-wide text-text-muted shrink-0">{event.type || "event"}</span>
                       </div>
                       {event.description && <p className="text-sm text-text-secondary mt-1.5 leading-relaxed">{event.description}</p>}
                     </div>
