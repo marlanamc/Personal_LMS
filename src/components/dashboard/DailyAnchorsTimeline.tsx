@@ -87,6 +87,23 @@ function getTimePosition(timeStr: string): number {
   return Math.max(2, Math.min(98, position));
 }
 
+function getTimelineNowPosition(timeStr: string): number | null {
+  const minutes = parseHHMMToMinutes(timeStr);
+  const startMinutes = TIMELINE_START_HOUR * 60;
+  const endMinutes = TIMELINE_END_HOUR * 60;
+
+  if (minutes < startMinutes || minutes >= endMinutes) {
+    return null;
+  }
+
+  const position = ((minutes - startMinutes) / TIMELINE_TOTAL_MINUTES) * 100;
+  if (position < 3 || position > 97) {
+    return null;
+  }
+
+  return Math.max(0, Math.min(100, position));
+}
+
 function positionToTime(positionPercent: number): string {
   const startMinutes = TIMELINE_START_HOUR * 60;
   const minutes = startMinutes + (positionPercent / 100) * TIMELINE_TOTAL_MINUTES;
@@ -435,7 +452,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
       const minutes = now.getMinutes();
       const nowStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
       setNowMinutes(hours * 60 + minutes);
-      setCurrentTimePosition(getTimePosition(nowStr));
+      setCurrentTimePosition(getTimelineNowPosition(nowStr));
     };
 
     updateCurrentTime();
