@@ -5,6 +5,7 @@ import {
   createDefaultDailyAnchorState,
   getActiveAnchor,
   getSleepRhythmDayComplete,
+  getTopWeeklySkipReasonInsight,
   isAnchorScheduledForDate,
   normalizeDailyAnchorsStore,
   resolveAnchorStatuses,
@@ -15,6 +16,7 @@ import {
   type DailyAnchorState,
   type DailyAnchorTemplate,
   type DailyAnchorsStore,
+  type SkipReason,
 } from '@/lib/anchors';
 
 const STORE_VERSION = 1 as const;
@@ -35,6 +37,13 @@ function shiftDateKey(dateKey: string, offsetDays: number): string {
   return toDateKey(date);
 }
 
+function getStartOfWeek(date: Date): Date {
+  const result = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  result.setDate(result.getDate() - result.getDay());
+  result.setHours(0, 0, 0, 0);
+  return result;
+}
+
 function ensureDailyState(store: DailyAnchorsStore, dateKey: string): DailyAnchorState {
   return store.states[dateKey] || createDefaultDailyAnchorState(dateKey, store.templates);
 }
@@ -52,6 +61,7 @@ function mergeStateWithTemplates(state: DailyAnchorState, templates: DailyAnchor
       ...(template.daysOfWeek ? { daysOfWeek: template.daysOfWeek } : {}),
       status: existing?.status ?? 'waiting',
       actualTime: existing?.actualTime,
+      skipReason: existing?.skipReason,
     } satisfies DailyAnchor;
   });
 
@@ -275,6 +285,20 @@ export function useDailyAnchors(storageScope: string) {
     return streak;
   }, [store.states]);
 
+  const weeklySkipReasonInsight = useMemo(() => {
+    const weekStart = getStartOfWeek(new Date());
+    const statesForWeek: DailyAnchorState[] = [];
+
+    for (let offset = 0; offset < 7; offset += 1) {
+      const current = new Date(weekStart);
+      current.setDate(weekStart.getDate() + offset);
+      const state = store.states[toDateKey(current)];
+      if (state) statesForWeek.push(state);
+    }
+
+    return getTopWeeklySkipReasonInsight(statesForWeek);
+  }, [store.states]);
+
   const setAnchorsForDate = useCallback(
     (date: Date, anchors: DailyAnchor[]) => {
       const dateKey = toDateKey(date);
@@ -339,6 +363,7 @@ export function useDailyAnchors(storageScope: string) {
           ...anchor,
           status: willComplete ? 'done' : 'waiting',
           actualTime: willComplete ? new Date().toISOString() : undefined,
+          skipReason: undefined,
         } satisfies DailyAnchor;
       });
 
@@ -348,7 +373,7 @@ export function useDailyAnchors(storageScope: string) {
   );
 
   const setAnchorStatusForDate = useCallback(
-    (date: Date, anchorId: AnchorId, status: AnchorStatus) => {
+    (date: Date, anchorId: AnchorId, status: AnchorStatus, skipReason?: SkipReason) => {
       const dateKey = toDateKey(date);
       const currentState = ensureDailyState(store, dateKey);
 
@@ -358,6 +383,7 @@ export function useDailyAnchors(storageScope: string) {
           ...anchor,
           status,
           actualTime: status === 'done' ? new Date().toISOString() : undefined,
+          skipReason: status === 'skipped' ? skipReason : undefined,
         } satisfies DailyAnchor;
       });
 
@@ -372,6 +398,7 @@ export function useDailyAnchors(storageScope: string) {
     saveError,
     anchorTemplates: store.templates,
     sleepRhythmStreakDays,
+    weeklySkipReasonInsight,
     getStateForDate,
     toggleAnchorForDate,
     setAnchorStatusForDate,
@@ -387,6 +414,7 @@ export function useDailyAnchorsForToday(storageScope: string) {
     saveError,
     anchorTemplates,
     sleepRhythmStreakDays,
+    weeklySkipReasonInsight,
     getStateForDate,
     toggleAnchorForDate,
     setAnchorStatusForDate,
@@ -415,8 +443,8 @@ export function useDailyAnchorsForToday(storageScope: string) {
   );
 
   const setTodayAnchorStatus = useCallback(
-    (anchorId: AnchorId, status: AnchorStatus) => {
-      setAnchorStatusForDate(new Date(), anchorId, status);
+    (anchorId: AnchorId, status: AnchorStatus, skipReason?: SkipReason) => {
+      setAnchorStatusForDate(new Date(), anchorId, status, skipReason);
     },
     [setAnchorStatusForDate],
   );
@@ -430,6 +458,7 @@ export function useDailyAnchorsForToday(storageScope: string) {
     anchorTemplates,
     sleepRhythmDayComplete: todayState.sleepRhythmDayComplete,
     sleepRhythmStreakDays,
+    weeklySkipReasonInsight,
     toggleAnchor,
     setTodayAnchors,
     setTodayAnchorStatus,

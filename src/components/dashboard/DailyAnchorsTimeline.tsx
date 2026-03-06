@@ -25,16 +25,29 @@ import { MobileTimeScrubber } from './MobileTimeScrubber';
 import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
 import {
   formatTimeLabel,
+  getRecentSkippedAnchorStreak,
+  getSkipReasonLabel,
+  getSkipReasonSuggestion,
   isAnchorScheduledForDate,
   parseHHMMToMinutes,
   type AnchorIcon,
   type AnchorId,
   type DailyAnchorTemplate,
+  type SkipReason,
 } from '@/lib/anchors';
 
 interface DailyAnchorsTimelineProps {
   storageScope: string;
 }
+
+const SKIP_REASON_OPTIONS: Array<{ value: SkipReason; label: string }> = [
+  { value: 'tired', label: 'Too tired' },
+  { value: 'low_energy', label: 'Low energy' },
+  { value: 'schedule_changed', label: 'Schedule changed' },
+  { value: 'not_realistic', label: 'Not realistic today' },
+  { value: 'sick', label: 'Sick' },
+  { value: 'other', label: 'Other' },
+];
 
 
 const iconByName: Record<AnchorIcon, typeof Sunrise> = {
@@ -368,13 +381,14 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { anchors, activeAnchor, toggleAnchor, anchorTemplates, setTodayAnchors, setTodayAnchorStatus, setAnchorTemplates, isLoaded } =
+  const { anchors, activeAnchor, toggleAnchor, anchorTemplates, setTodayAnchors, setTodayAnchorStatus, setAnchorTemplates, isLoaded, weeklySkipReasonInsight } =
     useDailyAnchorsForToday(storageScope);
 
   const [hoveredAnchor, setHoveredAnchor] = useState<AnchorId | null>(null);
   const [draggingAnchor, setDraggingAnchor] = useState<AnchorId | null>(null);
   const [dragPreviewTime, setDragPreviewTime] = useState<string | null>(null);
   const [isEditingAnchors, setIsEditingAnchors] = useState(false);
+  const [skipReasonAnchor, setSkipReasonAnchor] = useState<{ id: AnchorId; label: string } | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
 
   const todaysAnchors = useMemo(() => {
@@ -394,6 +408,11 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
     return [...todaysAnchors].sort((a, b) => parseHHMMToMinutes(a.scheduledTime) - parseHHMMToMinutes(b.scheduledTime));
   }, [todaysAnchors]);
 
+  const skippedTodayCount = useMemo(
+    () => sortedAnchors.filter((anchor) => anchor.status === 'skipped').length,
+    [sortedAnchors],
+  );
+
   const progressPercent = useMemo(() => {
     if (completedCount === 0) return 0;
     const completedAnchors = sortedAnchors.filter((anchor) => anchor.status === 'done');
@@ -403,6 +422,11 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
 
   const [currentTimePosition, setCurrentTimePosition] = useState<number | null>(null);
   const [nowMinutes, setNowMinutes] = useState<number | null>(null);
+
+  const recentSkippedStreak = useMemo(
+    () => getRecentSkippedAnchorStreak(sortedAnchors, nowMinutes),
+    [sortedAnchors, nowMinutes],
+  );
 
   useEffect(() => {
     const updateCurrentTime = () => {
@@ -485,8 +509,19 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   }, [anchors, setTodayAnchors]);
 
   const handleToggleSkipToday = useCallback((anchorId: AnchorId, isSkipped: boolean) => {
-    setTodayAnchorStatus(anchorId, isSkipped ? 'waiting' : 'skipped');
-  }, [setTodayAnchorStatus]);
+    if (isSkipped) {
+      setTodayAnchorStatus(anchorId, 'waiting');
+      return;
+    }
+    const anchorLabel = anchors.find((anchor) => anchor.id === anchorId)?.label || 'this anchor';
+    setSkipReasonAnchor({ id: anchorId, label: anchorLabel });
+  }, [anchors, setTodayAnchorStatus]);
+
+  const handleConfirmSkipReason = useCallback((skipReason?: SkipReason) => {
+    if (!skipReasonAnchor) return;
+    setTodayAnchorStatus(skipReasonAnchor.id, 'skipped', skipReason);
+    setSkipReasonAnchor(null);
+  }, [setTodayAnchorStatus, skipReasonAnchor]);
 
   useEffect(() => {
     if (searchParams.get('anchors') !== 'edit' || isEditingAnchors) return;
@@ -554,6 +589,37 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
               )}
             </div>
           </div>
+
+          {recentSkippedStreak >= 3 && (
+            <div className="mb-4 rounded-2xl border border-warning/35 bg-warning/10 px-4 py-3 text-sm text-text">
+              <p className="font-semibold">
+                That&apos;s {recentSkippedStreak} skips in a row. What&apos;s going on?
+              </p>
+              <p className="mt-1 text-text-muted">
+                {skippedTodayCount} skipped today. If the plan is off, adjust the anchor times instead of burning the whole block.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={openAnchorEditor}
+                  className="inline-flex items-center justify-center rounded-full border border-warning/40 bg-bg-surface/85 px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:border-warning/60 hover:bg-bg-surface"
+                >
+                  Retime anchors
+                </button>
+              </div>
+            </div>
+          )}
+
+          {weeklySkipReasonInsight && weeklySkipReasonInsight.count >= 2 && (
+            <div className="mb-4 rounded-2xl border border-border-subtle bg-bg-elevated/75 px-4 py-3 text-sm text-text">
+              <p className="font-semibold">
+                This week: {weeklySkipReasonInsight.anchorLabel} skipped {weeklySkipReasonInsight.count} times because {getSkipReasonLabel(weeklySkipReasonInsight.reason)}.
+              </p>
+              <p className="mt-1 text-text-muted">
+                {getSkipReasonSuggestion(weeklySkipReasonInsight.reason)}
+              </p>
+            </div>
+          )}
 
           <div className="hidden sm:block">
             <div className="relative" ref={timelineRef}>
@@ -829,6 +895,45 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
         anchorTemplates={anchorTemplates}
         onSave={handleSaveAnchors}
       />
+
+      {skipReasonAnchor && (
+        <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/35 p-4 sm:items-center">
+          <div className="w-full max-w-sm rounded-3xl border border-border-subtle bg-bg-surface p-4 shadow-2xl">
+            <h3 className="text-base font-semibold text-text">Why skip {skipReasonAnchor.label}?</h3>
+            <p className="mt-1 text-sm text-text-muted">
+              Pick a reason so the weekly summary can spot patterns.
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {SKIP_REASON_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => handleConfirmSkipReason(option.value)}
+                  className="rounded-2xl border border-border-subtle bg-bg-elevated px-3 py-2 text-sm font-medium text-text transition-colors hover:border-accent-teal/50 hover:bg-bg-surface"
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => setSkipReasonAnchor(null)}
+                className="rounded-full px-3 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:text-text"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleConfirmSkipReason()}
+                className="rounded-full border border-border-subtle bg-bg-elevated px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:bg-bg-surface"
+              >
+                Skip without reason
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

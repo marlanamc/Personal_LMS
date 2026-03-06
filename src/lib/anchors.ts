@@ -16,6 +16,7 @@ export type AnchorIcon =
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export type AnchorStatus = 'waiting' | 'done' | 'missed' | 'skipped';
+export type SkipReason = 'tired' | 'schedule_changed' | 'not_realistic' | 'low_energy' | 'sick' | 'other';
 
 export interface DailyAnchor {
   id: AnchorId;
@@ -25,6 +26,7 @@ export interface DailyAnchor {
   daysOfWeek?: DayOfWeek[];
   status: AnchorStatus;
   actualTime?: string;
+  skipReason?: SkipReason;
 }
 
 export interface DailyAnchorTemplate {
@@ -142,6 +144,7 @@ function toStateAnchor(template: DailyAnchorTemplate, existing?: DailyAnchor): D
     ...(template.daysOfWeek ? { daysOfWeek: template.daysOfWeek } : {}),
     status: existing?.status ?? 'waiting',
     actualTime: existing?.actualTime,
+    skipReason: existing?.skipReason,
   };
 }
 
@@ -187,6 +190,81 @@ export function isAnchorScheduledForDate(anchor: Pick<DailyAnchor, 'daysOfWeek'>
   return anchor.daysOfWeek.includes(date.getDay() as DayOfWeek);
 }
 
+export function getRecentSkippedAnchorStreak(
+  anchors: Pick<DailyAnchor, 'status' | 'scheduledTime'>[],
+  nowMinutes?: number | null,
+): number {
+  const processedAnchors = anchors.filter(
+    (anchor) => anchor.status !== 'waiting' || nowMinutes === null || nowMinutes === undefined || parseHHMMToMinutes(anchor.scheduledTime) <= nowMinutes,
+  );
+
+  let streak = 0;
+  for (let index = processedAnchors.length - 1; index >= 0; index -= 1) {
+    if (processedAnchors[index]?.status !== 'skipped') break;
+    streak += 1;
+  }
+
+  return streak;
+}
+
+export interface WeeklySkipReasonInsight {
+  anchorId: AnchorId;
+  anchorLabel: string;
+  count: number;
+  reason: SkipReason;
+}
+
+export function getSkipReasonLabel(reason: SkipReason): string {
+  if (reason === 'tired') return 'you were tired';
+  if (reason === 'schedule_changed') return 'your schedule changed';
+  if (reason === 'not_realistic') return 'the plan felt unrealistic';
+  if (reason === 'low_energy') return 'your energy was low';
+  if (reason === 'sick') return 'you were sick';
+  return 'something else got in the way';
+}
+
+export function getSkipReasonSuggestion(reason: SkipReason): string {
+  if (reason === 'tired' || reason === 'low_energy') return 'Work on sleep or move that anchor later.';
+  if (reason === 'schedule_changed') return 'The timing may need a new default.';
+  if (reason === 'not_realistic') return 'Shrink the anchor or make the block easier to start.';
+  if (reason === 'sick') return 'Keep a lighter fallback version for low-capacity days.';
+  return 'Review whether that anchor still fits the week you actually have.';
+}
+
+export function getTopWeeklySkipReasonInsight(
+  weekStates: DailyAnchorState[],
+): WeeklySkipReasonInsight | null {
+  const counts = new Map<string, WeeklySkipReasonInsight>();
+
+  weekStates.forEach((state) => {
+    state.anchors.forEach((anchor) => {
+      if (anchor.status !== 'skipped' || !anchor.skipReason) return;
+      const key = `${anchor.id}::${anchor.skipReason}`;
+      const existing = counts.get(key);
+      if (existing) {
+        existing.count += 1;
+        return;
+      }
+
+      counts.set(key, {
+        anchorId: anchor.id,
+        anchorLabel: anchor.label,
+        count: 1,
+        reason: anchor.skipReason,
+      });
+    });
+  });
+
+  let topInsight: WeeklySkipReasonInsight | null = null;
+  counts.forEach((insight) => {
+    if (!topInsight || insight.count > topInsight.count) {
+      topInsight = insight;
+    }
+  });
+
+  return topInsight;
+}
+
 export function normalizeAnchorTemplates(raw: unknown): DailyAnchorTemplate[] {
   const source = Array.isArray(raw) ? raw : [];
   const defaults = getDefaultAnchorTemplates();
@@ -230,6 +308,7 @@ function normalizeAnchor(dateKey: string, raw: unknown, fallbackTemplate?: Daily
     daysOfWeek?: unknown;
     status?: unknown;
     actualTime?: unknown;
+    skipReason?: unknown;
     isComplete?: unknown;
     actualStartTime?: unknown;
   };
@@ -250,11 +329,22 @@ function normalizeAnchor(dateKey: string, raw: unknown, fallbackTemplate?: Daily
   const actualTimeCandidate = typeof candidate.actualTime === 'string' ? candidate.actualTime : undefined;
   const actualStartTime = typeof candidate.actualStartTime === 'string' ? candidate.actualStartTime : undefined;
   const actualTime = actualTimeCandidate || (actualStartTime ? createIsoFromDateAndHHMM(dateKey, actualStartTime) : undefined);
+  const skipReasonCandidate = typeof candidate.skipReason === 'string' ? candidate.skipReason : undefined;
+  const skipReason =
+    skipReasonCandidate === 'tired' ||
+    skipReasonCandidate === 'schedule_changed' ||
+    skipReasonCandidate === 'not_realistic' ||
+    skipReasonCandidate === 'low_energy' ||
+    skipReasonCandidate === 'sick' ||
+    skipReasonCandidate === 'other'
+      ? skipReasonCandidate
+      : undefined;
 
   return {
     ...template,
     status,
     actualTime,
+    skipReason,
   };
 }
 
@@ -368,7 +458,7 @@ export function resolveAnchorStatuses(state: DailyAnchorState, now: Date): Daily
   return state.anchors.map((anchor) => {
     const scheduledForDate = isAnchorScheduledForDate(anchor, stateDate);
     if (!scheduledForDate) {
-      return { ...anchor, status: 'waiting', actualTime: undefined };
+      return { ...anchor, status: 'waiting', actualTime: undefined, skipReason: undefined };
     }
 
     if (anchor.status === 'done' || anchor.status === 'skipped') return anchor;

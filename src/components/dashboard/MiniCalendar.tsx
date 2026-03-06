@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import { CalendarIcon } from 'lucide-react';
+import { getMiniCalendarDayPresentation } from '@/lib/mini-calendar';
 
 export type CalendarEvent = {
     id?: string;
@@ -132,6 +133,12 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [], showJum
                     const flags = day ? eventsByDay.get(day) : undefined;
                     const hasVacation = flags?.vacation;
                     const hasEvent = flags?.event;
+                    const presentation = getMiniCalendarDayPresentation({
+                        isToday,
+                        isSelected: Boolean(isSelected),
+                        hasEvent: Boolean(hasEvent),
+                        hasVacation: Boolean(hasVacation),
+                    });
                     const isClickable = Boolean(onDateSelect);
 
                     if (!day) return <div key={idx} className="h-7 w-7" />;
@@ -153,27 +160,48 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [], showJum
                                 ${isClickable ? "cursor-pointer active:scale-95" : "cursor-default"}
                                 ${!isToday && !isSelected && !hasEvent && !hasVacation ? "text-text-secondary hover:bg-bg-elevated/60 hover:text-text" : ""}
                             `}
-                            style={isToday ? {
-                                background: 'var(--color-calendar-today-fill)',
-                                color: 'var(--color-text-primary)',
-                                boxShadow: '0 2px 6px color-mix(in srgb, var(--color-accent-sakura) 14%, transparent), inset 0 1px 0 rgba(255,255,255,0.2)',
-                            } : isSelected ? {
-                                background: 'color-mix(in srgb, var(--color-accent-sakura) 25%, transparent)',
-                                color: 'var(--color-text-primary)',
-                                border: '1.5px solid color-mix(in srgb, var(--color-accent-sakura) 50%, transparent)',
-                                boxShadow: '0 0 6px color-mix(in srgb, var(--color-accent-sakura) 12%, transparent)',
-                            } : hasEvent ? {
-                                background: 'transparent',
-                                color: 'var(--color-text-primary)',
-                                border: '1.5px solid var(--color-accent-terracotta)',
-                                boxShadow: '0 0 6px color-mix(in srgb, var(--color-accent-sakura) 10%, transparent)',
-                            } : hasVacation ? {
-                                background: 'color-mix(in srgb, var(--color-accent-sage) 10%, transparent)',
-                                color: 'var(--color-accent-sage)',
-                                border: '1px solid color-mix(in srgb, var(--color-accent-sage) 30%, transparent)',
-                            } : {}}
+                            style={{
+                                ...(presentation.useTodayFill ? {
+                                    background: 'var(--color-calendar-today-fill)',
+                                    color: 'var(--color-text-primary)',
+                                    boxShadow: '0 2px 6px color-mix(in srgb, var(--color-accent-sakura) 14%, transparent), inset 0 1px 0 rgba(255,255,255,0.2)',
+                                } : {}),
+                                ...(presentation.useSelectedFill ? {
+                                    background: 'color-mix(in srgb, var(--color-accent-sakura) 25%, transparent)',
+                                    color: 'var(--color-text-primary)',
+                                    boxShadow: '0 0 6px color-mix(in srgb, var(--color-accent-sakura) 12%, transparent)',
+                                } : {}),
+                                ...(presentation.ring === 'event' ? {
+                                    border: '1.5px solid var(--color-accent-terracotta)',
+                                    boxShadow: presentation.useTodayFill
+                                        ? '0 0 0 1.5px color-mix(in srgb, var(--color-accent-terracotta) 18%, transparent), 0 2px 6px color-mix(in srgb, var(--color-accent-sakura) 14%, transparent), inset 0 1px 0 rgba(255,255,255,0.2)'
+                                        : '0 0 6px color-mix(in srgb, var(--color-accent-sakura) 10%, transparent)',
+                                    color: 'var(--color-text-primary)',
+                                } : {}),
+                                ...(presentation.ring === 'vacation' ? {
+                                    border: '1px solid color-mix(in srgb, var(--color-accent-sage) 35%, transparent)',
+                                    color: presentation.useTodayFill ? 'var(--color-text-primary)' : 'var(--color-accent-sage)',
+                                } : {}),
+                                ...(!presentation.useTodayFill && !presentation.useSelectedFill && !presentation.ring ? {} : {}),
+                            }}
                         >
                             {day}
+                            {(presentation.showEventDot || presentation.showVacationDot) && (
+                                <span className="pointer-events-none absolute -bottom-0.5 right-0.5 flex items-center gap-0.5">
+                                    {presentation.showVacationDot && (
+                                        <span
+                                            className="block h-1.5 w-1.5 rounded-full"
+                                            style={{ background: 'var(--color-accent-sage)' }}
+                                        />
+                                    )}
+                                    {presentation.showEventDot && (
+                                        <span
+                                            className="block h-1.5 w-1.5 rounded-full"
+                                            style={{ background: 'var(--color-accent-terracotta)' }}
+                                        />
+                                    )}
+                                </span>
+                            )}
                         </Cell>
                     );
                 })}
