@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 interface GetUnstuckCalloutProps {
   variant?: 'dashboard' | 'compact';
@@ -13,12 +13,12 @@ export function GetUnstuckCallout({
   description,
 }: GetUnstuckCalloutProps) {
   const isCompact = variant === 'compact';
-  const resolvedTitle = title ?? (isCompact ? 'Feeling stuck?' : 'Frozen?');
+  const resolvedTitle = title ?? (isCompact ? 'Brain says no?' : 'Can\'t start?');
   const resolvedDescription =
     description ??
     (isCompact
-      ? 'It is not laziness. Come here when your body will not move.'
-      : 'Your brain is not broken. This is freeze. Let this page help you move again.');
+      ? 'For when you know what to do but your body won\'t move.'
+      : 'Not laziness. Just freeze. This page helps you get moving again.');
 
   return (
     <Link
@@ -37,30 +37,17 @@ export function GetUnstuckCallout({
         }}
       />
 
-      <div className={`relative flex ${isCompact ? 'flex-col gap-3' : 'flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'}`}>
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/18 bg-primary/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-            <Sparkles className="h-3.5 w-3.5" />
-            Get Unstuck
-          </div>
-          <div className="space-y-1">
-            <h2 className={`${isCompact ? 'text-lg' : 'text-xl'} font-display font-semibold text-text`}>
-              {resolvedTitle}
-            </h2>
-            <p className={`max-w-2xl ${isCompact ? 'text-sm' : 'text-sm sm:text-[0.95rem]'} leading-relaxed text-text-secondary`}>
-              {resolvedDescription}
-            </p>
-          </div>
+      <div className={`relative flex ${isCompact ? 'flex-col gap-2' : 'flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'}`}>
+        <div>
+          <h2 className={`${isCompact ? 'text-lg' : 'text-xl'} font-display font-semibold text-text`}>
+            {resolvedTitle}
+          </h2>
+          <p className={`mt-1 ${isCompact ? 'text-sm' : 'text-sm sm:text-[0.95rem]'} leading-relaxed text-text-secondary`}>
+            {resolvedDescription}
+          </p>
         </div>
 
-        <div
-          className={`inline-flex items-center gap-2 self-start rounded-full border border-primary/22 bg-bg-elevated/78 px-4 py-2 text-sm font-semibold text-text transition-transform duration-200 group-hover:translate-x-0.5 ${
-            isCompact ? '' : 'sm:self-center'
-          }`}
-        >
-          <span>Open reset</span>
-          <ArrowRight className="h-4 w-4 text-primary" />
-        </div>
+        <ArrowRight className={`h-4 w-4 text-primary shrink-0 ${isCompact ? 'self-start' : 'sm:self-center'}`} />
       </div>
     </Link>
   );

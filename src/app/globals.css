@@ -4524,46 +4524,47 @@ kbd {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Checklist Card */
+/* Checklist Card — elegant floating rows */
 .checklist-river-card {
-  border: 1px solid var(--color-border-subtle);
-  background: var(--color-bg-surface);
-  box-shadow: var(--color-card-shadow);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 50%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-bg-elevated) 12%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
   display: block;
 }
 
 .checklist-river-card:hover {
   transform: translateX(2px);
-  box-shadow: var(--color-card-shadow-hover);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  border-color: color-mix(in srgb, var(--color-border-subtle) 65%, transparent);
 }
 
 .checklist-river-card:active {
-  transform: scale(0.98);
+  transform: scale(0.99);
 }
 
 .checklist-river-card-done {
-  border-color: color-mix(in srgb, var(--color-secondary) 25%, var(--color-border-subtle) 75%);
-  opacity: 0.75;
+  border-color: color-mix(in srgb, var(--color-secondary) 20%, transparent);
+  opacity: 0.7;
 }
 
 .checklist-river-card-pending {
-  border-color: var(--color-border-subtle);
+  border-color: color-mix(in srgb, var(--color-border-subtle) 50%, transparent);
 }
 
-/* Checklist Shimmer */
+/* Checklist Shimmer — subtle glow */
 .checklist-river-shimmer {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    color-mix(in srgb, var(--color-primary) 8%, transparent) 25%,
-    color-mix(in srgb, var(--color-primary) 15%, transparent) 50%,
-    color-mix(in srgb, var(--color-primary) 8%, transparent) 75%,
+    color-mix(in srgb, var(--color-primary) 5%, transparent) 25%,
+    color-mix(in srgb, var(--color-primary) 10%, transparent) 50%,
+    color-mix(in srgb, var(--color-primary) 5%, transparent) 75%,
     transparent 100%
   );
   background-size: 200% 100%;
-  animation: checklistShimmer 2s ease-in-out infinite;
+  animation: checklistShimmer 2.5s ease-in-out infinite;
   border-radius: inherit;
 }
 

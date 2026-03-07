@@ -363,16 +363,16 @@ export function FlatChecklist({ assignments, title = 'Your Daily Checklist', act
 
                   <div className={`flex items-start gap-2 ${isLast ? 'pb-0' : 'pb-3'}`}>
                     {/* Orb / Checkbox */}
-                    <div className="relative mt-3 shrink-0">
+                    <div className="relative mt-2.5 shrink-0">
                       <div
                         className={`
-                          checklist-river-orb w-10 h-10 rounded-xl flex items-center justify-center
+                          checklist-river-orb w-9 h-9 rounded-lg flex items-center justify-center
                           transition-all duration-300
                           ${rowCompleted
-                            ? 'bg-gradient-to-br from-secondary to-secondary/80 text-white shadow-md'
+                            ? 'bg-secondary/90 text-white shadow-sm'
                             : isGame
-                              ? 'bg-gradient-to-br from-amber-400/20 to-orange-300/15 text-amber-500 border border-amber-400/30'
-                              : 'bg-bg-surface/80 text-text-muted border border-border-subtle/60'
+                              ? 'bg-amber-400/12 text-amber-500 border border-amber-400/20'
+                              : 'bg-bg-surface/60 text-text-muted border border-border-subtle/40'
                           }
                         `}
                       >
