@@ -13,12 +13,12 @@ export function GetUnstuckCallout({
   description,
 }: GetUnstuckCalloutProps) {
   const isCompact = variant === 'compact';
-  const resolvedTitle = title ?? (isCompact ? 'Need help getting started?' : 'Get Unstuck');
+  const resolvedTitle = title ?? (isCompact ? 'Feeling stuck?' : 'Frozen?');
   const resolvedDescription =
     description ??
     (isCompact
-      ? 'Use a quiet reset first, then come back when you are ready to focus.'
-      : 'Hard transition? Take a 60-second reset and leave with one tiny next step.');
+      ? 'It is not laziness. Come here when your body will not move.'
+      : 'Your brain is not broken. This is freeze. Let this page help you move again.');
 
   return (
     <Link

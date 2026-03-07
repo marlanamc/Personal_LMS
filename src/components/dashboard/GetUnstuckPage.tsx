@@ -69,39 +69,39 @@ const RESET_MODE_ORDER: ResetMode[] = ['transition', 'cannot-start', 'overwhelme
 
 const RESET_MODE_CONFIG: Record<ResetMode, ResetModeConfig> = {
   transition: {
-    title: 'Switch gears',
+    title: 'Body says no',
     supportCopy:
-      'When you know what to do but your body freezes during the handoff.',
+      'You know what comes next. Your body is not moving. That is the freeze talking, not laziness.',
     regulatePrompt:
-      'Unclench your jaw. Drop your shoulders. Let one slower breath count.',
-    tinyActions: ['Stand up', 'Walk to the start spot', 'Open the first thing'],
-    launchLabel: 'Start the switch',
+      'Wiggle your toes. Stretch your fingers wide, then release. Your body remembers how to move.',
+    tinyActions: ['Sit up (just sit up)', 'Put one foot on the floor', 'Move your phone somewhere else'],
+    launchLabel: 'Let movement start small',
     accent: 'var(--color-accent-sakura)',
     softBackground:
       'linear-gradient(160deg, color-mix(in srgb, var(--color-accent-sakura) 16%, transparent) 0%, transparent 72%)',
     border: 'color-mix(in srgb, var(--color-accent-sakura) 28%, var(--color-border-subtle))',
   },
   'cannot-start': {
-    title: 'Start tiny',
+    title: 'Spinning but stuck',
     supportCopy:
-      'When the task feels too big and you do not know where to begin.',
+      'Thoughts racing, nothing landing. The task exists but you cannot find the door in.',
     regulatePrompt:
-      'Put both feet down. Let your exhale run a little longer than your inhale.',
-    tinyActions: ['Open the thing', 'Do 2 minutes', 'Write the ugly first line'],
-    launchLabel: 'Start the tiny start',
+      'Touch something cold or textured nearby. Name what you feel. Let your thoughts slow to match your hands.',
+    tinyActions: ['Say out loud: "I am allowed to start badly"', 'Open the app/file (do not do anything yet)', 'Set a 2-minute timer and stop when it ends'],
+    launchLabel: 'Find the smallest door',
     accent: 'var(--color-accent-teal)',
     softBackground:
       'linear-gradient(160deg, color-mix(in srgb, var(--color-accent-teal) 16%, transparent) 0%, transparent 72%)',
     border: 'color-mix(in srgb, var(--color-accent-teal) 28%, var(--color-border-subtle))',
   },
   overwhelmed: {
-    title: 'Too flooded',
+    title: 'Everything is loud',
     supportCopy:
-      'When everything feels loud and your brain cannot pick a direction.',
+      'Too many tabs. Too many thoughts. Your nervous system is protecting you by shutting down.',
     regulatePrompt:
-      'Look at one still thing. Soften your eyes. Let this get quieter for one minute.',
-    tinyActions: ['Sip water', 'Close extra inputs', 'Pick one thing'],
-    launchLabel: 'Start the quiet landing',
+      'Close your eyes. Put a hand on your chest. You are not behind. You are exactly here.',
+    tinyActions: ['Turn off one sound or notification', 'Name three things you can physically feel', 'Decide what you are NOT doing right now'],
+    launchLabel: 'Let it get quieter first',
     accent: 'var(--color-accent-mint)',
     softBackground:
       'linear-gradient(160deg, color-mix(in srgb, var(--color-accent-mint) 18%, transparent) 0%, transparent 72%)',
@@ -335,11 +335,10 @@ export function GetUnstuckPage() {
               </div>
               <div className="space-y-2">
                 <h1 className="text-[2rem] leading-none font-display font-semibold text-text sm:text-[2.5rem]">
-                  What kind of stuck is this?
+                  Hey. You are not broken.
                 </h1>
                 <p className="max-w-2xl text-sm leading-relaxed text-text-secondary sm:text-[0.97rem]">
-                  Pick the closest fit. You do not need the perfect answer. This page is here to
-                  lower the friction, not give you more work.
+                  This is freeze. It feels permanent but it is not. Pick whichever one sounds closest right now.
                   {!selectedMode && (
                     <span className="block mt-2 text-xs text-text-muted">
                       Keyboard shortcut: Press <kbd className="px-1.5 py-0.5 rounded bg-bg-base/60 font-mono">1</kbd> for Switch Gears, <kbd className="px-1.5 py-0.5 rounded bg-bg-base/60 font-mono">2</kbd> for Start Tiny, or <kbd className="px-1.5 py-0.5 rounded bg-bg-base/60 font-mono">3</kbd> for Too Flooded
@@ -455,7 +454,7 @@ export function GetUnstuckPage() {
                 {selectedConfig.title}
               </p>
               <h2 className="mt-1 text-2xl font-display font-semibold text-text">
-                One calm reset, then one tiny move.
+                Your body first. Then one tiny thing.
               </h2>
             </div>
             <button
@@ -463,17 +462,17 @@ export function GetUnstuckPage() {
               onClick={handleGentlerReset}
               className="inline-flex items-center gap-2 self-start rounded-full border border-border-subtle bg-bg-elevated/80 px-4 py-2.5 text-sm font-semibold text-text transition-colors hover:border-primary/24 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2"
             >
-              {selectedMode === 'overwhelmed' ? 'Start over' : 'Try something gentler'}
+              {selectedMode === 'overwhelmed' ? 'Start fresh' : 'This is too much—go softer'}
             </button>
           </div>
 
           <p className="text-sm text-text-secondary px-1">
             {selectedAction ? (
               <>
-                You picked: <span className="font-semibold text-text">{selectedAction}</span>. That is enough to carry into the next step.
+                Your next move: <span className="font-semibold text-text">{selectedAction}</span>. That is the whole plan.
               </>
             ) : (
-              'Pick the easiest tiny action. You can ignore the rest.'
+              'Which one feels least impossible right now? Pick that one.'
             )}
           </p>
 
@@ -492,10 +491,10 @@ export function GetUnstuckPage() {
                     className="text-[11px] font-semibold uppercase tracking-[0.18em]"
                     style={{ color: selectedConfig.accent }}
                   >
-                    01 · Regulate
+                    01 · Ground
                   </p>
                   <h3 className="text-xl font-display font-semibold text-text">
-                    Give your body one minute.
+                    Come back to your body.
                   </h3>
                 </div>
 
@@ -606,7 +605,7 @@ export function GetUnstuckPage() {
                     }}
                   >
                     <Check className="h-5 w-5 shrink-0" style={{ color: selectedConfig.accent }} />
-                    That is enough. You can move imperfectly from here.
+                    You did that. Your nervous system is a little calmer now. Good.
                   </div>
                 ) : null}
               </div>
@@ -626,15 +625,15 @@ export function GetUnstuckPage() {
                     className="text-[11px] font-semibold uppercase tracking-[0.18em]"
                     style={{ color: selectedConfig.accent }}
                   >
-                    02 · Bridge
+                    02 · Permission
                   </p>
                   <h3 className="text-xl font-display font-semibold text-text">
-                    Pick one tiny action.
+                    Pick the smallest possible thing.
                   </h3>
                 </div>
 
                 <p className="text-sm leading-relaxed text-text-secondary">
-                  One tap. One move. It does not have to be the best option.
+                  Not the right thing. Not the productive thing. The thing you can actually do from where you are.
                 </p>
 
                 <div className="space-y-2.5">
@@ -673,7 +672,7 @@ export function GetUnstuckPage() {
 
                   <div className="pt-1">
                     <label className="text-xs uppercase tracking-[0.18em] font-semibold text-text-muted">
-                      Or type your own
+                      Or something else
                     </label>
                     <input
                       type="text"
@@ -684,7 +683,7 @@ export function GetUnstuckPage() {
                           setSelectedAction(e.target.value);
                         }
                       }}
-                      placeholder="What tiny move feels right?"
+                      placeholder="What can you actually do from the couch right now?"
                       className="w-full mt-1.5 rounded-[1.2rem] border px-4 py-3 text-sm bg-bg-base/24 placeholder-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-all"
                       style={{
                         borderColor: customAction ? selectedConfig.border : 'var(--color-border-subtle)',
@@ -703,11 +702,11 @@ export function GetUnstuckPage() {
                     }}
                   >
                     <p className="font-medium text-text">
-                      Good enough. Let your next move be{' '}
+                      Okay.{' '}
                       <span style={{ color: selectedConfig.accent, fontWeight: 'bold' }}>
                         {selectedAction}
                       </span>
-                      .
+                      . That is the whole ask.
                     </p>
                   </div>
                 ) : (
@@ -719,7 +718,7 @@ export function GetUnstuckPage() {
                     }}
                   >
                     <p className="text-text-secondary">
-                      Pick whichever one feels least heavy. You can change your mind later.
+                      You are allowed to pick the easy one. The point is to move, not to impress anyone.
                     </p>
                   </div>
                 )}
@@ -740,17 +739,17 @@ export function GetUnstuckPage() {
                     className="text-[11px] font-semibold uppercase tracking-[0.18em]"
                     style={{ color: selectedConfig.accent }}
                   >
-                    03 · Launch
+                    03 · Move
                   </p>
                   <h3 className="text-xl font-display font-semibold text-text">
-                    Stay with it for three minutes.
+                    Three minutes. That is it.
                   </h3>
                 </div>
 
                 <p className="text-sm leading-relaxed text-text-secondary">
                   {selectedAction
-                    ? `${selectedConfig.launchLabel} with "${selectedAction}" and let three minutes be enough for now.`
-                    : `${selectedConfig.launchLabel} and keep the bar deliberately low for three minutes.`}
+                    ? `Do "${selectedAction}" for three minutes. You can stop when this ends. No one is asking for more.`
+                    : `${selectedConfig.launchLabel}. Three minutes, then you are allowed to stop.`}
                 </p>
 
                 <div
@@ -855,7 +854,7 @@ export function GetUnstuckPage() {
                     }}
                   >
                     <Check className="h-5 w-5 shrink-0" style={{ color: selectedConfig.accent }} />
-                    Three minutes done. You can stop here or keep going with the timer.
+                    Three minutes. You moved. That was not nothing. Stop here or keep going—both are fine.
                   </div>
                 ) : null}
               </div>
@@ -873,9 +872,9 @@ export function GetUnstuckPage() {
             >
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-text">Still stuck?</p>
+                  <p className="text-sm font-semibold text-text">This is not working?</p>
                   <p className="text-sm text-text-secondary">
-                    Try a gentler reset or choose a different way.
+                    That happens. Maybe it is a different kind of stuck, or maybe you need something softer.
                   </p>
                 </div>
 
@@ -885,14 +884,14 @@ export function GetUnstuckPage() {
                     onClick={handleGentlerReset}
                     className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-bg-elevated/80 px-4 py-2.5 text-sm font-semibold text-text transition-colors hover:border-primary/24 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2"
                   >
-                    Try a gentler reset
+                    Try the quiet one
                   </button>
                   <button
                     type="button"
                     onClick={handleChooseDifferentState}
                     className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-bg-elevated/80 px-4 py-2.5 text-sm font-semibold text-text transition-colors hover:border-primary/24 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2"
                   >
-                    Choose a different state
+                    Pick a different one
                   </button>
                 </div>
               </div>
