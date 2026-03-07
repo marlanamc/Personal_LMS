@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useFocusTimer } from '@/context/FocusTimerContext';
 import { ActivityPanelContent } from '@/components/dashboard/ActivityPanelContent';
+import { GetUnstuckCallout } from '@/components/dashboard/GetUnstuckCallout';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
 
 type SpotifyConnectionStatus = {
@@ -1232,6 +1233,14 @@ export const FocusTimer = () => {
                     {sessionNotice && (
                         <p className="text-center text-xs font-semibold text-mineral-mint mb-4">{sessionNotice}</p>
                     )}
+
+                    <div className="mb-5 w-full">
+                        <GetUnstuckCallout
+                            variant="compact"
+                            title="Freeze before you can even start?"
+                            description="Open the reset page for a quieter landing, then come back here when you are ready."
+                        />
+                    </div>
 
                     {/* Timer Ring */}
                     <div className="focus-timer-well relative flex justify-center items-center mb-8 select-none touch-none">
