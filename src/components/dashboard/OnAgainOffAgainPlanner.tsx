@@ -456,15 +456,15 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                 Reset
               </button>
               {blocks.length > 0 && (
-                <div className="flex flex-col gap-2 flex-1 sm:flex-none">
-                  <label className="flex items-center gap-2 text-sm font-medium text-text cursor-pointer">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-1 sm:flex-none">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-text cursor-pointer shrink-0">
                     <input
                       type="checkbox"
                       checked={autoStartAtScheduledTime}
                       onChange={(e) => setAutoStartAtScheduledTime(e.target.checked)}
-                      className="rounded border-border-subtle text-accent-teal focus:ring-accent-teal/30"
+                      className="h-4 w-4 rounded border-2 border-border-subtle text-accent-teal focus:ring-2 focus:ring-accent-teal/30"
                     />
-                    <Alarm size={14} className="text-accent-teal" />
+                    <Alarm size={16} className="text-accent-teal shrink-0" />
                     Auto-start at {formatMinuteOfDay(blocks[0].startMinuteOfDay)}
                   </label>
                   <Link
