@@ -282,8 +282,21 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
     ];
   }, [blocks, form.shouldLabel, form.wantLabel]);
 
+  // Find the current block for mobile header display
+  const currentBlockInfo = useMemo(() => {
+    if (blocks.length === 0 || nowMinuteOfDay === null) return null;
+    const todayDateKey = toDateKey(new Date());
+    if (selectedDateKey !== todayDateKey) return null;
+    const block = blocks.find(
+      (b) => b.startMinuteOfDay <= nowMinuteOfDay && b.endMinuteOfDay > nowMinuteOfDay
+    );
+    if (!block) return null;
+    const remaining = block.endMinuteOfDay - nowMinuteOfDay;
+    return { block, remainingMinutes: remaining > 0 ? remaining : 0 };
+  }, [blocks, selectedDateKey, nowMinuteOfDay]);
+
   return (
-    <div className={`grid grid-cols-1 gap-6 xl:gap-8 ${isPlannerCollapsed ? 'xl:grid-cols-[minmax(0,1fr)]' : 'xl:grid-cols-[360px_minmax(0,1fr)]'}`}>
+    <div className={`grid grid-cols-1 gap-4 sm:gap-6 xl:gap-8 ${isPlannerCollapsed ? 'xl:grid-cols-[minmax(0,1fr)]' : 'xl:grid-cols-[360px_minmax(0,1fr)]'} max-w-full overflow-hidden`}>
       {!isPlannerCollapsed ? (
         <section className="relative rounded-[2.5rem] border border-border-subtle/30 p-6 sm:p-8 shadow-sm overflow-hidden bg-bg-surface/60 backdrop-blur-xl">
           {/* Ambient background glows */}
@@ -491,73 +504,96 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
         </section>
       ) : null}
 
-      <section className="relative rounded-[2.5rem] border border-border-subtle/30 p-6 sm:p-8 shadow-sm overflow-hidden bg-bg-surface/60 backdrop-blur-xl flex flex-col">
+      <section className="relative rounded-[1.5rem] sm:rounded-[2.5rem] border border-border-subtle/30 p-4 sm:p-6 md:p-8 shadow-sm overflow-hidden bg-bg-surface/60 backdrop-blur-xl flex flex-col">
         {/* Ambient background glows */}
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-accent-sakura/8 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-teal/8 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[200px] sm:w-[400px] h-[200px] sm:h-[400px] bg-accent-sakura/8 blur-[60px] sm:blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[200px] sm:w-[400px] h-[200px] sm:h-[400px] bg-accent-teal/8 blur-[60px] sm:blur-[100px] rounded-full pointer-events-none" />
 
         <div className="relative z-10">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-text-muted/80 ml-1">Timeline</p>
-              <h2 className="mt-1 text-[1.875rem] leading-none font-display font-bold text-text tracking-tight">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap items-start justify-between gap-3 sm:gap-4">
+            <div className="w-full sm:w-auto">
+              <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-text-muted/80 ml-1">Timeline</p>
+              <h2 className="mt-1 text-xl sm:text-2xl md:text-[1.875rem] leading-tight font-display font-bold text-text tracking-tight">
                 {new Date(`${selectedDateKey}T12:00:00`).toLocaleDateString(undefined, {
                   weekday: 'long',
                   month: 'long',
                   day: 'numeric',
                 })}
               </h2>
-              <p className="mt-2 text-sm text-text-secondary/90 font-medium ml-1">
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-text-secondary/90 font-medium ml-1">
                 Alternating plan from {formatMinuteOfDay(formStartMinutes)} to {formatMinuteOfDay(formEndMinutes)}.
               </p>
+              {/* Mobile current block indicator */}
+              {currentBlockInfo && (
+                <div className="mt-3 sm:hidden">
+                  <div
+                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 ${
+                      currentBlockInfo.block.kind === 'want'
+                        ? 'border-accent-teal/40 bg-accent-teal/10'
+                        : 'border-accent-sakura/40 bg-accent-sakura/10'
+                    }`}
+                  >
+                    <span className={`flex h-2 w-2 rounded-full animate-pulse ${
+                      currentBlockInfo.block.kind === 'want' ? 'bg-accent-teal' : 'bg-accent-sakura'
+                    }`} />
+                    <span className={`inline-flex shrink-0 ${currentBlockInfo.block.kind === 'want' ? 'text-accent-teal' : 'text-accent-sakura'}`}>
+                      {currentBlockInfo.block.kind === 'want' ? <Heart size={12} className="fill-current" /> : <Target size={12} />}
+                    </span>
+                    <span className="text-sm font-bold text-text">{currentBlockInfo.block.label}</span>
+                    <span className="text-xs font-semibold text-text-muted tabular-nums">
+                      {currentBlockInfo.remainingMinutes}m left
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex flex-wrap items-center justify-end gap-2">
+            <div className="flex flex-col items-start sm:items-end gap-2 w-full sm:w-auto">
+              <div className="flex flex-wrap items-center gap-2">
                 {isPlannerCollapsed ? (
                   <button
                     type="button"
                     onClick={() => setIsPlannerCollapsed(false)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle/60 bg-bg-surface/80 backdrop-blur-md px-4 py-2 text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated hover:scale-105 active:scale-95"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle/60 bg-bg-surface/80 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated hover:scale-105 active:scale-95"
                   >
-                    <ChevronRight size={15} />
+                    <ChevronRight size={14} className="sm:w-[15px] sm:h-[15px]" />
                     Show Time Blocks Menu
                   </button>
                 ) : null}
                 <Link
                   href="/dashboard/calendar"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle/60 bg-bg-surface/80 backdrop-blur-md px-4 py-2 text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated hover:scale-105 active:scale-95"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle/60 bg-bg-surface/80 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated hover:scale-105 active:scale-95"
                 >
                   Calendar view
-                  <CalendarDays size={15} />
+                  <CalendarDays size={14} className="sm:w-[15px] sm:h-[15px]" />
                 </Link>
               </div>
-              <aside className="relative z-10 w-full sm:w-auto sm:min-w-[200px]">
-                <div className="rounded-xl border border-border-subtle/40 bg-bg-elevated/40 backdrop-blur-md shadow-sm p-4 overflow-hidden relative">
-                  <div className="absolute top-0 right-0 w-[100px] h-[100px] bg-accent-teal/5 blur-[40px] rounded-full pointer-events-none" />
+              <aside className="relative z-10 w-full">
+                <div className="rounded-xl border border-border-subtle/40 bg-bg-elevated/40 backdrop-blur-md shadow-sm p-3 sm:p-4 overflow-hidden relative">
+                  <div className="absolute top-0 right-0 w-[80px] sm:w-[100px] h-[80px] sm:h-[100px] bg-accent-teal/5 blur-[30px] sm:blur-[40px] rounded-full pointer-events-none" />
                   {blocks.length > 0 ? (
-                    <div className="flex flex-wrap gap-2 relative z-10">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 relative z-10">
                       {planSummary.map((item) => (
                         <div
                           key={item.key}
-                          className="rounded-lg border border-border-subtle/40 px-3 py-2 backdrop-blur-sm bg-bg-surface/40 hover:bg-bg-surface/60 transition-colors"
+                          className="rounded-lg border border-border-subtle/40 px-2 sm:px-3 py-1.5 sm:py-2 backdrop-blur-sm bg-bg-surface/40 hover:bg-bg-surface/60 transition-colors"
                           style={{ borderColor: item.chipStyle.borderColor }}
                         >
-                          <p className={`text-[9px] font-bold uppercase tracking-[0.14em] ${item.accentClass}`}>
+                          <p className={`text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.14em] ${item.accentClass}`}>
                             {item.label}
                           </p>
-                          <p className="mt-0.5 text-sm font-bold text-text/90">{formatDurationSummary(item.totalMinutes)}</p>
+                          <p className="mt-0.5 text-xs sm:text-sm font-bold text-text/90">{formatDurationSummary(item.totalMinutes)}</p>
                         </div>
                       ))}
-                      <div className="rounded-lg border border-border-subtle/50 bg-bg-surface/40 hover:bg-bg-surface/60 transition-colors backdrop-blur-sm px-3 py-2">
-                        <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-text-muted/80">Whole day</p>
-                        <p className="mt-0.5 text-sm font-bold text-text/90">
-                          {blocks.length} blocks <span className="text-text-muted font-semibold text-[10px] ml-1">across {formatDurationSummary(generatedSummary)}</span>
+                      <div className="rounded-lg border border-border-subtle/50 bg-bg-surface/40 hover:bg-bg-surface/60 transition-colors backdrop-blur-sm px-2 sm:px-3 py-1.5 sm:py-2">
+                        <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.14em] text-text-muted/80">Whole day</p>
+                        <p className="mt-0.5 text-xs sm:text-sm font-bold text-text/90">
+                          {blocks.length} blocks <span className="text-text-muted font-semibold text-[9px] sm:text-[10px] ml-1">across {formatDurationSummary(generatedSummary)}</span>
                         </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="rounded-lg border border-border-subtle/50 bg-bg-surface/30 px-3 py-2 text-center">
-                      <p className="text-xs font-semibold text-text-muted/70">Generate a plan to see its summary here.</p>
+                    <div className="rounded-lg border border-border-subtle/50 bg-bg-surface/30 px-2 sm:px-3 py-1.5 sm:py-2 text-center">
+                      <p className="text-[10px] sm:text-xs font-semibold text-text-muted/70">Generate a plan to see its summary here.</p>
                     </div>
                   )}
                 </div>
@@ -590,31 +626,31 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
           </div>
         ) : null}
 
-        <div className="mt-6 relative z-10">
+        <div className="mt-4 sm:mt-6 relative z-10">
           {blocks.length === 0 && timedEvents.length === 0 ? (
-            <div className="rounded-[2rem] border border-dashed border-border-subtle/40 bg-bg-elevated/30 backdrop-blur-sm p-8 text-center">
-              <div className="mx-auto w-12 h-12 flex items-center justify-center rounded-full bg-bg-surface/80 border border-border-subtle/50 mb-4 shadow-sm">
-                <CalendarDays className="w-5 h-5 text-text-muted/70" />
+            <div className="rounded-xl sm:rounded-[2rem] border border-dashed border-border-subtle/40 bg-bg-elevated/30 backdrop-blur-sm p-5 sm:p-8 text-center">
+              <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-bg-surface/80 border border-border-subtle/50 mb-3 sm:mb-4 shadow-sm">
+                <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted/70" />
               </div>
-              <p className="text-base font-bold text-text/90">No blocks yet</p>
-              <p className="mt-2 px-4 text-sm text-text-secondary/80 leading-relaxed max-w-sm mx-auto">
+              <p className="text-sm sm:text-base font-bold text-text/90">No blocks yet</p>
+              <p className="mt-1.5 sm:mt-2 px-2 sm:px-4 text-xs sm:text-sm text-text-secondary/80 leading-relaxed max-w-sm mx-auto">
                 Enter your two activities on the left and generate the alternating plan.
               </p>
             </div>
           ) : (
             <div
-              className="flex rounded-xl border border-border-subtle/40 bg-bg-elevated/30 overflow-hidden"
+              className="flex rounded-lg sm:rounded-xl border border-border-subtle/40 bg-bg-elevated/30 overflow-hidden"
               style={{ minHeight: timelineHeight + timelinePadding * 2 }}
             >
               {/* Time labels column */}
               <div
-                className="w-12 sm:w-14 shrink-0 relative border-r border-border-subtle/40 bg-bg-surface/40"
+                className="w-10 sm:w-14 shrink-0 relative border-r border-border-subtle/40 bg-bg-surface/40"
                 style={{ height: timelineHeight + timelinePadding * 2 }}
               >
                 {timeLabels.map(({ minute, label }) => (
                   <div
                     key={minute}
-                    className="absolute left-0 right-0 text-[9px] font-semibold text-text-muted/70 tabular-nums pl-2"
+                    className="absolute left-0 right-0 text-[8px] sm:text-[9px] font-semibold text-text-muted/70 tabular-nums pl-1 sm:pl-2"
                     style={{
                       top: blockTop(minute),
                       transform: 'translateY(-50%)',
@@ -675,23 +711,23 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                             e.stopPropagation();
                             openBlockNote(block);
                           }}
-                          className={`absolute left-1.5 right-1.5 rounded-lg border shadow-sm flex flex-col justify-center px-3 py-1.5 transition-all duration-200 hover:shadow-md hover:z-10 overflow-hidden group cursor-pointer ${hasOverlap ? 'ring-1 ring-amber-400/60' : ''}`}
+                          className={`absolute left-1 right-1 sm:left-1.5 sm:right-1.5 rounded-md sm:rounded-lg border shadow-sm flex flex-col justify-center px-2 sm:px-3 py-1 sm:py-1.5 transition-all duration-200 hover:shadow-md hover:z-10 overflow-hidden group cursor-pointer ${hasOverlap ? 'ring-1 ring-amber-400/60' : ''}`}
                           title="Double-click to add a note"
                           style={{
                             background: style.background,
                             borderColor: hasOverlap ? 'rgba(251,191,36,0.5)' : style.borderColor,
                             top,
                             height: height - 2,
-                            minHeight: 36,
+                            minHeight: 32,
                           }}
                         >
                           <div
-                            className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-lg ${block.kind === 'want' ? 'bg-accent-teal/60' : 'bg-accent-sakura/60'}`}
+                            className={`absolute left-0 top-0 bottom-0 w-0.5 sm:w-1 rounded-l-md sm:rounded-l-lg ${block.kind === 'want' ? 'bg-accent-teal/60' : 'bg-accent-sakura/60'}`}
                           />
-                          <div className="pl-2.5 flex-1 min-w-0 flex items-center justify-between gap-3">
-                            <div className="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
+                          <div className="pl-1.5 sm:pl-2.5 flex-1 min-w-0 flex items-center justify-between gap-1.5 sm:gap-3">
+                            <div className="min-w-0 flex-1 flex items-center gap-1 sm:gap-2 flex-wrap">
                               <span
-                                className={`inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold ${
+                                className={`hidden sm:inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold ${
                                   status === 'completed'
                                     ? 'text-secondary'
                                     : status === 'current'
@@ -703,18 +739,18 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                                 {status === 'current' && <><ArrowRight size={11} /> Current</>}
                                 {status === 'upcoming' && <><Circle size={10} className="fill-none" strokeWidth={2.5} /> Upcoming</>}
                               </span>
-                              <div className="flex items-center gap-1.5 leading-tight min-w-0 shrink">
+                              <div className="flex items-center gap-1 sm:gap-1.5 leading-tight min-w-0 shrink">
                                 <span
                                   className={`inline-flex shrink-0 ${block.kind === 'want' ? 'text-accent-teal' : 'text-accent-sakura'}`}
                                 >
-                                  {block.kind === 'want' ? <Heart size={10} className="fill-current" /> : <Target size={10} />}
+                                  {block.kind === 'want' ? <Heart size={9} className="fill-current sm:w-[10px] sm:h-[10px]" /> : <Target size={9} className="sm:w-[10px] sm:h-[10px]" />}
                                 </span>
-                                <span className="text-[15px] font-body font-bold text-text truncate">
+                                <span className="text-[13px] sm:text-[15px] font-body font-bold text-text truncate">
                                   {block.label}
                                 </span>
                               </div>
                               {blockNote ? (
-                                <span className="inline-flex items-center gap-1.5 shrink-0 max-w-[45%] rounded-full border border-border-subtle bg-bg-elevated/90 px-2 py-0.5 text-[11px] font-medium text-text shadow-sm truncate" title={blockNote}>
+                                <span className="hidden sm:inline-flex items-center gap-1.5 shrink-0 max-w-[45%] rounded-full border border-border-subtle bg-bg-elevated/90 px-2 py-0.5 text-[11px] font-medium text-text shadow-sm truncate" title={blockNote}>
                                   <FileText size={10} className="shrink-0 opacity-80" />
                                   <span className="truncate">{blockNote}</span>
                                 </span>
@@ -726,30 +762,30 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                                   e.stopPropagation();
                                   openBlockNote(block);
                                 }}
-                                className="inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-text-muted/70 hover:bg-bg-surface/60 hover:text-accent-teal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent-teal/40"
+                                className="hidden sm:inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-text-muted/70 hover:bg-bg-surface/60 hover:text-accent-teal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent-teal/40"
                                 aria-label={`Add note for ${block.label}`}
                               >
                                 <FileText size={12} />
                               </button>
                               <Link
                                 href={`/dashboard/timer?timeBlockLabel=${encodeURIComponent(block.label)}&timeBlockMinutes=${block.durationMinutes}`}
-                                className="inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-text-muted/70 hover:bg-bg-surface/60 hover:text-accent-teal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent-teal/40"
+                                className="hidden sm:inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-text-muted/70 hover:bg-bg-surface/60 hover:text-accent-teal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent-teal/40"
                                 aria-label={`Start ${block.label} block in timer`}
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <Play size={12} />
                               </Link>
                             </div>
-                            <div className="flex flex-col items-end justify-center shrink-0 gap-0.5 min-w-0">
-                              <span className="text-[15px] font-body font-normal text-text-muted/70 tabular-nums">
+                            <div className="flex flex-col items-end justify-center shrink-0 gap-0 sm:gap-0.5 min-w-0">
+                              <span className="text-[11px] sm:text-[15px] font-body font-normal text-text-muted/70 tabular-nums">
                                 {formatMinuteOfDay(block.startMinuteOfDay)} – {formatMinuteOfDay(block.endMinuteOfDay)}
                               </span>
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-[9px] font-semibold text-text-muted/80">
+                              <div className="flex items-center gap-1 sm:gap-1.5">
+                                <span className="text-[8px] sm:text-[9px] font-semibold text-text-muted/80">
                                   {block.durationMinutes}m
                                 </span>
                                 {hasOverlap ? (
-                                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium" title="Overlaps with a scheduled event">
+                                  <span className="hidden sm:inline text-[10px] text-amber-600 dark:text-amber-400 font-medium" title="Overlaps with a scheduled event">
                                     (overlaps)
                                   </span>
                                 ) : null}
