@@ -1,0 +1,273 @@
+import type { Prisma } from "@prisma/client";
+
+export const TIME_BLOCK_PLANNER_SUBJECT_KEY = "time-block-planner";
+
+export type TimeBlockKind = "want" | "should";
+
+export type TimeBlockFormState = {
+  date: string;
+  startTime: string;
+  endTime: string;
+  wantLabel: string;
+  wantMinutes: number;
+  shouldLabel: string;
+  shouldMinutes: number;
+};
+
+export type TimeBlockEntry = {
+  id: string;
+  kind: TimeBlockKind;
+  label: string;
+  startTime: string;
+  endTime: string;
+  startMinuteOfDay: number;
+  endMinuteOfDay: number;
+  durationMinutes: number;
+  isTrimmed: boolean;
+};
+
+export type TimeBlockDayPlan = {
+  form: TimeBlockFormState;
+  blocks: TimeBlockEntry[];
+  generatedAt: string | null;
+};
+
+export type TimeBlockPlannerStore = Record<string, TimeBlockDayPlan>;
+
+const TIME_KEY_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+function clampDuration(minutes: number): number {
+  if (!Number.isFinite(minutes)) return 5;
+  return Math.max(5, Math.min(240, Math.round(minutes)));
+}
+
+export function roundToNextTimeIncrement(date: Date, incrementMinutes = 15): string {
+  const next = new Date(date);
+  next.setSeconds(0, 0);
+  const remainder = next.getMinutes() % incrementMinutes;
+  if (remainder !== 0) {
+    next.setMinutes(next.getMinutes() + (incrementMinutes - remainder));
+  }
+  if (next.getDate() !== date.getDate()) {
+    next.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    next.setHours(23, 45, 0, 0);
+  }
+  return toTimeInputValue(next);
+}
+
+export function toDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function toTimeInputValue(date: Date): string {
+  const hours = `${date.getHours()}`.padStart(2, "0");
+  const minutes = `${date.getMinutes()}`.padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
+
+export function parseTimeInput(value: string): number | null {
+  const match = value.match(TIME_KEY_PATTERN);
+  if (!match) return null;
+  return Number(match[1]) * 60 + Number(match[2]);
+}
+
+export function formatMinuteOfDay(totalMinutes: number): string {
+  const safeMinutes = Math.max(0, Math.min(24 * 60, Math.round(totalMinutes)));
+  const hour24 = Math.floor(safeMinutes / 60);
+  const minutes = safeMinutes % 60;
+  const period = hour24 >= 12 ? "PM" : "AM";
+  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+  if (minutes === 0) return `${hour12} ${period}`;
+  return `${hour12}:${`${minutes}`.padStart(2, "0")} ${period}`;
+}
+
+export function createDefaultTimeBlockForm(dateKey: string, now = new Date()): TimeBlockFormState {
+  const todayKey = toDateKey(now);
+  const startDate = dateKey === todayKey ? now : new Date(`${dateKey}T09:00:00`);
+  const startTime = dateKey === todayKey ? roundToNextTimeIncrement(startDate) : "09:00";
+  const endTime = "23:59";
+
+  return {
+    date: dateKey,
+    startTime,
+    endTime,
+    wantLabel: "Coding",
+    wantMinutes: 60,
+    shouldLabel: "Cleaning",
+    shouldMinutes: 30,
+  };
+}
+
+export function createEmptyTimeBlockDayPlan(dateKey: string, now = new Date()): TimeBlockDayPlan {
+  return {
+    form: createDefaultTimeBlockForm(dateKey, now),
+    blocks: [],
+    generatedAt: null,
+  };
+}
+
+export function buildTimeBlockPlan(form: TimeBlockFormState): TimeBlockEntry[] {
+  const startMinutes = parseTimeInput(form.startTime);
+  const endMinutes = parseTimeInput(form.endTime);
+
+  if (startMinutes === null || endMinutes === null || endMinutes <= startMinutes) {
+    return [];
+  }
+
+  const phases: Array<{ kind: TimeBlockKind; label: string; durationMinutes: number }> = [
+    {
+      kind: "want",
+      label: normalizeText(form.wantLabel, "Want to do"),
+      durationMinutes: clampDuration(form.wantMinutes),
+    },
+    {
+      kind: "should",
+      label: normalizeText(form.shouldLabel, "Should do"),
+      durationMinutes: clampDuration(form.shouldMinutes),
+    },
+  ];
+
+  const blocks: TimeBlockEntry[] = [];
+  let cursor = startMinutes;
+  let phaseIndex = 0;
+
+  while (cursor < endMinutes) {
+    const phase = phases[phaseIndex % phases.length];
+    const nextEnd = Math.min(cursor + phase.durationMinutes, endMinutes);
+    const actualDuration = nextEnd - cursor;
+
+    if (actualDuration <= 0) break;
+
+    blocks.push({
+      id: `${phase.kind}-${cursor}-${nextEnd}`,
+      kind: phase.kind,
+      label: phase.label,
+      startTime: formatTimeFromMinutes(cursor),
+      endTime: formatTimeFromMinutes(nextEnd),
+      startMinuteOfDay: cursor,
+      endMinuteOfDay: nextEnd,
+      durationMinutes: actualDuration,
+      isTrimmed: actualDuration !== phase.durationMinutes,
+    });
+
+    cursor = nextEnd;
+    phaseIndex += 1;
+  }
+
+  return blocks;
+}
+
+export function normalizeTimeBlockForm(raw: unknown, dateKey: string): TimeBlockFormState {
+  const fallback = createDefaultTimeBlockForm(dateKey);
+  if (!raw || typeof raw !== "object") return fallback;
+
+  const candidate = raw as Partial<TimeBlockFormState>;
+  const startTime =
+    typeof candidate.startTime === "string" && TIME_KEY_PATTERN.test(candidate.startTime)
+      ? candidate.startTime
+      : fallback.startTime;
+  const endTime =
+    typeof candidate.endTime === "string" && TIME_KEY_PATTERN.test(candidate.endTime)
+      ? candidate.endTime
+      : fallback.endTime;
+
+  return {
+    date: DATE_KEY_PATTERN.test(String(candidate.date ?? "")) ? String(candidate.date) : dateKey,
+    startTime,
+    endTime,
+    wantLabel: normalizeText(candidate.wantLabel, fallback.wantLabel),
+    wantMinutes: clampDuration(Number(candidate.wantMinutes ?? fallback.wantMinutes)),
+    shouldLabel: normalizeText(candidate.shouldLabel, fallback.shouldLabel),
+    shouldMinutes: clampDuration(Number(candidate.shouldMinutes ?? fallback.shouldMinutes)),
+  };
+}
+
+function normalizeTimeBlockEntry(raw: unknown): TimeBlockEntry | null {
+  if (!raw || typeof raw !== "object") return null;
+  const candidate = raw as Partial<TimeBlockEntry>;
+  const kind = candidate.kind === "want" || candidate.kind === "should" ? candidate.kind : null;
+  const label = typeof candidate.label === "string" ? candidate.label.trim() : "";
+  const startMinuteOfDay = Number(candidate.startMinuteOfDay);
+  const endMinuteOfDay = Number(candidate.endMinuteOfDay);
+
+  if (!kind || !label || !Number.isFinite(startMinuteOfDay) || !Number.isFinite(endMinuteOfDay)) {
+    return null;
+  }
+
+  if (endMinuteOfDay <= startMinuteOfDay) return null;
+
+  return {
+    id:
+      typeof candidate.id === "string" && candidate.id.trim()
+        ? candidate.id
+        : `${kind}-${startMinuteOfDay}-${endMinuteOfDay}`,
+    kind,
+    label,
+    startTime:
+      typeof candidate.startTime === "string" && TIME_KEY_PATTERN.test(candidate.startTime)
+        ? candidate.startTime
+        : formatTimeFromMinutes(startMinuteOfDay),
+    endTime:
+      typeof candidate.endTime === "string" && TIME_KEY_PATTERN.test(candidate.endTime)
+        ? candidate.endTime
+        : formatTimeFromMinutes(endMinuteOfDay),
+    startMinuteOfDay,
+    endMinuteOfDay,
+    durationMinutes: Math.max(1, Math.round(endMinuteOfDay - startMinuteOfDay)),
+    isTrimmed: candidate.isTrimmed === true,
+  };
+}
+
+export function normalizeTimeBlockDayPlan(raw: unknown, dateKey: string): TimeBlockDayPlan {
+  const fallback = createEmptyTimeBlockDayPlan(dateKey);
+  if (!raw || typeof raw !== "object") return fallback;
+
+  const candidate = raw as Partial<TimeBlockDayPlan>;
+  const form = normalizeTimeBlockForm(candidate.form, dateKey);
+  const blocks = Array.isArray(candidate.blocks)
+    ? candidate.blocks
+        .map(normalizeTimeBlockEntry)
+        .filter((block): block is TimeBlockEntry => block !== null)
+    : [];
+  const generatedAt =
+    typeof candidate.generatedAt === "string" && candidate.generatedAt.trim() ? candidate.generatedAt : null;
+
+  return {
+    form,
+    blocks,
+    generatedAt,
+  };
+}
+
+export function normalizeTimeBlockPlannerStore(raw: unknown): TimeBlockPlannerStore {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+
+  const store: TimeBlockPlannerStore = {};
+  for (const [dateKey, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!DATE_KEY_PATTERN.test(dateKey)) continue;
+    store[dateKey] = normalizeTimeBlockDayPlan(value, dateKey);
+  }
+
+  return store;
+}
+
+export function plannerStoreToJson(store: TimeBlockPlannerStore): Prisma.InputJsonValue {
+  return store as unknown as Prisma.InputJsonValue;
+}
+
+function normalizeText(value: unknown, fallback: string): string {
+  if (typeof value !== "string") return fallback;
+  const trimmed = value.trim();
+  return trimmed || fallback;
+}
+
+function formatTimeFromMinutes(totalMinutes: number): string {
+  const safeMinutes = Math.max(0, Math.min(23 * 60 + 59, Math.round(totalMinutes)));
+  const hours = `${Math.floor(safeMinutes / 60)}`.padStart(2, "0");
+  const minutes = `${safeMinutes % 60}`.padStart(2, "0");
+  return `${hours}:${minutes}`;
+}

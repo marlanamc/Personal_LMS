@@ -6,7 +6,6 @@ import { FlatChecklist } from './FlatChecklist';
 import { ContextSidebar } from './ContextSidebar';
 import { useZenMode } from './useZenMode';
 import { ClearFeaturedButton } from './';
-import { GetUnstuckCallout } from './GetUnstuckCallout';
 import type { ChecklistItem } from './checklist-item.types';
 import type { CalendarEvent } from './MiniCalendar';
 import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
@@ -99,10 +98,6 @@ export function DashboardContent({
               isCalendarRestoreVisible={isZenMode}
               onRestoreCalendar={toggleZenMode}
             />
-          </section>
-
-          <section className="animate-fade-in-up delay-100">
-            <GetUnstuckCallout />
           </section>
 
           <div className="md:hidden flex items-center gap-3 mt-6 mb-1.5" aria-hidden>

@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { useCelebration } from "@/context/CelebrationContext";
+import { type TimeBlockEntry } from "@/lib/time-block-planner";
 
 export type FocusTrack = {
   id: string;
@@ -42,6 +43,8 @@ type PersistedFocusTimerState = {
   endTimeMs?: number | null;
   selectedTrackId?: string;
   activeSessionLabel?: string | null;
+  activeSequence?: TimeBlockEntry[] | null;
+  activeSequenceIndex?: number | null;
 };
 
 type FocusTimerContextType = {
@@ -54,9 +57,13 @@ type FocusTimerContextType = {
   isActive: boolean;
   activeSessionLabel: string | null;
   formattedTime: string;
+  activeSequence: TimeBlockEntry[] | null;
+  activeSequenceIndex: number | null;
   setSelectedTrack: (trackId: string) => void;
   setSelectedMinutes: (minutes: number) => void;
   setActiveSessionLabel: (label: string | null) => void;
+  loadSequence: (sequence: TimeBlockEntry[], startIndex?: number) => void;
+  clearSequence: () => void;
   toggleTimer: () => void;
   resetTimer: () => void;
 };
@@ -83,6 +90,8 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
   const [timeLeft, setTimeLeft] = useState<number>(DEFAULT_MINUTES * 60);
   const [isActive, setIsActive] = useState<boolean>(false);
   const [activeSessionLabel, setActiveSessionLabel] = useState<string | null>(null);
+  const [activeSequence, setActiveSequence] = useState<TimeBlockEntry[] | null>(null);
+  const [activeSequenceIndex, setActiveSequenceIndex] = useState<number | null>(null);
 
   const endTimeRef = useRef<number | null>(null);
   const isHydratedRef = useRef(false);
@@ -104,12 +113,27 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       navigator.vibrate([180, 90, 250]);
     }
 
+    if (activeSequence && activeSequenceIndex !== null && activeSequenceIndex < activeSequence.length - 1) {
+       // We have a sequence and just finished a block
+       const nextIndex = activeSequenceIndex + 1;
+       const nextBlock = activeSequence[nextIndex];
+       
+       if (nextBlock) {
+         setActiveSequenceIndex(nextIndex);
+         setActiveSessionLabel(nextBlock.label);
+         const nextMinutes = clampMinutes(nextBlock.durationMinutes);
+         setSelectedMinutesState(nextMinutes);
+         setTimeLeft(nextMinutes * 60);
+         // Autoplay next block is not enabled by default, requires manual 'Start'
+       }
+    }
+
     queueMilestone("daily_challenge", {
       title: "Session complete!",
       subtitle: "Great focus block. Keep your momentum going.",
       emoji: "🎉",
     });
-  }, [queueMilestone]);
+  }, [queueMilestone, activeSequence, activeSequenceIndex]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -139,6 +163,12 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
           ? parsed.activeSessionLabel.trim()
           : null;
 
+      const savedSequence = Array.isArray(parsed.activeSequence) ? parsed.activeSequence : null;
+      const savedSequenceIndex = typeof parsed.activeSequenceIndex === "number" ? parsed.activeSequenceIndex : null;
+
+      setActiveSequence(savedSequence);
+      setActiveSequenceIndex(savedSequenceIndex);
+
       if (savedIsActive && savedEndTimeMs) {
         const remaining = Math.max(0, Math.ceil((savedEndTimeMs - Date.now()) / 1000));
         if (remaining > 0) {
@@ -162,6 +192,8 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       setTimeLeft(DEFAULT_MINUTES * 60);
       setIsActive(false);
       setActiveSessionLabel(null);
+      setActiveSequence(null);
+      setActiveSequenceIndex(null);
       endTimeRef.current = null;
     } finally {
       isHydratedRef.current = true;
@@ -179,11 +211,13 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       timeLeft,
       isActive,
       activeSessionLabel,
+      activeSequence,
+      activeSequenceIndex,
       endTimeMs: endTimeRef.current,
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  }, [selectedTrackId, selectedMinutes, timeLeft, isActive, activeSessionLabel]);
+  }, [selectedTrackId, selectedMinutes, timeLeft, isActive, activeSessionLabel, activeSequence, activeSequenceIndex]);
 
   useEffect(() => {
     if (!isActive) {
@@ -202,7 +236,7 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       if (remaining <= 0) {
         endTimeRef.current = null;
         setIsActive(false);
-        setActiveSessionLabel(null);
+        // We defer clearing the active session label to `triggerCompletion` if it is a sequence
         triggerCompletion();
       }
     };
@@ -244,13 +278,41 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
     setIsActive(true);
   }, [isActive, timeLeft, selectedMinutes]);
 
+  const loadSequence = useCallback((sequence: TimeBlockEntry[], startIndex = 0) => {
+    if (!sequence || sequence.length === 0) return;
+    
+    const initialBlock = sequence[startIndex];
+    if (!initialBlock) return;
+    
+    // Clear completion state and the timer
+    completionFiredRef.current = false;
+    endTimeRef.current = null;
+    setIsActive(false);
+    
+    setActiveSequence(sequence);
+    setActiveSequenceIndex(startIndex);
+    setActiveSessionLabel(initialBlock.label);
+    
+    const blockMinutes = clampMinutes(initialBlock.durationMinutes);
+    setSelectedMinutesState(blockMinutes);
+    setTimeLeft(blockMinutes * 60);
+  }, []);
+
+  const clearSequence = useCallback(() => {
+    setActiveSequence(null);
+    setActiveSequenceIndex(null);
+    setActiveSessionLabel(null);
+  }, []);
+
   const resetTimer = useCallback(() => {
     completionFiredRef.current = false;
     endTimeRef.current = null;
     setIsActive(false);
-    setActiveSessionLabel(null);
+    if (!activeSequence) {
+      setActiveSessionLabel(null);
+    }
     setTimeLeft(selectedMinutes * 60);
-  }, [selectedMinutes]);
+  }, [selectedMinutes, activeSequence]);
 
   const value = useMemo<FocusTimerContextType>(
     () => ({
@@ -263,9 +325,13 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       isActive,
       activeSessionLabel,
       formattedTime: formatTime(timeLeft),
+      activeSequence,
+      activeSequenceIndex,
       setSelectedTrack,
       setSelectedMinutes,
       setActiveSessionLabel,
+      loadSequence,
+      clearSequence,
       toggleTimer,
       resetTimer,
     }),
@@ -276,9 +342,13 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       timeLeft,
       isActive,
       activeSessionLabel,
+      activeSequence,
+      activeSequenceIndex,
       setSelectedTrack,
       setSelectedMinutes,
       setActiveSessionLabel,
+      loadSequence,
+      clearSequence,
       toggleTimer,
       resetTimer,
     ]

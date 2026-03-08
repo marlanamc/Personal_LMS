@@ -16,10 +16,12 @@ import {
     Plus,
     RefreshCw,
     Trash2,
+    SkipForward,
 } from 'lucide-react';
 import { useFocusTimer } from '@/context/FocusTimerContext';
 import { ActivityPanelContent } from '@/components/dashboard/ActivityPanelContent';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
+import { normalizeTimeBlockPlannerStore, type TimeBlockPlannerStore } from '@/lib/time-block-planner';
 
 type SpotifyConnectionStatus = {
     configured: boolean;
@@ -118,9 +120,13 @@ export const FocusTimer = () => {
         timeLeft,
         isActive,
         activeSessionLabel,
+        activeSequence,
+        activeSequenceIndex,
         setSelectedTrack,
         setSelectedMinutes,
         setActiveSessionLabel,
+        loadSequence,
+        clearSequence,
         toggleTimer,
         resetTimer,
     } = useFocusTimer();
@@ -309,6 +315,76 @@ export const FocusTimer = () => {
         const timeout = window.setTimeout(() => setSpotifyNotice(null), 5000);
         return () => window.clearTimeout(timeout);
     }, [fetchSpotifyStatus]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        const currentUrl = new URL(window.location.href);
+        const sequenceDateKey = currentUrl.searchParams.get('sequenceDateKey');
+        const labelParam = currentUrl.searchParams.get('timeBlockLabel');
+        const minutesParam = currentUrl.searchParams.get('timeBlockMinutes');
+
+        if (!labelParam && !minutesParam && !sequenceDateKey) {
+            return;
+        }
+
+        if (isActive) {
+            setSessionNotice('Finish or reset the current timer before loading a new plan.');
+        } else if (sequenceDateKey) {
+            setSessionNotice('Loading sequence…');
+            let cancelled = false;
+            fetch('/api/time-block-planner', { method: 'GET', cache: 'no-store' })
+                .then((res) => {
+                    if (!res.ok) throw new Error(res.status === 401 ? 'Unauthorized' : 'Failed to load plan');
+                    return res.json();
+                })
+                .then((payload: { store?: unknown }) => {
+                    if (cancelled) return;
+                    const store = normalizeTimeBlockPlannerStore(payload?.store ?? null);
+                    const dayPlan = store[sequenceDateKey];
+                    if (dayPlan?.blocks?.length) {
+                        loadSequence(dayPlan.blocks);
+                        setSessionTitleInput(dayPlan.blocks[0].label);
+                        setHasCustomSessionTitle(true);
+                        setSessionNotice('Loaded plan sequence.');
+                    } else {
+                        setSessionNotice('No plan found for this date. Generate one in On Again / Off Again first.');
+                    }
+                })
+                .catch(() => {
+                    if (!cancelled) setSessionNotice('Could not load sequence. Sign in and try again.');
+                })
+                .finally(() => {
+                    if (!cancelled) {
+                        currentUrl.searchParams.delete('sequenceDateKey');
+                        currentUrl.searchParams.delete('timeBlockLabel');
+                        currentUrl.searchParams.delete('timeBlockMinutes');
+                        window.history.replaceState({}, '', `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
+                    }
+                });
+            return () => {
+                cancelled = true;
+            };
+        } else {
+            const parsedMinutes = Number(minutesParam);
+            if (Number.isFinite(parsedMinutes) && parsedMinutes > 0) {
+                setSelectedMinutes(parsedMinutes);
+            }
+
+            const normalizedLabel = labelParam?.trim();
+            setActiveSessionLabel(normalizedLabel ? normalizedLabel : null);
+            setSessionTitleInput(normalizedLabel || '');
+            setHasCustomSessionTitle(Boolean(normalizedLabel));
+            setSessionNotice('Loaded block from On Again / Off Again.');
+        }
+
+        currentUrl.searchParams.delete('sequenceDateKey');
+        currentUrl.searchParams.delete('timeBlockLabel');
+        currentUrl.searchParams.delete('timeBlockMinutes');
+        window.history.replaceState({}, '', `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
+    }, [isActive, loadSequence, setActiveSessionLabel, setSelectedMinutes]);
 
     const connectSpotify = useCallback(() => {
         if (typeof window === 'undefined') {
@@ -752,12 +828,12 @@ export const FocusTimer = () => {
     useEffect(() => {
         const hasStartedSession = isActive || timeLeft < selectedMinutes * 60;
 
-        if (hasStartedSession || hasCustomSessionTitle) {
+        if (hasStartedSession || hasCustomSessionTitle || activeSequence) {
             return;
         }
 
         setSessionTitleInput(suggestedSessionTitle);
-    }, [isActive, timeLeft, selectedMinutes, hasCustomSessionTitle, suggestedSessionTitle]);
+    }, [isActive, timeLeft, selectedMinutes, hasCustomSessionTitle, suggestedSessionTitle, activeSequence]);
 
     useEffect(() => {
         const wasActive = prevIsActiveRef.current;
@@ -1392,8 +1468,43 @@ export const FocusTimer = () => {
                                 <>Start <Play className="w-5 h-5 fill-current" /></>
                             )}
                         </button>
+                        
+                        {activeSequence && activeSequenceIndex !== null && (
+                            <div className="mt-4 flex flex-col items-center">
+                                <p className="text-xs font-semibold text-text-muted mb-2">
+                                    Sequence: {activeSequenceIndex + 1} of {activeSequence.length}
+                                </p>
+                                <div className="flex gap-2">
+                                     {activeSequenceIndex < activeSequence.length - 1 && (
+                                         <button
+                                             onClick={() => {
+                                                 triggerHaptic(20);
+                                                 // Skip to next sequence block
+                                                 const nextIndex = activeSequenceIndex + 1;
+                                                 clearSequence(); // Temp clear to load new instance
+                                                 loadSequence(activeSequence, nextIndex);
+                                             }}
+                                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-bg-secondary hover:bg-bg-elevated text-xs font-semibold text-text-muted hover:text-text transition-colors border border-border/50"
+                                         >
+                                             Skip to Next <SkipForward className="w-3.5 h-3.5" />
+                                         </button>
+                                     )}
+                                     <button
+                                         onClick={() => {
+                                             triggerHaptic(20);
+                                             clearSequence();
+                                             resetTimer();
+                                             setSessionNotice('Sequence cleared.');
+                                         }}
+                                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-bg-secondary hover:bg-bg-elevated text-xs font-semibold text-error hover:text-error/80 transition-colors border border-border/50"
+                                     >
+                                         Exit Sequence <X className="w-3.5 h-3.5" />
+                                     </button>
+                                </div>
+                            </div>
+                        )}
 
-                        {isActive && (
+                        {isActive && !activeSequence && (
                             <button
                                 onClick={() => {
                                     triggerHaptic(30);

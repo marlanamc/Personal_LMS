@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { X, BookOpen, Timer, User, Home, Code, Heart, Briefcase, Calendar, Pencil, Sparkles } from 'lucide-react';
+import { X, BookOpen, Timer, User, Home, Code, Heart, Briefcase, Calendar, Pencil, Sparkles, Repeat2 } from 'lucide-react';
 import { SpanishSubjectIcon } from '@/components/icons/SpanishSubjectIcon';
 
 interface NavigationSidePanelProps {
@@ -23,6 +23,7 @@ const quickLinks = [
   { href: '/dashboard?anchors=edit', label: 'Edit Anchors', icon: Pencil },
   { href: '/dashboard/subjects', label: 'All Subjects', icon: BookOpen },
   { href: '/dashboard/timer', label: 'Focus Timer', icon: Timer },
+  { href: '/dashboard/time-blocks', label: 'On Again / Off Again', icon: Repeat2 },
   { href: '/dashboard/reset', label: 'Get Unstuck', icon: Sparkles },
   { href: '/dashboard/calendar', label: 'Calendar', icon: Calendar },
   { href: '/dashboard/profile', label: 'Profile', icon: User },

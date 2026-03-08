@@ -39,13 +39,13 @@ if (typeof document !== 'undefined' && !document.getElementById('unstuck-animati
   document.head.appendChild(style);
 }
 
-type ResetMode = 'transition' | 'cannot-start' | 'overwhelmed';
+type ResetMode = 'bed-lock' | 'reply-freeze' | 'couch-lock' | 'laptop-trap';
 
 type ResetModeConfig = {
   title: string;
   supportCopy: string;
   regulatePrompt: string;
-  tinyActions: [string, string, string];
+  tinyActions: string[];
   launchLabel: string;
   responseCopy: string;
   randomActions: string[];
@@ -67,47 +67,84 @@ type CountdownTimerState = {
 const REGULATE_SECONDS = 60;
 const LAUNCH_SECONDS = 180;
 
-const RESET_MODE_ORDER: ResetMode[] = ['transition', 'cannot-start', 'overwhelmed'];
+const RESET_MODE_ORDER: ResetMode[] = ['bed-lock', 'reply-freeze', 'couch-lock', 'laptop-trap'];
 
 const RESET_MODE_CONFIG: Record<ResetMode, ResetModeConfig> = {
-  transition: {
-    title: 'Body says absolutely not',
-    supportCopy: 'You know what to do. Your body has logged off.',
-    regulatePrompt: 'Wiggle your toes. Roll your shoulders. We are getting back online.',
-    tinyActions: ['Sit up', 'Put one foot on the floor', 'Move your phone out of reach'],
-    launchLabel: 'Small body move first',
-    responseCopy: 'Okay. We are not fixing your life. We are just getting your body back in the chat.',
-    randomActions: ['Stand up for 10 seconds', 'Walk to the sink', 'Put on shoes', 'Take one thing to its home', 'Open the blinds'],
+  'bed-lock': {
+    title: 'Stuck in bed',
+    supportCopy: 'Need to get up, get dressed, find your stuff, do meds, do contacts. Your brain refuses to sequence it.',
+    regulatePrompt: 'Do not solve the whole morning. Sit up first. Put both feet on the floor. That is enough.',
+    tinyActions: [
+      'Sit up fully',
+      'Put both feet on the floor',
+      'Find only bra + shirt',
+      'Take meds before anything else',
+      'Open the blinds or turn on a light'
+    ],
+    launchLabel: 'Start the morning badly on purpose',
+    responseCopy: 'This is not a motivation problem. Your brain is rejecting a giant stack of little steps.',
+    randomActions: ['Put both feet on the floor', 'Stand up for 10 seconds', 'Pick up one clothing item', 'Take meds with water', 'Carry clothes to the bed'],
     accent: 'var(--color-accent-sakura)',
     softBackground:
       'linear-gradient(160deg, color-mix(in srgb, var(--color-accent-sakura) 16%, transparent) 0%, transparent 72%)',
     border: 'color-mix(in srgb, var(--color-accent-sakura) 28%, var(--color-border-subtle))',
   },
-  'cannot-start': {
-    title: 'Mind cluttered, no door',
-    supportCopy: 'Too many tabs open in your head. No entry point.',
-    regulatePrompt: 'Touch something cold. Name what you feel. We are shrinking the door.',
-    tinyActions: ['Say: "I can start badly"', 'Just open the file', '2-minute timer, then stop'],
-    launchLabel: 'Smallest door only',
-    responseCopy: 'Okay. Your brain is sprinting. We are making the task embarrassingly small.',
-    randomActions: ['Open the doc and do nothing else', 'Write one ugly bullet', 'Rename the file', 'Set a 2-minute timer', 'Move one item off your desk'],
+  'reply-freeze': {
+    title: 'Cannot reply',
+    supportCopy: 'You want to answer. You care. Your brain treats one text like it is a legal deposition.',
+    regulatePrompt: 'Exhale. You are not writing the perfect reply. We are only making contact.',
+    tinyActions: [
+      'Open the message only',
+      'Type: “Hey, I saw this”',
+      'Send one emoji reaction',
+      'Write a draft but do not send it yet',
+      'Send: “Can I reply later today?”'
+    ],
+    launchLabel: 'Contact, not perfection',
+    responseCopy: 'Reply freeze usually means your brain is mixing communication, guilt, and performance into one giant wall.',
+    randomActions: ['Type “Hey, I saw this”', 'Send one emoji', 'Mark one reply as draft-only', 'Open the message and do not answer yet', 'Send “Can I reply later?”'],
     accent: 'var(--color-accent-teal)',
     softBackground:
       'linear-gradient(160deg, color-mix(in srgb, var(--color-accent-teal) 16%, transparent) 0%, transparent 72%)',
     border: 'color-mix(in srgb, var(--color-accent-teal) 28%, var(--color-border-subtle))',
   },
-  overwhelmed: {
-    title: 'Everything is too loud',
-    supportCopy: 'Too many thoughts. Too many signals. Too much everything.',
-    regulatePrompt: 'Close your eyes. Hand on chest. Let the room be boring for one second.',
-    tinyActions: ['Mute one thing', 'Name 3 things you can feel', 'Pick what you are NOT doing'],
-    launchLabel: 'Quieter first',
-    responseCopy: 'Okay. Your brain is yelling. We are turning the volume down before asking anything from you.',
-    randomActions: ['Close one tab', 'Put your phone face down', 'Turn off one notification', 'Dim the lights', 'Sit still for three breaths'],
+  'couch-lock': {
+    title: 'Stuck on the couch',
+    supportCopy: 'Need to pee, eat, clean, move, anything. Your body acts like getting up is a major event.',
+    regulatePrompt: 'Lean forward. Put your hands on your knees. We are interrupting couch gravity.',
+    tinyActions: [
+      'Put feet flat on floor',
+      'Lean forward with elbows on knees',
+      'Stand for 10 seconds',
+      'Walk to the bathroom',
+      'Fill a glass of water'
+    ],
+    launchLabel: 'Break couch gravity first',
+    responseCopy: 'This is that awful halfway state where your body needs movement but your nervous system keeps saying not yet.',
+    randomActions: ['Stand and stretch once', 'Walk to the bathroom', 'Take one dish to the sink', 'Fill a glass of water', 'Walk one lap around the room'],
     accent: 'var(--color-accent-mint)',
     softBackground:
       'linear-gradient(160deg, color-mix(in srgb, var(--color-accent-mint) 18%, transparent) 0%, transparent 72%)',
     border: 'color-mix(in srgb, var(--color-accent-mint) 28%, var(--color-border-subtle))',
+  },
+  'laptop-trap': {
+    title: 'Laptop trap',
+    supportCopy: 'You should be job applying or interview prepping, but you are tweaking colors, building savior apps, or scrolling.',
+    regulatePrompt: 'Save the tab. Name the trap. We are exiting fake productivity, not fixing your whole career tonight.',
+    tinyActions: [
+      'Close the design tab',
+      'Open your resume file',
+      'Find one job posting',
+      'Write one ugly bullet for an application',
+      'Write in notes: “real task = ___”'
+    ],
+    launchLabel: 'Exit fake productivity',
+    responseCopy: 'Your brain found a more seductive task, one that feels productive without forcing the scary thing.',
+    randomActions: ['Save and close one nonessential tab', 'Open your resume', 'Find one job posting', 'Write one line in notes: “real task = ___”', 'Move your phone away from the laptop'],
+    accent: 'var(--color-accent-warning)',
+    softBackground:
+      'linear-gradient(160deg, color-mix(in srgb, var(--color-accent-warning) 16%, transparent) 0%, transparent 72%)',
+    border: 'color-mix(in srgb, var(--color-accent-warning) 28%, var(--color-border-subtle))',
   },
 };
 
@@ -204,7 +241,7 @@ export function GetUnstuckPage() {
   const [selectedMode, setSelectedMode] = useState<ResetMode | null>(null);
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
-  const [_suggestedAction, setSuggestedAction] = useState<string | null>(null);
+  const [suggestedAction, setSuggestedAction] = useState<string | null>(null);
   const [customAction, setCustomAction] = useState('');
   const regulateTimer = useCountdownTimer(REGULATE_SECONDS);
   const launchTimer = useCountdownTimer(LAUNCH_SECONDS);
@@ -251,14 +288,15 @@ export function GetUnstuckPage() {
     setCustomAction('');
   }, [selectedMode]);
 
-  // Keyboard shortcuts for mode selection (1, 2, 3)
+  // Keyboard shortcuts for mode selection (1, 2, 3, 4)
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (selectedMode) return; // Don't allow shortcuts once a mode is selected
       const keyMap: Record<string, ResetMode> = {
-        '1': 'transition',
-        '2': 'cannot-start',
-        '3': 'overwhelmed',
+        '1': 'bed-lock',
+        '2': 'reply-freeze',
+        '3': 'couch-lock',
+        '4': 'laptop-trap',
       };
       if (keyMap[e.key]) {
         e.preventDefault();
@@ -300,10 +338,13 @@ export function GetUnstuckPage() {
 
         <div className="relative space-y-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
+            <div className="space-y-2">
               <h1 className="text-[2rem] leading-none font-display font-semibold text-text sm:text-[2.5rem]">
-                Pick your flavor of stuck.
+                Which freeze is this?
               </h1>
+              <p className="max-w-2xl text-sm leading-relaxed text-text-secondary sm:text-[0.95rem]">
+                This page is for the real ones, bed lock, couch lock, reply freeze, and fake-productive laptop spirals. Pick the one that feels most embarrassingly accurate.
+              </p>
             </div>
 
             <Link
@@ -317,7 +358,7 @@ export function GetUnstuckPage() {
 
           <div
             ref={modeChooserRef}
-            className="grid scroll-mt-24 gap-3 md:grid-cols-3"
+            className="grid scroll-mt-24 gap-3 md:grid-cols-2"
             role="group"
             aria-label="Choose the kind of stuck you are in"
           >
@@ -371,7 +412,7 @@ export function GetUnstuckPage() {
               <div className="space-y-5">
                 <div className="text-center space-y-2">
                   <h3 className="text-2xl font-display font-semibold text-text">
-                    Ground yourself first
+                    Break the freeze first
                   </h3>
                   <p className="text-sm text-text-secondary leading-relaxed">
                     {selectedConfig.regulatePrompt}
@@ -455,7 +496,7 @@ export function GetUnstuckPage() {
                     }}
                   >
                     <Check className="h-4 w-4 shrink-0" style={{ color: selectedConfig.accent }} />
-                    Done.
+                    Good. The freeze got interrupted.
                   </div>
                 )}
               </div>
@@ -466,7 +507,7 @@ export function GetUnstuckPage() {
               <div className="space-y-5">
                 <div className="text-center space-y-2">
                   <h3 className="text-2xl font-display font-semibold text-text">
-                    Pick one tiny thing
+                    Pick the least impossible move
                   </h3>
                   <p className="text-sm text-text-secondary leading-relaxed">
                     {selectedConfig.responseCopy}
@@ -524,6 +565,19 @@ export function GetUnstuckPage() {
                     Give me a random one
                   </button>
 
+                  {suggestedAction ? (
+                    <div
+                      className="rounded-[1rem] border px-3 py-2 text-xs font-medium"
+                      style={{
+                        borderColor: selectedConfig.border,
+                        backgroundColor: `color-mix(in srgb, ${selectedConfig.accent} 10%, transparent)`,
+                        color: 'var(--color-text-secondary)',
+                      }}
+                    >
+                      Suggested: {suggestedAction}
+                    </div>
+                  ) : null}
+
                   <input
                     type="text"
                     placeholder="Or type your own tiny thing..."
@@ -548,7 +602,7 @@ export function GetUnstuckPage() {
                     className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-border-subtle bg-bg-elevated/80 px-4 py-3 text-sm font-semibold text-text transition-colors hover:border-primary/24 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2"
                   >
                     <ArrowLeft className="h-4 w-4" />
-                    Back
+                    Different freeze
                   </button>
                   <button
                     type="button"
@@ -574,7 +628,7 @@ export function GetUnstuckPage() {
               <div className="space-y-5">
                 <div className="text-center space-y-2">
                   <h3 className="text-2xl font-display font-semibold text-text">
-                    Do it for 3 minutes
+                    Just do the tiny thing
                   </h3>
                   <p className="text-sm text-text-secondary leading-relaxed">
                     <span style={{ color: selectedConfig.accent, fontWeight: 600 }}>
@@ -625,17 +679,17 @@ export function GetUnstuckPage() {
                     {launchTimer.isRunning ? (
                       <>
                         <Pause className="h-4 w-4" />
-                        Pause
+                        Pause sequence
                       </>
                     ) : launchTimer.isComplete ? (
                       <>
                         <RotateCcw className="h-4 w-4" />
-                        Run it again
+                        Run the sequence again
                       </>
                     ) : (
                       <>
                         <Play className="h-4 w-4" />
-                        Start 3-minute timer
+                        Start landing sequence
                       </>
                     )}
                   </button>
@@ -661,7 +715,7 @@ export function GetUnstuckPage() {
                     }}
                   >
                     <Check className="h-4 w-4 shrink-0" style={{ color: selectedConfig.accent }} />
-                    You moved.
+                    You moved. That counts. Momentum is momentum.
                   </div>
                 )}
               </div>
@@ -674,7 +728,7 @@ export function GetUnstuckPage() {
               onClick={handleChooseDifferentState}
               className="text-xs text-text-muted/70 hover:text-text-muted transition-colors"
             >
-              Pick another stuck
+              Pick another freeze
             </button>
           </div>
         </section>
