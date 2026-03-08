@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const prismaMock = vi.hoisted(() => ({
   submission: {
     findUnique: vi.fn(),
-    update: vi.fn(),
+    updateMany: vi.fn(),
   },
   user: {
     findUnique: vi.fn(),
@@ -49,7 +49,7 @@ describe("POST /api/gamification/award-points", () => {
     });
     gamificationMock.checkAndAwardAchievements.mockResolvedValue(["ach-1"]);
 
-    prismaMock.submission.update.mockResolvedValue({});
+    prismaMock.submission.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.user.findUnique.mockResolvedValue({
       points: 100,
       weeklyPoints: 40,
@@ -105,7 +105,7 @@ describe("POST /api/gamification/award-points", () => {
     expect(response.status).toBe(200);
     expect(payload.pointsAwarded).toBe(5);
     expect(gamificationMock.awardPoints).not.toHaveBeenCalled();
-    expect(prismaMock.submission.update).not.toHaveBeenCalled();
+    expect(prismaMock.submission.updateMany).not.toHaveBeenCalled();
   });
 
   it("awards quiz points, updates submission/streak, and returns user stats", async () => {
@@ -143,8 +143,11 @@ describe("POST /api/gamification/award-points", () => {
         userId: "user-1",
       })
     );
-    expect(prismaMock.submission.update).toHaveBeenCalledWith({
-      where: { id: "sub-2" },
+    expect(prismaMock.submission.updateMany).toHaveBeenCalledWith({
+      where: {
+        id: "sub-2",
+        pointsAwarded: 0,
+      },
       data: { pointsAwarded: 15 },
     });
   });

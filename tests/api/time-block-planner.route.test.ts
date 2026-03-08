@@ -142,6 +142,7 @@ describe("time block planner route", () => {
         subjectKey: "time-block-planner",
         checklist: {
           "2026-03-08": {
+            blockNotes: {},
             form: {
               date: "2026-03-08",
               startTime: "09:00",
@@ -172,6 +173,7 @@ describe("time block planner route", () => {
       update: {
         checklist: {
           "2026-03-08": {
+            blockNotes: {},
             form: {
               date: "2026-03-08",
               startTime: "09:00",
