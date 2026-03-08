@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState, useEffect } from 'react';
-import { Alarm, ArrowLeft, ArrowRight, CalendarDays, Check, ChevronRight, Circle, FileText, Play, Sparkles, TimerReset, Wand2, Heart, Target } from 'lucide-react';
+import { AlarmClock, ArrowLeft, ArrowRight, CalendarDays, Check, ChevronRight, Circle, FileText, Play, Sparkles, TimerReset, Wand2, Heart, Target } from 'lucide-react';
 import { type CalendarEvent, getCalendarMarkerColor } from './MiniCalendar';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
@@ -477,7 +477,7 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                       onChange={(e) => setAutoStartAtScheduledTime(e.target.checked)}
                       className="h-4 w-4 rounded border-2 border-border-subtle text-accent-teal focus:ring-2 focus:ring-accent-teal/30"
                     />
-                    <Alarm size={16} className="text-accent-teal shrink-0" />
+                    <AlarmClock size={16} className="text-accent-teal shrink-0" />
                     Auto-start at {formatMinuteOfDay(blocks[0].startMinuteOfDay)}
                   </label>
                   <Link
