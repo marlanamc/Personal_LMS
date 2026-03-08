@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, CalendarDays, ChevronRight, FileText, Play, Sparkles, TimerReset, Wand2, Heart, Target } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
+import { Alarm, ArrowLeft, ArrowRight, CalendarDays, Check, ChevronRight, Circle, FileText, Play, Sparkles, TimerReset, Wand2, Heart, Target } from 'lucide-react';
 import { type CalendarEvent, getCalendarMarkerColor } from './MiniCalendar';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
@@ -125,6 +125,7 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
   const [isPlannerCollapsed, setIsPlannerCollapsed] = useState(false);
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
   const [editingNoteText, setEditingNoteText] = useState('');
+  const [autoStartAtScheduledTime, setAutoStartAtScheduledTime] = useState(true);
   const { plannerStore, isLoaded, isSaving, saveError, setPlan } = useTimeBlockPlanner();
 
   const currentPlan = plannerStore[selectedDateKey] ?? createEmptyTimeBlockDayPlan(selectedDateKey);
@@ -198,6 +199,36 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
   };
 
   const generatedSummary = blocks.reduce((total, block) => total + block.durationMinutes, 0);
+
+  const [nowMinuteOfDay, setNowMinuteOfDay] = useState<number | null>(() => {
+    const now = new Date();
+    return toDateKey(now) === selectedDateKey ? now.getHours() * 60 + now.getMinutes() : null;
+  });
+
+  useEffect(() => {
+    if (toDateKey(new Date()) !== selectedDateKey) {
+      setNowMinuteOfDay(null);
+      return;
+    }
+    const update = () => setNowMinuteOfDay(new Date().getHours() * 60 + new Date().getMinutes());
+    update();
+    const id = setInterval(update, 60000);
+    return () => clearInterval(id);
+  }, [selectedDateKey]);
+
+  const getBlockStatus = useMemo(() => {
+    const todayKey = toDateKey(new Date());
+    let nowMin: number;
+    if (selectedDateKey < todayKey) nowMin = 24 * 60;
+    else if (selectedDateKey > todayKey) nowMin = -1;
+    else nowMin = nowMinuteOfDay ?? new Date().getHours() * 60 + new Date().getMinutes();
+
+    return (block: TimeBlockEntry): 'completed' | 'current' | 'upcoming' => {
+      if (block.endMinuteOfDay <= nowMin) return 'completed';
+      if (block.startMinuteOfDay <= nowMin) return 'current';
+      return 'upcoming';
+    };
+  }, [selectedDateKey, nowMinuteOfDay]);
 
   const planWindowMinutes = Math.max(1, formEndMinutes - formStartMinutes);
   const pxPerMinute = 1.8;
@@ -425,13 +456,25 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                 Reset
               </button>
               {blocks.length > 0 && (
-                <Link
-                  href={`/dashboard/timer?sequenceDateKey=${encodeURIComponent(selectedDateKey)}`}
-                  className="inline-flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-[1.25rem] bg-gradient-to-r from-accent-teal to-accent-mint px-6 py-3.5 text-sm font-bold text-bg-base transition-all hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-accent-teal/20"
-                >
-                  Start Sequence
-                  <ArrowRight size={15} />
-                </Link>
+                <div className="flex flex-col gap-2 flex-1 sm:flex-none">
+                  <label className="flex items-center gap-2 text-sm font-medium text-text cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={autoStartAtScheduledTime}
+                      onChange={(e) => setAutoStartAtScheduledTime(e.target.checked)}
+                      className="rounded border-border-subtle text-accent-teal focus:ring-accent-teal/30"
+                    />
+                    <Alarm size={14} className="text-accent-teal" />
+                    Auto-start at {formatMinuteOfDay(blocks[0].startMinuteOfDay)}
+                  </label>
+                  <Link
+                    href={`/dashboard/timer?sequenceDateKey=${encodeURIComponent(selectedDateKey)}${autoStartAtScheduledTime ? '&autoStart=1' : ''}`}
+                    className="inline-flex items-center justify-center gap-2 rounded-[1.25rem] bg-gradient-to-r from-accent-teal to-accent-mint px-6 py-3.5 text-sm font-bold text-bg-base transition-all hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-accent-teal/20"
+                  >
+                    Start Sequence
+                    <ArrowRight size={15} />
+                  </Link>
+                </div>
               )}
             </div>
 
@@ -615,6 +658,7 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
 
                     if (item.isBlock) {
                       const block = item as typeof blocks[number];
+                      const status = getBlockStatus(block);
                       const style = timelineCardStyle(block.kind);
                       const hasOverlap = timedEvents.some(
                         (e) =>
@@ -645,7 +689,20 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                             className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-lg ${block.kind === 'want' ? 'bg-accent-teal/60' : 'bg-accent-sakura/60'}`}
                           />
                           <div className="pl-2.5 flex-1 min-w-0 flex items-center justify-between gap-3">
-                            <div className="min-w-0 flex-1 flex items-center gap-2">
+                            <div className="min-w-0 flex-1 flex items-center gap-2 flex-wrap">
+                              <span
+                                className={`inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold ${
+                                  status === 'completed'
+                                    ? 'text-secondary'
+                                    : status === 'current'
+                                      ? 'text-accent-teal'
+                                      : 'text-text-muted/70'
+                                }`}
+                              >
+                                {status === 'completed' && <><Check size={11} /> Completed</>}
+                                {status === 'current' && <><ArrowRight size={11} /> Current</>}
+                                {status === 'upcoming' && <><Circle size={10} className="fill-none" strokeWidth={2.5} /> Upcoming</>}
+                              </span>
                               <div className="flex items-center gap-1.5 leading-tight min-w-0 shrink">
                                 <span
                                   className={`inline-flex shrink-0 ${block.kind === 'want' ? 'text-accent-teal' : 'text-accent-sakura'}`}
@@ -683,7 +740,7 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                                 <Play size={12} />
                               </Link>
                             </div>
-                            <div className="flex flex-col items-end justify-center shrink-0 gap-0.5">
+                            <div className="flex flex-col items-end justify-center shrink-0 gap-0.5 min-w-0">
                               <span className="text-[15px] font-body font-normal text-text-muted/70 tabular-nums">
                                 {formatMinuteOfDay(block.startMinuteOfDay)} – {formatMinuteOfDay(block.endMinuteOfDay)}
                               </span>

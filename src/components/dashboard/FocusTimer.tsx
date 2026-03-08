@@ -21,7 +21,7 @@ import {
 import { useFocusTimer } from '@/context/FocusTimerContext';
 import { ActivityPanelContent } from '@/components/dashboard/ActivityPanelContent';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
-import { normalizeTimeBlockPlannerStore, type TimeBlockPlannerStore } from '@/lib/time-block-planner';
+import { formatMinuteOfDay, normalizeTimeBlockPlannerStore, type TimeBlockPlannerStore } from '@/lib/time-block-planner';
 
 type SpotifyConnectionStatus = {
     configured: boolean;
@@ -323,12 +323,15 @@ export const FocusTimer = () => {
 
         const currentUrl = new URL(window.location.href);
         const sequenceDateKey = currentUrl.searchParams.get('sequenceDateKey');
+        const autoStart = currentUrl.searchParams.get('autoStart') === '1';
         const labelParam = currentUrl.searchParams.get('timeBlockLabel');
         const minutesParam = currentUrl.searchParams.get('timeBlockMinutes');
 
         if (!labelParam && !minutesParam && !sequenceDateKey) {
             return;
         }
+
+        let autoStartTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
         if (isActive) {
             setSessionNotice('Finish or reset the current timer before loading a new plan.');
@@ -348,7 +351,25 @@ export const FocusTimer = () => {
                         loadSequence(dayPlan.blocks);
                         setSessionTitleInput(dayPlan.blocks[0].label);
                         setHasCustomSessionTitle(true);
-                        setSessionNotice('Loaded plan sequence.');
+
+                        if (autoStart && dayPlan.blocks[0]) {
+                            const firstBlock = dayPlan.blocks[0];
+                            const scheduledMs = new Date(`${sequenceDateKey}T${firstBlock.startTime}`).getTime();
+                            const now = Date.now();
+                            if (scheduledMs > now) {
+                                const delay = scheduledMs - now;
+                                const startLabel = formatMinuteOfDay(firstBlock.startMinuteOfDay);
+                                setSessionNotice(`Auto-starting at ${startLabel} — keep this tab open`);
+                                autoStartTimeoutId = setTimeout(() => {
+                                    toggleTimer();
+                                    setSessionNotice('Sequence started.');
+                                }, delay);
+                            } else {
+                                setSessionNotice('Loaded plan sequence.');
+                            }
+                        } else {
+                            setSessionNotice('Loaded plan sequence.');
+                        }
                     } else {
                         setSessionNotice('No plan found for this date. Generate one in On Again / Off Again first.');
                     }
@@ -359,6 +380,7 @@ export const FocusTimer = () => {
                 .finally(() => {
                     if (!cancelled) {
                         currentUrl.searchParams.delete('sequenceDateKey');
+                        currentUrl.searchParams.delete('autoStart');
                         currentUrl.searchParams.delete('timeBlockLabel');
                         currentUrl.searchParams.delete('timeBlockMinutes');
                         window.history.replaceState({}, '', `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
@@ -366,6 +388,7 @@ export const FocusTimer = () => {
                 });
             return () => {
                 cancelled = true;
+                if (autoStartTimeoutId) clearTimeout(autoStartTimeoutId);
             };
         } else {
             const parsedMinutes = Number(minutesParam);
@@ -381,10 +404,11 @@ export const FocusTimer = () => {
         }
 
         currentUrl.searchParams.delete('sequenceDateKey');
+        currentUrl.searchParams.delete('autoStart');
         currentUrl.searchParams.delete('timeBlockLabel');
         currentUrl.searchParams.delete('timeBlockMinutes');
         window.history.replaceState({}, '', `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`);
-    }, [isActive, loadSequence, setActiveSessionLabel, setSelectedMinutes]);
+    }, [isActive, loadSequence, setActiveSessionLabel, setSelectedMinutes, toggleTimer]);
 
     const connectSpotify = useCallback(() => {
         if (typeof window === 'undefined') {
