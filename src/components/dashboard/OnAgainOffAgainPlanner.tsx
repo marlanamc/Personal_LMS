@@ -645,8 +645,8 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                             className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-lg ${block.kind === 'want' ? 'bg-accent-teal/60' : 'bg-accent-sakura/60'}`}
                           />
                           <div className="pl-2.5 flex-1 min-w-0 flex items-center justify-between gap-3">
-                            <div className="min-w-0 flex flex-col justify-center gap-0.5">
-                              <div className="flex items-center gap-1.5 leading-tight">
+                            <div className="min-w-0 flex-1 flex items-center gap-2">
+                              <div className="flex items-center gap-1.5 leading-tight min-w-0 shrink">
                                 <span
                                   className={`inline-flex shrink-0 ${block.kind === 'want' ? 'text-accent-teal' : 'text-accent-sakura'}`}
                                 >
@@ -655,35 +655,33 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                                 <span className="text-[15px] font-body font-bold text-text truncate">
                                   {block.label}
                                 </span>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    openBlockNote(block);
-                                  }}
-                                  className="inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-text-muted/70 hover:bg-bg-surface/60 hover:text-accent-teal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent-teal/40"
-                                  aria-label={`Add note for ${block.label}`}
-                                >
-                                  <FileText size={12} />
-                                </button>
-                                <Link
-                                  href={`/dashboard/timer?timeBlockLabel=${encodeURIComponent(block.label)}&timeBlockMinutes=${block.durationMinutes}`}
-                                  className="inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-text-muted/70 hover:bg-bg-surface/60 hover:text-accent-teal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent-teal/40"
-                                  aria-label={`Start ${block.label} block in timer`}
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <Play size={12} />
-                                </Link>
                               </div>
                               {blockNote ? (
-                                <div className="flex items-center gap-1.5 pl-[18px] min-w-0">
-                                  <span className="inline-flex items-center gap-1.5 shrink-0 max-w-full rounded-full border border-border-subtle bg-bg-elevated/90 px-2.5 py-1 text-[12px] font-medium text-text shadow-sm" title={blockNote}>
-                                    <FileText size={11} className="shrink-0 opacity-80" />
-                                    <span className="truncate">{blockNote}</span>
-                                  </span>
-                                </div>
+                                <span className="inline-flex items-center gap-1.5 shrink-0 max-w-[45%] rounded-full border border-border-subtle bg-bg-elevated/90 px-2 py-0.5 text-[11px] font-medium text-text shadow-sm truncate" title={blockNote}>
+                                  <FileText size={10} className="shrink-0 opacity-80" />
+                                  <span className="truncate">{blockNote}</span>
+                                </span>
                               ) : null}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  openBlockNote(block);
+                                }}
+                                className="inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-text-muted/70 hover:bg-bg-surface/60 hover:text-accent-teal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent-teal/40"
+                                aria-label={`Add note for ${block.label}`}
+                              >
+                                <FileText size={12} />
+                              </button>
+                              <Link
+                                href={`/dashboard/timer?timeBlockLabel=${encodeURIComponent(block.label)}&timeBlockMinutes=${block.durationMinutes}`}
+                                className="inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-text-muted/70 hover:bg-bg-surface/60 hover:text-accent-teal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent-teal/40"
+                                aria-label={`Start ${block.label} block in timer`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Play size={12} />
+                              </Link>
                             </div>
                             <div className="flex flex-col items-end justify-center shrink-0 gap-0.5">
                               <span className="text-[15px] font-body font-normal text-text-muted/70 tabular-nums">
