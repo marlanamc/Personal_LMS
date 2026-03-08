@@ -30,6 +30,8 @@ export type TimeBlockDayPlan = {
   form: TimeBlockFormState;
   blocks: TimeBlockEntry[];
   generatedAt: string | null;
+  /** Notes per block id, e.g. "what to work on" for coding blocks */
+  blockNotes?: Record<string, string>;
 };
 
 export type TimeBlockPlannerStore = Record<string, TimeBlockDayPlan>;
@@ -107,6 +109,7 @@ export function createEmptyTimeBlockDayPlan(dateKey: string, now = new Date()): 
     form: createDefaultTimeBlockForm(dateKey, now),
     blocks: [],
     generatedAt: null,
+    blockNotes: {},
   };
 }
 
@@ -236,10 +239,22 @@ export function normalizeTimeBlockDayPlan(raw: unknown, dateKey: string): TimeBl
   const generatedAt =
     typeof candidate.generatedAt === "string" && candidate.generatedAt.trim() ? candidate.generatedAt : null;
 
+  const blockNotes: Record<string, string> = {};
+  const rawNotes = (candidate as { blockNotes?: unknown }).blockNotes;
+  if (rawNotes && typeof rawNotes === "object" && !Array.isArray(rawNotes)) {
+    const blockIds = new Set(blocks.map((b) => b.id));
+    for (const [id, value] of Object.entries(rawNotes)) {
+      if (blockIds.has(id) && typeof value === "string") {
+        blockNotes[id] = value;
+      }
+    }
+  }
+
   return {
     form,
     blocks,
     generatedAt,
+    blockNotes,
   };
 }
 

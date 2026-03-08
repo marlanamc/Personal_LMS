@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, CalendarDays, ChevronRight, Play, Sparkles, TimerReset, Wand2, Heart, Target } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CalendarDays, ChevronRight, FileText, Play, Sparkles, TimerReset, Wand2, Heart, Target } from 'lucide-react';
 import { type CalendarEvent, getCalendarMarkerColor } from './MiniCalendar';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
@@ -123,6 +123,8 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
   const [selectedDateKey, setSelectedDateKey] = useState(todayKey);
   const [message, setMessage] = useState<string | null>(null);
   const [isPlannerCollapsed, setIsPlannerCollapsed] = useState(false);
+  const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
+  const [editingNoteText, setEditingNoteText] = useState('');
   const { plannerStore, isLoaded, isSaving, saveError, setPlan } = useTimeBlockPlanner();
 
   const currentPlan = plannerStore[selectedDateKey] ?? createEmptyTimeBlockDayPlan(selectedDateKey);
@@ -156,12 +158,38 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
 
   const generatePlan = () => {
     const nextBlocks = buildTimeBlockPlan(form);
+    const blockNotes = currentPlan.blockNotes ?? {};
+    const preservedNotes: Record<string, string> = {};
+    for (const b of nextBlocks) {
+      if (blockNotes[b.id]) preservedNotes[b.id] = blockNotes[b.id];
+    }
     updateCurrentPlan({
       form,
       blocks: nextBlocks,
       generatedAt: new Date().toISOString(),
+      blockNotes: preservedNotes,
     });
     setMessage(nextBlocks.length > 0 ? 'Plan refreshed.' : 'Pick a valid start and end time to build blocks.');
+  };
+
+  const patchBlockNote = (blockId: string, value: string) => {
+    const blockNotes = currentPlan.blockNotes ?? {};
+    updateCurrentPlan({
+      ...currentPlan,
+      blockNotes: { ...blockNotes, [blockId]: value },
+    });
+  };
+
+  const openBlockNote = (block: (typeof blocks)[number]) => {
+    setEditingBlockId(block.id);
+    setEditingNoteText((currentPlan.blockNotes ?? {})[block.id] ?? '');
+  };
+
+  const closeBlockNote = () => {
+    if (editingBlockId) {
+      patchBlockNote(editingBlockId, editingNoteText);
+      setEditingBlockId(null);
+    }
   };
 
   const clearDay = () => {
@@ -593,11 +621,18 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                           block.startMinuteOfDay < e.endMinuteOfDay && block.endMinuteOfDay > e.startMinuteOfDay
                       );
                       const blockAriaLabel = `${block.label}, ${block.kind === 'want' ? 'Want to do' : 'Should do'}, ${block.durationMinutes} minutes, ${formatMinuteOfDay(block.startMinuteOfDay)} to ${formatMinuteOfDay(block.endMinuteOfDay)}`;
+                      const blockNote = (currentPlan.blockNotes ?? {})[block.id] ?? '';
                       return (
                         <article
                           key={`block-${block.id}`}
                           aria-label={blockAriaLabel}
-                          className={`absolute left-1.5 right-1.5 rounded-lg border shadow-sm flex flex-col justify-center px-3 py-1.5 transition-all duration-200 hover:shadow-md hover:z-10 overflow-hidden group ${hasOverlap ? 'ring-1 ring-amber-400/60' : ''}`}
+                          onDoubleClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            openBlockNote(block);
+                          }}
+                          className={`absolute left-1.5 right-1.5 rounded-lg border shadow-sm flex flex-col justify-center px-3 py-1.5 transition-all duration-200 hover:shadow-md hover:z-10 overflow-hidden group cursor-pointer ${hasOverlap ? 'ring-1 ring-amber-400/60' : ''}`}
+                          title="Double-click to add a note"
                           style={{
                             background: style.background,
                             borderColor: hasOverlap ? 'rgba(251,191,36,0.5)' : style.borderColor,
@@ -609,35 +644,62 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                           <div
                             className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-lg ${block.kind === 'want' ? 'bg-accent-teal/60' : 'bg-accent-sakura/60'}`}
                           />
-                          <div className="pl-2.5 flex-1 min-w-0 flex flex-col justify-center">
-                            <div className="flex items-center gap-1.5">
-                              <span
-                                className={`inline-flex shrink-0 ${block.kind === 'want' ? 'text-accent-teal' : 'text-accent-sakura'}`}
-                              >
-                                {block.kind === 'want' ? <Heart size={10} className="fill-current" /> : <Target size={10} />}
-                              </span>
-                              <span className="text-[15px] font-body font-bold text-text truncate flex-1 min-w-0">
-                                {block.label}
-                              </span>
-                              <Link
-                                href={`/dashboard/timer?timeBlockLabel=${encodeURIComponent(block.label)}&timeBlockMinutes=${block.durationMinutes}`}
-                                className="inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-text-muted/70 hover:bg-bg-surface/60 hover:text-accent-teal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent-teal/40"
-                                aria-label={`Start ${block.label} block in timer`}
-                              >
-                                <Play size={12} />
-                              </Link>
-                              <span className="text-[9px] font-semibold text-text-muted/80 shrink-0">
-                                {block.durationMinutes}m
-                              </span>
-                            </div>
-                            <span className="block text-[15px] font-body font-normal text-text-muted/70 mt-0.5 pl-[18px]">
-                              {formatMinuteOfDay(block.startMinuteOfDay)} – {formatMinuteOfDay(block.endMinuteOfDay)}
-                              {hasOverlap ? (
-                                <span className="ml-1.5 text-[10px] text-amber-600 dark:text-amber-400 font-medium" title="Overlaps with a scheduled event">
-                                  (overlaps)
+                          <div className="pl-2.5 flex-1 min-w-0 flex items-center justify-between gap-3">
+                            <div className="min-w-0 flex flex-col justify-center gap-0.5">
+                              <div className="flex items-center gap-1.5 leading-tight">
+                                <span
+                                  className={`inline-flex shrink-0 ${block.kind === 'want' ? 'text-accent-teal' : 'text-accent-sakura'}`}
+                                >
+                                  {block.kind === 'want' ? <Heart size={10} className="fill-current" /> : <Target size={10} />}
                                 </span>
+                                <span className="text-[15px] font-body font-bold text-text truncate">
+                                  {block.label}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    openBlockNote(block);
+                                  }}
+                                  className="inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-text-muted/70 hover:bg-bg-surface/60 hover:text-accent-teal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent-teal/40"
+                                  aria-label={`Add note for ${block.label}`}
+                                >
+                                  <FileText size={12} />
+                                </button>
+                                <Link
+                                  href={`/dashboard/timer?timeBlockLabel=${encodeURIComponent(block.label)}&timeBlockMinutes=${block.durationMinutes}`}
+                                  className="inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-text-muted/70 hover:bg-bg-surface/60 hover:text-accent-teal transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent-teal/40"
+                                  aria-label={`Start ${block.label} block in timer`}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <Play size={12} />
+                                </Link>
+                              </div>
+                              {blockNote ? (
+                                <div className="flex items-center gap-1.5 pl-[18px] min-w-0">
+                                  <span className="inline-flex items-center gap-1.5 shrink-0 max-w-full rounded-full border border-border-subtle bg-bg-elevated/90 px-2.5 py-1 text-[12px] font-medium text-text shadow-sm" title={blockNote}>
+                                    <FileText size={11} className="shrink-0 opacity-80" />
+                                    <span className="truncate">{blockNote}</span>
+                                  </span>
+                                </div>
                               ) : null}
-                            </span>
+                            </div>
+                            <div className="flex flex-col items-end justify-center shrink-0 gap-0.5">
+                              <span className="text-[15px] font-body font-normal text-text-muted/70 tabular-nums">
+                                {formatMinuteOfDay(block.startMinuteOfDay)} – {formatMinuteOfDay(block.endMinuteOfDay)}
+                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] font-semibold text-text-muted/80">
+                                  {block.durationMinutes}m
+                                </span>
+                                {hasOverlap ? (
+                                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium" title="Overlaps with a scheduled event">
+                                    (overlaps)
+                                  </span>
+                                ) : null}
+                              </div>
+                            </div>
                           </div>
                         </article>
                       );
@@ -676,6 +738,34 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
               </div>
             </div>
           )}
+
+          {editingBlockId ? (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
+              onClick={closeBlockNote}
+              role="presentation"
+            >
+              <div
+                className="w-full max-w-md rounded-2xl border border-border-subtle/40 bg-bg-surface shadow-xl p-5"
+                onClick={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-label="Block note"
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted mb-2">What to work on</p>
+                <textarea
+                  value={editingNoteText}
+                  onChange={(e) => setEditingNoteText(e.target.value)}
+                  onBlur={closeBlockNote}
+                  placeholder="e.g. Fix login bug, refactor utils..."
+                  rows={4}
+                  className="w-full rounded-xl border border-border-subtle/40 bg-bg-elevated/80 px-4 py-3 font-medium text-text placeholder:text-text-muted/50 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-accent-teal/30 focus:border-accent-teal/50 resize-none"
+                  style={{ fontSize: '14px' }}
+                  autoFocus
+                />
+                <p className="mt-2 text-xs text-text-muted">Click outside to save</p>
+              </div>
+            </div>
+          ) : null}
         </div>
       </section>
     </div>
