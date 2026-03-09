@@ -385,10 +385,11 @@ export function DayPlannerView({
             )}
             <Link
               href="/dashboard/calendar"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border-subtle/60 bg-bg-surface/80 px-4 py-2.5 text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md"
+              className="inline-flex items-center justify-center rounded-full border border-border-subtle/60 bg-bg-surface/80 p-2.5 text-text-secondary shadow-sm transition-all hover:bg-bg-elevated hover:text-text backdrop-blur-md"
+              aria-label="Calendar"
+              title="Calendar"
             >
-              <CalendarDays size={15} />
-              Calendar
+              <CalendarDays size={18} />
             </Link>
             <button
               type="button"
