@@ -416,8 +416,8 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                   const isWant = activity.kind === 'want';
                   return (
                     <div key={activity.id} className="relative">
-                      <div className={`absolute left-1 top-3 bottom-1 w-[3px] rounded-full ${isWant ? 'bg-accent-teal/40' : 'bg-accent-sakura/40'}`} />
-                      <div className="pl-5 space-y-2">
+                      <div className={`absolute left-1 top-0 bottom-1 w-[3px] rounded-full ${isWant ? 'bg-accent-teal/40' : 'bg-accent-sakura/40'}`} />
+                      <div className="pl-5 space-y-1">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <button
@@ -537,7 +537,7 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                 Reset
               </button>
               {blocks.length > 0 && (
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-1 sm:flex-none">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
                   <label className="flex items-center gap-2 text-sm font-semibold text-text cursor-pointer shrink-0">
                     <input
                       type="checkbox"
@@ -550,7 +550,7 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                   </label>
                   <Link
                     href={`/dashboard/timer?sequenceDateKey=${encodeURIComponent(selectedDateKey)}${autoStartAtScheduledTime ? '&autoStart=1' : ''}`}
-                    className="inline-flex items-center justify-center gap-2 rounded-[1.25rem] bg-gradient-to-r from-accent-teal to-accent-mint px-6 py-3.5 text-sm font-bold text-bg-base transition-all hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-accent-teal/20"
+                    className="inline-flex items-center justify-center gap-2 rounded-[1.25rem] bg-gradient-to-r from-accent-teal to-accent-mint px-5 py-3 text-sm font-bold text-bg-base transition-all hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-accent-teal/20 whitespace-nowrap"
                   >
                     Start Sequence
                     <ArrowRight size={15} />
