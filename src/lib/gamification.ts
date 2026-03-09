@@ -60,34 +60,8 @@ export async function trackLogin(userId: string) {
     // Only process the first login marker of the UTC day
     if (!existingLogin) {
       await logPointsLedger(userId, 0, 'Daily login', 'login');
-
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { currentStreak: true, longestStreak: true, lastActivityDate: true },
-      });
-      if (!user) return;
-
-      const { streakUpdated, newStreak } = getNextStreakState(
-        user.currentStreak,
-        user.lastActivityDate,
-        now
-      );
-
-      if (streakUpdated) {
-        await prisma.user.update({
-          where: { id: userId },
-          data: {
-            currentStreak: newStreak,
-            longestStreak: Math.max(newStreak, user.longestStreak),
-            lastActivityDate: now,
-          },
-        });
-      } else {
-        await prisma.user.update({
-          where: { id: userId },
-          data: { lastActivityDate: now },
-        });
-      }
+      // We no longer update the streak just for logging in.
+      // Streaks are only updated when an activity awarding > 0 points is completed.
     }
   } catch (err) {
     if (isPrismaConnectivityError(err)) {

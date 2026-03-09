@@ -163,6 +163,35 @@ function isWithinNowWindow(timeStr: string, nowMinutes: number | null): boolean 
   return diff >= 0 && diff <= 30;
 }
 
+function getContextualLabel(
+  timeStr: string,
+  nowMinutes: number | null,
+  isUpNext: boolean,
+  status: 'waiting' | 'done' | 'missed' | 'skipped'
+): { label: string; variant: 'now' | 'upnext' | 'soon' | null } {
+  if (status === 'done' || status === 'skipped') return { label: '', variant: null };
+  if (nowMinutes === null) return { label: '', variant: null };
+
+  const scheduledMinutes = parseHHMMToMinutes(timeStr);
+  const diff = scheduledMinutes - nowMinutes;
+
+  // "Now" - currently active (within 30 min window after scheduled time)
+  if (diff <= 0 && diff >= -30) {
+    return { label: 'Now', variant: 'now' };
+  }
+
+  // "Up Next" - the immediate next anchor (regardless of time)
+  if (isUpNext && diff > 0) {
+    return { label: 'Up Next', variant: 'upnext' };
+  }
+
+  // "Soon" - within 30 minutes from now
+  if (diff > 0 && diff <= 30) {
+    return { label: 'Soon', variant: 'soon' };
+  }
+
+  return { label: '', variant: null };
+}
 
 // River Flow color schemes for different icon types
 function getRiverFlowGradient(icon: AnchorIcon): { from: string; to: string; glow: string } {
@@ -194,6 +223,7 @@ interface MobileAnchorItemProps {
   isLast: boolean;
   isFirst: boolean;
   isLoaded: boolean;
+  isUpNext: boolean;
   onToggle: () => void;
   onToggleSkip: () => void;
   onTimeChange: (anchorId: AnchorId, newTime: string) => void;
@@ -210,6 +240,7 @@ function MobileAnchorItem({
   isLast: _isLast,
   isFirst: _isFirst,
   isLoaded,
+  isUpNext,
   onToggle,
   onToggleSkip,
   onTimeChange,
@@ -225,6 +256,7 @@ function MobileAnchorItem({
   const isDone = anchor.status === 'done';
   const isMissed = anchor.status === 'missed';
   const isSkipped = anchor.status === 'skipped';
+  const contextLabel = getContextualLabel(anchor.scheduledTime, nowMinutes, isUpNext, anchor.status);
 
   useEffect(() => {
     return () => {
@@ -315,9 +347,17 @@ function MobileAnchorItem({
                   >
                     {anchor.label}
                   </p>
-                  {!isSkipped && isWithinNowWindow(anchor.scheduledTime, nowMinutes) && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-[0.08em] bg-primary/15 text-primary">
-                      Now
+                  {contextLabel.variant && (
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-[0.08em] ${
+                        contextLabel.variant === 'now'
+                          ? 'bg-primary/15 text-primary'
+                          : contextLabel.variant === 'upnext'
+                            ? 'bg-accent-teal/15 text-accent-teal'
+                            : 'bg-accent-amethyst/15 text-accent-amethyst'
+                      }`}
+                    >
+                      {contextLabel.label}
                     </span>
                   )}
                 </div>
@@ -444,6 +484,22 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
     () => getRecentSkippedAnchorStreak(sortedAnchors, nowMinutes),
     [sortedAnchors, nowMinutes],
   );
+
+  // Find the "up next" anchor - the first future anchor that isn't done/skipped
+  const upNextAnchorId = useMemo(() => {
+    if (nowMinutes === null) return null;
+    for (const anchor of sortedAnchors) {
+      if (anchor.status === 'done' || anchor.status === 'skipped') continue;
+      const scheduledMinutes = parseHHMMToMinutes(anchor.scheduledTime);
+      // Skip anchors that are currently "now" (within 30 min window)
+      if (scheduledMinutes <= nowMinutes && nowMinutes - scheduledMinutes <= 30) continue;
+      // This is the next upcoming anchor
+      if (scheduledMinutes > nowMinutes) {
+        return anchor.id;
+      }
+    }
+    return null;
+  }, [sortedAnchors, nowMinutes]);
 
   useEffect(() => {
     const updateCurrentTime = () => {
@@ -867,6 +923,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                       isFirst={idx === 0}
                       isLast={idx === sortedAnchors.length - 1}
                       isLoaded={isLoaded}
+                      isUpNext={anchor.id === upNextAnchorId}
                       onToggle={() => toggleAnchor(anchor.id)}
                       onToggleSkip={() => handleToggleSkipToday(anchor.id, anchor.status === 'skipped')}
                       onTimeChange={handleMobileTimeChange}

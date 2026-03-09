@@ -82,7 +82,10 @@ describe("time block planner route", () => {
         updatedAt: true,
       },
     });
-    expect(payload.store["2026-03-08"].form.wantLabel).toBe("Coding");
+    expect(payload.store["2026-03-08"].form.activities).toEqual([
+      { id: expect.any(String), kind: "want", label: "Coding", minutes: 60 },
+      { id: expect.any(String), kind: "should", label: "Cleaning", minutes: 30 },
+    ]);
     expect(payload.store["2026-03-08"].blocks[0]).toMatchObject({
       kind: "want",
       label: "Coding",
@@ -147,10 +150,10 @@ describe("time block planner route", () => {
               date: "2026-03-08",
               startTime: "09:00",
               endTime: "11:10",
-              wantLabel: "Coding",
-              wantMinutes: 60,
-              shouldLabel: "Cleaning",
-              shouldMinutes: 30,
+              activities: [
+                { id: expect.any(String), kind: "want", label: "Coding", minutes: 60 },
+                { id: expect.any(String), kind: "should", label: "Cleaning", minutes: 30 },
+              ],
             },
             blocks: [
               {
@@ -178,10 +181,10 @@ describe("time block planner route", () => {
               date: "2026-03-08",
               startTime: "09:00",
               endTime: "11:10",
-              wantLabel: "Coding",
-              wantMinutes: 60,
-              shouldLabel: "Cleaning",
-              shouldMinutes: 30,
+              activities: [
+                { id: expect.any(String), kind: "want", label: "Coding", minutes: 60 },
+                { id: expect.any(String), kind: "should", label: "Cleaning", minutes: 30 },
+              ],
             },
             blocks: [
               {

@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { type CalendarEvent } from "./MiniCalendar";
 import { CalendarPanel } from "./CalendarPanel";
 import { DailyAnchorsDateSummary } from "@/components/daily-anchors";
-import { PlusCircle, StickyNote, CheckCircle2, ListTodo, CalendarDays, Clock3 } from "lucide-react";
+import { PlusCircle, StickyNote, CheckCircle2, ListTodo, CalendarDays, Clock3, Wand2 } from "lucide-react";
 import { useCalendarPlanner } from "./useCalendarPlanner";
 
 interface CalendarPlannerProps {
@@ -177,14 +178,23 @@ export default function CalendarPlanner({ events, storageScope = "default" }: Ca
           style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)" }}
         />
         <div className="relative z-10 px-6 py-5 sm:px-8 sm:py-6">
-          <header className="relative">
-            <p className="text-[11px] font-semibold text-text-muted tracking-[0.18em] uppercase">Date Focus</p>
-            <h3 className="text-[28px] md:text-3xl font-semibold tracking-tight text-text leading-tight mt-2">
-              {selectedDate.toLocaleDateString(undefined, { weekday: "long" })}
-            </h3>
-            <p className="text-lg md:text-xl font-medium text-text-secondary leading-tight mt-0.5">
-              {selectedDate.toLocaleDateString(undefined, { month: "long", day: "numeric" })}
-            </p>
+          <header className="relative flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-semibold text-text-muted tracking-[0.18em] uppercase">Date Focus</p>
+              <h3 className="text-[28px] md:text-3xl font-semibold tracking-tight text-text leading-tight mt-2">
+                {selectedDate.toLocaleDateString(undefined, { weekday: "long" })}
+              </h3>
+              <p className="text-lg md:text-xl font-medium text-text-secondary leading-tight mt-0.5">
+                {selectedDate.toLocaleDateString(undefined, { month: "long", day: "numeric" })}
+              </p>
+            </div>
+            <Link
+              href={`/dashboard/day-planner?date=${selectedKey}`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-accent-teal/40 bg-accent-teal/10 hover:bg-accent-teal/20 px-3 py-1.5 text-xs font-semibold text-accent-teal transition-colors"
+            >
+              <Wand2 size={12} />
+              Plan Day
+            </Link>
           </header>
 
           <div className="mt-4">

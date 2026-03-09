@@ -113,6 +113,30 @@ function formatDurationSummary(totalMinutes: number) {
   return `${minutes} min`;
 }
 
+const WANT_PLACEHOLDERS = [
+  "Rest for 10 min",
+  "Watch TV (one episode)",
+  "Take a short walk",
+  "Make tea / snack + water",
+  "Stretch / breathe",
+  "Read something fun",
+];
+
+const SHOULD_PLACEHOLDERS = [
+  "Reply to messages",
+  "Clean one small thing",
+  "Quick email/admin",
+  "Laundry: start a load",
+  "Pay one bill / schedule",
+  "Tidy desk / dishes",
+];
+
+function getActivityPlaceholder(kind: "want" | "should" | null, index: number): string {
+  if (kind === "want") return WANT_PLACEHOLDERS[index % WANT_PLACEHOLDERS.length];
+  if (kind === "should") return SHOULD_PLACEHOLDERS[index % SHOULD_PLACEHOLDERS.length];
+  return "Choose Want/Should, then name it";
+}
+
 function updateForm(plan: TimeBlockDayPlan, nextForm: TimeBlockFormState): TimeBlockDayPlan {
   return {
     ...plan,
@@ -173,6 +197,22 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
   };
 
   const generatePlan = () => {
+    if (!hasValidWindow) {
+      setMessage('End time needs to be later than start time.');
+      return;
+    }
+
+    const filledActivities = form.activities.filter((a) => a.label.trim() && a.minutes > 0);
+    if (filledActivities.length === 0) {
+      setMessage('Add at least one activity first.');
+      return;
+    }
+
+    if (filledActivities.some((a) => a.kind === null)) {
+      setMessage('Choose Want or Should for each activity.');
+      return;
+    }
+
     const nextBlocks = buildTimeBlockPlan(form);
     const blockNotes = currentPlan.blockNotes ?? {};
     const preservedNotes: Record<string, string> = {};
@@ -295,21 +335,23 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
 
     // Build summary from activities to preserve order
     return form.activities
-      .filter(a => a.label.trim())
-      .map(activity => {
+      .filter((a) => a.kind !== null && a.label.trim().length > 0)
+      .map((activity) => {
         const data = labelTotals.get(activity.label);
         return {
           key: activity.id,
           label: activity.label,
           totalMinutes: data?.totalMinutes ?? 0,
-          accentClass: activity.kind === 'want' ? 'text-accent-teal' : 'text-accent-sakura',
+          accentClass: activity.kind === "want" ? "text-accent-teal" : "text-accent-sakura",
           chipStyle: {
-            borderColor: activity.kind === 'want'
-              ? 'color-mix(in srgb, var(--color-accent-teal) 34%, var(--color-border-subtle))'
-              : 'color-mix(in srgb, var(--color-accent-sakura) 34%, var(--color-border-subtle))',
-            background: activity.kind === 'want'
-              ? 'color-mix(in srgb, var(--color-accent-teal) 12%, var(--color-bg-surface))'
-              : 'color-mix(in srgb, var(--color-accent-sakura) 12%, var(--color-bg-surface))',
+            borderColor:
+              activity.kind === "want"
+                ? "color-mix(in srgb, var(--color-accent-teal) 34%, var(--color-border-subtle))"
+                : "color-mix(in srgb, var(--color-accent-sakura) 34%, var(--color-border-subtle))",
+            background:
+              activity.kind === "want"
+                ? "color-mix(in srgb, var(--color-accent-teal) 12%, var(--color-bg-surface))"
+                : "color-mix(in srgb, var(--color-accent-sakura) 12%, var(--color-bg-surface))",
           },
         };
       });
@@ -414,28 +456,71 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
               <div className="space-y-3 pt-2">
                 {form.activities.map((activity, index) => {
                   const isWant = activity.kind === 'want';
+                  const isShould = activity.kind === 'should';
+                  const isUnset = activity.kind === null;
+                  const placeholder = getActivityPlaceholder(activity.kind, index);
                   return (
                     <div key={activity.id} className="relative">
-                      <div className={`absolute left-1 top-0 bottom-1 w-[3px] rounded-full ${isWant ? 'bg-accent-teal/40' : 'bg-accent-sakura/40'}`} />
+                      <div
+                        className={`absolute left-1 top-0 bottom-1 w-[3px] rounded-full ${
+                          isWant
+                            ? 'bg-accent-teal/40'
+                            : isShould
+                              ? 'bg-accent-sakura/40'
+                              : 'bg-border-subtle/60'
+                        }`}
+                      />
                       <div className="pl-5 space-y-1">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newActivities = [...form.activities];
-                                newActivities[index] = { ...activity, kind: isWant ? 'should' : 'want' };
-                                patchForm('activities', newActivities);
-                              }}
-                              className={`flex h-5 w-5 items-center justify-center rounded-full transition-colors ${
-                                isWant ? 'bg-accent-teal/15 text-accent-teal hover:bg-accent-teal/25' : 'bg-accent-sakura/15 text-accent-sakura hover:bg-accent-sakura/25'
+                            <div className="inline-flex items-center gap-1 rounded-full border border-border-subtle/60 bg-bg-surface/60 p-0.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newActivities = [...form.activities];
+                                  newActivities[index] = { ...activity, kind: 'want' };
+                                  patchForm('activities', newActivities);
+                                }}
+                                className={`flex h-5 w-5 items-center justify-center rounded-full transition-colors ${
+                                  isWant
+                                    ? 'bg-accent-teal/20 text-accent-teal'
+                                    : 'text-text-muted/70 hover:bg-bg-surface'
+                                }`}
+                                aria-label="Set as want"
+                                aria-pressed={isWant}
+                                title="Want to do"
+                              >
+                                <Heart size={10} className={isWant ? 'fill-current' : ''} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newActivities = [...form.activities];
+                                  newActivities[index] = { ...activity, kind: 'should' };
+                                  patchForm('activities', newActivities);
+                                }}
+                                className={`flex h-5 w-5 items-center justify-center rounded-full transition-colors ${
+                                  isShould
+                                    ? 'bg-accent-sakura/20 text-accent-sakura'
+                                    : 'text-text-muted/70 hover:bg-bg-surface'
+                                }`}
+                                aria-label="Set as should"
+                                aria-pressed={isShould}
+                                title="Should do"
+                              >
+                                <Target size={10} />
+                              </button>
+                            </div>
+                            <span
+                              className={`text-[9px] font-bold uppercase tracking-[0.15em] ${
+                                isWant
+                                  ? 'text-accent-teal'
+                                  : isShould
+                                    ? 'text-accent-sakura'
+                                    : 'text-text-muted/70'
                               }`}
-                              title={`Switch to ${isWant ? 'Should do' : 'Want to do'}`}
                             >
-                              {isWant ? <Heart size={10} className="fill-current" /> : <Target size={10} />}
-                            </button>
-                            <span className={`text-[9px] font-bold uppercase tracking-[0.15em] ${isWant ? 'text-accent-teal' : 'text-accent-sakura'}`}>
-                              {index + 1}. {isWant ? 'Want' : 'Should'}
+                              {index + 1}. {isUnset ? 'Pick type' : isWant ? 'Want' : 'Should'}
                             </span>
                           </div>
                           {form.activities.length > 1 && (
@@ -461,8 +546,14 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                               newActivities[index] = { ...activity, label: event.target.value };
                               patchForm('activities', newActivities);
                             }}
-                            placeholder={isWant ? 'e.g. Coding' : 'e.g. Cleaning'}
-                            className={`flex-1 rounded-xl border border-border-subtle/40 bg-bg-surface/80 hover:bg-bg-surface px-3 py-2 font-medium text-text shadow-sm transition-all focus:outline-none focus:ring-2 ${isWant ? 'focus:ring-accent-teal/30 focus:border-accent-teal/50' : 'focus:ring-accent-sakura/30 focus:border-accent-sakura/50'}`}
+                            placeholder={placeholder}
+                            className={`flex-1 rounded-xl border border-border-subtle/40 bg-bg-surface/80 hover:bg-bg-surface px-3 py-2 font-medium text-text shadow-sm transition-all focus:outline-none focus:ring-2 ${
+                              isWant
+                                ? 'focus:ring-accent-teal/30 focus:border-accent-teal/50'
+                                : isShould
+                                  ? 'focus:ring-accent-sakura/30 focus:border-accent-sakura/50'
+                                  : 'focus:ring-text/10 focus:border-border-subtle/70'
+                            }`}
                             style={{ fontSize: '14px' }}
                           />
                           <div className="relative w-20">
@@ -485,7 +576,13 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                                   patchForm('activities', newActivities);
                                 }
                               }}
-                              className={`w-full rounded-xl border border-border-subtle/40 bg-bg-surface/80 hover:bg-bg-surface pl-2 pr-6 py-2 font-medium text-text shadow-sm transition-all focus:outline-none focus:ring-2 ${isWant ? 'focus:ring-accent-teal/30 focus:border-accent-teal/50' : 'focus:ring-accent-sakura/30 focus:border-accent-sakura/50'} text-center`}
+                              className={`w-full rounded-xl border border-border-subtle/40 bg-bg-surface/80 hover:bg-bg-surface pl-2 pr-6 py-2 font-medium text-text shadow-sm transition-all focus:outline-none focus:ring-2 ${
+                                isWant
+                                  ? 'focus:ring-accent-teal/30 focus:border-accent-teal/50'
+                                  : isShould
+                                    ? 'focus:ring-accent-sakura/30 focus:border-accent-sakura/50'
+                                    : 'focus:ring-text/10 focus:border-border-subtle/70'
+                              } text-center`}
                               style={{ fontSize: '14px' }}
                             />
                             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-bold uppercase text-text-muted/50 pointer-events-none">
@@ -503,11 +600,9 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                   <button
                     type="button"
                     onClick={() => {
-                      const lastKind = form.activities[form.activities.length - 1]?.kind ?? 'want';
-                      const newKind = lastKind === 'want' ? 'should' : 'want';
                       patchForm('activities', [
                         ...form.activities,
-                        { id: generateActivityId(), kind: newKind, label: '', minutes: 30 },
+                        { id: generateActivityId(), kind: null, label: '', minutes: 30 },
                       ]);
                     }}
                     className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-border-subtle/50 bg-bg-surface/40 hover:bg-bg-surface/60 px-3 py-2 text-xs font-semibold text-text-muted transition-colors"
@@ -572,10 +667,10 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
         </section>
       ) : null}
 
-      <section className="relative rounded-[1.5rem] sm:rounded-[2.5rem] border border-border-subtle/30 p-4 sm:p-6 md:p-8 shadow-sm overflow-hidden bg-bg-surface/60 backdrop-blur-xl flex flex-col">
-        {/* Ambient background glows */}
-        <div className="absolute top-0 right-0 w-[200px] sm:w-[400px] h-[200px] sm:h-[400px] bg-accent-sakura/8 blur-[60px] sm:blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[200px] sm:w-[400px] h-[200px] sm:h-[400px] bg-accent-teal/8 blur-[60px] sm:blur-[100px] rounded-full pointer-events-none" />
+      <section className="relative rounded-[1.5rem] sm:rounded-[2.5rem] border border-border-subtle/30 p-4 sm:p-6 md:p-8 shadow-sm overflow-hidden bg-bg-surface/60 backdrop-blur-xl flex flex-col min-w-0">
+        {/* Ambient background glows - optimized for mobile */}
+        <div className="absolute top-0 right-0 w-[150px] sm:w-[400px] h-[150px] sm:h-[400px] bg-accent-sakura/8 blur-[40px] sm:blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[150px] sm:w-[400px] h-[150px] sm:h-[400px] bg-accent-teal/8 blur-[40px] sm:blur-[100px] rounded-full pointer-events-none" />
 
         <div className="relative z-10">
           {/* Mobile header - compact single row */}
@@ -590,15 +685,15 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
               </h2>
               {/* Inline stats on mobile */}
               {blocks.length > 0 && planSummary.length > 0 ? (
-                <div className="flex items-center gap-1.5 mt-1 text-[11px] font-medium text-text-muted flex-wrap">
-                  {planSummary.slice(0, 3).map((item, idx) => (
-                    <span key={item.key} className="flex items-center gap-1.5">
-                      {idx > 0 && <span className="text-text-muted/40">·</span>}
-                      <span className={item.accentClass}>{item.label}: {formatDurationSummary(item.totalMinutes)}</span>
+                <div className="flex items-center gap-1 mt-1 text-[11px] font-medium text-text-muted overflow-hidden">
+                  {planSummary.slice(0, 2).map((item, idx) => (
+                    <span key={item.key} className="flex items-center gap-1 min-w-0">
+                      {idx > 0 && <span className="text-text-muted/40 shrink-0">·</span>}
+                      <span className={`${item.accentClass} truncate`}>{item.label}: {formatDurationSummary(item.totalMinutes)}</span>
                     </span>
                   ))}
-                  {planSummary.length > 3 && (
-                    <span className="text-text-muted/60">+{planSummary.length - 3} more</span>
+                  {planSummary.length > 2 && (
+                    <span className="text-text-muted/60 shrink-0">+{planSummary.length - 2}</span>
                   )}
                 </div>
               ) : (
@@ -655,20 +750,20 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                 </Link>
               ) : currentBlockInfo ? (
                 <div
-                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 ${
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 max-w-full overflow-hidden ${
                     currentBlockInfo.block.kind === 'want'
                       ? 'border-accent-teal/40 bg-accent-teal/10'
                       : 'border-accent-sakura/40 bg-accent-sakura/10'
                   }`}
                 >
-                  <span className={`flex h-2 w-2 rounded-full animate-pulse ${
+                  <span className={`flex h-2 w-2 shrink-0 rounded-full animate-pulse ${
                     currentBlockInfo.block.kind === 'want' ? 'bg-accent-teal' : 'bg-accent-sakura'
                   }`} />
                   <span className={`inline-flex shrink-0 ${currentBlockInfo.block.kind === 'want' ? 'text-accent-teal' : 'text-accent-sakura'}`}>
                     {currentBlockInfo.block.kind === 'want' ? <Heart size={12} className="fill-current" /> : <Target size={12} />}
                   </span>
-                  <span className="text-sm font-bold text-text">{currentBlockInfo.block.label}</span>
-                  <span className="text-xs font-semibold text-text-muted tabular-nums">{currentBlockInfo.remainingMinutes}m left</span>
+                  <span className="text-sm font-bold text-text truncate min-w-0">{currentBlockInfo.block.label}</span>
+                  <span className="text-xs font-semibold text-text-muted tabular-nums shrink-0">{currentBlockInfo.remainingMinutes}m</span>
                 </div>
               ) : null}
             </div>
@@ -869,13 +964,13 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                             e.stopPropagation();
                             openBlockNote(block);
                           }}
-                          className={`absolute left-1 right-1 sm:left-1.5 sm:right-1.5 rounded-lg sm:rounded-lg border shadow-sm flex flex-col justify-center px-2 py-1.5 sm:px-3 sm:py-1.5 transition-all duration-200 hover:shadow-md hover:z-10 overflow-hidden group cursor-pointer min-h-[52px] sm:min-h-0 ${hasOverlap ? 'ring-1 ring-amber-400/60' : ''} ${status === 'current' ? 'ring-2 ring-offset-1 ring-offset-bg-surface shadow-lg' : ''} ${status === 'completed' ? 'opacity-60' : ''}`}
+                          className={`absolute left-0.5 right-0.5 sm:left-1.5 sm:right-1.5 rounded-lg sm:rounded-lg border shadow-sm flex flex-col justify-center px-1.5 py-1.5 sm:px-3 sm:py-1.5 transition-all duration-200 hover:shadow-md hover:z-10 overflow-hidden group cursor-pointer min-h-[48px] sm:min-h-0 ${hasOverlap ? 'ring-1 ring-amber-400/60' : ''} ${status === 'current' ? 'ring-2 ring-offset-1 ring-offset-bg-surface shadow-lg' : ''} ${status === 'completed' ? 'opacity-60' : ''}`}
                           title={isMobile ? 'Tap to add a note' : 'Double-click to add a note'}
                           style={{
                             background: style.background,
                             borderColor: hasOverlap ? 'rgba(251,191,36,0.5)' : style.borderColor,
                             top,
-                            height: Math.max(height - 2, 52),
+                            height: Math.max(height - 2, 48),
                             minHeight: 32,
                             ...(status === 'current' ? {
                               ringColor: block.kind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)',
@@ -886,7 +981,7 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                           <div
                             className={`absolute left-0 top-0 bottom-0 w-1 sm:w-1 rounded-l-lg ${block.kind === 'want' ? 'bg-accent-teal/60' : 'bg-accent-sakura/60'}`}
                           />
-                          <div className="pl-1.5 sm:pl-2.5 flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3">
+                          <div className="pl-1 sm:pl-2.5 flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 overflow-hidden">
                             {/* Top row: status icon, kind icon, title, actions */}
                             <div className="flex items-center gap-2 min-w-0">
                               <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -907,7 +1002,7 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                                 </span>
                                 {blockNote ? (
                                   <span
-                                    className={`inline-flex items-center gap-1.5 min-w-0 shrink sm:shrink-0 max-w-[50%] sm:max-w-[45%] rounded-full border px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold shadow-sm ${
+                                    className={`inline-flex items-center gap-1 min-w-0 shrink sm:shrink-0 max-w-[35%] sm:max-w-[45%] rounded-full border px-1.5 py-0.5 text-[9px] sm:text-[11px] font-semibold shadow-sm ${
                                       block.kind === 'want'
                                         ? 'border-accent-teal/30 bg-accent-teal/10 text-accent-teal'
                                         : 'border-accent-sakura/30 bg-accent-sakura/10 text-accent-sakura'
@@ -1009,7 +1104,8 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                 {timelineAnchors.map((anchor) => {
                   const anchorMinute = parseHHMMToMinutes(anchor.scheduledTime);
                   const anchorTop = blockTop(anchorMinute);
-                  const anchorColor = anchor.status === 'done' ? 'var(--color-secondary)' : 'var(--color-accent-amethyst)';
+                  const isDone = anchor.status === 'done';
+                  
                   return (
                     <div
                       key={`anchor-${anchor.id}`}
@@ -1019,21 +1115,22 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                     >
                       {/* Dashed line spanning timeline - more visible */}
                       <div
-                        className="flex-1 border-t-2 border-dashed"
-                        style={{ borderColor: anchorColor, opacity: 0.7 }}
+                        className={`flex-1 border-t-2 border-dashed opacity-70 ${
+                          isDone ? 'border-secondary' : 'border-fuchsia-400 dark:border-accent-amethyst'
+                        }`}
                       />
                       {/* Anchor badge with label - always visible on mobile and desktop */}
                       <div
-                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg shrink-0 shadow-sm border"
-                        style={{
-                          backgroundColor: `color-mix(in srgb, ${anchorColor} 18%, var(--color-bg-surface))`,
-                          borderColor: `color-mix(in srgb, ${anchorColor} 35%, transparent)`,
-                          color: anchorColor,
-                        }}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg shrink-0 shadow-sm border ${
+                          isDone
+                            ? 'bg-[color-mix(in_srgb,var(--color-secondary)_18%,var(--color-bg-surface))] border-[color-mix(in_srgb,var(--color-secondary)_35%,transparent)] text-secondary'
+                            : 'bg-fuchsia-50/90 dark:bg-[color-mix(in_srgb,var(--color-accent-amethyst)_18%,var(--color-bg-surface))] border-fuchsia-200 dark:border-[color-mix(in_srgb,var(--color-accent-amethyst)_35%,transparent)] text-fuchsia-600 dark:text-accent-amethyst'
+                        }`}
                       >
                         <div
-                          className="w-2 h-2 rounded-full shrink-0"
-                          style={{ backgroundColor: anchorColor }}
+                          className={`w-2 h-2 rounded-full shrink-0 ${
+                            isDone ? 'bg-secondary' : 'bg-fuchsia-400 dark:bg-accent-amethyst'
+                          }`}
                         />
                         <span className="text-[10px] sm:text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
                           {anchor.label}

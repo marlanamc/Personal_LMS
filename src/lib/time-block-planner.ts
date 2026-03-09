@@ -6,7 +6,7 @@ export type TimeBlockKind = "want" | "should";
 
 export type ActivitySlot = {
   id: string;
-  kind: TimeBlockKind;
+  kind: TimeBlockKind | null;
   label: string;
   minutes: number;
 };
@@ -115,8 +115,8 @@ export function createDefaultTimeBlockForm(dateKey: string, now = new Date()): T
     startTime,
     endTime,
     activities: [
-      { id: generateActivityId(), kind: "want", label: "Coding", minutes: 60 },
-      { id: generateActivityId(), kind: "should", label: "Cleaning", minutes: 30 },
+      { id: generateActivityId(), kind: null, label: "", minutes: 30 },
+      { id: generateActivityId(), kind: null, label: "", minutes: 30 },
     ],
   };
 }
@@ -141,8 +141,11 @@ export function buildTimeBlockPlan(form: TimeBlockFormState): TimeBlockEntry[] {
   // Build phases from activities array, filtering out empty/invalid ones
   const phases: Array<{ kind: TimeBlockKind; label: string; durationMinutes: number }> =
     form.activities
-      .filter(a => a.label.trim() && a.minutes > 0)
-      .map(a => ({
+      .filter(
+        (a): a is ActivitySlot & { kind: TimeBlockKind } =>
+          a.kind !== null && a.label.trim().length > 0 && a.minutes > 0,
+      )
+      .map((a) => ({
         kind: a.kind,
         label: normalizeText(a.label, a.kind === "want" ? "Want to do" : "Should do"),
         durationMinutes: clampDuration(a.minutes),
@@ -189,7 +192,7 @@ function normalizeActivitySlot(raw: unknown): ActivitySlot | null {
   const label = typeof candidate.label === "string" ? candidate.label.trim() : "";
   const minutes = Number(candidate.minutes);
 
-  if (!kind || !Number.isFinite(minutes)) return null;
+  if (!Number.isFinite(minutes)) return null;
 
   return {
     id: typeof candidate.id === "string" && candidate.id ? candidate.id : generateActivityId(),
@@ -234,13 +237,13 @@ export function normalizeTimeBlockForm(raw: unknown, dateKey: string): TimeBlock
       {
         id: generateActivityId(),
         kind: "want" as const,
-        label: normalizeText(candidate.wantLabel, "Coding"),
+        label: normalizeText(candidate.wantLabel, ""),
         minutes: clampDuration(Number(candidate.wantMinutes ?? 60)),
       },
       {
         id: generateActivityId(),
         kind: "should" as const,
-        label: normalizeText(candidate.shouldLabel, "Cleaning"),
+        label: normalizeText(candidate.shouldLabel, ""),
         minutes: clampDuration(Number(candidate.shouldMinutes ?? 30)),
       },
     ];

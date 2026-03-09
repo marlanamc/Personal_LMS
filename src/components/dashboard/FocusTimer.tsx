@@ -1312,6 +1312,22 @@ export const FocusTimer = () => {
                             </div>
                         </div>
                     )}
+
+                    {/* Desktop Spotify Player - Positioned under Tune in button */}
+                    {selectedPlaylistId && (
+                        <div className="hidden md:block absolute top-[calc(100%+1rem)] left-0 w-[300px] z-20">
+                            <iframe
+                                title="Spotify focus playlist"
+                                style={{ borderRadius: '12px' }}
+                                src={`https://open.spotify.com/embed/playlist/${selectedPlaylistId}?utm_source=generator&theme=0`}
+                                width="100%"
+                                height="152"
+                                frameBorder="0"
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                                loading="lazy"
+                            />
+                        </div>
+                    )}
                 </div>
 
                 <div className="relative">
@@ -1602,7 +1618,7 @@ export const FocusTimer = () => {
 
                     {/* Spotify Player - Integrated below controls */}
                     {selectedPlaylistId && (
-                        <div className="w-full max-w-[300px] mb-4 md:mb-0">
+                        <div className="w-full max-w-[300px] mb-4 md:hidden">
                             <iframe
                                 title="Spotify focus playlist"
                                 style={{ borderRadius: '12px' }}

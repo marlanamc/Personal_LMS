@@ -80,7 +80,23 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-text text-sm leading-snug">
-                      {activity.activityName}
+                      {(() => {
+                        // Sometimes activityName is raw JSON for things like focus timer.
+                        // Try to parse it and return a friendly name.
+                        try {
+                          if (activity.activityName.startsWith('{')) {
+                            const parsed = JSON.parse(activity.activityName);
+                            if (parsed.title) {
+                              return parsed.durationMinutes 
+                                ? `${parsed.title} (${parsed.durationMinutes}m)` 
+                                : parsed.title;
+                            }
+                          }
+                        } catch (e) {
+                          // Ignore parse error, fallback to raw name
+                        }
+                        return activity.activityName;
+                      })()}
                     </p>
                     {vocabChip ? (
                       <span className={`inline-flex items-center mt-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded-md border ${vocabChip.className}`}>

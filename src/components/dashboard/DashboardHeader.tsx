@@ -40,7 +40,9 @@ export function DashboardHeader({ userName = "" }: DashboardHeaderProps) {
                     <div className="flex items-center gap-2 sm:gap-4 animate-fade-in-up delay-100">
                         <Link
                             href="/dashboard/timer"
-                            className="focus-timer-chip hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors font-semibold text-sm border"
+                            className={`focus-timer-chip items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors font-semibold text-sm border ${
+                                isActive ? 'inline-flex' : 'hidden md:inline-flex'
+                            }`}
                             aria-label={isActive ? `Focus Timer running: ${formattedTime} remaining` : "Focus Timer"}
                         >
                             <TimerIcon className="w-4 h-4" />
@@ -48,7 +50,7 @@ export function DashboardHeader({ userName = "" }: DashboardHeaderProps) {
                                 <>
                                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-mint animate-pulse" />
                                     <span className="flex flex-col leading-tight">
-                                        <span className="text-[10px] tracking-[0.04em] text-text">
+                                        <span className="hidden sm:block text-[10px] tracking-[0.04em] text-text">
                                             {(activeSessionLabel || "Focus Timer").slice(0, 28)}
                                         </span>
                                         <span className="text-sm text-text">{formattedTime}</span>

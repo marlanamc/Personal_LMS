@@ -11,10 +11,10 @@ describe("time block planner helpers", () => {
       date: "2026-03-08",
       startTime: "09:00",
       endTime: "11:30",
-      wantLabel: "Coding",
-      wantMinutes: 60,
-      shouldLabel: "Cleaning",
-      shouldMinutes: 30,
+      activities: [
+        { id: "a", kind: "want", label: "Coding", minutes: 60 },
+        { id: "b", kind: "should", label: "Cleaning", minutes: 30 },
+      ],
     });
 
     expect(blocks.map((block) => `${block.kind}:${block.startTime}-${block.endTime}`)).toEqual([
@@ -30,10 +30,10 @@ describe("time block planner helpers", () => {
       date: "2026-03-08",
       startTime: "09:00",
       endTime: "11:10",
-      wantLabel: "Coding",
-      wantMinutes: 60,
-      shouldLabel: "Cleaning",
-      shouldMinutes: 30,
+      activities: [
+        { id: "a", kind: "want", label: "Coding", minutes: 60 },
+        { id: "b", kind: "should", label: "Cleaning", minutes: 30 },
+      ],
     });
 
     expect(blocks.map((block) => block.durationMinutes)).toEqual([60, 30, 40]);
@@ -51,10 +51,10 @@ describe("time block planner helpers", () => {
         date: "2026-03-08",
         startTime: "11:00",
         endTime: "11:00",
-        wantLabel: "Coding",
-        wantMinutes: 60,
-        shouldLabel: "Cleaning",
-        shouldMinutes: 30,
+        activities: [
+          { id: "a", kind: "want", label: "Coding", minutes: 60 },
+          { id: "b", kind: "should", label: "Cleaning", minutes: 30 },
+        ],
       }),
     ).toEqual([]);
   });
@@ -64,10 +64,10 @@ describe("time block planner helpers", () => {
       date: "2026-03-08",
       startTime: "13:00",
       endTime: "14:30",
-      wantLabel: "Coding",
-      wantMinutes: 60,
-      shouldLabel: "Cleaning",
-      shouldMinutes: 30,
+      activities: [
+        { id: "a", kind: "want", label: "Coding", minutes: 60 },
+        { id: "b", kind: "should", label: "Cleaning", minutes: 30 },
+      ],
     });
 
     expect(blocks).toHaveLength(2);
