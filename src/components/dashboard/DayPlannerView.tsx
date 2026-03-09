@@ -10,6 +10,7 @@ import {
   ChevronUp,
   Heart,
   Sparkles,
+  SunMedium,
   Target,
   Wand2,
 } from 'lucide-react';
@@ -59,6 +60,7 @@ export function DayPlannerView({
   const [isDrawerOpen, setIsDrawerOpen] = useState(initialOpenTool === 'on-again-off-again');
   const [isMobile, setIsMobile] = useState(false);
   const [showAllDayEvents, setShowAllDayEvents] = useState(false);
+  const [showEarlierHours, setShowEarlierHours] = useState(false);
   const planningHelpTriggerRef = useRef<HTMLElement | null>(null);
 
   // Data hooks
@@ -88,6 +90,10 @@ export function DayPlannerView({
     update();
     const id = setInterval(update, 60000);
     return () => clearInterval(id);
+  }, [selectedDateKey]);
+
+  useEffect(() => {
+    setShowEarlierHours(false);
   }, [selectedDateKey]);
 
   // Convert data to timeline items
@@ -158,6 +164,16 @@ export function DayPlannerView({
     month: 'long',
     day: 'numeric',
   });
+  const currentHour = nowMinute !== null ? Math.floor(nowMinute / 60) : null;
+  const condensedStartHour =
+    currentHour !== null
+      ? Math.max(6, Math.min(22, currentHour - 1))
+      : 6;
+  const shouldCondenseTimeline =
+    isSelectedToday && nowMinute !== null && condensedStartHour > 6 && !showEarlierHours;
+  const timelineConfig = shouldCondenseTimeline
+    ? { startHour: condensedStartHour }
+    : undefined;
 
   const openPlanningHelp = (trigger: HTMLElement | null) => {
     planningHelpTriggerRef.current = trigger;
@@ -245,12 +261,12 @@ export function DayPlannerView({
             </button>
           </div>
 
-          <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
             {!isSelectedToday && (
               <button
                 type="button"
                 onClick={goToToday}
-                className="inline-flex items-center justify-center rounded-full border border-accent-teal/20 bg-accent-teal/8 px-4 py-2.5 text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/12"
+                className="inline-flex items-center justify-center rounded-full border border-accent-teal/20 bg-accent-teal/8 px-4 py-[9px] text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/12 h-[42px]"
               >
                 Today
               </button>
@@ -263,18 +279,22 @@ export function DayPlannerView({
                 }
               }}
               onClick={(event) => openPlanningHelp(event.currentTarget)}
-              className={`inline-flex items-center justify-center gap-2 rounded-full border border-border-subtle/60 bg-bg-surface/80 px-4 py-2.5 text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md ${isSelectedToday ? 'col-span-2' : ''}`}
+              className={`inline-flex items-center justify-center gap-2 rounded-[1.75rem] border border-border-subtle/60 bg-bg-surface/80 px-4 py-[9px] text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md h-[42px] ${isSelectedToday ? 'col-span-1' : ''}`}
             >
               <Wand2 size={15} className="text-accent-teal" />
               Planning Help
             </button>
-            <Link
-              href="/dashboard/calendar"
-              className="inline-flex items-center justify-center rounded-full border border-border-subtle/60 bg-bg-surface/80 px-3 py-2.5 text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md"
-              aria-label="Calendar"
-            >
-              <CalendarDays size={16} />
-            </Link>
+            {isSelectedToday && condensedStartHour > 6 ? (
+              <button
+                type="button"
+                onClick={() => setShowEarlierHours((current) => !current)}
+                className="w-[42px] h-[42px] inline-flex items-center justify-center rounded-full border border-border-subtle/60 bg-bg-surface text-text-secondary shadow-sm transition-colors hover:bg-bg-elevated hover:text-text backdrop-blur-md shrink-0"
+                aria-label={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
+                title={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
+              >
+                <SunMedium size={18} className="text-accent-teal" />
+              </button>
+            ) : null}
           </div>
         </div>
       </section>
@@ -430,6 +450,18 @@ export function DayPlannerView({
         <div className="hidden sm:block absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-teal/8 blur-[100px] rounded-full pointer-events-none" />
 
         <div className="relative z-10 px-4 sm:px-0">
+          {isSelectedToday && condensedStartHour > 6 && !isMobile && (
+            <div className="mb-3 flex justify-end sm:mb-4">
+              <button
+                type="button"
+                onClick={() => setShowEarlierHours((current) => !current)}
+                className="inline-flex shrink-0 items-center rounded-full border border-border-subtle/40 bg-bg-surface/65 px-3 py-1.5 text-xs font-semibold text-text-secondary shadow-sm transition-colors hover:bg-bg-elevated hover:text-text"
+              >
+                {shouldCondenseTimeline ? 'Show earlier' : 'Hide passed time'}
+              </button>
+            </div>
+          )}
+
           {timelineItems.length === 0 && anchorItems.length === 0 ? (
             <div className="rounded-xl sm:rounded-[2rem] border border-dashed border-border-subtle/40 bg-bg-elevated/30 backdrop-blur-sm p-6 sm:p-10 text-center">
               <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-2xl bg-gradient-to-br from-accent-teal/20 to-accent-sakura/20 border border-border-subtle/50 mb-4 shadow-lg">
@@ -457,6 +489,7 @@ export function DayPlannerView({
               nowMinute={nowMinute}
               onItemClick={handleItemClick}
               isMobile={isMobile}
+              config={timelineConfig}
             />
           )}
         </div>
