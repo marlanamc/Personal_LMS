@@ -4,14 +4,27 @@ export const TIME_BLOCK_PLANNER_SUBJECT_KEY = "time-block-planner";
 
 export type TimeBlockKind = "want" | "should";
 
+export type ActivitySlot = {
+  id: string;
+  kind: TimeBlockKind;
+  label: string;
+  minutes: number;
+};
+
 export type TimeBlockFormState = {
   date: string;
   startTime: string;
   endTime: string;
-  wantLabel: string;
-  wantMinutes: number;
-  shouldLabel: string;
-  shouldMinutes: number;
+  /** @deprecated Use activities array instead */
+  wantLabel?: string;
+  /** @deprecated Use activities array instead */
+  wantMinutes?: number;
+  /** @deprecated Use activities array instead */
+  shouldLabel?: string;
+  /** @deprecated Use activities array instead */
+  shouldMinutes?: number;
+  /** Up to 5 activity slots that cycle through the day */
+  activities: ActivitySlot[];
 };
 
 export type TimeBlockEntry = {
@@ -87,6 +100,10 @@ export function formatMinuteOfDay(totalMinutes: number): string {
   return `${hour12}:${`${minutes}`.padStart(2, "0")} ${period}`;
 }
 
+export function generateActivityId(): string {
+  return `activity-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
 export function createDefaultTimeBlockForm(dateKey: string, now = new Date()): TimeBlockFormState {
   const todayKey = toDateKey(now);
   const startDate = dateKey === todayKey ? now : new Date(`${dateKey}T09:00:00`);
@@ -97,10 +114,10 @@ export function createDefaultTimeBlockForm(dateKey: string, now = new Date()): T
     date: dateKey,
     startTime,
     endTime,
-    wantLabel: "Coding",
-    wantMinutes: 60,
-    shouldLabel: "Cleaning",
-    shouldMinutes: 30,
+    activities: [
+      { id: generateActivityId(), kind: "want", label: "Coding", minutes: 60 },
+      { id: generateActivityId(), kind: "should", label: "Cleaning", minutes: 30 },
+    ],
   };
 }
 
@@ -121,18 +138,19 @@ export function buildTimeBlockPlan(form: TimeBlockFormState): TimeBlockEntry[] {
     return [];
   }
 
-  const phases: Array<{ kind: TimeBlockKind; label: string; durationMinutes: number }> = [
-    {
-      kind: "want",
-      label: normalizeText(form.wantLabel, "Want to do"),
-      durationMinutes: clampDuration(form.wantMinutes),
-    },
-    {
-      kind: "should",
-      label: normalizeText(form.shouldLabel, "Should do"),
-      durationMinutes: clampDuration(form.shouldMinutes),
-    },
-  ];
+  // Build phases from activities array, filtering out empty/invalid ones
+  const phases: Array<{ kind: TimeBlockKind; label: string; durationMinutes: number }> =
+    form.activities
+      .filter(a => a.label.trim() && a.minutes > 0)
+      .map(a => ({
+        kind: a.kind,
+        label: normalizeText(a.label, a.kind === "want" ? "Want to do" : "Should do"),
+        durationMinutes: clampDuration(a.minutes),
+      }));
+
+  if (phases.length === 0) {
+    return [];
+  }
 
   const blocks: TimeBlockEntry[] = [];
   let cursor = startMinutes;
@@ -164,11 +182,33 @@ export function buildTimeBlockPlan(form: TimeBlockFormState): TimeBlockEntry[] {
   return blocks;
 }
 
+function normalizeActivitySlot(raw: unknown): ActivitySlot | null {
+  if (!raw || typeof raw !== "object") return null;
+  const candidate = raw as Partial<ActivitySlot>;
+  const kind = candidate.kind === "want" || candidate.kind === "should" ? candidate.kind : null;
+  const label = typeof candidate.label === "string" ? candidate.label.trim() : "";
+  const minutes = Number(candidate.minutes);
+
+  if (!kind || !Number.isFinite(minutes)) return null;
+
+  return {
+    id: typeof candidate.id === "string" && candidate.id ? candidate.id : generateActivityId(),
+    kind,
+    label,
+    minutes: clampDuration(minutes),
+  };
+}
+
 export function normalizeTimeBlockForm(raw: unknown, dateKey: string): TimeBlockFormState {
   const fallback = createDefaultTimeBlockForm(dateKey);
   if (!raw || typeof raw !== "object") return fallback;
 
-  const candidate = raw as Partial<TimeBlockFormState>;
+  const candidate = raw as Partial<TimeBlockFormState> & {
+    wantLabel?: string;
+    wantMinutes?: number;
+    shouldLabel?: string;
+    shouldMinutes?: number;
+  };
   const startTime =
     typeof candidate.startTime === "string" && TIME_KEY_PATTERN.test(candidate.startTime)
       ? candidate.startTime
@@ -178,14 +218,41 @@ export function normalizeTimeBlockForm(raw: unknown, dateKey: string): TimeBlock
       ? candidate.endTime
       : fallback.endTime;
 
+  // Migrate from old format if activities array doesn't exist
+  let activities: ActivitySlot[];
+  if (Array.isArray(candidate.activities) && candidate.activities.length > 0) {
+    activities = candidate.activities
+      .map(normalizeActivitySlot)
+      .filter((a): a is ActivitySlot => a !== null)
+      .slice(0, 5); // Max 5 activities
+    if (activities.length === 0) {
+      activities = fallback.activities;
+    }
+  } else if (candidate.wantLabel !== undefined || candidate.shouldLabel !== undefined) {
+    // Migrate from old want/should format
+    activities = [
+      {
+        id: generateActivityId(),
+        kind: "want" as const,
+        label: normalizeText(candidate.wantLabel, "Coding"),
+        minutes: clampDuration(Number(candidate.wantMinutes ?? 60)),
+      },
+      {
+        id: generateActivityId(),
+        kind: "should" as const,
+        label: normalizeText(candidate.shouldLabel, "Cleaning"),
+        minutes: clampDuration(Number(candidate.shouldMinutes ?? 30)),
+      },
+    ];
+  } else {
+    activities = fallback.activities;
+  }
+
   return {
     date: DATE_KEY_PATTERN.test(String(candidate.date ?? "")) ? String(candidate.date) : dateKey,
     startTime,
     endTime,
-    wantLabel: normalizeText(candidate.wantLabel, fallback.wantLabel),
-    wantMinutes: clampDuration(Number(candidate.wantMinutes ?? fallback.wantMinutes)),
-    shouldLabel: normalizeText(candidate.shouldLabel, fallback.shouldLabel),
-    shouldMinutes: clampDuration(Number(candidate.shouldMinutes ?? fallback.shouldMinutes)),
+    activities,
   };
 }
 

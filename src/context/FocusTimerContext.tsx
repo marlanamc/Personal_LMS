@@ -36,6 +36,8 @@ const TRACKS: FocusTrack[] = [
   { id: "none", name: "No music", playlistId: null },
 ];
 
+export type SequenceTransitionState = 'idle' | 'transitioning' | 'paused';
+
 type PersistedFocusTimerState = {
   selectedMinutes?: number;
   timeLeft?: number;
@@ -45,6 +47,7 @@ type PersistedFocusTimerState = {
   activeSessionLabel?: string | null;
   activeSequence?: TimeBlockEntry[] | null;
   activeSequenceIndex?: number | null;
+  sequenceTransitionState?: SequenceTransitionState;
 };
 
 type FocusTimerContextType = {
@@ -59,6 +62,8 @@ type FocusTimerContextType = {
   formattedTime: string;
   activeSequence: TimeBlockEntry[] | null;
   activeSequenceIndex: number | null;
+  sequenceTransitionState: SequenceTransitionState;
+  nextBlockLabel: string | null;
   setSelectedTrack: (trackId: string) => void;
   setSelectedMinutes: (minutes: number) => void;
   setActiveSessionLabel: (label: string | null) => void;
@@ -66,6 +71,9 @@ type FocusTimerContextType = {
   clearSequence: () => void;
   toggleTimer: () => void;
   resetTimer: () => void;
+  skipTransition: () => void;
+  pauseSequence: () => void;
+  resumeSequence: () => void;
 };
 
 const FocusTimerContext = createContext<FocusTimerContextType | null>(null);
@@ -83,6 +91,8 @@ const formatTime = (timeInSeconds: number): string => {
 
 const isValidTrackId = (trackId: string): boolean => TRACKS.some((track) => track.id === trackId);
 
+const TRANSITION_DELAY_MS = 3000;
+
 export function FocusTimerProvider({ children }: { children: ReactNode }) {
   const { queueMilestone } = useCelebration();
   const [selectedTrackId, setSelectedTrackId] = useState<string>("none");
@@ -92,15 +102,30 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
   const [activeSessionLabel, setActiveSessionLabel] = useState<string | null>(null);
   const [activeSequence, setActiveSequence] = useState<TimeBlockEntry[] | null>(null);
   const [activeSequenceIndex, setActiveSequenceIndex] = useState<number | null>(null);
+  const [sequenceTransitionState, setSequenceTransitionState] = useState<SequenceTransitionState>('idle');
+  const [nextBlockLabel, setNextBlockLabel] = useState<string | null>(null);
 
   const endTimeRef = useRef<number | null>(null);
   const isHydratedRef = useRef(false);
   const completionFiredRef = useRef(false);
+  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const selectedTrack = useMemo(
     () => TRACKS.find((track) => track.id === selectedTrackId) ?? TRACKS[TRACKS.length - 1],
     [selectedTrackId]
   );
+
+  const startNextBlock = useCallback(() => {
+    if (transitionTimeoutRef.current) {
+      clearTimeout(transitionTimeoutRef.current);
+      transitionTimeoutRef.current = null;
+    }
+    setSequenceTransitionState('idle');
+    setNextBlockLabel(null);
+    completionFiredRef.current = false;
+    endTimeRef.current = Date.now() + timeLeft * 1000;
+    setIsActive(true);
+  }, [timeLeft]);
 
   const triggerCompletion = useCallback(() => {
     if (completionFiredRef.current) {
@@ -113,26 +138,49 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       navigator.vibrate([180, 90, 250]);
     }
 
-    if (activeSequence && activeSequenceIndex !== null && activeSequenceIndex < activeSequence.length - 1) {
-       // We have a sequence and just finished a block
-       const nextIndex = activeSequenceIndex + 1;
-       const nextBlock = activeSequence[nextIndex];
-       
-       if (nextBlock) {
-         setActiveSequenceIndex(nextIndex);
-         setActiveSessionLabel(nextBlock.label);
-         const nextMinutes = clampMinutes(nextBlock.durationMinutes);
-         setSelectedMinutesState(nextMinutes);
-         setTimeLeft(nextMinutes * 60);
-         // Autoplay next block is not enabled by default, requires manual 'Start'
-       }
-    }
+    const hasNextBlock = activeSequence && activeSequenceIndex !== null && activeSequenceIndex < activeSequence.length - 1;
 
-    queueMilestone("daily_challenge", {
-      title: "Session complete!",
-      subtitle: "Great focus block. Keep your momentum going.",
-      emoji: "🎉",
-    });
+    if (hasNextBlock) {
+      // We have a sequence and just finished a block - show transition
+      const nextIndex = activeSequenceIndex + 1;
+      const nextBlock = activeSequence[nextIndex];
+
+      if (nextBlock) {
+        // Set up next block
+        setActiveSequenceIndex(nextIndex);
+        setActiveSessionLabel(nextBlock.label);
+        const nextMinutes = clampMinutes(nextBlock.durationMinutes);
+        setSelectedMinutesState(nextMinutes);
+        setTimeLeft(nextMinutes * 60);
+
+        // Show transition state and prepare auto-start
+        setNextBlockLabel(nextBlock.label);
+        setSequenceTransitionState('transitioning');
+
+        // Auto-start after transition delay
+        transitionTimeoutRef.current = setTimeout(() => {
+          completionFiredRef.current = false;
+          endTimeRef.current = Date.now() + nextMinutes * 60 * 1000;
+          setIsActive(true);
+          setSequenceTransitionState('idle');
+          setNextBlockLabel(null);
+        }, TRANSITION_DELAY_MS);
+      }
+
+      // Show brief celebration for block completion (not full session complete)
+      queueMilestone("daily_challenge", {
+        title: "Block complete!",
+        subtitle: `Starting ${nextBlock?.label || 'next block'} in a moment...`,
+        emoji: "⏱️",
+      });
+    } else {
+      // Final block or single session - show full celebration
+      queueMilestone("daily_challenge", {
+        title: "Session complete!",
+        subtitle: activeSequence ? "All blocks finished! Great focus session." : "Great focus block. Keep your momentum going.",
+        emoji: "🎉",
+      });
+    }
   }, [queueMilestone, activeSequence, activeSequenceIndex]);
 
   useEffect(() => {
@@ -213,11 +261,21 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       activeSessionLabel,
       activeSequence,
       activeSequenceIndex,
+      sequenceTransitionState,
       endTimeMs: endTimeRef.current,
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  }, [selectedTrackId, selectedMinutes, timeLeft, isActive, activeSessionLabel, activeSequence, activeSequenceIndex]);
+  }, [selectedTrackId, selectedMinutes, timeLeft, isActive, activeSessionLabel, activeSequence, activeSequenceIndex, sequenceTransitionState]);
+
+  // Cleanup transition timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!isActive) {
@@ -299,10 +357,50 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const clearSequence = useCallback(() => {
+    if (transitionTimeoutRef.current) {
+      clearTimeout(transitionTimeoutRef.current);
+      transitionTimeoutRef.current = null;
+    }
     setActiveSequence(null);
     setActiveSequenceIndex(null);
     setActiveSessionLabel(null);
+    setSequenceTransitionState('idle');
+    setNextBlockLabel(null);
   }, []);
+
+  const skipTransition = useCallback(() => {
+    if (sequenceTransitionState === 'transitioning') {
+      startNextBlock();
+    }
+  }, [sequenceTransitionState, startNextBlock]);
+
+  const pauseSequence = useCallback(() => {
+    if (transitionTimeoutRef.current) {
+      clearTimeout(transitionTimeoutRef.current);
+      transitionTimeoutRef.current = null;
+    }
+    // Stop the timer if it's running
+    if (isActive) {
+      const endTimeMs = endTimeRef.current;
+      const remaining = endTimeMs ? Math.max(0, Math.ceil((endTimeMs - Date.now()) / 1000)) : timeLeft;
+      setTimeLeft(remaining);
+      endTimeRef.current = null;
+      setIsActive(false);
+    }
+    setSequenceTransitionState('paused');
+  }, [isActive, timeLeft]);
+
+  const resumeSequence = useCallback(() => {
+    if (sequenceTransitionState !== 'paused') return;
+
+    setSequenceTransitionState('idle');
+    // Resume the timer
+    const baseline = timeLeft > 0 ? timeLeft : selectedMinutes * 60;
+    completionFiredRef.current = false;
+    endTimeRef.current = Date.now() + baseline * 1000;
+    setTimeLeft(baseline);
+    setIsActive(true);
+  }, [sequenceTransitionState, timeLeft, selectedMinutes]);
 
   const resetTimer = useCallback(() => {
     completionFiredRef.current = false;
@@ -327,6 +425,8 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       formattedTime: formatTime(timeLeft),
       activeSequence,
       activeSequenceIndex,
+      sequenceTransitionState,
+      nextBlockLabel,
       setSelectedTrack,
       setSelectedMinutes,
       setActiveSessionLabel,
@@ -334,6 +434,9 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       clearSequence,
       toggleTimer,
       resetTimer,
+      skipTransition,
+      pauseSequence,
+      resumeSequence,
     }),
     [
       selectedTrackId,
@@ -344,6 +447,8 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       activeSessionLabel,
       activeSequence,
       activeSequenceIndex,
+      sequenceTransitionState,
+      nextBlockLabel,
       setSelectedTrack,
       setSelectedMinutes,
       setActiveSessionLabel,
@@ -351,6 +456,9 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
       clearSequence,
       toggleTimer,
       resetTimer,
+      skipTransition,
+      pauseSequence,
+      resumeSequence,
     ]
   );
 
