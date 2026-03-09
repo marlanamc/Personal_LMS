@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { AlarmClock, ArrowRight, Heart, Plus, Target, TimerReset, Wand2, X } from 'lucide-react';
-import { type CalendarEvent } from './MiniCalendar';
+import { useMemo, useState } from 'react';
+import { AlarmClock, ArrowRight, ChevronDown, ChevronUp, Heart, Info, Plus, Target, TimerReset, Wand2, X } from 'lucide-react';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
   buildTimeBlockPlan,
@@ -15,19 +14,30 @@ import {
 } from '@/lib/time-block-planner';
 import { formatMinuteOfDay } from '@/lib/unified-scheduler';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────────────────────────────────────
-
 interface OnAgainOffAgainToolProps {
   dateKey: string;
-  events: CalendarEvent[];
   onClose: () => void;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────────────────
+const WANT_PLACEHOLDERS = [
+  'Read something fun',
+  'Take a short walk',
+  'Tea and reset',
+  'Stretch and breathe',
+  'Watch one short episode',
+  'Journal for 10 min',
+];
+
+const SHOULD_PLACEHOLDERS = [
+  'Reply to messages',
+  'Interview prep',
+  'Clean one small thing',
+  'Laundry or dishes',
+  'Admin task',
+  'Send one application',
+];
+
+const DURATION_PRESETS = [15, 30, 45, 60];
 
 function formatDurationSummary(totalMinutes: number) {
   const hours = Math.floor(totalMinutes / 60);
@@ -43,37 +53,46 @@ function updateForm(plan: TimeBlockDayPlan, nextForm: TimeBlockFormState): TimeB
   return { ...plan, form: nextForm };
 }
 
-const WANT_PLACEHOLDERS = [
-  "Rest for 10 min",
-  "Watch TV (one episode)",
-  "Take a short walk",
-  "Make tea / snack + water",
-  "Stretch / breathe",
-  "Read something fun",
-];
-
-const SHOULD_PLACEHOLDERS = [
-  "Reply to messages",
-  "Clean one small thing",
-  "Quick email/admin",
-  "Laundry: start a load",
-  "Pay one bill / schedule",
-  "Tidy desk / dishes",
-];
-
 function getActivityPlaceholder(kind: 'want' | 'should' | null, index: number): string {
   if (kind === 'want') return WANT_PLACEHOLDERS[index % WANT_PLACEHOLDERS.length];
   if (kind === 'should') return SHOULD_PLACEHOLDERS[index % SHOULD_PLACEHOLDERS.length];
-  return 'Choose Want/Should, then name it';
+  return 'Choose Energy or Focus, then name it';
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────────────────────────────────────
+function getKindUi(kind: 'want' | 'should' | null) {
+  if (kind === 'want') {
+    return {
+      label: 'Energy',
+      helper: 'Lighter, energizing, or restorative',
+      accent: 'text-accent-teal',
+      surface: 'border-accent-teal/25 bg-accent-teal/10',
+      ring: 'focus:ring-accent-teal/30 focus:border-accent-teal/50',
+    };
+  }
 
-export function OnAgainOffAgainTool({ dateKey, events, onClose }: OnAgainOffAgainToolProps) {
+  if (kind === 'should') {
+    return {
+      label: 'Focus',
+      helper: 'Progress, structure, or must-do work',
+      accent: 'text-accent-sakura',
+      surface: 'border-accent-sakura/25 bg-accent-sakura/10',
+      ring: 'focus:ring-accent-sakura/30 focus:border-accent-sakura/50',
+    };
+  }
+
+  return {
+    label: 'Choose type',
+    helper: 'Pick one of the two activity modes',
+    accent: 'text-text-muted/70',
+    surface: 'border-border-subtle/50 bg-bg-surface/60',
+    ring: 'focus:ring-text/10 focus:border-border-subtle/70',
+  };
+}
+
+export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolProps) {
   const [message, setMessage] = useState<string | null>(null);
   const [autoStartAtScheduledTime, setAutoStartAtScheduledTime] = useState(true);
+  const [showInfo, setShowInfo] = useState(false);
   const { plannerStore, isLoaded, isSaving, saveError, setPlan } = useTimeBlockPlanner();
 
   const currentPlan = plannerStore[dateKey] ?? createEmptyTimeBlockDayPlan(dateKey);
@@ -82,6 +101,27 @@ export function OnAgainOffAgainTool({ dateKey, events, onClose }: OnAgainOffAgai
   const formStartMinutes = parseTimeInput(form.startTime) ?? 0;
   const formEndMinutes = parseTimeInput(form.endTime) ?? formStartMinutes;
   const hasValidWindow = formEndMinutes > formStartMinutes;
+  const typedActivities = form.activities.filter((activity) => activity.label.trim().length > 0);
+  const hasUnsetKinds = typedActivities.some((activity) => activity.kind === null);
+  const hasEnergy = typedActivities.some((activity) => activity.kind === 'want');
+  const hasFocus = typedActivities.some((activity) => activity.kind === 'should');
+
+  const previewBlocks = useMemo(() => {
+    if (!hasValidWindow || !hasEnergy || !hasFocus || hasUnsetKinds) return [];
+    return buildTimeBlockPlan(form);
+  }, [form, hasEnergy, hasFocus, hasUnsetKinds, hasValidWindow]);
+
+  const previewMessage = useMemo(() => {
+    if (!hasValidWindow) return 'Choose an end time that comes after the start time.';
+    if (typedActivities.length === 0) return 'Add at least one Energy activity and one Focus activity to preview the rhythm.';
+    if (hasUnsetKinds) return 'Choose Energy or Focus for each activity you add.';
+    if (!hasEnergy || !hasFocus) return 'Add at least one Energy activity and one Focus activity so the planner can alternate automatically.';
+    if (previewBlocks.length === 0) return 'Add activity names and durations to see the shape of the plan.';
+    return null;
+  }, [hasEnergy, hasFocus, hasUnsetKinds, hasValidWindow, previewBlocks.length, typedActivities.length]);
+
+  const generatedSummary = blocks.reduce((total, block) => total + block.durationMinutes, 0);
+  const visiblePreviewBlocks = previewBlocks.slice(0, 6);
 
   const updateCurrentPlan = (nextPlan: TimeBlockDayPlan) => {
     setPlan(dateKey, nextPlan);
@@ -90,224 +130,284 @@ export function OnAgainOffAgainTool({ dateKey, events, onClose }: OnAgainOffAgai
   const patchForm = <K extends keyof TimeBlockFormState>(key: K, value: TimeBlockFormState[K]) => {
     const nextForm = { ...form, [key]: value };
     updateCurrentPlan(updateForm(currentPlan, nextForm));
+    if (message) setMessage(null);
   };
 
   const generatePlan = () => {
     if (!hasValidWindow) {
-      setMessage('End time needs to be later than start time.');
+      setMessage('Set an end time that comes after the start time.');
       return;
     }
 
-    const filledActivities = form.activities.filter((a) => a.label.trim() && a.minutes > 0);
+    const filledActivities = form.activities.filter((activity) => activity.label.trim() && activity.minutes > 0);
     if (filledActivities.length === 0) {
-      setMessage('Add at least one activity first.');
+      setMessage('Add at least one activity to get started.');
       return;
     }
 
-    if (filledActivities.some((a) => a.kind === null)) {
-      setMessage('Choose Want or Should for each activity.');
+    if (filledActivities.some((activity) => activity.kind === null)) {
+      setMessage('Choose Energy or Focus for each activity.');
+      return;
+    }
+
+    const hasFilledEnergy = filledActivities.some((activity) => activity.kind === 'want');
+    const hasFilledFocus = filledActivities.some((activity) => activity.kind === 'should');
+    if (!hasFilledEnergy || !hasFilledFocus) {
+      setMessage('Add at least one Energy activity and one Focus activity so the planner can alternate between them.');
       return;
     }
 
     const nextBlocks = buildTimeBlockPlan(form);
     const blockNotes = currentPlan.blockNotes ?? {};
     const preservedNotes: Record<string, string> = {};
-    for (const b of nextBlocks) {
-      if (blockNotes[b.id]) preservedNotes[b.id] = blockNotes[b.id];
+
+    for (const block of nextBlocks) {
+      if (blockNotes[block.id]) preservedNotes[block.id] = blockNotes[block.id];
     }
+
     updateCurrentPlan({
       form,
       blocks: nextBlocks,
       generatedAt: new Date().toISOString(),
       blockNotes: preservedNotes,
     });
-    setMessage(nextBlocks.length > 0 ? 'Plan generated!' : 'Pick a valid start and end time.');
+
+    setMessage(nextBlocks.length > 0 ? 'Schedule ready.' : 'Add activity names and durations to build the plan.');
   };
 
   const clearDay = () => {
     updateCurrentPlan(createEmptyTimeBlockDayPlan(dateKey));
-    setMessage('Cleared this day.');
+    setMessage('Cleared this schedule.');
   };
 
-  const generatedSummary = blocks.reduce((total, block) => total + block.durationMinutes, 0);
-
   return (
-    <div className="px-5 sm:px-6 py-4 space-y-5">
-      {/* Time window */}
-      <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-5 px-5 py-4 sm:px-6">
+      <section className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-bold text-text">On Again / Off Again</h3>
+            <p className="mt-1 text-sm text-text-secondary">
+              Build an alternating schedule between your chosen start and end time.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowInfo((current) => !current)}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border-subtle/45 bg-bg-surface/75 px-3 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:bg-bg-elevated"
+            aria-expanded={showInfo}
+            aria-controls="on-again-off-again-info"
+          >
+            <Info size={13} />
+            Info
+            {showInfo ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+          </button>
+        </div>
+
+        {showInfo && (
+          <div
+            id="on-again-off-again-info"
+            className="rounded-[1.25rem] border border-border-subtle/40 bg-bg-elevated/35 px-4 py-3 text-sm leading-relaxed text-text-secondary shadow-sm"
+          >
+            Add energizing tasks and focus tasks, then we&apos;ll rotate between them automatically to create the shape of your day.
+          </div>
+        )}
+      </section>
+
+      <section className="grid grid-cols-2 gap-4">
         <label className="block space-y-1.5">
-          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-text-muted/80 ml-1">
+          <span className="ml-1 text-[9px] font-bold uppercase tracking-[0.2em] text-text-muted/80">
             Start
           </span>
           <input
             type="time"
             value={form.date === dateKey ? form.startTime : '09:00'}
-            onChange={(e) => patchForm('startTime', e.target.value)}
-            className="w-full rounded-xl border border-border-subtle/40 bg-bg-surface/80 hover:bg-bg-surface px-3 py-2.5 font-medium text-text shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-accent-teal/30 focus:border-accent-teal/50"
+            onChange={(event) => patchForm('startTime', event.target.value)}
+            className="w-full rounded-xl border border-border-subtle/40 bg-bg-surface/80 px-3 py-2.5 font-medium text-text shadow-sm transition-all hover:bg-bg-surface focus:outline-none focus:ring-2 focus:ring-accent-teal/30 focus:border-accent-teal/50"
             style={{ fontSize: '14px' }}
           />
         </label>
         <label className="block space-y-1.5">
-          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-text-muted/80 ml-1">
+          <span className="ml-1 text-[9px] font-bold uppercase tracking-[0.2em] text-text-muted/80">
             End
           </span>
           <input
             type="time"
             value={form.date === dateKey ? form.endTime : '17:00'}
-            onChange={(e) => patchForm('endTime', e.target.value)}
-            className="w-full rounded-xl border border-border-subtle/40 bg-bg-surface/80 hover:bg-bg-surface px-3 py-2.5 font-medium text-text shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-accent-sakura/30 focus:border-accent-sakura/50"
+            onChange={(event) => patchForm('endTime', event.target.value)}
+            className="w-full rounded-xl border border-border-subtle/40 bg-bg-surface/80 px-3 py-2.5 font-medium text-text shadow-sm transition-all hover:bg-bg-surface focus:outline-none focus:ring-2 focus:ring-accent-sakura/30 focus:border-accent-sakura/50"
             style={{ fontSize: '14px' }}
           />
         </label>
-      </div>
+      </section>
 
-      {/* Activities list */}
-      <div className="space-y-3">
-        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-text-muted/80 ml-1">
-          Activities (alternate between these)
-        </p>
+      <section className="space-y-3">
+        <div className="space-y-2">
+          <p className="ml-1 text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">
+            Activity Pairs
+          </p>
+          <p className="text-sm text-text-secondary">
+            The planner will alternate between these automatically.
+          </p>
+          <div className="inline-flex items-center gap-2 rounded-full border border-border-subtle/40 bg-bg-surface/70 px-3 py-1.5 text-xs font-semibold text-text-secondary">
+            <span className="inline-flex items-center gap-1 text-accent-teal">
+              <Heart size={11} className="fill-current" />
+              Energy
+            </span>
+            <span className="text-text-muted/50">→</span>
+            <span className="inline-flex items-center gap-1 text-accent-sakura">
+              <Target size={11} />
+              Focus
+            </span>
+            <span className="text-text-muted/50">→</span>
+            <span className="text-accent-teal">Energy</span>
+            <span className="text-text-muted/50">→</span>
+            <span className="text-accent-sakura">Focus</span>
+          </div>
+        </div>
 
         {form.activities.map((activity, index) => {
-          const isWant = activity.kind === 'want';
-          const isShould = activity.kind === 'should';
-          const isUnset = activity.kind === null;
+          const isEnergy = activity.kind === 'want';
+          const isFocus = activity.kind === 'should';
+          const kindUi = getKindUi(activity.kind);
           const placeholder = getActivityPlaceholder(activity.kind, index);
+
           return (
-            <div key={activity.id} className="relative">
-              <div
-                className={`absolute left-1 top-0 bottom-1 w-[3px] rounded-full ${
-                  isWant
-                    ? 'bg-accent-teal/40'
-                    : isShould
-                      ? 'bg-accent-sakura/40'
-                      : 'bg-border-subtle/60'
-                }`}
-              />
-              <div className="pl-5 space-y-1">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <div className="inline-flex items-center gap-1 rounded-full border border-border-subtle/60 bg-bg-surface/60 p-0.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const newActivities = [...form.activities];
-                          newActivities[index] = { ...activity, kind: 'want' };
-                          patchForm('activities', newActivities);
-                        }}
-                        className={`flex h-5 w-5 items-center justify-center rounded-full transition-colors ${
-                          isWant
-                            ? 'bg-accent-teal/20 text-accent-teal'
-                            : 'text-text-muted/70 hover:bg-bg-surface'
-                        }`}
-                        aria-label="Set as want"
-                        aria-pressed={isWant}
-                        title="Want to do"
-                      >
-                        <Heart size={10} className={isWant ? 'fill-current' : ''} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const newActivities = [...form.activities];
-                          newActivities[index] = { ...activity, kind: 'should' };
-                          patchForm('activities', newActivities);
-                        }}
-                        className={`flex h-5 w-5 items-center justify-center rounded-full transition-colors ${
-                          isShould
-                            ? 'bg-accent-sakura/20 text-accent-sakura'
-                            : 'text-text-muted/70 hover:bg-bg-surface'
-                        }`}
-                        aria-label="Set as should"
-                        aria-pressed={isShould}
-                        title="Should do"
-                      >
-                        <Target size={10} />
-                      </button>
-                    </div>
-                    <span
-                      className={`text-[9px] font-bold uppercase tracking-[0.15em] ${
-                        isWant ? 'text-accent-teal' : isShould ? 'text-accent-sakura' : 'text-text-muted/70'
-                      }`}
-                    >
-                      {index + 1}. {isUnset ? 'Pick type' : isWant ? 'Want' : 'Should'}
-                    </span>
-                  </div>
-                  {form.activities.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newActivities = form.activities.filter((_, i) => i !== index);
-                        patchForm('activities', newActivities);
-                      }}
-                      className="p-1 rounded-full text-text-muted/50 hover:text-text-muted hover:bg-bg-surface/60 transition-colors"
-                      aria-label="Remove activity"
-                    >
-                      <X size={12} />
-                    </button>
-                  )}
+            <div key={activity.id} className="rounded-[1.35rem] border border-border-subtle/45 bg-bg-surface/75 p-3 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${kindUi.surface} ${kindUi.accent}`}>
+                    {isEnergy ? <Heart size={10} className="fill-current" /> : isFocus ? <Target size={10} /> : <Wand2 size={10} />}
+                    {kindUi.label}
+                  </span>
+                  <p className="hidden text-xs text-text-muted sm:block">{kindUi.helper}</p>
                 </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={activity.label}
-                    onChange={(e) => {
-                      const newActivities = [...form.activities];
-                      newActivities[index] = { ...activity, label: e.target.value };
-                      patchForm('activities', newActivities);
+                {form.activities.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      patchForm(
+                        'activities',
+                        form.activities.filter((_, activityIndex) => activityIndex !== index),
+                      );
                     }}
-                    placeholder={placeholder}
-                    className={`flex-1 rounded-xl border border-border-subtle/40 bg-bg-surface/80 hover:bg-bg-surface px-3 py-2 font-medium text-text shadow-sm transition-all focus:outline-none focus:ring-2 ${
-                      isWant
-                        ? 'focus:ring-accent-teal/30 focus:border-accent-teal/50'
-                        : isShould
-                          ? 'focus:ring-accent-sakura/30 focus:border-accent-sakura/50'
-                          : 'focus:ring-text/10 focus:border-border-subtle/70'
+                    className="rounded-full p-1 text-text-muted/60 transition-colors hover:bg-bg-elevated hover:text-text"
+                    aria-label="Remove activity"
+                  >
+                    <X size={13} />
+                  </button>
+                )}
+              </div>
+
+              <div className="mt-3 grid gap-2 sm:grid-cols-[auto_minmax(0,1fr)_88px] sm:items-center">
+                <div className="inline-flex items-center gap-1 rounded-full border border-border-subtle/60 bg-bg-elevated/60 p-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextActivities = [...form.activities];
+                      nextActivities[index] = { ...activity, kind: 'want' };
+                      patchForm('activities', nextActivities);
+                    }}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                      isEnergy
+                        ? 'bg-accent-teal/18 text-accent-teal'
+                        : 'text-text-muted/80 hover:bg-bg-surface'
                     }`}
+                    aria-pressed={isEnergy}
+                  >
+                    <Heart size={11} className={isEnergy ? 'fill-current' : ''} />
+                    Energy
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextActivities = [...form.activities];
+                      nextActivities[index] = { ...activity, kind: 'should' };
+                      patchForm('activities', nextActivities);
+                    }}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                      isFocus
+                        ? 'bg-accent-sakura/18 text-accent-sakura'
+                        : 'text-text-muted/80 hover:bg-bg-surface'
+                    }`}
+                    aria-pressed={isFocus}
+                  >
+                    <Target size={11} />
+                    Focus
+                  </button>
+                </div>
+
+                <input
+                  type="text"
+                  value={activity.label}
+                  onChange={(event) => {
+                    const nextActivities = [...form.activities];
+                    nextActivities[index] = { ...activity, label: event.target.value };
+                    patchForm('activities', nextActivities);
+                  }}
+                  placeholder={placeholder}
+                  className={`w-full rounded-xl border border-border-subtle/40 bg-bg-surface/80 px-3 py-2.5 font-medium text-text shadow-sm transition-all hover:bg-bg-surface focus:outline-none focus:ring-2 ${kindUi.ring}`}
+                  style={{ fontSize: '14px' }}
+                />
+
+                <div className="relative">
+                  <input
+                    type="number"
+                    min={5}
+                    max={240}
+                    step={5}
+                    value={activity.minutes}
+                    onChange={(event) => {
+                      const nextActivities = [...form.activities];
+                      nextActivities[index] = { ...activity, minutes: Number(event.target.value) };
+                      patchForm('activities', nextActivities);
+                    }}
+                    onBlur={(event) => {
+                      const value = Number(event.target.value);
+                      if (!Number.isFinite(value)) return;
+                      const nextActivities = [...form.activities];
+                      nextActivities[index] = {
+                        ...activity,
+                        minutes: Math.max(5, Math.min(240, Math.round(value))),
+                      };
+                      patchForm('activities', nextActivities);
+                    }}
+                    className={`w-full rounded-xl border border-border-subtle/40 bg-bg-surface/80 py-2.5 pl-3 pr-8 text-center font-medium text-text shadow-sm transition-all hover:bg-bg-surface focus:outline-none focus:ring-2 ${kindUi.ring}`}
                     style={{ fontSize: '14px' }}
                   />
-                  <div className="relative w-20">
-                    <input
-                      type="number"
-                      min={5}
-                      max={240}
-                      step={5}
-                      value={activity.minutes}
-                      onChange={(e) => {
-                        const newActivities = [...form.activities];
-                        newActivities[index] = { ...activity, minutes: Number(e.target.value) };
-                        patchForm('activities', newActivities);
-                      }}
-                      onBlur={(e) => {
-                        const v = Number(e.target.value);
-                        if (Number.isFinite(v)) {
-                          const newActivities = [...form.activities];
-                          newActivities[index] = {
-                            ...activity,
-                            minutes: Math.max(5, Math.min(240, Math.round(v))),
-                          };
-                          patchForm('activities', newActivities);
-                        }
-                      }}
-                      className={`w-full rounded-xl border border-border-subtle/40 bg-bg-surface/80 hover:bg-bg-surface pl-2 pr-6 py-2 font-medium text-text shadow-sm transition-all focus:outline-none focus:ring-2 ${
-                        isWant
-                          ? 'focus:ring-accent-teal/30 focus:border-accent-teal/50'
-                          : isShould
-                            ? 'focus:ring-accent-sakura/30 focus:border-accent-sakura/50'
-                            : 'focus:ring-text/10 focus:border-border-subtle/70'
-                      } text-center`}
-                      style={{ fontSize: '14px' }}
-                    />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[8px] font-bold uppercase text-text-muted/50 pointer-events-none">
-                      m
-                    </span>
-                  </div>
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold uppercase text-text-muted/50">
+                    min
+                  </span>
                 </div>
+              </div>
+
+              <div className="mt-2 flex flex-wrap gap-2">
+                {DURATION_PRESETS.map((preset) => {
+                  const isSelected = activity.minutes === preset;
+                  return (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => {
+                        const nextActivities = [...form.activities];
+                        nextActivities[index] = { ...activity, minutes: preset };
+                        patchForm('activities', nextActivities);
+                      }}
+                      className={`rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors ${
+                        isSelected
+                          ? `${kindUi.surface} ${kindUi.accent}`
+                          : 'border-border-subtle/45 bg-bg-surface/65 text-text-muted hover:bg-bg-elevated'
+                      }`}
+                      aria-pressed={isSelected}
+                    >
+                      {preset} min
+                    </button>
+                  );
+                })}
               </div>
             </div>
           );
         })}
 
-        {/* Add activity button */}
         {form.activities.length < 5 && (
           <button
             type="button"
@@ -317,23 +417,68 @@ export function OnAgainOffAgainTool({ dateKey, events, onClose }: OnAgainOffAgai
                 { id: generateActivityId(), kind: null, label: '', minutes: 30 },
               ]);
             }}
-            className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-border-subtle/50 bg-bg-surface/40 hover:bg-bg-surface/60 px-3 py-2 text-xs font-semibold text-text-muted transition-colors"
+            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border-subtle/50 bg-bg-surface/40 px-3 py-2.5 text-xs font-semibold text-text-muted transition-colors hover:bg-bg-surface/60"
           >
             <Plus size={14} />
             Add activity ({form.activities.length}/5)
           </button>
         )}
-      </div>
+      </section>
 
-      {/* Action buttons */}
-      <div className="flex flex-wrap gap-3 pt-2">
+      <section className="rounded-[1.5rem] border border-border-subtle/40 bg-bg-elevated/30 p-4 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">
+              Plan Preview
+            </p>
+            <p className="mt-1 text-sm text-text-secondary">Here&apos;s the shape of the schedule we&apos;ll generate.</p>
+          </div>
+          {previewBlocks.length > 0 && (
+            <span className="rounded-full border border-border-subtle/40 bg-bg-surface/70 px-2.5 py-1 text-xs font-semibold text-text-muted">
+              {previewBlocks.length} blocks
+            </span>
+          )}
+        </div>
+
+        {previewMessage ? (
+          <div className="mt-4 rounded-2xl border border-dashed border-border-subtle/45 bg-bg-surface/55 px-4 py-4 text-sm text-text-secondary">
+            {previewMessage}
+          </div>
+        ) : (
+          <div className="mt-4 space-y-2">
+            {visiblePreviewBlocks.map((block) => (
+              <div
+                key={`preview-${block.id}`}
+                className="flex items-center justify-between gap-3 rounded-2xl border border-border-subtle/35 bg-bg-surface/70 px-3 py-2.5"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-text">{block.label}</p>
+                  <p className="mt-0.5 text-xs text-text-muted">
+                    {block.kind === 'want' ? 'Energy' : 'Focus'} block
+                  </p>
+                </div>
+                <p className="shrink-0 text-sm font-semibold tabular-nums text-text-secondary">
+                  {formatMinuteOfDay(block.startMinuteOfDay)}
+                </p>
+              </div>
+            ))}
+            {previewBlocks.length > visiblePreviewBlocks.length && (
+              <p className="pt-1 text-xs text-text-muted">
+                +{previewBlocks.length - visiblePreviewBlocks.length} more blocks will continue in the same alternating pattern.
+              </p>
+            )}
+          </div>
+        )}
+      </section>
+
+      <div className="flex flex-wrap gap-3 pt-1">
         <button
           type="button"
           onClick={generatePlan}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-text px-5 py-3 text-sm font-bold text-bg-base transition-all hover:bg-opacity-90 hover:scale-[1.02] active:scale-[0.98] shadow-md flex-1"
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-text px-5 py-3 text-sm font-bold text-bg-base shadow-md transition-all hover:bg-opacity-90 hover:scale-[1.02] active:scale-[0.98]"
         >
           <Wand2 size={16} />
-          Generate
+          Generate Schedule
         </button>
         <button
           type="button"
@@ -345,23 +490,22 @@ export function OnAgainOffAgainTool({ dateKey, events, onClose }: OnAgainOffAgai
         </button>
       </div>
 
-      {/* Timer link when blocks exist */}
       {blocks.length > 0 && (
-        <div className="rounded-xl border border-accent-teal/30 bg-accent-teal/10 p-4 space-y-3">
+        <section className="space-y-3 rounded-[1.4rem] border border-accent-teal/25 bg-accent-teal/10 p-4">
           <label className="flex items-center gap-2 text-sm font-semibold text-text cursor-pointer">
             <input
               type="checkbox"
               checked={autoStartAtScheduledTime}
-              onChange={(e) => setAutoStartAtScheduledTime(e.target.checked)}
+              onChange={(event) => setAutoStartAtScheduledTime(event.target.checked)}
               className="h-4 w-4 rounded border-2 border-border-subtle text-accent-teal focus:ring-2 focus:ring-accent-teal/30"
             />
             <AlarmClock size={16} className="text-accent-teal" />
             Auto-start at {formatMinuteOfDay(blocks[0].startMinuteOfDay)}
           </label>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Link
               href={`/dashboard/timer?sequenceDateKey=${encodeURIComponent(dateKey)}${autoStartAtScheduledTime ? '&autoStart=1' : ''}`}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-teal to-accent-mint px-5 py-3 text-sm font-bold text-bg-base transition-all hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-accent-teal/20"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-teal to-accent-mint px-5 py-3 text-sm font-bold text-bg-base shadow-md shadow-accent-teal/20 transition-all hover:opacity-95 hover:scale-[1.02] active:scale-[0.98]"
             >
               Start Sequence
               <ArrowRight size={15} />
@@ -371,25 +515,19 @@ export function OnAgainOffAgainTool({ dateKey, events, onClose }: OnAgainOffAgai
               onClick={onClose}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-border-subtle/80 bg-bg-surface/80 px-5 py-3 text-sm font-bold text-text transition-all hover:bg-bg-elevated"
             >
-              Done
+              Close
             </button>
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Status message */}
-      <div className="text-xs text-text-muted space-y-1">
-        <p>
-          {isSaving
-            ? 'Saving...'
-            : saveError || message || (isLoaded ? 'Ready to build your day.' : 'Loading...')}
-        </p>
+      <div className="space-y-1 text-xs text-text-muted">
+        <p>{isSaving ? 'Saving...' : saveError || message || (isLoaded ? 'Ready to build your day.' : 'Loading your saved plan...')}</p>
         {generatedAt && blocks.length > 0 && (
           <p>
             Generated {blocks.length} blocks across {formatDurationSummary(generatedSummary)}.
           </p>
         )}
-        {!hasValidWindow && <p className="text-amber-600">End time needs to be later than start time.</p>}
       </div>
     </div>
   );

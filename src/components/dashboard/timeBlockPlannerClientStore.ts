@@ -22,6 +22,14 @@ let state: TimeBlockPlannerClientState = {
   dirty: false,
 };
 
+const SERVER_SNAPSHOT: TimeBlockPlannerClientState = {
+  store: {},
+  isLoaded: false,
+  isSaving: false,
+  saveError: null,
+  dirty: false,
+};
+
 let loadPromise: Promise<void> | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let lastLocalMutationAt = 0;
@@ -80,13 +88,7 @@ export function timeBlockPlannerGetSnapshot(): TimeBlockPlannerClientState {
 }
 
 export function timeBlockPlannerGetServerSnapshot(): TimeBlockPlannerClientState {
-  return {
-    store: {},
-    isLoaded: false,
-    isSaving: false,
-    saveError: null,
-    dirty: false,
-  };
+  return SERVER_SNAPSHOT;
 }
 
 export async function timeBlockPlannerEnsureLoaded(): Promise<void> {
@@ -182,4 +184,3 @@ export function __timeBlockPlannerClientStoreResetForTests() {
     dirty: false,
   };
 }
-

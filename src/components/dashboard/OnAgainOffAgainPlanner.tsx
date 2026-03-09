@@ -891,13 +891,13 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
             >
               {/* Time labels column */}
               <div
-                className="w-10 sm:w-14 shrink-0 relative border-r border-border-subtle/40 bg-bg-surface/40"
+                className="w-[3.4rem] sm:w-[3.75rem] shrink-0 relative border-r border-border-subtle/40 bg-bg-surface/50"
                 style={{ height: timelineHeight + timelinePadding * 2 }}
               >
                 {timeLabels.map(({ minute, label }) => (
                   <div
                     key={minute}
-                    className="absolute left-0 right-0 text-[8px] sm:text-[9px] font-semibold text-text-muted/70 tabular-nums pl-1 sm:pl-2"
+                    className="absolute left-0 right-0 pl-2 pr-1 text-[11px] sm:text-[10px] font-semibold text-text-muted/80 tabular-nums"
                     style={{
                       top: blockTop(minute),
                       transform: 'translateY(-50%)',
@@ -1113,26 +1113,29 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
                       style={{ top: anchorTop, transform: 'translateY(-50%)' }}
                       title={`${anchor.label} - ${anchor.scheduledTime}`}
                     >
-                      {/* Dashed line spanning timeline - more visible */}
                       <div
-                        className={`flex-1 border-t-2 border-dashed opacity-70 ${
-                          isDone ? 'border-secondary' : 'border-fuchsia-400 dark:border-accent-amethyst'
+                        className={`ml-[-5px] mr-2 h-2.5 w-2.5 rounded-full border-2 border-bg-surface shadow-sm ${
+                          isDone ? 'bg-secondary' : 'bg-fuchsia-300 dark:bg-accent-amethyst/80'
                         }`}
                       />
-                      {/* Anchor badge with label - always visible on mobile and desktop */}
                       <div
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg shrink-0 shadow-sm border ${
+                        className={`flex-1 border-t-2 border-dashed opacity-75 ${
+                          isDone ? 'border-secondary' : 'border-fuchsia-300/85 dark:border-accent-amethyst/75'
+                        }`}
+                      />
+                      <div
+                        className={`ml-3 flex max-w-[44%] items-center gap-1.5 rounded-full border px-2 py-[0.3125rem] shadow-sm shrink-0 sm:max-w-[18rem] ${
                           isDone
-                            ? 'bg-[color-mix(in_srgb,var(--color-secondary)_18%,var(--color-bg-surface))] border-[color-mix(in_srgb,var(--color-secondary)_35%,transparent)] text-secondary'
-                            : 'bg-fuchsia-50/90 dark:bg-[color-mix(in_srgb,var(--color-accent-amethyst)_18%,var(--color-bg-surface))] border-fuchsia-200 dark:border-[color-mix(in_srgb,var(--color-accent-amethyst)_35%,transparent)] text-fuchsia-600 dark:text-accent-amethyst'
+                            ? 'bg-[color-mix(in_srgb,var(--color-secondary)_14%,var(--color-bg-surface))] border-[color-mix(in_srgb,var(--color-secondary)_28%,transparent)] text-secondary'
+                            : 'bg-fuchsia-50/70 dark:bg-[color-mix(in_srgb,var(--color-accent-amethyst)_14%,var(--color-bg-surface))] border-fuchsia-200/80 dark:border-[color-mix(in_srgb,var(--color-accent-amethyst)_28%,transparent)] text-fuchsia-600/90 dark:text-accent-amethyst'
                         }`}
                       >
                         <div
-                          className={`w-2 h-2 rounded-full shrink-0 ${
-                            isDone ? 'bg-secondary' : 'bg-fuchsia-400 dark:bg-accent-amethyst'
+                          className={`h-1.5 w-1.5 rounded-full shrink-0 ${
+                            isDone ? 'bg-secondary' : 'bg-fuchsia-300 dark:bg-accent-amethyst/80'
                           }`}
                         />
-                        <span className="text-[10px] sm:text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
+                        <span className="truncate text-[9px] sm:text-[9px] font-bold uppercase tracking-[0.16em]">
                           {anchor.label}
                         </span>
                       </div>

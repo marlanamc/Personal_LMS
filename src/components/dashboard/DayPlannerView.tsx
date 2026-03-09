@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -22,7 +22,6 @@ import {
   combineAndSortItems,
   eventsToTimelineItems,
   formatDuration,
-  formatMinuteOfDay,
   getNextDateKey,
   getNowMinuteForDate,
   getPreviousDateKey,
@@ -30,7 +29,6 @@ import {
   isToday,
   separateAllDayEvents,
   timeBlocksToTimelineItems,
-  toDateKey,
   type TimelineItem,
 } from '@/lib/unified-scheduler';
 import { getCalendarMarkerColor } from './MiniCalendar';
@@ -61,10 +59,11 @@ export function DayPlannerView({
   const [isDrawerOpen, setIsDrawerOpen] = useState(initialOpenTool === 'on-again-off-again');
   const [isMobile, setIsMobile] = useState(false);
   const [showAllDayEvents, setShowAllDayEvents] = useState(false);
+  const planningHelpTriggerRef = useRef<HTMLElement | null>(null);
 
   // Data hooks
   const { anchors } = useDailyAnchorsForToday(storageScope);
-  const { plannerStore, isLoaded: timeBlocksLoaded } = useTimeBlockPlanner();
+  const { plannerStore } = useTimeBlockPlanner();
 
   // Current time tracking
   const [nowMinute, setNowMinute] = useState<number | null>(() => getNowMinuteForDate(selectedDateKey));
@@ -150,6 +149,20 @@ export function DayPlannerView({
   // Format date for display
   const selectedDate = new Date(`${selectedDateKey}T12:00:00`);
   const isSelectedToday = isToday(selectedDateKey);
+  const mobileDateLabel = selectedDate.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  });
+  const fullDateLabel = selectedDate.toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const openPlanningHelp = (trigger: HTMLElement | null) => {
+    planningHelpTriggerRef.current = trigger;
+    setIsDrawerOpen(true);
+  };
 
   const handleItemClick = (item: TimelineItem) => {
     // For now, just log. Could open details modal in the future.
@@ -158,69 +171,219 @@ export function DayPlannerView({
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-fadeIn">
-      {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      {/* Mobile top area */}
+      <section className="space-y-3 sm:hidden">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-text-muted/80 ml-1">
+          <p className="ml-1 text-[11px] font-bold uppercase tracking-[0.2em] text-text-muted/80">
             Day Planner
           </p>
-          <h1 className="mt-1 text-2xl sm:text-[1.875rem] leading-tight font-display font-bold text-text tracking-tight">
-            {selectedDate.toLocaleDateString(undefined, {
-              weekday: 'long',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </h1>
-          {isSelectedToday && (
-            <p className="mt-1 text-sm text-accent-teal font-medium ml-1">Today</p>
-          )}
+          <div className="mt-2 flex items-center gap-2">
+            <h1 className="text-[2rem] leading-[0.98] font-display font-bold tracking-tight text-text">
+              {fullDateLabel}
+            </h1>
+            {isSelectedToday && (
+              <span className="inline-flex items-center rounded-full bg-accent-teal/10 px-2.5 py-1 text-[11px] font-semibold text-accent-teal">
+                Today
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Date navigation */}
-          <div className="flex items-center gap-1 rounded-full border border-border-subtle/60 bg-bg-surface/80 backdrop-blur-md p-1">
+        {blockSummary && (
+          <div className="flex flex-wrap items-center gap-2 rounded-[1.4rem] border border-border-subtle/40 bg-bg-elevated/35 px-3.5 py-2.5 text-sm">
+            {blockSummary.items.slice(0, 2).map((item) => (
+              <span
+                key={item.label}
+                className={`inline-flex min-w-0 items-center gap-1 rounded-full px-2 py-1 ${
+                  item.kind === 'want'
+                    ? 'bg-accent-teal/10 text-accent-teal'
+                    : 'bg-accent-sakura/10 text-accent-sakura'
+                }`}
+              >
+                {item.kind === 'want' ? <Heart size={12} className="fill-current" /> : <Target size={12} />}
+                <span className="truncate text-xs font-semibold">{item.label}</span>
+                <span className="text-xs font-bold">{formatDuration(item.totalMinutes)}</span>
+              </span>
+            ))}
+            <span className="text-xs font-medium text-text-muted">
+              {blockSummary.blockCount} blocks
+            </span>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <div className="flex min-w-0 items-center gap-1 rounded-[1.75rem] border border-border-subtle/60 bg-bg-surface/80 p-1 shadow-sm backdrop-blur-md">
             <button
               type="button"
               onClick={goToPreviousDay}
-              className="p-2 rounded-full hover:bg-bg-elevated transition-colors"
+              className="rounded-full p-2.5 transition-colors hover:bg-bg-elevated"
               aria-label="Previous day"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={18} />
             </button>
-            <input
-              type="date"
-              value={selectedDateKey}
-              onChange={(e) => setSelectedDateKey(e.target.value || getTodayKey())}
-              className="bg-transparent border-0 text-sm font-medium text-text focus:outline-none cursor-pointer"
-              style={{ width: '130px' }}
-            />
+            <label className="min-w-0 flex-1 cursor-pointer rounded-full px-3 py-2 text-center hover:bg-bg-elevated/60">
+              <span className="sr-only">Choose date</span>
+              <span className="pointer-events-none inline-flex items-center gap-1.5 text-base font-semibold text-text">
+                {mobileDateLabel}
+                {isSelectedToday && <Sparkles size={14} className="text-accent-teal" />}
+              </span>
+              <input
+                type="date"
+                value={selectedDateKey}
+                onChange={(event) => setSelectedDateKey(event.target.value || getTodayKey())}
+                className="sr-only"
+                aria-label="Choose date"
+              />
+            </label>
             <button
               type="button"
               onClick={goToNextDay}
-              className="p-2 rounded-full hover:bg-bg-elevated transition-colors"
+              className="rounded-full p-2.5 transition-colors hover:bg-bg-elevated"
               aria-label="Next day"
             >
-              <ArrowRight size={16} />
+              <ArrowRight size={18} />
             </button>
           </div>
 
-          {!isSelectedToday && (
+          <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2">
+            {!isSelectedToday && (
+              <button
+                type="button"
+                onClick={goToToday}
+                className="inline-flex items-center justify-center rounded-full border border-accent-teal/20 bg-accent-teal/8 px-4 py-2.5 text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/12"
+              >
+                Today
+              </button>
+            )}
             <button
               type="button"
-              onClick={goToToday}
-              className="px-3 py-2 text-sm font-semibold text-accent-teal hover:bg-accent-teal/10 rounded-full transition-colors"
+              ref={(node) => {
+                if (node && !planningHelpTriggerRef.current) {
+                  planningHelpTriggerRef.current = node;
+                }
+              }}
+              onClick={(event) => openPlanningHelp(event.currentTarget)}
+              className={`inline-flex items-center justify-center gap-2 rounded-full border border-border-subtle/60 bg-bg-surface/80 px-4 py-2.5 text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md ${isSelectedToday ? 'col-span-2' : ''}`}
             >
-              Today
+              <Wand2 size={15} className="text-accent-teal" />
+              Planning Help
             </button>
-          )}
+            <Link
+              href="/dashboard/calendar"
+              className="inline-flex items-center justify-center rounded-full border border-border-subtle/60 bg-bg-surface/80 px-3 py-2.5 text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md"
+              aria-label="Calendar"
+            >
+              <CalendarDays size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
 
-          <Link
-            href="/dashboard/calendar"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle/60 bg-bg-surface/80 backdrop-blur-md px-4 py-2 text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated"
-          >
-            <CalendarDays size={15} />
-            <span className="hidden sm:inline">Calendar</span>
-          </Link>
+      {/* Desktop header */}
+      <header className="hidden sm:flex items-end justify-between gap-6">
+        <div className="max-w-[36rem]">
+          <p className="ml-1 text-[11px] font-bold uppercase tracking-[0.2em] text-text-muted/80">
+            Day Planner
+          </p>
+          <div className="mt-2 flex items-center gap-3">
+            <h1 className="text-[2.35rem] leading-none font-display font-bold tracking-tight text-text">
+              {fullDateLabel}
+            </h1>
+            {isSelectedToday && (
+              <span className="inline-flex items-center rounded-full bg-accent-teal/10 px-2.5 py-1 text-xs font-semibold text-accent-teal">
+                Today
+              </span>
+            )}
+          </div>
+
+          {blockSummary && (
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+              {blockSummary.items.slice(0, 3).map((item) => (
+                <span
+                  key={item.label}
+                  className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 ${
+                    item.kind === 'want'
+                      ? 'border-accent-teal/20 bg-accent-teal/8 text-accent-teal'
+                      : 'border-accent-sakura/20 bg-accent-sakura/8 text-accent-sakura'
+                  }`}
+                >
+                  {item.kind === 'want' ? <Heart size={12} className="fill-current" /> : <Target size={12} />}
+                  <span className="font-medium">{item.label}</span>
+                  <span className="font-semibold">{formatDuration(item.totalMinutes)}</span>
+                </span>
+              ))}
+              <span className="ml-1 text-xs font-medium uppercase tracking-[0.16em] text-text-muted/75">
+                {blockSummary.blockCount} blocks
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col items-end gap-3">
+          <div className="flex min-w-0 items-center gap-1 rounded-full border border-border-subtle/60 bg-bg-surface/80 p-1 shadow-sm backdrop-blur-md">
+            <button
+              type="button"
+              onClick={goToPreviousDay}
+              className="rounded-full p-2.5 transition-colors hover:bg-bg-elevated"
+              aria-label="Previous day"
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <label className="min-w-0 cursor-pointer rounded-full px-4 py-1.5 text-center hover:bg-bg-elevated/60">
+              <span className="sr-only">Choose date</span>
+              <span className="pointer-events-none inline-flex items-center gap-1.5 text-sm font-semibold text-text">
+                {selectedDate.toLocaleDateString(undefined)}
+                {isSelectedToday && <Sparkles size={14} className="text-accent-teal" />}
+              </span>
+              <input
+                type="date"
+                value={selectedDateKey}
+                onChange={(event) => setSelectedDateKey(event.target.value || getTodayKey())}
+                className="sr-only"
+                aria-label="Choose date"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={goToNextDay}
+              className="rounded-full p-2.5 transition-colors hover:bg-bg-elevated"
+              aria-label="Next day"
+            >
+              <ArrowRight size={18} />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {!isSelectedToday && (
+              <button
+                type="button"
+                onClick={goToToday}
+                className="inline-flex items-center justify-center rounded-full border border-accent-teal/20 bg-accent-teal/8 px-4 py-2.5 text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/12"
+              >
+                Today
+              </button>
+            )}
+            <Link
+              href="/dashboard/calendar"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border-subtle/60 bg-bg-surface/80 px-4 py-2.5 text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md"
+            >
+              <CalendarDays size={15} />
+              Calendar
+            </Link>
+            <button
+              type="button"
+              ref={(node) => {
+                if (node && !planningHelpTriggerRef.current) {
+                  planningHelpTriggerRef.current = node;
+                }
+              }}
+              onClick={(event) => openPlanningHelp(event.currentTarget)}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-border-subtle/60 bg-bg-surface/80 px-4 py-2.5 text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md"
+            >
+              <Wand2 size={15} className="text-accent-teal" />
+              Planning Help
+            </button>
+          </div>
         </div>
       </header>
 
@@ -260,43 +423,13 @@ export function DayPlannerView({
         </div>
       )}
 
-      {/* Planning Help button */}
-      <div className="flex items-center justify-between gap-4">
-        <button
-          type="button"
-          onClick={() => setIsDrawerOpen(true)}
-          className="inline-flex items-center gap-2 rounded-2xl border border-border-subtle/60 bg-bg-surface/80 backdrop-blur-md px-5 py-3 text-sm font-bold text-text shadow-sm transition-all hover:bg-bg-elevated hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <Wand2 size={16} className="text-accent-teal" />
-          Planning Help
-        </button>
-
-        {/* Block summary stats */}
-        {blockSummary && (
-          <div className="flex items-center gap-2 text-sm">
-            {blockSummary.items.slice(0, 3).map((item) => (
-              <span
-                key={item.label}
-                className={`inline-flex items-center gap-1 ${
-                  item.kind === 'want' ? 'text-accent-teal' : 'text-accent-sakura'
-                }`}
-              >
-                {item.kind === 'want' ? <Heart size={12} className="fill-current" /> : <Target size={12} />}
-                <span className="font-medium">{item.label}:</span>
-                <span className="font-semibold">{formatDuration(item.totalMinutes)}</span>
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Main timeline */}
-      <section className="relative rounded-[2rem] border border-border-subtle/30 p-4 sm:p-6 shadow-sm overflow-hidden bg-bg-surface/60 backdrop-blur-xl">
-        {/* Ambient background */}
-        <div className="absolute top-0 right-0 w-[200px] sm:w-[400px] h-[200px] sm:h-[400px] bg-accent-sakura/8 blur-[60px] sm:blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[200px] sm:w-[400px] h-[200px] sm:h-[400px] bg-accent-teal/8 blur-[60px] sm:blur-[100px] rounded-full pointer-events-none" />
+      <section className="relative overflow-hidden sm:rounded-[2rem] border-transparent sm:border sm:border-border-subtle/30 sm:bg-bg-surface/60 p-0 py-2 sm:p-6 sm:shadow-sm sm:backdrop-blur-xl -mx-4 sm:mx-0">
+        {/* Ambient background (desktop only) */}
+        <div className="hidden sm:block absolute top-0 right-0 w-[400px] h-[400px] bg-accent-sakura/8 blur-[100px] rounded-full pointer-events-none" />
+        <div className="hidden sm:block absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-teal/8 blur-[100px] rounded-full pointer-events-none" />
 
-        <div className="relative z-10">
+        <div className="relative z-10 px-4 sm:px-0">
           {timelineItems.length === 0 && anchorItems.length === 0 ? (
             <div className="rounded-xl sm:rounded-[2rem] border border-dashed border-border-subtle/40 bg-bg-elevated/30 backdrop-blur-sm p-6 sm:p-10 text-center">
               <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-2xl bg-gradient-to-br from-accent-teal/20 to-accent-sakura/20 border border-border-subtle/50 mb-4 shadow-lg">
@@ -310,7 +443,7 @@ export function DayPlannerView({
               </p>
               <button
                 type="button"
-                onClick={() => setIsDrawerOpen(true)}
+                onClick={(event) => openPlanningHelp(event.currentTarget)}
                 className="mt-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent-teal to-accent-mint px-5 py-2.5 text-sm font-bold text-bg-base transition-all hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-accent-teal/20"
               >
                 <Wand2 size={14} />
@@ -334,8 +467,7 @@ export function DayPlannerView({
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         dateKey={selectedDateKey}
-        events={events}
-        storageScope={storageScope}
+        triggerRef={planningHelpTriggerRef}
       />
     </div>
   );

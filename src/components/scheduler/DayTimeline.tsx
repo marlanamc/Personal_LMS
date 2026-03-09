@@ -1,10 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import type { TimelineConfig, TimelineItem, TimelineItemStatus } from '@/lib/unified-scheduler';
+import type { TimelineConfig, TimelineItem } from '@/lib/unified-scheduler';
 import {
   DEFAULT_TIMELINE_CONFIG,
-  formatMinuteOfDay,
   generateTimeLabels,
   getHeightForDuration,
   getItemStatus,
@@ -56,15 +55,16 @@ export function DayTimeline({
   className,
   isMobile = false,
 }: DayTimelineProps) {
-  const config: TimelineConfig = { ...DEFAULT_TIMELINE_CONFIG, ...configOverrides };
+  const config: TimelineConfig = useMemo(
+    () => ({ ...DEFAULT_TIMELINE_CONFIG, ...configOverrides }),
+    [configOverrides],
+  );
   const timelineHeight = getTimelineHeight(config);
-  const timelinePadding = 20;
+  const timelinePadding = isMobile ? 16 : 20;
+  const gutterWidthClass = isMobile ? 'w-[3.4rem]' : 'w-[3.75rem]';
 
   // Generate time labels for the gutter
-  const timeLabels = useMemo(
-    () => generateTimeLabels(config),
-    [config.startHour, config.endHour],
-  );
+  const timeLabels = useMemo(() => generateTimeLabels(config), [config]);
 
   // Separate items by type for layered rendering
   const { anchors, events, blocks } = useMemo(() => {
@@ -89,20 +89,23 @@ export function DayTimeline({
   return (
     <div
       className={cn(
-        'flex rounded-lg sm:rounded-xl border border-border-subtle/40 bg-bg-elevated/30 overflow-hidden',
+        'flex rounded-none sm:rounded-2xl border-transparent sm:border sm:border-border-subtle/40 sm:bg-bg-elevated/30 overflow-hidden',
         className,
       )}
       style={{ minHeight: timelineHeight + timelinePadding * 2 }}
     >
       {/* Time labels column */}
       <div
-        className="w-10 sm:w-14 shrink-0 relative border-r border-border-subtle/40 bg-bg-surface/40"
+        className={cn(
+          'shrink-0 relative border-r border-border-subtle/40 sm:bg-bg-surface/50',
+          gutterWidthClass,
+        )}
         style={{ height: timelineHeight + timelinePadding * 2 }}
       >
         {timeLabels.map(({ minute, label }) => (
           <div
             key={minute}
-            className="absolute left-0 right-0 text-[8px] sm:text-[9px] font-semibold text-text-muted/70 tabular-nums pl-1 sm:pl-2"
+            className="absolute left-0 right-0 pl-2 pr-1 text-[11px] font-semibold text-text-muted/80 tabular-nums sm:pl-2.5 sm:text-[10px]"
             style={{
               top: getTop(minute),
               transform: 'translateY(-50%)',
@@ -141,8 +144,8 @@ export function DayTimeline({
               item={item}
               style={{
                 position: 'absolute',
-                left: '0.375rem',
-                right: '0.375rem',
+                left: isMobile ? '0.25rem' : '0.375rem',
+                right: isMobile ? '0.25rem' : '0.375rem',
                 top: getTop(startMin) + 2,
                 height: Math.max(getHeight(duration) - 2, 36),
               }}
@@ -172,8 +175,8 @@ export function DayTimeline({
               item={item}
               style={{
                 position: 'absolute',
-                left: '0.125rem',
-                right: '0.125rem',
+                left: isMobile ? '0.25rem' : '0.125rem',
+                right: isMobile ? '0.25rem' : '0.125rem',
                 top: getTop(startMin) + 2,
                 height: Math.max(getHeight(duration) - 2, isMobile ? 48 : 32),
               }}
@@ -214,7 +217,7 @@ export function DayTimeline({
             className="absolute left-0 right-0 z-30 flex items-center pointer-events-none"
             style={{ top: getTop(nowMinute!) }}
           >
-            <div className="w-2.5 h-2.5 rounded-full bg-accent-sakura shadow-lg shadow-accent-sakura/40 ring-2 ring-bg-surface animate-pulse" />
+            <div className="h-2.5 w-2.5 rounded-full bg-accent-sakura shadow-lg shadow-accent-sakura/40 ring-2 ring-bg-surface animate-pulse" />
             <div className="flex-1 h-[2px] bg-gradient-to-r from-accent-sakura via-accent-sakura/60 to-transparent" />
           </div>
         )}

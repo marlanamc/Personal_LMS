@@ -70,15 +70,13 @@ export default async function DayPlannerPage({ searchParams }: PageProps) {
   ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
-    <div className="min-h-screen bg-bg-base light-ambient-surface overflow-x-hidden">
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 md:py-8 pb-24 md:pb-12 overflow-hidden">
-        <DayPlannerView
-          events={calendarEvents}
-          initialDateKey={initialDateKey}
-          initialOpenTool={openTool}
-          storageScope={userId}
-        />
-      </main>
-    </div>
+    <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 md:py-8 pb-24 md:pb-12 overflow-hidden">
+      <DayPlannerView
+        events={calendarEvents}
+        initialDateKey={initialDateKey}
+        initialOpenTool={openTool}
+        storageScope={userId}
+      />
+    </main>
   );
 }
