@@ -455,9 +455,11 @@ export function DayPlannerView({
               <button
                 type="button"
                 onClick={() => setShowEarlierHours((current) => !current)}
-                className="inline-flex shrink-0 items-center rounded-full border border-border-subtle/40 bg-bg-surface/65 px-3 py-1.5 text-xs font-semibold text-text-secondary shadow-sm transition-colors hover:bg-bg-elevated hover:text-text"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border-subtle/60 bg-bg-surface text-text-secondary shadow-sm transition-colors hover:bg-bg-elevated hover:text-text backdrop-blur-md"
+                aria-label={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
+                title={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
               >
-                {shouldCondenseTimeline ? 'Show earlier' : 'Hide passed time'}
+                <SunMedium size={18} className="text-accent-teal" />
               </button>
             </div>
           )}
