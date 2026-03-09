@@ -53,6 +53,11 @@ export function StableDialog({
 }: StableDialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const previousActiveRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -82,7 +87,7 @@ export function StableDialog({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -126,7 +131,7 @@ export function StableDialog({
         restoreTarget?.focus();
       });
     };
-  }, [initialFocusRef, isOpen, onClose, restoreFocusRef]);
+  }, [initialFocusRef, isOpen, restoreFocusRef]);
 
   if (!isOpen) return null;
 
