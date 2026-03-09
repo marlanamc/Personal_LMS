@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { AlarmClock, ArrowRight, ChevronDown, ChevronUp, Heart, Info, Plus, Target, TimerReset, Wand2, X } from 'lucide-react';
+import { AlarmClock, ArrowRight, Heart, Plus, Target, TimerReset, Wand2, X } from 'lucide-react';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
   buildTimeBlockPlan,
@@ -92,7 +92,6 @@ function getKindUi(kind: 'want' | 'should' | null) {
 export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolProps) {
   const [message, setMessage] = useState<string | null>(null);
   const [autoStartAtScheduledTime, setAutoStartAtScheduledTime] = useState(true);
-  const [showInfo, setShowInfo] = useState(false);
   const { plannerStore, isLoaded, isSaving, saveError, setPlan } = useTimeBlockPlanner();
 
   const currentPlan = plannerStore[dateKey] ?? createEmptyTimeBlockDayPlan(dateKey);
@@ -181,38 +180,7 @@ export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolPro
   };
 
   return (
-    <div className="space-y-5 px-5 py-4 sm:px-6">
-      <section className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h3 className="text-base font-bold text-text">On Again / Off Again</h3>
-            <p className="mt-1 text-sm text-text-secondary">
-              Build an alternating schedule between your chosen start and end time.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowInfo((current) => !current)}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border-subtle/45 bg-bg-surface/75 px-3 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:bg-bg-elevated"
-            aria-expanded={showInfo}
-            aria-controls="on-again-off-again-info"
-          >
-            <Info size={13} />
-            Info
-            {showInfo ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-          </button>
-        </div>
-
-        {showInfo && (
-          <div
-            id="on-again-off-again-info"
-            className="rounded-[1.25rem] border border-border-subtle/40 bg-bg-elevated/35 px-4 py-3 text-sm leading-relaxed text-text-secondary shadow-sm"
-          >
-            Add energizing tasks and focus tasks, then we&apos;ll rotate between them automatically to create the shape of your day.
-          </div>
-        )}
-      </section>
-
+    <div className="min-w-0 space-y-5 overflow-x-hidden px-5 py-4 sm:px-6">
       <section className="grid grid-cols-2 gap-4">
         <label className="block space-y-1.5">
           <span className="ml-1 text-[9px] font-bold uppercase tracking-[0.2em] text-text-muted/80">
@@ -248,7 +216,7 @@ export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolPro
           <p className="text-sm text-text-secondary">
             The planner will alternate between these automatically.
           </p>
-          <div className="inline-flex items-center gap-2 rounded-full border border-border-subtle/40 bg-bg-surface/70 px-3 py-1.5 text-xs font-semibold text-text-secondary">
+          <div className="flex flex-wrap items-center gap-2 rounded-[1rem] border border-border-subtle/40 bg-bg-surface/70 px-3 py-2 text-xs font-semibold text-text-secondary">
             <span className="inline-flex items-center gap-1 text-accent-teal">
               <Heart size={11} className="fill-current" />
               Energy
@@ -299,7 +267,7 @@ export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolPro
               </div>
 
               <div className="mt-3 grid gap-2 sm:grid-cols-[auto_minmax(0,1fr)_88px] sm:items-center">
-                <div className="inline-flex items-center gap-1 rounded-full border border-border-subtle/60 bg-bg-elevated/60 p-1">
+                <div className="inline-flex items-center gap-1 rounded-full border border-border-subtle/60 bg-bg-elevated/60 p-1 shadow-inner">
                   <button
                     type="button"
                     onClick={() => {
@@ -307,10 +275,10 @@ export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolPro
                       nextActivities[index] = { ...activity, kind: 'want' };
                       patchForm('activities', nextActivities);
                     }}
-                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    className={`inline-flex min-w-[6.5rem] items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-all ${
                       isEnergy
-                        ? 'bg-accent-teal/18 text-accent-teal'
-                        : 'text-text-muted/80 hover:bg-bg-surface'
+                        ? 'bg-accent-teal text-bg-base shadow-sm'
+                        : 'bg-transparent text-text-muted/80 hover:bg-bg-surface hover:text-text'
                     }`}
                     aria-pressed={isEnergy}
                   >
@@ -324,10 +292,10 @@ export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolPro
                       nextActivities[index] = { ...activity, kind: 'should' };
                       patchForm('activities', nextActivities);
                     }}
-                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    className={`inline-flex min-w-[6.5rem] items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold transition-all ${
                       isFocus
-                        ? 'bg-accent-sakura/18 text-accent-sakura'
-                        : 'text-text-muted/80 hover:bg-bg-surface'
+                        ? 'bg-accent-sakura text-bg-base shadow-sm'
+                        : 'bg-transparent text-text-muted/80 hover:bg-bg-surface hover:text-text'
                     }`}
                     aria-pressed={isFocus}
                   >

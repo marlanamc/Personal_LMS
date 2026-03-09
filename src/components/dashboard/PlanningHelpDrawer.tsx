@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState, type RefObject } from 'react';
-import { ArrowLeft, X, Sparkles, Heart, Target, Brain } from 'lucide-react';
+import { ArrowLeft, ChevronUp, Info, X, Sparkles, Heart, Target, Brain } from 'lucide-react';
 import { OnAgainOffAgainTool } from './OnAgainOffAgainTool';
 import { StableDialog } from '@/components/ui/StableDialog';
 
@@ -50,7 +50,7 @@ function ToolCard({ title, description, icon, isSelected, onClick, isComingSoon 
           Coming Soon
         </span>
       )}
-      <div className="flex items-start gap-3">
+      <div className="flex min-w-0 items-start gap-3">
         <div
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
             isSelected ? 'bg-accent-teal/20 text-accent-teal' : 'bg-bg-elevated text-text-muted'
@@ -58,7 +58,7 @@ function ToolCard({ title, description, icon, isSelected, onClick, isComingSoon 
         >
           {icon}
         </div>
-        <div>
+        <div className="min-w-0">
           <h3 className="font-bold text-text">{title}</h3>
           <p className="mt-0.5 text-xs text-text-muted leading-relaxed">{description}</p>
         </div>
@@ -78,6 +78,7 @@ export function PlanningHelpDrawer({
   triggerRef,
 }: PlanningHelpDrawerProps) {
   const [selectedTool, setSelectedTool] = useState<PlanningTool | null>(null);
+  const [showToolInfo, setShowToolInfo] = useState(false);
   const titleId = useId();
   const descriptionId = useId();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -85,6 +86,7 @@ export function PlanningHelpDrawer({
   useEffect(() => {
     if (!isOpen) {
       setSelectedTool(null);
+      setShowToolInfo(false);
     }
   }, [isOpen]);
 
@@ -103,7 +105,7 @@ export function PlanningHelpDrawer({
       <>
         {/* Header */}
         <div className="flex items-start justify-between gap-3 border-b border-border-subtle/40 px-5 py-4 sm:px-6">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             {selectedTool ? (
               <button
                 type="button"
@@ -118,13 +120,27 @@ export function PlanningHelpDrawer({
               <Sparkles size={18} className="text-accent-teal" />
             </div>
             )}
-            <div>
+            <div className="min-w-0">
               <h2 id={titleId} className="text-lg font-bold text-text">
                 {selectedTool === 'on-again-off-again' ? 'On Again / Off Again' : 'Planning Help'}
               </h2>
-              <p id={descriptionId} className="mt-0.5 text-sm text-text-secondary">
-                {selectedTool ? 'Set up your schedule' : 'Build a schedule for your day'}
-              </p>
+              <div className="mt-0.5 flex items-center gap-2">
+                <p id={descriptionId} className="text-sm text-text-secondary">
+                  {selectedTool ? 'Set up your schedule' : 'Build a schedule for your day'}
+                </p>
+                {selectedTool === 'on-again-off-again' && (
+                  <button
+                    type="button"
+                    onClick={() => setShowToolInfo((current) => !current)}
+                    className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border-subtle/45 bg-bg-surface/75 text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
+                    aria-expanded={showToolInfo}
+                    aria-controls="planning-help-tool-info"
+                    aria-label="More information about On Again / Off Again"
+                  >
+                    {showToolInfo ? <ChevronUp size={14} /> : <Info size={14} />}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
           <button
@@ -170,7 +186,15 @@ export function PlanningHelpDrawer({
 
         {/* Tool content */}
         {selectedTool && (
-          <div className="flex-1 overflow-y-auto border-t border-border-subtle/40">
+          <div className="flex-1 overflow-x-hidden overflow-y-auto border-t border-border-subtle/40">
+            {selectedTool === 'on-again-off-again' && showToolInfo && (
+              <div
+                id="planning-help-tool-info"
+                className="mx-5 mt-4 rounded-[1.25rem] border border-border-subtle/40 bg-bg-elevated/35 px-4 py-3 text-sm leading-relaxed text-text-secondary shadow-sm sm:mx-6"
+              >
+                Add energizing tasks and focus tasks, then we&apos;ll rotate between them automatically to create the shape of your day.
+              </div>
+            )}
             <OnAgainOffAgainTool
               dateKey={dateKey}
               onClose={onClose}
