@@ -35,6 +35,9 @@ export interface DayTimelineProps {
   /** Callback when an item is clicked */
   onItemClick?: (item: TimelineItem) => void;
 
+  /** Build href for Focus Timer for time-block items; when provided, block cards show a Play button */
+  buildStartTimerHref?: (item: TimelineItem) => string | undefined;
+
   /** Additional CSS classes */
   className?: string;
 
@@ -52,6 +55,7 @@ export function DayTimeline({
   nowMinute = null,
   config: configOverrides,
   onItemClick,
+  buildStartTimerHref,
   className,
   isMobile = false,
 }: DayTimelineProps) {
@@ -132,7 +136,12 @@ export function DayTimeline({
           ))}
 
         {/* Events layer (behind blocks) */}
-        {events.map((item) => {
+        {events
+          .filter((item) => {
+            const itemEnd = item.endMinute ?? item.startMinute + 60;
+            return itemEnd > config.startHour * 60 && item.startMinute < config.endHour * 60;
+          })
+          .map((item) => {
           const startMin = Math.max(item.startMinute, config.startHour * 60);
           const endMin = Math.min(item.endMinute ?? item.startMinute + 60, config.endHour * 60);
           const duration = endMin - startMin;
@@ -151,12 +160,18 @@ export function DayTimeline({
               }}
               status={status}
               onClick={() => onItemClick?.(item)}
+              startTimerHref={buildStartTimerHref?.(item)}
             />
           );
         })}
 
         {/* Time blocks layer */}
-        {blocks.map((item) => {
+        {blocks
+          .filter((item) => {
+            const itemEnd = item.endMinute ?? item.startMinute + 30;
+            return itemEnd > config.startHour * 60 && item.startMinute < config.endHour * 60;
+          })
+          .map((item) => {
           const startMin = Math.max(item.startMinute, config.startHour * 60);
           const endMin = Math.min(item.endMinute ?? item.startMinute + 30, config.endHour * 60);
           const duration = endMin - startMin;
@@ -178,12 +193,13 @@ export function DayTimeline({
                 left: isMobile ? '0.25rem' : '0.125rem',
                 right: isMobile ? '0.25rem' : '0.125rem',
                 top: getTop(startMin) + 2,
-                height: Math.max(getHeight(duration) - 2, isMobile ? 48 : 32),
+                height: Math.max(getHeight(duration) - 2, isMobile ? 52 : 44),
               }}
               status={status}
               hasOverlap={hasEventOverlap}
               onClick={() => onItemClick?.(item)}
               isMobile={isMobile}
+              startTimerHref={buildStartTimerHref?.(item)}
             />
           );
         })}

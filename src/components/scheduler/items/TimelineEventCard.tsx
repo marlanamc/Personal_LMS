@@ -1,7 +1,8 @@
 'use client';
 
 import type { CSSProperties } from 'react';
-import { CalendarDays } from 'lucide-react';
+import Link from 'next/link';
+import { CalendarDays, Play } from 'lucide-react';
 import type { TimelineItem, TimelineItemStatus } from '@/lib/unified-scheduler';
 import { formatMinuteOfDay } from '@/lib/unified-scheduler';
 
@@ -16,6 +17,8 @@ interface TimelineEventCardProps {
   style?: CSSProperties;
   status: TimelineItemStatus;
   onClick?: () => void;
+  /** When set, shows a Play icon linking to the Focus Timer for this event's duration */
+  startTimerHref?: string;
 }
 
 export function TimelineEventCard({
@@ -23,6 +26,7 @@ export function TimelineEventCard({
   style,
   status,
   onClick,
+  startTimerHref,
 }: TimelineEventCardProps) {
   const eventColor = getEventColor(item.eventType);
 
@@ -45,16 +49,29 @@ export function TimelineEventCard({
         style={{ background: eventColor }}
       />
 
-      <div className="pl-2.5 flex-1 min-w-0 flex flex-col justify-center">
-        <div className="flex items-center gap-1.5">
-          <CalendarDays size={10} className="shrink-0" style={{ color: eventColor }} />
-          <span className="text-[13px] sm:text-[15px] font-body font-bold text-text/90 truncate">
-            {item.label}
+      <div className="pl-2.5 flex-1 min-w-0 flex flex-row items-center justify-between gap-2 overflow-hidden group/card">
+        <div className="min-w-0 flex flex-col justify-center flex-1">
+          <div className="flex items-center gap-1.5">
+            <CalendarDays size={10} className="shrink-0" style={{ color: eventColor }} />
+            <span className="text-[13px] sm:text-[15px] font-body font-bold text-text/90 truncate">
+              {item.label}
+            </span>
+          </div>
+          <span className="block text-[11px] sm:text-[15px] font-body font-normal text-text-muted/70 mt-0.5 pl-[18px] whitespace-nowrap">
+            {formatMinuteOfDay(item.startMinute)} – {formatMinuteOfDay(item.endMinute ?? item.startMinute + 60)}
           </span>
         </div>
-        <span className="block text-[11px] sm:text-[15px] font-body font-normal text-text-muted/70 mt-0.5 pl-[18px] whitespace-nowrap">
-          {formatMinuteOfDay(item.startMinute)} – {formatMinuteOfDay(item.endMinute ?? item.startMinute + 60)}
-        </span>
+        {startTimerHref ? (
+          <Link
+            href={startTimerHref}
+            onClick={(e) => e.stopPropagation()}
+            className="shrink-0 inline-flex items-center justify-center rounded-md p-1.5 text-text-muted/70 hover:bg-bg-surface/60 hover:text-accent-teal transition-colors sm:opacity-0 sm:group-hover/card:opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-accent-teal/40"
+            aria-label={`Start timer for ${item.label}`}
+            title="Start focus timer"
+          >
+            <Play size={12} />
+          </Link>
+        ) : null}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -8,7 +8,9 @@ import {
   CalendarDays,
   ChevronDown,
   ChevronUp,
+  FileText,
   Heart,
+  Play,
   Sparkles,
   SunMedium,
   Target,
@@ -65,7 +67,11 @@ export function DayPlannerView({
 
   // Data hooks
   const { anchors } = useDailyAnchorsForToday(storageScope);
-  const { plannerStore } = useTimeBlockPlanner();
+  const { plannerStore, setPlan } = useTimeBlockPlanner();
+
+  // Block note editing (tap/double-click a block to add or edit notes)
+  const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
+  const [editingNoteText, setEditingNoteText] = useState('');
 
   // Current time tracking
   const [nowMinute, setNowMinute] = useState<number | null>(() => getNowMinuteForDate(selectedDateKey));
@@ -180,10 +186,58 @@ export function DayPlannerView({
     setIsDrawerOpen(true);
   };
 
+  const currentPlan = plannerStore[selectedDateKey];
+  const patchBlockNote = useCallback(
+    (blockId: string, value: string) => {
+      if (!currentPlan) return;
+      const blockNotes = currentPlan.blockNotes ?? {};
+      setPlan(selectedDateKey, {
+        ...currentPlan,
+        blockNotes: { ...blockNotes, [blockId]: value },
+      });
+    },
+    [currentPlan, selectedDateKey, setPlan],
+  );
+
+  const openBlockNote = useCallback(
+    (item: TimelineItem) => {
+      if (item.type !== 'time-block') return;
+      const blockId = item.id.startsWith('block-') ? item.id.slice(6) : item.id;
+      setEditingBlockId(blockId);
+      setEditingNoteText((currentPlan?.blockNotes ?? {})[blockId] ?? '');
+    },
+    [currentPlan?.blockNotes],
+  );
+
+  const closeBlockNote = useCallback(() => {
+    if (editingBlockId) {
+      patchBlockNote(editingBlockId, editingNoteText);
+      setEditingBlockId(null);
+      setEditingNoteText('');
+    }
+  }, [editingBlockId, editingNoteText, patchBlockNote]);
+
   const handleItemClick = (item: TimelineItem) => {
-    // For now, just log. Could open details modal in the future.
-    console.log('Item clicked:', item);
+    if (item.type === 'time-block') {
+      openBlockNote(item);
+    }
   };
+
+  const buildStartTimerHref = useCallback((item: TimelineItem) => {
+    if (item.type === 'time-block') {
+      const duration = item.durationMinutes ?? (item.endMinute ?? item.startMinute + 30) - item.startMinute;
+      return `/dashboard/timer?timeBlockLabel=${encodeURIComponent(item.label)}&timeBlockMinutes=${duration}`;
+    }
+    if (item.type === 'event') {
+      const duration = (item.endMinute ?? item.startMinute + 60) - item.startMinute;
+      return `/dashboard/timer?timeBlockLabel=${encodeURIComponent(item.label)}&timeBlockMinutes=${duration}`;
+    }
+    return undefined;
+  }, []);
+
+  const startSequenceHref = blockSummary
+    ? `/dashboard/timer?sequenceDateKey=${encodeURIComponent(selectedDateKey)}`
+    : null;
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-fadeIn">
@@ -271,6 +325,16 @@ export function DayPlannerView({
                 Today
               </button>
             )}
+            {startSequenceHref ? (
+              <Link
+                href={startSequenceHref}
+                className="inline-flex items-center justify-center gap-2 rounded-[1.75rem] border border-accent-teal/40 bg-accent-teal/10 px-4 py-[9px] text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/20 backdrop-blur-md h-[42px]"
+                title="Start full sequence in Focus Timer"
+              >
+                <Play size={15} />
+                Start Sequence
+              </Link>
+            ) : null}
             <button
               type="button"
               ref={(node) => {
@@ -279,7 +343,7 @@ export function DayPlannerView({
                 }
               }}
               onClick={(event) => openPlanningHelp(event.currentTarget)}
-              className={`inline-flex items-center justify-center gap-2 rounded-[1.75rem] border border-border-subtle/60 bg-bg-surface/80 px-4 py-[9px] text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md h-[42px] ${isSelectedToday ? 'col-span-1' : ''}`}
+              className={`inline-flex items-center justify-center gap-2 rounded-[1.75rem] border border-border-subtle/60 bg-bg-surface/80 px-4 py-[9px] text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md h-[42px] ${isSelectedToday && !startSequenceHref ? 'col-span-1' : ''}`}
             >
               <Wand2 size={15} className="text-accent-teal" />
               Planning Help
@@ -384,13 +448,23 @@ export function DayPlannerView({
               </button>
             )}
             <Link
-              href="/dashboard/calendar"
+              href={`/dashboard/calendar?date=${selectedDateKey}`}
               className="inline-flex items-center justify-center rounded-full border border-border-subtle/60 bg-bg-surface/80 p-2.5 text-text-secondary shadow-sm transition-all hover:bg-bg-elevated hover:text-text backdrop-blur-md"
               aria-label="Calendar"
               title="Calendar"
             >
               <CalendarDays size={18} />
             </Link>
+            {startSequenceHref ? (
+              <Link
+                href={startSequenceHref}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-accent-teal/40 bg-accent-teal/10 px-4 py-2.5 text-sm font-semibold text-accent-teal transition-all hover:bg-accent-teal/20 backdrop-blur-md"
+                title="Start full sequence in Focus Timer"
+              >
+                <Play size={15} />
+                Start Sequence
+              </Link>
+            ) : null}
             <button
               type="button"
               ref={(node) => {
@@ -491,12 +565,65 @@ export function DayPlannerView({
               items={timelineItems}
               nowMinute={nowMinute}
               onItemClick={handleItemClick}
+              buildStartTimerHref={buildStartTimerHref}
               isMobile={isMobile}
               config={timelineConfig}
             />
           )}
         </div>
       </section>
+
+      {/* Block note modal (tap/click a time block to add notes) */}
+      {editingBlockId ? (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={closeBlockNote}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') closeBlockNote();
+          }}
+          role="presentation"
+        >
+          <div
+            className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl border border-border-subtle/40 bg-bg-surface shadow-2xl p-5 sm:p-6 animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-label="Block note"
+            aria-modal="true"
+          >
+            <div className="sm:hidden flex justify-center mb-4">
+              <div className="w-10 h-1 rounded-full bg-border-subtle/60" />
+            </div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent-teal/15">
+                <FileText size={14} className="text-accent-teal" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-text">Block Note</p>
+                <p className="text-[10px] font-medium uppercase tracking-wider text-text-muted">What to work on</p>
+              </div>
+            </div>
+            <textarea
+              value={editingNoteText}
+              onChange={(e) => setEditingNoteText(e.target.value)}
+              placeholder="e.g. Fix login bug, refactor utils, review PR..."
+              rows={4}
+              className="w-full rounded-xl border border-border-subtle/40 bg-bg-elevated/80 px-4 py-3 font-medium text-text placeholder:text-text-muted/50 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-accent-teal/30 focus:border-accent-teal/50 resize-none"
+              style={{ fontSize: '15px' }}
+              autoFocus
+            />
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-xs text-text-muted">Tap outside or press Escape to save</p>
+              <button
+                type="button"
+                onClick={closeBlockNote}
+                className="px-4 py-2 rounded-xl bg-accent-teal text-bg-base text-sm font-bold hover:brightness-110 transition-all"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {/* Planning Help drawer */}
       <PlanningHelpDrawer

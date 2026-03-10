@@ -120,12 +120,18 @@ export function useDailyAnchors(storageScope: string) {
         const hasServerData = Object.keys(serverStore.states).length > 0;
 
         if (!cancelled) {
-          if (hasServerData) {
-            setStore(serverStore);
-          } else if (hasLegacyData) {
-            // One-time recovery for users who only have legacy local data.
+          if (hasLegacyData) {
+            // Prefer localStorage: it’s updated on every change in this session and reflects
+            // edits made on other pages (e.g., front page) before navigation. Server persistence
+            // is debounced, so server can lag behind when navigating quickly.
             setStore(legacyStore);
-            await persistStoreToServer(legacyStore);
+            if (!hasServerData) {
+              await persistStoreToServer(legacyStore);
+            } else {
+              void persistStoreToServer(legacyStore);
+            }
+          } else if (hasServerData) {
+            setStore(serverStore);
           } else {
             setStore(createEmptyStore());
           }

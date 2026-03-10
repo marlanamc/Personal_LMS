@@ -18,6 +18,7 @@ import {
     Trash2,
     SkipForward,
     Coffee,
+    StickyNote,
 } from 'lucide-react';
 import { useFocusTimer } from '@/context/FocusTimerContext';
 import { ActivityPanelContent } from '@/components/dashboard/ActivityPanelContent';
@@ -55,6 +56,7 @@ type FeaturedAssignmentTask = {
 };
 
 const FOCUS_TASKS_STORAGE_KEY = 'focus-timer:tasks:v1';
+const FOCUS_NOTEPAD_STORAGE_KEY = 'focus-timer:notepad:v1';
 const FOCUS_SESSION_HISTORY_STORAGE_KEY = 'focus-timer:sessions:v1';
 const FOCUS_WEEK_WINDOW_STORAGE_KEY = 'focus-timer:week-window:v1';
 const SPOTIFY_CONNECTED_STORAGE_KEY = 'focus-timer:spotify-connected:v1';
@@ -140,6 +142,7 @@ export const FocusTimer = () => {
     // Spotify Playlist state
     const [isMusicMenuOpen, setIsMusicMenuOpen] = useState(false);
     const [isTasksPanelOpen, setIsTasksPanelOpen] = useState(false);
+    const [isNotepadPanelOpen, setIsNotepadPanelOpen] = useState(false);
     const [spotifyStatus, setSpotifyStatus] = useState<SpotifyConnectionStatus>({
         configured: true,
         connected: false,
@@ -154,6 +157,8 @@ export const FocusTimer = () => {
     const [tasksNotice, setTasksNotice] = useState<string | null>(null);
     const [isImportingTasks, setIsImportingTasks] = useState(false);
     const [tasksHydrated, setTasksHydrated] = useState(false);
+    const [sessionNotes, setSessionNotes] = useState('');
+    const [notesHydrated, setNotesHydrated] = useState(false);
     const [isActivityPanelOpen, setIsActivityPanelOpen] = useState(false);
     const [activeActivityId, setActiveActivityId] = useState<string | null>(null);
     const [activeAssignmentId, setActiveAssignmentId] = useState<string | null>(null);
@@ -492,12 +497,34 @@ export const FocusTimer = () => {
         window.localStorage.setItem(FOCUS_TASKS_STORAGE_KEY, JSON.stringify(tasks));
     }, [tasks, tasksHydrated]);
 
+    // Load notepad from localStorage
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const raw = window.localStorage.getItem(FOCUS_NOTEPAD_STORAGE_KEY);
+            setSessionNotes(typeof raw === 'string' ? raw : '');
+        } catch {
+            setSessionNotes('');
+        } finally {
+            setNotesHydrated(true);
+        }
+    }, []);
+
+    // Save notepad to localStorage (debounced)
+    useEffect(() => {
+        if (!notesHydrated || typeof window === 'undefined') return;
+        const timer = window.setTimeout(() => {
+            window.localStorage.setItem(FOCUS_NOTEPAD_STORAGE_KEY, sessionNotes);
+        }, 500);
+        return () => window.clearTimeout(timer);
+    }, [sessionNotes, notesHydrated]);
+
     useEffect(() => {
         if (typeof document === 'undefined') {
             return;
         }
 
-        if (isTasksPanelOpen || isActivityPanelOpen) {
+        if (isTasksPanelOpen || isActivityPanelOpen || isNotepadPanelOpen) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = '';
@@ -506,7 +533,7 @@ export const FocusTimer = () => {
         return () => {
             document.body.style.overflow = '';
         };
-    }, [isTasksPanelOpen, isActivityPanelOpen]);
+    }, [isTasksPanelOpen, isActivityPanelOpen, isNotepadPanelOpen]);
 
     useEffect(() => {
         if (!tasksNotice) {
@@ -1330,10 +1357,25 @@ export const FocusTimer = () => {
                     )}
                 </div>
 
-                <div className="relative">
+                <div className="relative flex items-center gap-2">
                     <button
                         type="button"
-                        onClick={() => setIsTasksPanelOpen(true)}
+                        onClick={() => {
+                            setIsNotepadPanelOpen(true);
+                            setIsTasksPanelOpen(false);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-light rounded-full text-sm font-medium transition-colors border border-border/50 shadow-sm"
+                        aria-label="Open notepad"
+                    >
+                        <StickyNote className="w-4 h-4 text-text/70" />
+                        <span className="text-text/90">Notepad</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setIsTasksPanelOpen(true);
+                            setIsNotepadPanelOpen(false);
+                        }}
                         className="flex items-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-light rounded-full text-sm font-medium transition-colors border border-border/50 shadow-sm"
                         aria-label="Open tasks panel"
                     >
@@ -1353,6 +1395,15 @@ export const FocusTimer = () => {
                     )}
                     {sessionNotice && (
                         <p className="text-center text-xs font-semibold text-mineral-mint mb-4">{sessionNotice}</p>
+                    )}
+
+                    {/* Session title when from event or On Again/Off Again */}
+                    {((activeSequence && activeSequenceIndex !== null && activeSequence[activeSequenceIndex]?.label) || activeSessionLabel) && (
+                        <h2 className="text-center text-lg sm:text-xl font-display font-bold text-text mb-4 px-4 line-clamp-2">
+                            {activeSequence && activeSequenceIndex !== null
+                                ? activeSequence[activeSequenceIndex]?.label ?? activeSessionLabel
+                                : activeSessionLabel}
+                        </h2>
                     )}
 
                     {/* Timer Ring */}
@@ -1830,6 +1881,56 @@ export const FocusTimer = () => {
                                     );
                                 })()
                             ))}
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            {/* Notepad Panel */}
+            <div
+                className={`fixed inset-0 z-[60] ${isNotepadPanelOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                aria-hidden={!isNotepadPanelOpen}
+            >
+                <button
+                    type="button"
+                    onClick={() => setIsNotepadPanelOpen(false)}
+                    className={`absolute inset-0 bg-black/45 transition-opacity duration-200 ${isNotepadPanelOpen ? 'opacity-100' : 'opacity-0'}`}
+                    tabIndex={isNotepadPanelOpen ? 0 : -1}
+                    aria-label="Close notepad"
+                />
+                <aside
+                    className={`absolute right-0 top-0 h-full w-full max-w-md bg-bg-elevated border-l border-border shadow-2xl transition-transform duration-300 ${isNotepadPanelOpen ? 'translate-x-0' : 'translate-x-full'}`}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Session notepad"
+                >
+                    <div className="h-full flex flex-col">
+                        <div className="px-5 pt-5 pb-4 border-b border-border/40">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-2xl font-display font-bold text-text">Notepad</h2>
+                                    <p className="text-xs text-text-muted mt-1">
+                                        Jot down anything that comes to mind — it saves automatically
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsNotepadPanelOpen(false)}
+                                    className="p-2 rounded-lg bg-bg-secondary hover:bg-bg-light border border-border/40 transition-colors"
+                                    aria-label="Close notepad"
+                                >
+                                    <X className="w-4 h-4 text-text-muted" />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="flex-1 overflow-hidden p-5">
+                            <textarea
+                                value={sessionNotes}
+                                onChange={(e) => setSessionNotes(e.target.value)}
+                                placeholder="Ideas, reminders, tangents... Don't break focus — just capture it here."
+                                className="w-full h-full min-h-[200px] rounded-xl border border-border/60 bg-bg-surface px-4 py-3 text-sm text-text placeholder:text-text-muted/70 resize-none outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
+                                style={{ fontFamily: 'inherit' }}
+                            />
                         </div>
                     </div>
                 </aside>

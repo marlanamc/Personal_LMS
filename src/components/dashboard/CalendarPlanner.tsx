@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { type CalendarEvent } from "./MiniCalendar";
 import { CalendarPanel } from "./CalendarPanel";
 import { DailyAnchorsDateSummary } from "@/components/daily-anchors";
-import { PlusCircle, StickyNote, CheckCircle2, ListTodo, CalendarDays, Clock3, Wand2 } from "lucide-react";
+import { PlusCircle, StickyNote, CheckCircle2, ListTodo, CalendarDays, Clock3, Play, Wand2 } from "lucide-react";
 import { useCalendarPlanner } from "./useCalendarPlanner";
+import { useTimeBlockPlanner } from "./useTimeBlockPlanner";
 
 interface CalendarPlannerProps {
   events: CalendarEvent[];
@@ -102,17 +104,36 @@ function buildEventsByDate(events: CalendarEvent[]) {
 }
 
 export default function CalendarPlanner({ events, storageScope = "default" }: CalendarPlannerProps) {
+  const searchParams = useSearchParams();
   const today = useMemo(() => dayStart(new Date()), []);
-  const [selectedDate, setSelectedDate] = useState<Date>(today);
+  const initialDateFromUrl = useMemo(() => {
+    const dateParam = searchParams.get("date");
+    if (!dateParam || !/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) return null;
+    const [y, m, d] = dateParam.split("-").map(Number);
+    const parsed = new Date(y, m - 1, d, 12, 0, 0, 0);
+    return Number.isNaN(parsed.getTime()) ? null : dayStart(parsed);
+  }, [searchParams]);
+  const [selectedDate, setSelectedDate] = useState<Date>(initialDateFromUrl ?? today);
+
+  useEffect(() => {
+    if (initialDateFromUrl) setSelectedDate(initialDateFromUrl);
+  }, [initialDateFromUrl]);
   const [newTaskText, setNewTaskText] = useState("");
   const [notesDraft, setNotesDraft] = useState("");
   const [notesSavedNotice, setNotesSavedNotice] = useState(false);
   const taskIdCounter = useRef(0);
 
   const { getPlan, updatePlan, isSaving, saveError } = useCalendarPlanner(storageScope);
+  const { plannerStore } = useTimeBlockPlanner();
   const eventsByDate = useMemo(() => buildEventsByDate(events), [events]);
-
   const selectedKey = dateKey(selectedDate);
+
+  const timeBlockSummary = useMemo(() => {
+    const dayPlan = plannerStore[selectedKey];
+    const blocks = dayPlan?.blocks ?? [];
+    if (blocks.length === 0) return null;
+    return { blockCount: blocks.length };
+  }, [plannerStore, selectedKey]);
   const selectedEvents = useMemo(
     () => (eventsByDate.get(selectedKey) || []).filter((event) => eventTouchesDate(event, selectedDate)),
     [eventsByDate, selectedDate, selectedKey]
@@ -199,6 +220,22 @@ export default function CalendarPlanner({ events, storageScope = "default" }: Ca
 
           <div className="mt-4">
             <DailyAnchorsDateSummary storageScope={storageScope} date={selectedDate} />
+
+            {timeBlockSummary && (
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-teal/30 bg-accent-teal/10 px-3 py-1.5 text-xs font-semibold text-accent-teal">
+                  {timeBlockSummary.blockCount} {timeBlockSummary.blockCount === 1 ? "block" : "blocks"} planned
+                </span>
+                <Link
+                  href={`/dashboard/timer?sequenceDateKey=${encodeURIComponent(selectedKey)}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-accent-teal/40 bg-accent-teal/10 hover:bg-accent-teal/20 px-3 py-1.5 text-xs font-semibold text-accent-teal transition-colors"
+                  title="Start full sequence in Focus Timer"
+                >
+                  <Play size={12} />
+                  Start sequence
+                </Link>
+              </div>
+            )}
 
             {selectedEvents.length > 0 && (
               <div className="space-y-2 mt-4">
