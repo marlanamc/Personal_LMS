@@ -11,6 +11,7 @@ import {
   getTimelineHeight,
 } from '@/lib/unified-scheduler';
 import { TimelineAnchorMarker } from './items/TimelineAnchorMarker';
+import { TimelineAnchorRangeMarker } from './items/TimelineAnchorRangeMarker';
 import { TimelineEventCard } from './items/TimelineEventCard';
 import { TimelineBlockCard } from './items/TimelineBlockCard';
 import { cn } from '@/lib/utils';
@@ -70,10 +71,14 @@ export function DayTimeline({
   // Generate time labels for the gutter
   const timeLabels = useMemo(() => generateTimeLabels(config), [config]);
 
-  // Separate items by type for layered rendering
-  const { anchors, events, blocks } = useMemo(() => {
+  // Separate items by type for layered rendering; split anchors into point vs range
+  const { pointAnchors, rangeAnchors, events, blocks } = useMemo(() => {
+    const anchors = items.filter((item) => item.type === 'anchor');
+    const pointAnchors = anchors.filter((a) => a.endMinute == null || a.endMinute <= a.startMinute);
+    const rangeAnchors = anchors.filter((a) => a.endMinute != null && a.endMinute > a.startMinute);
     return {
-      anchors: items.filter((item) => item.type === 'anchor'),
+      pointAnchors,
+      rangeAnchors,
       events: items.filter((item) => item.type === 'event' && !item.isAllDay),
       blocks: items.filter((item) => item.type === 'time-block'),
     };
@@ -204,14 +209,37 @@ export function DayTimeline({
           );
         })}
 
-        {/* Anchor markers layer (on top) */}
-        {anchors.map((item) => {
+        {/* Range anchors (block with start/end orbs) */}
+        {rangeAnchors
+          .filter((item) => {
+            const endMin = item.endMinute ?? item.startMinute + 60;
+            return endMin > config.startHour * 60 && item.startMinute < config.endHour * 60;
+          })
+          .map((item) => {
+            const startMin = Math.max(item.startMinute, config.startHour * 60);
+            const endMin = Math.min(item.endMinute ?? item.startMinute + 60, config.endHour * 60);
+            const duration = endMin - startMin;
+            return (
+              <TimelineAnchorRangeMarker
+                key={item.id}
+                item={item}
+                style={{
+                  position: 'absolute',
+                  left: isMobile ? '0.25rem' : '0.375rem',
+                  right: isMobile ? '0.25rem' : '0.375rem',
+                  top: getTop(startMin) + 2,
+                  height: Math.max(getHeight(duration) - 2, 28),
+                }}
+              />
+            );
+          })}
+
+        {/* Point anchor markers (on top) */}
+        {pointAnchors.map((item) => {
           const anchorMinute = item.startMinute;
-          // Only show if within timeline bounds
           if (anchorMinute < config.startHour * 60 || anchorMinute > config.endHour * 60) {
             return null;
           }
-
           return (
             <TimelineAnchorMarker
               key={item.id}

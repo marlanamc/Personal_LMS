@@ -2,7 +2,7 @@
 
 import { BookOpen, BriefcaseBusiness, Calendar, Code2, Coffee, Dumbbell, Flower2, Heart, Moon, Sunrise, Target } from 'lucide-react';
 import { useMemo } from 'react';
-import { formatTimeLabel, isAnchorScheduledForDate, parseHHMMToMinutes, type AnchorIcon, type DailyAnchor } from '@/lib/anchors';
+import { formatTimeLabel, formatTimeRange, isAnchorScheduledForDate, parseHHMMToMinutes, type AnchorIcon, type DailyAnchor } from '@/lib/anchors';
 import { useDailyAnchors } from './useDailyAnchors';
 
 interface DailyAnchorsDateSummaryProps {
@@ -117,8 +117,8 @@ export function DailyAnchorsDateSummary({ storageScope, date }: DailyAnchorsDate
     : 0;
 
   return (
-    <div className="rounded-3xl border px-4 sm:px-6 py-4 elevation-2 bg-[#EDE3D7] border-[#D9C8B5] dark:bg-bg-elevated dark:border-border-subtle/50">
-      {/* Header with progress bar on mobile */}
+    <div className="rounded-3xl border px-4 lg:px-6 py-4 elevation-2 bg-[#EDE3D7] border-[#D9C8B5] dark:bg-bg-elevated dark:border-border-subtle/50">
+      {/* Header with progress bar on mobile/tablet */}
       <div className="flex items-center justify-between gap-3 mb-3">
         <h4 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.18em]">Daily Anchors</h4>
         <span className="text-xs text-text-muted tabular-nums">
@@ -126,9 +126,9 @@ export function DailyAnchorsDateSummary({ storageScope, date }: DailyAnchorsDate
         </span>
       </div>
 
-      {/* Mobile progress bar */}
+      {/* Mobile/tablet progress bar */}
       {filteredAndSortedAnchors.length > 0 && (
-        <div className="sm:hidden mb-3 h-1.5 rounded-full bg-bg-surface/60 overflow-hidden">
+        <div className="lg:hidden mb-3 h-1.5 rounded-full bg-bg-surface/60 overflow-hidden">
           <div
             className="h-full rounded-full bg-accent-mint transition-all duration-500 ease-out"
             style={{ width: `${completionPercent}%` }}
@@ -152,7 +152,9 @@ export function DailyAnchorsDateSummary({ storageScope, date }: DailyAnchorsDate
                       {anchor.label}
                     </span>
                     <span className="text-xs text-text-muted">
-                      {formatTimeLabel(anchor.scheduledTime)}
+                      {anchor.endTime
+                        ? formatTimeRange(anchor.scheduledTime, anchor.endTime, true)
+                        : formatTimeLabel(anchor.scheduledTime)}
                     </span>
                   </div>
                 </div>
@@ -167,9 +169,9 @@ export function DailyAnchorsDateSummary({ storageScope, date }: DailyAnchorsDate
           )}
         </div>
 
-        {/* Desktop only: circular progress ring */}
+        {/* Desktop only: circular progress ring (mobile/tablet use progress bar) */}
         {filteredAndSortedAnchors.length > 0 && (
-          <div className="hidden sm:block">
+          <div className="hidden lg:block">
             <AnchorProgressRing anchors={filteredAndSortedAnchors} />
           </div>
         )}

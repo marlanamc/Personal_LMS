@@ -23,6 +23,8 @@ export interface DailyAnchor {
   label: string;
   icon: AnchorIcon;
   scheduledTime: string;
+  /** Optional end time (HH:MM). When set, anchor is a block from scheduledTime to endTime. */
+  endTime?: string;
   daysOfWeek?: DayOfWeek[];
   status: AnchorStatus;
   actualTime?: string;
@@ -34,6 +36,8 @@ export interface DailyAnchorTemplate {
   label: string;
   icon: AnchorIcon;
   scheduledTime: string;
+  /** Optional end time (HH:MM). */
+  endTime?: string;
   daysOfWeek?: DayOfWeek[];
 }
 
@@ -99,12 +103,30 @@ export function getDefaultAnchorTemplates(): DailyAnchorTemplate[] {
   return DEFAULT_DAILY_ANCHOR_TEMPLATES.map((template) => ({ ...template }));
 }
 
+const HHMM_REGEX = /^\d{2}:\d{2}$/;
+
+function normalizeEndTime(
+  raw: unknown,
+  scheduledTime: string,
+  fallback?: string,
+): string | undefined {
+  if (raw === undefined || raw === null) return fallback;
+  const s = typeof raw === 'string' ? raw.trim() : '';
+  if (!HHMM_REGEX.test(s)) return fallback;
+  const startMin = parseHHMMToMinutes(scheduledTime);
+  const endMin = parseHHMMToMinutes(s);
+  if (endMin <= startMin) return fallback;
+  return s;
+}
+
 function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): DailyAnchorTemplate {
   const candidate = (raw && typeof raw === 'object' ? raw : {}) as {
     id?: unknown;
     label?: unknown;
     icon?: unknown;
     scheduledTime?: unknown;
+    endTime?: unknown;
+    durationMinutes?: unknown;
     daysOfWeek?: unknown;
   };
 
@@ -116,13 +138,26 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
     : fallback?.icon || 'moon';
 
   const scheduledTime =
-    typeof candidate.scheduledTime === 'string' && /^\d{2}:\d{2}$/.test(candidate.scheduledTime)
+    typeof candidate.scheduledTime === 'string' && HHMM_REGEX.test(candidate.scheduledTime)
       ? candidate.scheduledTime
       : fallback?.scheduledTime || '08:00';
 
   const labelFromCandidate = typeof candidate.label === 'string' ? candidate.label.trim() : '';
   const label = labelFromCandidate || fallback?.label || 'Anchor';
 
+  let endTime = normalizeEndTime(candidate.endTime, scheduledTime, fallback?.endTime);
+  if (endTime === undefined && typeof candidate.durationMinutes === 'number' && candidate.durationMinutes > 0) {
+    const startMin = parseHHMMToMinutes(scheduledTime);
+    const endMin = startMin + Math.min(600, Math.round(candidate.durationMinutes));
+    const h = Math.floor(endMin / 60) % 24;
+    const m = endMin % 60;
+    endTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    if (parseHHMMToMinutes(endTime) > startMin) {
+      // keep migrated endTime
+    } else {
+      endTime = undefined;
+    }
+  }
   const daysOfWeek = normalizeDaysOfWeek(candidate.daysOfWeek) ?? fallback?.daysOfWeek;
 
   return {
@@ -130,17 +165,21 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
     label,
     icon,
     scheduledTime,
+    ...(endTime !== undefined ? { endTime } : {}),
     ...(daysOfWeek ? { daysOfWeek } : {}),
   };
 }
 
 function toStateAnchor(template: DailyAnchorTemplate, existing?: DailyAnchor): DailyAnchor {
+  const scheduledTime = existing?.scheduledTime ?? template.scheduledTime;
+  const endTime = existing?.endTime ?? template.endTime;
+  const validEndTime = endTime !== undefined ? normalizeEndTime(endTime, scheduledTime, undefined) : undefined;
   return {
     id: template.id,
     label: template.label,
     icon: template.icon,
-    // Preserve per-day time overrides when a state anchor already exists.
-    scheduledTime: existing?.scheduledTime ?? template.scheduledTime,
+    scheduledTime,
+    ...(validEndTime !== undefined ? { endTime: validEndTime } : {}),
     ...(template.daysOfWeek ? { daysOfWeek: template.daysOfWeek } : {}),
     status: existing?.status ?? 'waiting',
     actualTime: existing?.actualTime,
@@ -176,6 +215,26 @@ export function formatTimeLabel(time: string): string {
   const period = h >= 12 ? 'PM' : 'AM';
   const hour12 = h % 12 === 0 ? 12 : h % 12;
   return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+}
+
+/** Format a time range e.g. "5:00 PM – 9:00 PM" or short "5–9pm" when same period. */
+export function formatTimeRange(startTime: string, endTime: string, short = false): string {
+  const start = formatTimeLabel(startTime);
+  const end = formatTimeLabel(endTime);
+  if (short) {
+    const [rawH1, rawM1] = startTime.split(':').map(Number);
+    const [rawH2, rawM2] = endTime.split(':').map(Number);
+    const p1 = rawH1 >= 12 ? 'pm' : 'am';
+    const p2 = rawH2 >= 12 ? 'pm' : 'am';
+    const h1 = rawH1 % 12 || 12;
+    const h2 = rawH2 % 12 || 12;
+    const m1 = rawM1;
+    const m2 = rawM2;
+    if (p1 === p2 && m1 === 0 && m2 === 0) return `${h1}–${h2}${p1}`;
+    if (p1 === p2) return `${h1}:${String(m1).padStart(2, '0')}–${h2}:${String(m2).padStart(2, '0')} ${p1}`;
+    return `${h1}:${String(m1).padStart(2, '0')}${p1} – ${h2}:${String(m2).padStart(2, '0')}${p2}`;
+  }
+  return `${start} – ${end}`;
 }
 
 export function formatIsoTimeLabel(isoTime?: string): string | null {
@@ -305,6 +364,8 @@ function normalizeAnchor(dateKey: string, raw: unknown, fallbackTemplate?: Daily
     label?: unknown;
     icon?: unknown;
     scheduledTime?: unknown;
+    endTime?: unknown;
+    durationMinutes?: unknown;
     daysOfWeek?: unknown;
     status?: unknown;
     actualTime?: unknown;

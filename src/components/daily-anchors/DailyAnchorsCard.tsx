@@ -6,6 +6,7 @@ import type { ChecklistItem } from '@/components/dashboard/checklist-item.types'
 import {
   formatIsoTimeLabel,
   formatTimeLabel,
+  formatTimeRange,
   getDefaultAnchorTemplates,
   type AnchorIcon,
   type AnchorId,
@@ -87,7 +88,7 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
     [enrichedAnchors],
   );
 
-  const updateDraftAnchor = (anchorId: AnchorId, patch: Partial<Pick<DailyAnchor, 'label' | 'icon' | 'scheduledTime'>>) => {
+  const updateDraftAnchor = (anchorId: AnchorId, patch: Partial<Pick<DailyAnchor, 'label' | 'icon' | 'scheduledTime' | 'endTime'>>) => {
     setDraftAnchors((current) =>
       current.map((anchor) => (anchor.id === anchorId ? { ...anchor, ...patch } : anchor)),
     );
@@ -102,6 +103,7 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
           label: anchor.label.trim() || fallback?.label || 'Anchor',
           scheduledTime: anchor.scheduledTime,
           icon: anchor.icon,
+          ...(anchor.endTime ? { endTime: anchor.endTime } : {}),
         };
       }),
     );
@@ -112,13 +114,13 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
     <div className="card-elevated daily-anchors-panel rounded-2xl overflow-hidden relative">
       <div aria-hidden className="daily-anchors-panel-nebula absolute inset-0 pointer-events-none" />
 
-      <div className="relative px-4 sm:px-5 pt-4 pb-3 border-b border-border/20">
+      <div className="relative px-4 lg:px-5 pt-4 pb-3 border-b border-border/20">
         <div className="flex items-center justify-between gap-3 mb-2">
           <div>
             <p className="daily-anchors-kicker text-[10px] font-semibold uppercase tracking-[0.2em] text-text-muted/70 mb-1">
               Routine · Arcs
             </p>
-            <h2 className="text-lg sm:text-xl font-display font-bold text-text leading-tight">Daily Anchors</h2>
+            <h2 className="text-lg lg:text-xl font-display font-bold text-text leading-tight">Daily Anchors</h2>
             <p className="text-sm text-text-muted mt-0.5">No negotiation. Just routine.</p>
           </div>
           <div className="flex items-center gap-2">
@@ -153,11 +155,11 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
 
       <div className="relative space-y-3 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-3">
         {isEditing && (
-          <div className="mx-4 sm:mx-5 lg:mx-0 lg:col-span-3 mb-3 lg:mb-0 p-3 rounded-xl border border-border-subtle bg-bg-elevated/80">
+          <div className="mx-4 lg:mx-0 lg:col-span-3 mb-3 lg:mb-0 p-3 rounded-xl border border-border-subtle bg-bg-elevated/80">
             <p className="text-[11px] uppercase tracking-[0.14em] text-text-muted mb-2">Edit Anchors</p>
             <div className="space-y-2">
               {draftAnchors.map((anchor) => (
-                <div key={`edit-${anchor.id}`} className="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
+                <div key={`edit-${anchor.id}`} className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-center">
                   <input
                     value={anchor.label}
                     onChange={(e) => updateDraftAnchor(anchor.id, { label: e.target.value })}
@@ -169,7 +171,16 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
                     value={anchor.scheduledTime}
                     onChange={(e) => updateDraftAnchor(anchor.id, { scheduledTime: e.target.value })}
                     className="h-8 rounded-md border border-border-subtle bg-bg-surface px-2 text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary/40"
-                    aria-label={`Edit ${anchor.id} time`}
+                    aria-label={`${anchor.id} start time`}
+                  />
+                  <input
+                    type="time"
+                    placeholder="End"
+                    value={anchor.endTime ?? ''}
+                    onChange={(e) => updateDraftAnchor(anchor.id, { endTime: e.target.value || undefined })}
+                    className="h-8 w-[5.5rem] rounded-md border border-border-subtle bg-bg-surface px-2 text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    aria-label={`${anchor.id} end time (optional)`}
+                    title="Optional end time (e.g. 5–9pm)"
                   />
                   <select
                     value={anchor.icon}
@@ -197,7 +208,7 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
           </div>
         )}
         {quadrantColumns.map((quadrant) => (
-          <section key={quadrant.id} className="px-4 sm:px-5 lg:px-0 space-y-2.5">
+          <section key={quadrant.id} className="px-4 lg:px-5 lg:px-0 space-y-2.5">
             <p className="text-[11px] uppercase tracking-[0.14em] text-text-muted/80 font-semibold">
               {quadrant.label}
             </p>
@@ -211,7 +222,7 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
                   <div
                     key={anchor.id}
                     data-anchor-id={anchor.id}
-                    className={`daily-anchor-row px-4 sm:px-5 py-3.5 flex items-center gap-3 ${isActive ? 'is-active' : ''}`}
+                    className={`daily-anchor-row px-4 lg:px-5 py-3.5 flex items-center gap-3 ${isActive ? 'is-active' : ''}`}
                   >
                     <div className="daily-anchor-icon-wrap w-9 h-9 rounded-full text-text-secondary flex items-center justify-center shrink-0">
                       <Icon size={18} />
@@ -219,7 +230,11 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 text-sm">
-                        <span className="font-semibold text-text">{formatTimeLabel(anchor.scheduledTime)}</span>
+                        <span className="font-semibold text-text">
+                          {anchor.endTime
+                            ? formatTimeRange(anchor.scheduledTime, anchor.endTime, true)
+                            : formatTimeLabel(anchor.scheduledTime)}
+                        </span>
                         <span className="text-text-muted">{anchor.label}</span>
                       </div>
                       <p className="text-xs text-text-muted mt-0.5">

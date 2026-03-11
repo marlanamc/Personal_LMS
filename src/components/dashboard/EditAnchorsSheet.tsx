@@ -25,6 +25,7 @@ import {
   X,
 } from 'lucide-react';
 import {
+  parseHHMMToMinutes,
   sanitizeAnchorId,
   type AnchorIcon,
   type AnchorId,
@@ -141,7 +142,7 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
         />
 
         {/* Main Content Row */}
-        <div className="relative flex items-center gap-3 p-4 sm:p-5">
+        <div className="relative flex items-center gap-3 p-4 lg:p-5">
           {/* Drag Handle */}
           <button
             type="button"
@@ -185,17 +186,30 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
             </p>
           </div>
 
-          {/* Time */}
-          <div className="flex-shrink-0 text-right">
-            <input
-              type="time"
-              value={anchor.scheduledTime}
-              onChange={(e) => onUpdate(anchor.id, { scheduledTime: e.target.value })}
-              className="bg-transparent text-xl font-bold tabular-nums text-text text-right focus:outline-none focus:ring-0 border-0 p-0 w-[5.5rem] appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute"
-              aria-label="Scheduled time"
-            />
+          {/* Time & optional end time */}
+          <div className="flex-shrink-0 flex flex-col items-end gap-1">
+            <div className="flex items-center gap-2">
+              <input
+                type="time"
+                value={anchor.scheduledTime}
+                onChange={(e) => onUpdate(anchor.id, { scheduledTime: e.target.value })}
+                className="bg-transparent text-xl font-bold tabular-nums text-text text-right focus:outline-none focus:ring-0 border-0 p-0 w-[5.5rem] appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute"
+                aria-label="Start time"
+              />
+              <span className="text-text-muted/60 font-bold">–</span>
+              <input
+                type="time"
+                value={anchor.endTime ?? ''}
+                onChange={(e) => onUpdate(anchor.id, { endTime: e.target.value || undefined })}
+                className="bg-bg-elevated/60 border border-border-subtle/60 rounded-lg px-2 py-0.5 text-right text-sm tabular-nums text-text focus:outline-none focus:ring-2 focus:ring-primary/30 w-[5rem]"
+                aria-label="End time (optional)"
+                title="Optional end (e.g. 5–9pm)"
+              />
+            </div>
             <p className="text-xs text-text-muted/60 font-medium">
-              {formatTime12h(anchor.scheduledTime)}
+              {anchor.endTime
+                ? `${formatTime12h(anchor.scheduledTime)} – ${formatTime12h(anchor.endTime)}`
+                : formatTime12h(anchor.scheduledTime)}
             </p>
           </div>
 
@@ -231,11 +245,11 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
               transition={{ duration: 0.25 }}
               className="overflow-hidden border-t border-border-subtle/40"
             >
-              <div className="p-4 sm:p-5">
+              <div className="p-4 lg:p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text-muted/70 mb-3">
                   Choose Icon
                 </p>
-                <div className="grid grid-cols-6 sm:grid-cols-11 gap-2">
+                <div className="grid grid-cols-6 lg:grid-cols-11 gap-2">
                   {ICON_OPTIONS.map((option) => {
                     const OptionIcon = iconByName[option.value];
                     const isSelected = anchor.icon === option.value;
@@ -276,13 +290,13 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
               transition={{ duration: 0.25 }}
               className="overflow-hidden border-t border-border-subtle/40"
             >
-              <div className="p-4 sm:p-5 space-y-4">
+              <div className="p-4 lg:p-5 space-y-4">
                 {/* Day Selector */}
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text-muted/70 mb-3">
                     Active Days
                   </p>
-                  <div className="flex gap-1.5 sm:gap-2">
+                  <div className="flex gap-1.5 lg:gap-2">
                     {WEEKDAY_OPTIONS.map((day) => {
                       const isActive = allDaysSelected || anchor.daysOfWeek?.includes(day.value);
                       return (
@@ -291,7 +305,7 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
                           type="button"
                           onClick={() => onToggleDay(anchor.id, day.value)}
                           className={`
-                            flex-1 h-11 sm:h-10 rounded-xl text-sm font-semibold transition-all duration-200
+                            flex-1 h-11 lg:h-10 rounded-xl text-sm font-semibold transition-all duration-200
                             ${isActive
                               ? `bg-gradient-to-br ${iconGradient} text-white shadow-md`
                               : 'bg-bg-elevated/50 text-text-muted/70 border border-border-subtle/60 hover:text-text hover:border-accent-teal/40'
@@ -299,8 +313,8 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
                           `}
                           aria-pressed={isActive}
                         >
-                          <span className="sm:hidden">{day.short}</span>
-                          <span className="hidden sm:inline">{day.label}</span>
+                          <span className="lg:hidden">{day.short}</span>
+                          <span className="hidden lg:inline">{day.label}</span>
                         </button>
                       );
                     })}
@@ -422,7 +436,18 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
         const days = t.daysOfWeek?.length && t.daysOfWeek.length < 7
           ? Array.from(new Set(t.daysOfWeek)).sort((a, b) => a - b)
           : undefined;
-        return { id, label, icon: t.icon, scheduledTime: time, ...(days ? { daysOfWeek: days } : {}) };
+        const endTime =
+          t.endTime && /^\d{2}:\d{2}$/.test(t.endTime) && parseHHMMToMinutes(t.endTime) > parseHHMMToMinutes(time)
+            ? t.endTime
+            : undefined;
+        return {
+          id,
+          label,
+          icon: t.icon,
+          scheduledTime: time,
+          ...(endTime ? { endTime } : {}),
+          ...(days ? { daysOfWeek: days } : {}),
+        };
       })
       .filter((t, idx, arr) => arr.findIndex((x) => x.id === t.id) === idx);
 
@@ -436,6 +461,7 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
           next.label !== prev.label ||
           next.icon !== prev.icon ||
           next.scheduledTime !== prev.scheduledTime ||
+          (next.endTime ?? undefined) !== (prev.endTime ?? undefined) ||
           !arraysEqualByValue(next.daysOfWeek, prev.daysOfWeek)
         );
       });
@@ -474,10 +500,10 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="absolute inset-0 sm:inset-4 sm:top-8 overflow-hidden flex flex-col"
+            className="absolute inset-0 lg:inset-4 lg:top-8 overflow-hidden flex flex-col"
           >
             <div
-              className="flex-1 flex flex-col bg-bg-base/98 sm:bg-gradient-to-b sm:from-bg-surface/95 sm:to-bg-base/98 sm:rounded-[2rem] sm:border sm:border-border-subtle/50 sm:shadow-2xl overflow-hidden"
+              className="flex-1 flex flex-col bg-bg-base/98 lg:bg-gradient-to-b lg:from-bg-surface/95 lg:to-bg-base/98 lg:rounded-[2rem] lg:border lg:border-border-subtle/50 lg:shadow-2xl overflow-hidden"
               style={{
                 paddingTop: 'env(safe-area-inset-top)',
               }}
@@ -487,7 +513,7 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
                 {/* Decorative header gradient */}
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent-teal/5 to-accent/5 pointer-events-none" aria-hidden />
 
-                <div className="relative px-4 sm:px-6 py-4 sm:py-5">
+                <div className="relative px-4 lg:px-6 py-4 lg:py-5">
                   <div className="flex items-center justify-between gap-4">
                     {/* Title */}
                     <div className="flex items-center gap-3">
@@ -505,14 +531,14 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
                       <button
                         type="button"
                         onClick={onClose}
-                        className="hidden sm:flex items-center justify-center h-10 px-4 rounded-xl border border-border-subtle/60 text-sm font-semibold text-text-muted hover:text-text hover:border-accent-teal/40 transition-colors"
+                        className="hidden lg:flex items-center justify-center h-10 px-4 rounded-xl border border-border-subtle/60 text-sm font-semibold text-text-muted hover:text-text hover:border-accent-teal/40 transition-colors"
                       >
                         Cancel
                       </button>
                       <button
                         type="button"
                         onClick={handleSave}
-                        className="hidden sm:inline-flex items-center gap-2 h-10 px-5 rounded-xl text-sm font-semibold sakura-action transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        className="hidden lg:inline-flex items-center gap-2 h-10 px-5 rounded-xl text-sm font-semibold sakura-action transition-all hover:scale-[1.02] active:scale-[0.98]"
                       >
                         <Check size={16} />
                         Save
@@ -520,7 +546,7 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
                       <button
                         type="button"
                         onClick={onClose}
-                        className="sm:hidden w-10 h-10 rounded-xl flex items-center justify-center border border-border-subtle/60 text-text-muted hover:text-text transition-colors"
+                        className="lg:hidden w-10 h-10 rounded-xl flex items-center justify-center border border-border-subtle/60 text-text-muted hover:text-text transition-colors"
                         aria-label="Close"
                       >
                         <X size={20} />
@@ -532,12 +558,12 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
 
               {/* Scrollable Content */}
               <div className="flex-1 overflow-y-auto overscroll-contain">
-                <div className="px-4 sm:px-6 py-4 sm:py-6 pb-36 sm:pb-8">
+                <div className="px-4 lg:px-6 py-4 lg:py-6 pb-36 lg:pb-8">
                   {/* Add Anchor Button */}
                   <motion.button
                     type="button"
                     onClick={addAnchor}
-                    className="w-full mb-4 sm:mb-6 p-4 rounded-2xl border-2 border-dashed border-border-subtle/60 bg-bg-elevated/30 hover:bg-bg-elevated/50 hover:border-accent-teal/40 text-text-muted hover:text-text transition-all duration-200 group"
+                    className="w-full mb-4 lg:mb-6 p-4 rounded-2xl border-2 border-dashed border-border-subtle/60 bg-bg-elevated/30 hover:bg-bg-elevated/50 hover:border-accent-teal/40 text-text-muted hover:text-text transition-all duration-200 group"
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
                   >
@@ -588,9 +614,9 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
                 </div>
               </div>
 
-              {/* Mobile Bottom Bar */}
+              {/* Mobile/tablet bottom bar */}
               <div
-                className="sm:hidden flex-shrink-0 border-t border-border-subtle/50 bg-bg-base/95 backdrop-blur-xl px-4 py-3"
+                className="lg:hidden flex-shrink-0 border-t border-border-subtle/50 bg-bg-base/95 backdrop-blur-xl px-4 py-3"
                 style={{
                   paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))',
                 }}

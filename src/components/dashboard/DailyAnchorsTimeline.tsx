@@ -25,6 +25,7 @@ import { MobileTimeScrubber } from './MobileTimeScrubber';
 import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
 import {
   formatTimeLabel,
+  formatTimeRange,
   getRecentSkippedAnchorStreak,
   getSkipReasonLabel,
   getSkipReasonSuggestion,
@@ -217,6 +218,7 @@ interface MobileAnchorItemProps {
     label: string;
     icon: AnchorIcon;
     scheduledTime: string;
+    endTime?: string;
     status: 'waiting' | 'done' | 'missed' | 'skipped';
   };
   isActive: boolean;
@@ -377,7 +379,9 @@ function MobileAnchorItem({
                   `}
                   aria-label={`Adjust ${anchor.label} time`}
                 >
-                  {formatTimeLabel(anchor.scheduledTime)}
+                  {anchor.endTime
+                    ? formatTimeRange(anchor.scheduledTime, anchor.endTime, true)
+                    : formatTimeLabel(anchor.scheduledTime)}
                 </button>
               </div>
             </div>
@@ -621,12 +625,12 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
 
   return (
     <>
-      <div className={`daily-anchors-card mobile-anchors-plain relative rounded-none sm:rounded-2xl ${isEditingAnchors ? 'overflow-visible z-40' : 'overflow-hidden'}`}>
+      <div className={`daily-anchors-card mobile-anchors-plain relative rounded-none lg:rounded-2xl ${isEditingAnchors ? 'overflow-visible z-40' : 'overflow-hidden'}`}>
         <div aria-hidden className="absolute inset-0 daily-anchors-nebula pointer-events-none" />
 
-        <div className="relative p-0 sm:p-5 z-10">
-          {/* Desktop header - side by side */}
-          <div className="hidden sm:flex items-center justify-between gap-3 mb-6">
+        <div className="relative p-0 lg:p-5 z-10">
+          {/* Desktop header - side by side (mobile/tablet use card list) */}
+          <div className="hidden lg:flex items-center justify-between gap-3 mb-6">
             <div className="flex items-center gap-2.5 min-w-0">
               <h2 className="text-card font-display text-text tracking-wide truncate">Daily Anchors</h2>
               <span
@@ -694,7 +698,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
             </div>
           )}
 
-          <div className="hidden sm:block">
+          <div className="hidden lg:block">
             <div className="relative" ref={timelineRef}>
               <div className="flex justify-between mb-2 px-1">
                 {hourMarkers.map(({ hour, label }) => (
@@ -741,9 +745,11 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                 const isDone = anchor.status === 'done';
                 const isMissed = anchor.status === 'missed';
                 const isSkipped = anchor.status === 'skipped';
+                const isRange = Boolean(anchor.endTime && parseHHMMToMinutes(anchor.endTime) > parseHHMMToMinutes(anchor.scheduledTime));
 
                 const displayTime = isDragging && dragPreviewTime ? dragPreviewTime : anchor.scheduledTime;
                 const position = getTimePosition(displayTime);
+                const endPosition = isRange && anchor.endTime ? getTimePosition(anchor.endTime) : null;
                 const timeUntil = getTimeUntil(anchor.scheduledTime, nowMinutes);
                 const inLabel = timeUntil.startsWith('in ') ? timeUntil.slice(3) : timeUntil;
                 const isLightsOutAnchor = anchor.id === 'lightsOut' || anchor.icon === 'moon';
@@ -766,6 +772,95 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                     : isActive
                       ? 'is-active'
                       : 'is-future';
+
+                if (isRange && endPosition != null && endPosition > position) {
+                  const segmentLeft = position;
+                  const segmentWidth = endPosition - position;
+                  const orbBaseClass = `
+                    daily-anchors-dot w-12 h-12 rounded-2xl flex items-center justify-center
+                    border-2 shadow-md overflow-hidden transition-all duration-300
+                    backdrop-blur-sm
+                    ${isDone
+                      ? 'bg-secondary/90 text-white border-secondary/50'
+                      : isMissed
+                        ? 'bg-bg-surface/45 text-text-muted/40 border-border-subtle/50'
+                        : isSkipped
+                          ? 'bg-bg-surface/35 text-text-muted/45 border-border-subtle/45 grayscale'
+                          : `bg-gradient-to-br ${gradientByIcon(anchor.icon)} border-border-subtle/80 text-text-muted`
+                    }
+                    ${stateClass}
+                  `;
+                  return (
+                    <div
+                      key={anchor.id}
+                      className="absolute top-1/2 -translate-y-1/2 z-20 h-8"
+                      style={{
+                        left: `${segmentLeft}%`,
+                        width: `${segmentWidth}%`,
+                        minWidth: 0,
+                      }}
+                      onMouseEnter={() => setHoveredAnchor(anchor.id)}
+                      onMouseLeave={() => setHoveredAnchor(null)}
+                    >
+                      <div
+                        className={`
+                          absolute inset-0 rounded-full border-2
+                          ${isDone
+                            ? 'bg-secondary/20 border-secondary/40'
+                            : isMissed
+                              ? 'bg-bg-surface/30 border-border-subtle/40'
+                              : isSkipped
+                                ? 'bg-bg-surface/25 border-border-subtle/40'
+                                : `bg-gradient-to-r ${getRiverFlowGradient(anchor.icon).from} ${getRiverFlowGradient(anchor.icon).to} border-primary/25 opacity-60`
+                          }
+                        `}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => toggleAnchor(anchor.id)}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleToggleSkipToday(anchor.id, isSkipped);
+                        }}
+                        disabled={!isLoaded}
+                        title={anchor.endTime ? `${formatTimeRange(anchor.scheduledTime, anchor.endTime, true)} · ${anchor.label}` : anchor.label}
+                        className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 ${orbBaseClass}
+                          opacity-85 hover:opacity-100
+                          hover:scale-105 active:scale-95
+                          disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
+                          ${!isDone && !isMissed && !isSkipped ? 'border-primary/30 text-text backdrop-blur-sm' : ''}
+                        `}
+                        style={
+                          !isDone && !isMissed && !isSkipped
+                            ? { ['--node-glow' as string]: getRiverFlowGradient(anchor.icon).glow }
+                            : undefined
+                        }
+                      >
+                        {!isDone && !isMissed && !isSkipped && (
+                          <div className={`absolute inset-0 bg-gradient-to-br ${getRiverFlowGradient(anchor.icon).from} ${getRiverFlowGradient(anchor.icon).to} opacity-30`} aria-hidden />
+                        )}
+                        <span className="relative z-10">
+                          {isDone ? <Check size={20} strokeWidth={2.5} /> : <Icon size={20} strokeWidth={1.7} />}
+                        </span>
+                      </button>
+                      <div
+                        className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 ${orbBaseClass} pointer-events-none opacity-90`}
+                        aria-hidden
+                      >
+                        {!isDone && !isMissed && !isSkipped && (
+                          <div className={`absolute inset-0 bg-gradient-to-br ${getRiverFlowGradient(anchor.icon).from} ${getRiverFlowGradient(anchor.icon).to} opacity-30`} aria-hidden />
+                        )}
+                        <span className="relative z-10">
+                          <Icon size={20} strokeWidth={1.7} />
+                        </span>
+                      </div>
+                      <span className={`absolute left-1/2 -translate-x-1/2 top-full mt-1.5 text-[10px] font-semibold whitespace-nowrap ${isActive ? 'text-text' : 'text-text-muted/70'}`}>
+                        {anchor.label}
+                      </span>
+                    </div>
+                  );
+                }
 
                 return (
                   <div
@@ -902,8 +997,8 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
             </div>
           </div>
 
-          {/* Mobile Layout - Clean card list */}
-          <div className="sm:hidden mt-0">
+          {/* Mobile/tablet layout - clean card list */}
+          <div className="lg:hidden mt-0">
             {sortedAnchors.length === 0 ? (
               <div className="rounded-2xl border border-border-subtle bg-bg-elevated/50 px-4 py-6 text-center">
                 <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center">
@@ -951,15 +1046,6 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => (isEditingAnchors ? closeAnchorEditor() : openAnchorEditor())}
-            className="hidden sm:inline-flex absolute right-4 bottom-4 z-50 items-center justify-center w-8 h-8 rounded-full border border-border-subtle bg-bg-surface/95 text-text-muted hover:text-text hover:border-accent-teal/50 transition-colors shadow-sm"
-            aria-label={isEditingAnchors ? 'Close anchor editor' : 'Edit anchors'}
-            title={isEditingAnchors ? 'Close anchor editor' : 'Edit anchors'}
-          >
-            {isEditingAnchors ? <X size={16} className="sm:w-[14px] sm:h-[14px]" /> : <Pencil size={16} className="sm:w-[14px] sm:h-[14px]" />}
-          </button>
         </div>
       </div>
 
@@ -971,7 +1057,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
       />
 
       {skipReasonAnchor && (
-        <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/35 p-4 sm:items-center">
+        <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/35 p-4 lg:items-center">
           <div className="w-full max-w-sm rounded-3xl border border-border-subtle bg-bg-surface p-4 shadow-2xl">
             <h3 className="text-base font-semibold text-text">Why skip {skipReasonAnchor.label}?</h3>
             <p className="mt-1 text-sm text-text-muted">

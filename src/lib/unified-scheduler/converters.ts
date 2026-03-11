@@ -29,17 +29,24 @@ export interface CalendarEventInput {
 
 /**
  * Convert a DailyAnchor to a TimelineItem.
- * Anchors are point-in-time markers (no end time).
+ * When endTime is set, the anchor is a block from scheduledTime to endTime; otherwise a point-in-time marker.
  */
 export function anchorToTimelineItem(anchor: DailyAnchor): TimelineItem {
   const startMinute = parseHHMMToMinutes(anchor.scheduledTime);
+  const endMinute =
+    anchor.endTime && /^\d{2}:\d{2}$/.test(anchor.endTime)
+      ? parseHHMMToMinutes(anchor.endTime)
+      : undefined;
+  const durationMinutes =
+    endMinute != null && endMinute > startMinute ? endMinute - startMinute : undefined;
 
   return {
     id: `anchor-${anchor.id}`,
     type: 'anchor',
     label: anchor.label,
     startMinute,
-    endMinute: undefined, // Anchors are point-in-time markers
+    endMinute: endMinute != null && endMinute > startMinute ? endMinute : undefined,
+    durationMinutes,
     anchorIcon: anchor.icon,
     anchorStatus: anchor.status,
     skipReason: anchor.skipReason,

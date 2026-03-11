@@ -115,7 +115,7 @@ export function FocusHero({
           <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2">
             <Link
               href={`/dashboard/day-planner?date=${getTodayKey()}&openTool=on-again-off-again`}
-              className="inline-flex items-center gap-2 rounded-full border border-accent-teal/40 bg-accent-teal/10 hover:bg-accent-teal/20 px-3.5 py-2 text-xs font-semibold text-accent-teal transition-colors"
+              className="inline-flex items-center gap-2 rounded-full border border-accent-teal/60 bg-accent-teal/20 hover:bg-accent-teal/30 px-3.5 py-2 text-xs font-semibold text-accent-teal transition-colors dark:border-accent-teal/40 dark:bg-accent-teal/10 dark:hover:bg-accent-teal/20"
               title="Plan your day with time blocks"
             >
               <LayoutList size={14} />
