@@ -11,11 +11,12 @@ export type PlannerTask = {
 export type DayPlan = {
   notes: string;
   tasks: PlannerTask[];
+  thoughtDownload?: string;
 };
 
 export type PlannerStore = Record<string, DayPlan>;
 
-const EMPTY_DAY_PLAN: DayPlan = { notes: '', tasks: [] };
+const EMPTY_DAY_PLAN: DayPlan = { notes: '', tasks: [], thoughtDownload: '' };
 
 function normalizePlannerTask(raw: unknown): PlannerTask | null {
   if (!raw || typeof raw !== 'object') return null;
@@ -27,13 +28,14 @@ function normalizePlannerTask(raw: unknown): PlannerTask | null {
 }
 
 function normalizeDayPlan(raw: unknown): DayPlan {
-  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [] };
-  const candidate = raw as { notes?: unknown; tasks?: unknown };
+  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '' };
+  const candidate = raw as { notes?: unknown; tasks?: unknown; thoughtDownload?: unknown };
   const notes = typeof candidate.notes === 'string' ? candidate.notes : '';
   const tasks = Array.isArray(candidate.tasks)
     ? candidate.tasks.map(normalizePlannerTask).filter((t): t is PlannerTask => t !== null)
     : [];
-  return { notes, tasks };
+  const thoughtDownload = typeof candidate.thoughtDownload === 'string' ? candidate.thoughtDownload : '';
+  return { notes, tasks, thoughtDownload };
 }
 
 function normalizePlannerStore(raw: unknown): PlannerStore {

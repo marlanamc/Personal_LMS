@@ -16,6 +16,7 @@ type PlannerTask = {
 type DayPlan = {
   notes: string;
   tasks: PlannerTask[];
+  thoughtDownload?: string;
 };
 
 type PlannerStore = Record<string, DayPlan>;
@@ -30,13 +31,14 @@ function normalizePlannerTask(raw: unknown): PlannerTask | null {
 }
 
 function normalizeDayPlan(raw: unknown): DayPlan {
-  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [] };
-  const candidate = raw as { notes?: unknown; tasks?: unknown };
+  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '' };
+  const candidate = raw as { notes?: unknown; tasks?: unknown; thoughtDownload?: unknown };
   const notes = typeof candidate.notes === 'string' ? candidate.notes : '';
   const tasks = Array.isArray(candidate.tasks)
     ? candidate.tasks.map(normalizePlannerTask).filter((t): t is PlannerTask => t !== null)
     : [];
-  return { notes, tasks };
+  const thoughtDownload = typeof candidate.thoughtDownload === 'string' ? candidate.thoughtDownload : '';
+  return { notes, tasks, thoughtDownload };
 }
 
 function normalizePlannerStore(raw: unknown): PlannerStore {
@@ -46,7 +48,8 @@ function normalizePlannerStore(raw: unknown): PlannerStore {
   for (const [key, value] of Object.entries(source)) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
     const plan = normalizeDayPlan(value);
-    if (plan.notes || plan.tasks.length > 0) {
+    const hasThoughtDownload = typeof plan.thoughtDownload === 'string' && plan.thoughtDownload.trim() !== '';
+    if (plan.notes || plan.tasks.length > 0 || hasThoughtDownload) {
       store[key] = plan;
     }
   }
