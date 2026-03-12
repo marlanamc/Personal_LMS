@@ -7,13 +7,19 @@ import { parseHHMMToMinutes, formatTimeLabel } from '@/lib/anchors';
 interface MobileTimeScrubberProps {
   isOpen: boolean;
   currentTime: string;
+  currentEndTime?: string;
   onTimeChange: (time: string) => void;
+  onEndTimeChange?: (time: string) => void;
   onClose: () => void;
 }
 
 const TIMELINE_START_HOUR = 6;
 const TIMELINE_END_HOUR = 24;
 const TIMELINE_TOTAL_MINUTES = (TIMELINE_END_HOUR - TIMELINE_START_HOUR) * 60;
+const SNAP_INTERVAL_MINUTES = 15;
+const MAX_SCRUBBER_MINUTES = (TIMELINE_END_HOUR * 60) - SNAP_INTERVAL_MINUTES;
+
+type DragTarget = 'start' | 'end';
 
 function getTimePosition(timeStr: string): number {
   const minutes = parseHHMMToMinutes(timeStr);
@@ -25,29 +31,135 @@ function getTimePosition(timeStr: string): number {
 function positionToTime(positionPercent: number): string {
   const startMinutes = TIMELINE_START_HOUR * 60;
   const minutes = startMinutes + (positionPercent / 100) * TIMELINE_TOTAL_MINUTES;
-  const clampedMinutes = Math.max(startMinutes, Math.min(TIMELINE_END_HOUR * 60 - 1, minutes));
-  const roundedMinutes = Math.round(clampedMinutes / 15) * 15;
+  const snappedMinutes = Math.round(minutes / SNAP_INTERVAL_MINUTES) * SNAP_INTERVAL_MINUTES;
+  const roundedMinutes = Math.max(startMinutes, Math.min(MAX_SCRUBBER_MINUTES, snappedMinutes));
   const hours = Math.floor(roundedMinutes / 60);
   const mins = roundedMinutes % 60;
   return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
 }
 
+function clampRangeTime(
+  time: string,
+  boundaryTime: string,
+  target: DragTarget,
+): string {
+  const minutes = parseHHMMToMinutes(time);
+  const boundaryMinutes = parseHHMMToMinutes(boundaryTime);
+
+  if (target === 'start') {
+    return positionToTime(
+      ((Math.min(minutes, boundaryMinutes - SNAP_INTERVAL_MINUTES) - (TIMELINE_START_HOUR * 60)) / TIMELINE_TOTAL_MINUTES) * 100,
+    );
+  }
+
+  return positionToTime(
+    ((Math.max(minutes, boundaryMinutes + SNAP_INTERVAL_MINUTES) - (TIMELINE_START_HOUR * 60)) / TIMELINE_TOTAL_MINUTES) * 100,
+  );
+}
+
+interface ScrubberLaneProps {
+  activeTarget: DragTarget | null;
+  label: string;
+  knobPosition: number;
+  onMouseDown: (e: React.MouseEvent) => void;
+  onTouchStart: (e: React.TouchEvent) => void;
+  timeLabel: string;
+  trackRef: React.RefObject<HTMLDivElement | null>;
+}
+
+function ScrubberLane({
+  activeTarget,
+  label,
+  knobPosition,
+  onMouseDown,
+  onTouchStart,
+  timeLabel,
+  trackRef,
+}: ScrubberLaneProps) {
+  const isDragging = activeTarget !== null;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-3 px-1">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted/65">
+          {label}
+        </span>
+        <span
+          className={`
+            text-sm font-semibold tabular-nums px-3 py-1 rounded-full border
+            ${isDragging
+              ? 'bg-primary/15 border-primary/30 text-primary'
+              : 'bg-bg-surface/80 border-border-subtle text-text-muted'
+            }
+          `}
+        >
+          {timeLabel}
+        </span>
+      </div>
+
+      <div
+        ref={trackRef}
+        className="relative h-11 touch-none select-none cursor-grab"
+        onTouchStart={onTouchStart}
+        onMouseDown={onMouseDown}
+      >
+        <div className="absolute top-1/2 left-0 right-0 h-3 -translate-y-1/2 rounded-full bg-gradient-to-r from-bg-surface/60 via-bg-surface/80 to-bg-surface/60" />
+
+        <div
+          className="absolute top-1/2 left-0 h-3 -translate-y-1/2 rounded-full bg-gradient-to-r from-primary/30 via-accent/40 to-secondary/30"
+          style={{ width: `${knobPosition}%` }}
+        />
+
+        <motion.div
+          className={`
+            absolute top-1/2 -translate-y-1/2 -translate-x-1/2
+            w-9 h-9 rounded-full shadow-lg
+            flex items-center justify-center
+            ${isDragging
+              ? 'bg-primary scale-110'
+              : 'bg-bg-elevated border-2 border-primary/60'
+            }
+          `}
+          style={{ left: `${knobPosition}%` }}
+          animate={{ scale: isDragging ? 1.15 : 1 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        >
+          <div className={`w-3 h-3 rounded-full ${isDragging ? 'bg-white' : 'bg-primary'}`} />
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 export function MobileTimeScrubber({
   isOpen,
   currentTime,
+  currentEndTime,
   onTimeChange,
+  onEndTimeChange,
 }: MobileTimeScrubberProps) {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragTime, setDragTime] = useState(currentTime);
-  const lastSnappedTimeRef = useRef(currentTime);
+  const startTrackRef = useRef<HTMLDivElement>(null);
+  const endTrackRef = useRef<HTMLDivElement>(null);
+  const [dragTarget, setDragTarget] = useState<DragTarget | null>(null);
+  const [dragStartTime, setDragStartTime] = useState(currentTime);
+  const [dragEndTime, setDragEndTime] = useState(currentEndTime ?? currentTime);
+  const lastSnappedTimesRef = useRef<{ start: string; end: string }>({
+    start: currentTime,
+    end: currentEndTime ?? currentTime,
+  });
+  const hasRange = Boolean(currentEndTime && parseHHMMToMinutes(currentEndTime) > parseHHMMToMinutes(currentTime));
+  const isDragging = dragTarget !== null;
 
   useEffect(() => {
     if (isOpen) {
-      setDragTime(currentTime);
-      lastSnappedTimeRef.current = currentTime;
+      setDragStartTime(currentTime);
+      setDragEndTime(currentEndTime ?? currentTime);
+      lastSnappedTimesRef.current = {
+        start: currentTime,
+        end: currentEndTime ?? currentTime,
+      };
     }
-  }, [isOpen, currentTime]);
+  }, [isOpen, currentEndTime, currentTime]);
 
   useEffect(() => {
     if (!isDragging) return;
@@ -58,73 +170,75 @@ export function MobileTimeScrubber({
     };
   }, [isDragging]);
 
-  const getPositionFromClientX = useCallback((clientX: number) => {
-    if (!trackRef.current) return null;
-    const rect = trackRef.current.getBoundingClientRect();
+  const getPositionFromClientX = useCallback((clientX: number, track: HTMLDivElement | null) => {
+    if (!track) return null;
+    const rect = track.getBoundingClientRect();
     const x = clientX - rect.left;
     const percent = (x / rect.width) * 100;
     return Math.max(0, Math.min(100, percent));
   }, []);
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    e.stopPropagation();
-    setIsDragging(true);
-    const touch = e.touches[0];
-    if (touch) {
-      const pos = getPositionFromClientX(touch.clientX);
-      if (pos !== null) {
-        const newTime = positionToTime(pos);
-        setDragTime(newTime);
-        lastSnappedTimeRef.current = newTime;
-      }
-    }
-  }, [getPositionFromClientX]);
+  const updateDragTime = useCallback((target: DragTarget, clientX: number) => {
+    const track = target === 'start' ? startTrackRef.current : endTrackRef.current;
+    const pos = getPositionFromClientX(clientX, track);
+    if (pos === null) return;
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    const nextTime = positionToTime(pos);
+    if (target === 'start') {
+      const clampedTime = hasRange ? clampRangeTime(nextTime, dragEndTime, 'start') : nextTime;
+      setDragStartTime(clampedTime);
+      if (clampedTime !== lastSnappedTimesRef.current.start) {
+        lastSnappedTimesRef.current.start = clampedTime;
+        if (navigator.vibrate) navigator.vibrate(10);
+      }
+      return;
+    }
+
+    const clampedTime = clampRangeTime(nextTime, dragStartTime, 'end');
+    setDragEndTime(clampedTime);
+    if (clampedTime !== lastSnappedTimesRef.current.end) {
+      lastSnappedTimesRef.current.end = clampedTime;
+      if (navigator.vibrate) navigator.vibrate(10);
+    }
+  }, [dragEndTime, dragStartTime, getPositionFromClientX, hasRange]);
+
+  const beginDrag = useCallback((target: DragTarget, clientX: number) => {
+    setDragTarget(target);
+    updateDragTime(target, clientX);
+  }, [updateDragTime]);
+
+  const handleTouchStart = useCallback((target: DragTarget) => (e: React.TouchEvent) => {
+    e.stopPropagation();
+    const touch = e.touches[0];
+    if (touch) beginDrag(target, touch.clientX);
+  }, [beginDrag]);
+
+  const handleMouseDown = useCallback((target: DragTarget) => (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragging(true);
-    const pos = getPositionFromClientX(e.clientX);
-    if (pos !== null) {
-      const newTime = positionToTime(pos);
-      setDragTime(newTime);
-      lastSnappedTimeRef.current = newTime;
-    }
-  }, [getPositionFromClientX]);
+    beginDrag(target, e.clientX);
+  }, [beginDrag]);
 
   useEffect(() => {
-    if (!isDragging) return;
+    if (!dragTarget) return;
 
     const handleTouchMove = (e: TouchEvent) => {
       e.preventDefault();
       const touch = e.touches[0];
-      if (touch) {
-        const pos = getPositionFromClientX(touch.clientX);
-        if (pos !== null) {
-          const newTime = positionToTime(pos);
-          setDragTime(newTime);
-          if (newTime !== lastSnappedTimeRef.current) {
-            lastSnappedTimeRef.current = newTime;
-            if (navigator.vibrate) navigator.vibrate(10);
-          }
-        }
-      }
+      if (touch) updateDragTime(dragTarget, touch.clientX);
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      const pos = getPositionFromClientX(e.clientX);
-      if (pos !== null) {
-        const newTime = positionToTime(pos);
-        setDragTime(newTime);
-        if (newTime !== lastSnappedTimeRef.current) {
-          lastSnappedTimeRef.current = newTime;
-        }
-      }
+      updateDragTime(dragTarget, e.clientX);
     };
 
     const handlePointerEnd = () => {
-      setIsDragging(false);
-      onTimeChange(dragTime);
+      if (dragTarget === 'start') {
+        onTimeChange(dragStartTime);
+      } else if (hasRange && onEndTimeChange) {
+        onEndTimeChange(dragEndTime);
+      }
+      setDragTarget(null);
     };
 
     window.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -140,10 +254,10 @@ export function MobileTimeScrubber({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handlePointerEnd);
     };
-  }, [isDragging, dragTime, onTimeChange, getPositionFromClientX]);
+  }, [dragEndTime, dragStartTime, dragTarget, hasRange, onEndTimeChange, onTimeChange, updateDragTime]);
 
-  const displayTime = isDragging ? dragTime : currentTime;
-  const knobPosition = getTimePosition(displayTime);
+  const startKnobPosition = getTimePosition(dragStartTime);
+  const endKnobPosition = getTimePosition(dragEndTime);
 
   return (
     <AnimatePresence>
@@ -157,52 +271,33 @@ export function MobileTimeScrubber({
         >
           <div className="pt-2 pb-1 px-1">
             <div className="mb-1 px-1 text-center">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted/70">Drag To Set Time</span>
-            </div>
-
-            <div className="flex justify-center mb-2">
-              <span
-                className={`
-                  text-sm font-semibold tabular-nums px-3 py-1 rounded-full border
-                  ${isDragging
-                    ? 'bg-primary/15 border-primary/30 text-primary'
-                    : 'bg-bg-surface/80 border-border-subtle text-text-muted'
-                  }
-                `}
-              >
-                {formatTimeLabel(displayTime)}
+              <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted/70">
+                {hasRange ? 'Drag To Set Times' : 'Drag To Set Time'}
               </span>
             </div>
 
-            <div
-              ref={trackRef}
-              className="relative h-11 touch-none select-none cursor-grab"
-              onTouchStart={handleTouchStart}
-              onMouseDown={handleMouseDown}
-            >
-              <div className="absolute top-1/2 left-0 right-0 h-3 -translate-y-1/2 rounded-full bg-gradient-to-r from-bg-surface/60 via-bg-surface/80 to-bg-surface/60" />
-
-              <div
-                className="absolute top-1/2 left-0 h-3 -translate-y-1/2 rounded-full bg-gradient-to-r from-primary/30 via-accent/40 to-secondary/30"
-                style={{ width: `${knobPosition}%` }}
+            <div className="space-y-3">
+              <ScrubberLane
+                activeTarget={dragTarget === 'start' ? dragTarget : null}
+                label={hasRange ? 'Start' : 'Time'}
+                knobPosition={startKnobPosition}
+                onMouseDown={handleMouseDown('start')}
+                onTouchStart={handleTouchStart('start')}
+                timeLabel={formatTimeLabel(dragStartTime)}
+                trackRef={startTrackRef}
               />
 
-              <motion.div
-                className={`
-                  absolute top-1/2 -translate-y-1/2 -translate-x-1/2
-                  w-9 h-9 rounded-full shadow-lg
-                  flex items-center justify-center
-                  ${isDragging
-                    ? 'bg-primary scale-110'
-                    : 'bg-bg-elevated border-2 border-primary/60'
-                  }
-                `}
-                style={{ left: `${knobPosition}%` }}
-                animate={{ scale: isDragging ? 1.15 : 1 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              >
-                <div className={`w-3 h-3 rounded-full ${isDragging ? 'bg-white' : 'bg-primary'}`} />
-              </motion.div>
+              {hasRange && onEndTimeChange ? (
+                <ScrubberLane
+                  activeTarget={dragTarget === 'end' ? dragTarget : null}
+                  label="End"
+                  knobPosition={endKnobPosition}
+                  onMouseDown={handleMouseDown('end')}
+                  onTouchStart={handleTouchStart('end')}
+                  timeLabel={formatTimeLabel(dragEndTime)}
+                  trackRef={endTrackRef}
+                />
+              ) : null}
             </div>
           </div>
         </motion.div>

@@ -15,10 +15,8 @@ import {
   GripVertical,
   Heart,
   Moon,
-  Pencil,
   Sunrise,
   Target,
-  X,
 } from 'lucide-react';
 import { EditAnchorsSheet } from './EditAnchorsSheet';
 import { MobileTimeScrubber } from './MobileTimeScrubber';
@@ -157,13 +155,6 @@ function getMinutesBetweenEvents(currentTime: string, nextTime: string): number 
   return diff >= 0 ? diff : (24 * 60) + diff;
 }
 
-function isWithinNowWindow(timeStr: string, nowMinutes: number | null): boolean {
-  if (nowMinutes === null) return false;
-  const scheduledMinutes = parseHHMMToMinutes(timeStr);
-  const diff = nowMinutes - scheduledMinutes;
-  return diff >= 0 && diff <= 30;
-}
-
 function getContextualLabel(
   timeStr: string,
   nowMinutes: number | null,
@@ -229,6 +220,7 @@ interface MobileAnchorItemProps {
   onToggle: () => void;
   onToggleSkip: () => void;
   onTimeChange: (anchorId: AnchorId, newTime: string) => void;
+  onEndTimeChange: (anchorId: AnchorId, newTime: string) => void;
   iconByName: Record<AnchorIcon, typeof Sunrise>;
   index: number;
   nowMinutes: number | null;
@@ -246,6 +238,7 @@ function MobileAnchorItem({
   onToggle,
   onToggleSkip,
   onTimeChange,
+  onEndTimeChange,
   iconByName,
   index,
   nowMinutes,
@@ -258,6 +251,7 @@ function MobileAnchorItem({
   const isDone = anchor.status === 'done';
   const isMissed = anchor.status === 'missed';
   const isSkipped = anchor.status === 'skipped';
+  const hasRange = Boolean(anchor.endTime && parseHHMMToMinutes(anchor.endTime) > parseHHMMToMinutes(anchor.scheduledTime));
   const contextLabel = getContextualLabel(anchor.scheduledTime, nowMinutes, isUpNext, anchor.status);
 
   useEffect(() => {
@@ -389,43 +383,70 @@ function MobileAnchorItem({
         </div>
 
         {isTimeScrubberOpen && (
-          <div className="mt-2 rounded-2xl border border-border-subtle bg-bg-elevated/90 px-4 py-3 text-center shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted/70">
-              Anchor Time
-            </p>
-            <p className="mt-1 text-2xl font-semibold leading-tight text-text tabular-nums">
-              {formatShortTime(anchor.scheduledTime)}
-            </p>
-            <div className="mt-2 flex flex-col items-center gap-1 text-sm">
+          <div className="mt-2 rounded-xl border border-border-subtle/80 bg-bg-elevated/92 px-3 py-2.5 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted/65">
+                  Anchor Time
+                </p>
+                <p className="mt-0.5 text-lg font-semibold leading-tight text-text tabular-nums">
+                  {hasRange && anchor.endTime
+                    ? formatTimeRange(anchor.scheduledTime, anchor.endTime, true)
+                    : formatShortTime(anchor.scheduledTime)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onToggleSkip();
+                }}
+                className="shrink-0 rounded-full border border-border-subtle/80 bg-bg-surface/80 px-2.5 py-1 text-[11px] font-semibold tracking-[0.01em] text-text-secondary/80 transition-colors hover:border-accent-teal/40 hover:bg-bg-surface hover:text-text"
+              >
+                {isSkipped ? 'Undo skip' : 'Skip today'}
+              </button>
+            </div>
+
+            <div className="mt-2 flex flex-wrap gap-1.5">
               {isSkipped ? (
-                <p className="text-text-muted">Skipped for today</p>
+                <span className="inline-flex items-center rounded-full bg-bg-surface/85 px-2.5 py-1 text-[11px] font-medium text-text-muted">
+                  Skipped for today
+                </span>
               ) : (
                 <>
-                  <p className="text-text-muted">In: <span className="font-medium text-text">{timeUntilLabel}</span></p>
-                  {nextEventLabel && <p className="text-text-muted">Next event: <span className="font-medium text-text">{nextEventLabel}</span></p>}
+                  <span className="inline-flex items-center rounded-full bg-bg-surface/85 px-2.5 py-1 text-[11px] text-text-muted">
+                    In: <span className="ml-1 font-semibold text-text">{timeUntilLabel}</span>
+                  </span>
+                  {nextEventLabel ? (
+                    <span className="inline-flex items-center rounded-full bg-bg-surface/85 px-2.5 py-1 text-[11px] text-text-muted">
+                      Next: <span className="ml-1 font-semibold text-text">{nextEventLabel}</span>
+                    </span>
+                  ) : null}
                 </>
               )}
-              {nowMinutes === null && <p className="text-[11px] text-text-muted/70">Live time unavailable</p>}
+              {nowMinutes === null ? (
+                <span className="inline-flex items-center rounded-full bg-bg-surface/85 px-2.5 py-1 text-[11px] text-text-muted/80">
+                  Live time unavailable
+                </span>
+              ) : null}
             </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onToggleSkip();
-              }}
-              className="mt-3 text-xs font-semibold tracking-[0.02em] text-text-secondary/80 underline underline-offset-2 hover:text-text transition-colors"
-            >
-              {isSkipped ? 'Undo skip' : 'Skip today'}
-            </button>
           </div>
         )}
 
         <MobileTimeScrubber
           isOpen={isTimeScrubberOpen}
           currentTime={anchor.scheduledTime}
+          currentEndTime={hasRange ? anchor.endTime : undefined}
           onTimeChange={(newTime) => {
             onTimeChange(anchor.id, newTime);
+            if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
+            autoCloseTimerRef.current = setTimeout(() => {
+              setIsTimeScrubberOpen(false);
+            }, 1500);
+          }}
+          onEndTimeChange={(newTime) => {
+            onEndTimeChange(anchor.id, newTime);
             if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
             autoCloseTimerRef.current = setTimeout(() => {
               setIsTimeScrubberOpen(false);
@@ -581,6 +602,13 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   const handleMobileTimeChange = useCallback((anchorId: AnchorId, newTime: string) => {
     const updatedAnchors = anchors.map((anchor) =>
       anchor.id === anchorId ? { ...anchor, scheduledTime: newTime } : anchor
+    );
+    setTodayAnchors(updatedAnchors);
+  }, [anchors, setTodayAnchors]);
+
+  const handleMobileEndTimeChange = useCallback((anchorId: AnchorId, newTime: string) => {
+    const updatedAnchors = anchors.map((anchor) =>
+      anchor.id === anchorId ? { ...anchor, endTime: newTime } : anchor
     );
     setTodayAnchors(updatedAnchors);
   }, [anchors, setTodayAnchors]);
@@ -1022,6 +1050,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                       onToggle={() => toggleAnchor(anchor.id)}
                       onToggleSkip={() => handleToggleSkipToday(anchor.id, anchor.status === 'skipped')}
                       onTimeChange={handleMobileTimeChange}
+                      onEndTimeChange={handleMobileEndTimeChange}
                       iconByName={iconByName}
                       index={idx}
                       nowMinutes={nowMinutes}

@@ -125,7 +125,7 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
       id={anchor.id}
       dragListener={false}
       dragControls={dragControls}
-      className="touch-none"
+      className="touch-auto"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -100, transition: { duration: 0.2 } }}
@@ -142,97 +142,103 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
         />
 
         {/* Main Content Row */}
-        <div className="relative flex items-center gap-3 p-4 lg:p-5">
-          {/* Drag Handle */}
-          <button
-            type="button"
-            onPointerDown={(e) => dragControls.start(e)}
-            className="flex-shrink-0 p-1.5 -ml-1 rounded-xl text-text-muted/40 hover:text-text-muted/70 hover:bg-bg-elevated/50 cursor-grab active:cursor-grabbing transition-colors touch-none"
-            aria-label="Drag to reorder"
-          >
-            <GripVertical size={18} />
-          </button>
-
-          {/* Icon Badge */}
-          <button
-            type="button"
-            onClick={() => setShowIconPicker(!showIconPicker)}
-            className={`
-              relative flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center
-              bg-gradient-to-br ${iconGradient} text-white shadow-lg
-              transition-all duration-300 hover:scale-105 active:scale-95
-              ring-2 ring-white/10 ring-offset-2 ring-offset-bg-surface/50
-            `}
-            aria-label="Change icon"
-          >
-            <Icon size={22} strokeWidth={1.8} />
-            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-bg-elevated border border-border-subtle flex items-center justify-center">
-              <ChevronDown size={10} className="text-text-muted" />
-            </div>
-          </button>
-
-          {/* Name & Schedule */}
-          <div className="flex-1 min-w-0">
-            <input
-              type="text"
-              value={anchor.label}
-              onChange={(e) => onUpdate(anchor.id, { label: e.target.value })}
-              className="w-full bg-transparent text-lg font-semibold text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-0 border-0 p-0"
-              placeholder="Anchor name"
-              aria-label="Anchor name"
-            />
-            <p className="text-sm text-text-muted/80 mt-0.5 truncate">
-              {selectedDaysText}
-            </p>
-          </div>
-
-          {/* Time & optional end time */}
-          <div className="flex-shrink-0 flex flex-col items-end gap-1">
-            <div className="flex items-center gap-2">
-              <input
-                type="time"
-                value={anchor.scheduledTime}
-                onChange={(e) => onUpdate(anchor.id, { scheduledTime: e.target.value })}
-                className="bg-transparent text-xl font-bold tabular-nums text-text text-right focus:outline-none focus:ring-0 border-0 p-0 w-[5.5rem] appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute"
-                aria-label="Start time"
-              />
-              <span className="text-text-muted/60 font-bold">–</span>
-              <input
-                type="time"
-                value={anchor.endTime ?? ''}
-                onChange={(e) => onUpdate(anchor.id, { endTime: e.target.value || undefined })}
-                className="bg-bg-elevated/60 border border-border-subtle/60 rounded-lg px-2 py-0.5 text-right text-sm tabular-nums text-text focus:outline-none focus:ring-2 focus:ring-primary/30 w-[5rem]"
-                aria-label="End time (optional)"
-                title="Optional end (e.g. 5–9pm)"
-              />
-            </div>
-            <p className="text-xs text-text-muted/60 font-medium">
-              {anchor.endTime
-                ? `${formatTime12h(anchor.scheduledTime)} – ${formatTime12h(anchor.endTime)}`
-                : formatTime12h(anchor.scheduledTime)}
-            </p>
-          </div>
-
-          {/* Expand/Collapse */}
-          <button
-            type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className={`
-              flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center
-              border border-border-subtle/60 bg-bg-elevated/50 text-text-muted
-              hover:text-text hover:border-accent-teal/40 hover:bg-accent-teal/10
-              transition-all duration-200
-            `}
-            aria-label={isExpanded ? 'Collapse' : 'Expand'}
-            aria-expanded={isExpanded}
-          >
-            <motion.div
-              animate={{ rotate: isExpanded ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
+        <div className="relative p-4 lg:p-5">
+          <div className="flex items-start gap-3">
+            {/* Drag Handle */}
+            <button
+              type="button"
+              onPointerDown={(e) => dragControls.start(e)}
+              className="mt-1 flex-shrink-0 p-1.5 -ml-1 rounded-xl text-text-muted/40 hover:text-text-muted/70 hover:bg-bg-elevated/50 cursor-grab active:cursor-grabbing transition-colors touch-none"
+              aria-label="Drag to reorder"
             >
-              <ChevronDown size={16} />
-            </motion.div>
-          </button>
+              <GripVertical size={18} />
+            </button>
+
+            <div className="min-w-0 flex-1 space-y-3">
+              <div className="flex items-start gap-3">
+                {/* Icon Badge */}
+                <button
+                  type="button"
+                  onClick={() => setShowIconPicker(!showIconPicker)}
+                  className={`
+                    relative flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center
+                    bg-gradient-to-br ${iconGradient} text-white shadow-lg
+                    transition-all duration-300 hover:scale-105 active:scale-95
+                    ring-2 ring-white/10 ring-offset-2 ring-offset-bg-surface/50
+                  `}
+                  aria-label="Change icon"
+                >
+                  <Icon size={22} strokeWidth={1.8} />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-bg-elevated border border-border-subtle flex items-center justify-center">
+                    <ChevronDown size={10} className="text-text-muted" />
+                  </div>
+                </button>
+
+                {/* Name */}
+                <div className="min-w-0 flex-1 pt-0.5">
+                  <input
+                    type="text"
+                    value={anchor.label}
+                    onChange={(e) => onUpdate(anchor.id, { label: e.target.value })}
+                    className="w-full bg-transparent text-base lg:text-lg font-semibold text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-0 border-0 p-0"
+                    placeholder="Anchor name"
+                    aria-label="Anchor name"
+                  />
+                  <p className="mt-1 text-xs sm:text-sm text-text-muted/80 truncate">
+                    {selectedDaysText}
+                  </p>
+                </div>
+
+                {/* Expand/Collapse */}
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className={`
+                    flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center
+                    border border-border-subtle/60 bg-bg-elevated/50 text-text-muted
+                    hover:text-text hover:border-accent-teal/40 hover:bg-accent-teal/10
+                    transition-all duration-200
+                  `}
+                  aria-label={isExpanded ? 'Collapse' : 'Expand'}
+                  aria-expanded={isExpanded}
+                >
+                  <motion.div
+                    animate={{ rotate: isExpanded ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ChevronDown size={16} />
+                  </motion.div>
+                </button>
+              </div>
+
+              {/* Time & optional end time */}
+              <div className="rounded-2xl border border-border-subtle/40 bg-bg-elevated/35 px-3 py-2.5">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="time"
+                    value={anchor.scheduledTime}
+                    onChange={(e) => onUpdate(anchor.id, { scheduledTime: e.target.value })}
+                    className="min-w-0 flex-1 bg-transparent text-lg lg:text-xl font-bold tabular-nums text-text focus:outline-none focus:ring-0 border-0 p-0 appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute"
+                    aria-label="Start time"
+                  />
+                  <span className="text-text-muted/60 font-bold">–</span>
+                  <input
+                    type="time"
+                    value={anchor.endTime ?? ''}
+                    onChange={(e) => onUpdate(anchor.id, { endTime: e.target.value || undefined })}
+                    className="min-w-0 w-[7rem] bg-bg-surface/70 border border-border-subtle/60 rounded-xl px-2.5 py-1.5 text-right text-base tabular-nums text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    aria-label="End time (optional)"
+                    title="Optional end (e.g. 5–9pm)"
+                  />
+                </div>
+                <p className="mt-2 text-xs font-medium text-text-muted/60">
+                  {anchor.endTime
+                    ? `${formatTime12h(anchor.scheduledTime)} – ${formatTime12h(anchor.endTime)}`
+                    : formatTime12h(anchor.scheduledTime)}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Icon Picker Dropdown */}
@@ -296,7 +302,7 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
                   <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text-muted/70 mb-3">
                     Active Days
                   </p>
-                  <div className="flex gap-1.5 lg:gap-2">
+                  <div className="grid grid-cols-4 gap-1.5 sm:flex sm:gap-2">
                     {WEEKDAY_OPTIONS.map((day) => {
                       const isActive = allDaysSelected || anchor.daysOfWeek?.includes(day.value);
                       return (
@@ -305,7 +311,7 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
                           type="button"
                           onClick={() => onToggleDay(anchor.id, day.value)}
                           className={`
-                            flex-1 h-11 lg:h-10 rounded-xl text-sm font-semibold transition-all duration-200
+                            h-11 sm:flex-1 lg:h-10 rounded-xl text-sm font-semibold transition-all duration-200
                             ${isActive
                               ? `bg-gradient-to-br ${iconGradient} text-white shadow-md`
                               : 'bg-bg-elevated/50 text-text-muted/70 border border-border-subtle/60 hover:text-text hover:border-accent-teal/40'
@@ -352,7 +358,6 @@ function AnchorCardWrapper(props: Omit<AnchorCardProps, 'dragControls'>) {
 export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: EditAnchorsSheetProps) {
   const [isPortalReady, setIsPortalReady] = useState(false);
   const [draftTemplates, setDraftTemplates] = useState<DailyAnchorTemplate[]>([]);
-  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     setIsPortalReady(true);
@@ -361,7 +366,6 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
   useEffect(() => {
     if (isOpen) {
       setDraftTemplates(anchorTemplates.map((t) => ({ ...t })));
-      setHasChanges(false);
     }
   }, [isOpen, anchorTemplates]);
 
@@ -379,7 +383,6 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
     setDraftTemplates((current) =>
       current.map((t) => (t.id === id ? { ...t, ...patch } : t))
     );
-    setHasChanges(true);
   }, []);
 
   const toggleDay = useCallback((id: AnchorId, day: DayOfWeek) => {
@@ -397,12 +400,10 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
         };
       })
     );
-    setHasChanges(true);
   }, []);
 
   const removeAnchor = useCallback((id: AnchorId) => {
     setDraftTemplates((current) => current.filter((t) => t.id !== id));
-    setHasChanges(true);
   }, []);
 
   const addAnchor = useCallback(() => {
@@ -424,7 +425,6 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
         },
       ];
     });
-    setHasChanges(true);
   }, []);
 
   const handleSave = useCallback(() => {
@@ -474,7 +474,6 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
 
   const handleReorder = useCallback((newOrder: DailyAnchorTemplate[]) => {
     setDraftTemplates(newOrder);
-    setHasChanges(true);
   }, []);
 
   if (!isPortalReady) return null;
