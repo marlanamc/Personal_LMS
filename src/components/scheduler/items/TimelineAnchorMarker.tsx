@@ -1,6 +1,7 @@
 'use client';
 
 import type { CSSProperties } from 'react';
+import { getAnchorColorPalette } from '@/lib/anchors';
 import type { TimelineItem } from '@/lib/unified-scheduler';
 
 interface TimelineAnchorMarkerProps {
@@ -11,16 +12,17 @@ interface TimelineAnchorMarkerProps {
 export function TimelineAnchorMarker({ item, style }: TimelineAnchorMarkerProps) {
   const isDone = item.anchorStatus === 'done';
   const isSkipped = item.anchorStatus === 'skipped';
+  const palette = getAnchorColorPalette(item.anchorColor, item.anchorIcon ?? 'calendar');
   const lineClass = isDone
     ? 'border-secondary'
     : isSkipped
       ? 'border-text-muted/35'
-      : 'border-fuchsia-300/85 dark:border-accent-amethyst/75';
+      : '';
   const dotClass = isDone
     ? 'bg-secondary'
     : isSkipped
       ? 'bg-text-muted/40'
-      : 'bg-fuchsia-300 dark:bg-accent-amethyst/80';
+      : '';
 
   return (
     <div
@@ -28,10 +30,14 @@ export function TimelineAnchorMarker({ item, style }: TimelineAnchorMarkerProps)
       style={style}
       title={`${item.label}`}
     >
-      <div className={`ml-[-5px] mr-2 h-2.5 w-2.5 rounded-full border-2 border-bg-surface shadow-sm ${dotClass}`} />
+      <div
+        className={`ml-[-5px] mr-2 h-2.5 w-2.5 rounded-full border-2 border-bg-surface shadow-sm ${dotClass}`}
+        style={!isDone && !isSkipped ? { backgroundColor: palette.solid } : undefined}
+      />
 
       <div
         className={`flex-1 border-t-2 border-dashed opacity-75 ${lineClass}`}
+        style={!isDone && !isSkipped ? { borderColor: palette.solid } : undefined}
       />
 
       <div
@@ -40,11 +46,13 @@ export function TimelineAnchorMarker({ item, style }: TimelineAnchorMarkerProps)
             ? 'bg-[color-mix(in_srgb,var(--color-secondary)_14%,var(--color-bg-surface))] border-[color-mix(in_srgb,var(--color-secondary)_28%,transparent)] text-secondary'
             : isSkipped
               ? 'bg-bg-surface/78 border-border-subtle/45 text-text-muted'
-              : 'bg-fuchsia-50/70 dark:bg-[color-mix(in_srgb,var(--color-accent-amethyst)_14%,var(--color-bg-surface))] border-fuchsia-200/80 dark:border-[color-mix(in_srgb,var(--color-accent-amethyst)_28%,transparent)] text-fuchsia-600/90 dark:text-accent-amethyst'
+              : ''
         }`}
+        style={!isDone && !isSkipped ? { backgroundColor: palette.soft, borderColor: palette.border, color: palette.deep } : undefined}
       >
         <div
           className={`h-1.5 w-1.5 rounded-full shrink-0 ${dotClass}`}
+          style={!isDone && !isSkipped ? { backgroundColor: palette.solid } : undefined}
         />
         <span className="truncate text-[9px] font-bold uppercase tracking-[0.16em] sm:text-[9px] sm:tracking-[0.18em]">
           {item.label}

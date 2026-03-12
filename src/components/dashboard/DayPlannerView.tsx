@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { type CalendarEvent } from './MiniCalendar';
 import { DayTimeline } from '@/components/scheduler';
-import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
+import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
   anchorsToTimelineItems,
@@ -66,7 +66,7 @@ export function DayPlannerView({
   const planningHelpTriggerRef = useRef<HTMLElement | null>(null);
 
   // Data hooks
-  const { anchors } = useDailyAnchorsForToday(storageScope);
+  const { getStateForDate } = useDailyAnchors(storageScope);
   const { plannerStore, setPlan } = useTimeBlockPlanner();
 
   // Block note editing (tap/double-click a block to add or edit notes)
@@ -103,11 +103,6 @@ export function DayPlannerView({
   }, [selectedDateKey]);
 
   // Convert data to timeline items
-  const anchorItems = useMemo(() => {
-    if (!anchors || anchors.length === 0) return [];
-    return anchorsToTimelineItems(anchors);
-  }, [anchors]);
-
   const eventItems = useMemo(() => {
     return eventsToTimelineItems(events, selectedDateKey);
   }, [events, selectedDateKey]);
@@ -121,6 +116,13 @@ export function DayPlannerView({
     if (!dayPlan?.blocks || dayPlan.blocks.length === 0) return [];
     return timeBlocksToTimelineItems(dayPlan.blocks, dayPlan.blockNotes);
   }, [plannerStore, selectedDateKey]);
+
+  const selectedDate = useMemo(() => new Date(`${selectedDateKey}T12:00:00`), [selectedDateKey]);
+  const selectedAnchorState = useMemo(() => getStateForDate(selectedDate), [getStateForDate, selectedDate]);
+  const anchorItems = useMemo(() => {
+    if (!selectedAnchorState.anchors || selectedAnchorState.anchors.length === 0) return [];
+    return anchorsToTimelineItems(selectedAnchorState.anchors);
+  }, [selectedAnchorState.anchors]);
 
   // Combine all items for the timeline
   const timelineItems = useMemo(() => {
@@ -159,7 +161,6 @@ export function DayPlannerView({
   const goToToday = () => setSelectedDateKey(getTodayKey());
 
   // Format date for display
-  const selectedDate = new Date(`${selectedDateKey}T12:00:00`);
   const isSelectedToday = isToday(selectedDateKey);
   const mobileDateLabel = selectedDate.toLocaleDateString(undefined, {
     month: 'short',

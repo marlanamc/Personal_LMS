@@ -48,6 +48,7 @@ export function anchorToTimelineItem(anchor: DailyAnchor): TimelineItem {
     endMinute: endMinute != null && endMinute > startMinute ? endMinute : undefined,
     durationMinutes,
     anchorIcon: anchor.icon,
+    anchorColor: anchor.color,
     anchorStatus: anchor.status,
     skipReason: anchor.skipReason,
   };

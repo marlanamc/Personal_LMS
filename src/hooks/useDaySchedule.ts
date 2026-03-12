@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
+import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import { useCalendarPlanner } from '@/components/dashboard/useCalendarPlanner';
 import { useTimeBlockPlanner } from '@/components/dashboard/useTimeBlockPlanner';
 import {
@@ -32,15 +32,17 @@ export function useDaySchedule(
   storageScope: string,
 ) {
   // Compose existing hooks
-  const anchorsHook = useDailyAnchorsForToday(storageScope);
+  const anchorsHook = useDailyAnchors(storageScope);
   const calendarHook = useCalendarPlanner(storageScope);
   const timeBlockHook = useTimeBlockPlanner();
+  const selectedDate = useMemo(() => new Date(`${dateKey}T12:00:00`), [dateKey]);
+  const anchorState = useMemo(() => anchorsHook.getStateForDate(selectedDate), [anchorsHook, selectedDate]);
 
   // Convert anchors to timeline items
   const anchorItems = useMemo((): TimelineItem[] => {
-    if (!anchorsHook.anchors || anchorsHook.anchors.length === 0) return [];
-    return anchorsToTimelineItems(anchorsHook.anchors);
-  }, [anchorsHook.anchors]);
+    if (!anchorState.anchors || anchorState.anchors.length === 0) return [];
+    return anchorsToTimelineItems(anchorState.anchors);
+  }, [anchorState.anchors]);
 
   // Convert events to timeline items for the selected date
   const eventItems = useMemo((): TimelineItem[] => {
@@ -81,7 +83,9 @@ export function useDaySchedule(
     anchorsHook.isLoaded && calendarHook.isLoaded && timeBlockHook.isLoaded;
 
   // Mutation helpers
-  const toggleAnchor = anchorsHook.toggleAnchor;
+  const toggleAnchor = (anchorId: string) => {
+    anchorsHook.toggleAnchorForDate(selectedDate, anchorId);
+  };
 
   const updatePlan = (updates: Partial<DayPlan>) => {
     calendarHook.updatePlan(dateKey, { ...plan, ...updates });

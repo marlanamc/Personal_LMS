@@ -13,6 +13,8 @@ export type AnchorIcon =
   | 'target'
   | 'calendar';
 
+export type AnchorColor = 'peach' | 'sky' | 'mint' | 'periwinkle' | 'lavender' | 'rose';
+
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export type AnchorStatus = 'waiting' | 'done' | 'missed' | 'skipped';
@@ -22,6 +24,7 @@ export interface DailyAnchor {
   id: AnchorId;
   label: string;
   icon: AnchorIcon;
+  color?: AnchorColor;
   scheduledTime: string;
   /** Optional end time (HH:MM). When set, anchor is a block from scheduledTime to endTime. */
   endTime?: string;
@@ -35,6 +38,7 @@ export interface DailyAnchorTemplate {
   id: AnchorId;
   label: string;
   icon: AnchorIcon;
+  color?: AnchorColor;
   scheduledTime: string;
   /** Optional end time (HH:MM). */
   endTime?: string;
@@ -73,6 +77,118 @@ const VALID_ICONS = new Set<AnchorIcon>([
   'target',
   'calendar',
 ]);
+
+const VALID_COLORS = new Set<AnchorColor>(['peach', 'sky', 'mint', 'periwinkle', 'lavender', 'rose']);
+
+export const ANCHOR_COLOR_OPTIONS: Array<{ value: AnchorColor; label: string }> = [
+  { value: 'peach', label: 'Peach' },
+  { value: 'sky', label: 'Sky' },
+  { value: 'mint', label: 'Mint' },
+  { value: 'periwinkle', label: 'Periwinkle' },
+  { value: 'lavender', label: 'Lavender' },
+  { value: 'rose', label: 'Rose' },
+];
+
+export interface AnchorColorPalette {
+  key: AnchorColor;
+  label: string;
+  solid: string;
+  soft: string;
+  border: string;
+  deep: string;
+  gradientStart: string;
+  gradientEnd: string;
+}
+
+const ANCHOR_COLOR_PALETTES: Record<AnchorColor, AnchorColorPalette> = {
+  peach: {
+    key: 'peach',
+    label: 'Peach',
+    solid: '#E8A87C',
+    soft: '#F2E4D7',
+    border: '#DFC6B1',
+    deep: '#C98257',
+    gradientStart: '#F2C39D',
+    gradientEnd: '#E8A87C',
+  },
+  sky: {
+    key: 'sky',
+    label: 'Sky',
+    solid: '#6FA8DC',
+    soft: '#E1EAF3',
+    border: '#C3D4E3',
+    deep: '#4F86BA',
+    gradientStart: '#94C1E8',
+    gradientEnd: '#6FA8DC',
+  },
+  mint: {
+    key: 'mint',
+    label: 'Mint',
+    solid: '#78BFA5',
+    soft: '#E1EBE4',
+    border: '#C6D9CE',
+    deep: '#4F9A7F',
+    gradientStart: '#97D0BB',
+    gradientEnd: '#78BFA5',
+  },
+  periwinkle: {
+    key: 'periwinkle',
+    label: 'Periwinkle',
+    solid: '#8A8FD8',
+    soft: '#E4E0EE',
+    border: '#CDC6DE',
+    deep: '#686FC1',
+    gradientStart: '#A5A9E7',
+    gradientEnd: '#8A8FD8',
+  },
+  lavender: {
+    key: 'lavender',
+    label: 'Lavender',
+    solid: '#9B8EC2',
+    soft: '#E5DEE9',
+    border: '#D4CADB',
+    deep: '#7664A7',
+    gradientStart: '#B0A2D4',
+    gradientEnd: '#9B8EC2',
+  },
+  rose: {
+    key: 'rose',
+    label: 'Rose',
+    solid: '#D48AA6',
+    soft: '#F0DEE6',
+    border: '#E0C0CE',
+    deep: '#B96687',
+    gradientStart: '#E2A4BC',
+    gradientEnd: '#D48AA6',
+  },
+};
+
+export function getDefaultAnchorColor(icon: AnchorIcon): AnchorColor {
+  if (icon === 'sunrise' || icon === 'coffee') return 'peach';
+  if (icon === 'briefcase' || icon === 'code') return 'sky';
+  if (icon === 'dumbbell' || icon === 'flower-2') return 'mint';
+  if (icon === 'book-open' || icon === 'calendar') return 'periwinkle';
+  if (icon === 'heart') return 'rose';
+  return 'lavender';
+}
+
+function normalizeAnchorColor(raw: unknown, fallback?: AnchorColor): AnchorColor | undefined {
+  if (typeof raw === 'string' && VALID_COLORS.has(raw as AnchorColor)) {
+    return raw as AnchorColor;
+  }
+  return fallback;
+}
+
+export function resolveAnchorColor(color: AnchorColor | undefined, icon: AnchorIcon): AnchorColor {
+  return color ?? getDefaultAnchorColor(icon);
+}
+
+export function getAnchorColorPalette(
+  color: AnchorColor | undefined,
+  icon: AnchorIcon,
+): AnchorColorPalette {
+  return ANCHOR_COLOR_PALETTES[resolveAnchorColor(color, icon)];
+}
 
 function normalizeDaysOfWeek(raw: unknown): DayOfWeek[] | undefined {
   if (!Array.isArray(raw)) return undefined;
@@ -124,6 +240,7 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
     id?: unknown;
     label?: unknown;
     icon?: unknown;
+    color?: unknown;
     scheduledTime?: unknown;
     endTime?: unknown;
     durationMinutes?: unknown;
@@ -136,6 +253,7 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
   const icon = VALID_ICONS.has(candidate.icon as AnchorIcon)
     ? (candidate.icon as AnchorIcon)
     : fallback?.icon || 'moon';
+  const color = normalizeAnchorColor(candidate.color, fallback?.color);
 
   const scheduledTime =
     typeof candidate.scheduledTime === 'string' && HHMM_REGEX.test(candidate.scheduledTime)
@@ -164,6 +282,7 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
     id,
     label,
     icon,
+    ...(color !== undefined ? { color } : {}),
     scheduledTime,
     ...(endTime !== undefined ? { endTime } : {}),
     ...(daysOfWeek ? { daysOfWeek } : {}),
@@ -173,11 +292,13 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
 function toStateAnchor(template: DailyAnchorTemplate, existing?: DailyAnchor): DailyAnchor {
   const scheduledTime = existing?.scheduledTime ?? template.scheduledTime;
   const endTime = existing?.endTime ?? template.endTime;
+  const color = existing?.color ?? template.color;
   const validEndTime = endTime !== undefined ? normalizeEndTime(endTime, scheduledTime, undefined) : undefined;
   return {
     id: template.id,
     label: template.label,
     icon: template.icon,
+    ...(color !== undefined ? { color } : {}),
     scheduledTime,
     ...(validEndTime !== undefined ? { endTime: validEndTime } : {}),
     ...(template.daysOfWeek ? { daysOfWeek: template.daysOfWeek } : {}),

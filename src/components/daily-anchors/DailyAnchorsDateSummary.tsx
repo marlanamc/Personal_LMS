@@ -2,7 +2,7 @@
 
 import { BookOpen, BriefcaseBusiness, Calendar, Code2, Coffee, Dumbbell, Flower2, Heart, Moon, Sunrise, Target } from 'lucide-react';
 import { useMemo } from 'react';
-import { formatTimeLabel, formatTimeRange, isAnchorScheduledForDate, parseHHMMToMinutes, type AnchorIcon, type DailyAnchor } from '@/lib/anchors';
+import { formatTimeLabel, formatTimeRange, getAnchorColorPalette, isAnchorScheduledForDate, parseHHMMToMinutes, type AnchorIcon, type DailyAnchor } from '@/lib/anchors';
 import { useDailyAnchors } from './useDailyAnchors';
 
 interface DailyAnchorsDateSummaryProps {
@@ -22,17 +22,6 @@ function iconForAnchor(icon: AnchorIcon) {
   if (icon === 'target') return Target;
   if (icon === 'calendar') return Calendar;
   return Moon;
-}
-
-function anchorColor(icon: AnchorIcon): string {
-  if (icon === 'sunrise' || icon === 'coffee') return '#e8a87c';
-  if (icon === 'dumbbell') return '#78bfa5';
-  if (icon === 'briefcase' || icon === 'code') return '#7baed4';
-  if (icon === 'flower-2') return '#6bc4c4';
-  if (icon === 'heart') return '#d48aa6';
-  if (icon === 'target') return '#a089c7';
-  if (icon === 'book-open' || icon === 'calendar') return '#8a8fd8';
-  return '#9b8ec2';
 }
 
 const RING_RADIUS = 38;
@@ -55,7 +44,7 @@ function AnchorProgressRing({ anchors }: { anchors: DailyAnchor[] }) {
     let offset = -RING_CIRCUMFERENCE * 0.25;
 
     return anchors.map((anchor, i) => {
-      const color = anchorColor(anchor.icon);
+      const color = getAnchorColorPalette(anchor.color, anchor.icon).solid;
       const isDone = anchor.status === 'done';
       const dashArray = `${segLen} ${RING_CIRCUMFERENCE - segLen}`;
       const dashOffset = -offset;
@@ -140,12 +129,16 @@ export function DailyAnchorsDateSummary({ storageScope, date }: DailyAnchorsDate
         <div className="flex-1 space-y-2 min-w-0">
           {filteredAndSortedAnchors.map((anchor: DailyAnchor) => {
             const Icon = iconForAnchor(anchor.icon);
-            const dotColor = anchorColor(anchor.icon);
+            const palette = getAnchorColorPalette(anchor.color, anchor.icon);
             return (
-              <div key={anchor.id} className="flex items-center justify-between gap-3 rounded-2xl border border-border-subtle bg-bg-surface px-3 py-2.5 hover:border-[#8A5A44]/25 dark:hover:border-accent-sakura/35 transition-colors">
+              <div
+                key={anchor.id}
+                className="flex items-center justify-between gap-3 rounded-2xl border bg-bg-surface px-3 py-2.5 transition-colors"
+                style={{ borderColor: palette.border }}
+              >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${dotColor}20` }}>
-                    <Icon size={16} style={{ color: dotColor }} />
+                  <div className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: palette.soft }}>
+                    <Icon size={16} style={{ color: palette.solid }} />
                   </div>
                   <div className="min-w-0">
                     <span className="text-sm text-text font-medium block truncate">

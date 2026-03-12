@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import type { ChecklistItem } from '@/components/dashboard/checklist-item.types';
 import {
   formatIsoTimeLabel,
+  getAnchorColorPalette,
   formatTimeLabel,
   formatTimeRange,
   getDefaultAnchorTemplates,
@@ -103,6 +104,7 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
           label: anchor.label.trim() || fallback?.label || 'Anchor',
           scheduledTime: anchor.scheduledTime,
           icon: anchor.icon,
+          ...(anchor.color ? { color: anchor.color } : {}),
           ...(anchor.endTime ? { endTime: anchor.endTime } : {}),
         };
       }),
@@ -215,6 +217,7 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
             <div className="space-y-2.5">
               {quadrant.anchors.map((anchor) => {
                 const Icon = iconForAnchor(anchor.icon);
+                const palette = getAnchorColorPalette(anchor.color, anchor.icon);
                 const isActive = anchor.id === activeAnchor.id;
                 const actualTimeLabel = formatIsoTimeLabel(anchor.actualTime);
 
@@ -224,7 +227,10 @@ export function DailyAnchorsCard({ storageScope, checklistItems = [] }: DailyAnc
                     data-anchor-id={anchor.id}
                     className={`daily-anchor-row px-4 lg:px-5 py-3.5 flex items-center gap-3 ${isActive ? 'is-active' : ''}`}
                   >
-                    <div className="daily-anchor-icon-wrap w-9 h-9 rounded-full text-text-secondary flex items-center justify-center shrink-0">
+                    <div
+                      className="daily-anchor-icon-wrap w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                      style={{ backgroundColor: palette.soft, color: palette.solid }}
+                    >
                       <Icon size={18} />
                     </div>
 

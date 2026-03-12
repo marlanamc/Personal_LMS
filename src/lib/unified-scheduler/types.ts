@@ -6,7 +6,7 @@
  * regardless of their source (anchors, events, or time blocks).
  */
 
-import type { AnchorIcon, AnchorStatus, SkipReason } from '@/lib/anchors';
+import type { AnchorColor, AnchorIcon, AnchorStatus, SkipReason } from '@/lib/anchors';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Core Time Types
@@ -71,6 +71,7 @@ export interface TimelineItem {
 
   // ─── Anchor-specific fields ───
   anchorIcon?: AnchorIcon;
+  anchorColor?: AnchorColor;
   anchorStatus?: AnchorStatus;
   skipReason?: SkipReason;
 

@@ -25,8 +25,11 @@ import {
   X,
 } from 'lucide-react';
 import {
+  ANCHOR_COLOR_OPTIONS,
+  getAnchorColorPalette,
   parseHHMMToMinutes,
   sanitizeAnchorId,
+  type AnchorColor,
   type AnchorIcon,
   type AnchorId,
   type DailyAnchorTemplate,
@@ -78,11 +81,6 @@ const iconByName: Record<AnchorIcon, typeof Sunrise> = {
   calendar: Calendar,
 };
 
-function getIconGradient(icon: AnchorIcon): string {
-  const found = ICON_OPTIONS.find((opt) => opt.value === icon);
-  return found?.color || 'from-primary to-accent';
-}
-
 function formatTime12h(time24: string): string {
   const [h, m] = time24.split(':').map(Number);
   const period = h >= 12 ? 'PM' : 'AM';
@@ -110,7 +108,8 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
   const [isExpanded, setIsExpanded] = useState(false);
   const [showIconPicker, setShowIconPicker] = useState(false);
   const Icon = iconByName[anchor.icon] || Calendar;
-  const iconGradient = getIconGradient(anchor.icon);
+  const palette = getAnchorColorPalette(anchor.color, anchor.icon);
+  const iconGradient = `linear-gradient(135deg, ${palette.gradientStart}, ${palette.gradientEnd})`;
 
   const allDaysSelected = !anchor.daysOfWeek || anchor.daysOfWeek.length === 0;
   const selectedDaysText = allDaysSelected
@@ -137,7 +136,8 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
       >
         {/* Decorative gradient orb */}
         <div
-          className={`absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${iconGradient} opacity-[0.07] blur-2xl pointer-events-none transition-opacity duration-500 group-hover:opacity-[0.12]`}
+          className="absolute -top-12 -right-12 w-32 h-32 rounded-full opacity-[0.07] blur-2xl pointer-events-none transition-opacity duration-500 group-hover:opacity-[0.12]"
+          style={{ background: iconGradient }}
           aria-hidden
         />
 
@@ -160,12 +160,8 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
                 <button
                   type="button"
                   onClick={() => setShowIconPicker(!showIconPicker)}
-                  className={`
-                    relative flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center
-                    bg-gradient-to-br ${iconGradient} text-white shadow-lg
-                    transition-all duration-300 hover:scale-105 active:scale-95
-                    ring-2 ring-white/10 ring-offset-2 ring-offset-bg-surface/50
-                  `}
+                  className="relative flex-shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 ring-2 ring-white/10 ring-offset-2 ring-offset-bg-surface/50"
+                  style={{ background: iconGradient }}
                   aria-label="Change icon"
                 >
                   <Icon size={22} strokeWidth={1.8} />
@@ -310,13 +306,12 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
                           key={day.value}
                           type="button"
                           onClick={() => onToggleDay(anchor.id, day.value)}
-                          className={`
-                            h-11 sm:flex-1 lg:h-10 rounded-xl text-sm font-semibold transition-all duration-200
-                            ${isActive
-                              ? `bg-gradient-to-br ${iconGradient} text-white shadow-md`
+                          className={`h-11 sm:flex-1 lg:h-10 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                            isActive
+                              ? 'text-white shadow-md'
                               : 'bg-bg-elevated/50 text-text-muted/70 border border-border-subtle/60 hover:text-text hover:border-accent-teal/40'
-                            }
-                          `}
+                          }`}
+                          style={isActive ? { background: iconGradient } : undefined}
                           aria-pressed={isActive}
                         >
                           <span className="lg:hidden">{day.short}</span>
@@ -328,6 +323,47 @@ function AnchorCard({ anchor, index, onUpdate, onToggleDay, onRemove, dragContro
                   <p className="text-xs text-text-muted/60 mt-2">
                     {allDaysSelected ? 'Tap days to limit when this anchor appears' : 'Tap to toggle days'}
                   </p>
+                </div>
+
+                <div>
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text-muted/70">
+                      Color
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => onUpdate(anchor.id, { color: undefined })}
+                      className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
+                        anchor.color
+                          ? 'border border-border-subtle/60 text-text-muted hover:text-text'
+                          : 'bg-bg-elevated text-text'
+                      }`}
+                    >
+                      Use default
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    {ANCHOR_COLOR_OPTIONS.map((option) => {
+                      const optionPalette = getAnchorColorPalette(option.value, anchor.icon);
+                      const isSelected = anchor.color === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => onUpdate(anchor.id, { color: option.value as AnchorColor })}
+                          className={`rounded-2xl border p-2 text-left transition-all ${
+                            isSelected ? 'border-text shadow-sm scale-[1.02]' : 'border-border-subtle/50 hover:border-border-subtle'
+                          }`}
+                        >
+                          <span
+                            className="mb-2 block h-8 rounded-xl"
+                            style={{ background: `linear-gradient(135deg, ${optionPalette.gradientStart}, ${optionPalette.gradientEnd})` }}
+                          />
+                          <span className="block text-[11px] font-semibold text-text">{optionPalette.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Delete Button */}
@@ -444,6 +480,7 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
           id,
           label,
           icon: t.icon,
+          ...(t.color ? { color: t.color } : {}),
           scheduledTime: time,
           ...(endTime ? { endTime } : {}),
           ...(days ? { daysOfWeek: days } : {}),
@@ -460,6 +497,7 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates, onSave }: E
           next.id !== prev.id ||
           next.label !== prev.label ||
           next.icon !== prev.icon ||
+          (next.color ?? undefined) !== (prev.color ?? undefined) ||
           next.scheduledTime !== prev.scheduledTime ||
           (next.endTime ?? undefined) !== (prev.endTime ?? undefined) ||
           !arraysEqualByValue(next.daysOfWeek, prev.daysOfWeek)
