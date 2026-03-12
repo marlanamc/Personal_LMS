@@ -23,6 +23,27 @@ interface ThemeContextValue {
 
 const STORAGE_KEY = "marlie-theme-preference";
 
+/** 6am–6pm = light (day window), 6pm–6am = dark */
+function getIsDayWindow(now: Date = new Date()): boolean {
+  const hour = now.getHours();
+  return hour >= 6 && hour < 18;
+}
+
+/** Milliseconds until the next 6am or 6pm boundary */
+function getMsUntilNextBoundary(now: Date = new Date()): number {
+  const next = new Date(now);
+  const hour = next.getHours();
+  if (hour < 6) {
+    next.setHours(6, 0, 0, 0);
+  } else if (hour < 18) {
+    next.setHours(18, 0, 0, 0);
+  } else {
+    next.setDate(next.getDate() + 1);
+    next.setHours(6, 0, 0, 0);
+  }
+  return next.getTime() - now.getTime();
+}
+
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 function isValidThemePreference(
@@ -46,13 +67,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (typeof window === "undefined") return false;
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
+  /** When preference is "auto": true = 6am–6pm (light), false = 6pm–6am (dark) */
+  const [isDayWindow, setIsDayWindow] = useState<boolean>(() =>
+    typeof window === "undefined" ? true : getIsDayWindow()
+  );
   const hasAppliedInitialThemeRef = useRef(false);
 
   const resolvedTheme: ResolvedTheme = useMemo(() => {
     if (preference === "light") return "light";
     if (preference === "dark") return "dark";
-    return isSystemDarkNow ? "dark" : "light";
-  }, [isSystemDarkNow, preference]);
+    return isDayWindow ? "light" : "dark";
+  }, [isDayWindow, preference]);
 
   useEffect(() => {
     try {
@@ -82,6 +107,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
     };
   }, []);
+
+  // When preference is "auto", switch theme at 6am and 6pm
+  useEffect(() => {
+    if (preference !== "auto") return;
+
+    let timeoutId: number | undefined;
+
+    const scheduleNextBoundary = () => {
+      const ms = getMsUntilNextBoundary(new Date());
+      timeoutId = window.setTimeout(() => {
+        setIsDayWindow(getIsDayWindow(new Date()));
+        scheduleNextBoundary();
+      }, ms) as unknown as number;
+    };
+
+    scheduleNextBoundary();
+    return () => {
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+    };
+  }, [preference]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -133,11 +178,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const toggleTheme = useCallback(() => {
     setPreference((currentPreference) => {
       if (currentPreference === "auto") {
-        return isSystemDarkNow ? "light" : "dark";
+        return isDayWindow ? "dark" : "light";
       }
       return currentPreference === "dark" ? "light" : "dark";
     });
-  }, [isSystemDarkNow]);
+  }, [isDayWindow]);
 
   const value = useMemo(
     () => ({

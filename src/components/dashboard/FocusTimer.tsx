@@ -61,6 +61,8 @@ const FOCUS_SESSION_HISTORY_STORAGE_KEY = 'focus-timer:sessions:v1';
 const FOCUS_WEEK_WINDOW_STORAGE_KEY = 'focus-timer:week-window:v1';
 const SPOTIFY_CONNECTED_STORAGE_KEY = 'focus-timer:spotify-connected:v1';
 const SPOTIFY_AUTO_TRACK_SELECTED_STORAGE_KEY = 'focus-timer:spotify-auto-track-selected:v1';
+const PREFERENCES_API = '/api/focus-timer/preferences';
+const PREFERENCES_SAVE_DEBOUNCE_MS = 500;
 const MAX_STORED_SESSIONS = 20;
 type WeekWindowMode = 'calendar-week' | 'last-7-days';
 
@@ -243,11 +245,98 @@ export const FocusTimer = () => {
         if (persistedAutoTrackSelected) {
             setHasAutoSelectedSpotifyTrack(true);
         }
+    }, []);
 
-        const persistedWeekWindow = window.localStorage.getItem(FOCUS_WEEK_WINDOW_STORAGE_KEY);
-        if (persistedWeekWindow === 'calendar-week' || persistedWeekWindow === 'last-7-days') {
-            setWeekWindowMode(persistedWeekWindow);
-        }
+    // Load tasks, notepad, week window: server first (synced across devices), then localStorage
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        let cancelled = false;
+
+        const loadFromLocalStorage = () => {
+            try {
+                const rawTasks = window.localStorage.getItem(FOCUS_TASKS_STORAGE_KEY);
+                if (rawTasks) {
+                    const parsed = JSON.parse(rawTasks) as FocusTaskItem[];
+                    if (Array.isArray(parsed)) {
+                        setTasks(
+                            parsed.filter(
+                                (item) =>
+                                    item &&
+                                    typeof item.id === 'string' &&
+                                    typeof item.text === 'string' &&
+                                    typeof item.done === 'boolean' &&
+                                    (item.source === 'manual' || item.source === 'assignment')
+                            )
+                        );
+                    }
+                }
+            } catch {
+                setTasks([]);
+            }
+            try {
+                const rawNotes = window.localStorage.getItem(FOCUS_NOTEPAD_STORAGE_KEY);
+                setSessionNotes(typeof rawNotes === 'string' ? rawNotes : '');
+            } catch {
+                setSessionNotes('');
+            }
+            const rawWeek = window.localStorage.getItem(FOCUS_WEEK_WINDOW_STORAGE_KEY);
+            if (rawWeek === 'calendar-week' || rawWeek === 'last-7-days') {
+                setWeekWindowMode(rawWeek);
+            }
+        };
+
+        (async () => {
+            try {
+                const res = await fetch(PREFERENCES_API, { cache: 'no-store' });
+                if (cancelled) return;
+                if (res.ok) {
+                    const data = (await res.json()) as {
+                        preferences?: {
+                            tasks?: FocusTaskItem[];
+                            sessionNotes?: string;
+                            weekWindowMode?: WeekWindowMode;
+                        };
+                    };
+                    if (cancelled) return;
+                    const prefs = data.preferences;
+                    if (prefs && typeof prefs === 'object') {
+                        if (Array.isArray(prefs.tasks)) {
+                            setTasks(
+                                prefs.tasks.filter(
+                                    (item) =>
+                                        item &&
+                                        typeof item.id === 'string' &&
+                                        typeof item.text === 'string' &&
+                                        typeof item.done === 'boolean' &&
+                                        (item.source === 'manual' || item.source === 'assignment')
+                                )
+                            );
+                        }
+                        if (typeof prefs.sessionNotes === 'string') {
+                            setSessionNotes(prefs.sessionNotes);
+                        }
+                        if (prefs.weekWindowMode === 'calendar-week' || prefs.weekWindowMode === 'last-7-days') {
+                            setWeekWindowMode(prefs.weekWindowMode);
+                        }
+                        if (!cancelled) {
+                            setTasksHydrated(true);
+                            setNotesHydrated(true);
+                        }
+                        return;
+                    }
+                }
+            } catch {
+                // fall through to localStorage
+            }
+            if (cancelled) return;
+            loadFromLocalStorage();
+            setTasksHydrated(true);
+            setNotesHydrated(true);
+        })();
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     useEffect(() => {
@@ -458,57 +547,12 @@ export const FocusTimer = () => {
     }, []);
 
     useEffect(() => {
-        if (typeof window === 'undefined') {
-            return;
-        }
-
-        try {
-            const raw = window.localStorage.getItem(FOCUS_TASKS_STORAGE_KEY);
-            if (!raw) {
-                setTasks([]);
-            } else {
-                const parsed = JSON.parse(raw) as FocusTaskItem[];
-                if (Array.isArray(parsed)) {
-                    setTasks(
-                        parsed.filter((item) =>
-                            item &&
-                            typeof item.id === 'string' &&
-                            typeof item.text === 'string' &&
-                            typeof item.done === 'boolean' &&
-                            (item.source === 'manual' || item.source === 'assignment')
-                        )
-                    );
-                } else {
-                    setTasks([]);
-                }
-            }
-        } catch {
-            setTasks([]);
-        } finally {
-            setTasksHydrated(true);
-        }
-    }, []);
-
-    useEffect(() => {
         if (!tasksHydrated || typeof window === 'undefined') {
             return;
         }
 
         window.localStorage.setItem(FOCUS_TASKS_STORAGE_KEY, JSON.stringify(tasks));
     }, [tasks, tasksHydrated]);
-
-    // Load notepad from localStorage
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-        try {
-            const raw = window.localStorage.getItem(FOCUS_NOTEPAD_STORAGE_KEY);
-            setSessionNotes(typeof raw === 'string' ? raw : '');
-        } catch {
-            setSessionNotes('');
-        } finally {
-            setNotesHydrated(true);
-        }
-    }, []);
 
     // Save notepad to localStorage (debounced)
     useEffect(() => {
@@ -518,6 +562,25 @@ export const FocusTimer = () => {
         }, 500);
         return () => window.clearTimeout(timer);
     }, [sessionNotes, notesHydrated]);
+
+    // Persist tasks, notepad, week window to server for cross-device sync (debounced)
+    useEffect(() => {
+        if (!tasksHydrated || !notesHydrated || typeof window === 'undefined') return;
+        const timer = window.setTimeout(() => {
+            fetch(PREFERENCES_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    preferences: {
+                        tasks,
+                        sessionNotes,
+                        weekWindowMode,
+                    },
+                }),
+            }).catch(() => {});
+        }, PREFERENCES_SAVE_DEBOUNCE_MS);
+        return () => window.clearTimeout(timer);
+    }, [tasks, sessionNotes, weekWindowMode, tasksHydrated, notesHydrated]);
 
     useEffect(() => {
         if (typeof document === 'undefined') {

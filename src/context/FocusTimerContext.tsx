@@ -21,6 +21,9 @@ export type FocusTrack = {
 
 const DEFAULT_MINUTES = 30;
 const STORAGE_KEY = "focus-timer:state:v1";
+const STATE_API = "/api/focus-timer/state";
+const PERSIST_DEBOUNCE_MS = 600;
+const REFETCH_ON_FOCUS_MS = 2000;
 
 const TRACKS: FocusTrack[] = [
   { id: "deep-focus", name: "Deep Focus", playlistId: "37i9dQZF1DWZeKCadgRdKQ" },
@@ -92,6 +95,62 @@ const formatTime = (timeInSeconds: number): string => {
 const isValidTrackId = (trackId: string): boolean => TRACKS.some((track) => track.id === trackId);
 
 const TRANSITION_DELAY_MS = 3000;
+
+function applyPersistedState(
+  parsed: PersistedFocusTimerState,
+  endTimeRef: React.MutableRefObject<number | null>,
+  setters: {
+    setSelectedMinutesState: (n: number) => void;
+    setSelectedTrackId: (s: string) => void;
+    setTimeLeft: (n: number) => void;
+    setIsActive: (b: boolean) => void;
+    setActiveSessionLabel: (s: string | null) => void;
+    setActiveSequence: (s: TimeBlockEntry[] | null) => void;
+    setActiveSequenceIndex: (n: number | null) => void;
+  }
+): boolean {
+  const savedMinutes = clampMinutes(Number(parsed.selectedMinutes ?? DEFAULT_MINUTES));
+  const savedTrackId =
+    typeof parsed.selectedTrackId === "string" && isValidTrackId(parsed.selectedTrackId)
+      ? parsed.selectedTrackId
+      : "none";
+
+  setters.setSelectedMinutesState(savedMinutes);
+  setters.setSelectedTrackId(savedTrackId);
+
+  const savedEndTimeMs = typeof parsed.endTimeMs === "number" ? parsed.endTimeMs : null;
+  const savedIsActive = Boolean(parsed.isActive && savedEndTimeMs);
+  const savedLabel =
+    typeof parsed.activeSessionLabel === "string" && parsed.activeSessionLabel.trim()
+      ? parsed.activeSessionLabel.trim()
+      : null;
+
+  const savedSequence = Array.isArray(parsed.activeSequence) ? parsed.activeSequence : null;
+  const savedSequenceIndex = typeof parsed.activeSequenceIndex === "number" ? parsed.activeSequenceIndex : null;
+
+  setters.setActiveSequence(savedSequence);
+  setters.setActiveSequenceIndex(savedSequenceIndex);
+
+  if (savedIsActive && savedEndTimeMs) {
+    const remaining = Math.max(0, Math.ceil((savedEndTimeMs - Date.now()) / 1000));
+    if (remaining > 0) {
+      endTimeRef.current = savedEndTimeMs;
+      setters.setTimeLeft(remaining);
+      setters.setIsActive(true);
+      setters.setActiveSessionLabel(savedLabel);
+      return true;
+    }
+  }
+
+  const savedTimeLeft = Number(parsed.timeLeft ?? savedMinutes * 60);
+  setters.setTimeLeft(
+    Number.isFinite(savedTimeLeft) ? Math.max(0, Math.floor(savedTimeLeft)) : savedMinutes * 60
+  );
+  setters.setIsActive(false);
+  setters.setActiveSessionLabel(null);
+  endTimeRef.current = null;
+  return false;
+}
 
 export function FocusTimerProvider({ children }: { children: ReactNode }) {
   const { queueMilestone } = useCelebration();
@@ -183,71 +242,88 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
     }
   }, [queueMilestone, activeSequence, activeSequenceIndex]);
 
+  // Initial load: try server first (synced across devices), then localStorage fallback
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
 
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        return;
-      }
+    let cancelled = false;
+    const setters = {
+      setSelectedMinutesState,
+      setSelectedTrackId,
+      setTimeLeft,
+      setIsActive,
+      setActiveSessionLabel,
+      setActiveSequence,
+      setActiveSequenceIndex,
+    };
 
-      const parsed = JSON.parse(raw) as PersistedFocusTimerState;
-      const savedMinutes = clampMinutes(Number(parsed.selectedMinutes ?? DEFAULT_MINUTES));
-      const savedTrackId =
-        typeof parsed.selectedTrackId === "string" && isValidTrackId(parsed.selectedTrackId)
-          ? parsed.selectedTrackId
-          : "none";
-
-      setSelectedMinutesState(savedMinutes);
-      setSelectedTrackId(savedTrackId);
-
-      const savedEndTimeMs = typeof parsed.endTimeMs === "number" ? parsed.endTimeMs : null;
-      const savedIsActive = Boolean(parsed.isActive && savedEndTimeMs);
-      const savedLabel =
-        typeof parsed.activeSessionLabel === "string" && parsed.activeSessionLabel.trim()
-          ? parsed.activeSessionLabel.trim()
-          : null;
-
-      const savedSequence = Array.isArray(parsed.activeSequence) ? parsed.activeSequence : null;
-      const savedSequenceIndex = typeof parsed.activeSequenceIndex === "number" ? parsed.activeSequenceIndex : null;
-
-      setActiveSequence(savedSequence);
-      setActiveSequenceIndex(savedSequenceIndex);
-
-      if (savedIsActive && savedEndTimeMs) {
-        const remaining = Math.max(0, Math.ceil((savedEndTimeMs - Date.now()) / 1000));
-        if (remaining > 0) {
-          endTimeRef.current = savedEndTimeMs;
-          setTimeLeft(remaining);
-          setIsActive(true);
-          setActiveSessionLabel(savedLabel);
-          completionFiredRef.current = false;
-          return;
+    const applyFromParsed = (parsed: PersistedFocusTimerState) => {
+      if (cancelled) return;
+      try {
+        const hadActive = applyPersistedState(parsed, endTimeRef, setters);
+        if (hadActive) completionFiredRef.current = false;
+      } catch {
+        if (!cancelled) {
+          setSelectedTrackId("none");
+          setSelectedMinutesState(DEFAULT_MINUTES);
+          setTimeLeft(DEFAULT_MINUTES * 60);
+          setIsActive(false);
+          setActiveSessionLabel(null);
+          setActiveSequence(null);
+          setActiveSequenceIndex(null);
+          endTimeRef.current = null;
         }
       }
+    };
 
-      const savedTimeLeft = Number(parsed.timeLeft ?? savedMinutes * 60);
-      setTimeLeft(Number.isFinite(savedTimeLeft) ? Math.max(0, Math.floor(savedTimeLeft)) : savedMinutes * 60);
-      setIsActive(false);
-      setActiveSessionLabel(null);
-      endTimeRef.current = null;
-    } catch {
-      setSelectedTrackId("none");
-      setSelectedMinutesState(DEFAULT_MINUTES);
-      setTimeLeft(DEFAULT_MINUTES * 60);
-      setIsActive(false);
-      setActiveSessionLabel(null);
-      setActiveSequence(null);
-      setActiveSequenceIndex(null);
-      endTimeRef.current = null;
-    } finally {
-      isHydratedRef.current = true;
-    }
+    (async () => {
+      try {
+        const res = await fetch(STATE_API, { cache: "no-store" });
+        if (cancelled) return;
+        if (res.ok) {
+          const data = (await res.json()) as { state?: PersistedFocusTimerState | null };
+          if (data.state && typeof data.state === "object") {
+            applyFromParsed(data.state);
+            if (!cancelled) {
+              isHydratedRef.current = true;
+            }
+            return;
+          }
+        }
+      } catch {
+        // Fall through to localStorage
+      }
+      if (cancelled) return;
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw) as PersistedFocusTimerState;
+          applyFromParsed(parsed);
+        }
+      } catch {
+        setSelectedTrackId("none");
+        setSelectedMinutesState(DEFAULT_MINUTES);
+        setTimeLeft(DEFAULT_MINUTES * 60);
+        setIsActive(false);
+        setActiveSessionLabel(null);
+        setActiveSequence(null);
+        setActiveSequenceIndex(null);
+        endTimeRef.current = null;
+      } finally {
+        if (!cancelled) {
+          isHydratedRef.current = true;
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
+  // Persist to localStorage and to server (debounced) for cross-device sync
   useEffect(() => {
     if (typeof window === "undefined" || !isHydratedRef.current) {
       return;
@@ -266,7 +342,62 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+
+    const timer = window.setTimeout(() => {
+      fetch(STATE_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state: payload }),
+      }).catch(() => {});
+    }, PERSIST_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timer);
   }, [selectedTrackId, selectedMinutes, timeLeft, isActive, activeSessionLabel, activeSequence, activeSequenceIndex, sequenceTransitionState]);
+
+  // Refetch server state when tab gains focus so other device's timer appears
+  useEffect(() => {
+    if (typeof window === "undefined" || !isHydratedRef.current) {
+      return;
+    }
+
+    let focusTimeout: number | null = null;
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== "visible") return;
+      focusTimeout = window.setTimeout(async () => {
+        focusTimeout = null;
+        try {
+          const res = await fetch(STATE_API, { cache: "no-store" });
+          if (!res.ok) return;
+          const data = (await res.json()) as { state?: PersistedFocusTimerState | null };
+          if (!data.state || typeof data.state !== "object") return;
+          const serverEndTimeMs = typeof data.state.endTimeMs === "number" ? data.state.endTimeMs : null;
+          const serverIsActive = Boolean(data.state.isActive && serverEndTimeMs && serverEndTimeMs > Date.now());
+          if (!serverIsActive) return;
+          if (isActive) return;
+          const setters = {
+            setSelectedMinutesState,
+            setSelectedTrackId,
+            setTimeLeft,
+            setIsActive,
+            setActiveSessionLabel,
+            setActiveSequence,
+            setActiveSequenceIndex,
+          };
+          applyPersistedState(data.state, endTimeRef, setters);
+          completionFiredRef.current = false;
+        } catch {
+          // ignore
+        }
+      }, REFETCH_ON_FOCUS_MS);
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      if (focusTimeout) window.clearTimeout(focusTimeout);
+    };
+  }, [isActive]);
 
   // Cleanup transition timeout on unmount
   useEffect(() => {
