@@ -12,7 +12,7 @@ interface ThoughtDownloadViewProps {
 export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) {
   const todayKey = getTodayKey();
   const [selectedDateKey, setSelectedDateKey] = useState(todayKey);
-  const [isFormattingOpen, setIsFormattingOpen] = useState(true);
+  const [isFormattingOpen, setIsFormattingOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { getPlan, updatePlan, isLoaded, isSaving, saveError } = useCalendarPlanner(storageScope);
 

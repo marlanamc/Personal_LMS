@@ -218,6 +218,21 @@ const nextConfig = {
 
 ### Option 1: Vercel (Recommended for Next.js)
 
+Use Vercel for the application build only:
+
+```bash
+npm run build
+```
+
+Run database operations separately from the Vercel build:
+
+```bash
+npx prisma migrate deploy
+npm run db:seed:base
+```
+
+This avoids failed deployments when the app build can succeed but the database is temporarily unreachable.
+
 **Pros**: Zero-config, automatic SSL, edge network, generous free tier
 **Cons**: Vendor lock-in, serverless limitations
 

@@ -33,7 +33,7 @@ file:./prisma/dev.db
 2. Navigate to **Storage** → **Create Database** → **Postgres**
 3. Vercel will automatically create a `DATABASE_URL` environment variable
 4. **Important**: Your Prisma schema has been updated to use PostgreSQL
-5. After creating the database, run: `npx prisma migrate deploy` in Vercel or locally with the production DATABASE_URL
+5. After creating the database, run: `npx prisma migrate deploy` locally or in a separate CI/release step using the production database URL
 
 #### Option B: Use Turso (SQLite in the cloud - Free tier)
 1. Sign up at https://turso.tech
@@ -129,7 +129,7 @@ Vercel will automatically add the `DATABASE_URL` environment variable to your pr
    git push
    ```
 2. Vercel will automatically redeploy
-3. The build script will now run `prisma migrate deploy` to create your database tables
+3. Vercel will build the app only. Run `npx prisma migrate deploy` separately against production before or immediately after the first deploy.
 
 ### 4. Seed Your Database (Optional)
 After deployment succeeds, you can seed your production database:
@@ -145,15 +145,14 @@ If you see a 404 error after deployment:
 1. ✅ Make sure `NEXTAUTH_SECRET` is set in Vercel
 2. ✅ Make sure `DATABASE_URL` is set in Vercel (created by Postgres database)
 3. ✅ Check the Vercel build logs for any errors
-4. ✅ Make sure migrations ran successfully (check build logs for "prisma migrate deploy")
+4. ✅ Make sure migrations ran successfully in your separate migration step
 5. Redeploy after adding environment variables
 
 ### Build Failures
 - Check that Postgres database was created successfully
 - Verify environment variables are set for all environments
-- Look for Prisma migration errors in build logs
+- If the app builds but data-backed pages fail, verify `npx prisma migrate deploy` ran successfully outside the Vercel build
 
 ### Database Connection Issues
 - Ensure the `DATABASE_URL` from Vercel Postgres is being used
 - Check that your Prisma schema is set to `provider = "postgresql"`
-
