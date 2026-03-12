@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { Bold, ChevronDown, Italic, List, Moon, SquareCheckBig, Type, Underline as UnderlineIcon } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, Bold, ChevronDown, Italic, List, Moon, Sparkles, SquareCheckBig, Type, Underline as UnderlineIcon } from 'lucide-react';
 import { useCalendarPlanner } from '@/components/dashboard/useCalendarPlanner';
-import { getTodayKey } from '@/lib/unified-scheduler';
+import { getNextDateKey, getPreviousDateKey, getTodayKey, isToday } from '@/lib/unified-scheduler';
 
 interface ThoughtDownloadViewProps {
   storageScope: string;
@@ -19,6 +19,11 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
   const plan = getPlan(selectedDateKey);
   const thoughtDownload = plan.thoughtDownload ?? '';
   const [draft, setDraft] = useState(thoughtDownload);
+  const selectedDate = useMemo(
+    () => new Date(`${selectedDateKey}T12:00:00`),
+    [selectedDateKey],
+  );
+  const isSelectedToday = isToday(selectedDateKey);
 
   // Sync draft from plan when date or loaded plan changes
   useEffect(() => {
@@ -111,6 +116,9 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
     },
   ];
 
+  const goToPreviousDay = () => setSelectedDateKey(getPreviousDateKey(selectedDateKey));
+  const goToNextDay = () => setSelectedDateKey(getNextDateKey(selectedDateKey));
+
   return (
     <div className="mx-auto max-w-2xl">
       <header className="mb-8">
@@ -130,13 +138,41 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
           <label htmlFor="thought-download-date" className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-1.5">
             Date
           </label>
-          <input
-            id="thought-download-date"
-            type="date"
-            value={selectedDateKey}
-            onChange={(e) => setSelectedDateKey(e.target.value || todayKey)}
-            className="w-full max-w-[12rem] rounded-xl border border-border-subtle bg-bg-surface px-4 py-2.5 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-          />
+          <div className="flex w-full min-w-0 items-center gap-1 rounded-full border border-border-subtle/60 bg-bg-surface/80 p-1 shadow-sm backdrop-blur-md">
+            <button
+              type="button"
+              onClick={goToPreviousDay}
+              className="rounded-full p-2.5 transition-colors hover:bg-bg-elevated"
+              aria-label="Previous day"
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <label className="min-w-0 flex-1 cursor-pointer rounded-full px-4 py-1.5 text-center hover:bg-bg-elevated/60">
+              <span className="sr-only">Choose date</span>
+              <span
+                id="thought-download-date"
+                className="pointer-events-none inline-flex items-center gap-1.5 text-sm font-semibold text-text sm:text-base"
+              >
+                {selectedDate.toLocaleDateString(undefined)}
+                {isSelectedToday && <Sparkles size={14} className="text-accent-teal" />}
+              </span>
+              <input
+                type="date"
+                value={selectedDateKey}
+                onChange={(event) => setSelectedDateKey(event.target.value || todayKey)}
+                className="sr-only"
+                aria-label="Choose date"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={goToNextDay}
+              className="rounded-full p-2.5 transition-colors hover:bg-bg-elevated"
+              aria-label="Next day"
+            >
+              <ArrowRight size={18} />
+            </button>
+          </div>
         </div>
 
         <div>

@@ -56,6 +56,12 @@ function normalizePlannerStore(raw: unknown): PlannerStore {
   return store;
 }
 
+function isPlanEmpty(plan: DayPlan): boolean {
+  const hasThoughtDownload =
+    typeof plan.thoughtDownload === 'string' && plan.thoughtDownload.trim() !== '';
+  return !plan.notes && plan.tasks.length === 0 && !hasThoughtDownload;
+}
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -95,7 +101,36 @@ export async function POST(req: NextRequest) {
     }
 
     const body = (await req.json()) as { store?: unknown };
-    const normalizedStore = normalizePlannerStore(body?.store);
+    const incomingStore =
+      body?.store && typeof body.store === 'object' && !Array.isArray(body.store)
+        ? (body.store as Record<string, unknown>)
+        : {};
+
+    const existingState = await prisma.utilitySubjectState.findUnique({
+      where: {
+        userId_subjectKey: {
+          userId: session.user.id,
+          subjectKey: SUBJECT_KEY,
+        },
+      },
+      select: {
+        checklist: true,
+      },
+    });
+
+    const mergedStore = existingState?.checklist
+      ? normalizePlannerStore(existingState.checklist)
+      : {};
+
+    for (const [key, value] of Object.entries(incomingStore)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
+      const plan = normalizeDayPlan(value);
+      if (isPlanEmpty(plan)) {
+        delete mergedStore[key];
+      } else {
+        mergedStore[key] = plan;
+      }
+    }
 
     const state = await prisma.utilitySubjectState.upsert({
       where: {
@@ -107,11 +142,11 @@ export async function POST(req: NextRequest) {
       create: {
         userId: session.user.id,
         subjectKey: SUBJECT_KEY,
-        checklist: normalizedStore as unknown as Prisma.InputJsonValue,
+        checklist: mergedStore as unknown as Prisma.InputJsonValue,
         links: [] as Prisma.InputJsonValue,
       },
       update: {
-        checklist: normalizedStore as unknown as Prisma.InputJsonValue,
+        checklist: mergedStore as unknown as Prisma.InputJsonValue,
       },
       select: {
         updatedAt: true,
