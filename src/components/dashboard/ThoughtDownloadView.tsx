@@ -120,41 +120,37 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
   const goToNextDay = () => setSelectedDateKey(getNextDateKey(selectedDateKey));
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <header className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-accent-sakura/10 border border-border-subtle flex items-center justify-center">
-            <Moon className="w-5 h-5 text-primary" aria-hidden />
+    <div className="mx-auto max-w-2xl flex flex-col min-h-[60vh]">
+      {/* Compact header + controls row */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+        <header className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 shrink-0 rounded-lg bg-accent-sakura/10 border border-border-subtle flex items-center justify-center">
+            <Moon className="w-4 h-4 text-primary" aria-hidden />
           </div>
-          <h1 className="text-2xl font-display font-bold text-text">Thought download</h1>
-        </div>
-        <p className="text-text-muted text-sm leading-relaxed">
-          Offload what&apos;s on your mind — not for scheduling tomorrow, just to clear your head.
-        </p>
-      </header>
+          <div className="min-w-0">
+            <h1 className="text-xl font-display font-bold text-text">Thought download</h1>
+          </div>
+        </header>
 
-      <div className="space-y-4">
-        <div>
-          <label htmlFor="thought-download-date" className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-1.5">
-            Date
-          </label>
-          <div className="flex w-full min-w-0 items-center gap-1 rounded-full border border-border-subtle/60 bg-bg-surface/80 p-1 shadow-sm backdrop-blur-md">
+        {/* Date + Formatting in one compact row */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="inline-flex items-center gap-0.5 rounded-full border border-border-subtle/60 bg-bg-surface/80 px-1 py-0.5 shadow-sm backdrop-blur-md">
             <button
               type="button"
               onClick={goToPreviousDay}
-              className="rounded-full p-2.5 transition-colors hover:bg-bg-elevated"
+              className="rounded-full p-1.5 transition-colors hover:bg-bg-elevated"
               aria-label="Previous day"
             >
-              <ArrowLeft size={18} />
+              <ArrowLeft size={14} />
             </button>
-            <label className="min-w-0 flex-1 cursor-pointer rounded-full px-4 py-1.5 text-center hover:bg-bg-elevated/60">
+            <label className="cursor-pointer rounded-full px-2 py-0.5 text-center hover:bg-bg-elevated/60">
               <span className="sr-only">Choose date</span>
               <span
                 id="thought-download-date"
-                className="pointer-events-none inline-flex items-center gap-1.5 text-sm font-semibold text-text sm:text-base"
+                className="pointer-events-none inline-flex items-center gap-1 text-xs font-medium text-text"
               >
                 {selectedDate.toLocaleDateString(undefined)}
-                {isSelectedToday && <Sparkles size={14} className="text-accent-teal" />}
+                {isSelectedToday && <Sparkles size={10} className="text-accent-teal" />}
               </span>
               <input
                 type="date"
@@ -167,31 +163,22 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
             <button
               type="button"
               onClick={goToNextDay}
-              className="rounded-full p-2.5 transition-colors hover:bg-bg-elevated"
+              className="rounded-full p-1.5 transition-colors hover:bg-bg-elevated"
               aria-label="Next day"
             >
-              <ArrowRight size={18} />
+              <ArrowRight size={14} />
             </button>
           </div>
-        </div>
-
-        <div>
-          <label htmlFor="thought-download-textarea" className="sr-only">
-            Thoughts
-          </label>
-          <div className="mb-3 overflow-hidden rounded-2xl border border-border-subtle bg-bg-surface/80 shadow-sm backdrop-blur-sm">
+          <div className="relative rounded-lg border border-border-subtle bg-bg-surface/80 shadow-sm backdrop-blur-sm">
             <button
               type="button"
               onClick={() => setIsFormattingOpen((open) => !open)}
-              className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium text-text transition-colors hover:bg-bg-elevated/45 focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-text transition-colors hover:bg-bg-elevated/45 focus:outline-none focus:ring-2 focus:ring-primary/30 rounded-lg"
               aria-expanded={isFormattingOpen}
               aria-controls="thought-download-formatting-bar"
             >
-              <span className="flex items-center gap-2">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border-subtle bg-primary/8 text-primary">
-                  <Type className="h-4 w-4" aria-hidden />
-                </span>
-                Formatting
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-border-subtle bg-primary/8 text-primary">
+                <Type className="h-3 w-3" aria-hidden />
               </span>
               <ChevronDown
                 className={`h-4 w-4 text-text-muted transition-transform ${isFormattingOpen ? 'rotate-180' : ''}`}
@@ -202,7 +189,7 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
             {isFormattingOpen && (
               <div
                 id="thought-download-formatting-bar"
-                className="grid grid-cols-2 gap-2 border-t border-border-subtle bg-bg-elevated/40 px-3 py-3 sm:grid-cols-5"
+                className="absolute top-full right-0 mt-1 min-w-[240px] z-20 grid grid-cols-2 gap-2 rounded-xl border border-border-subtle bg-bg-elevated p-3 shadow-lg sm:grid-cols-5"
               >
                 {formattingActions.map(({ label, icon: Icon, onClick }) => (
                   <button
@@ -210,7 +197,7 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
                     type="button"
                     onClick={onClick}
                     disabled={!isLoaded}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-border-subtle bg-bg-surface px-3 py-2 text-sm text-text transition-colors hover:border-primary/40 hover:bg-primary/8 focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-border-subtle bg-bg-surface px-3 py-2 text-sm text-text transition-colors hover:border-primary/40 hover:bg-primary/8 focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Icon className="h-4 w-4" aria-hidden />
                     {label}
@@ -219,15 +206,23 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
               </div>
             )}
           </div>
-          <textarea
+        </div>
+      </div>
+
+      {/* Main content — textarea gets the focus */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <label htmlFor="thought-download-textarea" className="sr-only">
+          Thoughts
+        </label>
+        <textarea
             id="thought-download-textarea"
             ref={textareaRef}
             value={draft}
             onChange={(e) => handleChange(e.target.value)}
             placeholder="Whatever’s on your mind…"
-            rows={12}
+            rows={14}
             disabled={!isLoaded}
-            className="w-full rounded-2xl border border-border-subtle bg-bg-surface px-4 py-4 text-sm text-text placeholder:text-text-muted/70 resize-y min-h-[240px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full flex-1 rounded-2xl border border-border-subtle bg-bg-surface px-4 py-4 text-sm text-text placeholder:text-text-muted/70 resize-y min-h-[320px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             aria-describedby="thought-download-status"
           />
           <p id="thought-download-status" className="mt-2 min-h-[1.25rem] text-xs text-text-muted">
@@ -236,7 +231,6 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
             {!saveError && !isSaving && isLoaded && 'Saves automatically'}
             {!isLoaded && 'Loading…'}
           </p>
-        </div>
       </div>
     </div>
   );
