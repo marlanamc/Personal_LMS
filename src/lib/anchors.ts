@@ -470,6 +470,30 @@ export function normalizeDailyAnchorState(
   };
 }
 
+export function mergeDailyAnchorStateWithTemplates(
+  state: DailyAnchorState,
+  templates: DailyAnchorTemplate[],
+): DailyAnchorState {
+  const existingById = new Map(state.anchors.map((anchor) => [anchor.id, anchor]));
+  const templatesById = new Map(templates.map((template) => [template.id, template]));
+
+  const anchors = templates.map((template) => toStateAnchor(template, existingById.get(template.id)));
+  const extraAnchors = state.anchors
+    .filter((anchor) => !templatesById.has(anchor.id))
+    .map((anchor) => ({ ...anchor }));
+
+  const nextStateBase: DailyAnchorState = {
+    ...state,
+    anchors: [...anchors, ...extraAnchors],
+    sleepRhythmDayComplete: false,
+  };
+
+  return {
+    ...nextStateBase,
+    sleepRhythmDayComplete: getSleepRhythmDayComplete(nextStateBase),
+  };
+}
+
 function isIsoWithinToleranceMinutes(actualIso: string | undefined, scheduledHHMM: string, toleranceMinutes: number): boolean {
   if (!actualIso) return false;
   const parsed = new Date(actualIso);

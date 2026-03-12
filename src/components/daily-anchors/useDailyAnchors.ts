@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   createDefaultDailyAnchorState,
   getActiveAnchor,
+  mergeDailyAnchorStateWithTemplates,
   getSleepRhythmDayComplete,
   getTopWeeklySkipReasonInsight,
   isAnchorScheduledForDate,
@@ -46,35 +47,6 @@ function getStartOfWeek(date: Date): Date {
 
 function ensureDailyState(store: DailyAnchorsStore, dateKey: string): DailyAnchorState {
   return store.states[dateKey] || createDefaultDailyAnchorState(dateKey, store.templates);
-}
-
-function mergeStateWithTemplates(state: DailyAnchorState, templates: DailyAnchorTemplate[]): DailyAnchorState {
-  const existingById = new Map(state.anchors.map((anchor) => [anchor.id, anchor]));
-
-  const anchors = templates.map((template) => {
-    const existing = existingById.get(template.id);
-    return {
-      id: template.id,
-      label: template.label,
-      icon: template.icon,
-      scheduledTime: template.scheduledTime,
-      ...(template.daysOfWeek ? { daysOfWeek: template.daysOfWeek } : {}),
-      status: existing?.status ?? 'waiting',
-      actualTime: existing?.actualTime,
-      skipReason: existing?.skipReason,
-    } satisfies DailyAnchor;
-  });
-
-  const nextStateBase: DailyAnchorState = {
-    ...state,
-    anchors,
-    sleepRhythmDayComplete: false,
-  };
-
-  return {
-    ...nextStateBase,
-    sleepRhythmDayComplete: getSleepRhythmDayComplete(nextStateBase),
-  };
 }
 
 async function persistStoreToServer(store: DailyAnchorsStore, keepalive = false): Promise<void> {
@@ -341,7 +313,7 @@ export function useDailyAnchors(storageScope: string) {
       const nextStates: Record<string, DailyAnchorState> = {};
       const stateEntries = Object.entries(store.states);
       for (const [dateKey, state] of stateEntries) {
-        nextStates[dateKey] = mergeStateWithTemplates(state, templates);
+        nextStates[dateKey] = mergeDailyAnchorStateWithTemplates(state, templates);
       }
 
       if (!nextStates[todayKey]) {
