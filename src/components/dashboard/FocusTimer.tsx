@@ -1403,9 +1403,9 @@ export const FocusTimer = () => {
                         </div>
                     )}
 
-                    {/* Desktop Spotify Player - Positioned under Tune in button */}
+                    {/* Desktop Spotify Player - Only on lg+ to avoid blocking timer on tablet */}
                     {selectedPlaylistId && (
-                        <div className="hidden md:block absolute top-[calc(100%+1rem)] left-0 w-[300px] z-20">
+                        <div className="hidden lg:block absolute top-[calc(100%+1rem)] left-0 w-[300px] z-20">
                             <iframe
                                 title="Spotify focus playlist"
                                 style={{ borderRadius: '12px' }}
@@ -1730,9 +1730,9 @@ export const FocusTimer = () => {
                         )}
                     </div>
 
-                    {/* Spotify Player - Integrated below controls */}
+                    {/* Spotify Player - Below timer on mobile & tablet; hidden on lg+ (sidebar shows there) */}
                     {selectedPlaylistId && (
-                        <div className="w-full max-w-[300px] mb-4 md:hidden">
+                        <div className="w-full max-w-[300px] mb-4 lg:hidden">
                             <iframe
                                 title="Spotify focus playlist"
                                 style={{ borderRadius: '12px' }}
