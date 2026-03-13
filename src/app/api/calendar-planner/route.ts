@@ -124,11 +124,25 @@ export async function POST(req: NextRequest) {
 
     for (const [key, value] of Object.entries(incomingStore)) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
-      const plan = normalizeDayPlan(value);
-      if (isPlanEmpty(plan)) {
+      
+      const existingPlan = mergedStore[key] || { notes: '', tasks: [], thoughtDownload: '' };
+      const rawIncoming = value as Record<string, unknown>;
+      
+      // Merge only if the field is present in the incoming data
+      const newPlan: DayPlan = {
+        notes: typeof rawIncoming.notes === 'string' ? rawIncoming.notes : existingPlan.notes,
+        tasks: Array.isArray(rawIncoming.tasks) 
+          ? rawIncoming.tasks.map(normalizePlannerTask).filter((t): t is PlannerTask => t !== null) 
+          : existingPlan.tasks,
+        thoughtDownload: typeof rawIncoming.thoughtDownload === 'string' 
+          ? rawIncoming.thoughtDownload 
+          : existingPlan.thoughtDownload,
+      };
+
+      if (isPlanEmpty(newPlan)) {
         delete mergedStore[key];
       } else {
-        mergedStore[key] = plan;
+        mergedStore[key] = newPlan;
       }
     }
 

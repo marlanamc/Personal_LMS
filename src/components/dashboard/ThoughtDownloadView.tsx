@@ -18,7 +18,7 @@ interface ThoughtDownloadViewProps {
 export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) {
   const todayKey = getTodayKey();
   const [selectedDateKey, setSelectedDateKey] = useState(todayKey);
-  const { getPlan, updatePlan, isLoaded, isSaving, saveError } = useCalendarPlanner(storageScope);
+  const { getPlan, updatePlanField, isLoaded, isSaving, saveError } = useCalendarPlanner(storageScope);
 
   const plan = getPlan(selectedDateKey);
   const thoughtDownload = plan.thoughtDownload ?? '';
@@ -36,7 +36,7 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
 
   const handleChange = (value: string) => {
     setDraft(value);
-    updatePlan(selectedDateKey, { ...plan, thoughtDownload: value });
+    updatePlanField(selectedDateKey, 'thoughtDownload', value);
   };
 
 

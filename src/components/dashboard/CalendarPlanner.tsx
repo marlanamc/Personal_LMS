@@ -123,7 +123,7 @@ export default function CalendarPlanner({ events, storageScope = "default" }: Ca
   const [notesSavedNotice, setNotesSavedNotice] = useState(false);
   const taskIdCounter = useRef(0);
 
-  const { getPlan, updatePlan, isSaving, saveError } = useCalendarPlanner(storageScope);
+  const { getPlan, updatePlan, updatePlanField, isSaving, saveError } = useCalendarPlanner(storageScope);
   const { plannerStore } = useTimeBlockPlanner();
   const eventsByDate = useMemo(() => buildEventsByDate(events), [events]);
   const selectedKey = dateKey(selectedDate);
@@ -158,7 +158,7 @@ export default function CalendarPlanner({ events, storageScope = "default" }: Ca
   }, [notesSavedNotice]);
 
   const saveNotes = () => {
-    updatePlan(selectedKey, { ...selectedPlan, notes: notesDraft });
+    updatePlanField(selectedKey, 'notes', notesDraft);
     setNotesSavedNotice(true);
   };
 
@@ -167,19 +167,16 @@ export default function CalendarPlanner({ events, storageScope = "default" }: Ca
     if (!text) return;
     taskIdCounter.current += 1;
     const nextTask = { id: `task-${taskIdCounter.current}-${selectedKey}`, text, done: false };
-    updatePlan(selectedKey, { ...selectedPlan, tasks: [...selectedPlan.tasks, nextTask] });
+    updatePlanField(selectedKey, 'tasks', [...selectedPlan.tasks, nextTask]);
     setNewTaskText("");
   };
 
   const toggleTask = (taskId: string) => {
-    updatePlan(selectedKey, {
-      ...selectedPlan,
-      tasks: selectedPlan.tasks.map((task) => (task.id === taskId ? { ...task, done: !task.done } : task)),
-    });
+    updatePlanField(selectedKey, 'tasks', selectedPlan.tasks.map((task) => (task.id === taskId ? { ...task, done: !task.done } : task)));
   };
 
   const deleteTask = (taskId: string) => {
-    updatePlan(selectedKey, { ...selectedPlan, tasks: selectedPlan.tasks.filter((task) => task.id !== taskId) });
+    updatePlanField(selectedKey, 'tasks', selectedPlan.tasks.filter((task) => task.id !== taskId));
   };
 
   return (

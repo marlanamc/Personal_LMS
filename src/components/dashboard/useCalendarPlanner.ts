@@ -162,6 +162,23 @@ export function useCalendarPlanner(storageScope: string) {
     [],
   );
 
+  const updatePlanField = useCallback(
+    <K extends keyof DayPlan>(dateKeyStr: string, field: K, value: DayPlan[K]) => {
+      setStore((prev) => {
+        const existing = prev[dateKeyStr] || EMPTY_DAY_PLAN;
+        if (existing[field] === value) return prev;
+        return {
+          ...prev,
+          [dateKeyStr]: {
+            ...existing,
+            [field]: value,
+          },
+        };
+      });
+    },
+    [],
+  );
+
   return {
     plannerStore: store,
     isLoaded,
@@ -169,5 +186,6 @@ export function useCalendarPlanner(storageScope: string) {
     saveError,
     getPlan,
     updatePlan,
+    updatePlanField,
   };
 }
