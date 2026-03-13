@@ -44,7 +44,7 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
   const goToNextDay = () => setSelectedDateKey(getNextDateKey(selectedDateKey));
 
   return (
-    <div className="mx-auto max-w-2xl flex flex-col min-h-[60vh]">
+    <div className="mx-auto max-w-4xl flex flex-col min-h-[70vh]">
       {/* Compact header + controls row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
         <header className="flex items-center gap-3 min-w-0">
@@ -98,12 +98,14 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
 
       {/* Main content — textarea gets the focus */}
       <div className="flex-1 flex flex-col min-h-0">
-        <div className="flex-1 flex flex-col w-full relative">
-          <ThoughtDownloadEditor
-            markdown={draft}
-            onChange={handleChange}
-            disabled={!isLoaded}
-          />
+        <div className="flex-1 flex flex-col w-full relative h-full">
+          <div className="flex-1 rounded-2xl border border-border-subtle bg-bg-surface/50 shadow-sm overflow-hidden flex flex-col group focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary transition-all">
+            <ThoughtDownloadEditor
+              markdown={draft}
+              onChange={handleChange}
+              disabled={!isLoaded}
+            />
+          </div>
         </div>
           <p id="thought-download-status" className="mt-2 min-h-[1.25rem] text-xs text-text-muted">
             {saveError && <span className="text-error">{saveError}</span>}

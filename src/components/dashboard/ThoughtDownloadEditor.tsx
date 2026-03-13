@@ -32,8 +32,8 @@ export default function ThoughtDownloadEditor({
       markdown={markdown}
       onChange={onChange}
       readOnly={disabled}
-      contentEditableClassName="prose prose-sm max-w-none focus:outline-none min-h-[320px] p-4 text-text"
-      className="mdxeditor-theme-custom w-full flex-1 rounded-2xl border border-border-subtle bg-bg-surface overflow-hidden focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary transition-colors"
+      contentEditableClassName="prose prose-sm max-w-none focus:outline-none min-h-[400px] p-6 text-text"
+      className="mdxeditor-theme-custom w-full flex-1 overflow-hidden"
       plugins={[
         headingsPlugin(),
         listsPlugin(),
