@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
+import { isAnchorScheduledForDate } from '@/lib/anchors';
 import { useCalendarPlanner } from '@/components/dashboard/useCalendarPlanner';
 import { useTimeBlockPlanner } from '@/components/dashboard/useTimeBlockPlanner';
 import {
@@ -38,11 +39,14 @@ export function useDaySchedule(
   const selectedDate = useMemo(() => new Date(`${dateKey}T12:00:00`), [dateKey]);
   const anchorState = useMemo(() => anchorsHook.getStateForDate(selectedDate), [anchorsHook, selectedDate]);
 
-  // Convert anchors to timeline items
+  // Convert anchors to timeline items (only anchors scheduled for this date)
   const anchorItems = useMemo((): TimelineItem[] => {
     if (!anchorState.anchors || anchorState.anchors.length === 0) return [];
-    return anchorsToTimelineItems(anchorState.anchors);
-  }, [anchorState.anchors]);
+    const scheduledForDate = anchorState.anchors.filter((anchor) =>
+      isAnchorScheduledForDate(anchor, selectedDate),
+    );
+    return anchorsToTimelineItems(scheduledForDate);
+  }, [anchorState.anchors, selectedDate]);
 
   // Convert events to timeline items for the selected date
   const eventItems = useMemo((): TimelineItem[] => {

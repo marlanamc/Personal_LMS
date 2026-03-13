@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm';
 import { ArrowLeft, ArrowRight, Bold, ChevronDown, Italic, List, Moon, Sparkles, SquareCheckBig, Type, Underline as UnderlineIcon } from 'lucide-react';
 import { useCalendarPlanner } from '@/components/dashboard/useCalendarPlanner';
 import { getNextDateKey, getPreviousDateKey, getTodayKey, isToday } from '@/lib/unified-scheduler';
@@ -225,6 +228,15 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
             className="w-full flex-1 rounded-2xl border border-border-subtle bg-bg-surface px-4 py-4 text-sm text-text placeholder:text-text-muted/70 resize-y min-h-[320px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             aria-describedby="thought-download-status"
           />
+        {draft.trim() ? (
+          <div className="mt-4 rounded-2xl border border-border-subtle bg-bg-surface/80 px-4 py-4 min-h-[120px]">
+            <div className="thought-download-markdown prose prose-sm max-w-none text-text text-sm leading-relaxed">
+              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                {draft}
+              </ReactMarkdown>
+            </div>
+          </div>
+        ) : null}
           <p id="thought-download-status" className="mt-2 min-h-[1.25rem] text-xs text-text-muted">
             {saveError && <span className="text-error">{saveError}</span>}
             {!saveError && isSaving && 'Saving…'}

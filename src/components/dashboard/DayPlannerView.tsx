@@ -34,6 +34,7 @@ import {
   timeBlocksToTimelineItems,
   type TimelineItem,
 } from '@/lib/unified-scheduler';
+import { isAnchorScheduledForDate } from '@/lib/anchors';
 import { getCalendarMarkerColor } from './MiniCalendar';
 import { PlanningHelpDrawer } from './PlanningHelpDrawer';
 
@@ -121,8 +122,11 @@ export function DayPlannerView({
   const selectedAnchorState = useMemo(() => getStateForDate(selectedDate), [getStateForDate, selectedDate]);
   const anchorItems = useMemo(() => {
     if (!selectedAnchorState.anchors || selectedAnchorState.anchors.length === 0) return [];
-    return anchorsToTimelineItems(selectedAnchorState.anchors);
-  }, [selectedAnchorState.anchors]);
+    const scheduledForDate = selectedAnchorState.anchors.filter((anchor) =>
+      isAnchorScheduledForDate(anchor, selectedDate),
+    );
+    return anchorsToTimelineItems(scheduledForDate);
+  }, [selectedAnchorState.anchors, selectedDate]);
 
   // Combine all items for the timeline
   const timelineItems = useMemo(() => {

@@ -2729,6 +2729,39 @@ kbd {
   font-weight: 600;
 }
 
+.thought-download-markdown p {
+  margin: 0.25rem 0;
+}
+
+.thought-download-markdown ul {
+  margin: 0.35rem 0;
+  padding-left: 1.15rem;
+  list-style-type: disc;
+}
+
+.thought-download-markdown ol {
+  margin: 0.35rem 0;
+  padding-left: 1.15rem;
+  list-style-type: decimal;
+}
+
+.thought-download-markdown li {
+  margin: 0.15rem 0;
+}
+
+.thought-download-markdown li input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.thought-download-markdown strong {
+  font-weight: 600;
+}
+
+.thought-download-markdown u {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ========== Legacy Utility Overrides (Dark mode only) ========== */
 .dark:not(.light) :where(.bg-white) {
   background-color: rgba(26, 26, 46, 0.92) !important;
