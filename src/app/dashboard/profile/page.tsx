@@ -17,6 +17,15 @@ import { MiniCertificateCard, EmptyCertificateCard, NeedsImprovementCard } from 
 import { qualifiesForMedal } from "@/lib/medal-utils";
 import { Trophy, Flame, BookOpen, Calendar, Award, ChevronRight } from "lucide-react";
 import { HomeIcon, BookOpenIcon as BookIcon, UserIcon } from "@/components/icons/Icons";
+import { ProfileTabs } from "@/components/profile/ProfileTabs";
+import { PlanningStats, type WeeklyPlanningData } from "@/components/profile/PlanningStats";
+import { 
+    normalizeDailyAnchorsStore, 
+    toDateKey, 
+    getSkipReasonLabel, 
+    getSkipReasonSuggestion,
+    type SkipReason
+} from "@/lib/anchors";
 
 // Force dynamic rendering to show real-time activity data
 export const dynamic = 'force-dynamic';
@@ -298,6 +307,7 @@ export default async function ProfilePage() {
         activityProgressDates,
         releasedMiniQuizGuideActivities,
         miniQuizSubmissions,
+        anchorsRow,
     ] = await Promise.all([
         // Get activity progress for category stats
         prisma.activityProgress.findMany({
@@ -356,7 +366,77 @@ export default async function ProfilePage() {
             },
             orderBy: { updatedAt: "desc" },
         }),
+        prisma.utilitySubjectState.findUnique({
+            where: {
+                userId_subjectKey: {
+                    userId: userId,
+                    subjectKey: 'daily-anchors',
+                },
+            },
+        }),
     ]);
+
+    const dailyAnchorsData = normalizeDailyAnchorsStore(anchorsRow?.checklist);
+
+    // Process Last 7 Days of Planning Stats
+    const planningStatsDays: WeeklyPlanningData['days'] = [];
+    let weeklyTotalCompleted = 0;
+    let weeklyTotalAnchors = 0;
+
+    const skipReasonCounts = new Map<SkipReason, { count: number; label: string; suggestion: string }>();
+
+    const now = new Date();
+    const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const dateKey = toDateKey(d);
+        const state = dailyAnchorsData.states[dateKey];
+        
+        const anchors = state?.anchors || [];
+        const completed = anchors.filter(a => a.status === 'done').length;
+        const total = anchors.length;
+
+        planningStatsDays.push({
+            dateKey,
+            label: dayLabels[d.getDay()],
+            completed,
+            total,
+            percent: total > 0 ? Math.round((completed / total) * 100) : 0,
+        });
+
+        weeklyTotalCompleted += completed;
+        weeklyTotalAnchors += total;
+
+        // Collect skip reasons
+        anchors.forEach(a => {
+            if (a.status === 'skipped' && a.skipReason) {
+                const existing = skipReasonCounts.get(a.skipReason);
+                if (existing) {
+                    existing.count += 1;
+                } else {
+                    skipReasonCounts.set(a.skipReason, {
+                        count: 1,
+                        label: getSkipReasonLabel(a.skipReason),
+                        suggestion: getSkipReasonSuggestion(a.skipReason),
+                    });
+                }
+            }
+        });
+    }
+
+    const weeklyPlanningData: WeeklyPlanningData = {
+        days: planningStatsDays,
+        weeklyAverage: weeklyTotalAnchors > 0 ? Math.round((weeklyTotalCompleted / weeklyTotalAnchors) * 100) : 0,
+        topSkipReasons: Array.from(skipReasonCounts.entries())
+            .sort(([, a], [, b]) => b.count - a.count)
+            .slice(0, 3)
+            .map(([reason, data]) => ({
+                reason,
+                ...data,
+            })),
+    };
 
     // Combine both date sources
     const activityDates = [
@@ -611,228 +691,239 @@ export default async function ProfilePage() {
                         </div>
                     </div>
 
-                    {/* Mini Quiz Certificates - Medal Collection */}
-                    <div id="mini-quiz-certificates" className="mb-10 rounded-2xl border border-border-subtle bg-bg-surface p-6 shadow-sm animate-fade-in-up delay-300">
-                        <div className="mb-6 flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border-subtle bg-sakura-soft text-primary">
-                                <Award className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-text">Achievement Medals</h2>
-                                <p className="text-sm text-text-muted">
-                                    {miniQuizCertificates.length > 0
-                                        ? `${miniQuizCertificates.length} medal${miniQuizCertificates.length === 1 ? "" : "s"} earned (70%+ to earn a medal)`
-                                        : "Score 70% or higher to earn medals"}
-                                </p>
-                            </div>
-                        </div>
+                    <ProfileTabs
+                        learningContent={(
+                            <div className="animate-fade-in space-y-10">
+                                {/* Mini Quiz Certificates - Medal Collection */}
+                                <div id="mini-quiz-certificates" className="rounded-2xl border border-border-subtle bg-bg-surface p-6 shadow-sm">
+                                    <div className="mb-6 flex items-center gap-3">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border-subtle bg-sakura-soft text-primary">
+                                            <Award className="h-6 w-6" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-xl font-bold text-text">Achievement Medals</h2>
+                                            <p className="text-sm text-text-muted">
+                                                {miniQuizCertificates.length > 0
+                                                    ? `${miniQuizCertificates.length} medal${miniQuizCertificates.length === 1 ? "" : "s"} earned (70%+ to earn a medal)`
+                                                    : "Score 70% or higher to earn medals"}
+                                            </p>
+                                        </div>
+                                    </div>
 
-                        {miniQuizCertificates.length === 0 && needsImprovementQuizzes.length === 0 ? (
-                            <div className="flex justify-center">
-                                <EmptyCertificateCard />
-                            </div>
-                        ) : (
-                            <div className="space-y-6">
-                                {/* Earned Medals */}
-                                {miniQuizCertificates.length > 0 && (
-                                    <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory -mx-2 px-2">
-                                        {miniQuizCertificates.map((certificate) => (
-                                            <MiniCertificateCard
-                                                key={certificate.activityId}
-                                                certificate={certificate}
-                                                className="snap-start"
+                                    {miniQuizCertificates.length === 0 && needsImprovementQuizzes.length === 0 ? (
+                                        <div className="flex justify-center">
+                                            <EmptyCertificateCard />
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-6">
+                                            {/* Earned Medals */}
+                                            {miniQuizCertificates.length > 0 && (
+                                                <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory -mx-2 px-2">
+                                                    {miniQuizCertificates.map((certificate) => (
+                                                        <MiniCertificateCard
+                                                            key={certificate.activityId}
+                                                            certificate={certificate}
+                                                            className="snap-start"
+                                                        />
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Needs Improvement Section */}
+                                            {needsImprovementQuizzes.length > 0 && (
+                                                <div>
+                                                    <p className="text-sm font-medium text-text-muted mb-3">
+                                                        Keep practicing - you can do it!
+                                                    </p>
+                                                    <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory -mx-2 px-2">
+                                                        {needsImprovementQuizzes.map((quiz) => (
+                                                            <NeedsImprovementCard
+                                                                key={quiz.activityId}
+                                                                certificate={quiz}
+                                                                className="snap-start"
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="space-y-8">
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                        {/* Calendar */}
+                                        <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
+                                                    <Calendar className="w-5 h-5 text-success" />
+                                                </div>
+                                                <div>
+                                                    <h2 className="text-xl font-bold text-text">Consistency</h2>
+                                                    <p className="text-sm text-text-muted">Each dot is a day you learned!</p>
+                                                </div>
+                                            </div>
+                                            <StreakCalendar
+                                                activityDates={activityDates}
+                                                className="w-full"
                                             />
-                                        ))}
-                                    </div>
-                                )}
+                                        </div>
 
-                                {/* Needs Improvement Section */}
-                                {needsImprovementQuizzes.length > 0 && (
-                                    <div>
-                                        <p className="text-sm font-medium text-text-muted mb-3">
-                                            Keep practicing - you can do it!
-                                        </p>
-                                        <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory -mx-2 px-2">
-                                            {needsImprovementQuizzes.map((quiz) => (
-                                                <NeedsImprovementCard
-                                                    key={quiz.activityId}
-                                                    certificate={quiz}
-                                                    className="snap-start"
-                                                />
-                                            ))}
+                                        {/* Released Quiz Grades */}
+                                        <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                                                    <BookOpen className="w-5 h-5 text-primary" />
+                                                </div>
+                                                <div>
+                                                    <h2 className="text-xl font-bold text-text">Quiz Grades</h2>
+                                                    <p className="text-sm text-text-muted">
+                                                        LMS quizzes: {gradedSpanishQuizCount}/{spanishQuizGrades.length} Spanish · {gradedCodingQuizCount}/{codingQuizGrades.length} Coding
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-6 max-h-[520px] overflow-y-auto pr-1">
+                                                <div>
+                                                    <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Spanish Quizzes</h3>
+                                                    {spanishQuizGrades.length === 0 ? (
+                                                        <div className="rounded-lg border border-dashed border-border/60 bg-bg/60 p-3">
+                                                            <p className="text-sm text-text-muted">No Spanish quizzes available yet.</p>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="space-y-2">
+                                                            {spanishQuizGrades.map((quiz) => (
+                                                                <Link
+                                                                    key={quiz.id}
+                                                                    href={`/activity/${quiz.id}`}
+                                                                    className="flex items-center justify-between gap-3 rounded-lg border border-border/40 bg-bg/60 p-3 hover:bg-primary/5 hover:border-primary/30 transition-colors group"
+                                                                >
+                                                                    <div className="min-w-0 flex-1">
+                                                                        <p className="text-sm font-semibold text-text truncate group-hover:text-primary transition-colors">{quiz.title}</p>
+                                                                        <p className="text-xs text-text-muted">
+                                                                            {quiz.submittedAt
+                                                                                ? `Last attempt ${quiz.submittedAt.toLocaleDateString()}`
+                                                                                : "Released - not submitted yet"}
+                                                                        </p>
+                                                                    </div>
+                                                                    {quiz.score !== null ? (
+                                                                        <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${getScoreBadgeClasses(quiz.score)}`}>
+                                                                            {quiz.score}%
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="shrink-0 rounded-full border border-border/60 bg-bg-secondary/90 px-2.5 py-1 text-xs font-medium text-text-muted">
+                                                                            Not submitted
+                                                                        </span>
+                                                                    )}
+                                                                    <ChevronRight className="w-4 h-4 text-text-muted shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                </Link>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div>
+                                                    <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Coding Quizzes</h3>
+                                                    {codingQuizGrades.length === 0 ? (
+                                                        <div className="rounded-lg border border-dashed border-border/60 bg-bg/60 p-3">
+                                                            <p className="text-sm text-text-muted">No Coding quizzes available yet.</p>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="space-y-2">
+                                                            {codingQuizGrades.map((quiz) => (
+                                                                <Link
+                                                                    key={quiz.id}
+                                                                    href={`/activity/${quiz.id}`}
+                                                                    className="flex items-center justify-between gap-3 rounded-lg border border-border/40 bg-bg/60 p-3 hover:bg-primary/5 hover:border-primary/30 transition-colors group"
+                                                                >
+                                                                    <div className="min-w-0 flex-1">
+                                                                        <p className="text-sm font-semibold text-text truncate group-hover:text-primary transition-colors">{quiz.title}</p>
+                                                                        <p className="text-xs text-text-muted">
+                                                                            {quiz.submittedAt
+                                                                                ? `Last attempt ${quiz.submittedAt.toLocaleDateString()}`
+                                                                                : "Released - not submitted yet"}
+                                                                        </p>
+                                                                    </div>
+                                                                    {quiz.score !== null ? (
+                                                                        <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${getScoreBadgeClasses(quiz.score)}`}>
+                                                                            {quiz.score}%
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="shrink-0 rounded-full border border-border/60 bg-bg-secondary/90 px-2.5 py-1 text-xs font-medium text-text-muted">
+                                                                            Not submitted
+                                                                        </span>
+                                                                    )}
+                                                                    <ChevronRight className="w-4 h-4 text-text-muted shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                </Link>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
 
-                    <div className="mb-10 space-y-8">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            {/* Calendar */}
-                            <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm animate-fade-in-up delay-200">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
-                                        <Calendar className="w-5 h-5 text-success" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-xl font-bold text-text">Consistency</h2>
-                                        <p className="text-sm text-text-muted">Each dot is a day you learned!</p>
-                                    </div>
-                                </div>
-                                <StreakCalendar
-                                    activityDates={activityDates}
-                                    className="w-full"
-                                />
-                            </div>
-
-                            {/* Released Quiz Grades */}
-                            <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm animate-fade-in-up delay-300">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                                        <BookOpen className="w-5 h-5 text-primary" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-xl font-bold text-text">Quiz Grades</h2>
-                                        <p className="text-sm text-text-muted">
-                                            LMS quizzes: {gradedSpanishQuizCount}/{spanishQuizGrades.length} Spanish · {gradedCodingQuizCount}/{codingQuizGrades.length} Coding
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-6 max-h-[520px] overflow-y-auto pr-1">
-                                    <div>
-                                        <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Spanish Quizzes</h3>
-                                        {spanishQuizGrades.length === 0 ? (
-                                            <div className="rounded-lg border border-dashed border-border/60 bg-bg/60 p-3">
-                                                <p className="text-sm text-text-muted">No Spanish quizzes available yet.</p>
+                                    {/* Recent Activity */}
+                                    <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm">
+                                        <div className="flex items-center justify-between mb-6">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                                    <Trophy className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <h2 className="text-xl font-bold text-text">Recent Wins</h2>
+                                                    <p className="text-sm text-text-muted">Latest activities</p>
+                                                </div>
                                             </div>
-                                        ) : (
-                                            <div className="space-y-2">
-                                                {spanishQuizGrades.map((quiz) => (
-                                                    <Link
-                                                        key={quiz.id}
-                                                        href={`/activity/${quiz.id}`}
-                                                        className="flex items-center justify-between gap-3 rounded-lg border border-border/40 bg-bg/60 p-3 hover:bg-primary/5 hover:border-primary/30 transition-colors group"
-                                                    >
-                                                        <div className="min-w-0 flex-1">
-                                                            <p className="text-sm font-semibold text-text truncate group-hover:text-primary transition-colors">{quiz.title}</p>
-                                                            <p className="text-xs text-text-muted">
-                                                                {quiz.submittedAt
-                                                                    ? `Last attempt ${quiz.submittedAt.toLocaleDateString()}`
-                                                                    : "Released - not submitted yet"}
-                                                            </p>
-                                                        </div>
-                                                        {quiz.score !== null ? (
-                                                            <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${getScoreBadgeClasses(quiz.score)}`}>
-                                                                {quiz.score}%
-                                                            </span>
-                                                        ) : (
-                                                            <span className="shrink-0 rounded-full border border-border/60 bg-bg-secondary/90 px-2.5 py-1 text-xs font-medium text-text-muted">
-                                                                Not submitted
-                                                            </span>
-                                                        )}
-                                                        <ChevronRight className="w-4 h-4 text-text-muted shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    </Link>
-                                                ))}
+                                        </div>
+                                        <ActivityTimeline activities={timelineActivities} limit={8} />
+                                        {timelineActivities.length === 0 && (
+                                            <div className="text-center py-6">
+                                                <p className="text-text-muted text-sm italic">No recent activity. Do a lesson to see it here!</p>
                                             </div>
                                         )}
                                     </div>
 
-                                    <div>
-                                        <h3 className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-3">Coding Quizzes</h3>
-                                        {codingQuizGrades.length === 0 ? (
-                                            <div className="rounded-lg border border-dashed border-border/60 bg-bg/60 p-3">
-                                                <p className="text-sm text-text-muted">No Coding quizzes available yet.</p>
+                                    {/* Trophy Case */}
+                                    {user.achievements.length > 0 && (
+                                        <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-8 shadow-sm">
+                                            <div className="flex items-center gap-4 mb-6">
+                                                <div className="w-12 h-12 rounded-2xl bg-mineral-amethyst/20 border border-mineral-amethyst/30 flex items-center justify-center text-mineral-amethyst">
+                                                    <Award className="w-6 h-6" />
+                                                </div>
+                                                <div>
+                                                    <h2 className="text-2xl font-bold font-display text-text">Trophy Case</h2>
+                                                    <p className="text-text-muted">Badges you've earned</p>
+                                                </div>
                                             </div>
-                                        ) : (
-                                            <div className="space-y-2">
-                                                {codingQuizGrades.map((quiz) => (
-                                                    <Link
-                                                        key={quiz.id}
-                                                        href={`/activity/${quiz.id}`}
-                                                        className="flex items-center justify-between gap-3 rounded-lg border border-border/40 bg-bg/60 p-3 hover:bg-primary/5 hover:border-primary/30 transition-colors group"
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                {user.achievements.map((userAchievement) => (
+                                                    <div
+                                                        key={userAchievement.id}
+                                                        className="flex items-center gap-4 p-4 bg-bg-elevated border border-border-subtle rounded-xl hover:shadow-md transition-shadow"
                                                     >
-                                                        <div className="min-w-0 flex-1">
-                                                            <p className="text-sm font-semibold text-text truncate group-hover:text-primary transition-colors">{quiz.title}</p>
-                                                            <p className="text-xs text-text-muted">
-                                                                {quiz.submittedAt
-                                                                    ? `Last attempt ${quiz.submittedAt.toLocaleDateString()}`
-                                                                    : "Released - not submitted yet"}
-                                                            </p>
+                                                        <div className="w-12 h-12 rounded-full bg-bg-secondary/90 shadow-sm flex items-center justify-center text-2xl shrink-0">
+                                                            {userAchievement.achievement.icon}
                                                         </div>
-                                                        {quiz.score !== null ? (
-                                                            <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${getScoreBadgeClasses(quiz.score)}`}>
-                                                                {quiz.score}%
-                                                            </span>
-                                                        ) : (
-                                                            <span className="shrink-0 rounded-full border border-border/60 bg-bg-secondary/90 px-2.5 py-1 text-xs font-medium text-text-muted">
-                                                                Not submitted
-                                                            </span>
-                                                        )}
-                                                        <ChevronRight className="w-4 h-4 text-text-muted shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    </Link>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-bold text-text-dark">{userAchievement.achievement.name}</p>
+                                                            <p className="text-xs text-text-muted mt-0.5 line-clamp-2">{userAchievement.achievement.description}</p>
+                                                        </div>
+                                                    </div>
                                                 ))}
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Recent Activity */}
-                        <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm animate-fade-in-up delay-400">
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                        <Trophy className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-xl font-bold text-text">Recent Wins</h2>
-                                        <p className="text-sm text-text-muted">Latest activities</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <ActivityTimeline activities={timelineActivities} limit={8} />
-                            {timelineActivities.length === 0 && (
-                                <div className="text-center py-6">
-                                    <p className="text-text-muted text-sm italic">No recent activity. Do a lesson to see it here!</p>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Achievements - Show only if exists */}
-                        {user.achievements.length > 0 && (
-                            <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-8 shadow-sm animate-fade-in-up delay-500">
-                                <div className="flex items-center gap-4 mb-6">
-                                    <div className="w-12 h-12 rounded-2xl bg-mineral-amethyst/20 border border-mineral-amethyst/30 flex items-center justify-center text-mineral-amethyst">
-                                        <Award className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-2xl font-bold font-display text-text">Trophy Case</h2>
-                                        <p className="text-text-muted">Badges you've earned</p>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {user.achievements.map((userAchievement) => (
-                                        <div
-                                            key={userAchievement.id}
-                                            className="flex items-center gap-4 p-4 bg-bg-elevated border border-border-subtle rounded-xl hover:shadow-md transition-shadow"
-                                        >
-                                            <div className="w-12 h-12 rounded-full bg-bg-secondary/90 shadow-sm flex items-center justify-center text-2xl shrink-0">
-                                                {userAchievement.achievement.icon}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="font-bold text-text-dark">{userAchievement.achievement.name}</p>
-                                                <p className="text-xs text-text-muted mt-0.5 line-clamp-2">{userAchievement.achievement.description}</p>
-                                            </div>
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
                             </div>
                         )}
-                    </div>
+                        planningContent={(
+                            <div className="animate-fade-in">
+                                <PlanningStats data={weeklyPlanningData} />
+                            </div>
+                        )}
+                    />
                 </div>
 
                 <BottomNav
