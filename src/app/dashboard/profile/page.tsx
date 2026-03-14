@@ -19,6 +19,7 @@ import { Trophy, Flame, BookOpen, Calendar, Award, ChevronRight } from "lucide-r
 import { HomeIcon, BookOpenIcon as BookIcon, UserIcon } from "@/components/icons/Icons";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { PlanningStats, type WeeklyPlanningData } from "@/components/profile/PlanningStats";
+import { WeekSummary, type WeekSummaryData } from "@/components/profile/WeekSummary";
 import { 
     normalizeDailyAnchorsStore, 
     toDateKey, 
@@ -299,6 +300,13 @@ export default async function ProfilePage() {
         redirect("/login");
     }
 
+    const now = new Date();
+    const startOfThisWeek = new Date(now);
+    startOfThisWeek.setDate(now.getDate() - now.getDay());
+    startOfThisWeek.setHours(0, 0, 0, 0);
+    const rangeStart = new Date(startOfThisWeek);
+    rangeStart.setDate(rangeStart.getDate() - 21);
+
     // Run all independent database queries in parallel to eliminate async waterfall
     const [
         activityProgress,
@@ -308,6 +316,8 @@ export default async function ProfilePage() {
         releasedMiniQuizGuideActivities,
         miniQuizSubmissions,
         anchorsRow,
+        ownedClassesForWeek,
+        weekPointsLedger,
     ] = await Promise.all([
         // Get activity progress for category stats
         prisma.activityProgress.findMany({
@@ -374,6 +384,21 @@ export default async function ProfilePage() {
                 },
             },
         }),
+        prisma.class.findMany({
+            where: { ownerId: userId },
+            include: {
+                assignments: { include: { activity: true } },
+                calendarEvents: true,
+            },
+        }),
+        prisma.pointsLedger.findMany({
+            where: {
+                userId,
+                points: { gt: 0 },
+                createdAt: { gte: rangeStart },
+            },
+            orderBy: { createdAt: 'asc' },
+        }),
     ]);
 
     const dailyAnchorsData = normalizeDailyAnchorsStore(anchorsRow?.checklist);
@@ -392,7 +417,6 @@ export default async function ProfilePage() {
         suggestion: string;
     }>();
 
-    const now = new Date();
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     function parseActualTimeToDisplay(actualTime: string | undefined): string | undefined {
@@ -479,6 +503,96 @@ export default async function ProfilePage() {
             .sort((a, b) => b.count - a.count)
             .slice(0, 5)
             .map(({ reason, ...rest }) => ({ reason, ...rest })),
+    };
+
+    // Build week summary (events + activity) - 4 weeks of data for client-side week toggle
+    const rangeEnd = new Date(startOfThisWeek);
+    rangeEnd.setDate(rangeEnd.getDate() + 7);
+    rangeEnd.setHours(23, 59, 59, 999);
+    const weekEvents: WeekSummaryData['events'] = [];
+    const allAssignments = ownedClassesForWeek.flatMap((c) => c.assignments);
+    const allCalendarEvents = ownedClassesForWeek.flatMap((c) => c.calendarEvents);
+    for (const a of allAssignments) {
+        const dueDate = a.dueDate;
+        if (!dueDate) continue;
+        const due = new Date(dueDate);
+        if (due >= rangeStart && due <= rangeEnd) {
+            const y = due.getFullYear();
+            const m = String(due.getMonth() + 1).padStart(2, '0');
+            const d = String(due.getDate()).padStart(2, '0');
+            const dateKey = `${y}-${m}-${d}`;
+            const title = (a.title || a.activity?.title || 'Assignment').toString();
+            weekEvents.push({
+                id: a.id,
+                dateKey,
+                title,
+                type: title.toLowerCase().includes('quiz') ? 'quiz' : 'assignment',
+                date: due,
+            });
+        }
+    }
+    for (const e of allCalendarEvents) {
+        const evtDate = new Date(e.date);
+        if (evtDate >= rangeStart && evtDate <= rangeEnd) {
+            const y = evtDate.getFullYear();
+            const m = String(evtDate.getMonth() + 1).padStart(2, '0');
+            const d = String(evtDate.getDate()).padStart(2, '0');
+            weekEvents.push({
+                id: e.id,
+                dateKey: `${y}-${m}-${d}`,
+                title: e.title,
+                type: (e.type === 'holiday' ? 'holiday' : 'event') as WeekSummaryData['events'][0]['type'],
+                date: evtDate,
+            });
+        }
+    }
+    const weekActivities: WeekSummaryData['activities'] = weekPointsLedger.map((entry) => {
+        const createdAt = new Date(entry.createdAt);
+        const y = createdAt.getFullYear();
+        const m = String(createdAt.getMonth() + 1).padStart(2, '0');
+        const day = String(createdAt.getDate()).padStart(2, '0');
+        const dateKey = `${y}-${m}-${day}`;
+        const reason = entry.reason || 'Activity completed';
+        let title = reason;
+        if (reason.startsWith('{')) {
+            try {
+                const parsed = JSON.parse(reason) as { title?: string; durationMinutes?: number };
+                if (parsed?.title) {
+                    title = parsed.durationMinutes
+                        ? `${parsed.title} (${parsed.durationMinutes}m)`
+                        : parsed.title;
+                }
+            } catch {
+                // Fall through to other parsing
+            }
+        }
+        if (title === reason && reason.includes('|')) {
+            title = reason.split('|')[0]?.trim() || reason;
+        } else if (reason.startsWith('Completed: ')) {
+            title = reason.replace('Completed: ', '');
+        } else if (reason.startsWith('Achievement:')) {
+            title = reason.replace('Achievement: ', '');
+        } else if (reason === 'Streak bonus' || reason === 'Streak + weekly bonus') {
+            title = 'Streak bonus';
+        } else if (parseGrammarExerciseReason(reason)) {
+            const parsed = parseGrammarExerciseReason(reason);
+            title = parsed?.activityName || reason;
+        } else if (reason.startsWith('grammar:')) {
+            title = reason.replace('grammar:', '').replace(/-/g, ' ').split(' ')
+                .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+        return {
+            id: entry.id,
+            dateKey,
+            title,
+            points: entry.points,
+            completedAt: createdAt,
+        };
+    });
+    const weekSummaryData: WeekSummaryData = {
+        events: weekEvents,
+        activities: weekActivities,
+        dayLabels,
     };
 
     // Combine both date sources
@@ -963,7 +1077,7 @@ export default async function ProfilePage() {
                         )}
                         planningContent={(
                             <div className="animate-fade-in">
-                                <PlanningStats data={weeklyPlanningData} />
+                                <PlanningStats data={weeklyPlanningData} weekSummary={weekSummaryData} />
                             </div>
                         )}
                     />

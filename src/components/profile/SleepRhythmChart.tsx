@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   LineChart,
   Line,
@@ -11,8 +11,8 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { AnchorStatesMap } from './PlanningStats';
+import { usePlanningWeek } from '@/context/PlanningWeekContext';
 
 function toDateKey(date: Date): string {
   const y = date.getFullYear();
@@ -60,7 +60,7 @@ interface SleepRhythmChartProps {
 }
 
 export function SleepRhythmChart({ anchorStates }: SleepRhythmChartProps) {
-  const [weekOffset, setWeekOffset] = useState(0);
+  const { weekOffset } = usePlanningWeek();
 
   const { chartData, weekLabel, hasAnyData } = useMemo(() => {
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -124,38 +124,17 @@ export function SleepRhythmChart({ anchorStates }: SleepRhythmChartProps) {
 
   if (!hasAnyData) {
     return (
-      <div className="rounded-3xl p-6 bg-bg-secondary border border-border/40 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-accent-teal/10 flex items-center justify-center">
-              <span className="text-lg" aria-hidden>🌙</span>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-text">Wake & Bed Times</h3>
-              <p className="text-sm text-text-muted">Log wake and bedtime in daily anchors to see your rhythm</p>
-            </div>
+      <div className="rounded-3xl p-6 bg-bg-secondary border border-border/40 shadow-sm h-full flex flex-col">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-accent-teal/10 flex items-center justify-center shrink-0">
+            <span className="text-lg" aria-hidden>🌙</span>
           </div>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setWeekOffset((o) => o - 1)}
-              className="p-2 rounded-lg hover:bg-bg-elevated/80 text-text-muted hover:text-text transition-colors"
-              aria-label="Previous week"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <span className="text-sm font-medium text-text-muted min-w-[80px] text-center">{weekLabel}</span>
-            <button
-              type="button"
-              onClick={() => setWeekOffset((o) => o + 1)}
-              className="p-2 rounded-lg hover:bg-bg-elevated/80 text-text-muted hover:text-text transition-colors"
-              aria-label="Next week"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
+          <div>
+            <h3 className="text-lg font-bold text-text">Wake & Bed Times</h3>
+            <p className="text-sm text-text-muted">Log wake and bedtime in daily anchors</p>
           </div>
         </div>
-        <div className="h-48 flex items-center justify-center rounded-xl bg-bg-elevated/50 border border-dashed border-border/40">
+        <div className="min-h-[320px] flex-1 flex items-center justify-center rounded-xl bg-bg-elevated/50 border border-dashed border-border/40">
           <p className="text-sm text-text-muted">No sleep data for this week</p>
         </div>
       </div>
@@ -167,53 +146,34 @@ export function SleepRhythmChart({ anchorStates }: SleepRhythmChartProps) {
   const yTicks = [0, 6 * 60, 12 * 60, 18 * 60, 24 * 60];
 
   return (
-    <div className="rounded-3xl p-6 bg-bg-secondary border border-border/40 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-accent-teal/10 flex items-center justify-center">
-            <span className="text-lg" aria-hidden>🌙</span>
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-text">Wake & Bed Times</h3>
-            <p className="text-sm text-text-muted">From daily anchors</p>
-          </div>
+    <div className="rounded-3xl p-6 bg-bg-secondary border border-border/40 shadow-sm h-full flex flex-col min-h-0">
+      <div className="flex items-center gap-3 mb-4 shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-accent-teal/10 flex items-center justify-center shrink-0">
+          <span className="text-lg" aria-hidden>🌙</span>
         </div>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setWeekOffset((o) => o - 1)}
-            className="p-2 rounded-lg hover:bg-bg-elevated/80 text-text-muted hover:text-text transition-colors"
-            aria-label="Previous week"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <span className="text-sm font-medium text-text-muted min-w-[90px] text-center">{weekLabel}</span>
-          <button
-            type="button"
-            onClick={() => setWeekOffset((o) => o + 1)}
-            className="p-2 rounded-lg hover:bg-bg-elevated/80 text-text-muted hover:text-text transition-colors"
-            aria-label="Next week"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
+        <div>
+          <h3 className="text-lg font-bold text-text">Wake & Bed Times</h3>
+          <p className="text-sm text-text-muted">From daily anchors</p>
         </div>
       </div>
-      <div className="h-56 w-full">
+      <div className="h-80 sm:h-96 min-h-[20rem] w-full flex-1">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+          <LineChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 32 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.5} />
             <XAxis
               dataKey="label"
-              tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }}
+              tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
               tickLine={false}
               axisLine={{ stroke: 'var(--color-border)' }}
               interval={0}
+              angle={-35}
+              textAnchor="end"
             />
             <YAxis
               domain={[yMin, yMax]}
               ticks={yTicks}
               tickFormatter={(v) => minutesTo12Hour(v)}
-              tick={{ fontSize: 10, fill: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}
+              tick={{ fontSize: 12, fill: 'var(--color-text-muted)' }}
               tickLine={false}
               axisLine={false}
               width={52}
@@ -239,7 +199,9 @@ export function SleepRhythmChart({ anchorStates }: SleepRhythmChartProps) {
               }}
             />
             <Legend
-              wrapperStyle={{ fontSize: 11 }}
+              verticalAlign="top"
+              align="right"
+              wrapperStyle={{ fontSize: 12 }}
               formatter={(value) => (value === 'wake' ? 'Wake' : 'Bed')}
             />
             <Line
@@ -247,8 +209,8 @@ export function SleepRhythmChart({ anchorStates }: SleepRhythmChartProps) {
               dataKey="wakeMinutes"
               name="wake"
               stroke="var(--color-accent-teal)"
-              strokeWidth={2}
-              dot={{ fill: 'var(--color-accent-teal)', strokeWidth: 0, r: 4 }}
+              strokeWidth={2.5}
+              dot={{ fill: 'var(--color-accent-teal)', strokeWidth: 0, r: 5 }}
               connectNulls={false}
             />
             <Line
@@ -256,8 +218,8 @@ export function SleepRhythmChart({ anchorStates }: SleepRhythmChartProps) {
               dataKey="bedMinutes"
               name="bed"
               stroke="var(--color-primary)"
-              strokeWidth={2}
-              dot={{ fill: 'var(--color-primary)', strokeWidth: 0, r: 4 }}
+              strokeWidth={2.5}
+              dot={{ fill: 'var(--color-primary)', strokeWidth: 0, r: 5 }}
               connectNulls={false}
             />
           </LineChart>

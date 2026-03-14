@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useMemo } from 'react';
 import type { AnchorStatesMap } from './PlanningStats';
+import { usePlanningWeek } from '@/context/PlanningWeekContext';
 
 function toDateKey(date: Date): string {
   const y = date.getFullYear();
@@ -16,9 +16,9 @@ interface WeeklyAnchorProgressProps {
 }
 
 export function WeeklyAnchorProgress({ anchorStates }: WeeklyAnchorProgressProps) {
-  const [weekOffset, setWeekOffset] = useState(0);
+  const { weekOffset } = usePlanningWeek();
 
-  const { days, weeklyAverage, weekLabel } = useMemo(() => {
+  const { days, weeklyAverage } = useMemo(() => {
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const now = new Date();
     const startOfWeek = new Date(now);
@@ -68,56 +68,35 @@ export function WeeklyAnchorProgress({ anchorStates }: WeeklyAnchorProgressProps
 
     const weeklyAverage = weeklyTotalAnchors > 0 ? Math.round((weeklyTotalCompleted / weeklyTotalAnchors) * 100) : 0;
 
-    return { days, weeklyAverage, weekLabel };
+    return { days, weeklyAverage };
   }, [anchorStates, weekOffset]);
 
   return (
-    <div className="rounded-3xl p-6 bg-bg-secondary border border-border/40 shadow-sm space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-accent-teal/10 flex items-center justify-center shrink-0">
-            <span className="text-lg" aria-hidden>📋</span>
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-lg font-bold text-text">Weekly Anchor Progress</h3>
-            <p className="text-sm text-text-muted">Completion rate</p>
-          </div>
-          <div className="text-right">
-            <div className="text-3xl font-black text-primary">{weeklyAverage}%</div>
-            <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Weekly avg</div>
-          </div>
+    <div className="rounded-3xl p-6 bg-bg-secondary border border-border/40 shadow-sm h-full flex flex-col min-h-0">
+      <div className="flex items-center gap-4 mb-4 shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-accent-teal/10 flex items-center justify-center shrink-0">
+          <span className="text-lg" aria-hidden>📋</span>
         </div>
-        <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setWeekOffset((o) => o - 1)}
-              className="p-2 rounded-lg hover:bg-bg-elevated/80 text-text-muted hover:text-text transition-colors"
-              aria-label="Previous week"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <span className="text-sm font-medium text-text-muted min-w-[90px] text-center">{weekLabel}</span>
-            <button
-              type="button"
-              onClick={() => setWeekOffset((o) => o + 1)}
-              className="p-2 rounded-lg hover:bg-bg-elevated/80 text-text-muted hover:text-text transition-colors"
-              aria-label="Next week"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
+        <div>
+          <h3 className="text-lg font-bold text-text">Weekly Anchor Progress</h3>
+          <p className="text-sm text-text-muted">Completion rate</p>
+        </div>
+        <div className="text-right ml-auto">
+          <div className="text-3xl font-black text-primary">{weeklyAverage}%</div>
+          <div className="text-xs font-bold text-text-muted uppercase tracking-wider">Weekly avg</div>
         </div>
       </div>
 
-      <div className="flex items-end justify-between gap-2 h-48 pt-4">
+      <div className="flex items-end justify-between gap-2 sm:gap-4 h-80 sm:h-96 min-h-[20rem] flex-1 pt-4">
         {days.map((day) => (
-          <div key={day.dateKey} className="flex-1 flex flex-col items-center gap-3 h-full group">
+          <div key={day.dateKey} className="flex-1 flex flex-col items-center gap-4 h-full group">
             <div className="relative flex-1 w-full flex items-end justify-center">
-              <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-text text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-text text-white text-xs px-2.5 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
                 {day.completed}/{day.total} done
               </div>
-              <div className="absolute inset-0 w-2 md:w-3 mx-auto bg-bg-elevated rounded-full" />
+              <div className="absolute inset-0 w-3 md:w-4 mx-auto bg-bg-elevated rounded-full" />
               <div
-                className="relative w-2 md:w-3 bg-gradient-to-t from-primary to-primary-light rounded-full transition-all duration-700 ease-out"
+                className="relative w-3 md:w-4 bg-gradient-to-t from-primary to-primary-light rounded-full transition-all duration-700 ease-out"
                 style={{ height: `${Math.max(day.percent, 8)}%` }}
               >
                 {day.percent >= 90 && (
@@ -125,7 +104,7 @@ export function WeeklyAnchorProgress({ anchorStates }: WeeklyAnchorProgressProps
                 )}
               </div>
             </div>
-            <div className="text-[10px] font-bold text-text-muted uppercase text-center leading-tight">
+            <div className="text-[10px] sm:text-xs font-bold text-text-muted uppercase text-center leading-tight truncate max-w-full">
               {day.label}
             </div>
           </div>
