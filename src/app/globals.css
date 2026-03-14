@@ -4978,9 +4978,18 @@ kbd {
   max-width: none !important;
 }
 
-/* Internal focus handling to match our design system */
+/* Internal focus handling — suppress every inner ring / outline so only
+   the outer rounded container shows focus-within */
 .mdxeditor-theme-custom:focus-within {
   outline: none !important;
+  box-shadow: none !important;
+}
+
+.mdxeditor-theme-custom .mdxeditor-root-contenteditable:focus-within,
+.mdxeditor-theme-custom .mdxeditor-root-contenteditable:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 .mdxeditor-theme-custom [data-lexical-editor] {
@@ -4989,6 +4998,22 @@ kbd {
   min-height: 280px !important;
   width: 100% !important;
   max-width: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.mdxeditor-theme-custom [data-lexical-editor]:focus,
+.mdxeditor-theme-custom [data-lexical-editor]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Also suppress any inner contenteditable focus ring */
+.mdxeditor-theme-custom [contenteditable]:focus,
+.mdxeditor-theme-custom [contenteditable]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 /* Ensure typography matches our premium font choice and full-width layout */
@@ -5029,8 +5054,139 @@ kbd {
   font-weight: 600;
 }
 
+.mdxeditor-theme-custom .prose h1,
+.mdxeditor-theme-custom .prose h2,
+.mdxeditor-theme-custom .prose h3,
+.mdxeditor-theme-custom .prose h4,
+.mdxeditor-theme-custom .prose p,
+.mdxeditor-theme-custom .prose ul,
+.mdxeditor-theme-custom .prose ol {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
 .mdxeditor-theme-custom .prose li::marker {
   color: var(--color-accent-sakura);
+}
+
+/* Regular list indent */
+.mdxeditor-theme-custom .prose ul {
+  padding-left: 1.5rem;
+}
+
+/* ---- Checkbox / Task-list overrides ---- */
+/* MDXEditor renders task items as  li[role="checkbox"]  with a ::before
+   pseudo-element for the visual box.  The library default sets  top: 0
+   which sits too high relative to the text.  We push it down to align
+   with the first line of text. */
+
+.mdxeditor-theme-custom .prose ul:has(li[role="checkbox"]) {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  list-style: none !important;
+}
+
+/* Override the built-in checkbox ::before position so it sits on the
+   text baseline instead of flush with the top of the li */
+.mdxeditor-theme-custom .prose li[role="checkbox"]::before {
+  top: 0.3em !important;          /* nudge checkbox down to text center */
+  width: 1rem !important;
+  height: 1rem !important;
+  border-radius: 3px !important;
+  border-color: var(--color-border-subtle) !important;
+}
+
+/* Checked variant – keep the checkmark aligned too */
+.mdxeditor-theme-custom .prose li[role="checkbox"][aria-checked="true"]::before {
+  background-color: var(--color-accent-sakura) !important;
+  border-color: var(--color-accent-sakura) !important;
+}
+
+.mdxeditor-theme-custom .prose li[role="checkbox"][aria-checked="true"]::after {
+  top: calc(0.3em + 2px) !important;  /* match the ::before offset */
+}
+
+/* Reduce the item vertical spacing for tighter lists */
+.mdxeditor-theme-custom .prose li[role="checkbox"] {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+/* Hide the native marker on checkbox items */
+.mdxeditor-theme-custom .prose li[role="checkbox"]::marker {
+  display: none;
+  content: '' !important;
+}
+
+/* Fallback for browsers that render an <input> checkbox instead */
+.mdxeditor-theme-custom .prose li:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  list-style: none;
+  margin-bottom: 0.35rem;
+}
+
+.mdxeditor-theme-custom .prose li:has(input[type="checkbox"])::marker {
+  display: none;
+}
+
+.mdxeditor-theme-custom .prose li:has(input[type="checkbox"]) input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: var(--color-accent-sakura);
+  border-radius: 3px;
+  position: relative;
+  top: 0.1em;          /* fine-tune baseline alignment */
+}
+
+/* ---- Bold / strong text spacing fix ---- */
+/* Lexical splits text into sibling <span> and <strong> nodes. Some
+   browsers introduce visual word-spacing or flex gaps between them.
+   Force everything inline with zero extra spacing. */
+
+.mdxeditor-theme-custom .prose strong,
+.mdxeditor-theme-custom .prose b {
+  display: inline !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  white-space: normal !important;
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+
+.mdxeditor-theme-custom .prose strong::before,
+.mdxeditor-theme-custom .prose strong::after,
+.mdxeditor-theme-custom .prose b::before,
+.mdxeditor-theme-custom .prose b::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Ensure inline spans inside list items don't introduce gaps */
+.mdxeditor-theme-custom .prose li > span,
+.mdxeditor-theme-custom .prose li > strong,
+.mdxeditor-theme-custom .prose li > b,
+.mdxeditor-theme-custom .prose p > span,
+.mdxeditor-theme-custom .prose p > strong,
+.mdxeditor-theme-custom .prose p > b {
+  display: inline !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+}
+
+/* Kill any word-spacing on the parent container that can cause gaps
+   between inline elements rendered by Lexical */
+.mdxeditor-theme-custom .prose li[role="checkbox"],
+.mdxeditor-theme-custom .prose p {
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
 }
 
 .mdxeditor-theme-custom .prose blockquote {
