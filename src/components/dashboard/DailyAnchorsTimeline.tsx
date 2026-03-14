@@ -246,7 +246,6 @@ function MobileAnchorItem({
   nextEventLabel,
 }: MobileAnchorItemProps) {
   const [isTimeScrubberOpen, setIsTimeScrubberOpen] = useState(false);
-  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const Icon = iconByName[anchor.icon] || Moon;
   const isDone = anchor.status === 'done';
   const isMissed = anchor.status === 'missed';
@@ -254,26 +253,21 @@ function MobileAnchorItem({
   const hasRange = Boolean(anchor.endTime && parseHHMMToMinutes(anchor.endTime) > parseHHMMToMinutes(anchor.scheduledTime));
   const contextLabel = getContextualLabel(anchor.scheduledTime, nowMinutes, isUpNext, anchor.status);
 
-  useEffect(() => {
-    return () => {
-      if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
-    };
-  }, []);
-
   return (
     <div className="relative" style={{ animationDelay: `${index * 80}ms` }}>
       <div className="relative">
-        {/* Main Card - Horizontal layout with more breathing room */}
+        {/* Main Card - Horizontal layout with more breathing room. When time scrubber is open, don't toggle (edit mode). */}
         <div
           role="button"
           tabIndex={isLoaded ? 0 : -1}
           aria-disabled={!isLoaded}
+          aria-expanded={isTimeScrubberOpen}
           onClick={() => {
-            if (!isLoaded) return;
+            if (!isLoaded || isTimeScrubberOpen) return;
             onToggle();
           }}
           onKeyDown={(e) => {
-            if (!isLoaded) return;
+            if (!isLoaded || isTimeScrubberOpen) return;
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
               onToggle();
@@ -383,7 +377,12 @@ function MobileAnchorItem({
         </div>
 
         {isTimeScrubberOpen && (
-          <div className="mt-2 rounded-xl border border-border-subtle/80 bg-bg-elevated/92 px-3 py-2.5 shadow-sm">
+          <div
+            className="mt-2 rounded-xl border-2 border-primary/25 bg-bg-elevated shadow-[0_4px_20px_rgba(0,0,0,0.08)] px-3 py-2.5 ring-2 ring-primary/10"
+            role="dialog"
+            aria-label={`Adjust ${anchor.label} time`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted/65">
@@ -431,29 +430,30 @@ function MobileAnchorItem({
                 </span>
               ) : null}
             </div>
+
+            <MobileTimeScrubber
+              isOpen={isTimeScrubberOpen}
+              currentTime={anchor.scheduledTime}
+              currentEndTime={hasRange ? anchor.endTime : undefined}
+              onTimeChange={(newTime) => onTimeChange(anchor.id, newTime)}
+              onEndTimeChange={(newTime) => onEndTimeChange(anchor.id, newTime)}
+              onClose={() => setIsTimeScrubberOpen(false)}
+            />
+            <div className="mt-3 pt-2 border-t border-border-subtle/60">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsTimeScrubberOpen(false);
+                }}
+                className="w-full py-2.5 rounded-lg bg-primary text-white text-sm font-semibold touch-manipulation active:scale-[0.98]"
+              >
+                Done
+              </button>
+            </div>
           </div>
         )}
-
-        <MobileTimeScrubber
-          isOpen={isTimeScrubberOpen}
-          currentTime={anchor.scheduledTime}
-          currentEndTime={hasRange ? anchor.endTime : undefined}
-          onTimeChange={(newTime) => {
-            onTimeChange(anchor.id, newTime);
-            if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
-            autoCloseTimerRef.current = setTimeout(() => {
-              setIsTimeScrubberOpen(false);
-            }, 1500);
-          }}
-          onEndTimeChange={(newTime) => {
-            onEndTimeChange(anchor.id, newTime);
-            if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current);
-            autoCloseTimerRef.current = setTimeout(() => {
-              setIsTimeScrubberOpen(false);
-            }, 1500);
-          }}
-          onClose={() => setIsTimeScrubberOpen(false)}
-        />
       </div>
     </div>
   );

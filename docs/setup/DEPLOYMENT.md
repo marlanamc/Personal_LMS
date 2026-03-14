@@ -1,6 +1,6 @@
 # Production Deployment Guide
 
-Complete guide for deploying Class Companion to production.
+Complete guide for deploying Personal LMS to production.
 
 ## Table of Contents
 
@@ -45,7 +45,7 @@ Before deploying to production, ensure you've completed these steps:
 - [ ] Manual testing of critical flows completed
 - [ ] Authentication and authorization tested
 - [ ] Points/gamification system verified
-- [ ] Teacher and student dashboards tested
+- [ ] Dashboard and critical flows tested
 - [ ] Mobile responsiveness checked
 
 ---

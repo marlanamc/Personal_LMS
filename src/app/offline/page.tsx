@@ -5,7 +5,7 @@ export default function OfflinePage() {
         <p className="text-meta uppercase tracking-[0.14em] text-text-muted mb-2">Offline Mode</p>
         <h1 className="text-section text-text mb-2">You are offline</h1>
         <p className="text-body text-text-muted">
-          Class Companion cannot reach the network right now. Reconnect and refresh to continue syncing your latest data.
+          Personal LMS cannot reach the network right now. Reconnect and refresh to continue syncing your latest data.
         </p>
       </section>
     </main>

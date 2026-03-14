@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Class Companion is a personal learning platform with gamification features. Built with Next.js 16 (App Router), TypeScript, Prisma, and NextAuth. The app uses PostgreSQL and includes a comprehensive points/achievements/leaderboard system to motivate students.
+Personal LMS is a personal learning platform with gamification features. Built with Next.js 16 (App Router), TypeScript, Prisma, and NextAuth. The app uses PostgreSQL and includes a comprehensive points/achievements/leaderboard system. It is single-user: one authenticated user with full edit power (no teacher/student roles).
 
 ## Common Development Commands
 
@@ -35,21 +35,21 @@ npm run delete:verb-quizzes    # Delete verb quiz activities
 
 ### Authentication & Authorization
 - **NextAuth.js** handles authentication with credentials provider (`src/lib/auth.ts`)
-- Users have roles: `student` or `teacher`
+- Single-user model: one authenticated user has full edit power; no teacher/student roles
 - Session strategy: JWT (30-day expiration)
 - Login automatically tracks user activity via `trackLogin()` in `src/lib/gamification.ts`
-- Custom session includes: `id`, `role`, `username`, `mustChangePassword`
+- Custom session includes: `id`, `username`, `mustChangePassword`
 
 ### Database Schema (Prisma)
 The database uses PostgreSQL (not SQLite - the README is outdated). Key models:
 
 **Core Models:**
-- `User`: Teachers and students with gamification fields (points, streaks, weeklyPoints, lastWeekRank)
-- `Class`: Classes with unique join codes
-- `ClassEnrollment`: Many-to-many join table for student enrollment
+- `User`: Single user with gamification fields (points, streaks, weeklyPoints, lastWeekRank)
+- `Class`: Classes owned by the user (legacy from ESOL LMS; personal LMS uses one owner)
+- `ClassEnrollment`: Many-to-many join table (legacy; personal LMS typically has one user)
 - `Activity`: Teaching activities with JSON `content` field storing typed activity data
 - `Assignment`: Links activities to classes with due dates and `isFeatured` flag
-- `Submission`: Student submissions with scores and `pointsAwarded`
+- `Submission`: Activity submissions with scores and `pointsAwarded`
 
 **Gamification Models:**
 - `Achievement`: Unlockable badges with requirements (types: streak, points, quiz, activity)
@@ -61,7 +61,7 @@ The database uses PostgreSQL (not SQLite - the README is outdated). Key models:
 - `CalendarEvent`: Class calendar events (holidays, reminders)
 
 ### Gamification System (`src/lib/gamification.ts`)
-This is the core of student engagement:
+This is the core of user engagement:
 
 **Points System:**
 - Activity completion: 2-10 points based on type/difficulty
@@ -121,7 +121,6 @@ if (!session?.user) {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
 const userId = (session.user as any).id;
-const role = (session.user as any).role;
 ```
 
 **Key API Routes:**
@@ -134,7 +133,7 @@ const role = (session.user as any).role;
 
 ### Component Organization
 - `src/components/ui/` - Reusable UI components (Button, Card, Badge, etc.)
-- `src/components/dashboard/` - Dashboard-specific components for both teacher and student views
+- `src/components/dashboard/` - Dashboard components (single-user view)
 - `src/components/grammar-reader/` - Grammar guide viewer sub-components
 - `src/components/activities/` - Activity-specific components (VerbQuiz, etc.)
 - `src/components/icons/` - SVG icon components
@@ -184,7 +183,7 @@ Always use `@/` imports for internal modules.
 1. Server components: Use `getServerSession(authOptions)`
 2. Client components: Use `useSession()` from `next-auth/react`
 3. API routes: Always check session at the top of the handler
-4. Role-based logic: Check `(session.user as any).role === "teacher"`
+4. Single-user model: no role checks; authenticated user has full access
 5. User must change password if `mustChangePassword === true`
 
 ### Weekly Points Reset
@@ -208,9 +207,7 @@ Located in `scripts/import/`:
 - Icons in `public/icons/`
 
 ## Testing Accounts (After Seeding)
-- Teacher: `teacher@example.com` / `teacher123`
-- Student: `student@example.com` / `student123`
-- Test account username: `marlie` (excluded from leaderboards)
+- Username: `marlie` / Password: `password123` (excluded from leaderboards)
 
 ## Environment Variables
 See `.env.example` for required variables:

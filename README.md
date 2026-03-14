@@ -4,20 +4,14 @@ A personal learning management system with class management, assignments, submis
 
 ## Features
 
-### For Teachers
-- **Class Management**: Create and manage multiple classes with unique class codes
-- **Student Roster**: View enrolled students and track class enrollment
-- **Activity Library**: Browse and organize teaching activities (grammar, vocabulary, speaking, writing)
-- **Assignment System**: Assign activities to classes with due dates
-- **Student Progress**: Track student submissions and grades
+Single-user personal learning platform. You have full edit power.
 
-### For Students
-- **Class Enrollment**: Join classes using class codes
-- **Assignment Dashboard**: View assigned activities and due dates
-- **Activity Completion**: Complete and submit assignments
+- **Class Management**: Create and manage classes (legacy from ESOL LMS; personal LMS uses one owner)
+- **Activity Library**: Browse and organize activities (grammar, vocabulary, speaking, coding guides, games)
+- **Assignment System**: Assign activities to classes with due dates
+- **Activity Completion**: Complete activities and track your own submissions
 - **Gamification**: Earn points, build streaks, and unlock achievements
-- **Weekly Leaderboard**: Compete with classmates and track your rank
-- **Progress Tracking**: View submission status and feedback
+- **Weekly Leaderboard**: Track your rank and progress
 
 ## Getting Started
 
@@ -51,16 +45,11 @@ npm run dev
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-### Default Accounts
+### Default Account
 
-After seeding, you can log in with:
+After seeding, log in with:
 
-**Teacher Account:**
-- Username: `teacher`
-- Password: `password123`
-
-**Student Account:**
-- Username: `student`
+- Username: `marlie`
 - Password: `password123`
 
 ## Project Structure
@@ -68,7 +57,7 @@ After seeding, you can log in with:
 ```
 ├── src/
 │   ├── app/
-│   │   ├── dashboard/         # Dashboard pages (teacher/student)
+│   │   ├── dashboard/         # Dashboard pages
 │   │   │   └── leaderboard/   # Weekly leaderboard page
 │   │   ├── activity/          # Activity viewing pages
 │   │   └── api/               # API routes
@@ -91,12 +80,12 @@ After seeding, you can log in with:
 ## Database Schema
 
 ### Core Models
-- **User**: Teachers and students with authentication + gamification fields (points, streaks)
-- **Class**: Classes created by teachers with unique codes
-- **ClassEnrollment**: Student enrollments in classes
-- **Activity**: Teaching activities (quizzes, games, guides, and learning modules)
+- **User**: Single user with authentication + gamification fields (points, streaks)
+- **Class**: Classes owned by the user
+- **ClassEnrollment**: Class enrollments (legacy from ESOL LMS)
+- **Activity**: Activities (quizzes, games, guides, and learning modules)
 - **Assignment**: Activities assigned to classes with due dates
-- **Submission**: Student submissions with scores and points awarded
+- **Submission**: Activity submissions with scores and points awarded
 
 ### Gamification Models
 - **Achievement**: Unlockable badges and milestones
@@ -104,9 +93,9 @@ After seeding, you can log in with:
 
 ## Deployment
 
-### Updating Content for Students
+### Updating Content
 
-When you add new activities or content, students using the PWA need to receive the update. The app checks for updates every 5 minutes, but you must increment the cache version:
+When you add new activities or content, the PWA caches updates. The app checks for updates every 5 minutes, but you must increment the cache version:
 
 1. Open `public/sw.js`
 2. Update the `CACHE_VERSION` constant:
@@ -115,7 +104,7 @@ const CACHE_VERSION = '2024-12-18-v1'; // Change date or increment version
 ```
 3. Commit and deploy
 
-Students will see an "Update Available" notification within 5 minutes of opening the app. After 2 dismissals, a full-screen modal ensures they update.
+You will see an "Update Available" notification within 5 minutes of opening the app. After 2 dismissals, a full-screen modal prompts an update.
 
 ### Environment Variables
 
@@ -174,10 +163,10 @@ All colors are defined in `/src/app/globals.css` as CSS variables for consistenc
 
 ## Gamification System
 
-The app includes a comprehensive gamification system to motivate students:
+The app includes a comprehensive gamification system:
 
 ### Points
-Students earn points for:
+You earn points for:
 - Completing activities: **5-10 points**
 - Quiz completion: **10 points**
 - Perfect quiz score (100%): **+20 bonus points**
@@ -185,7 +174,7 @@ Students earn points for:
 - Weekly streak (7 days): **25 bonus points**
 
 ### Streaks
-- Students build streaks by completing activities on consecutive days
+- Build streaks by completing activities on consecutive days
 - Streaks reset if a day is missed
 - Bonus points awarded for maintaining streaks
 
@@ -200,7 +189,7 @@ Students earn points for:
 - Shows top performers by weekly points
 - Resets every week
 - Displays rank changes from previous week
-- Students can see "You're up 3 spots!" type messages
+- See "You're up 3 spots!" type rank messages
 
 ## Workspace Organization
 
@@ -211,11 +200,11 @@ To keep the root directory clean and focused, project documents are grouped as f
 
 ## Completed Features
 
-- [x] User authentication (teachers & students)
+- [x] User authentication (single-user)
 - [x] Class management with join codes
 - [x] Activity library (quizzes, guides, games, and modules)
 - [x] Assignment system with due dates
-- [x] Student submissions and grading
+- [x] Submissions and grading
 - [x] **Gamification system** (points, streaks, achievements)
 - [x] **Weekly leaderboard** with rank tracking
 - [x] **Mobile-first responsive design**
@@ -227,7 +216,7 @@ To keep the root directory clean and focused, project documents are grouped as f
 - [ ] **Flashcard system** with images, audio, and study modes
 - [ ] **Live polling** for classroom interaction
 - [ ] **Progress analytics** (completion rates, areas of struggle)
-- [ ] Activity creation/editing interface for teachers
+- [ ] Activity creation/editing interface
 - [ ] Advanced activity renderers
 - [ ] File uploads for assignments
 - [ ] Class announcements and messaging
@@ -235,4 +224,4 @@ To keep the root directory clean and focused, project documents are grouped as f
 
 ## License
 
-Free for educational use. Created by teachers, for teachers.
+Free for educational use.

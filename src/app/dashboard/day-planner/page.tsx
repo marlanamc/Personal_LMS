@@ -7,7 +7,7 @@ import { DayPlannerView } from '@/components/dashboard/DayPlannerView';
 import { toDateKey } from '@/lib/unified-scheduler';
 
 export const metadata = {
-  title: 'Day Planner | Class Companion',
+  title: 'Day Planner | Personal LMS',
   description: 'Plan your day with daily anchors, events, and time blocks.',
 };
 

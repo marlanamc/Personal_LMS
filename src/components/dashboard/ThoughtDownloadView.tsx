@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { ArrowLeft, ArrowRight, Moon, Sparkles, Check, Cloud } from 'lucide-react';
 
@@ -8,6 +8,7 @@ const ThoughtDownloadEditor = dynamic(
   () => import('./ThoughtDownloadEditor'),
   { ssr: false, loading: () => <div className="p-4 text-text-muted text-sm">Loading editor...</div> }
 );
+import type { MDXEditorMethods } from '@mdxeditor/editor';
 import { useCalendarPlanner } from '@/components/dashboard/useCalendarPlanner';
 import { getNextDateKey, getPreviousDateKey, getTodayKey, isToday } from '@/lib/unified-scheduler';
 
@@ -18,6 +19,7 @@ interface ThoughtDownloadViewProps {
 export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) {
   const todayKey = getTodayKey();
   const [selectedDateKey, setSelectedDateKey] = useState(todayKey);
+  const editorRef = useRef<MDXEditorMethods>(null);
   const { getPlan, updatePlanField, isLoaded, isSaving, saveError, lastSyncedAt } = useCalendarPlanner(storageScope);
 
   const plan = getPlan(selectedDateKey);
@@ -29,9 +31,11 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
   );
   const isSelectedToday = isToday(selectedDateKey);
 
-  // Sync draft from plan when date or loaded plan changes
+  // Sync draft and editor content when date or loaded plan changes
+  // MDXEditor only reads markdown on mount; use setMarkdown() for programmatic updates
   useEffect(() => {
     setDraft(thoughtDownload);
+    editorRef.current?.setMarkdown(thoughtDownload);
   }, [selectedDateKey, thoughtDownload]);
 
   const handleChange = (value: string) => {
@@ -73,7 +77,7 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
                 id="thought-download-date"
                 className="pointer-events-none inline-flex items-center gap-1 text-xs font-medium text-text"
               >
-                {selectedDate.toLocaleDateString(undefined)}
+                {selectedDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 {isSelectedToday && <Sparkles size={10} className="text-accent-teal" />}
               </span>
               <input
@@ -106,6 +110,7 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
         >
           <div className="flex-1 flex flex-col min-h-0">
             <ThoughtDownloadEditor
+              ref={editorRef}
               markdown={draft}
               onChange={handleChange}
               disabled={!isLoaded}

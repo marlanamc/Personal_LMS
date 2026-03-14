@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { ThoughtDownloadView } from '@/components/dashboard/ThoughtDownloadView';
 
 export const metadata = {
-  title: 'Thought Download | Class Companion',
+  title: 'Thought Download | Personal LMS',
   description: 'Offload what’s on your mind — not for scheduling, just to clear your head.',
 };
 

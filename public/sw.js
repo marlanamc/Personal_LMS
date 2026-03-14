@@ -1,9 +1,9 @@
-// Service Worker for Class Companion PWA
+// Service Worker for Personal LMS PWA
 // Cache version is derived from the build id passed in sw.js?build=<id>.
 const SW_URL = new URL(self.location.href);
 const BUILD_HASH = SW_URL.searchParams.get('build') || 'dev';
 const CACHE_VERSION = `build-${BUILD_HASH}`;
-const CACHE_NAME = `class-companion-${CACHE_VERSION}`;
+const CACHE_NAME = `personal-lms-${CACHE_VERSION}`;
 
 // Only cache essential shell files - content should be network-first
 const SHELL_CACHE = [

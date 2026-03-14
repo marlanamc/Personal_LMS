@@ -104,7 +104,7 @@ npm run db:seed
 3. Click on the **Storage** tab
 4. Click **Create Database**
 5. Select **Postgres**
-6. Choose a name (e.g., "class-companion-db")
+6. Choose a name (e.g., "personal-lms-db")
 7. Select a region (choose one closest to your users)
 8. Click **Create**
 

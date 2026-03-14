@@ -1,9 +1,12 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo } from 'react';
+import { CalendarIcon } from 'lucide-react';
 import { FocusHero } from './FocusHero';
 import { FlatChecklist } from './FlatChecklist';
 import { ContextSidebar } from './ContextSidebar';
+import UpcomingEventsList from './UpcomingEventsList';
 import { useZenMode } from './useZenMode';
 import { ClearFeaturedButton } from './';
 import type { ChecklistItem } from './checklist-item.types';
@@ -53,6 +56,24 @@ export function DashboardContent({
     };
   }, [anchors]);
 
+  const todayEvents = useMemo(() => {
+    const now = new Date();
+    const today = new Date(now);
+    today.setHours(0, 0, 0, 0);
+    return calendarEvents.filter((event) => {
+      const eventStart = new Date(event.date);
+      const eventEnd = event.endDate ? new Date(event.endDate) : new Date(event.date);
+      const eventStartDay = new Date(eventStart);
+      eventStartDay.setHours(0, 0, 0, 0);
+      const eventEndDay = new Date(eventEnd);
+      eventEndDay.setHours(0, 0, 0, 0);
+      if (eventStartDay > today || eventEndDay < today) return false;
+      const isAllDay = eventStart.getHours() === 12 && eventStart.getMinutes() === 0;
+      if (isAllDay) return true;
+      return eventEnd > now;
+    });
+  }, [calendarEvents]);
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
@@ -99,6 +120,27 @@ export function DashboardContent({
               onRestoreCalendar={toggleZenMode}
             />
           </section>
+
+          {/* Mobile: Today's Schedule - mirrors sidebar events when calendar is hidden */}
+          {todayEvents.length > 0 && (
+            <section className="md:hidden animate-fade-in-up">
+              <div className="flex items-center gap-3 mb-2" aria-hidden>
+                <span className="h-px flex-1 bg-gradient-to-r from-transparent via-border-subtle to-border-subtle/40" />
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted/70">Today</span>
+                <span className="h-px flex-1 bg-gradient-to-l from-transparent via-border-subtle to-border-subtle/40" />
+              </div>
+              <div className="rounded-xl border border-border-subtle/50 bg-bg-elevated/60 p-3">
+                <UpcomingEventsList events={todayEvents} allowDelete={true} />
+                <Link
+                  href="/dashboard/calendar"
+                  className="mt-3 flex items-center justify-center gap-2 text-xs font-semibold text-accent-sakura hover:underline"
+                >
+                  <CalendarIcon className="w-3.5 h-3.5" />
+                  View full calendar
+                </Link>
+              </div>
+            </section>
+          )}
 
           <div className="md:hidden flex items-center gap-3 mt-6 mb-1.5" aria-hidden>
             <span className="h-px flex-1 bg-gradient-to-r from-transparent via-border-subtle to-border-subtle/40" />

@@ -4995,6 +4995,8 @@ kbd {
 .mdxeditor-theme-custom .prose {
   font-family: var(--font-body);
   color: var(--color-text-primary);
+  font-size: 1.0625rem;
+  line-height: 1.65;
   max-width: none !important;
   width: 100% !important;
 }
@@ -5016,14 +5018,14 @@ kbd {
 .mdxeditor-theme-custom .prose h3 {
   color: var(--color-accent-mint);
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 600;
 }
 
 .mdxeditor-theme-custom .prose h4 {
   color: var(--color-accent-amethyst);
   font-family: var(--font-display);
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
 }
 

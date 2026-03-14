@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { forwardRef } from 'react';
 import {
   MDXEditor,
   headingsPlugin,
@@ -15,24 +15,19 @@ import '@mdxeditor/editor/style.css';
 interface ThoughtDownloadEditorProps {
   markdown: string;
   onChange: (markdown: string) => void;
-  editorRef?: React.MutableRefObject<MDXEditorMethods | null>;
   disabled?: boolean;
 }
 
-export default function ThoughtDownloadEditor({
-  markdown,
-  onChange,
-  editorRef,
-  disabled
-}: ThoughtDownloadEditorProps) {
+const ThoughtDownloadEditor = forwardRef<MDXEditorMethods, ThoughtDownloadEditorProps>(
+  function ThoughtDownloadEditor({ markdown, onChange, disabled }, ref) {
   return (
     <div className="w-full min-h-full flex-1 flex flex-col overflow-hidden">
     <MDXEditor
-      ref={editorRef}
+      ref={ref}
       markdown={markdown}
       onChange={onChange}
       readOnly={disabled}
-      contentEditableClassName="prose prose-sm max-w-none focus:outline-none min-h-full w-full p-6 text-text"
+      contentEditableClassName="prose prose-base max-w-none focus:outline-none min-h-full w-full p-6 text-text"
       className="mdxeditor-theme-custom w-full min-h-full flex-1 flex flex-col overflow-hidden"
       plugins={[
         headingsPlugin(),
@@ -44,4 +39,6 @@ export default function ThoughtDownloadEditor({
     />
     </div>
   );
-}
+});
+
+export default ThoughtDownloadEditor;

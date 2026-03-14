@@ -15,7 +15,7 @@ Every grammar and coding guide must end with a `miniQuiz` that is:
 
 ## Comprehensive Coverage Standard
 
-A mini quiz is considered comprehensive when it checks the core things students must control after finishing the guide:
+A mini quiz is considered comprehensive when it checks the core things the learner must control after finishing the guide:
 
 - Form/structure (how to build the grammar correctly).
 - Meaning/usage (when and why to use that form).
