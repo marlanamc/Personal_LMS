@@ -4964,11 +4964,18 @@ kbd {
   width: 100% !important;
   max-width: none !important;
   box-shadow: none !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 .mdxeditor-theme-custom .mdxeditor-root-contenteditable {
-  padding: 0 !important;
-  min-height: 450px !important;
+  padding: 1.5rem 1.5rem 1.5rem 1.5rem !important;
+  flex: 1 !important;
+  min-height: 280px !important;
+  width: 100% !important;
+  max-width: none !important;
 }
 
 /* Internal focus handling to match our design system */
@@ -4979,20 +4986,45 @@ kbd {
 .mdxeditor-theme-custom [data-lexical-editor] {
   border: none !important;
   padding: 0 !important;
-  min-height: 450px !important;
+  min-height: 280px !important;
+  width: 100% !important;
+  max-width: none !important;
 }
 
-/* Ensure typography matches our premium font choice */
+/* Ensure typography matches our premium font choice and full-width layout */
 .mdxeditor-theme-custom .prose {
   font-family: var(--font-body);
   color: var(--color-text-primary);
+  max-width: none !important;
+  width: 100% !important;
 }
 
-.mdxeditor-theme-custom .prose h1,
-.mdxeditor-theme-custom .prose h2,
-.mdxeditor-theme-custom .prose h3 {
+.mdxeditor-theme-custom .prose h1 {
   color: var(--color-accent-sakura);
   font-family: var(--font-display);
+  font-size: 1.875rem;
+  font-weight: 700;
+}
+
+.mdxeditor-theme-custom .prose h2 {
+  color: var(--color-accent-teal);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.mdxeditor-theme-custom .prose h3 {
+  color: var(--color-accent-mint);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.mdxeditor-theme-custom .prose h4 {
+  color: var(--color-accent-amethyst);
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
 }
 
 .mdxeditor-theme-custom .prose li::marker {

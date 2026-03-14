@@ -104,7 +104,7 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
             background: "linear-gradient(165deg, color-mix(in srgb, var(--color-bg-surface) 40%, transparent) 0%, color-mix(in srgb, var(--color-bg-elevated) 20%, transparent) 100%)",
           }}
         >
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0">
             <ThoughtDownloadEditor
               markdown={draft}
               onChange={handleChange}

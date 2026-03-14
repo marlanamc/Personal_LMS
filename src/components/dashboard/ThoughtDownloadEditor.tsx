@@ -25,15 +25,15 @@ export default function ThoughtDownloadEditor({
   editorRef,
   disabled
 }: ThoughtDownloadEditorProps) {
-  // Only use plugins we want, primarily lists and basic typography for Thought Download.
   return (
+    <div className="w-full min-h-full flex-1 flex flex-col overflow-hidden">
     <MDXEditor
       ref={editorRef}
       markdown={markdown}
       onChange={onChange}
       readOnly={disabled}
-      contentEditableClassName="prose prose-sm max-w-none focus:outline-none min-h-[400px] p-6 text-text"
-      className="mdxeditor-theme-custom w-full flex-1 overflow-hidden"
+      contentEditableClassName="prose prose-sm max-w-none focus:outline-none min-h-full w-full p-6 text-text"
+      className="mdxeditor-theme-custom w-full min-h-full flex-1 flex flex-col overflow-hidden"
       plugins={[
         headingsPlugin(),
         listsPlugin(),
@@ -42,5 +42,6 @@ export default function ThoughtDownloadEditor({
         markdownShortcutPlugin() // This enables things like typing "- [ ] " to make a checklist!
       ]}
     />
+    </div>
   );
 }
