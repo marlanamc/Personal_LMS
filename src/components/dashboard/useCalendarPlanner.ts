@@ -67,60 +67,95 @@ export function useCalendarPlanner(storageScope: string) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
 
+  const isSavingRef = useRef(false);
   const readyToPersistRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isSyncingRef = useRef(false);
 
   const storageKey = useMemo(() => getLegacyStorageKey(storageScope), [storageScope]);
 
   useEffect(() => {
-    let cancelled = false;
+    isSavingRef.current = isSaving;
+  }, [isSaving]);
 
-    const load = async () => {
-      setIsLoaded(false);
-      try {
-        const response = await fetch('/api/calendar-planner', { method: 'GET', cache: 'no-store' });
-        if (!response.ok) throw new Error('Failed to load planner from server');
+  const loadFromServer = useCallback(async (isInitial = false) => {
+    if (isSyncingRef.current || isSavingRef.current) return;
+    isSyncingRef.current = true;
+    
+    if (isInitial) setIsLoaded(false);
+    
+    try {
+      const response = await fetch('/api/calendar-planner', { method: 'GET', cache: 'no-store' });
+      if (!response.ok) throw new Error('Failed to load planner from server');
 
-        const payload = (await response.json()) as { store?: unknown };
-        const serverStore = normalizePlannerStore(payload.store);
-
-        if (!cancelled) {
-          if (Object.keys(serverStore).length > 0) {
-            setStore(serverStore);
-          } else {
-            const legacyRaw = window.localStorage.getItem(storageKey);
-            const legacyStore = normalizePlannerStore(legacyRaw ? JSON.parse(legacyRaw) : null);
-
-            if (Object.keys(legacyStore).length > 0) {
-              setStore(legacyStore);
-              await persistToServer(legacyStore);
-              window.localStorage.removeItem(storageKey);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('[CalendarPlanner] Failed loading from server, using local fallback', error);
+      const payload = (await response.json()) as { store?: unknown; updatedAt?: string };
+      const serverStore = normalizePlannerStore(payload.store);
+      
+      if (Object.keys(serverStore).length > 0) {
+        setStore(serverStore);
+      } else if (isInitial) {
+        // Only attempt legacy migration on initial load if server is empty
         const legacyRaw = window.localStorage.getItem(storageKey);
         const legacyStore = normalizePlannerStore(legacyRaw ? JSON.parse(legacyRaw) : null);
-        if (!cancelled) {
+
+        if (Object.keys(legacyStore).length > 0) {
           setStore(legacyStore);
-          setSaveError('Sync is temporarily unavailable. Changes will retry.');
+          await persistToServer(legacyStore);
+          window.localStorage.removeItem(storageKey);
         }
-      } finally {
-        if (!cancelled) {
-          setIsLoaded(true);
-          readyToPersistRef.current = true;
-        }
+      }
+      
+      setLastSyncedAt(payload.updatedAt ? new Date(payload.updatedAt) : new Date());
+      setSaveError(null);
+    } catch (error) {
+      console.error('[CalendarPlanner] Failed loading from server', error);
+      if (isInitial) {
+        const legacyRaw = window.localStorage.getItem(storageKey);
+        const legacyStore = normalizePlannerStore(legacyRaw ? JSON.parse(legacyRaw) : null);
+        setStore(legacyStore);
+        setSaveError('Sync is temporarily unavailable. Local changes will retry.');
+      }
+    } finally {
+      setIsLoaded(true);
+      readyToPersistRef.current = true;
+      isSyncingRef.current = false;
+    }
+  }, [storageKey]);
+
+  // Initial load
+  useEffect(() => {
+    loadFromServer(true);
+  }, [loadFromServer]);
+
+  // Sync on window focus / visibility change
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadFromServer();
       }
     };
 
-    load();
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleVisibilityChange);
 
     return () => {
-      cancelled = true;
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleVisibilityChange);
     };
-  }, [storageKey]);
+  }, [loadFromServer]);
+
+  // Optional polling (every 5 minutes)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        loadFromServer();
+      }
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [loadFromServer]);
 
   useEffect(() => {
     if (!readyToPersistRef.current || !isLoaded) return;
@@ -134,13 +169,14 @@ export function useCalendarPlanner(storageScope: string) {
       setSaveError(null);
       try {
         await persistToServer(store);
+        setLastSyncedAt(new Date());
       } catch (error) {
         console.error('[CalendarPlanner] Failed to save to server', error);
         setSaveError('Could not save planner right now.');
       } finally {
         setIsSaving(false);
       }
-    }, 280);
+    }, 600); // Increased debounce slightly for better merge stability
 
     return () => {
       if (saveTimerRef.current) {
@@ -184,8 +220,10 @@ export function useCalendarPlanner(storageScope: string) {
     isLoaded,
     isSaving,
     saveError,
+    lastSyncedAt,
     getPlan,
     updatePlan,
     updatePlanField,
+    refresh: loadFromServer,
   };
 }

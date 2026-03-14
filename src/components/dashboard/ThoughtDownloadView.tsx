@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { ArrowLeft, ArrowRight, Moon, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Moon, Sparkles, Check, Cloud } from 'lucide-react';
 
 const ThoughtDownloadEditor = dynamic(
   () => import('./ThoughtDownloadEditor'),
@@ -18,7 +18,7 @@ interface ThoughtDownloadViewProps {
 export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) {
   const todayKey = getTodayKey();
   const [selectedDateKey, setSelectedDateKey] = useState(todayKey);
-  const { getPlan, updatePlanField, isLoaded, isSaving, saveError } = useCalendarPlanner(storageScope);
+  const { getPlan, updatePlanField, isLoaded, isSaving, saveError, lastSyncedAt } = useCalendarPlanner(storageScope);
 
   const plan = getPlan(selectedDateKey);
   const thoughtDownload = plan.thoughtDownload ?? '';
@@ -107,12 +107,29 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
             />
           </div>
         </div>
-          <p id="thought-download-status" className="mt-2 min-h-[1.25rem] text-xs text-text-muted">
-            {saveError && <span className="text-error">{saveError}</span>}
-            {!saveError && isSaving && 'Saving…'}
-            {!saveError && !isSaving && isLoaded && 'Saves automatically'}
-            {!isLoaded && 'Loading…'}
-          </p>
+        <div id="thought-download-status" className="mt-2 min-h-[1.25rem] text-[10px] font-medium text-text-muted flex items-center gap-1.5 px-1">
+          {saveError ? (
+            <span className="text-error">{saveError}</span>
+          ) : isSaving ? (
+            <>
+              <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
+              <span>Saving to cloud…</span>
+            </>
+          ) : isLoaded ? (
+            <>
+              <Check className="w-3 h-3 text-accent-teal" />
+              <span>
+                Synced to cloud
+                {lastSyncedAt && ` • ${lastSyncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`}
+              </span>
+            </>
+          ) : (
+            <>
+              <Cloud className="w-3 h-3 animate-pulse" />
+              <span>Connecting…</span>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
