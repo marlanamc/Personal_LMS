@@ -108,7 +108,7 @@ export function CalendarPanel({ calendarEvents, onToggle, showJumpToToday = fals
             <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-text-muted">Upcoming</span>
             {(todayEvents.length + upcomingEvents.length) > 4 && (
               <Link
-                href="/dashboard/calendar"
+                href="/dashboard/calendar/upcoming"
                 className="text-[10px] font-bold text-accent-sakura hover:underline transition-all"
               >
                 All →

@@ -8,6 +8,8 @@ import { CalendarEvent, getCalendarMarkerColor } from "./MiniCalendar";
 interface Props {
     events: CalendarEvent[];
     allowDelete?: boolean;
+    showFullDate?: boolean;
+    limit?: number;
 }
 
 type EventEditDraft = {
@@ -20,7 +22,12 @@ type EventEditDraft = {
     description: string;
 };
 
-export default function UpcomingEventsList({ events, allowDelete = true }: Props) {
+export default function UpcomingEventsList({ 
+    events, 
+    allowDelete = true,
+    showFullDate = false,
+    limit
+}: Props) {
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
     const [isUpdating, setIsUpdating] = useState<string | null>(null);
@@ -200,6 +207,14 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
     };
 
     const formatDateLabel = (date: Date) => {
+        if (showFullDate) {
+            return date.toLocaleDateString("en-US", { 
+                weekday: "long", 
+                month: "long", 
+                day: "numeric",
+                year: date.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined
+            });
+        }
         return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
     };
 
@@ -209,8 +224,8 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
             {events.length === 0 ? (
                 <p className="text-sm text-text-muted italic bg-bg-light/60 border border-border/30 rounded-xl px-2.5 py-2">No dates yet.</p>
             ) : (
-                <div className="space-y-2">
-                    {events.slice(0, 6).map((ev, idx) => {
+                <div className="space-y-3">
+                    {events.slice(0, limit ?? events.length).map((ev, idx) => {
                         const startDate = new Date(ev.date);
                         const endDate = ev.endDate ? new Date(ev.endDate) : startDate;
                         const sameDay = startDate.toDateString() === endDate.toDateString();
@@ -235,7 +250,7 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
                                         }}
                                     />
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-sm font-semibold text-text whitespace-normal break-words leading-snug">
+                                        <p className={`font-semibold text-text whitespace-normal break-words leading-snug ${showFullDate ? 'text-base mb-1' : 'text-sm'}`}>
                                             {ev.title}
                                         </p>
                                         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
