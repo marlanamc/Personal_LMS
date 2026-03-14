@@ -4,15 +4,6 @@ import Link from 'next/link';
 import { FlameIcon, TrophyIcon } from '@/components/icons/Icons';
 import { DailyAnchorsTimeline } from './DailyAnchorsTimeline';
 import { CalendarPanelRestoreButton } from './ContextSidebar';
-import { LayoutList, Timer } from 'lucide-react';
-
-function getTodayKey(): string {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
 
 interface FocusHeroProps {
   userName: string;
@@ -109,26 +100,6 @@ export function FocusHero({
           {/* Timeline moved inside hero container */}
           <div className="pr-0">
             <DailyAnchorsTimeline storageScope={storageScope} />
-          </div>
-
-          {/* Plan & Focus CTAs - hidden on mobile (bottom nav has Day & Focus tabs) */}
-          <div className="mt-4 sm:mt-5 hidden sm:flex flex-wrap items-center gap-2">
-            <Link
-              href={`/dashboard/day-planner?date=${getTodayKey()}&openTool=on-again-off-again`}
-              className="inline-flex items-center gap-2 rounded-full border-2 border-[#0d9488] bg-[#0d9488]/12 hover:bg-[#0d9488]/22 px-3.5 py-2 text-xs font-semibold text-[#0d9488] transition-colors dark:border-accent-teal/40 dark:bg-accent-teal/10 dark:hover:bg-accent-teal/20 dark:text-accent-teal"
-              title="Plan your day with time blocks"
-            >
-              <LayoutList size={14} />
-              Plan Day
-            </Link>
-            <Link
-              href="/dashboard/timer"
-              className="inline-flex items-center gap-2 rounded-full border border-border-subtle/60 bg-bg-elevated/80 hover:bg-bg-elevated px-3.5 py-2 text-xs font-semibold text-text transition-colors"
-              title="Start a focus session"
-            >
-              <Timer size={14} />
-              Focus Timer
-            </Link>
           </div>
         </div>
       </div>

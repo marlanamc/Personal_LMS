@@ -61,7 +61,7 @@ export const DEFAULT_DAILY_ANCHOR_TEMPLATES: DailyAnchorTemplate[] = [
   { id: 'wake', label: 'Wake', icon: 'sunrise', scheduledTime: '08:00' },
   { id: 'gym', label: 'Gym', icon: 'dumbbell', scheduledTime: '09:00' },
   { id: 'job', label: 'Job Block', icon: 'briefcase', scheduledTime: '11:00' },
-  { id: 'lightsOut', label: 'Lights Out', icon: 'moon', scheduledTime: '23:00' },
+  { id: 'lightsOut', label: 'Bedtime', icon: 'moon', scheduledTime: '23:00' },
 ];
 
 const VALID_ICONS = new Set<AnchorIcon>([

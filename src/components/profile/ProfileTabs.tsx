@@ -11,11 +11,11 @@ interface ProfileTabsProps {
 type TabId = 'learning' | 'planning';
 
 export function ProfileTabs({ learningContent, planningContent }: ProfileTabsProps) {
-  const [activeTab, setActiveTab] = useState<TabId>('learning');
+  const [activeTab, setActiveTab] = useState<TabId>('planning');
 
   const tabs = [
-    { id: 'learning', label: 'Learning', icon: BookOpen },
     { id: 'planning', label: 'Planning', icon: Target },
+    { id: 'learning', label: 'Learning', icon: BookOpen },
   ] as const;
 
   return (

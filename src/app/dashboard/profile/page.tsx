@@ -383,10 +383,40 @@ export default async function ProfilePage() {
     let weeklyTotalCompleted = 0;
     let weeklyTotalAnchors = 0;
 
-    const skipReasonCounts = new Map<SkipReason, { count: number; label: string; suggestion: string }>();
+    const skipReasonCounts = new Map<string, {
+        anchorId: string;
+        anchorLabel: string;
+        reason: SkipReason;
+        count: number;
+        label: string;
+        suggestion: string;
+    }>();
 
     const now = new Date();
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    function parseActualTimeToDisplay(actualTime: string | undefined): string | undefined {
+        if (!actualTime) return undefined;
+        try {
+            const dt = new Date(actualTime);
+            const h = dt.getHours();
+            const m = dt.getMinutes();
+            const period = h >= 12 ? 'PM' : 'AM';
+            const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+            return `${hour12}:${m.toString().padStart(2, '0')} ${period}`;
+        } catch {
+            return undefined;
+        }
+    }
+    function parseActualTimeToMinutes(actualTime: string | undefined): number | undefined {
+        if (!actualTime) return undefined;
+        try {
+            const dt = new Date(actualTime);
+            return dt.getHours() * 60 + dt.getMinutes();
+        } catch {
+            return undefined;
+        }
+    }
 
     for (let i = 6; i >= 0; i--) {
         const d = new Date(now);
@@ -398,25 +428,40 @@ export default async function ProfilePage() {
         const completed = anchors.filter(a => a.status === 'done').length;
         const total = anchors.length;
 
+        const wake = anchors.find(a => a.id === 'wake');
+        const lightsOut = anchors.find(a => a.id === 'lightsOut');
+        const wakeTime = wake?.status === 'done' ? parseActualTimeToDisplay(wake.actualTime) : undefined;
+        const bedTime = lightsOut?.status === 'done' ? parseActualTimeToDisplay(lightsOut.actualTime) : undefined;
+        const wakeMinutes = wake?.status === 'done' ? parseActualTimeToMinutes(wake.actualTime) : undefined;
+        const bedMinutes = lightsOut?.status === 'done' ? parseActualTimeToMinutes(lightsOut.actualTime) : undefined;
+
         planningStatsDays.push({
             dateKey,
             label: dayLabels[d.getDay()],
             completed,
             total,
             percent: total > 0 ? Math.round((completed / total) * 100) : 0,
+            wakeTime,
+            bedTime,
+            wakeMinutes,
+            bedMinutes,
         });
 
         weeklyTotalCompleted += completed;
         weeklyTotalAnchors += total;
 
-        // Collect skip reasons
+        // Collect skip reasons by anchor + reason
         anchors.forEach(a => {
             if (a.status === 'skipped' && a.skipReason) {
-                const existing = skipReasonCounts.get(a.skipReason);
+                const key = `${a.id}|${a.skipReason}`;
+                const existing = skipReasonCounts.get(key);
                 if (existing) {
                     existing.count += 1;
                 } else {
-                    skipReasonCounts.set(a.skipReason, {
+                    skipReasonCounts.set(key, {
+                        anchorId: a.id,
+                        anchorLabel: a.label || a.id.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase()).trim(),
+                        reason: a.skipReason,
                         count: 1,
                         label: getSkipReasonLabel(a.skipReason),
                         suggestion: getSkipReasonSuggestion(a.skipReason),
@@ -427,15 +472,13 @@ export default async function ProfilePage() {
     }
 
     const weeklyPlanningData: WeeklyPlanningData = {
+        anchorStates: dailyAnchorsData.states,
         days: planningStatsDays,
         weeklyAverage: weeklyTotalAnchors > 0 ? Math.round((weeklyTotalCompleted / weeklyTotalAnchors) * 100) : 0,
-        topSkipReasons: Array.from(skipReasonCounts.entries())
-            .sort(([, a], [, b]) => b.count - a.count)
-            .slice(0, 3)
-            .map(([reason, data]) => ({
-                reason,
-                ...data,
-            })),
+        topSkipReasons: Array.from(skipReasonCounts.values())
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5)
+            .map(({ reason, ...rest }) => ({ reason, ...rest })),
     };
 
     // Combine both date sources
