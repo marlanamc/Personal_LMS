@@ -36,7 +36,7 @@ export type TimelineItemType = 'anchor' | 'event' | 'time-block';
 /**
  * Event type from calendar events (assignments, holidays, etc.)
  */
-export type CalendarEventType = 'due' | 'holiday' | 'event' | 'reminder' | 'quiz';
+export type CalendarEventType = 'due' | 'holiday' | 'event' | 'reminder' | 'quiz' | 'appointment' | 'workout';
 
 /**
  * Time block kind for On Again/Off Again planner
