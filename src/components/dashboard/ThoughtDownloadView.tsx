@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { ArrowLeft, ArrowRight, Moon, Sparkles, Check, Cloud } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Moon, Sparkles, Check, Cloud, Type } from 'lucide-react';
 
 const ThoughtDownloadEditor = dynamic(
   () => import('./ThoughtDownloadEditor'),
@@ -19,6 +19,7 @@ interface ThoughtDownloadViewProps {
 export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) {
   const todayKey = getTodayKey();
   const [selectedDateKey, setSelectedDateKey] = useState(todayKey);
+  const [showToolbar, setShowToolbar] = useState(false);
   const editorRef = useRef<MDXEditorMethods>(null);
   const { getPlan, updatePlanField, isLoaded, isSaving, saveError, lastSyncedAt } = useCalendarPlanner(storageScope);
 
@@ -62,6 +63,15 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
 
         {/* Date + Formatting in one compact row */}
         <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => setShowToolbar((v) => !v)}
+            className="inline-flex items-center justify-center rounded-full border border-border-subtle/60 bg-bg-surface/80 p-1.5 shadow-sm backdrop-blur-md hover:bg-bg-elevated/80 transition-colors text-text"
+            aria-expanded={showToolbar}
+            aria-label={showToolbar ? 'Hide formatting toolbar' : 'Show formatting toolbar'}
+          >
+            <Type size={14} />
+          </button>
           <div className="inline-flex items-center gap-0.5 rounded-full border border-border-subtle/60 bg-bg-surface/80 px-1 py-0.5 shadow-sm backdrop-blur-md">
             <button
               type="button"
@@ -114,6 +124,7 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
               markdown={draft}
               onChange={handleChange}
               disabled={!isLoaded}
+              showToolbar={showToolbar}
             />
           </div>
         </div>

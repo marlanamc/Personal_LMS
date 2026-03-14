@@ -5039,3 +5039,8 @@ kbd {
   padding: 0.5rem 1rem;
   border-radius: 0 0.5rem 0.5rem 0;
 }
+
+/* Thought Download: toolbar hidden by default, shown when toggle is opened */
+.toolbar-collapsed .mdxeditor-toolbar {
+  display: none;
+}

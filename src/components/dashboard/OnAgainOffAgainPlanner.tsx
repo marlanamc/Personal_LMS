@@ -22,6 +22,7 @@ import {
 
 interface OnAgainOffAgainPlannerProps {
   events: CalendarEvent[];
+  storageScope: string;
 }
 
 type TimelineEvent = CalendarEvent & {
@@ -144,7 +145,7 @@ function updateForm(plan: TimeBlockDayPlan, nextForm: TimeBlockFormState): TimeB
   };
 }
 
-export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) {
+export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgainPlannerProps) {
   const todayKey = useMemo(() => toDateKey(new Date()), []);
   const [selectedDateKey, setSelectedDateKey] = useState(todayKey);
   const [message, setMessage] = useState<string | null>(null);
@@ -165,7 +166,7 @@ export function OnAgainOffAgainPlanner({ events }: OnAgainOffAgainPlannerProps) 
   } = useFocusTimer();
 
   // Daily anchors for timeline integration
-  const { anchors } = useDailyAnchorsForToday('dashboard');
+  const { anchors } = useDailyAnchorsForToday(storageScope);
 
   const currentPlan = plannerStore[selectedDateKey] ?? createEmptyTimeBlockDayPlan(selectedDateKey);
   const { form, blocks, generatedAt } = currentPlan;

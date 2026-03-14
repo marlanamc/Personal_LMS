@@ -92,18 +92,12 @@ export function useDailyAnchors(storageScope: string) {
         const hasServerData = Object.keys(serverStore.states).length > 0;
 
         if (!cancelled) {
-          if (hasLegacyData) {
-            // Prefer localStorage: it’s updated on every change in this session and reflects
-            // edits made on other pages (e.g., front page) before navigation. Server persistence
-            // is debounced, so server can lag behind when navigating quickly.
-            setStore(legacyStore);
-            if (!hasServerData) {
-              await persistStoreToServer(legacyStore);
-            } else {
-              void persistStoreToServer(legacyStore);
-            }
-          } else if (hasServerData) {
+          if (hasServerData) {
+            // Server is source of truth for cross-device sync.
             setStore(serverStore);
+          } else if (hasLegacyData) {
+            setStore(legacyStore);
+            await persistStoreToServer(legacyStore);
           } else {
             setStore(createEmptyStore());
           }
@@ -133,7 +127,7 @@ export function useDailyAnchors(storageScope: string) {
     if (!isLoaded) return;
 
     const syncFromServer = async () => {
-      if (saveTimerRef.current || isSaving) return;
+      if (saveTimerRef.current) return;
 
       try {
         const response = await fetch('/api/daily-anchors', { method: 'GET', cache: 'no-store' });
@@ -162,7 +156,7 @@ export function useDailyAnchors(storageScope: string) {
 
     const syncIntervalId = window.setInterval(() => {
       void syncFromServer();
-    }, 60000);
+    }, 30000);
 
     window.addEventListener('focus', handleFocus);
     document.addEventListener('visibilitychange', handleVisibility);
@@ -172,7 +166,7 @@ export function useDailyAnchors(storageScope: string) {
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [isLoaded, isSaving]);
+  }, [isLoaded]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
