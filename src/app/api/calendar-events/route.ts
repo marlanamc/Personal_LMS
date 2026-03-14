@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "classId, title, and date are required" }, { status: 400 });
         }
 
-        const allowedTypes = ["holiday", "event", "due", "reminder", "quiz"];
+        const allowedTypes = ["holiday", "event", "due", "reminder", "quiz", "appointment", "workout"];
         if (!allowedTypes.includes(type)) {
             return NextResponse.json({ error: "Invalid event type" }, { status: 400 });
         }
@@ -148,7 +148,7 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: "id, title, and date are required" }, { status: 400 });
         }
 
-        const allowedTypes = ["holiday", "event", "due", "reminder", "quiz"];
+        const allowedTypes = ["holiday", "event", "due", "reminder", "quiz", "appointment", "workout"];
         if (!allowedTypes.includes(type)) {
             return NextResponse.json({ error: "Invalid event type" }, { status: 400 });
         }

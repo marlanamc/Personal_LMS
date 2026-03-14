@@ -9,7 +9,7 @@ export type CalendarEvent = {
     id?: string;
     date: Date | string;
     endDate?: Date | string | null;
-    type?: 'due' | 'holiday' | 'event' | 'reminder' | 'quiz';
+    type?: 'due' | 'holiday' | 'event' | 'reminder' | 'quiz' | 'appointment' | 'workout';
     title?: string | null;
     description?: string | null;
 };
@@ -25,10 +25,15 @@ export const CALENDAR_ACCENTS = {
     today: "var(--color-accent-sunrise-today)",
     event: "var(--color-accent-terracotta)",
     vacation: "var(--color-accent-sage)",
+    appointment: "var(--color-accent-amethyst)",
+    workout: "var(--color-accent-mint)",
 } as const;
 
 export function getCalendarMarkerColor(type?: CalendarEvent["type"]) {
-    return type === "holiday" ? CALENDAR_ACCENTS.vacation : CALENDAR_ACCENTS.event;
+    if (type === "holiday") return CALENDAR_ACCENTS.vacation;
+    if (type === "appointment") return CALENDAR_ACCENTS.appointment;
+    if (type === "workout") return CALENDAR_ACCENTS.workout;
+    return CALENDAR_ACCENTS.event;
 }
 
 export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [], showJumpToToday = false, selectedDate: selectedDateProp, onDateSelect }) => {
@@ -61,7 +66,7 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [], showJum
         "July", "August", "September", "October", "November", "December"
     ];
 
-    const eventsByDay = new Map<number, { vacation: boolean; event: boolean }>();
+    const eventsByDay = new Map<number, { vacation: boolean; event: boolean; appointment: boolean; workout: boolean }>();
 
     events.forEach((event) => {
         const start = new Date(event.date);
@@ -75,8 +80,10 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [], showJum
         while (cursor.getTime() <= effectiveEnd.getTime()) {
             if (cursor.getMonth() === viewMonth && cursor.getFullYear() === viewYear) {
                 const day = cursor.getDate();
-                const existing = eventsByDay.get(day) || { vacation: false, event: false };
+                const existing = eventsByDay.get(day) || { vacation: false, event: false, appointment: false, workout: false };
                 if (event.type === 'holiday') existing.vacation = true;
+                else if (event.type === 'appointment') existing.appointment = true;
+                else if (event.type === 'workout') existing.workout = true;
                 else existing.event = true;
                 eventsByDay.set(day, existing);
             }
@@ -131,13 +138,13 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [], showJum
                     const isToday = day === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
                     const isSelected = selectedDateProp && day === selectedDateProp.getDate() && viewMonth === selectedDateProp.getMonth() && viewYear === selectedDateProp.getFullYear();
                     const flags = day ? eventsByDay.get(day) : undefined;
-                    const hasVacation = flags?.vacation;
-                    const hasEvent = flags?.event;
                     const presentation = getMiniCalendarDayPresentation({
                         isToday,
                         isSelected: Boolean(isSelected),
-                        hasEvent: Boolean(hasEvent),
-                        hasVacation: Boolean(hasVacation),
+                        hasEvent: Boolean(flags?.event),
+                        hasVacation: Boolean(flags?.vacation),
+                        hasAppointment: Boolean(flags?.appointment),
+                        hasWorkout: Boolean(flags?.workout),
                     });
                     const isClickable = Boolean(onDateSelect);
 
@@ -158,7 +165,7 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [], showJum
                                 relative w-7 h-7 flex items-center justify-center rounded-full mx-auto transition-all text-xs
                                 ${isToday ? "font-bold z-10" : "font-medium"}
                                 ${isClickable ? "cursor-pointer active:scale-95" : "cursor-default"}
-                                ${!isToday && !isSelected && !hasEvent && !hasVacation ? "text-text-secondary hover:bg-bg-elevated/60 hover:text-text" : ""}
+                                ${!isToday && !isSelected && !flags?.event && !flags?.vacation && !flags?.appointment && !flags?.workout ? "text-text-secondary hover:bg-bg-elevated/60 hover:text-text" : ""}
                             `}
                             style={{
                                 ...(presentation.useTodayFill ? {
@@ -186,18 +193,30 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [], showJum
                             }}
                         >
                             {day}
-                            {(presentation.showEventDot || presentation.showVacationDot) && (
+                            {(presentation.showEventDot || presentation.showVacationDot || presentation.showAppointmentDot || presentation.showWorkoutDot) && (
                                 <span className="pointer-events-none absolute -bottom-0.5 right-0.5 flex items-center gap-0.5">
                                     {presentation.showVacationDot && (
                                         <span
-                                            className="block h-1.5 w-1.5 rounded-full"
-                                            style={{ background: 'var(--color-accent-sage)' }}
+                                            className="block h-1 w-1 rounded-full"
+                                            style={{ background: CALENDAR_ACCENTS.vacation }}
+                                        />
+                                    )}
+                                    {presentation.showAppointmentDot && (
+                                        <span
+                                            className="block h-1 w-1 rounded-full"
+                                            style={{ background: CALENDAR_ACCENTS.appointment }}
+                                        />
+                                    )}
+                                    {presentation.showWorkoutDot && (
+                                        <span
+                                            className="block h-1 w-1 rounded-full"
+                                            style={{ background: CALENDAR_ACCENTS.workout }}
                                         />
                                     )}
                                     {presentation.showEventDot && (
                                         <span
-                                            className="block h-1.5 w-1.5 rounded-full"
-                                            style={{ background: 'var(--color-accent-terracotta)' }}
+                                            className="block h-1 w-1 rounded-full"
+                                            style={{ background: CALENDAR_ACCENTS.event }}
                                         />
                                     )}
                                 </span>
@@ -207,13 +226,19 @@ export const MiniCalendar: React.FC<MiniCalendarProps> = ({ events = [], showJum
                 })}
             </div>
 
-            {/* Legend - Event and Vacation only */}
-            <div className="mt-4 pt-3 border-t border-border-subtle/40 flex items-center gap-3 px-1">
+            {/* Legend - All categories */}
+            <div className="mt-4 pt-3 border-t border-border-subtle/40 flex flex-wrap items-center gap-x-3 gap-y-1.5 px-1">
                 <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-text-muted/60">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent-sakura" /> Event
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: CALENDAR_ACCENTS.event }} /> Event
                 </span>
                 <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-text-muted/60">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent-teal" /> Vacation
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: CALENDAR_ACCENTS.vacation }} /> Vacation
+                </span>
+                <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-text-muted/60">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: CALENDAR_ACCENTS.appointment }} /> Appointment
+                </span>
+                <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-text-muted/60">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: CALENDAR_ACCENTS.workout }} /> Workout Class
                 </span>
             </div>
 

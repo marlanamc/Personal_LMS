@@ -19,7 +19,7 @@ export default function CreateCalendarEventForm({ classes }: Props) {
     const [date, setDate] = useState("");
     const [time, setTime] = useState("");
     const [endTime, setEndTime] = useState("");
-    const [type, setType] = useState<"holiday" | "event" | "due" | "quiz">("holiday");
+    const [type, setType] = useState<"holiday" | "event" | "due" | "quiz" | "appointment" | "workout">("holiday");
     const [description, setDescription] = useState("");
     const [endDate, setEndDate] = useState("");
     const [error, setError] = useState("");
@@ -191,7 +191,7 @@ export default function CreateCalendarEventForm({ classes }: Props) {
                             value={type}
                             onChange={(e) => {
                                 const value = e.target.value;
-                                if (value === "holiday" || value === "event" || value === "due" || value === "quiz") {
+                                if (value === "holiday" || value === "event" || value === "due" || value === "quiz" || value === "appointment" || value === "workout") {
                                     setType(value);
                                 }
                             }}
@@ -199,6 +199,8 @@ export default function CreateCalendarEventForm({ classes }: Props) {
                         >
                             <option value="holiday">Holiday</option>
                             <option value="event">Event</option>
+                            <option value="appointment">Appointment</option>
+                            <option value="workout">Workout Class</option>
                             <option value="due">Reminder</option>
                             <option value="quiz">Quiz/Test</option>
                         </select>

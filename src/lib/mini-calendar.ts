@@ -3,6 +3,8 @@ export interface MiniCalendarDayPresentationInput {
   isSelected: boolean;
   hasEvent: boolean;
   hasVacation: boolean;
+  hasAppointment?: boolean;
+  hasWorkout?: boolean;
 }
 
 export interface MiniCalendarDayPresentation {
@@ -11,6 +13,8 @@ export interface MiniCalendarDayPresentation {
   ring: 'event' | 'vacation' | null;
   showEventDot: boolean;
   showVacationDot: boolean;
+  showAppointmentDot: boolean;
+  showWorkoutDot: boolean;
 }
 
 export function getMiniCalendarDayPresentation({
@@ -18,6 +22,8 @@ export function getMiniCalendarDayPresentation({
   isSelected,
   hasEvent,
   hasVacation,
+  hasAppointment = false,
+  hasWorkout = false,
 }: MiniCalendarDayPresentationInput): MiniCalendarDayPresentation {
   return {
     useTodayFill: isToday,
@@ -25,5 +31,7 @@ export function getMiniCalendarDayPresentation({
     ring: hasEvent ? 'event' : hasVacation ? 'vacation' : null,
     showEventDot: hasEvent,
     showVacationDot: hasVacation,
+    showAppointmentDot: hasAppointment,
+    showWorkoutDot: hasWorkout,
   };
 }

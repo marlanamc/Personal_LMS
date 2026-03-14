@@ -48,11 +48,11 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
       {/* Compact header + controls row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
         <header className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 shrink-0 rounded-lg bg-accent-sakura/10 border border-border-subtle flex items-center justify-center">
-            <Moon className="w-4 h-4 text-primary" aria-hidden />
+          <div className="w-10 h-10 shrink-0 rounded-xl bg-accent-sakura/10 border border-accent-sakura/20 flex items-center justify-center shadow-[0_4px_12px_rgba(212,138,166,0.1)] group-hover:shadow-[0_4px_20px_rgba(212,138,166,0.2)] transition-all duration-500">
+            <Moon className="w-5 h-5 text-primary" aria-hidden />
           </div>
           <div className="min-w-0">
-            <h1 className="text-xl font-display font-bold text-text">Thought download</h1>
+            <h1 className="text-xl font-display font-bold text-text tracking-tight">Thought download</h1>
           </div>
         </header>
 
@@ -96,10 +96,15 @@ export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) 
         </div>
       </div>
 
-      {/* Main content — textarea gets the focus */}
+      {/* Main content - Premium Seamless Container */}
       <div className="flex-1 flex flex-col min-h-0">
-        <div className="flex-1 flex flex-col w-full relative h-full">
-          <div className="flex-1 rounded-2xl border border-border-subtle bg-bg-surface/50 shadow-sm overflow-hidden flex flex-col group focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary transition-all">
+        <div 
+          className="flex-1 rounded-[2rem] border border-border-subtle bg-bg-surface/30 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-sm overflow-hidden flex flex-col group focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/40 transition-all duration-500 ease-out hover:shadow-[0_12px_48px_rgba(0,0,0,0.18)]"
+          style={{
+            background: "linear-gradient(165deg, color-mix(in srgb, var(--color-bg-surface) 40%, transparent) 0%, color-mix(in srgb, var(--color-bg-elevated) 20%, transparent) 100%)",
+          }}
+        >
+          <div className="flex-1 flex flex-col">
             <ThoughtDownloadEditor
               markdown={draft}
               onChange={handleChange}

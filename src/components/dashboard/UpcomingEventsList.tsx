@@ -16,7 +16,7 @@ type EventEditDraft = {
     time: string;
     endDate: string;
     endTime: string;
-    type: "holiday" | "event" | "due" | "quiz";
+    type: "holiday" | "event" | "due" | "quiz" | "appointment" | "workout";
     description: string;
 };
 
@@ -77,7 +77,7 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
     };
 
     const createDraftFromEvent = (event: CalendarEvent): EventEditDraft => {
-        const safeType = event.type === "holiday" || event.type === "event" || event.type === "due" || event.type === "quiz"
+        const safeType = event.type === "holiday" || event.type === "event" || event.type === "due" || event.type === "quiz" || event.type === "appointment" || event.type === "workout"
             ? event.type
             : "event";
 
@@ -303,21 +303,23 @@ export default function UpcomingEventsList({ events, allowDelete = true }: Props
                                                 placeholder="Event title"
                                                 className="rounded-lg border border-border-subtle/70 bg-bg-elevated/40 px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
                                             />
-                                            <select
-                                                value={editDraft.type}
-                                                onChange={(e) => {
-                                                    const next = e.target.value;
-                                                    if (next === "holiday" || next === "event" || next === "due" || next === "quiz") {
-                                                        setEditDraft({ ...editDraft, type: next });
-                                                    }
-                                                }}
-                                                className="rounded-lg border border-border-subtle/70 bg-bg-elevated/40 px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
-                                            >
-                                                <option value="holiday">Holiday</option>
-                                                <option value="event">Event</option>
-                                                <option value="due">Reminder</option>
-                                                <option value="quiz">Quiz/Test</option>
-                                            </select>
+                                                <select
+                                                    value={editDraft.type}
+                                                    onChange={(e) => {
+                                                        const next = e.target.value;
+                                                        if (next === "holiday" || next === "event" || next === "due" || next === "quiz" || next === "appointment" || next === "workout") {
+                                                            setEditDraft({ ...editDraft, type: next });
+                                                        }
+                                                    }}
+                                                    className="rounded-lg border border-border-subtle/70 bg-bg-elevated/40 px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                                >
+                                                    <option value="holiday">Holiday</option>
+                                                    <option value="event">Event</option>
+                                                    <option value="appointment">Appointment</option>
+                                                    <option value="workout">Workout Class</option>
+                                                    <option value="due">Reminder</option>
+                                                    <option value="quiz">Quiz/Test</option>
+                                                </select>
                                         </div>
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                             <input

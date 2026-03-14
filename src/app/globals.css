@@ -4953,3 +4953,55 @@ kbd {
 .zen-transition {
   transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* ============================================
+   Thought Download Editor & Container
+   ============================================ */
+
+.mdxeditor-theme-custom.mdxeditor {
+  border: none !important;
+  background: transparent !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-shadow: none !important;
+}
+
+.mdxeditor-theme-custom .mdxeditor-root-contenteditable {
+  padding: 0 !important;
+  min-height: 450px !important;
+}
+
+/* Internal focus handling to match our design system */
+.mdxeditor-theme-custom:focus-within {
+  outline: none !important;
+}
+
+.mdxeditor-theme-custom [data-lexical-editor] {
+  border: none !important;
+  padding: 0 !important;
+  min-height: 450px !important;
+}
+
+/* Ensure typography matches our premium font choice */
+.mdxeditor-theme-custom .prose {
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+}
+
+.mdxeditor-theme-custom .prose h1,
+.mdxeditor-theme-custom .prose h2,
+.mdxeditor-theme-custom .prose h3 {
+  color: var(--color-accent-sakura);
+  font-family: var(--font-display);
+}
+
+.mdxeditor-theme-custom .prose li::marker {
+  color: var(--color-accent-sakura);
+}
+
+.mdxeditor-theme-custom .prose blockquote {
+  border-left-color: var(--color-accent-sakura);
+  background: var(--color-accent-sakura-soft);
+  padding: 0.5rem 1rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
