@@ -177,10 +177,12 @@ export default function InteractiveGuideViewer({
         }
     };
 
-    const headerControlsHost =
-        !showHeader && typeof document !== "undefined"
-            ? document.getElementById("interactive-guide-header-controls")
-            : null;
+    const [headerControlsHost, setHeaderControlsHost] = useState<HTMLElement | null>(null);
+    useEffect(() => {
+        if (!showHeader && typeof document !== "undefined") {
+            setHeaderControlsHost(document.getElementById("interactive-guide-header-controls"));
+        }
+    }, [showHeader]);
 
     const embeddedControls = (
         <div className="flex items-center gap-2">
@@ -398,26 +400,15 @@ export default function InteractiveGuideViewer({
                         >
                             <div className="w-full lg:max-w-2xl lg:mx-auto animate-fade-in-up delay-100 space-y-4 sm:space-y-6">
                                 {currentSection.exercises && currentSection.exercises.length > 0 ? (
-                                    <div className="practice-panel-shell bg-gradient-to-br from-bg-secondary to-bg-tertiary rounded-3xl p-6 sm:p-8 shadow-xl border border-border relative overflow-hidden">
-                                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
-
-                                        <div className="practice-panel-header mb-6 relative z-10">
-                                            <h3 className="flex items-center gap-2 text-lg font-display font-semibold text-text">
-                                                <span className="practice-panel-icon-pill text-sm">✍️</span>
-                                                <span className="practice-panel-title">Practice</span>
-                                            </h3>
-                                        </div>
-
-                                        <div className="space-y-8 relative z-10">
-                                            {currentSection.exercises.map((exercise, idx) => (
-                                                <ExerciseGroup
-                                                    key={`${currentSection.id || currentStep}-exercise-${idx}`}
-                                                    exercise={normalizeGuideExercise(exercise, idx)}
-                                                    index={idx}
-                                                    grammarVariant={isGrammarVariant}
-                                                />
-                                            ))}
-                                        </div>
+                                    <div className="space-y-8">
+                                        {currentSection.exercises.map((exercise, idx) => (
+                                            <ExerciseGroup
+                                                key={`${currentSection.id || currentStep}-exercise-${idx}`}
+                                                exercise={normalizeGuideExercise(exercise, idx)}
+                                                index={idx}
+                                                grammarVariant={isGrammarVariant}
+                                            />
+                                        ))}
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center text-center p-12 opacity-80 text-text-muted">
