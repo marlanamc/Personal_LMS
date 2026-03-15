@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { BookOpenIcon, TimerIcon } from "@/components/icons/Icons";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
-import { NavigationSidePanel } from "./NavigationSidePanel";
+import { NavigationSidePanel, LiveSyncManager } from ".";
 import { useFocusTimer } from "@/context/FocusTimerContext";
 
 interface DashboardHeaderProps {
@@ -47,6 +47,8 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
                         )}
                     </div>
                     <div className="flex items-center gap-2 sm:gap-4 animate-fade-in-up delay-100">
+                        <LiveSyncManager />
+                        
                         <Link
                             href="/dashboard/timer"
                             className={`focus-timer-chip items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors font-semibold text-sm border ${

@@ -31,4 +31,5 @@ export * from './NavigationSidePanel';
 export * from './DayPlannerView';
 export * from './PlanningHelpDrawer';
 export * from './OnAgainOffAgainTool';
+export * from './LiveSyncManager';
 
