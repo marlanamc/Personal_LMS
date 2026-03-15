@@ -85,8 +85,17 @@ export function SleepRhythmChart({ anchorStates }: SleepRhythmChartProps) {
       const state = anchorStates[dateKey];
       const anchors = state?.anchors || [];
 
-      const wake = anchors.find((a) => a.id === 'wake');
-      const lightsOut = anchors.find((a) => a.id === 'lightsOut');
+      // Look for wake anchor by ID, icon, or label
+      const wake = anchors.find((a) => a.id === 'wake')
+        || anchors.find((a) => a.icon === 'sunrise')
+        || anchors.find((a) => a.label?.toLowerCase() === 'wake');
+      // Look for bedtime anchor by various IDs, icon, or label
+      const lightsOut = anchors.find((a) => a.id === 'lightsOut')
+        || anchors.find((a) => a.id === 'bedtime')
+        || anchors.find((a) => a.id === 'bed')
+        || anchors.find((a) => a.icon === 'moon')
+        || anchors.find((a) => a.label?.toLowerCase().includes('bed'))
+        || anchors.find((a) => a.label?.toLowerCase().includes('sleep'));
       const wakeTime = wake?.status === 'done' ? parseScheduledTimeToDisplay(wake.scheduledTime) : undefined;
       const bedTime = lightsOut?.status === 'done' ? parseScheduledTimeToDisplay(lightsOut.scheduledTime) : undefined;
       const wakeMinutes = wake?.status === 'done' ? parseScheduledTimeToMinutes(wake.scheduledTime) ?? null : null;

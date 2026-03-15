@@ -8,7 +8,7 @@ import { WeekSummary, type WeekSummaryData } from './WeekSummary';
 
 export type AnchorStatesMap = Record<string, {
   date: string;
-  anchors: Array<{ id: string; label?: string; status: string; scheduledTime?: string }>;
+  anchors: Array<{ id: string; label?: string; icon?: string; status: string; scheduledTime?: string }>;
   sleepRhythmDayComplete: boolean;
 }>;
 
