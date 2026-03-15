@@ -5203,15 +5203,42 @@ kbd {
 
 /* Event edit form: high-contrast inputs so date/time and placeholders are easy to see on desktop */
 .event-edit-input {
-  color: var(--color-text-primary);
+  color: var(--color-text-primary) !important;
+  background-color: var(--color-bg-surface) !important;
+  border-color: var(--color-border-subtle) !important;
 }
 .event-edit-input::placeholder {
   color: var(--color-text-muted);
   opacity: 1;
 }
+/* Native date/time inputs use shadow DOM; force inner text to be visible (WebKit/Blink) */
+.event-edit-input[type="date"],
+.event-edit-input[type="time"] {
+  -webkit-text-fill-color: var(--color-text-primary);
+}
+.event-edit-input[type="date"]::-webkit-datetime-edit,
+.event-edit-input[type="time"]::-webkit-datetime-edit,
+.event-edit-input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+.event-edit-input[type="time"]::-webkit-datetime-edit-fields-wrapper,
+.event-edit-input[type="date"]::-webkit-datetime-edit-text,
+.event-edit-input[type="time"]::-webkit-datetime-edit-text,
+.event-edit-input[type="date"]::-webkit-datetime-edit-ampm-field,
+.event-edit-input[type="time"]::-webkit-datetime-edit-ampm-field {
+  color: var(--color-text-primary) !important;
+  -webkit-text-fill-color: var(--color-text-primary);
+  opacity: 1;
+}
 :root[data-theme="light"] .event-edit-input,
 :root.light .event-edit-input {
-  color: var(--color-text-primary);
+  color: var(--color-text-primary) !important;
+  background-color: var(--color-bg-surface) !important;
+}
+:root[data-theme="light"] .event-edit-input[type="date"]::-webkit-datetime-edit,
+:root[data-theme="light"] .event-edit-input[type="time"]::-webkit-datetime-edit,
+:root.light .event-edit-input[type="date"]::-webkit-datetime-edit,
+:root.light .event-edit-input[type="time"]::-webkit-datetime-edit {
+  color: var(--color-text-primary) !important;
+  -webkit-text-fill-color: var(--color-text-primary);
 }
 :root[data-theme="light"] .event-edit-input::placeholder,
 :root.light .event-edit-input::placeholder {
