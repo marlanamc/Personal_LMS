@@ -316,7 +316,7 @@ export default function UpcomingEventsList({
                                                 value={editDraft.title}
                                                 onChange={(e) => setEditDraft({ ...editDraft, title: e.target.value })}
                                                 placeholder="Event title"
-                                                className="rounded-lg border border-border-subtle/70 bg-bg-elevated/40 px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                                className="event-edit-input rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40"
                                             />
                                                 <select
                                                     value={editDraft.type}
@@ -326,7 +326,7 @@ export default function UpcomingEventsList({
                                                             setEditDraft({ ...editDraft, type: next });
                                                         }
                                                     }}
-                                                    className="rounded-lg border border-border-subtle/70 bg-bg-elevated/40 px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                                    className="event-edit-input rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40"
                                                 >
                                                     <option value="holiday">Holiday</option>
                                                     <option value="event">Event</option>
@@ -341,25 +341,25 @@ export default function UpcomingEventsList({
                                                 type="date"
                                                 value={editDraft.date}
                                                 onChange={(e) => setEditDraft({ ...editDraft, date: e.target.value })}
-                                                className="rounded-lg border border-border-subtle/70 bg-bg-elevated/40 px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                                className="event-edit-input rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 min-h-[2.25rem]"
                                             />
                                             <input
                                                 type="time"
                                                 value={editDraft.time}
                                                 onChange={(e) => setEditDraft({ ...editDraft, time: e.target.value })}
-                                                className="rounded-lg border border-border-subtle/70 bg-bg-elevated/40 px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                                className="event-edit-input rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 min-h-[2.25rem]"
                                             />
                                             <input
                                                 type="date"
                                                 value={editDraft.endDate}
                                                 onChange={(e) => setEditDraft({ ...editDraft, endDate: e.target.value })}
-                                                className="rounded-lg border border-border-subtle/70 bg-bg-elevated/40 px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                                className="event-edit-input rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 min-h-[2.25rem]"
                                             />
                                             <input
                                                 type="time"
                                                 value={editDraft.endTime}
                                                 onChange={(e) => setEditDraft({ ...editDraft, endTime: e.target.value })}
-                                                className="rounded-lg border border-border-subtle/70 bg-bg-elevated/40 px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                                className="event-edit-input rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 min-h-[2.25rem]"
                                             />
                                         </div>
                                         <textarea
@@ -367,7 +367,7 @@ export default function UpcomingEventsList({
                                             onChange={(e) => setEditDraft({ ...editDraft, description: e.target.value })}
                                             rows={2}
                                             placeholder="Optional notes"
-                                            className="w-full rounded-lg border border-border-subtle/70 bg-bg-elevated/40 px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                            className="event-edit-input w-full rounded-lg border border-border bg-bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/30 resize-y"
                                         />
                                         <div className="flex items-center justify-end gap-1.5">
                                             <button

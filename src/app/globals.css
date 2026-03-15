@@ -5200,3 +5200,106 @@ kbd {
 .toolbar-collapsed .mdxeditor-toolbar {
   display: none;
 }
+
+/* Event edit form: high-contrast inputs so date/time and placeholders are easy to see on desktop */
+.event-edit-input {
+  color: var(--color-text-primary);
+}
+.event-edit-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+:root[data-theme="light"] .event-edit-input,
+:root.light .event-edit-input {
+  color: var(--color-text-primary);
+}
+:root[data-theme="light"] .event-edit-input::placeholder,
+:root.light .event-edit-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Thought Download: dark mode format bar — match app dark theme */
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar {
+  background: var(--color-bg-elevated) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--color-text-primary);
+}
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar button,
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar [role="button"],
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar button,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar [role="button"] {
+  color: var(--color-text-primary) !important;
+  background: transparent !important;
+}
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar button:hover,
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar [role="button"]:hover,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar button:hover,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar [role="button"]:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--color-text-primary) !important;
+}
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar select,
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar [role="combobox"],
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar select,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar [role="combobox"] {
+  background: var(--color-bg-surface) !important;
+  color: var(--color-text-primary) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Toolbar: force all icons and text light in dark mode (B, I, U, lists, checkbox icon, dropdown arrow) */
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar {
+  color: var(--color-text-primary);
+}
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar button,
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar [role="button"],
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar a,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar button,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar [role="button"],
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar a {
+  color: var(--color-text-primary) !important;
+}
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar svg,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar svg {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+  color: inherit !important;
+}
+/* Remove white/light backgrounds from toolbar groups (e.g. media insertion icons) */
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar > div,
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar > span,
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar div,
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar span,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar > div,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar > span,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar div,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar span {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+/* Dropdown options */
+.dark:not(.light) .mdxeditor-theme-custom .mdxeditor-toolbar select option,
+:root[data-theme="dark"] .mdxeditor-theme-custom .mdxeditor-toolbar select option {
+  background: var(--color-bg-elevated) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* Thought Download: lighter checkboxes in dark mode so they’re visible */
+.dark:not(.light) .mdxeditor-theme-custom .prose li[role="checkbox"]::before,
+:root[data-theme="dark"] .mdxeditor-theme-custom .prose li[role="checkbox"]::before {
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+.dark:not(.light) .mdxeditor-theme-custom .prose li:has(input[type="checkbox"]) input[type="checkbox"],
+:root[data-theme="dark"] .mdxeditor-theme-custom .prose li:has(input[type="checkbox"]) input[type="checkbox"] {
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+.dark:not(.light) .thought-download-markdown li input[type="checkbox"],
+:root[data-theme="dark"] .thought-download-markdown li input[type="checkbox"] {
+  accent-color: var(--color-accent-sakura);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background-color: rgba(255, 255, 255, 0.06);
+}

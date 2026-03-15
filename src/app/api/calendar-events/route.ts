@@ -80,9 +80,16 @@ export async function POST(request: NextRequest) {
         const startFromClient = parseIsoDateTime(startDateTime);
         const endFromClient = parseIsoDateTime(endDateTime);
 
-        const start = startFromClient || parseDateWithOptionalTime(date, time);
+        let start = startFromClient || parseDateWithOptionalTime(date, time);
         const resolvedEndDate = endDate || date;
-        const end = endFromClient || parseDateWithOptionalTime(resolvedEndDate, endTime);
+        let end = endFromClient || parseDateWithOptionalTime(resolvedEndDate, endTime);
+        // When endTime is provided, always use it for end so short ranges (e.g. 12:00–12:45) are saved correctly
+        if (endTime && /^\d{2}:\d{2}$/.test(endTime)) {
+            const endFromTime = parseDateWithOptionalTime(resolvedEndDate, endTime);
+            if (endFromTime && (!start || endFromTime.getTime() > start.getTime())) {
+                end = endFromTime;
+            }
+        }
         if (!start || !end || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
             return NextResponse.json({ error: "Invalid date values" }, { status: 400 });
         }
@@ -191,10 +198,15 @@ export async function PATCH(request: NextRequest) {
 
         const startFromClient = parseIsoDateTime(startDateTime);
         const endFromClient = parseIsoDateTime(endDateTime);
-        const start = startFromClient || parseDateWithOptionalTime(date, time);
+        let start = startFromClient || parseDateWithOptionalTime(date, time);
         const resolvedEndDate = endDate || date;
-        const end = endFromClient || parseDateWithOptionalTime(resolvedEndDate, endTime);
-
+        let end = endFromClient || parseDateWithOptionalTime(resolvedEndDate, endTime);
+        if (endTime && /^\d{2}:\d{2}$/.test(endTime)) {
+            const endFromTime = parseDateWithOptionalTime(resolvedEndDate, endTime);
+            if (endFromTime && (!start || endFromTime.getTime() > start.getTime())) {
+                end = endFromTime;
+            }
+        }
         if (!start || !end || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
             return NextResponse.json({ error: "Invalid date values" }, { status: 400 });
         }

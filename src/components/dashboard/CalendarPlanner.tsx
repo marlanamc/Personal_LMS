@@ -29,15 +29,13 @@ function dateKey(date: Date) {
 }
 
 function parseEventDate(input: Date | string) {
-  if (typeof input === "string") {
-    const dateOnlyMatch = input.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (dateOnlyMatch) {
-      const [, y, m, d] = dateOnlyMatch;
-      return dayStart(new Date(Number(y), Number(m) - 1, Number(d), 12, 0, 0, 0));
-    }
+  // Only treat as date-only when string is exactly YYYY-MM-DD (no time) so we preserve start/end times for same-day ranges
+  if (typeof input === "string" && input.length === 10 && /^\d{4}-\d{2}-\d{2}$/.test(input)) {
+    const [y, m, d] = input.split("-").map(Number);
+    return dayStart(new Date(y, m - 1, d, 12, 0, 0, 0));
   }
   const parsed = new Date(input);
-  return Number.isNaN(parsed.getTime()) ? null : dayStart(parsed);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 function formatEventTimeToken(input: Date | string): string | null {
@@ -80,8 +78,9 @@ function eventTouchesDate(event: CalendarEvent, day: Date) {
   if (!start) return false;
   const rawEnd = event.endDate ? parseEventDate(event.endDate) : null;
   const end = rawEnd && rawEnd.getTime() >= start.getTime() ? rawEnd : start;
-  const target = dayStart(day).getTime();
-  return target >= start.getTime() && target <= end.getTime();
+  const dayStartTime = dayStart(day).getTime();
+  const dayEndTime = dayStartTime + 24 * 60 * 60 * 1000;
+  return start.getTime() < dayEndTime && end.getTime() >= dayStartTime;
 }
 
 function buildEventsByDate(events: CalendarEvent[]) {
@@ -91,8 +90,9 @@ function buildEventsByDate(events: CalendarEvent[]) {
     if (!start) continue;
     const rawEnd = event.endDate ? parseEventDate(event.endDate) : null;
     const end = rawEnd && rawEnd.getTime() >= start.getTime() ? rawEnd : start;
-    const cursor = new Date(start);
-    while (cursor.getTime() <= end.getTime()) {
+    const cursor = new Date(dayStart(start));
+    const endDayStart = dayStart(end);
+    while (cursor.getTime() <= endDayStart.getTime()) {
       const key = dateKey(cursor);
       const existing = byDate.get(key) || [];
       existing.push(event);

@@ -67,16 +67,13 @@ export function anchorsToTimelineItems(anchors: DailyAnchor[]): TimelineItem[] {
 
 /**
  * Parse an event date, handling both Date objects and strings.
+ * Only treat as date-only when string is exactly YYYY-MM-DD so same-day time ranges are preserved.
  */
 function parseEventDate(input: Date | string): Date | null {
-  if (typeof input === 'string') {
-    // Handle YYYY-MM-DD format
-    const match = input.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (match) {
-      return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0, 0);
-    }
+  if (typeof input === 'string' && input.length === 10 && /^\d{4}-\d{2}-\d{2}$/.test(input)) {
+    const [y, m, d] = input.split('-').map(Number);
+    return new Date(y, m - 1, d, 12, 0, 0, 0);
   }
-
   const parsed = new Date(input);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
@@ -113,9 +110,13 @@ export function eventToTimelineItem(
   const effectiveEnd = end && end.getTime() >= start.getTime() ? end : start;
 
   const startMinute = start.getHours() * 60 + start.getMinutes();
+  const effectiveEndMinutes = effectiveEnd.getHours() * 60 + effectiveEnd.getMinutes();
   const endMinute =
-    effectiveEnd.getHours() * 60 + effectiveEnd.getMinutes() ||
-    (startMinute === 12 * 60 ? startMinute : startMinute + 60);
+    effectiveEnd.getTime() > start.getTime()
+      ? effectiveEndMinutes
+      : startMinute === 12 * 60
+        ? startMinute
+        : startMinute + 60;
 
   // All-day events are when the time is exactly noon (our sentinel value)
   const isAllDay = start.getHours() === 12 && start.getMinutes() === 0 && !event.endDate;
