@@ -510,6 +510,11 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
     return sortedAnchors.find((anchor) => anchor.id === contextAnchorId) ?? activeAnchor;
   }, [activeAnchor, hoveredAnchor, sortedAnchors]);
 
+  const hasAnyImportanceNote = useMemo(
+    () => sortedAnchors.some((anchor) => Boolean(anchor.importanceNote?.trim())),
+    [sortedAnchors],
+  );
+
   const skippedTodayCount = useMemo(
     () => sortedAnchors.filter((anchor) => anchor.status === 'skipped').length,
     [sortedAnchors],
@@ -741,15 +746,21 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
             </div>
           )}
 
-          {anchorContextNote.importanceNote ? (
-            <div className="mb-4 rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-text">
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-semibold">{anchorContextNote.label}</p>
-                <Link href="/dashboard/anchors" className="text-xs font-semibold text-primary hover:underline">
-                  Edit why
-                </Link>
-              </div>
-              <p className="mt-1 text-text-muted">{anchorContextNote.importanceNote}</p>
+          {hasAnyImportanceNote ? (
+            <div className="mb-4 lg:min-h-[5.75rem]">
+              {anchorContextNote.importanceNote ? (
+                <div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-text">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold">{anchorContextNote.label}</p>
+                    <Link href="/dashboard/anchors" className="text-xs font-semibold text-primary hover:underline">
+                      Edit why
+                    </Link>
+                  </div>
+                  <p className="mt-1 text-text-muted">{anchorContextNote.importanceNote}</p>
+                </div>
+              ) : (
+                <div className="hidden lg:block h-[5.75rem]" aria-hidden />
+              )}
             </div>
           ) : null}
 
@@ -969,14 +980,18 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                     <div className="relative flex flex-col items-center">
                       <div
                         className={`
-                          absolute -top-6 p-1 rounded cursor-grab active:cursor-grabbing
-                          text-text-muted/30 hover:text-text-muted/60 transition-all
-                          ${isHovered ? 'opacity-100' : 'opacity-0'}
+                          absolute -top-7 z-10 rounded-xl border border-border-subtle/50 bg-bg-elevated/90 px-1.5 py-1
+                          cursor-grab active:cursor-grabbing backdrop-blur-sm
+                          text-text-muted/55 shadow-sm transition-all
+                          ${isHovered ? 'opacity-100 scale-100 -translate-y-0.5' : 'opacity-80 scale-100'}
+                          hover:opacity-100 hover:text-text hover:border-accent-teal/40
                         `}
                         onMouseDown={(e) => handleDragStart(anchor.id, e)}
                         onTouchStart={(e) => handleDragStart(anchor.id, e)}
+                        title={`Drag to retime ${anchor.label}`}
+                        aria-label={`Drag to retime ${anchor.label}`}
                       >
-                        <GripVertical size={12} />
+                        <GripVertical size={13} />
                       </div>
 
                       <button
