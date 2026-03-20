@@ -309,8 +309,8 @@ export default function UpcomingEventsList({
                                 )}
 
                                 {canManage && isEditing && editDraft && (
-                                    <div className="mt-2 pt-2 border-t border-border-subtle/40 space-y-2">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div className="mt-2 pt-2 border-t border-border-subtle/40 space-y-2.5">
+                                        <div className="flex flex-col gap-2.5">
                                             <input
                                                 type="text"
                                                 value={editDraft.title}
@@ -336,7 +336,7 @@ export default function UpcomingEventsList({
                                                     <option value="quiz">Quiz/Test</option>
                                                 </select>
                                         </div>
-                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                        <div className="grid grid-cols-2 gap-2.5">
                                             <input
                                                 type="date"
                                                 value={editDraft.date}

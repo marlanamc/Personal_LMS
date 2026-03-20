@@ -24,7 +24,7 @@ const quickLinks = [
   { href: '/dashboard/timer', label: 'Focus Timer', icon: Timer },
   { href: '/dashboard/calendar', label: 'Monthly Calendar', icon: Calendar },
   { href: '/dashboard/thought-download', label: 'Thought Download', icon: Moon },
-  { href: '/dashboard?anchors=edit', label: 'Edit Anchors', icon: Pencil },
+  { href: '/dashboard/anchors', label: 'Edit Anchors', icon: Pencil },
   { href: '/dashboard/subjects', label: 'All Subjects', icon: BookOpen },
   { href: '/dashboard/reset', label: 'Get Unstuck', icon: Sparkles },
   { href: '/dashboard/profile', label: 'Profile', icon: User },

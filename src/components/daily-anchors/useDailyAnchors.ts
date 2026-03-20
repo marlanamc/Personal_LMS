@@ -20,7 +20,7 @@ import {
   type SkipReason,
 } from '@/lib/anchors';
 
-const STORE_VERSION = 1 as const;
+const STORE_VERSION = 2 as const;
 const DAILY_ANCHORS_UPDATE_EVENT = 'daily-anchors:update';
 
 function createEmptyStore(): DailyAnchorsStore {

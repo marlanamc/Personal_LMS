@@ -11,27 +11,38 @@ export type AnchorIcon =
   | 'heart'
   | 'coffee'
   | 'target'
-  | 'calendar';
+  | 'calendar'
+  | 'utensils'
+  | 'music'
+  | 'users'
+  | 'pen-tool'
+  | 'zap';
 
 export type AnchorColor = 'peach' | 'sky' | 'mint' | 'periwinkle' | 'lavender' | 'rose';
-
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-
 export type AnchorStatus = 'waiting' | 'done' | 'missed' | 'skipped';
 export type SkipReason = 'tired' | 'schedule_changed' | 'not_realistic' | 'low_energy' | 'sick' | 'other';
+
+export interface DailyAnchorScheduleSlot {
+  scheduledTime: string;
+  endTime?: string;
+}
+
+export type WeeklyAnchorSchedule = Partial<Record<DayOfWeek, DailyAnchorScheduleSlot>>;
 
 export interface DailyAnchor {
   id: AnchorId;
   label: string;
   icon: AnchorIcon;
   color?: AnchorColor;
+  importanceNote?: string;
   scheduledTime: string;
-  /** Optional end time (HH:MM). When set, anchor is a block from scheduledTime to endTime. */
   endTime?: string;
-  daysOfWeek?: DayOfWeek[];
+  weeklySchedule?: WeeklyAnchorSchedule;
   status: AnchorStatus;
   actualTime?: string;
   skipReason?: SkipReason;
+  isTimeOverridden?: boolean;
 }
 
 export interface DailyAnchorTemplate {
@@ -39,10 +50,8 @@ export interface DailyAnchorTemplate {
   label: string;
   icon: AnchorIcon;
   color?: AnchorColor;
-  scheduledTime: string;
-  /** Optional end time (HH:MM). */
-  endTime?: string;
-  daysOfWeek?: DayOfWeek[];
+  importanceNote?: string;
+  weeklySchedule: WeeklyAnchorSchedule;
 }
 
 export interface DailyAnchorState {
@@ -52,16 +61,26 @@ export interface DailyAnchorState {
 }
 
 export interface DailyAnchorsStore {
-  version: 1;
+  version: 2;
   templates: DailyAnchorTemplate[];
   states: Record<string, DailyAnchorState>;
 }
 
+const DEFAULT_WEEKLY_SCHEDULE: WeeklyAnchorSchedule = {
+  0: { scheduledTime: '08:00' },
+  1: { scheduledTime: '08:00' },
+  2: { scheduledTime: '08:00' },
+  3: { scheduledTime: '08:00' },
+  4: { scheduledTime: '08:00' },
+  5: { scheduledTime: '08:00' },
+  6: { scheduledTime: '08:00' },
+};
+
 export const DEFAULT_DAILY_ANCHOR_TEMPLATES: DailyAnchorTemplate[] = [
-  { id: 'wake', label: 'Wake', icon: 'sunrise', scheduledTime: '08:00' },
-  { id: 'gym', label: 'Gym', icon: 'dumbbell', scheduledTime: '09:00' },
-  { id: 'job', label: 'Job Block', icon: 'briefcase', scheduledTime: '11:00' },
-  { id: 'lightsOut', label: 'Bedtime', icon: 'moon', scheduledTime: '23:00' },
+  { id: 'wake', label: 'Wake', icon: 'sunrise', weeklySchedule: buildUniformWeeklySchedule('08:00') },
+  { id: 'gym', label: 'Gym', icon: 'dumbbell', weeklySchedule: buildUniformWeeklySchedule('09:00') },
+  { id: 'job', label: 'Job Block', icon: 'briefcase', weeklySchedule: buildUniformWeeklySchedule('11:00') },
+  { id: 'lightsOut', label: 'Bedtime', icon: 'moon', weeklySchedule: buildUniformWeeklySchedule('23:00') },
 ];
 
 const VALID_ICONS = new Set<AnchorIcon>([
@@ -76,6 +95,11 @@ const VALID_ICONS = new Set<AnchorIcon>([
   'coffee',
   'target',
   'calendar',
+  'utensils',
+  'music',
+  'users',
+  'pen-tool',
+  'zap',
 ]);
 
 const VALID_COLORS = new Set<AnchorColor>(['peach', 'sky', 'mint', 'periwinkle', 'lavender', 'rose']);
@@ -163,11 +187,25 @@ const ANCHOR_COLOR_PALETTES: Record<AnchorColor, AnchorColorPalette> = {
   },
 };
 
+const HHMM_REGEX = /^\d{2}:\d{2}$/;
+
+export function buildUniformWeeklySchedule(scheduledTime: string, endTime?: string): WeeklyAnchorSchedule {
+  return {
+    0: { scheduledTime, ...(endTime ? { endTime } : {}) },
+    1: { scheduledTime, ...(endTime ? { endTime } : {}) },
+    2: { scheduledTime, ...(endTime ? { endTime } : {}) },
+    3: { scheduledTime, ...(endTime ? { endTime } : {}) },
+    4: { scheduledTime, ...(endTime ? { endTime } : {}) },
+    5: { scheduledTime, ...(endTime ? { endTime } : {}) },
+    6: { scheduledTime, ...(endTime ? { endTime } : {}) },
+  };
+}
+
 export function getDefaultAnchorColor(icon: AnchorIcon): AnchorColor {
-  if (icon === 'sunrise' || icon === 'coffee') return 'peach';
-  if (icon === 'briefcase' || icon === 'code') return 'sky';
-  if (icon === 'dumbbell' || icon === 'flower-2') return 'mint';
-  if (icon === 'book-open' || icon === 'calendar') return 'periwinkle';
+  if (icon === 'sunrise' || icon === 'coffee' || icon === 'utensils' || icon === 'zap') return 'peach';
+  if (icon === 'briefcase' || icon === 'code' || icon === 'pen-tool') return 'sky';
+  if (icon === 'dumbbell' || icon === 'flower-2' || icon === 'users') return 'mint';
+  if (icon === 'book-open' || icon === 'calendar' || icon === 'music') return 'periwinkle';
   if (icon === 'heart') return 'rose';
   return 'lavender';
 }
@@ -183,24 +221,8 @@ export function resolveAnchorColor(color: AnchorColor | undefined, icon: AnchorI
   return color ?? getDefaultAnchorColor(icon);
 }
 
-export function getAnchorColorPalette(
-  color: AnchorColor | undefined,
-  icon: AnchorIcon,
-): AnchorColorPalette {
+export function getAnchorColorPalette(color: AnchorColor | undefined, icon: AnchorIcon): AnchorColorPalette {
   return ANCHOR_COLOR_PALETTES[resolveAnchorColor(color, icon)];
-}
-
-function normalizeDaysOfWeek(raw: unknown): DayOfWeek[] | undefined {
-  if (!Array.isArray(raw)) return undefined;
-
-  const values = raw
-    .map((day) => Number(day))
-    .filter((day): day is DayOfWeek => Number.isInteger(day) && day >= 0 && day <= 6);
-
-  if (values.length === 0) return undefined;
-
-  const unique = Array.from(new Set(values)).sort((a, b) => a - b);
-  return unique;
 }
 
 export function sanitizeAnchorId(raw: string): AnchorId {
@@ -215,24 +237,129 @@ export function sanitizeAnchorId(raw: string): AnchorId {
   return normalized || `anchor-${Date.now()}`;
 }
 
-export function getDefaultAnchorTemplates(): DailyAnchorTemplate[] {
-  return DEFAULT_DAILY_ANCHOR_TEMPLATES.map((template) => ({ ...template }));
+function normalizeImportanceNote(raw: unknown, fallback?: string): string | undefined {
+  if (typeof raw === 'string') {
+    const note = raw.trim();
+    return note ? note.slice(0, 240) : undefined;
+  }
+  return fallback;
 }
 
-const HHMM_REGEX = /^\d{2}:\d{2}$/;
+export function parseHHMMToMinutes(input: string): number {
+  const [rawH = '0', rawM = '0'] = input.split(':');
+  const h = Number(rawH);
+  const m = Number(rawM);
+  if (Number.isNaN(h) || Number.isNaN(m)) return 0;
+  return h * 60 + m;
+}
 
-function normalizeEndTime(
+function normalizeEndTime(raw: unknown, scheduledTime: string, fallback?: string): string | undefined {
+  if (raw === undefined || raw === null || raw === '') return fallback;
+  const value = typeof raw === 'string' ? raw.trim() : '';
+  if (!HHMM_REGEX.test(value)) return fallback;
+  if (parseHHMMToMinutes(value) <= parseHHMMToMinutes(scheduledTime)) return fallback;
+  return value;
+}
+
+function normalizeScheduleSlot(raw: unknown, fallback?: DailyAnchorScheduleSlot): DailyAnchorScheduleSlot | undefined {
+  if (!raw || typeof raw !== 'object') return fallback;
+  const candidate = raw as { scheduledTime?: unknown; endTime?: unknown };
+  const scheduledTime =
+    typeof candidate.scheduledTime === 'string' && HHMM_REGEX.test(candidate.scheduledTime)
+      ? candidate.scheduledTime
+      : fallback?.scheduledTime;
+
+  if (!scheduledTime) return fallback;
+
+  const endTime = normalizeEndTime(candidate.endTime, scheduledTime, fallback?.endTime);
+  return {
+    scheduledTime,
+    ...(endTime ? { endTime } : {}),
+  };
+}
+
+function normalizeDaysOfWeek(raw: unknown): DayOfWeek[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const values = raw
+    .map((day) => Number(day))
+    .filter((day): day is DayOfWeek => Number.isInteger(day) && day >= 0 && day <= 6);
+
+  if (values.length === 0) return undefined;
+  return Array.from(new Set(values)).sort((a, b) => a - b);
+}
+
+export function normalizeWeeklySchedule(
   raw: unknown,
-  scheduledTime: string,
-  fallback?: string,
-): string | undefined {
-  if (raw === undefined || raw === null) return fallback;
-  const s = typeof raw === 'string' ? raw.trim() : '';
-  if (!HHMM_REGEX.test(s)) return fallback;
-  const startMin = parseHHMMToMinutes(scheduledTime);
-  const endMin = parseHHMMToMinutes(s);
-  if (endMin <= startMin) return fallback;
-  return s;
+  fallback?: WeeklyAnchorSchedule,
+  legacy?: { scheduledTime?: unknown; endTime?: unknown; daysOfWeek?: unknown },
+): WeeklyAnchorSchedule {
+  const result: WeeklyAnchorSchedule = {};
+  const source = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : null;
+
+  if (source) {
+    for (const day of [0, 1, 2, 3, 4, 5, 6] as DayOfWeek[]) {
+      const fallbackSlot = fallback?.[day];
+      const normalized = normalizeScheduleSlot(source[String(day)], fallbackSlot);
+      if (normalized) {
+        result[day] = normalized;
+      }
+    }
+    if (Object.keys(result).length > 0) {
+      return result;
+    }
+  }
+
+  const legacyTime =
+    typeof legacy?.scheduledTime === 'string' && HHMM_REGEX.test(legacy.scheduledTime)
+      ? legacy.scheduledTime
+      : undefined;
+  const fallbackTime = getFirstScheduledSlot(fallback)?.scheduledTime;
+  const scheduledTime = legacyTime ?? fallbackTime ?? '08:00';
+  const endTime = normalizeEndTime(legacy?.endTime, scheduledTime, getFirstScheduledSlot(fallback)?.endTime);
+  const activeDays = normalizeDaysOfWeek(legacy?.daysOfWeek) ?? ([0, 1, 2, 3, 4, 5, 6] as DayOfWeek[]);
+
+  for (const day of activeDays) {
+    result[day] = { scheduledTime, ...(endTime ? { endTime } : {}) };
+  }
+
+  if (Object.keys(result).length > 0) {
+    return result;
+  }
+
+  if (fallback && Object.keys(fallback).length > 0) {
+    return cloneWeeklyScheduleInternal(fallback);
+  }
+
+  return { ...DEFAULT_WEEKLY_SCHEDULE };
+}
+
+function cloneWeeklyScheduleInternal(schedule: WeeklyAnchorSchedule): WeeklyAnchorSchedule {
+  const next: WeeklyAnchorSchedule = {};
+  for (const day of [0, 1, 2, 3, 4, 5, 6] as DayOfWeek[]) {
+    if (schedule[day]) {
+      next[day] = { ...schedule[day]! };
+    }
+  }
+  return next;
+}
+
+function getFirstScheduledSlot(schedule?: WeeklyAnchorSchedule): DailyAnchorScheduleSlot | undefined {
+  if (!schedule) return undefined;
+  for (const day of [0, 1, 2, 3, 4, 5, 6] as DayOfWeek[]) {
+    if (schedule[day]) return schedule[day];
+  }
+  return undefined;
+}
+
+function resolveTemplateDefaultTime(template: DailyAnchorTemplate): DailyAnchorScheduleSlot {
+  return getFirstScheduledSlot(template.weeklySchedule) ?? { scheduledTime: '08:00' };
+}
+
+export function resolveAnchorTemplateForDate(
+  template: Pick<DailyAnchorTemplate, 'weeklySchedule'>,
+  date: Date,
+): DailyAnchorScheduleSlot | null {
+  return template.weeklySchedule[date.getDay() as DayOfWeek] ?? null;
 }
 
 function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): DailyAnchorTemplate {
@@ -241,70 +368,80 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
     label?: unknown;
     icon?: unknown;
     color?: unknown;
+    importanceNote?: unknown;
+    weeklySchedule?: unknown;
     scheduledTime?: unknown;
     endTime?: unknown;
-    durationMinutes?: unknown;
     daysOfWeek?: unknown;
+    durationMinutes?: unknown;
   };
 
   const fallbackId = fallback?.id ?? `anchor-${Date.now()}`;
   const id = sanitizeAnchorId(typeof candidate.id === 'string' ? candidate.id : fallbackId);
-
   const icon = VALID_ICONS.has(candidate.icon as AnchorIcon)
     ? (candidate.icon as AnchorIcon)
-    : fallback?.icon || 'moon';
+    : fallback?.icon ?? 'moon';
   const color = normalizeAnchorColor(candidate.color, fallback?.color);
-
-  const scheduledTime =
-    typeof candidate.scheduledTime === 'string' && HHMM_REGEX.test(candidate.scheduledTime)
-      ? candidate.scheduledTime
-      : fallback?.scheduledTime || '08:00';
-
-  const labelFromCandidate = typeof candidate.label === 'string' ? candidate.label.trim() : '';
-  const label = labelFromCandidate || fallback?.label || 'Anchor';
-
-  let endTime = normalizeEndTime(candidate.endTime, scheduledTime, fallback?.endTime);
-  if (endTime === undefined && typeof candidate.durationMinutes === 'number' && candidate.durationMinutes > 0) {
-    const startMin = parseHHMMToMinutes(scheduledTime);
-    const endMin = startMin + Math.min(600, Math.round(candidate.durationMinutes));
-    const h = Math.floor(endMin / 60) % 24;
-    const m = endMin % 60;
-    endTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-    if (parseHHMMToMinutes(endTime) > startMin) {
-      // keep migrated endTime
-    } else {
-      endTime = undefined;
-    }
-  }
-  const daysOfWeek = normalizeDaysOfWeek(candidate.daysOfWeek) ?? fallback?.daysOfWeek;
+  const label = (typeof candidate.label === 'string' ? candidate.label.trim() : '') || fallback?.label || 'Anchor';
+  const importanceNote = normalizeImportanceNote(candidate.importanceNote, fallback?.importanceNote);
+  const weeklySchedule = normalizeWeeklySchedule(candidate.weeklySchedule, fallback?.weeklySchedule, {
+    scheduledTime: candidate.scheduledTime,
+    endTime: candidate.endTime,
+    daysOfWeek: candidate.daysOfWeek,
+  });
 
   return {
     id,
     label,
     icon,
-    ...(color !== undefined ? { color } : {}),
-    scheduledTime,
-    ...(endTime !== undefined ? { endTime } : {}),
-    ...(daysOfWeek ? { daysOfWeek } : {}),
+    ...(color ? { color } : {}),
+    ...(importanceNote ? { importanceNote } : {}),
+    weeklySchedule,
   };
 }
 
-function toStateAnchor(template: DailyAnchorTemplate, existing?: DailyAnchor): DailyAnchor {
-  const scheduledTime = existing?.scheduledTime ?? template.scheduledTime;
-  const endTime = existing?.endTime ?? template.endTime;
-  const color = existing?.color ?? template.color;
-  const validEndTime = endTime !== undefined ? normalizeEndTime(endTime, scheduledTime, undefined) : undefined;
+export function getDefaultAnchorTemplates(): DailyAnchorTemplate[] {
+  return DEFAULT_DAILY_ANCHOR_TEMPLATES.map((template) => ({
+    ...template,
+    weeklySchedule: { ...template.weeklySchedule },
+  }));
+}
+
+function didLegacyStateOverrideTime(
+  existing: { scheduledTime?: string; endTime?: string; isTimeOverridden?: boolean; weeklySchedule?: WeeklyAnchorSchedule },
+  template: DailyAnchorTemplate,
+  date: Date,
+): boolean {
+  if (existing.isTimeOverridden) return true;
+  const previousWeeklySchedule = existing.weeklySchedule ?? template.weeklySchedule;
+  const slot =
+    resolveAnchorTemplateForDate({ weeklySchedule: previousWeeklySchedule }, date) ??
+    getFirstScheduledSlot(previousWeeklySchedule);
+  if (!slot) return false;
+  return existing.scheduledTime !== slot.scheduledTime || (existing.endTime ?? undefined) !== (slot.endTime ?? undefined);
+}
+
+function toStateAnchor(template: DailyAnchorTemplate, date: Date, existing?: DailyAnchor): DailyAnchor {
+  const resolvedSlot = resolveAnchorTemplateForDate(template, date);
+  const fallbackSlot = resolveTemplateDefaultTime(template);
+  const templateSlot = resolvedSlot ?? fallbackSlot;
+  const shouldPreserveOverride = existing ? didLegacyStateOverrideTime(existing, template, date) : false;
+  const scheduledTime = shouldPreserveOverride ? existing!.scheduledTime : templateSlot.scheduledTime;
+  const endTime = shouldPreserveOverride ? existing!.endTime : templateSlot.endTime;
+
   return {
     id: template.id,
     label: template.label,
     icon: template.icon,
-    ...(color !== undefined ? { color } : {}),
-    scheduledTime,
-    ...(validEndTime !== undefined ? { endTime: validEndTime } : {}),
-    ...(template.daysOfWeek ? { daysOfWeek: template.daysOfWeek } : {}),
+    ...(template.color ? { color: template.color } : {}),
+    ...(template.importanceNote ? { importanceNote: template.importanceNote } : {}),
+    weeklySchedule: template.weeklySchedule,
+    scheduledTime: scheduledTime ?? templateSlot.scheduledTime,
+    ...(endTime ? { endTime } : {}),
     status: existing?.status ?? 'waiting',
     actualTime: existing?.actualTime,
     skipReason: existing?.skipReason,
+    ...(shouldPreserveOverride ? { isTimeOverridden: true } : existing?.isTimeOverridden ? { isTimeOverridden: true } : {}),
   };
 }
 
@@ -320,14 +457,6 @@ function dateKeyToDate(dateKey: string): Date {
   return new Date(y || 1970, (m || 1) - 1, d || 1);
 }
 
-export function parseHHMMToMinutes(input: string): number {
-  const [rawH = '0', rawM = '0'] = input.split(':');
-  const h = Number(rawH);
-  const m = Number(rawM);
-  if (Number.isNaN(h) || Number.isNaN(m)) return 0;
-  return h * 60 + m;
-}
-
 export function formatTimeLabel(time: string): string {
   const [rawH = '0', rawM = '00'] = time.split(':');
   const h = Number(rawH);
@@ -338,7 +467,6 @@ export function formatTimeLabel(time: string): string {
   return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
 }
 
-/** Format a time range e.g. "5:00 PM – 9:00 PM" or short "5–9pm" when same period. */
 export function formatTimeRange(startTime: string, endTime: string, short = false): string {
   const start = formatTimeLabel(startTime);
   const end = formatTimeLabel(endTime);
@@ -349,11 +477,9 @@ export function formatTimeRange(startTime: string, endTime: string, short = fals
     const p2 = rawH2 >= 12 ? 'pm' : 'am';
     const h1 = rawH1 % 12 || 12;
     const h2 = rawH2 % 12 || 12;
-    const m1 = rawM1;
-    const m2 = rawM2;
-    if (p1 === p2 && m1 === 0 && m2 === 0) return `${h1}–${h2}${p1}`;
-    if (p1 === p2) return `${h1}:${String(m1).padStart(2, '0')}–${h2}:${String(m2).padStart(2, '0')} ${p1}`;
-    return `${h1}:${String(m1).padStart(2, '0')}${p1} – ${h2}:${String(m2).padStart(2, '0')}${p2}`;
+    if (p1 === p2 && rawM1 === 0 && rawM2 === 0) return `${h1}–${h2}${p1}`;
+    if (p1 === p2) return `${h1}:${String(rawM1).padStart(2, '0')}–${h2}:${String(rawM2).padStart(2, '0')} ${p1}`;
+    return `${h1}:${String(rawM1).padStart(2, '0')}${p1} – ${h2}:${String(rawM2).padStart(2, '0')}${p2}`;
   }
   return `${start} – ${end}`;
 }
@@ -365,9 +491,11 @@ export function formatIsoTimeLabel(isoTime?: string): string | null {
   return parsed.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 
-export function isAnchorScheduledForDate(anchor: Pick<DailyAnchor, 'daysOfWeek'>, date: Date): boolean {
-  if (!anchor.daysOfWeek || anchor.daysOfWeek.length === 0) return true;
-  return anchor.daysOfWeek.includes(date.getDay() as DayOfWeek);
+export function isAnchorScheduledForDate(
+  anchor: Pick<DailyAnchor, 'weeklySchedule'> | Pick<DailyAnchorTemplate, 'weeklySchedule'>,
+  date: Date,
+): boolean {
+  return Boolean(anchor.weeklySchedule?.[date.getDay() as DayOfWeek]);
 }
 
 export function getRecentSkippedAnchorStreak(
@@ -375,7 +503,11 @@ export function getRecentSkippedAnchorStreak(
   nowMinutes?: number | null,
 ): number {
   const processedAnchors = anchors.filter(
-    (anchor) => anchor.status !== 'waiting' || nowMinutes === null || nowMinutes === undefined || parseHHMMToMinutes(anchor.scheduledTime) <= nowMinutes,
+    (anchor) =>
+      anchor.status !== 'waiting' ||
+      nowMinutes === null ||
+      nowMinutes === undefined ||
+      parseHHMMToMinutes(anchor.scheduledTime) <= nowMinutes,
   );
 
   let streak = 0;
@@ -411,9 +543,7 @@ export function getSkipReasonSuggestion(reason: SkipReason): string {
   return 'Review whether that anchor still fits the week you actually have.';
 }
 
-export function getTopWeeklySkipReasonInsight(
-  weekStates: DailyAnchorState[],
-): WeeklySkipReasonInsight | null {
+export function getTopWeeklySkipReasonInsight(weekStates: DailyAnchorState[]): WeeklySkipReasonInsight | null {
   const counts = new Map<string, WeeklySkipReasonInsight>();
 
   weekStates.forEach((state) => {
@@ -425,7 +555,6 @@ export function getTopWeeklySkipReasonInsight(
         existing.count += 1;
         return;
       }
-
       counts.set(key, {
         anchorId: anchor.id,
         anchorLabel: anchor.label,
@@ -441,32 +570,32 @@ export function getTopWeeklySkipReasonInsight(
       topInsight = insight;
     }
   });
-
   return topInsight;
 }
 
 export function normalizeAnchorTemplates(raw: unknown): DailyAnchorTemplate[] {
   const source = Array.isArray(raw) ? raw : [];
   const defaults = getDefaultAnchorTemplates();
-
   const normalized = source
-    .map((item, idx) => normalizeAnchorTemplate(item, defaults[idx]))
+    .map((item, idx) => {
+      const candidate = (item && typeof item === 'object' ? item : {}) as { id?: unknown };
+      const candidateId = typeof candidate.id === 'string' ? sanitizeAnchorId(candidate.id) : undefined;
+      const fallback = candidateId ? defaults.find((template) => template.id === candidateId) : defaults[idx];
+      return normalizeAnchorTemplate(item, fallback);
+    })
     .filter((template, idx, arr) => arr.findIndex((entry) => entry.id === template.id) === idx);
 
-  if (normalized.length === 0) {
-    return defaults;
-  }
-
-  return normalized;
+  return normalized.length > 0 ? normalized : defaults;
 }
 
 export function createDefaultDailyAnchorState(
   dateKey: string,
   templates: DailyAnchorTemplate[] = getDefaultAnchorTemplates(),
 ): DailyAnchorState {
+  const date = dateKeyToDate(dateKey);
   return {
     date: dateKey,
-    anchors: templates.map((template) => ({ ...toStateAnchor(template), status: 'waiting', actualTime: undefined })),
+    anchors: templates.map((template) => ({ ...toStateAnchor(template, date), status: 'waiting', actualTime: undefined })),
     sleepRhythmDayComplete: false,
   };
 }
@@ -479,23 +608,32 @@ function createIsoFromDateAndHHMM(dateKey: string, hhmm: string): string | undef
   return date.toISOString();
 }
 
-function normalizeAnchor(dateKey: string, raw: unknown, fallbackTemplate?: DailyAnchorTemplate): DailyAnchor {
+function normalizeAnchor(
+  dateKey: string,
+  raw: unknown,
+  fallbackTemplate?: DailyAnchorTemplate,
+): DailyAnchor {
   const candidate = (raw && typeof raw === 'object' ? raw : {}) as {
     id?: unknown;
     label?: unknown;
     icon?: unknown;
+    color?: unknown;
+    importanceNote?: unknown;
     scheduledTime?: unknown;
     endTime?: unknown;
-    durationMinutes?: unknown;
+    weeklySchedule?: unknown;
     daysOfWeek?: unknown;
     status?: unknown;
     actualTime?: unknown;
     skipReason?: unknown;
     isComplete?: unknown;
     actualStartTime?: unknown;
+    isTimeOverridden?: unknown;
   };
 
   const template = normalizeAnchorTemplate(candidate, fallbackTemplate);
+  const date = dateKeyToDate(dateKey);
+  const resolvedSlot = resolveAnchorTemplateForDate(template, date) ?? resolveTemplateDefaultTime(template);
 
   const statusFromLegacy =
     candidate.isComplete === true ? 'done' : candidate.isComplete === false ? 'waiting' : undefined;
@@ -505,8 +643,8 @@ function normalizeAnchor(dateKey: string, raw: unknown, fallbackTemplate?: Daily
     statusCandidate === 'missed' ||
     statusCandidate === 'waiting' ||
     statusCandidate === 'skipped'
-    ? statusCandidate
-    : statusFromLegacy || 'waiting';
+      ? statusCandidate
+      : statusFromLegacy || 'waiting';
 
   const actualTimeCandidate = typeof candidate.actualTime === 'string' ? candidate.actualTime : undefined;
   const actualStartTime = typeof candidate.actualStartTime === 'string' ? candidate.actualStartTime : undefined;
@@ -522,11 +660,27 @@ function normalizeAnchor(dateKey: string, raw: unknown, fallbackTemplate?: Daily
       ? skipReasonCandidate
       : undefined;
 
+  const scheduledTime =
+    typeof candidate.scheduledTime === 'string' && HHMM_REGEX.test(candidate.scheduledTime)
+      ? candidate.scheduledTime
+      : resolvedSlot.scheduledTime;
+  const endTime = normalizeEndTime(candidate.endTime, scheduledTime, resolvedSlot.endTime);
+
   return {
-    ...template,
+    id: template.id,
+    label: template.label,
+    icon: template.icon,
+    ...(template.color ? { color: template.color } : {}),
+    ...(template.importanceNote ? { importanceNote: template.importanceNote } : {}),
+    weeklySchedule: template.weeklySchedule,
+    scheduledTime,
+    ...(endTime ? { endTime } : {}),
     status,
     actualTime,
     skipReason,
+    ...(candidate.isTimeOverridden === true || didLegacyStateOverrideTime({ scheduledTime, endTime }, template, date)
+      ? { isTimeOverridden: true }
+      : {}),
   };
 }
 
@@ -558,23 +712,21 @@ export function normalizeDailyAnchorState(
   const candidate = raw as { date?: unknown; anchors?: unknown[]; sleepRhythmDayComplete?: unknown };
   const sourceAnchors = Array.isArray(candidate.anchors) ? candidate.anchors : [];
   const templatesById = new Map(templates.map((template) => [template.id, template]));
+  const date = dateKeyToDate(dateKey);
 
-  let anchors: DailyAnchor[];
-  if (sourceAnchors.length > 0) {
-    anchors = sourceAnchors
-      .map((rawAnchor) => {
-        const anchorObj = (rawAnchor && typeof rawAnchor === 'object' ? rawAnchor : {}) as { id?: unknown };
-        const id = typeof anchorObj.id === 'string' ? sanitizeAnchorId(anchorObj.id) : undefined;
-        return normalizeAnchor(dateKey, rawAnchor, id ? templatesById.get(id) : undefined);
-      })
-      .filter((anchor, idx, arr) => arr.findIndex((entry) => entry.id === anchor.id) === idx);
-  } else {
-    anchors = templates.map((template) => toStateAnchor(template));
-  }
+  const anchors =
+    sourceAnchors.length > 0
+      ? sourceAnchors
+          .map((rawAnchor) => {
+            const anchorObj = (rawAnchor && typeof rawAnchor === 'object' ? rawAnchor : {}) as { id?: unknown };
+            const id = typeof anchorObj.id === 'string' ? sanitizeAnchorId(anchorObj.id) : undefined;
+            return normalizeAnchor(dateKey, rawAnchor, id ? templatesById.get(id) : undefined);
+          })
+          .filter((anchor, idx, arr) => arr.findIndex((entry) => entry.id === anchor.id) === idx)
+      : templates.map((template) => toStateAnchor(template, date));
 
-  const mergedById = new Map(anchors.map((anchor) => [anchor.id, anchor]));
-  const mergedAnchors = templates.map((template) => toStateAnchor(template, mergedById.get(template.id)));
-
+  const existingById = new Map(anchors.map((anchor) => [anchor.id, anchor]));
+  const mergedAnchors = templates.map((template) => toStateAnchor(template, date, existingById.get(template.id)));
   const extraAnchors = anchors
     .filter((anchor) => !templatesById.has(anchor.id))
     .map((anchor) => ({ ...anchor }));
@@ -597,8 +749,9 @@ export function mergeDailyAnchorStateWithTemplates(
 ): DailyAnchorState {
   const existingById = new Map(state.anchors.map((anchor) => [anchor.id, anchor]));
   const templatesById = new Map(templates.map((template) => [template.id, template]));
+  const date = dateKeyToDate(state.date);
 
-  const anchors = templates.map((template) => toStateAnchor(template, existingById.get(template.id)));
+  const anchors = templates.map((template) => toStateAnchor(template, date, existingById.get(template.id)));
   const extraAnchors = state.anchors
     .filter((anchor) => !templatesById.has(anchor.id))
     .map((anchor) => ({ ...anchor }));
@@ -619,7 +772,6 @@ function isIsoWithinToleranceMinutes(actualIso: string | undefined, scheduledHHM
   if (!actualIso) return false;
   const parsed = new Date(actualIso);
   if (Number.isNaN(parsed.getTime())) return false;
-
   const actualMinutes = parsed.getHours() * 60 + parsed.getMinutes();
   const scheduledMinutes = parseHHMMToMinutes(scheduledHHMM);
   return Math.abs(actualMinutes - scheduledMinutes) <= toleranceMinutes;
@@ -628,8 +780,11 @@ function isIsoWithinToleranceMinutes(actualIso: string | undefined, scheduledHHM
 export function getActiveAnchor(anchors: DailyAnchor[], now: Date): DailyAnchor {
   if (anchors.length === 0) {
     const fallback = getDefaultAnchorTemplates()[0];
+    const slot = resolveAnchorTemplateForDate(fallback, now) ?? resolveTemplateDefaultTime(fallback);
     return {
       ...fallback,
+      scheduledTime: slot.scheduledTime,
+      ...(slot.endTime ? { endTime: slot.endTime } : {}),
       status: 'waiting',
     };
   }
@@ -638,16 +793,13 @@ export function getActiveAnchor(anchors: DailyAnchor[], now: Date): DailyAnchor 
   const sorted = [...anchors].sort((a, b) => parseHHMMToMinutes(a.scheduledTime) - parseHHMMToMinutes(b.scheduledTime));
   const first = sorted[0];
   const last = sorted[sorted.length - 1];
-  const firstMinutes = parseHHMMToMinutes(first.scheduledTime);
 
-  if (nowMinutes < firstMinutes) return first;
+  if (nowMinutes < parseHHMMToMinutes(first.scheduledTime)) return first;
 
   for (let i = 0; i < sorted.length - 1; i += 1) {
     const current = sorted[i];
     const next = sorted[i + 1];
-    const currentMinutes = parseHHMMToMinutes(current.scheduledTime);
-    const nextMinutes = parseHHMMToMinutes(next.scheduledTime);
-    if (nowMinutes >= currentMinutes && nowMinutes < nextMinutes) {
+    if (nowMinutes >= parseHHMMToMinutes(current.scheduledTime) && nowMinutes < parseHHMMToMinutes(next.scheduledTime)) {
       return current;
     }
   }
@@ -662,29 +814,23 @@ export function resolveAnchorStatuses(state: DailyAnchorState, now: Date): Daily
   const stateDate = dateKeyToDate(state.date);
 
   return state.anchors.map((anchor) => {
-    const scheduledForDate = isAnchorScheduledForDate(anchor, stateDate);
-    if (!scheduledForDate) {
+    if (!isAnchorScheduledForDate(anchor, stateDate)) {
       return { ...anchor, status: 'waiting', actualTime: undefined, skipReason: undefined };
     }
-
     if (anchor.status === 'done' || anchor.status === 'skipped') return anchor;
+
     const scheduledMinutes = parseHHMMToMinutes(anchor.scheduledTime);
-
-    if (isPastDay) {
-      return { ...anchor, status: 'missed' };
-    }
-
+    if (isPastDay) return { ...anchor, status: 'missed' };
     if (state.date === todayKey && nowMinutes > scheduledMinutes + 15) {
       return { ...anchor, status: 'missed' };
     }
-
     return { ...anchor, status: 'waiting' };
   });
 }
 
 export function normalizeDailyAnchorsStore(raw: unknown): DailyAnchorsStore {
   if (!raw || typeof raw !== 'object') {
-    return { version: 1, templates: getDefaultAnchorTemplates(), states: {} };
+    return { version: 2, templates: getDefaultAnchorTemplates(), states: {} };
   }
 
   const candidate = raw as { templates?: unknown; states?: unknown };
@@ -700,7 +846,7 @@ export function normalizeDailyAnchorsStore(raw: unknown): DailyAnchorsStore {
   }
 
   return {
-    version: 1,
+    version: 2,
     templates,
     states,
   };

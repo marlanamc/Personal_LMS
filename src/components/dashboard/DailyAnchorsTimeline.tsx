@@ -2,7 +2,8 @@
 
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   BookOpen,
   Briefcase,
@@ -15,8 +16,13 @@ import {
   GripVertical,
   Heart,
   Moon,
+  Music,
+  PenTool,
   Sunrise,
   Target,
+  Users,
+  Utensils,
+  Zap,
 } from 'lucide-react';
 import { EditAnchorsSheet } from './EditAnchorsSheet';
 import { MobileTimeScrubber } from './MobileTimeScrubber';
@@ -61,16 +67,21 @@ const iconByName: Record<AnchorIcon, typeof Sunrise> = {
   coffee: Coffee,
   heart: Heart,
   calendar: Calendar,
+  utensils: Utensils,
+  music: Music,
+  users: Users,
+  'pen-tool': PenTool,
+  zap: Zap,
 };
 
 function gradientByIcon(icon: AnchorIcon): string {
-  if (icon === 'dumbbell') return 'from-emerald-400/20 to-teal-300/10';
-  if (icon === 'briefcase' || icon === 'code') return 'from-sky-400/20 to-blue-300/10';
-  if (icon === 'sunrise' || icon === 'coffee') return 'from-amber-400/20 to-orange-300/10';
+  if (icon === 'dumbbell' || icon === 'users') return 'from-emerald-400/20 to-teal-300/10';
+  if (icon === 'briefcase' || icon === 'code' || icon === 'pen-tool') return 'from-sky-400/20 to-blue-300/10';
+  if (icon === 'sunrise' || icon === 'coffee' || icon === 'utensils' || icon === 'zap') return 'from-amber-400/20 to-orange-300/10';
   if (icon === 'flower-2') return 'from-cyan-400/20 to-teal-300/10';
   if (icon === 'heart') return 'from-rose-400/20 to-pink-300/10';
   if (icon === 'target') return 'from-purple-400/20 to-fuchsia-300/10';
-  if (icon === 'book-open' || icon === 'calendar') return 'from-indigo-400/20 to-violet-300/10';
+  if (icon === 'book-open' || icon === 'calendar' || icon === 'music') return 'from-indigo-400/20 to-violet-300/10';
   return 'from-violet-400/20 to-purple-300/10';
 }
 
@@ -190,12 +201,17 @@ function getRiverFlowGradient(icon: AnchorIcon): { from: string; to: string; glo
   const gradients: Record<string, { from: string; to: string; glow: string }> = {
     sunrise: { from: 'from-amber-400/20', to: 'to-orange-300/10', glow: 'rgba(251, 191, 36, 0.3)' },
     coffee: { from: 'from-amber-400/20', to: 'to-orange-300/10', glow: 'rgba(251, 191, 36, 0.3)' },
+    utensils: { from: 'from-amber-400/20', to: 'to-orange-300/10', glow: 'rgba(251, 191, 36, 0.3)' },
+    zap: { from: 'from-amber-400/20', to: 'to-orange-300/10', glow: 'rgba(251, 191, 36, 0.3)' },
     dumbbell: { from: 'from-emerald-400/20', to: 'to-teal-300/10', glow: 'rgba(52, 211, 153, 0.3)' },
+    users: { from: 'from-emerald-400/20', to: 'to-teal-300/10', glow: 'rgba(52, 211, 153, 0.3)' },
     'flower-2': { from: 'from-cyan-400/20', to: 'to-teal-300/10', glow: 'rgba(34, 211, 238, 0.3)' },
     briefcase: { from: 'from-sky-400/20', to: 'to-blue-300/10', glow: 'rgba(56, 189, 248, 0.3)' },
     code: { from: 'from-sky-400/20', to: 'to-blue-300/10', glow: 'rgba(56, 189, 248, 0.3)' },
+    'pen-tool': { from: 'from-sky-400/20', to: 'to-blue-300/10', glow: 'rgba(56, 189, 248, 0.3)' },
     'book-open': { from: 'from-indigo-400/20', to: 'to-violet-300/10', glow: 'rgba(129, 140, 248, 0.3)' },
     calendar: { from: 'from-indigo-400/20', to: 'to-violet-300/10', glow: 'rgba(129, 140, 248, 0.3)' },
+    music: { from: 'from-indigo-400/20', to: 'to-violet-300/10', glow: 'rgba(129, 140, 248, 0.3)' },
     target: { from: 'from-purple-400/20', to: 'to-fuchsia-300/10', glow: 'rgba(192, 132, 252, 0.3)' },
     heart: { from: 'from-rose-400/20', to: 'to-pink-300/10', glow: 'rgba(251, 113, 133, 0.3)' },
     moon: { from: 'from-violet-400/20', to: 'to-purple-300/10', glow: 'rgba(167, 139, 250, 0.3)' },
@@ -461,7 +477,6 @@ function MobileAnchorItem({
 
 export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps) {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { anchors, activeAnchor, toggleAnchor, anchorTemplates, setTodayAnchors, setTodayAnchorStatus, setAnchorTemplates, isLoaded, weeklySkipReasonInsight } =
     useDailyAnchorsForToday(storageScope);
@@ -481,14 +496,19 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   const completedCount = todaysAnchors.filter((anchor) => anchor.status === 'done').length;
   const totalCount = todaysAnchors.length;
   const isAllComplete = totalCount > 0 && completedCount === totalCount;
-  const wakeTemplate = useMemo(
-    () => anchorTemplates.find((template) => template.id === 'wake') || anchorTemplates.find((template) => template.icon === 'sunrise'),
-    [anchorTemplates],
+  const wakeAnchorForToday = useMemo(
+    () => todaysAnchors.find((anchor) => anchor.id === 'wake') || todaysAnchors.find((anchor) => anchor.icon === 'sunrise'),
+    [todaysAnchors],
   );
 
   const sortedAnchors = useMemo(() => {
     return [...todaysAnchors].sort((a, b) => parseHHMMToMinutes(a.scheduledTime) - parseHHMMToMinutes(b.scheduledTime));
   }, [todaysAnchors]);
+
+  const anchorContextNote = useMemo(() => {
+    const contextAnchorId = hoveredAnchor ?? activeAnchor.id;
+    return sortedAnchors.find((anchor) => anchor.id === contextAnchorId) ?? activeAnchor;
+  }, [activeAnchor, hoveredAnchor, sortedAnchors]);
 
   const skippedTodayCount = useMemo(
     () => sortedAnchors.filter((anchor) => anchor.status === 'skipped').length,
@@ -565,7 +585,7 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
     }
 
     const updatedTodayAnchors = anchors.map((anchor) =>
-      anchor.id === draggingAnchor ? { ...anchor, scheduledTime: dragPreviewTime } : anchor,
+      anchor.id === draggingAnchor ? { ...anchor, scheduledTime: dragPreviewTime, isTimeOverridden: true } : anchor,
     );
     setTodayAnchors(updatedTodayAnchors);
     setDraggingAnchor(null);
@@ -601,14 +621,14 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
 
   const handleMobileTimeChange = useCallback((anchorId: AnchorId, newTime: string) => {
     const updatedAnchors = anchors.map((anchor) =>
-      anchor.id === anchorId ? { ...anchor, scheduledTime: newTime } : anchor
+      anchor.id === anchorId ? { ...anchor, scheduledTime: newTime, isTimeOverridden: true } : anchor
     );
     setTodayAnchors(updatedAnchors);
   }, [anchors, setTodayAnchors]);
 
   const handleMobileEndTimeChange = useCallback((anchorId: AnchorId, newTime: string) => {
     const updatedAnchors = anchors.map((anchor) =>
-      anchor.id === anchorId ? { ...anchor, endTime: newTime } : anchor
+      anchor.id === anchorId ? { ...anchor, endTime: newTime, isTimeOverridden: true } : anchor
     );
     setTodayAnchors(updatedAnchors);
   }, [anchors, setTodayAnchors]);
@@ -629,14 +649,9 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   }, [setTodayAnchorStatus, skipReasonAnchor]);
 
   useEffect(() => {
-    if (searchParams.get('anchors') !== 'edit' || isEditingAnchors) return;
-    openAnchorEditor();
-
-    const next = new URLSearchParams(searchParams.toString());
-    next.delete('anchors');
-    const query = next.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }, [searchParams, isEditingAnchors, openAnchorEditor, router, pathname]);
+    if (searchParams.get('anchors') !== 'edit') return;
+    router.replace('/dashboard/anchors', { scroll: false });
+  }, [searchParams, router]);
 
   const handleSaveAnchors = useCallback((templates: DailyAnchorTemplate[]) => {
     setAnchorTemplates(templates);
@@ -726,6 +741,18 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
             </div>
           )}
 
+          {anchorContextNote.importanceNote ? (
+            <div className="mb-4 rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-text">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-semibold">{anchorContextNote.label}</p>
+                <Link href="/dashboard/anchors" className="text-xs font-semibold text-primary hover:underline">
+                  Edit why
+                </Link>
+              </div>
+              <p className="mt-1 text-text-muted">{anchorContextNote.importanceNote}</p>
+            </div>
+          ) : null}
+
           <div className="hidden lg:block">
             <div className="relative" ref={timelineRef}>
               <div className="flex justify-between mb-2 px-1">
@@ -784,12 +811,12 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                 const nextScheduledAnchor = sortedAnchors[index + 1];
                 const timeToNextEventLabel = nextScheduledAnchor
                   ? formatDuration(getMinutesBetweenEvents(anchor.scheduledTime, nextScheduledAnchor.scheduledTime))
-                  : wakeTemplate
-                    ? formatDuration(getOvernightMinutesUntil(anchor.scheduledTime, wakeTemplate.scheduledTime))
+                  : wakeAnchorForToday
+                    ? formatDuration(getOvernightMinutesUntil(anchor.scheduledTime, wakeAnchorForToday.scheduledTime))
                     : null;
                 const sleepWindowLabel =
-                  isLightsOutAnchor && wakeTemplate
-                    ? formatDuration(getOvernightMinutesUntil(displayTime, wakeTemplate.scheduledTime))
+                  isLightsOutAnchor && wakeAnchorForToday
+                    ? formatDuration(getOvernightMinutesUntil(displayTime, wakeAnchorForToday.scheduledTime))
                     : null;
                 const stateClass = isDone
                   ? 'is-done'
@@ -902,13 +929,13 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                       className={`
                         absolute -top-14 left-1/2 -translate-x-1/2 px-3 py-2 rounded-xl
                         bg-bg-elevated/95 backdrop-blur-sm border border-border-subtle shadow-xl
-                        transition-all duration-200 whitespace-nowrap
+                        transition-all duration-200 z-50
                         ${isHovered || isDragging ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none'}
                       `}
                     >
-                      <div className="text-xs font-bold text-text">{formatShortTime(displayTime)}</div>
+                      <div className="text-xs font-bold text-text whitespace-nowrap">{formatShortTime(displayTime)}</div>
                       {!isDragging && (
-                        <div className={`text-[10px] ${isDone ? 'text-secondary' : isMissed ? 'text-error/70' : isSkipped ? 'text-text-muted/70' : 'text-text-muted'}`}>
+                        <div className={`text-[10px] whitespace-nowrap ${isDone ? 'text-secondary' : isMissed ? 'text-error/70' : isSkipped ? 'text-text-muted/70' : 'text-text-muted'}`}>
                           {isDone
                             ? 'Completed'
                             : isMissed
@@ -921,16 +948,21 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                         </div>
                       )}
                       {!isDragging && !isDone && !isMissed && !isSkipped && !isLightsOutAnchor && timeToNextEventLabel && (
-                        <div className="text-[10px] text-text-muted">
+                        <div className="text-[10px] text-text-muted whitespace-nowrap">
                           Next Event: {timeToNextEventLabel}
                         </div>
                       )}
                       {!isDragging && !isSkipped && sleepWindowLabel && (
-                        <div className="text-[10px] text-text-muted">
+                        <div className="text-[10px] text-text-muted whitespace-nowrap">
                           Sleep window: {sleepWindowLabel}
                         </div>
                       )}
-                      {isDragging && <div className="text-[10px] text-primary">Release to set</div>}
+                      {!isDragging && anchor.importanceNote && (
+                        <div className="mt-1 max-w-[180px] text-[10px] leading-snug text-text-muted/80 whitespace-normal">
+                          {anchor.importanceNote}
+                        </div>
+                      )}
+                      {isDragging && <div className="text-[10px] text-primary whitespace-nowrap">Release to set</div>}
                       <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-bg-elevated border-r border-b border-border-subtle rotate-45" />
                     </div>
 
@@ -1063,8 +1095,8 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                         if (nextScheduledAnchor) {
                           return formatDuration(getMinutesBetweenEvents(anchor.scheduledTime, nextScheduledAnchor.scheduledTime));
                         }
-                        if (wakeTemplate) {
-                          return formatDuration(getOvernightMinutesUntil(anchor.scheduledTime, wakeTemplate.scheduledTime));
+                        if (wakeAnchorForToday) {
+                          return formatDuration(getOvernightMinutesUntil(anchor.scheduledTime, wakeAnchorForToday.scheduledTime));
                         }
                         return null;
                       })()}
