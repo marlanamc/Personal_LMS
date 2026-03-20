@@ -80,4 +80,37 @@ describe("mergeDailyAnchorStateWithTemplates", () => {
       }),
     ]);
   });
+
+  it("removes anchors from saved daily state when they are deleted from templates", () => {
+    const templates: DailyAnchorTemplate[] = [
+      { id: "wake", label: "Wake", icon: "sunrise", weeklySchedule: buildUniformWeeklySchedule("08:00") },
+    ];
+
+    const state: DailyAnchorState = {
+      date: "2026-03-12",
+      sleepRhythmDayComplete: false,
+      anchors: [
+        {
+          id: "wake",
+          label: "Wake",
+          icon: "sunrise",
+          weeklySchedule: buildUniformWeeklySchedule("08:00"),
+          scheduledTime: "08:00",
+          status: "waiting",
+        },
+        {
+          id: "gym",
+          label: "Gym",
+          icon: "dumbbell",
+          weeklySchedule: buildUniformWeeklySchedule("09:00"),
+          scheduledTime: "09:00",
+          status: "waiting",
+        },
+      ],
+    };
+
+    expect(mergeDailyAnchorStateWithTemplates(state, templates).anchors).toEqual([
+      expect.objectContaining({ id: "wake" }),
+    ]);
+  });
 });

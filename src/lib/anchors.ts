@@ -727,13 +727,10 @@ export function normalizeDailyAnchorState(
 
   const existingById = new Map(anchors.map((anchor) => [anchor.id, anchor]));
   const mergedAnchors = templates.map((template) => toStateAnchor(template, date, existingById.get(template.id)));
-  const extraAnchors = anchors
-    .filter((anchor) => !templatesById.has(anchor.id))
-    .map((anchor) => ({ ...anchor }));
 
   const tentativeState: DailyAnchorState = {
     date: typeof candidate.date === 'string' ? candidate.date : dateKey,
-    anchors: [...mergedAnchors, ...extraAnchors],
+    anchors: mergedAnchors,
     sleepRhythmDayComplete: candidate.sleepRhythmDayComplete === true,
   };
 
@@ -748,17 +745,13 @@ export function mergeDailyAnchorStateWithTemplates(
   templates: DailyAnchorTemplate[],
 ): DailyAnchorState {
   const existingById = new Map(state.anchors.map((anchor) => [anchor.id, anchor]));
-  const templatesById = new Map(templates.map((template) => [template.id, template]));
   const date = dateKeyToDate(state.date);
 
   const anchors = templates.map((template) => toStateAnchor(template, date, existingById.get(template.id)));
-  const extraAnchors = state.anchors
-    .filter((anchor) => !templatesById.has(anchor.id))
-    .map((anchor) => ({ ...anchor }));
 
   const nextStateBase: DailyAnchorState = {
     ...state,
-    anchors: [...anchors, ...extraAnchors],
+    anchors,
     sleepRhythmDayComplete: false,
   };
 
