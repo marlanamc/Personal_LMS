@@ -2,7 +2,6 @@
 
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   BookOpen,
@@ -505,16 +504,6 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
     return [...todaysAnchors].sort((a, b) => parseHHMMToMinutes(a.scheduledTime) - parseHHMMToMinutes(b.scheduledTime));
   }, [todaysAnchors]);
 
-  const anchorContextNote = useMemo(() => {
-    const contextAnchorId = hoveredAnchor ?? activeAnchor.id;
-    return sortedAnchors.find((anchor) => anchor.id === contextAnchorId) ?? activeAnchor;
-  }, [activeAnchor, hoveredAnchor, sortedAnchors]);
-
-  const hasAnyImportanceNote = useMemo(
-    () => sortedAnchors.some((anchor) => Boolean(anchor.importanceNote?.trim())),
-    [sortedAnchors],
-  );
-
   const skippedTodayCount = useMemo(
     () => sortedAnchors.filter((anchor) => anchor.status === 'skipped').length,
     [sortedAnchors],
@@ -745,24 +734,6 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
               </p>
             </div>
           )}
-
-          {hasAnyImportanceNote ? (
-            <div className="mb-4 lg:min-h-[5.75rem]">
-              {anchorContextNote.importanceNote ? (
-                <div className="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-text">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-semibold">{anchorContextNote.label}</p>
-                    <Link href="/dashboard/anchors" className="text-xs font-semibold text-primary hover:underline">
-                      Edit why
-                    </Link>
-                  </div>
-                  <p className="mt-1 text-text-muted">{anchorContextNote.importanceNote}</p>
-                </div>
-              ) : (
-                <div className="hidden lg:block h-[5.75rem]" aria-hidden />
-              )}
-            </div>
-          ) : null}
 
           <div className="hidden lg:block">
             <div className="relative" ref={timelineRef}>
