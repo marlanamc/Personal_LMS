@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
         const startFromClient = parseIsoDateTime(startDateTime);
         const endFromClient = parseIsoDateTime(endDateTime);
 
-        let start = startFromClient || parseDateWithOptionalTime(date, time);
+        const start = startFromClient || parseDateWithOptionalTime(date, time);
         const resolvedEndDate = endDate || date;
         let end = endFromClient || parseDateWithOptionalTime(resolvedEndDate, endTime);
         // When endTime is provided, always use it for end so short ranges (e.g. 12:00–12:45) are saved correctly
@@ -198,7 +198,7 @@ export async function PATCH(request: NextRequest) {
 
         const startFromClient = parseIsoDateTime(startDateTime);
         const endFromClient = parseIsoDateTime(endDateTime);
-        let start = startFromClient || parseDateWithOptionalTime(date, time);
+        const start = startFromClient || parseDateWithOptionalTime(date, time);
         const resolvedEndDate = endDate || date;
         let end = endFromClient || parseDateWithOptionalTime(resolvedEndDate, endTime);
         if (endTime && /^\d{2}:\d{2}$/.test(endTime)) {

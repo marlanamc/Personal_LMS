@@ -16,6 +16,8 @@ describe("getMiniCalendarDayPresentation", () => {
       ring: "event",
       showEventDot: true,
       showVacationDot: false,
+      showAppointmentDot: false,
+      showWorkoutDot: false,
     });
   });
 
@@ -33,6 +35,8 @@ describe("getMiniCalendarDayPresentation", () => {
       ring: "event",
       showEventDot: true,
       showVacationDot: true,
+      showAppointmentDot: false,
+      showWorkoutDot: false,
     });
   });
 });

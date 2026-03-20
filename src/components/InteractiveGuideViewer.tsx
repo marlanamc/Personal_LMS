@@ -140,6 +140,13 @@ export default function InteractiveGuideViewer({
         void persist();
     }, [activityId, assignmentId, currentStep, hasMiniQuiz, sections, showMiniQuiz, totalSteps]);
 
+    const [headerControlsHost, setHeaderControlsHost] = useState<HTMLElement | null>(null);
+    useEffect(() => {
+        if (!showHeader && typeof document !== "undefined") {
+            setHeaderControlsHost(document.getElementById("interactive-guide-header-controls"));
+        }
+    }, [showHeader]);
+
     if (totalSteps === 0) return <div>No content available.</div>;
 
     const progressPercent = totalSteps > 0 ? Math.round(((currentStep + 1) / totalSteps) * 100) : 0;
@@ -176,13 +183,6 @@ export default function InteractiveGuideViewer({
             setCurrentStep((prev) => prev - 1);
         }
     };
-
-    const [headerControlsHost, setHeaderControlsHost] = useState<HTMLElement | null>(null);
-    useEffect(() => {
-        if (!showHeader && typeof document !== "undefined") {
-            setHeaderControlsHost(document.getElementById("interactive-guide-header-controls"));
-        }
-    }, [showHeader]);
 
     const embeddedControls = (
         <div className="flex items-center gap-2">
