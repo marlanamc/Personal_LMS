@@ -910,9 +910,9 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                     <div
                       className={`
                         absolute -top-14 left-1/2 -translate-x-1/2 px-3 py-2 rounded-xl
-                        bg-bg-elevated/95 backdrop-blur-sm border border-border-subtle shadow-xl
+                        pointer-events-none bg-bg-elevated/95 backdrop-blur-sm border border-border-subtle shadow-xl
                         transition-all duration-200 z-50
-                        ${isHovered || isDragging ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none'}
+                        ${isHovered || isDragging ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}
                       `}
                     >
                       <div className="text-xs font-bold text-text whitespace-nowrap">{formatShortTime(displayTime)}</div>
