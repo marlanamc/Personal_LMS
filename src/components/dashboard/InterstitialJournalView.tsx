@@ -1,14 +1,16 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Clock3, Lightbulb, Plus, Sparkles, Tag, Trash2, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { ArrowLeft, ArrowRight, Clock3, Lightbulb, Plus, SlidersHorizontal, Sparkles, Tag, Trash2, X } from 'lucide-react';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
-import { useCalendarPlanner, type CustomTag } from '@/components/dashboard/useCalendarPlanner';
+import { useCalendarPlanner, type CustomTag, type JournalTagMeta } from '@/components/dashboard/useCalendarPlanner';
 import { getNextDateKey, getPreviousDateKey, getTodayKey, isToday } from '@/lib/unified-scheduler';
 
 interface InterstitialJournalViewProps {
   storageScope: string;
 }
+
+type TagFilterMode = 'all' | 'tagged';
 
 function createTimestampForDate(dateKey: string) {
   const now = new Date();
@@ -204,9 +206,28 @@ function getTagLabel(tagValue: string, customTags: CustomTag[]): string {
   return tagValue;
 }
 
+function getEntryTagMeta(tagValue: string | undefined, tagMeta: JournalTagMeta | undefined, customTags: CustomTag[]) {
+  if (!tagValue) return null;
+  const liveColor = getTagColor(tagValue, customTags);
+  if (liveColor) {
+    return {
+      color: liveColor,
+      label: getTagLabel(tagValue, customTags),
+    };
+  }
+  if (tagMeta) {
+    return {
+      color: tagMeta.color,
+      label: tagMeta.label,
+    };
+  }
+  return null;
+}
+
 export function InterstitialJournalView({ storageScope }: InterstitialJournalViewProps) {
   const todayKey = getTodayKey();
   const [selectedDateKey, setSelectedDateKey] = useState(todayKey);
+  const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [entryDraft, setEntryDraft] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [showPrompts, setShowPrompts] = useState(false);
@@ -215,7 +236,10 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
   const [showCustomTagForm, setShowCustomTagForm] = useState(false);
   const [newTagLabel, setNewTagLabel] = useState('');
   const [newTagColor, setNewTagColor] = useState<CustomTag['color']>('lavender');
-  const [customTags, setCustomTags] = useState<CustomTag[]>([]);
+  const [customTags, setLocalCustomTags] = useState<CustomTag[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
+  const [tagFilterMode, setTagFilterMode] = useState<TagFilterMode>('all');
+  const [activeFilterTags, setActiveFilterTags] = useState<string[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const mobileInputRef = useRef<HTMLInputElement>(null);
@@ -223,14 +247,15 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
   const mobilePromptsRef = useRef<HTMLDivElement>(null);
   const tagSelectorRef = useRef<HTMLDivElement>(null);
   const mobileTagSelectorRef = useRef<HTMLDivElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
 
-  const { getPlan, updatePlanField, plannerStore, isSaving, saveError } = useCalendarPlanner(storageScope);
+  const { getPlan, updatePlanField, plannerStore, isSaving, saveError, setCustomTags } = useCalendarPlanner(storageScope);
 
   // Load custom tags from store
   useEffect(() => {
     const storedTags = (plannerStore as { _customTags?: CustomTag[] })._customTags;
     if (storedTags && Array.isArray(storedTags)) {
-      setCustomTags(storedTags);
+      setLocalCustomTags(storedTags);
     }
   }, [plannerStore]);
 
@@ -245,6 +270,7 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
       const target = event.target as Node;
       const isInsidePrompts = promptsRef.current?.contains(target) || mobilePromptsRef.current?.contains(target);
       const isInsideTags = tagSelectorRef.current?.contains(target) || mobileTagSelectorRef.current?.contains(target);
+      const isInsideFilters = filtersRef.current?.contains(target);
 
       if (!isInsidePrompts) {
         setShowPrompts(false);
@@ -253,6 +279,9 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
         setShowTagSelector(false);
         setShowCustomTagForm(false);
       }
+      if (!isInsideFilters) {
+        setShowFilters(false);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -260,16 +289,7 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
 
   const saveCustomTags = useCallback((tags: CustomTag[]) => {
     setCustomTags(tags);
-    // Save to planner store under _customTags key
-    const newStore = { ...plannerStore, _customTags: tags };
-    // We need to trigger a save - update a dummy field then restore
-    // This is a workaround since updatePlanField is for day plans
-    fetch('/api/calendar-planner', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ store: newStore }),
-    }).catch(console.error);
-  }, [plannerStore]);
+  }, [setCustomTags]);
 
   const addCustomTag = () => {
     const label = newTagLabel.trim();
@@ -292,18 +312,31 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
   const addEntry = () => {
     const text = entryDraft.trim();
     if (!text) return;
+    const selectedTagDetails = selectedTag
+      ? allTags.find((tag) => tag.id === selectedTag)
+      : null;
 
     const nextEntry = {
       id: crypto.randomUUID(),
       text,
       createdAt: createTimestampForDate(selectedDateKey),
       tag: selectedTag ?? undefined,
+      tagMeta: selectedTagDetails
+        ? {
+            id: selectedTagDetails.id,
+            label: selectedTagDetails.label,
+            color: selectedTagDetails.color,
+          }
+        : undefined,
     };
 
     updatePlanField(selectedDateKey, 'interstitialJournalEntries', [nextEntry, ...entries]);
     setEntryDraft('');
     setSelectedTag(null);
-    inputRef.current?.focus();
+    setShowPrompts(false);
+    setShowTagSelector(false);
+    setShowCustomTagForm(false);
+    setIsComposerOpen(false);
   };
 
   const removeEntry = (entryId: string) => {
@@ -325,6 +358,13 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
     setShowTagSelector(false);
   };
 
+  const removeCustomTag = useCallback((tagId: string) => {
+    setCustomTags(customTags.filter((tag) => tag.id !== tagId));
+    if (selectedTag === tagId) {
+      setSelectedTag(null);
+    }
+  }, [customTags, selectedTag, setCustomTags]);
+
   const goToPreviousDay = () => setSelectedDateKey(getPreviousDateKey(selectedDateKey));
   const goToNextDay = () => setSelectedDateKey(getNextDateKey(selectedDateKey));
 
@@ -335,7 +375,42 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
     ];
   }, [customTags]);
 
+  const filteredEntries = useMemo(() => {
+    return entries.filter((entry) => {
+      const matchesTagged = tagFilterMode === 'all' ? true : Boolean(entry.tag);
+      const matchesTags =
+        activeFilterTags.length === 0
+          ? true
+          : Boolean(entry.tag && activeFilterTags.includes(entry.tag));
+
+      return matchesTagged && matchesTags;
+    });
+  }, [entries, tagFilterMode, activeFilterTags]);
+
   const selectedTagColor = selectedTag ? getTagColor(selectedTag, customTags) : null;
+  const hasActiveFilters = tagFilterMode !== 'all' || activeFilterTags.length > 0;
+  const activeFilterCount = activeFilterTags.length + (tagFilterMode === 'tagged' ? 1 : 0);
+
+  const toggleFilterTag = (tagId: string) => {
+    setActiveFilterTags((prev) =>
+      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId],
+    );
+  };
+
+  const openComposer = useCallback(() => {
+    setIsComposerOpen(true);
+    window.requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      mobileInputRef.current?.focus();
+    });
+  }, []);
+
+  const closeComposer = useCallback(() => {
+    setIsComposerOpen(false);
+    setShowPrompts(false);
+    setShowTagSelector(false);
+    setShowCustomTagForm(false);
+  }, []);
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-2xl flex-col">
@@ -351,38 +426,126 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
           </div>
         </header>
 
-        {/* Date Navigator */}
-        <div className="inline-flex items-center gap-0.5 self-start rounded-full border border-border-subtle/60 bg-bg-surface/80 px-1 py-0.5 shadow-sm backdrop-blur-md sm:self-auto">
-          <button
-            type="button"
-            onClick={goToPreviousDay}
-            className="rounded-full p-1.5 transition-colors hover:bg-bg-elevated"
-            aria-label="Previous day"
-          >
-            <ArrowLeft size={14} />
-          </button>
-          <label className="cursor-pointer rounded-full px-2 py-0.5 text-center hover:bg-bg-elevated/60">
-            <span className="sr-only">Choose date</span>
-            <span className="pointer-events-none inline-flex items-center gap-1 text-xs font-medium text-text">
-              {selectedDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-              {isSelectedToday && <Sparkles size={10} className="text-accent-teal" />}
-            </span>
-            <input
-              type="date"
-              value={selectedDateKey}
-              onChange={(event) => setSelectedDateKey(event.target.value || todayKey)}
-              className="sr-only"
-              aria-label="Choose date"
-            />
-          </label>
-          <button
-            type="button"
-            onClick={goToNextDay}
-            className="rounded-full p-1.5 transition-colors hover:bg-bg-elevated"
-            aria-label="Next day"
-          >
-            <ArrowRight size={14} />
-          </button>
+        <div className="flex items-center gap-1.5 self-start sm:self-auto">
+          <div className="relative" ref={filtersRef}>
+            <button
+              type="button"
+              onClick={() => setShowFilters((prev) => !prev)}
+              className={`relative inline-flex h-11 w-11 items-center justify-center rounded-full border text-sm font-medium shadow-sm backdrop-blur-md transition-colors ${
+                hasActiveFilters
+                  ? 'border-accent-teal/35 bg-accent-teal/12 text-accent-teal'
+                  : 'border-border-subtle/60 bg-bg-surface/80 text-text-muted hover:bg-bg-elevated hover:text-text'
+              }`}
+              aria-label="Open tag filters"
+              aria-expanded={showFilters}
+            >
+              <SlidersHorizontal size={15} />
+              {hasActiveFilters ? (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-accent-teal/90 px-1 text-[10px] font-semibold leading-none text-white shadow-sm">
+                  {activeFilterCount}
+                </span>
+              ) : null}
+            </button>
+
+            {showFilters && (
+              <div className="absolute right-0 top-full z-[110] mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-border-subtle/70 bg-bg-elevated/95 p-3 shadow-xl backdrop-blur-md">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-muted">Filters</p>
+                  </div>
+                  {hasActiveFilters ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTagFilterMode('all');
+                        setActiveFilterTags([]);
+                      }}
+                      className="rounded-full px-2 py-1 text-[11px] font-medium text-text-muted transition-colors hover:bg-bg-surface hover:text-text"
+                    >
+                      Clear
+                    </button>
+                  ) : null}
+                </div>
+
+                <div className="mb-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setTagFilterMode('all')}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                      tagFilterMode === 'all'
+                        ? 'bg-accent-teal/15 text-accent-teal'
+                        : 'bg-bg-surface text-text-muted hover:text-text'
+                    }`}
+                  >
+                    All moments
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTagFilterMode('tagged')}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                      tagFilterMode === 'tagged'
+                        ? 'bg-accent-teal/15 text-accent-teal'
+                        : 'bg-bg-surface text-text-muted hover:text-text'
+                    }`}
+                  >
+                    Only tagged
+                  </button>
+                </div>
+
+                <div className="border-t border-border-subtle/60 pt-3">
+                  <p className="mb-2 text-[11px] font-medium text-text-muted">Tags</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {allTags.map((tag) => {
+                      const isActive = activeFilterTags.includes(tag.id);
+                      return (
+                        <button
+                          key={tag.id}
+                          type="button"
+                          onClick={() => toggleFilterTag(tag.id)}
+                          className={`moment-tag-pill ${COLOR_MAP[tag.color].pill} ${isActive ? '' : 'opacity-70'}`}
+                        >
+                          {tag.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="inline-flex items-center gap-0.5 rounded-full border border-border-subtle/60 bg-bg-surface/80 px-1 py-0.5 shadow-sm backdrop-blur-md">
+            <button
+              type="button"
+              onClick={goToPreviousDay}
+              className="rounded-full p-1.5 transition-colors hover:bg-bg-elevated"
+              aria-label="Previous day"
+            >
+              <ArrowLeft size={14} />
+            </button>
+            <label className="cursor-pointer rounded-full px-2 py-0.5 text-center hover:bg-bg-elevated/60">
+              <span className="sr-only">Choose date</span>
+              <span className="pointer-events-none inline-flex items-center gap-1 text-[13px] font-medium text-text sm:text-sm">
+                {selectedDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                {isSelectedToday && <Sparkles size={10} className="text-accent-teal" />}
+              </span>
+              <input
+                type="date"
+                value={selectedDateKey}
+                onChange={(event) => setSelectedDateKey(event.target.value || todayKey)}
+                className="sr-only"
+                aria-label="Choose date"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={goToNextDay}
+              className="rounded-full p-1.5 transition-colors hover:bg-bg-elevated"
+              aria-label="Next day"
+            >
+              <ArrowRight size={14} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -390,6 +553,7 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
       <section className="flex-1">
         {/* Desktop Input (inline) */}
         <div className="relative z-20 mb-6 hidden sm:block">
+          {isComposerOpen ? (
           <div className="relative flex items-center gap-2 rounded-xl border border-border-subtle/50 bg-bg-surface/60 p-2 backdrop-blur-sm">
             <input
               ref={inputRef}
@@ -483,20 +647,35 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
                   {!showCustomTagForm ? (
                     <>
                       <div className="mb-2 flex flex-wrap gap-1.5">
-                        {allTags.map((tag) => (
-                          <button
-                            key={tag.id}
-                            type="button"
-                            onClick={() => toggleTag(tag.id)}
-                            className={`moment-tag-pill ${
-                              selectedTag === tag.id
-                                ? COLOR_MAP[tag.color].pill
-                                : 'moment-tag-pill-unselected'
-                            }`}
-                          >
-                            {tag.label}
-                          </button>
-                        ))}
+                        {allTags.map((tag) => {
+                          const isCustomTag = !DEFAULT_TAGS.some((defaultTag) => defaultTag.value === tag.id);
+                          return (
+                            <div key={tag.id} className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => toggleTag(tag.id)}
+                                className={`moment-tag-pill ${
+                                  selectedTag === tag.id
+                                    ? COLOR_MAP[tag.color].pill
+                                    : `${COLOR_MAP[tag.color].pill} opacity-70`
+                                }`}
+                              >
+                                {tag.label}
+                              </button>
+                              {isCustomTag && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeCustomTag(tag.id)}
+                                  className="flex h-6 w-6 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-bg-surface hover:text-error"
+                                  aria-label={`Delete ${tag.label} tag`}
+                                  title={`Delete ${tag.label} tag`}
+                                >
+                                  <Trash2 size={11} />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                       <button
                         type="button"
@@ -571,7 +750,17 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
             >
               <Plus size={18} />
             </button>
+
+            <button
+              type="button"
+              onClick={closeComposer}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
+              aria-label="Close composer"
+            >
+              <X size={16} />
+            </button>
           </div>
+          ) : null}
 
           {/* Save status */}
           <div className="mt-2 h-4 text-[11px] font-medium text-text-muted">
@@ -582,10 +771,10 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
         {/* Timeline + Entries */}
         <div className="moment-log-container relative pb-32 sm:pb-4">
           {/* Timeline Track */}
-          {entries.length > 0 && <div className="moment-track" aria-hidden="true" />}
+          {filteredEntries.length > 0 && <div className="moment-track" aria-hidden="true" />}
 
           {/* Entries List */}
-          {entries.length === 0 ? (
+          {filteredEntries.length === 0 ? (
             <div className="moment-empty">
               <div className="moment-empty-visual">
                 <div className="moment-empty-track" />
@@ -595,32 +784,47 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
               </div>
               <h3 className="mb-1 text-base font-semibold text-text">Capture your first moment</h3>
               <p className="mb-4 text-sm text-text-muted">
-                Note what you finished or what you are about to start.
+                {hasActiveFilters
+                  ? 'No moments match these filters yet.'
+                  : 'Note what you finished or what you are about to start.'}
               </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowPrompts(true);
-                  inputRef.current?.focus();
-                }}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
-              >
-                <Lightbulb size={14} />
-                Need inspiration?
-              </button>
+              {hasActiveFilters ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTagFilterMode('all');
+                    setActiveFilterTags([]);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
+                >
+                  Clear filters
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    openComposer();
+                    setShowPrompts(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
+                >
+                  <Lightbulb size={14} />
+                  Need inspiration?
+                </button>
+              )}
             </div>
           ) : (
             <div className="space-y-1.5" role="feed" aria-label="Moment entries">
-              {entries.map((entry, index) => {
-                const tagColor = entry.tag ? getTagColor(entry.tag, customTags) : null;
-                const colorClasses = tagColor ? COLOR_MAP[tagColor] : null;
+              {filteredEntries.map((entry, index) => {
+                const entryTagMeta = getEntryTagMeta(entry.tag, entry.tagMeta, customTags);
+                const colorClasses = entryTagMeta ? COLOR_MAP[entryTagMeta.color] : null;
                 const isRecent = index === 0;
 
                 return (
                   <article
                     key={entry.id}
                     className={`moment-entry group ${colorClasses?.entry || ''}`}
-                    style={{ '--moment-node-color': tagColor ? `var(--color-${tagColor === 'mint' || tagColor === 'sage' ? 'secondary' : tagColor === 'sky' || tagColor === 'slate' ? 'info' : tagColor === 'peach' || tagColor === 'coral' ? 'warning' : tagColor === 'periwinkle' ? 'accent' : tagColor === 'rose' || tagColor === 'blush' ? 'primary' : 'text-muted'})` : 'var(--color-accent-teal)' } as React.CSSProperties}
+                    style={{ '--moment-node-color': entryTagMeta ? `var(--color-${entryTagMeta.color === 'mint' || entryTagMeta.color === 'sage' ? 'secondary' : entryTagMeta.color === 'sky' || entryTagMeta.color === 'slate' ? 'info' : entryTagMeta.color === 'peach' || entryTagMeta.color === 'coral' ? 'warning' : entryTagMeta.color === 'periwinkle' ? 'accent' : entryTagMeta.color === 'rose' || entryTagMeta.color === 'blush' ? 'primary' : 'text-muted'})` : 'var(--color-accent-teal)' } as CSSProperties}
                   >
                     {/* Timeline Node */}
                     <div
@@ -637,9 +841,9 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
                         {formatEntryTime(entry.createdAt)}
                       </time>
                       <p className="moment-text min-w-0 flex-1">{entry.text}</p>
-                      {entry.tag && (
+                      {entryTagMeta && (
                         <span className={`moment-tag shrink-0 ${colorClasses?.tag || ''}`}>
-                          {getTagLabel(entry.tag, customTags)}
+                          {entryTagMeta.label}
                         </span>
                       )}
                       <button
@@ -661,8 +865,10 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
 
       {/* Mobile Sticky Input */}
       <div className="moment-input-sticky sm:hidden">
+        {isComposerOpen ? (
         <div className="flex items-center gap-2">
           <input
+            ref={mobileInputRef}
             type="text"
             value={entryDraft}
             onChange={(event) => setEntryDraft(event.target.value)}
@@ -750,20 +956,35 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
                 {!showCustomTagForm ? (
                   <>
                     <div className="mb-3 flex flex-wrap gap-2">
-                      {allTags.map((tag) => (
-                        <button
-                          key={tag.id}
-                          type="button"
-                          onClick={() => toggleTag(tag.id)}
-                          className={`moment-tag-pill ${
-                            selectedTag === tag.id
-                              ? COLOR_MAP[tag.color].pill
-                              : 'moment-tag-pill-unselected'
-                          }`}
-                        >
-                          {tag.label}
-                        </button>
-                      ))}
+                      {allTags.map((tag) => {
+                        const isCustomTag = !DEFAULT_TAGS.some((defaultTag) => defaultTag.value === tag.id);
+                        return (
+                          <div key={tag.id} className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => toggleTag(tag.id)}
+                              className={`moment-tag-pill ${
+                                selectedTag === tag.id
+                                  ? COLOR_MAP[tag.color].pill
+                                  : `${COLOR_MAP[tag.color].pill} opacity-70`
+                              }`}
+                            >
+                              {tag.label}
+                            </button>
+                            {isCustomTag && (
+                              <button
+                                type="button"
+                                onClick={() => removeCustomTag(tag.id)}
+                                className="flex h-6 w-6 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-bg-surface hover:text-error"
+                                aria-label={`Delete ${tag.label} tag`}
+                                title={`Delete ${tag.label} tag`}
+                              >
+                                <Trash2 size={11} />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                     <button
                       type="button"
@@ -838,7 +1059,17 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
           >
             <Plus size={20} />
           </button>
+
+          <button
+            type="button"
+            onClick={closeComposer}
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-border-subtle/50 text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
+            aria-label="Close composer"
+          >
+            <X size={18} />
+          </button>
         </div>
+        ) : null}
 
         {/* Mobile save status */}
         {(saveError || isSaving) && (
@@ -847,6 +1078,17 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
           </div>
         )}
       </div>
+
+      {!isComposerOpen && (
+        <button
+          type="button"
+          onClick={openComposer}
+          className="fixed bottom-24 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full border border-accent-teal/20 bg-accent-teal text-white shadow-[0_14px_35px_rgba(94,196,191,0.28)] transition-all hover:scale-[1.03] hover:bg-accent-teal/90 active:scale-[0.98] sm:bottom-8 sm:right-[max(2rem,calc(50vw-28rem))]"
+          aria-label="Open moment composer"
+        >
+          <Plus size={22} />
+        </button>
+      )}
     </div>
   );
 }

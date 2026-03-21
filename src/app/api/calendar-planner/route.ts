@@ -18,6 +18,19 @@ type InterstitialJournalEntry = {
   text: string;
   createdAt: string;
   tag?: string;
+  tagMeta?: JournalTagMeta;
+};
+
+type CustomTag = {
+  id: string;
+  label: string;
+  color: 'peach' | 'sky' | 'mint' | 'periwinkle' | 'lavender' | 'rose' | 'coral' | 'sage' | 'blush' | 'slate';
+};
+
+type JournalTagMeta = {
+  id: string;
+  label: string;
+  color: CustomTag['color'];
 };
 
 type DayPlan = {
@@ -27,7 +40,9 @@ type DayPlan = {
   interstitialJournalEntries?: InterstitialJournalEntry[];
 };
 
-type PlannerStore = Record<string, DayPlan>;
+type PlannerStore = Record<string, DayPlan> & {
+  _customTags?: CustomTag[];
+};
 
 function normalizePlannerTask(raw: unknown): PlannerTask | null {
   if (!raw || typeof raw !== 'object') return null;
@@ -40,13 +55,42 @@ function normalizePlannerTask(raw: unknown): PlannerTask | null {
 
 function normalizeInterstitialJournalEntry(raw: unknown): InterstitialJournalEntry | null {
   if (!raw || typeof raw !== 'object') return null;
-  const candidate = raw as { id?: unknown; text?: unknown; createdAt?: unknown; tag?: unknown };
+  const candidate = raw as { id?: unknown; text?: unknown; createdAt?: unknown; tag?: unknown; tagMeta?: unknown };
   const id = typeof candidate.id === 'string' ? candidate.id : '';
   const text = typeof candidate.text === 'string' ? candidate.text.trim() : '';
   const createdAt = typeof candidate.createdAt === 'string' ? candidate.createdAt : '';
   if (!id || !text || !createdAt) return null;
   const tag = typeof candidate.tag === 'string' && candidate.tag.trim() ? candidate.tag.trim() : undefined;
-  return { id, text, createdAt, tag };
+  const rawTagMeta =
+    candidate.tagMeta && typeof candidate.tagMeta === 'object' && !Array.isArray(candidate.tagMeta)
+      ? (candidate.tagMeta as { id?: unknown; label?: unknown; color?: unknown })
+      : null;
+  const tagMeta =
+    rawTagMeta &&
+    typeof rawTagMeta.id === 'string' &&
+    typeof rawTagMeta.label === 'string' &&
+    typeof rawTagMeta.color === 'string' &&
+    ['peach', 'sky', 'mint', 'periwinkle', 'lavender', 'rose', 'coral', 'sage', 'blush', 'slate'].includes(rawTagMeta.color)
+      ? {
+          id: rawTagMeta.id,
+          label: rawTagMeta.label,
+          color: rawTagMeta.color as JournalTagMeta['color'],
+        }
+      : undefined;
+  return { id, text, createdAt, tag, tagMeta };
+}
+
+function normalizeCustomTag(raw: unknown): CustomTag | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const candidate = raw as { id?: unknown; label?: unknown; color?: unknown };
+  const id = typeof candidate.id === 'string' ? candidate.id : '';
+  const label = typeof candidate.label === 'string' ? candidate.label.trim() : '';
+  const color = typeof candidate.color === 'string' ? candidate.color : '';
+  if (!id || !label) return null;
+  if (!['peach', 'sky', 'mint', 'periwinkle', 'lavender', 'rose', 'coral', 'sage', 'blush', 'slate'].includes(color)) {
+    return null;
+  }
+  return { id, label, color: color as CustomTag['color'] };
 }
 
 function normalizeDayPlan(raw: unknown): DayPlan {
@@ -74,6 +118,12 @@ function normalizePlannerStore(raw: unknown): PlannerStore {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
   const source = raw as Record<string, unknown>;
   const store: PlannerStore = {};
+  const customTags = Array.isArray(source._customTags)
+    ? source._customTags.map(normalizeCustomTag).filter((tag): tag is CustomTag => tag !== null)
+    : [];
+  if (customTags.length > 0) {
+    store._customTags = customTags;
+  }
   for (const [key, value] of Object.entries(source)) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
     const plan = normalizeDayPlan(value);
@@ -154,6 +204,18 @@ export async function POST(req: NextRequest) {
       : {};
 
     for (const [key, value] of Object.entries(incomingStore)) {
+      if (key === '_customTags') {
+        const normalizedCustomTags = Array.isArray(value)
+          ? value.map(normalizeCustomTag).filter((tag): tag is CustomTag => tag !== null)
+          : [];
+        if (normalizedCustomTags.length > 0) {
+          mergedStore._customTags = normalizedCustomTags;
+        } else {
+          delete mergedStore._customTags;
+        }
+        continue;
+      }
+
       if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
       
       const existingPlan = mergedStore[key] || { notes: '', tasks: [], thoughtDownload: '', interstitialJournalEntries: [] };

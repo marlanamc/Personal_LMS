@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { X, BookOpen, Timer, User, Home, Code, Heart, Briefcase, Calendar, Pencil, Sparkles, LayoutList, Moon, BookOpenText } from 'lucide-react';
+import { X, BookOpen, Timer, User, Home, Code, Heart, Briefcase, Calendar, Pencil, Sparkles, LayoutList, Moon, BookOpenText, UtensilsCrossed } from 'lucide-react';
 import { SpanishSubjectIcon } from '@/components/icons/SpanishSubjectIcon';
 
 interface NavigationSidePanelProps {
@@ -21,6 +21,7 @@ const subjects = [
 const quickLinks = [
   { href: '/dashboard', label: 'Home', icon: Home },
   { href: '/dashboard/day-planner', label: 'Day Planner', icon: LayoutList },
+  { href: '/dashboard/meal-planner', label: 'Meal Planner', icon: UtensilsCrossed },
   { href: '/dashboard/timer', label: 'Focus Timer', icon: Timer },
   { href: '/dashboard/calendar', label: 'Monthly Calendar', icon: Calendar },
   { href: '/dashboard/thought-download', label: 'Thought Download', icon: Moon },
