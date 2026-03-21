@@ -24,7 +24,7 @@ export const spanishTravelConversationsContent: InteractiveGuideContent = {
     {
       id: "travel-arrival-board",
       title: "Panel de llegada",
-      kind: "notice",
+      kind: "transit-board",
       prompt: "Lee la información que aparece justo después de aterrizar.",
       content: `
         <ul>
@@ -54,6 +54,19 @@ export const spanishTravelConversationsContent: InteractiveGuideContent = {
         <p><strong>Viajera:</strong> Disculpe, ¿cómo llego a la farmacia más cercana?</p>
         <p><strong>Local:</strong> Siga recto dos cuadras y gire a la derecha. Está al lado del banco.</p>
         <p><strong>Viajera:</strong> Entonces, recto dos cuadras y después a la derecha. Gracias.</p>
+      `,
+    },
+    {
+      id: "travel-check-in-slip",
+      title: "Tarjeta de check-in",
+      kind: "check-in-slip",
+      content: `
+        <ul>
+          <li>Nombre: Reed</li>
+          <li>Noches: 3</li>
+          <li>Habitación: doble</li>
+          <li>Petición especial: tranquila</li>
+        </ul>
       `,
     },
   ],
@@ -176,6 +189,18 @@ export const spanishTravelConversationsContent: InteractiveGuideContent = {
         <h3>Empieza por la necesidad, no por la regla</h3>
         <p>Acabas de llegar. Tu objetivo es pedir ubicación o ayuda inmediata. En esta etapa, importa que la pregunta sea clara y funcional.</p>
       `,
+      sceneCards: [
+        {
+          title: "Aterrizas y necesitas actuar rápido",
+          setting: "Aeropuerto",
+          goal: "Formar una pregunta de ubicación que un empleado pueda contestar de inmediato.",
+          details: [
+            "Tu maleta no aparece.",
+            "Ves información, equipaje y taxi oficial en el panel.",
+          ],
+          usefulPhrases: ["¿Dónde está...?", "¿Dónde reclamo mi equipaje?", "Necesito ayuda."],
+        },
+      ],
       usageMeanings: [
         {
           title: "Frases de supervivencia inmediata",
@@ -223,11 +248,39 @@ export const spanishTravelConversationsContent: InteractiveGuideContent = {
       title: "Stage 2: Check-in y petición cortés",
       icon: "🏨",
       taskStageId: "travel-stage-hotel",
-      inputMaterialIds: ["travel-hotel-dialogue"],
       explanation: `
         <h3>En recepción, la cortesía cambia el resultado</h3>
         <p>La interacción funciona mejor si primero confirmas la reserva y luego formulas la petición con un tono amable.</p>
       `,
+      inputMaterialIds: ["travel-hotel-dialogue", "travel-check-in-slip"],
+      decisionMap: {
+        title: "Check-in: ¿qué necesitas decir primero?",
+        prompt: "Ordena la interacción para que recepción pueda ayudarte sin fricción.",
+        options: [
+          {
+            label: "Paso 1",
+            cue: "Confirma la reserva",
+            outcome: "Abre con la información básica del hotel.",
+            example: "Tengo una reserva a nombre de Reed.",
+            color: "sky",
+          },
+          {
+            label: "Paso 2",
+            cue: "Añade la petición",
+            outcome: "Usa una forma cortés para pedir algo extra.",
+            example: "Quisiera una habitación tranquila, por favor.",
+            color: "emerald",
+          },
+        ],
+      },
+      repairStacks: [
+        {
+          title: "Petición brusca vs petición útil",
+          incorrect: "Necesito una habitación tranquila. Tráigame toallas.",
+          corrected: "Tengo una reserva. Quisiera una habitación tranquila y una toalla extra, por favor.",
+          whyItWorks: "La reparación mantiene el orden de la tarea y suaviza la petición para un contexto de servicio.",
+        },
+      ],
       focusOnFormTriggerIds: ["travel-trigger-polite-request"],
       tipBox: {
         title: "Patrón útil",
@@ -275,6 +328,26 @@ export const spanishTravelConversationsContent: InteractiveGuideContent = {
         <h3>No basta con preguntar: confirma la ruta</h3>
         <p>En una tarea real, pedir direcciones y luego repetir la ruta reduce errores y demuestra comprensión.</p>
       `,
+      timeline: {
+        title: "Ruta escuchada",
+        description: "La confirmación funciona mejor cuando repites la ruta en el mismo orden.",
+        events: [
+          { label: "siga recto", order: 1, tenseLabel: "paso 1" },
+          { label: "dos cuadras", order: 2, tenseLabel: "paso 2" },
+          { label: "gire a la derecha", order: 3, tenseLabel: "paso 3" },
+          { label: "al lado del banco", order: 4, tenseLabel: "referencia" },
+        ],
+      },
+      microStories: [
+        {
+          title: "Escuchar y confirmar",
+          lines: [
+            { text: "Disculpe, ¿cómo llego a la farmacia?", callout: "Pregunta clara." },
+            { text: "Siga recto dos cuadras y gire a la derecha.", callout: "Ruta base." },
+            { text: "Entonces, recto dos cuadras y después a la derecha.", callout: "La confirmación reduce el riesgo de perderte." },
+          ],
+        },
+      ],
       focusOnFormTriggerIds: ["travel-trigger-directions-repair"],
       exercises: [
         {
@@ -314,6 +387,19 @@ export const spanishTravelConversationsContent: InteractiveGuideContent = {
         <h3>Cuando hay un problema, la prioridad es ser clara/o</h3>
         <p>En urgencias leves o en la farmacia, conviene nombrar el problema con precisión para conseguir ayuda rápida.</p>
       `,
+      phraseBank: {
+        title: "Frases de ayuda urgente",
+        groups: [
+          {
+            label: "Buscar ayuda",
+            phrases: ["Necesito ayuda.", "Necesito una farmacia.", "Necesito algo para el dolor."],
+          },
+          {
+            label: "Explicar el problema",
+            phrases: ["Me duele la cabeza.", "Perdí mi equipaje.", "No entiendo la dirección."],
+          },
+        ],
+      },
       focusOnFormTriggerIds: ["travel-trigger-help-choice"],
       exercises: [
         {

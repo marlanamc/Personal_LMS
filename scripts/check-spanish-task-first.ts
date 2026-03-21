@@ -9,6 +9,18 @@ interface Finding {
   problem: string;
 }
 
+function countMatches(source: string, pattern: RegExp): number {
+  return Array.from(source.matchAll(pattern)).length;
+}
+
+function extractBlock(source: string, startLabel: string, endLabel: string): string {
+  const startIndex = source.indexOf(startLabel);
+  if (startIndex === -1) return "";
+  const endIndex = source.indexOf(endLabel, startIndex);
+  if (endIndex === -1) return source.slice(startIndex);
+  return source.slice(startIndex, endIndex);
+}
+
 function main(): void {
   const files = fs
     .readdirSync(GUIDES_DIR)
@@ -43,6 +55,31 @@ function main(): void {
     }
     if (!source.includes("postTaskReflection:")) {
       findings.push({ guide: file, problem: "missing revise-after-feedback reflection" });
+    }
+
+    const inputMaterialsBlock = extractBlock(source, "inputMaterials:", "taskStages:");
+    const inputMaterialCount = countMatches(inputMaterialsBlock, /id:\s*"[^"]+"/g);
+    if (inputMaterialCount < 2) {
+      findings.push({ guide: file, problem: "needs at least 2 input materials" });
+    }
+
+    const hasVisualBlock =
+      source.includes("usageMeanings:") ||
+      source.includes("comparison:") ||
+      source.includes("timeline:") ||
+      source.includes("futureChoiceFlow:") ||
+      source.includes("decisionMap:") ||
+      source.includes("sceneCards:") ||
+      source.includes("repairStacks:") ||
+      source.includes("microStories:") ||
+      source.includes("phraseBank:") ||
+      source.includes("verbTable:");
+    if (!hasVisualBlock) {
+      findings.push({ guide: file, problem: "needs at least 1 visual or structured support block" });
+    }
+
+    if (!source.includes("repairStacks:")) {
+      findings.push({ guide: file, problem: "needs at least 1 repair stack" });
     }
 
     const firstSectionChunk = source.split("sections: [")[1]?.slice(0, 1200) ?? "";

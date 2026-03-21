@@ -36,6 +36,7 @@ Use these files as the canonical structure:
 
 1. Create content file in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/src/content/spanish/guides/` (follow `spanish-*.ts` pattern).
    - For redesigned guides, start with `taskScenario`, `taskStages`, `inputMaterials`, `focusOnFormTriggers`, and `communicativeCheckpoint`.
+   - Add density with at least 2 input materials plus at least 1 visual/structured support block such as `decisionMap`, `sceneCards`, `repairStacks`, `microStories`, `phraseBank`, `comparison`, or `timeline`.
 2. Import and add it in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/prisma/seed-spanish-guides.ts` (add to `contentByGuideId`).
 3. Add the new guide ID to `SPANISH_GUIDE_IDS` and add an entry to `SPANISH_GUIDE_META` (tier: basics | intermediate | advanced, lessonNumber, topic, description) in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/src/content/spanish/registry.ts`.
 4. Run:

@@ -119,6 +119,14 @@ export const spanishCommandsPoliteRequestsContent: InteractiveGuideContent = {
           <li><strong>Usted:</strong> Hable, coma, escriba</li>
         </ul>
       `,
+      repairStacks: [
+        {
+          title: "Misma acción, tono distinto",
+          incorrect: "Firma aquí. (a customer at reception)",
+          corrected: "Firme aquí, por favor.",
+          whyItWorks: "The repair matches the service relationship and sounds appropriately respectful instead of too abrupt.",
+        },
+      ],
       exercises: [
         {
           id: "sp-cmd-1",

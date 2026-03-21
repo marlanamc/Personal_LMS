@@ -27,6 +27,16 @@ export const spanishQuestionWordsSentencesContent: InteractiveGuideContent = {
         <p><strong>Luis:</strong> Soy de Boston. ¿Y tú?</p>
       `,
     },
+    {
+      id: "qw-text-thread",
+      title: "Class group chat",
+      kind: "text-thread",
+      content: `
+        <p><strong>Eva:</strong> ¿Dónde es la clase mañana?</p>
+        <p><strong>Raúl:</strong> En la biblioteca.</p>
+        <p><strong>Eva:</strong> ¿A qué hora?</p>
+      `,
+    },
   ],
   taskStages: [
     {
@@ -99,6 +109,33 @@ export const spanishQuestionWordsSentencesContent: InteractiveGuideContent = {
         <h3>Question words are conversation tools</h3>
         <p>Choose them based on what you need to know, not just on English translation lists.</p>
       `,
+      decisionMap: {
+        title: "What information are you trying to get?",
+        prompt: "Pick the question word from the communicative job, not from memorized translation alone.",
+        options: [
+          {
+            label: "Person / identity",
+            cue: "name, who someone is",
+            outcome: "Use ¿quién? or ¿cómo te llamas?",
+            example: "¿Quién es ella?",
+            color: "sky",
+          },
+          {
+            label: "Place / time",
+            cue: "where or when something happens",
+            outcome: "Use ¿dónde? or ¿cuándo?",
+            example: "¿Dónde vives? ¿Cuándo estudias?",
+            color: "emerald",
+          },
+          {
+            label: "Reason / amount",
+            cue: "why, how much, how many",
+            outcome: "Use ¿por qué? or ¿cuánto/a/os/as?",
+            example: "¿Por qué aprendes español? ¿Cuántos años tienes?",
+            color: "amber",
+          },
+        ],
+      },
       verbTable: {
         title: "Core question words",
         headers: ["Word", "Meaning", "Use"],
@@ -136,6 +173,23 @@ export const spanishQuestionWordsSentencesContent: InteractiveGuideContent = {
         <h3>A full question is what moves the conversation</h3>
         <p>Use the word, the verb, and the punctuation together.</p>
       `,
+      repairStacks: [
+        {
+          title: "Turn the prompt into a real question",
+          incorrect: "Dónde",
+          corrected: "¿Dónde vives?",
+          whyItWorks: "The listener cannot respond usefully to an isolated word, but a full question creates a real turn in conversation.",
+        },
+      ],
+      phraseBank: {
+        title: "Follow-up question chunks",
+        groups: [
+          {
+            label: "Keep the exchange moving",
+            phrases: ["¿Y tú?", "¿De dónde eres?", "¿A qué hora?", "¿Por qué?"],
+          },
+        ],
+      },
       exercises: [
         {
           id: "qw-stage-2",
@@ -169,6 +223,28 @@ export const spanishQuestionWordsSentencesContent: InteractiveGuideContent = {
         <h3>One good question is a start, not the whole conversation</h3>
         <p>Add a short answer and a follow-up so the exchange sounds human.</p>
       `,
+      sceneCards: [
+        {
+          title: "Meet a new classmate",
+          setting: "Conversation opener",
+          goal: "Ask one information question, react, and add one follow-up.",
+          details: [
+            "Start with where they are from or where they study.",
+            "After the answer, use ¿y tú? or another question word.",
+          ],
+          usefulPhrases: ["¿De dónde eres?", "Soy de Boston. ¿Y tú?", "¿Dónde estudias?"],
+        },
+      ],
+      microStories: [
+        {
+          title: "A dead exchange vs a live exchange",
+          lines: [
+            { text: "¿Cómo te llamas?", callout: "Strong opener." },
+            { text: "Me llamo Ana.", callout: "Useful answer." },
+            { text: "¿Y tú?", callout: "This keeps the conversation alive." },
+          ],
+        },
+      ],
       exercises: [
         {
           id: "qw-stage-3",

@@ -85,6 +85,31 @@ export const PracticePanel = React.memo(function PracticePanel({
                         </div>
                     )}
 
+                    {isTaskFirst && attempted && (
+                        <div
+                            className={`rounded-2xl border p-4 ${
+                                stageComplete
+                                    ? "border-emerald-400/30 bg-emerald-400/10"
+                                    : showFocusOnForm
+                                        ? "border-amber-400/30 bg-amber-400/10"
+                                        : "border-primary/15 bg-primary/5"
+                            }`}
+                        >
+                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-muted">
+                                Stage Feedback
+                            </p>
+                            <p className="mt-2 text-sm text-text">
+                                {stageComplete
+                                    ? supportViewed
+                                        ? "Revision landed. You used the support and repaired the task successfully."
+                                        : "Clean first pass. The task worked without extra support."
+                                    : showFocusOnForm
+                                        ? "You have enough meaning to continue, but a few forms are muddy. Use the focused support and retry."
+                                        : "Keep shaping the response so it sounds like something a real speaker would say."}
+                            </p>
+                        </div>
+                    )}
+
                     {section.exercises!.map((exercise, index) => {
                         const normalizedExercise = normalizeGuideExercise(exercise, index);
                         const exerciseKey = normalizedExercise.id ?? `exercise-${index}`;

@@ -28,7 +28,7 @@ export const spanishReflexiveVerbsRoutinesContent: InteractiveGuideContent = {
     {
       id: "refl-schedule",
       title: "Mini routine card",
-      kind: "notice",
+      kind: "schedule",
       content: `
         <ul>
           <li>6:30 - me levanto</li>
@@ -36,6 +36,14 @@ export const spanishReflexiveVerbsRoutinesContent: InteractiveGuideContent = {
           <li>7:00 - me visto</li>
           <li>7:20 - salgo</li>
         </ul>
+      `,
+    },
+    {
+      id: "refl-sticky-note",
+      title: "Bathroom mirror note",
+      kind: "notice",
+      content: `
+        <p>Primero despiértate. Luego dúchate. Después vístete. No olvides acostarte temprano hoy.</p>
       `,
     },
   ],
@@ -109,6 +117,27 @@ export const spanishReflexiveVerbsRoutinesContent: InteractiveGuideContent = {
         <h3>Reflexive routines are about the subject and the action together</h3>
         <p>In a real routine, the first thing to control is the pronoun that matches the person.</p>
       `,
+      sceneCards: [
+        {
+          title: "Morning mirror check",
+          setting: "Daily routine",
+          goal: "Match the person to the correct reflexive pronoun before speaking.",
+          details: [
+            "Yo -> me",
+            "Tú -> te",
+            "Nosotros -> nos",
+          ],
+          usefulPhrases: ["me levanto", "te duchas", "nos acostamos"],
+        },
+      ],
+      repairStacks: [
+        {
+          title: "Pronoun mismatch repair",
+          incorrect: "Yo se levanto temprano.",
+          corrected: "Yo me levanto temprano.",
+          whyItWorks: "The pronoun signals who performs the action to themselves, so it has to match the subject.",
+        },
+      ],
       verbTable: {
         title: "Core reflexive pattern",
         headers: ["Subject", "Pronoun", "Example"],
@@ -144,6 +173,19 @@ export const spanishReflexiveVerbsRoutinesContent: InteractiveGuideContent = {
         <h3>Now say the action as a real sentence</h3>
         <p>The listener needs more than a vocabulary list. Give a complete form they could actually hear in conversation.</p>
       `,
+      phraseBank: {
+        title: "Routine chunks that sound complete",
+        groups: [
+          {
+            label: "Morning routine",
+            phrases: ["me despierto", "me ducho", "me visto", "me preparo café"],
+          },
+          {
+            label: "Evening routine",
+            phrases: ["me relajo", "me acuesto temprano", "nos dormimos tarde"],
+          },
+        ],
+      },
       exercises: [
         {
           id: "refl-stage-2",
@@ -168,6 +210,27 @@ export const spanishReflexiveVerbsRoutinesContent: InteractiveGuideContent = {
         <h3>Routine language needs order</h3>
         <p>When you describe a day, the sequence words do part of the communication work.</p>
       `,
+      timeline: {
+        title: "Day-sequence board",
+        description: "A believable routine has an order the listener can picture.",
+        events: [
+          { label: "me despierto", order: 1, tenseLabel: "primero" },
+          { label: "me ducho", order: 2, tenseLabel: "luego" },
+          { label: "me visto", order: 3, tenseLabel: "después" },
+          { label: "me acuesto", order: 4, tenseLabel: "finalmente" },
+        ],
+      },
+      microStories: [
+        {
+          title: "A short routine people can picture",
+          lines: [
+            { text: "Primero me despierto a las seis.", callout: "Start with time or anchor." },
+            { text: "Luego me ducho rápido.", callout: "Add the next physical routine step." },
+            { text: "Después me visto y salgo.", callout: "Keep the actions in natural order." },
+            { text: "Finalmente me acuesto temprano.", callout: "Close the routine clearly." },
+          ],
+        },
+      ],
       exercises: [
         {
           id: "refl-stage-3",

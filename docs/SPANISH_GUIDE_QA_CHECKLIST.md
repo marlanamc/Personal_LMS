@@ -10,6 +10,9 @@ Use this before merging any new Spanish guide.
 - [ ] Redesigned guides start with a meaning-focused task, not a rule lecture.
 - [ ] If the guide uses task-first mode, `taskScenario`, `taskStages`, and `focusOnFormTriggers` are present and aligned.
 - [ ] If the guide uses task-first mode, section 1 has a `taskStageId`.
+- [ ] If the guide uses task-first mode, there are at least 2 `inputMaterials`.
+- [ ] If the guide uses task-first mode, there is at least 1 visual/structured support block (`comparison`, `timeline`, `decisionMap`, `sceneCards`, `repairStacks`, `microStories`, `phraseBank`, `verbTable`, etc.).
+- [ ] If the guide uses task-first mode, there is at least 1 `repairStacks` block.
 - [ ] `communicativeCheckpoint` or `miniQuiz` exists and matches the task outcomes.
 - [ ] Checkpoint/quiz covers meaning/usage, repair, and context-based choices.
 - [ ] At least one production task exists in guide exercises.

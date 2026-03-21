@@ -35,12 +35,37 @@ export const spanishRestaurantConversationsContent: InteractiveGuideContent = {
       `,
     },
     {
+      id: "rest-menu-card",
+      title: "Menu snapshot",
+      kind: "menu",
+      content: `
+        <ul>
+          <li>Sopa del día - 8</li>
+          <li>Pollo con arroz - 14</li>
+          <li>Tacos de verduras - 12</li>
+          <li>Agua mineral - 3</li>
+        </ul>
+      `,
+    },
+    {
       id: "rest-bill-note",
       title: "End of meal exchange",
       kind: "dialogue",
       content: `
         <p><strong>Cliente:</strong> La cuenta, por favor.</p>
         <p><strong>Mesero:</strong> Claro. ¿Todo estuvo bien?</p>
+      `,
+    },
+    {
+      id: "rest-receipt",
+      title: "Receipt at the end",
+      kind: "receipt",
+      content: `
+        <ul>
+          <li>Sopa del día - 8</li>
+          <li>Agua mineral - 3</li>
+          <li>Total - 11</li>
+        </ul>
       `,
     },
   ],
@@ -124,6 +149,27 @@ export const spanishRestaurantConversationsContent: InteractiveGuideContent = {
         <h3>Start with a greeting and the table request</h3>
         <p>The opening sets the tone for the whole interaction.</p>
       `,
+      sceneCards: [
+        {
+          title: "Entrance to the restaurant",
+          setting: "Arrival",
+          goal: "Open warmly, then ask for the table in one move.",
+          details: [
+            "You walk in during a busy lunch hour.",
+            "The host is waiting for a short, polite request.",
+          ],
+          usefulPhrases: ["Buenas tardes.", "¿Tienen mesa para dos?", "Para uno, por favor."],
+        },
+      ],
+      phraseBank: {
+        title: "Opening moves that sound natural",
+        groups: [
+          {
+            label: "Greeting + request",
+            phrases: ["Buenas tardes.", "¿Tienen mesa para dos?", "Una mesa para uno, por favor."],
+          },
+        ],
+      },
       exercises: [
         {
           id: "rest-stage-1",
@@ -155,12 +201,59 @@ export const spanishRestaurantConversationsContent: InteractiveGuideContent = {
       title: "Stage 2: Listen, ask, and order",
       icon: "📖",
       taskStageId: "rest-stage-order",
-      inputMaterialIds: ["rest-menu-audio"],
+      inputMaterialIds: ["rest-menu-audio", "rest-menu-card"],
       focusOnFormTriggerIds: ["rest-trigger-listening", "rest-trigger-politeness"],
       explanation: `
         <h3>Use the recommendation before you answer</h3>
         <p>This stage combines listening/reading and polite ordering so the response is tied to real input.</p>
       `,
+      decisionMap: {
+        title: "How do you answer the server?",
+        prompt: "First decide what the interaction needs from you.",
+        options: [
+          {
+            label: "Choose a dish",
+            cue: "The recommendation already matches what you want",
+            outcome: "Respond with a polite order.",
+            example: "Quisiera la sopa del día, por favor.",
+            color: "emerald",
+          },
+          {
+            label: "Clarify a need",
+            cue: "You need vegetarian, spicy, or lighter food",
+            outcome: "Ask a short follow-up question before ordering.",
+            example: "¿Tienen algo sin carne?",
+            color: "amber",
+          },
+          {
+            label: "Ask for help",
+            cue: "You still cannot decide",
+            outcome: "Invite a recommendation.",
+            example: "¿Qué me recomienda?",
+            color: "sky",
+          },
+        ],
+      },
+      sceneCards: [
+        {
+          title: "Read the menu, then react",
+          setting: "Ordering",
+          details: [
+            "The soup is the special.",
+            "The tacos de verduras solve the no-meat problem.",
+            "Water is available as a separate item.",
+          ],
+          usefulPhrases: ["Quisiera...", "¿Tienen algo sin carne?", "Para beber, agua mineral."],
+        },
+      ],
+      repairStacks: [
+        {
+          title: "Polite order vs blunt demand",
+          incorrect: "Dame sopa.",
+          corrected: "Quisiera la sopa del día, por favor.",
+          whyItWorks: "The repair sounds like a normal restaurant request instead of an order barked at the server.",
+        },
+      ],
       exercises: [
         {
           id: "rest-stage-2",
@@ -200,6 +293,24 @@ export const spanishRestaurantConversationsContent: InteractiveGuideContent = {
         <h3>Real restaurant Spanish is not just ordering</h3>
         <p>You often need to ask for help, a change, or a recommendation mid-meal.</p>
       `,
+      microStories: [
+        {
+          title: "Common mid-meal pivots",
+          lines: [
+            { text: "No puedo comer carne hoy.", callout: "This names the practical constraint." },
+            { text: "¿Me puede recomendar algo vegetariano?", callout: "Now the server knows how to help." },
+            { text: "También necesitamos agua, por favor.", callout: "A direct but polite service request." },
+          ],
+        },
+      ],
+      repairStacks: [
+        {
+          title: "Make the problem actionable",
+          incorrect: "No. No bien. Agua.",
+          corrected: "¿Me puede traer agua, por favor?",
+          whyItWorks: "The repair tells the server exactly what action to take instead of leaving them to guess.",
+        },
+      ],
       exercises: [
         {
           id: "rest-stage-3",
@@ -234,11 +345,34 @@ export const spanishRestaurantConversationsContent: InteractiveGuideContent = {
       title: "Stage 4: Ask for the bill and close",
       icon: "🧾",
       taskStageId: "rest-stage-bill",
-      inputMaterialIds: ["rest-bill-note"],
+      inputMaterialIds: ["rest-bill-note", "rest-receipt"],
       explanation: `
         <h3>End the meal cleanly</h3>
         <p>The closing interaction is short, but it still needs a clear request and a natural response.</p>
       `,
+      timeline: {
+        title: "Restaurant flow",
+        description: "The interaction has a predictable arc from arrival to payment.",
+        events: [
+          { label: "Llegas y pides mesa", order: 1, tenseLabel: "opening" },
+          { label: "Escuchas la recomendación", order: 2, tenseLabel: "ordering" },
+          { label: "Resuelves un problema", order: 3, tenseLabel: "repair" },
+          { label: "Pides la cuenta", order: 4, tenseLabel: "closing" },
+        ],
+      },
+      phraseBank: {
+        title: "Closing phrases",
+        groups: [
+          {
+            label: "Ask to pay",
+            phrases: ["La cuenta, por favor.", "¿Puede traer la cuenta?", "¿Aceptan tarjeta?"],
+          },
+          {
+            label: "Respond naturally",
+            phrases: ["Sí, todo estuvo muy bien.", "Gracias, estuvo rico.", "Muchas gracias."],
+          },
+        ],
+      },
       exercises: [
         {
           id: "rest-stage-4",
@@ -268,6 +402,11 @@ export const spanishRestaurantConversationsContent: InteractiveGuideContent = {
       ],
       postTaskReflection: {
         prompt: "Check whether your restaurant interaction moves from arrival to bill without abrupt jumps or unclear requests.",
+        checklist: [
+          "I can open, order, repair, and close the meal without switching languages.",
+          "My requests sound polite, not abrupt.",
+          "I can react to menu or bill information before speaking.",
+        ],
       },
     },
   ],

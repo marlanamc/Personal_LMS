@@ -177,6 +177,14 @@ export const spanishObligationNecessityContent: InteractiveGuideContent = {
         <h3>Meaning matters more than memorization</h3>
         <p>These patterns overlap in English, but in a real exchange the tone and force are different.</p>
       `,
+      repairStacks: [
+        {
+          title: "Advice is not the same as obligation",
+          incorrect: "Tienes que descansar. (when the doctor is giving soft advice)",
+          corrected: "Debes descansar.",
+          whyItWorks: "The repair lowers the force from external obligation to recommendation, which matches the intended meaning.",
+        },
+      ],
       comparison: {
         title: "Obligation contrast",
         leftLabel: "Pattern",

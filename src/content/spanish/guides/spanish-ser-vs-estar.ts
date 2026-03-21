@@ -26,6 +26,17 @@ export const spanishSerVsEstarContent: InteractiveGuideContent = {
         <p><strong>Ana:</strong> Estoy en casa, pero mi oficina es en el centro.</p>
       `,
     },
+    {
+      id: "ser-estar-profile-card",
+      title: "Profile + status card",
+      kind: "profile-card",
+      content: `
+        <ul>
+          <li>Marcos - es ingeniero - es de Lima</li>
+          <li>Ahora mismo - está en el aeropuerto - está nervioso</li>
+        </ul>
+      `,
+    },
   ],
   taskStages: [
     {
@@ -97,6 +108,58 @@ export const spanishSerVsEstarContent: InteractiveGuideContent = {
         <h3>Start with who the person is</h3>
         <p>When the situation is an introduction, profession, or origin, ser usually carries the meaning you need.</p>
       `,
+      decisionMap: {
+        title: "Which be-verb fits the scene?",
+        prompt: "Ask what kind of information the listener needs first.",
+        options: [
+          {
+            label: "Identity",
+            cue: "name, profession, origin, basic description",
+            outcome: "Use ser to define who the person is.",
+            example: "Soy profesora. Es de México.",
+            color: "sky",
+          },
+          {
+            label: "Location",
+            cue: "where someone is right now",
+            outcome: "Use estar to place the person in a space.",
+            example: "Estoy en casa. Estamos en clase.",
+            color: "emerald",
+          },
+          {
+            label: "Condition",
+            cue: "feeling, mood, temporary state",
+            outcome: "Use estar to describe the current condition.",
+            example: "Está cansado. Estoy lista.",
+            color: "amber",
+          },
+        ],
+      },
+      sceneCards: [
+        {
+          title: "Introductions at a language exchange",
+          setting: "Stable facts",
+          goal: "Say who the person is in a way that will still be true after the conversation.",
+          details: [
+            "You are meeting Lucia for the first time.",
+            "You need her job, origin, and one core description.",
+          ],
+          usefulPhrases: ["Soy estudiante.", "Es de Chile.", "Somos vecinos."],
+        },
+      ],
+      phraseBank: {
+        title: "High-frequency identity chunks",
+        groups: [
+          {
+            label: "Introduce yourself",
+            phrases: ["Soy estudiante.", "Soy de Boston.", "Soy profesora."],
+          },
+          {
+            label: "Ask back",
+            phrases: ["¿Y tú?", "¿De dónde eres?", "¿Qué haces?"],
+          },
+        ],
+      },
       exercises: [
         {
           id: "sve-stage-1",
@@ -136,6 +199,27 @@ export const spanishSerVsEstarContent: InteractiveGuideContent = {
         <h3>Now shift to the current moment</h3>
         <p>If the message is about where someone is or how they feel right now, estar does the job better.</p>
       `,
+      sceneCards: [
+        {
+          title: "Live location update",
+          setting: "Right now",
+          goal: "Tell a friend where everyone is before class starts.",
+          details: [
+            "Ana está en la biblioteca.",
+            "Luis está en el autobús.",
+            "Tú estás cansado pero listo.",
+          ],
+          usefulPhrases: ["¿Dónde estás?", "Estoy aquí.", "Estamos atrasados."],
+        },
+      ],
+      repairStacks: [
+        {
+          title: "Do not turn location into identity",
+          incorrect: "Soy en casa.",
+          corrected: "Estoy en casa.",
+          whyItWorks: "The sentence is about current location, so estar carries the meaning the listener expects.",
+        },
+      ],
       exercises: [
         {
           id: "sve-stage-2",
@@ -184,6 +268,25 @@ export const spanishSerVsEstarContent: InteractiveGuideContent = {
           { label: "smart / ready", left: "Es listo.", right: "Está listo." },
         ],
       },
+      microStories: [
+        {
+          title: "One verb, two different messages",
+          lines: [
+            { text: "Mateo es aburrido.", callout: "He causes boredom. This sounds like part of his character." },
+            { text: "Mateo está aburrido.", callout: "He feels bored now. This is temporary." },
+            { text: "La profesora es lista.", callout: "She is clever." },
+            { text: "La profesora está lista.", callout: "She is ready right now." },
+          ],
+        },
+      ],
+      repairStacks: [
+        {
+          title: "Repair the meaning, not just the grammar",
+          incorrect: "La clase está aburrida. (when you mean the class is boring)",
+          corrected: "La clase es aburrida.",
+          whyItWorks: "Ser describes the class as boring in general. Estar would sound like the class is temporarily bored.",
+        },
+      ],
       exercises: [
         {
           id: "sve-stage-3",

@@ -28,12 +28,24 @@ export const spanishPresentTenseContent: InteractiveGuideContent = {
     {
       id: "present-profile-card",
       title: "Profile card",
-      kind: "notice",
+      kind: "profile-card",
       content: `
         <ul>
           <li>Nombre: Marta</li>
           <li>Profesión: enfermera</li>
           <li>Rutina: trabaja de día, estudia por la noche</li>
+        </ul>
+      `,
+    },
+    {
+      id: "present-day-schedule",
+      title: "Normal weekday schedule",
+      kind: "schedule",
+      content: `
+        <ul>
+          <li>6:30 - corro en el parque</li>
+          <li>8:00 - trabajo en la clínica</li>
+          <li>19:00 - estudio español</li>
         </ul>
       `,
     },
@@ -118,6 +130,32 @@ export const spanishPresentTenseContent: InteractiveGuideContent = {
         <h3>Start with communication, not conjugation charts</h3>
         <p>The present tense matters because it lets you describe your life immediately: work, study, live, walk, eat, want.</p>
       `,
+      sceneCards: [
+        {
+          title: "First conversation at class",
+          setting: "Introductions",
+          goal: "Give two or three clear facts about your normal life.",
+          details: [
+            "Say where you live.",
+            "Say where you work or study.",
+            "Add one routine detail like caminar, cocinar, estudiar.",
+          ],
+          usefulPhrases: ["Vivo en Boston.", "Trabajo en una escuela.", "Estudio por la noche."],
+        },
+      ],
+      phraseBank: {
+        title: "Chunks for a natural self-introduction",
+        groups: [
+          {
+            label: "Who you are",
+            phrases: ["Soy Leo.", "Vivo en Boston.", "Trabajo en una escuela."],
+          },
+          {
+            label: "Your routine",
+            phrases: ["Camino al trabajo.", "Estudio por la noche.", "Desayuno temprano."],
+          },
+        ],
+      },
       exercises: [
         {
           id: "present-stage-1",
@@ -158,6 +196,24 @@ export const spanishPresentTenseContent: InteractiveGuideContent = {
         <h3>Endings matter because they point to the subject</h3>
         <p>Once the situation is clear, the next support move is choosing the ending that matches the person.</p>
       `,
+      microStories: [
+        {
+          title: "How one ending changes the speaker",
+          lines: [
+            { text: "Yo vivo en Boston.", callout: "The ending -o marks yo." },
+            { text: "Tú vives en Boston.", callout: "The ending -es shifts the subject to tú." },
+            { text: "Nosotros vivimos en Boston.", callout: "The ending -imos points to nosotros." },
+          ],
+        },
+      ],
+      repairStacks: [
+        {
+          title: "Match the ending to the subject",
+          incorrect: "Nosotros vive en la ciudad.",
+          corrected: "Nosotros vivimos en la ciudad.",
+          whyItWorks: "The listener identifies the subject partly from the ending, so the person marker has to agree.",
+        },
+      ],
       verbTable: {
         title: "Core regular patterns",
         headers: ["Person", "-AR", "-ER", "-IR"],
@@ -193,6 +249,19 @@ export const spanishPresentTenseContent: InteractiveGuideContent = {
         <h3>These verbs appear everywhere</h3>
         <p>Identity, location, movement, possession, and action all depend on a small set of irregular verbs.</p>
       `,
+      sceneCards: [
+        {
+          title: "Five verbs that keep a conversation alive",
+          setting: "Everyday interaction",
+          details: [
+            "soy / estoy for identity and condition",
+            "voy for movement and plans",
+            "tengo for age, possession, obligations",
+            "hago for daily actions",
+          ],
+          usefulPhrases: ["Soy estudiante.", "Estoy cansada.", "Voy al trabajo.", "Tengo dos clases.", "Hago ejercicio."],
+        },
+      ],
       verbTable: {
         title: "Essential irregulars",
         headers: ["Verb", "Yo", "Tú", "Él/Ella"],
@@ -243,6 +312,45 @@ export const spanishPresentTenseContent: InteractiveGuideContent = {
         <h3>The present tense usually describes routine, not every current action</h3>
         <p>When learners overuse the present for “right now,” communication gets blurry.</p>
       `,
+      decisionMap: {
+        title: "Routine or happening now?",
+        prompt: "Choose the sentence shape that fits the time meaning, not just the verb you know best.",
+        options: [
+          {
+            label: "Routine",
+            cue: "every day, usually, on Mondays, after work",
+            outcome: "Use simple present to describe habits and repeated actions.",
+            example: "Trabajo cada día. Desayuno a las siete.",
+            color: "sky",
+          },
+          {
+            label: "Right now",
+            cue: "at this moment, currently, look, right now",
+            outcome: "A progressive form may be clearer than simple present.",
+            example: "Estoy trabajando ahora. Estoy desayunando.",
+            color: "amber",
+          },
+        ],
+      },
+      microStories: [
+        {
+          title: "Same verb, different time meaning",
+          lines: [
+            { text: "Sara trabaja en una clínica.", callout: "This sounds like routine or a stable fact." },
+            { text: "Ahora Sara está trabajando.", callout: "This zooms into the current moment." },
+            { text: "Cada mañana desayuna a las siete.", callout: "Habit." },
+            { text: "No puede hablar; está desayunando.", callout: "Right-now action." },
+          ],
+        },
+      ],
+      repairStacks: [
+        {
+          title: "Do not force a routine reading onto a right-now situation",
+          incorrect: "Ahora trabajo, no puedo hablar. (when you need to stress the live action)",
+          corrected: "Ahora estoy trabajando, no puedo hablar.",
+          whyItWorks: "The context highlights an action in progress, so the repair makes the current-time meaning easier to hear.",
+        },
+      ],
       comparison: {
         title: "Routine vs right now",
         leftLabel: "Routine / habit",

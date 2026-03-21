@@ -95,6 +95,55 @@ export interface VerbTable {
     rows: string[][];
 }
 
+export interface DecisionMapOption {
+    label: string;
+    cue: string;
+    outcome: string;
+    example?: string;
+    color?: "cyan" | "emerald" | "amber" | "rose" | "violet" | "sky";
+}
+
+export interface DecisionMap {
+    title: string;
+    prompt: string;
+    options: DecisionMapOption[];
+}
+
+export interface SceneCard {
+    title: string;
+    setting: string;
+    goal?: string;
+    details: string[];
+    usefulPhrases?: string[];
+}
+
+export interface RepairStack {
+    title: string;
+    incorrect: string;
+    corrected: string;
+    whyItWorks: string;
+}
+
+export interface MicroStoryLine {
+    text: string;
+    callout?: string;
+}
+
+export interface MicroStory {
+    title: string;
+    lines: MicroStoryLine[];
+}
+
+export interface PhraseBankGroup {
+    label: string;
+    phrases: string[];
+}
+
+export interface PhraseBank {
+    title: string;
+    groups: PhraseBankGroup[];
+}
+
 export interface InteractiveGuideSection {
     id?: string; // For tracking progress
     stepNumber?: number;
@@ -139,6 +188,11 @@ export interface InteractiveGuideSection {
             color: string; // e.g. "cyan", "green", "violet", "amber"
         }>;
     };
+    decisionMap?: DecisionMap;
+    sceneCards?: SceneCard[];
+    repairStacks?: RepairStack[];
+    microStories?: MicroStory[];
+    phraseBank?: PhraseBank;
     postTaskReflection?: {
         title?: string;
         prompt: string;
@@ -193,7 +247,15 @@ export interface InputMaterial {
         | "itinerary"
         | "audio-transcript"
         | "model"
-        | "visual";
+        | "visual"
+        | "schedule"
+        | "receipt"
+        | "profile-card"
+        | "text-thread"
+        | "transit-board"
+        | "check-in-slip"
+        | "doctor-note"
+        | "form";
     prompt?: string;
     content: string;
 }
@@ -389,6 +451,11 @@ export interface InteractiveGuideContent {
     focusOnFormTriggers?: FocusOnFormTrigger[];
     postTaskReflection?: PostTaskReflection;
     communicativeCheckpoint?: CommunicativeCheckpoint;
+    decisionMap?: DecisionMap;
+    sceneCards?: SceneCard[];
+    repairStacks?: RepairStack[];
+    microStories?: MicroStory[];
+    phraseBank?: PhraseBank;
     tableOfContents?: boolean; // Show TOC
     metadata?: LegacyGuideMetadata;
 }

@@ -12,6 +12,11 @@ import { TipBox } from "./TipBox";
 import { TimelineVisual } from "./TimelineVisual";
 import { FutureChoiceFlow } from "./FutureChoiceFlow";
 import { TaskScenarioPanel } from "./TaskScenarioPanel";
+import { DecisionMap } from "./DecisionMap";
+import { SceneCards } from "./SceneCards";
+import { RepairStacks } from "./RepairStacks";
+import { MicroStories } from "./MicroStories";
+import { PhraseBank } from "./PhraseBank";
 import { LockKeyhole, CheckCircle2 } from "lucide-react";
 
 interface ExplanationPanelProps {
@@ -106,6 +111,22 @@ export const ExplanationPanel = React.memo(function ExplanationPanel({
                 {section.futureChoiceFlow && (
                     <FutureChoiceFlow data={section.futureChoiceFlow} />
                 )}
+
+                {section.decisionMap && <DecisionMap data={section.decisionMap} />}
+
+                {section.sceneCards && section.sceneCards.length > 0 && (
+                    <SceneCards cards={section.sceneCards} />
+                )}
+
+                {section.repairStacks && section.repairStacks.length > 0 && (
+                    <RepairStacks stacks={section.repairStacks} />
+                )}
+
+                {section.microStories && section.microStories.length > 0 && (
+                    <MicroStories stories={section.microStories} />
+                )}
+
+                {section.phraseBank && <PhraseBank data={section.phraseBank} />}
 
                 {/* Post-Flow Explanation */}
                 {section.postExplanation && (

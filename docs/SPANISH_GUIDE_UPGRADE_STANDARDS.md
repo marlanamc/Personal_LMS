@@ -26,6 +26,7 @@ Run `npm run check:spanish-guides` to verify section counts across all guides.
 - Include at least one **production task** per guide (e.g. write a short paragraph, compose a 4-step instruction sequence)
 - Exercises should increase in difficulty from first to final section
 - Rich input should be less impoverished than old drill-style prompts: use short dialogues, notices, menus, messages, routes, or transcripts when relevant
+- Redesigned guides should include at least **2 input materials**
 
 ## 3. Checkpoint
 
@@ -46,6 +47,11 @@ Use these where they add clarity:
 | **timeExpressions** | Tense or planning markers            | Immediate Future, Preterite |
 | **tipBox**  | Common mistakes, quick reference           | All guides                |
 | **verbTable** | Conjugations or command forms          | Present, Preterite, Commands |
+| **decisionMap** | “Which form do I need here?” branching support | Present Tense, Ser vs Estar |
+| **sceneCards** | Real-world setting with goals and likely phrases | Travel, Restaurant, Question Words |
+| **repairStacks** | Before/after repair with rationale | Requests, Ser vs Estar, Restaurant |
+| **microStories** | Connected mini-scenes with meaning callouts | Reflexives, Directions, Present Tense |
+| **phraseBank** | High-frequency chunks grouped by communicative job | Travel, Restaurant, Introductions |
 
 ## 5. Task-First Authoring Rules
 
@@ -55,6 +61,8 @@ Use these where they add clarity:
 - `focusOnFormTriggers` must be tied to a stage via `stageId`.
 - Each redesigned guide should include at least one revise-after-feedback moment via `postTaskReflection` or a section reflection.
 - Keep grammar support brief and local to the learner problem; avoid long standalone lectures at the start.
+- Each redesigned guide should include at least one visual or structured support block (`comparison`, `timeline`, `decisionMap`, `sceneCards`, `repairStacks`, `microStories`, `phraseBank`, `verbTable`, etc.).
+- Each redesigned guide should include at least one `repairStacks` block so learners see awkward vs improved output directly.
 
 ## 6. Production Task Scaffolding
 
