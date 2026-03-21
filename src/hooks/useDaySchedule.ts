@@ -8,7 +8,9 @@ import { useTimeBlockPlanner } from '@/components/dashboard/useTimeBlockPlanner'
 import {
   anchorsToTimelineItems,
   combineAndSortItems,
+  constraintsToTimelineItems,
   eventsToTimelineItems,
+  quadrantsToTimelineItems,
   timeBlocksToTimelineItems,
   isToday,
   type CalendarEventInput,
@@ -59,11 +61,19 @@ export function useDaySchedule(
     if (!dayPlan?.blocks || dayPlan.blocks.length === 0) return [];
     return timeBlocksToTimelineItems(dayPlan.blocks, dayPlan.blockNotes);
   }, [dayPlan?.blocks, dayPlan?.blockNotes]);
+  const quadrantItems = useMemo((): TimelineItem[] => {
+    if (!dayPlan) return [];
+    return quadrantsToTimelineItems(dayPlan);
+  }, [dayPlan]);
+  const constraintItems = useMemo((): TimelineItem[] => {
+    if (!dayPlan) return [];
+    return constraintsToTimelineItems(dayPlan, timeBlockHook.plannerDefaults);
+  }, [dayPlan, timeBlockHook.plannerDefaults]);
 
   // Combine all items sorted by start time
   const allItems = useMemo((): TimelineItem[] => {
-    return combineAndSortItems(anchorItems, eventItems, blockItems);
-  }, [anchorItems, eventItems, blockItems]);
+    return combineAndSortItems(quadrantItems, anchorItems, eventItems, blockItems, constraintItems);
+  }, [quadrantItems, anchorItems, eventItems, blockItems, constraintItems]);
 
   // Get calendar planner data (notes/tasks) for the date
   const plan = calendarHook.getPlan(dateKey);
@@ -76,10 +86,11 @@ export function useDaySchedule(
       anchors: anchorItems,
       events: eventItems,
       timeBlocks: blockItems,
+      quadrants: quadrantItems,
       plan,
       allItems,
     }),
-    [dateKey, anchorItems, eventItems, blockItems, plan, allItems],
+    [dateKey, anchorItems, eventItems, blockItems, quadrantItems, plan, allItems],
   );
 
   // Loading state

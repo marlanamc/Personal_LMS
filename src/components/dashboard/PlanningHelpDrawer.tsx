@@ -1,15 +1,17 @@
 'use client';
 
 import { useEffect, useId, useRef, useState, type RefObject } from 'react';
-import { ArrowLeft, ChevronUp, Info, X, Sparkles, Heart, Target, Brain } from 'lucide-react';
+import { ArrowLeft, Ban, ChevronUp, Flag, Info, X, Sparkles, Heart, Target, Brain, LayoutPanelTop } from 'lucide-react';
 import { OnAgainOffAgainTool } from './OnAgainOffAgainTool';
+import { ConstraintsTool } from './ConstraintsTool';
+import { QuadrantsTool } from './QuadrantsTool';
 import { StableDialog } from '@/components/ui/StableDialog';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-type PlanningTool = 'on-again-off-again' | 'brain-dump';
+type PlanningTool = 'on-again-off-again' | 'constraints' | 'quadrants' | 'brain-dump';
 
 interface PlanningHelpDrawerProps {
   isOpen: boolean;
@@ -122,11 +124,23 @@ export function PlanningHelpDrawer({
             )}
             <div className="min-w-0">
               <h2 id={titleId} className="text-lg font-bold text-text">
-                {selectedTool === 'on-again-off-again' ? 'On Again / Off Again' : 'Planning Help'}
+                {selectedTool === 'on-again-off-again'
+                  ? 'On Again / Off Again'
+                  : selectedTool === 'constraints'
+                    ? 'Time Boundaries'
+                    : selectedTool === 'quadrants'
+                      ? 'Day Sections'
+                    : 'Planning Help'}
               </h2>
               <div className="mt-0.5 flex items-center gap-2">
                 <p id={descriptionId} className="text-sm text-text-secondary">
-                  {selectedTool ? 'Set up your schedule' : 'Build a schedule for your day'}
+                  {selectedTool === 'constraints'
+                    ? 'Set helpful limits for your schedule'
+                    : selectedTool === 'quadrants'
+                      ? 'Shape the day into 2 to 5 sections'
+                    : selectedTool
+                      ? 'Set up your schedule'
+                      : 'Build a schedule for your day'}
                 </p>
                 {selectedTool === 'on-again-off-again' && (
                   <button
@@ -164,13 +178,44 @@ export function PlanningHelpDrawer({
                 title="On Again / Off Again"
                 description="Add energizing and focus tasks, then we build a schedule that rotates between them automatically."
                 icon={
-                  <div className="relative">
-                    <Heart size={16} className="absolute -left-0.5 -top-0.5 text-accent-teal fill-current opacity-70" />
-                    <Target size={16} className="absolute left-0.5 top-0.5 text-accent-sakura" />
+                  <div className="relative h-5 w-5">
+                    <Heart
+                      size={15}
+                      className="absolute left-0 top-0 text-accent-teal fill-current opacity-75"
+                    />
+                    <Target
+                      size={15}
+                      className="absolute bottom-0 right-0 text-accent-sakura"
+                    />
                   </div>
                 }
                 isSelected={false}
                 onClick={() => setSelectedTool('on-again-off-again')}
+              />
+              <ToolCard
+                title="Time Boundaries"
+                description="Set helpful limits for your schedule, like stopping focus work after 8 PM."
+                icon={
+                  <div className="relative h-5 w-5">
+                    <Ban
+                      size={15}
+                      className="absolute left-0 top-0 text-accent-sakura opacity-85"
+                    />
+                    <Flag
+                      size={15}
+                      className="absolute bottom-0 right-0 text-accent-teal"
+                    />
+                  </div>
+                }
+                isSelected={false}
+                onClick={() => setSelectedTool('constraints')}
+              />
+              <ToolCard
+                title="Day Sections"
+                description="Split your day into 2 to 5 broad sections like Health, Deep Work, or Home Reset."
+                icon={<LayoutPanelTop size={18} className="text-accent-teal" />}
+                isSelected={false}
+                onClick={() => setSelectedTool('quadrants')}
               />
               <ToolCard
                 title="Brain Dump"
@@ -195,10 +240,14 @@ export function PlanningHelpDrawer({
                 Add energizing tasks and focus tasks, then we&apos;ll rotate between them automatically to create the shape of your day.
               </div>
             )}
-            <OnAgainOffAgainTool
-              dateKey={dateKey}
-              onClose={onClose}
-            />
+            {selectedTool === 'on-again-off-again' ? (
+              <OnAgainOffAgainTool
+                dateKey={dateKey}
+                onClose={onClose}
+              />
+            ) : null}
+            {selectedTool === 'constraints' ? <ConstraintsTool dateKey={dateKey} /> : null}
+            {selectedTool === 'quadrants' ? <QuadrantsTool dateKey={dateKey} onClose={onClose} /> : null}
           </div>
         )}
       </>

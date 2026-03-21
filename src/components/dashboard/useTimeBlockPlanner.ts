@@ -1,12 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useSyncExternalStore } from "react";
-import { type TimeBlockDayPlan } from "@/lib/time-block-planner";
+import { type TimeBlockDayPlan, type TimeBlockPlannerDefaults } from "@/lib/time-block-planner";
 import {
   timeBlockPlannerEnsureLoaded,
   timeBlockPlannerGetServerSnapshot,
   timeBlockPlannerGetSnapshot,
   timeBlockPlannerRetainBeforeUnloadPrompt,
+  timeBlockPlannerSetDefaults,
   timeBlockPlannerSetPlan,
   timeBlockPlannerSubscribe,
 } from "./timeBlockPlannerClientStore";
@@ -27,11 +28,18 @@ export function useTimeBlockPlanner() {
     timeBlockPlannerSetPlan(dateKey, plan);
   }, []);
 
+  const setDefaults = useCallback((defaults: TimeBlockPlannerDefaults) => {
+    timeBlockPlannerSetDefaults(defaults);
+  }, []);
+
   return {
-    plannerStore: snapshot.store,
+    plannerState: snapshot.store,
+    plannerStore: snapshot.store.days,
+    plannerDefaults: snapshot.store.defaults,
     isLoaded: snapshot.isLoaded,
     isSaving: snapshot.isSaving,
     saveError: snapshot.saveError,
     setPlan,
+    setDefaults,
   };
 }

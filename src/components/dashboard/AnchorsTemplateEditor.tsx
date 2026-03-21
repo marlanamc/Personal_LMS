@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import {
   BookOpen,
   Briefcase,
@@ -303,14 +304,11 @@ export function AnchorsTemplateEditor({
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20">
                 <Sparkles size={22} className="text-primary" />
               </div>
-              <div>
+              <div className="flex items-center">
                 <h1 className="text-2xl font-bold tracking-tight text-text">Daily Anchors</h1>
-                <p className="text-sm text-text-muted/80">Shape your week, not just one default day.</p>
+                <InfoTooltip content="Shape your week, not just one default day. Give each anchor a reason it matters and set different times across the week." />
               </div>
             </div>
-            <p className="max-w-2xl text-sm text-text-muted">
-              Give each anchor a reason it matters and set different times across the week.
-            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">

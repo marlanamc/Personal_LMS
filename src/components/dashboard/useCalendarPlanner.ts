@@ -8,15 +8,23 @@ export type PlannerTask = {
   done: boolean;
 };
 
+export type InterstitialJournalEntry = {
+  id: string;
+  text: string;
+  createdAt: string;
+  tag?: string;
+};
+
 export type DayPlan = {
   notes: string;
   tasks: PlannerTask[];
   thoughtDownload?: string;
+  interstitialJournalEntries?: InterstitialJournalEntry[];
 };
 
 export type PlannerStore = Record<string, DayPlan>;
 
-const EMPTY_DAY_PLAN: DayPlan = { notes: '', tasks: [], thoughtDownload: '' };
+const EMPTY_DAY_PLAN: DayPlan = { notes: '', tasks: [], thoughtDownload: '', interstitialJournalEntries: [] };
 
 function normalizePlannerTask(raw: unknown): PlannerTask | null {
   if (!raw || typeof raw !== 'object') return null;
@@ -27,15 +35,36 @@ function normalizePlannerTask(raw: unknown): PlannerTask | null {
   return { id, text, done: candidate.done === true };
 }
 
+function normalizeInterstitialJournalEntry(raw: unknown): InterstitialJournalEntry | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const candidate = raw as { id?: unknown; text?: unknown; createdAt?: unknown; tag?: unknown };
+  const id = typeof candidate.id === 'string' ? candidate.id : '';
+  const text = typeof candidate.text === 'string' ? candidate.text.trim() : '';
+  const createdAt = typeof candidate.createdAt === 'string' ? candidate.createdAt : '';
+  if (!id || !text || !createdAt) return null;
+  const tag = typeof candidate.tag === 'string' && candidate.tag.trim() ? candidate.tag.trim() : undefined;
+  return { id, text, createdAt, tag };
+}
+
 function normalizeDayPlan(raw: unknown): DayPlan {
-  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '' };
-  const candidate = raw as { notes?: unknown; tasks?: unknown; thoughtDownload?: unknown };
+  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '', interstitialJournalEntries: [] };
+  const candidate = raw as {
+    notes?: unknown;
+    tasks?: unknown;
+    thoughtDownload?: unknown;
+    interstitialJournalEntries?: unknown;
+  };
   const notes = typeof candidate.notes === 'string' ? candidate.notes : '';
   const tasks = Array.isArray(candidate.tasks)
     ? candidate.tasks.map(normalizePlannerTask).filter((t): t is PlannerTask => t !== null)
     : [];
   const thoughtDownload = typeof candidate.thoughtDownload === 'string' ? candidate.thoughtDownload : '';
-  return { notes, tasks, thoughtDownload };
+  const interstitialJournalEntries = Array.isArray(candidate.interstitialJournalEntries)
+    ? candidate.interstitialJournalEntries
+        .map(normalizeInterstitialJournalEntry)
+        .filter((entry): entry is InterstitialJournalEntry => entry !== null)
+    : [];
+  return { notes, tasks, thoughtDownload, interstitialJournalEntries };
 }
 
 function normalizePlannerStore(raw: unknown): PlannerStore {

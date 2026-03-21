@@ -6,8 +6,12 @@ import { AlarmClock, ArrowRight, Heart, Plus, Target, TimerReset, Wand2, X } fro
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
   buildTimeBlockPlan,
+  createEqualQuadrants,
   createEmptyTimeBlockDayPlan,
   generateActivityId,
+  getActiveConstraintsForDay,
+  getActiveQuadrantsForDay,
+  getSectionRangeForDay,
   parseTimeInput,
   type TimeBlockDayPlan,
   type TimeBlockFormState,
@@ -92,10 +96,12 @@ function getKindUi(kind: 'want' | 'should' | null) {
 export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolProps) {
   const [message, setMessage] = useState<string | null>(null);
   const [autoStartAtScheduledTime, setAutoStartAtScheduledTime] = useState(true);
-  const { plannerStore, isLoaded, isSaving, saveError, setPlan } = useTimeBlockPlanner();
+  const { plannerStore, plannerDefaults, isLoaded, isSaving, saveError, setPlan } = useTimeBlockPlanner();
 
   const currentPlan = plannerStore[dateKey] ?? createEmptyTimeBlockDayPlan(dateKey);
   const { form, blocks, generatedAt } = currentPlan;
+  const activeConstraints = getActiveConstraintsForDay(currentPlan, plannerDefaults);
+  const activeQuadrants = getActiveQuadrantsForDay(currentPlan);
 
   const formStartMinutes = parseTimeInput(form.startTime) ?? 0;
   const formEndMinutes = parseTimeInput(form.endTime) ?? formStartMinutes;
@@ -107,8 +113,8 @@ export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolPro
 
   const previewBlocks = useMemo(() => {
     if (!hasValidWindow || !hasEnergy || !hasFocus || hasUnsetKinds) return [];
-    return buildTimeBlockPlan(form);
-  }, [form, hasEnergy, hasFocus, hasUnsetKinds, hasValidWindow]);
+    return buildTimeBlockPlan(form, activeConstraints, activeQuadrants);
+  }, [activeConstraints, activeQuadrants, form, hasEnergy, hasFocus, hasUnsetKinds, hasValidWindow]);
 
   const previewMessage = useMemo(() => {
     if (!hasValidWindow) return 'Choose an end time that comes after the start time.';
@@ -128,7 +134,21 @@ export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolPro
 
   const patchForm = <K extends keyof TimeBlockFormState>(key: K, value: TimeBlockFormState[K]) => {
     const nextForm = { ...form, [key]: value };
-    updateCurrentPlan(updateForm(currentPlan, nextForm));
+    const nextPlan = updateForm(currentPlan, nextForm);
+    const nextSectionRange = getSectionRangeForDay({
+      form: nextForm,
+      sectionStartTime: currentPlan.sectionStartTime,
+      sectionEndTime: currentPlan.sectionEndTime,
+    });
+    updateCurrentPlan({
+      ...nextPlan,
+      sectionStartTime: nextSectionRange.startTime,
+      sectionEndTime: nextSectionRange.endTime,
+      quadrants:
+        (key === 'startTime' || key === 'endTime') && currentPlan.quadrants.length >= 2
+          ? createEqualQuadrants(nextForm, currentPlan.quadrants.length, currentPlan.quadrants, nextSectionRange)
+          : currentPlan.quadrants,
+    });
     if (message) setMessage(null);
   };
 
@@ -156,7 +176,7 @@ export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolPro
       return;
     }
 
-    const nextBlocks = buildTimeBlockPlan(form);
+    const nextBlocks = buildTimeBlockPlan(form, activeConstraints, activeQuadrants);
     const blockNotes = currentPlan.blockNotes ?? {};
     const preservedNotes: Record<string, string> = {};
 
@@ -165,6 +185,7 @@ export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolPro
     }
 
     updateCurrentPlan({
+      ...currentPlan,
       form,
       blocks: nextBlocks,
       generatedAt: new Date().toISOString(),

@@ -1,5 +1,7 @@
 import {
+  createEmptyTimeBlockPlannerStore,
   normalizeTimeBlockPlannerStore,
+  type TimeBlockPlannerDefaults,
   type TimeBlockDayPlan,
   type TimeBlockPlannerStore,
 } from "@/lib/time-block-planner";
@@ -15,7 +17,7 @@ type TimeBlockPlannerClientState = {
 const listeners = new Set<() => void>();
 
 let state: TimeBlockPlannerClientState = {
-  store: {},
+  store: createEmptyTimeBlockPlannerStore(),
   isLoaded: false,
   isSaving: false,
   saveError: null,
@@ -23,7 +25,7 @@ let state: TimeBlockPlannerClientState = {
 };
 
 const SERVER_SNAPSHOT: TimeBlockPlannerClientState = {
-  store: {},
+  store: createEmptyTimeBlockPlannerStore(),
   isLoaded: false,
   isSaving: false,
   saveError: null,
@@ -33,6 +35,8 @@ const SERVER_SNAPSHOT: TimeBlockPlannerClientState = {
 let loadPromise: Promise<void> | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let lastLocalMutationAt = 0;
+let lastLocalDayMutationAt = 0;
+let lastLocalDefaultsMutationAt = 0;
 let beforeUnloadUsers = 0;
 
 function emit() {
@@ -117,7 +121,18 @@ export async function timeBlockPlannerEnsureLoaded(): Promise<void> {
       const loadedStore = normalizeTimeBlockPlannerStore(payload.store);
 
       const mergedStore =
-        lastLocalMutationAt > loadStartedAt ? { ...loadedStore, ...state.store } : loadedStore;
+        lastLocalMutationAt > loadStartedAt
+          ? {
+              days:
+                lastLocalDayMutationAt > loadStartedAt
+                  ? { ...loadedStore.days, ...state.store.days }
+                  : loadedStore.days,
+              defaults:
+                lastLocalDefaultsMutationAt > loadStartedAt
+                  ? state.store.defaults
+                  : loadedStore.defaults,
+            }
+          : loadedStore;
 
       setState({ store: mergedStore, saveError: null });
     } catch (error) {
@@ -137,11 +152,28 @@ export async function timeBlockPlannerEnsureLoaded(): Promise<void> {
 
 export function timeBlockPlannerSetPlan(dateKey: string, plan: TimeBlockDayPlan) {
   lastLocalMutationAt = Date.now();
+  lastLocalDayMutationAt = lastLocalMutationAt;
   setState({
     dirty: true,
     store: {
       ...state.store,
-      [dateKey]: plan,
+      days: {
+        ...state.store.days,
+        [dateKey]: plan,
+      },
+    },
+  });
+  schedulePersist();
+}
+
+export function timeBlockPlannerSetDefaults(defaults: TimeBlockPlannerDefaults) {
+  lastLocalMutationAt = Date.now();
+  lastLocalDefaultsMutationAt = lastLocalMutationAt;
+  setState({
+    dirty: true,
+    store: {
+      ...state.store,
+      defaults,
     },
   });
   schedulePersist();
@@ -175,9 +207,11 @@ export function __timeBlockPlannerClientStoreResetForTests() {
   saveTimer = null;
   loadPromise = null;
   lastLocalMutationAt = 0;
+  lastLocalDayMutationAt = 0;
+  lastLocalDefaultsMutationAt = 0;
   beforeUnloadUsers = 0;
   state = {
-    store: {},
+    store: createEmptyTimeBlockPlannerStore(),
     isLoaded: false,
     isSaving: false,
     saveError: null,

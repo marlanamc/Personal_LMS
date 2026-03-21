@@ -23,7 +23,7 @@ describe("timeBlockPlannerClientStore", () => {
 
     expect(listener).toHaveBeenCalled();
     expect(timeBlockPlannerGetSnapshot().dirty).toBe(true);
-    expect(timeBlockPlannerGetSnapshot().store["2026-03-09"].blocks).toEqual([]);
+    expect(timeBlockPlannerGetSnapshot().store.days["2026-03-09"].blocks).toEqual([]);
 
     unsubscribe();
   });
@@ -34,4 +34,3 @@ describe("timeBlockPlannerClientStore", () => {
     expect(timeBlockPlannerGetSnapshot().isLoaded).toBe(true);
   });
 });
-

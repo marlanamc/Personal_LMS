@@ -13,10 +13,18 @@ type PlannerTask = {
   done: boolean;
 };
 
+type InterstitialJournalEntry = {
+  id: string;
+  text: string;
+  createdAt: string;
+  tag?: string;
+};
+
 type DayPlan = {
   notes: string;
   tasks: PlannerTask[];
   thoughtDownload?: string;
+  interstitialJournalEntries?: InterstitialJournalEntry[];
 };
 
 type PlannerStore = Record<string, DayPlan>;
@@ -30,15 +38,36 @@ function normalizePlannerTask(raw: unknown): PlannerTask | null {
   return { id, text, done: candidate.done === true };
 }
 
+function normalizeInterstitialJournalEntry(raw: unknown): InterstitialJournalEntry | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const candidate = raw as { id?: unknown; text?: unknown; createdAt?: unknown; tag?: unknown };
+  const id = typeof candidate.id === 'string' ? candidate.id : '';
+  const text = typeof candidate.text === 'string' ? candidate.text.trim() : '';
+  const createdAt = typeof candidate.createdAt === 'string' ? candidate.createdAt : '';
+  if (!id || !text || !createdAt) return null;
+  const tag = typeof candidate.tag === 'string' && candidate.tag.trim() ? candidate.tag.trim() : undefined;
+  return { id, text, createdAt, tag };
+}
+
 function normalizeDayPlan(raw: unknown): DayPlan {
-  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '' };
-  const candidate = raw as { notes?: unknown; tasks?: unknown; thoughtDownload?: unknown };
+  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '', interstitialJournalEntries: [] };
+  const candidate = raw as {
+    notes?: unknown;
+    tasks?: unknown;
+    thoughtDownload?: unknown;
+    interstitialJournalEntries?: unknown;
+  };
   const notes = typeof candidate.notes === 'string' ? candidate.notes : '';
   const tasks = Array.isArray(candidate.tasks)
     ? candidate.tasks.map(normalizePlannerTask).filter((t): t is PlannerTask => t !== null)
     : [];
   const thoughtDownload = typeof candidate.thoughtDownload === 'string' ? candidate.thoughtDownload : '';
-  return { notes, tasks, thoughtDownload };
+  const interstitialJournalEntries = Array.isArray(candidate.interstitialJournalEntries)
+    ? candidate.interstitialJournalEntries
+        .map(normalizeInterstitialJournalEntry)
+        .filter((entry): entry is InterstitialJournalEntry => entry !== null)
+    : [];
+  return { notes, tasks, thoughtDownload, interstitialJournalEntries };
 }
 
 function normalizePlannerStore(raw: unknown): PlannerStore {
@@ -49,7 +78,8 @@ function normalizePlannerStore(raw: unknown): PlannerStore {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
     const plan = normalizeDayPlan(value);
     const hasThoughtDownload = typeof plan.thoughtDownload === 'string' && plan.thoughtDownload.trim() !== '';
-    if (plan.notes || plan.tasks.length > 0 || hasThoughtDownload) {
+    const hasInterstitialJournalEntries = (plan.interstitialJournalEntries?.length ?? 0) > 0;
+    if (plan.notes || plan.tasks.length > 0 || hasThoughtDownload || hasInterstitialJournalEntries) {
       store[key] = plan;
     }
   }
@@ -59,7 +89,8 @@ function normalizePlannerStore(raw: unknown): PlannerStore {
 function isPlanEmpty(plan: DayPlan): boolean {
   const hasThoughtDownload =
     typeof plan.thoughtDownload === 'string' && plan.thoughtDownload.trim() !== '';
-  return !plan.notes && plan.tasks.length === 0 && !hasThoughtDownload;
+  const hasInterstitialJournalEntries = (plan.interstitialJournalEntries?.length ?? 0) > 0;
+  return !plan.notes && plan.tasks.length === 0 && !hasThoughtDownload && !hasInterstitialJournalEntries;
 }
 
 export async function GET() {
@@ -125,7 +156,7 @@ export async function POST(req: NextRequest) {
     for (const [key, value] of Object.entries(incomingStore)) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
       
-      const existingPlan = mergedStore[key] || { notes: '', tasks: [], thoughtDownload: '' };
+      const existingPlan = mergedStore[key] || { notes: '', tasks: [], thoughtDownload: '', interstitialJournalEntries: [] };
       const rawIncoming = value as Record<string, unknown>;
       
       // Merge only if the field is present in the incoming data
@@ -137,6 +168,11 @@ export async function POST(req: NextRequest) {
         thoughtDownload: typeof rawIncoming.thoughtDownload === 'string' 
           ? rawIncoming.thoughtDownload 
           : existingPlan.thoughtDownload,
+        interstitialJournalEntries: Array.isArray(rawIncoming.interstitialJournalEntries)
+          ? rawIncoming.interstitialJournalEntries
+              .map(normalizeInterstitialJournalEntry)
+              .filter((entry): entry is InterstitialJournalEntry => entry !== null)
+          : existingPlan.interstitialJournalEntries,
       };
 
       if (isPlanEmpty(newPlan)) {

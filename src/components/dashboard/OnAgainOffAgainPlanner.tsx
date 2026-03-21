@@ -10,9 +10,13 @@ import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnch
 import { parseHHMMToMinutes } from '@/lib/anchors';
 import {
   buildTimeBlockPlan,
+  createEqualQuadrants,
   createEmptyTimeBlockDayPlan,
   formatMinuteOfDay,
   generateActivityId,
+  getActiveConstraintsForDay,
+  getActiveQuadrantsForDay,
+  getSectionRangeForDay,
   parseTimeInput,
   toDateKey,
   type TimeBlockDayPlan,
@@ -154,7 +158,7 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
   const [editingNoteText, setEditingNoteText] = useState('');
   const [autoStartAtScheduledTime, setAutoStartAtScheduledTime] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const { plannerStore, isLoaded, isSaving, saveError, setPlan } = useTimeBlockPlanner();
+  const { plannerStore, plannerDefaults, isLoaded, isSaving, saveError, setPlan } = useTimeBlockPlanner();
 
   // Timer context for mobile header
   const {
@@ -170,6 +174,8 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
 
   const currentPlan = plannerStore[selectedDateKey] ?? createEmptyTimeBlockDayPlan(selectedDateKey);
   const { form, blocks, generatedAt } = currentPlan;
+  const activeConstraints = getActiveConstraintsForDay(currentPlan, plannerDefaults);
+  const activeQuadrants = getActiveQuadrantsForDay(currentPlan);
 
     const formStartMinutes = parseTimeInput(form.startTime) ?? 0;
     const formEndMinutes = parseTimeInput(form.endTime) ?? formStartMinutes;
@@ -194,7 +200,21 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
 
   const patchForm = <K extends keyof TimeBlockFormState>(key: K, value: TimeBlockFormState[K]) => {
     const nextForm = { ...form, [key]: value };
-    updateCurrentPlan(updateForm(currentPlan, nextForm));
+    const nextPlan = updateForm(currentPlan, nextForm);
+    const nextSectionRange = getSectionRangeForDay({
+      form: nextForm,
+      sectionStartTime: currentPlan.sectionStartTime,
+      sectionEndTime: currentPlan.sectionEndTime,
+    });
+    updateCurrentPlan({
+      ...nextPlan,
+      sectionStartTime: nextSectionRange.startTime,
+      sectionEndTime: nextSectionRange.endTime,
+      quadrants:
+        (key === 'startTime' || key === 'endTime') && currentPlan.quadrants.length >= 2
+          ? createEqualQuadrants(nextForm, currentPlan.quadrants.length, currentPlan.quadrants, nextSectionRange)
+          : currentPlan.quadrants,
+    });
   };
 
   const generatePlan = () => {
@@ -214,13 +234,14 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
       return;
     }
 
-    const nextBlocks = buildTimeBlockPlan(form);
+    const nextBlocks = buildTimeBlockPlan(form, activeConstraints, activeQuadrants);
     const blockNotes = currentPlan.blockNotes ?? {};
     const preservedNotes: Record<string, string> = {};
     for (const b of nextBlocks) {
       if (blockNotes[b.id]) preservedNotes[b.id] = blockNotes[b.id];
     }
     updateCurrentPlan({
+      ...currentPlan,
       form,
       blocks: nextBlocks,
       generatedAt: new Date().toISOString(),

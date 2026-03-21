@@ -8,28 +8,35 @@ import {
   CalendarDays,
   ChevronDown,
   ChevronUp,
+  Columns2,
   FileText,
   Heart,
+  LocateFixed,
   Play,
   Sparkles,
   SunMedium,
+  StretchHorizontal,
   Target,
   Wand2,
 } from 'lucide-react';
 import { type CalendarEvent } from './MiniCalendar';
 import { DayTimeline } from '@/components/scheduler';
+import { DaySectionsBoard } from './DaySectionsBoard';
 import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
   anchorsToTimelineItems,
   combineAndSortItems,
+  constraintsToTimelineItems,
   eventsToTimelineItems,
   formatDuration,
   getNextDateKey,
   getNowMinuteForDate,
   getPreviousDateKey,
+  groupItemsIntoSections,
   getTodayKey,
   isToday,
+  quadrantsToTimelineItems,
   separateAllDayEvents,
   timeBlocksToTimelineItems,
   type TimelineItem,
@@ -62,13 +69,15 @@ export function DayPlannerView({
   const [selectedDateKey, setSelectedDateKey] = useState(initialDateKey);
   const [isDrawerOpen, setIsDrawerOpen] = useState(initialOpenTool === 'on-again-off-again');
   const [isMobile, setIsMobile] = useState(false);
+  const [plannerViewMode, setPlannerViewMode] = useState<'timeline' | 'sections'>('timeline');
   const [showAllDayEvents, setShowAllDayEvents] = useState(false);
   const [showEarlierHours, setShowEarlierHours] = useState(false);
   const planningHelpTriggerRef = useRef<HTMLElement | null>(null);
+  const nowIndicatorRef = useRef<HTMLDivElement | null>(null);
 
   // Data hooks
   const { getStateForDate } = useDailyAnchors(storageScope);
-  const { plannerStore, setPlan } = useTimeBlockPlanner();
+  const { plannerStore, plannerDefaults, setPlan } = useTimeBlockPlanner();
 
   // Block note editing (tap/double-click a block to add or edit notes)
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
@@ -118,6 +127,17 @@ export function DayPlannerView({
     return timeBlocksToTimelineItems(dayPlan.blocks, dayPlan.blockNotes);
   }, [plannerStore, selectedDateKey]);
 
+  const constraintItems = useMemo(() => {
+    const dayPlan = plannerStore[selectedDateKey];
+    if (!dayPlan) return [];
+    return constraintsToTimelineItems(dayPlan, plannerDefaults);
+  }, [plannerDefaults, plannerStore, selectedDateKey]);
+  const quadrantItems = useMemo(() => {
+    const dayPlan = plannerStore[selectedDateKey];
+    if (!dayPlan) return [];
+    return quadrantsToTimelineItems(dayPlan);
+  }, [plannerStore, selectedDateKey]);
+
   const selectedDate = useMemo(() => new Date(`${selectedDateKey}T12:00:00`), [selectedDateKey]);
   const selectedAnchorState = useMemo(() => getStateForDate(selectedDate), [getStateForDate, selectedDate]);
   const anchorItems = useMemo(() => {
@@ -130,8 +150,13 @@ export function DayPlannerView({
 
   // Combine all items for the timeline
   const timelineItems = useMemo(() => {
-    return combineAndSortItems(anchorItems, timedEvents, blockItems);
-  }, [anchorItems, timedEvents, blockItems]);
+    return combineAndSortItems(quadrantItems, anchorItems, timedEvents, blockItems, constraintItems);
+  }, [quadrantItems, anchorItems, timedEvents, blockItems, constraintItems]);
+  const canUseSectionsView = quadrantItems.length >= 2 && quadrantItems.length <= 5;
+  const sectionColumns = useMemo(() => {
+    if (!canUseSectionsView) return [];
+    return groupItemsIntoSections(quadrantItems, timelineItems, constraintItems);
+  }, [canUseSectionsView, constraintItems, quadrantItems, timelineItems]);
 
   // Calculate summary stats for blocks
   const blockSummary = useMemo(() => {
@@ -158,6 +183,20 @@ export function DayPlannerView({
 
     return { items, totalMinutes, blockCount: blockItems.length };
   }, [blockItems]);
+
+  const quadrantSummary = useMemo(() => {
+    return quadrantItems.map((quadrant) => ({
+      id: quadrant.id,
+      label: quadrant.label,
+      focusItems: quadrant.quadrantFocusItems ?? [],
+    }));
+  }, [quadrantItems]);
+
+  useEffect(() => {
+    if (!canUseSectionsView && plannerViewMode === 'sections') {
+      setPlannerViewMode('timeline');
+    }
+  }, [canUseSectionsView, plannerViewMode]);
 
   // Navigation
   const goToPreviousDay = () => setSelectedDateKey(getPreviousDateKey(selectedDateKey));
@@ -243,6 +282,27 @@ export function DayPlannerView({
   const startSequenceHref = blockSummary
     ? `/dashboard/timer?sequenceDateKey=${encodeURIComponent(selectedDateKey)}`
     : null;
+  const isSectionsMode = plannerViewMode === 'sections' && canUseSectionsView;
+  const jumpToNow = useCallback(() => {
+    if (!isSelectedToday || nowMinute === null) return;
+    if (plannerViewMode === 'sections') {
+      setPlannerViewMode('timeline');
+    }
+    if (showEarlierHours) {
+      setShowEarlierHours(false);
+    }
+
+    const scroll = () => {
+      nowIndicatorRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    };
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(scroll);
+    });
+  }, [isSelectedToday, nowMinute, plannerViewMode, showEarlierHours]);
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-fadeIn">
@@ -264,9 +324,17 @@ export function DayPlannerView({
           </div>
         </div>
 
-        {blockSummary && (
+        {(blockSummary || quadrantSummary.length > 0) && (
           <div className="flex flex-wrap items-center gap-2 rounded-[1.4rem] border border-border-subtle/40 bg-bg-elevated/35 px-3.5 py-2.5 text-sm">
-            {blockSummary.items.slice(0, 2).map((item) => (
+            {quadrantSummary.slice(0, 2).map((quadrant) => (
+              <span
+                key={quadrant.id}
+                className="inline-flex min-w-0 items-center gap-1 rounded-full bg-bg-surface/85 px-2 py-1 text-xs font-semibold text-text"
+              >
+                <span className="truncate">{quadrant.label}</span>
+              </span>
+            ))}
+            {blockSummary?.items.slice(0, 2).map((item) => (
               <span
                 key={item.label}
                 className={`inline-flex min-w-0 items-center gap-1 rounded-full px-2 py-1 ${
@@ -280,9 +348,11 @@ export function DayPlannerView({
                 <span className="text-xs font-bold">{formatDuration(item.totalMinutes)}</span>
               </span>
             ))}
-            <span className="text-xs font-medium text-text-muted">
-              {blockSummary.blockCount} blocks
-            </span>
+            {blockSummary ? (
+              <span className="text-xs font-medium text-text-muted">
+                {blockSummary.blockCount} blocks
+              </span>
+            ) : null}
           </div>
         )}
 
@@ -340,6 +410,17 @@ export function DayPlannerView({
                 Start Sequence
               </Link>
             ) : null}
+            {isSelectedToday && nowMinute !== null ? (
+              <button
+                type="button"
+                onClick={jumpToNow}
+                className="inline-flex items-center justify-center gap-2 rounded-[1.75rem] border border-border-subtle/60 bg-bg-surface/80 px-4 py-[9px] text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md h-[42px]"
+                title="Jump to the current time"
+              >
+                <LocateFixed size={15} className="text-accent-sakura" />
+                Now
+              </button>
+            ) : null}
             <button
               type="button"
               ref={(node) => {
@@ -370,7 +451,7 @@ export function DayPlannerView({
 
       {/* Desktop header */}
       <header className="hidden sm:flex items-end justify-between gap-6">
-        <div className="max-w-[36rem]">
+        <div className="max-w-[40rem]">
           <p className="ml-1 text-[11px] font-bold uppercase tracking-[0.2em] text-text-muted/80">
             Day Planner
           </p>
@@ -385,9 +466,17 @@ export function DayPlannerView({
             )}
           </div>
 
-          {blockSummary && (
+          {(blockSummary || quadrantSummary.length > 0) && (
             <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
-              {blockSummary.items.slice(0, 3).map((item) => (
+              {quadrantSummary.slice(0, 3).map((quadrant) => (
+                <span
+                  key={quadrant.id}
+                  className="inline-flex items-center gap-1 rounded-full border border-border-subtle/45 bg-bg-surface/80 px-2.5 py-1 text-text"
+                >
+                  <span className="font-medium">{quadrant.label}</span>
+                </span>
+              ))}
+              {blockSummary?.items.slice(0, 3).map((item) => (
                 <span
                   key={item.label}
                   className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 ${
@@ -401,9 +490,11 @@ export function DayPlannerView({
                   <span className="font-semibold">{formatDuration(item.totalMinutes)}</span>
                 </span>
               ))}
-              <span className="ml-1 text-xs font-medium uppercase tracking-[0.16em] text-text-muted/75">
-                {blockSummary.blockCount} blocks
-              </span>
+              {blockSummary ? (
+                <span className="ml-1 text-xs font-medium uppercase tracking-[0.16em] text-text-muted/75">
+                  {blockSummary.blockCount} blocks
+                </span>
+              ) : null}
             </div>
           )}
         </div>
@@ -452,6 +543,17 @@ export function DayPlannerView({
                 Today
               </button>
             )}
+            {isSelectedToday && nowMinute !== null ? (
+              <button
+                type="button"
+                onClick={jumpToNow}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-border-subtle/60 bg-bg-surface/80 px-4 py-2.5 text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md"
+                title="Jump to the current time"
+              >
+                <LocateFixed size={15} className="text-accent-sakura" />
+                Now
+              </button>
+            ) : null}
             <Link
               href={`/dashboard/calendar?date=${selectedDateKey}`}
               className="inline-flex items-center justify-center rounded-full border border-border-subtle/60 bg-bg-surface/80 p-2.5 text-text-secondary shadow-sm transition-all hover:bg-bg-elevated hover:text-text backdrop-blur-md"
@@ -544,6 +646,40 @@ export function DayPlannerView({
             </div>
           )}
 
+          {canUseSectionsView ? (
+            <div className="mb-3 flex sm:mb-4 sm:justify-end">
+              <div className="inline-flex w-full min-w-0 items-center gap-1 rounded-full border border-border-subtle/55 bg-bg-surface/85 p-1 shadow-sm sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setPlannerViewMode('timeline')}
+                  className={`inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors sm:flex-initial ${
+                    plannerViewMode === 'timeline'
+                      ? 'bg-bg-elevated text-text shadow-sm'
+                      : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
+                  }`}
+                  aria-pressed={plannerViewMode === 'timeline'}
+                >
+                  <StretchHorizontal size={15} />
+                  Timeline
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPlannerViewMode('sections')}
+                  className={`inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors sm:flex-initial ${
+                    plannerViewMode === 'sections'
+                      ? 'bg-bg-elevated text-text shadow-sm'
+                      : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
+                  }`}
+                  aria-pressed={plannerViewMode === 'sections'}
+                  title="View sections side by side"
+                >
+                  <Columns2 size={15} />
+                  Sections
+                </button>
+              </div>
+            </div>
+          ) : null}
+
           {timelineItems.length === 0 && anchorItems.length === 0 ? (
             <div className="rounded-xl sm:rounded-[2rem] border border-dashed border-border-subtle/40 bg-bg-elevated/30 backdrop-blur-sm p-6 sm:p-10 text-center">
               <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center rounded-2xl bg-gradient-to-br from-accent-teal/20 to-accent-sakura/20 border border-border-subtle/50 mb-4 shadow-lg">
@@ -564,6 +700,14 @@ export function DayPlannerView({
                 Get Started
               </button>
             </div>
+          ) : isSectionsMode ? (
+            <DaySectionsBoard
+              dateKey={selectedDateKey}
+              sections={sectionColumns}
+              nowMinute={nowMinute}
+              onItemClick={handleItemClick}
+              buildStartTimerHref={buildStartTimerHref}
+            />
           ) : (
             <DayTimeline
               dateKey={selectedDateKey}
@@ -573,6 +717,7 @@ export function DayPlannerView({
               buildStartTimerHref={buildStartTimerHref}
               isMobile={isMobile}
               config={timelineConfig}
+              nowIndicatorRef={nowIndicatorRef}
             />
           )}
         </div>

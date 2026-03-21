@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock, ChevronRight, Sparkles, X } from 'lucide-react';
+import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import type { DailyAnchorTemplate } from '@/lib/anchors';
 
 interface EditAnchorsSheetProps {
@@ -60,9 +61,9 @@ export function EditAnchorsSheet({ isOpen, onClose, anchorTemplates }: EditAncho
                     <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20">
                       <Sparkles size={22} className="text-primary" />
                     </div>
-                    <div>
+                    <div className="flex items-center">
                       <h2 className="text-xl font-bold tracking-tight text-text">Edit Anchors</h2>
-                      <p className="text-sm text-text-muted/80">Use the full page for weekly schedules and why-notes.</p>
+                      <InfoTooltip content="Use the full page for weekly schedules and why-notes." />
                     </div>
                   </div>
                 </div>

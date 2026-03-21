@@ -3,6 +3,36 @@ import type { Prisma } from "@prisma/client";
 export const TIME_BLOCK_PLANNER_SUBJECT_KEY = "time-block-planner";
 
 export type TimeBlockKind = "want" | "should";
+export type PlannerConstraintRuleKind = "cutoff" | "until";
+export type PlannerQuadrantColorToken = "dawn" | "mint" | "sky" | "sand" | "rose";
+
+export type PlannerConstraintTarget = {
+  kind: TimeBlockKind;
+  label?: string;
+};
+
+export type PlannerConstraintRule = {
+  id: string;
+  kind: PlannerConstraintRuleKind;
+  target: PlannerConstraintTarget;
+  time: string;
+  enabled: boolean;
+  displayText: string;
+};
+
+export type TimeBlockPlannerDefaults = {
+  constraints: PlannerConstraintRule[];
+};
+
+export type PlannerQuadrant = {
+  id: string;
+  label: string;
+  startTime: string;
+  endTime: string;
+  focusItems: string[];
+  colorToken: PlannerQuadrantColorToken;
+  enabled: boolean;
+};
 
 export type ActivitySlot = {
   id: string;
@@ -45,9 +75,17 @@ export type TimeBlockDayPlan = {
   generatedAt: string | null;
   /** Notes per block id, e.g. "what to work on" for coding blocks */
   blockNotes?: Record<string, string>;
+  constraints: PlannerConstraintRule[];
+  disabledDefaultConstraintIds: string[];
+  sectionStartTime: string | null;
+  sectionEndTime: string | null;
+  quadrants: PlannerQuadrant[];
 };
 
-export type TimeBlockPlannerStore = Record<string, TimeBlockDayPlan>;
+export type TimeBlockPlannerStore = {
+  days: Record<string, TimeBlockDayPlan>;
+  defaults: TimeBlockPlannerDefaults;
+};
 
 const TIME_KEY_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -104,6 +142,14 @@ export function generateActivityId(): string {
   return `activity-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
+export function generateConstraintId(): string {
+  return `constraint-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function generateQuadrantId(): string {
+  return `quadrant-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 export function createDefaultTimeBlockForm(dateKey: string, now = new Date()): TimeBlockFormState {
   const todayKey = toDateKey(now);
   const startDate = dateKey === todayKey ? now : new Date(`${dateKey}T09:00:00`);
@@ -127,10 +173,92 @@ export function createEmptyTimeBlockDayPlan(dateKey: string, now = new Date()): 
     blocks: [],
     generatedAt: null,
     blockNotes: {},
+    constraints: [],
+    disabledDefaultConstraintIds: [],
+    sectionStartTime: null,
+    sectionEndTime: null,
+    quadrants: [],
   };
 }
 
-export function buildTimeBlockPlan(form: TimeBlockFormState): TimeBlockEntry[] {
+export function createEmptyTimeBlockPlannerStore(): TimeBlockPlannerStore {
+  return {
+    days: {},
+    defaults: { constraints: [] },
+  };
+}
+
+export function describeConstraintRule(rule: PlannerConstraintRule): string {
+  const targetLabel = rule.target.label?.trim();
+  const activityName = targetLabel || (rule.target.kind === "want" ? "Energy" : "Focus");
+  const timeLabel = formatTimeLabel(rule.time);
+
+  if (rule.kind === "until") {
+    return `Only schedule ${activityName} until ${timeLabel}`;
+  }
+
+  return `Stop scheduling ${activityName} after ${timeLabel}`;
+}
+
+export function getActiveConstraintsForDay(
+  dayPlan: TimeBlockDayPlan | undefined,
+  defaults: TimeBlockPlannerDefaults | undefined,
+): PlannerConstraintRule[] {
+  const disabledIds = new Set(dayPlan?.disabledDefaultConstraintIds ?? []);
+  const inherited = (defaults?.constraints ?? []).filter((rule) => !disabledIds.has(rule.id));
+  return [...inherited, ...(dayPlan?.constraints ?? [])].filter((rule) => rule.enabled);
+}
+
+export function getActiveQuadrantsForDay(dayPlan: TimeBlockDayPlan | undefined): PlannerQuadrant[] {
+  return (dayPlan?.quadrants ?? []).filter((quadrant) => quadrant.enabled);
+}
+
+export function getSectionRangeForDay(dayPlan: Pick<TimeBlockDayPlan, "form" | "sectionStartTime" | "sectionEndTime">): {
+  startTime: string;
+  endTime: string;
+} {
+  const formStart = parseTimeInput(dayPlan.form.startTime);
+  const formEnd = parseTimeInput(dayPlan.form.endTime);
+  const sectionStart = dayPlan.sectionStartTime ? parseTimeInput(dayPlan.sectionStartTime) : null;
+  const sectionEnd = dayPlan.sectionEndTime ? parseTimeInput(dayPlan.sectionEndTime) : null;
+
+  if (formStart === null || formEnd === null || formEnd <= formStart) {
+    return { startTime: dayPlan.form.startTime, endTime: dayPlan.form.endTime };
+  }
+
+  const looksLikeInheritedFullDayRange =
+    dayPlan.form.endTime === "23:59" &&
+    (
+      (sectionStart === null && sectionEnd === null) ||
+      (sectionStart === formStart && sectionEnd === formEnd)
+    );
+
+  const looksLikeLegacyWorkdayRange =
+    dayPlan.form.endTime === "23:59" &&
+    sectionStart === formStart &&
+    sectionEnd === 17 * 60;
+
+  if (looksLikeInheritedFullDayRange || looksLikeLegacyWorkdayRange) {
+    return {
+      startTime: "09:00",
+      endTime: "17:00",
+    };
+  }
+
+  const safeStart = sectionStart !== null ? Math.max(formStart, Math.min(formEnd - 15, sectionStart)) : formStart;
+  const safeEnd = sectionEnd !== null ? Math.max(safeStart + 15, Math.min(formEnd, sectionEnd)) : formEnd;
+
+  return {
+    startTime: formatTimeFromMinutes(safeStart),
+    endTime: formatTimeFromMinutes(safeEnd),
+  };
+}
+
+export function buildTimeBlockPlan(
+  form: TimeBlockFormState,
+  constraints: PlannerConstraintRule[] = [],
+  quadrants: PlannerQuadrant[] = [],
+): TimeBlockEntry[] {
   const startMinutes = parseTimeInput(form.startTime);
   const endMinutes = parseTimeInput(form.endTime);
 
@@ -138,7 +266,6 @@ export function buildTimeBlockPlan(form: TimeBlockFormState): TimeBlockEntry[] {
     return [];
   }
 
-  // Build phases from activities array, filtering out empty/invalid ones
   const phases: Array<{ kind: TimeBlockKind; label: string; durationMinutes: number }> =
     form.activities
       .filter(
@@ -155,16 +282,49 @@ export function buildTimeBlockPlan(form: TimeBlockFormState): TimeBlockEntry[] {
     return [];
   }
 
+  const activeConstraints = constraints.filter((rule) => rule.enabled);
+  const activeQuadrants = quadrants.filter((quadrant) => quadrant.enabled);
   const blocks: TimeBlockEntry[] = [];
   let cursor = startMinutes;
   let phaseIndex = 0;
+  let skippedInRow = 0;
 
   while (cursor < endMinutes) {
+    const activeQuadrant = findQuadrantForMinute(activeQuadrants, cursor);
+    if (activeQuadrants.length > 0 && !activeQuadrant) {
+      const nextQuadrant = activeQuadrants
+        .map((quadrant) => ({ quadrant, startMinute: parseTimeInput(quadrant.startTime) }))
+        .filter((entry): entry is { quadrant: PlannerQuadrant; startMinute: number } => entry.startMinute !== null)
+        .find((entry) => entry.startMinute > cursor);
+      if (!nextQuadrant) break;
+      cursor = nextQuadrant.startMinute;
+      skippedInRow = 0;
+      continue;
+    }
+
     const phase = phases[phaseIndex % phases.length];
-    const nextEnd = Math.min(cursor + phase.durationMinutes, endMinutes);
+    const cutoff = getConstraintCutoffForPhase(phase, activeConstraints);
+    const quadrantEnd = activeQuadrant ? parseTimeInput(activeQuadrant.endTime) : null;
+    const effectiveEnd = [endMinutes, cutoff, quadrantEnd]
+      .filter((value): value is number => value !== null)
+      .reduce((min, value) => Math.min(min, value), endMinutes);
+
+    if (effectiveEnd <= cursor) {
+      phaseIndex += 1;
+      skippedInRow += 1;
+      if (skippedInRow >= phases.length) break;
+      continue;
+    }
+
+    const nextEnd = Math.min(cursor + phase.durationMinutes, effectiveEnd);
     const actualDuration = nextEnd - cursor;
 
-    if (actualDuration <= 0) break;
+    if (actualDuration <= 0) {
+      phaseIndex += 1;
+      skippedInRow += 1;
+      if (skippedInRow >= phases.length) break;
+      continue;
+    }
 
     blocks.push({
       id: `${phase.kind}-${cursor}-${nextEnd}`,
@@ -180,9 +340,41 @@ export function buildTimeBlockPlan(form: TimeBlockFormState): TimeBlockEntry[] {
 
     cursor = nextEnd;
     phaseIndex += 1;
+    skippedInRow = 0;
   }
 
   return blocks;
+}
+
+export function createEqualQuadrants(
+  form: TimeBlockFormState,
+  count: number,
+  existingQuadrants: PlannerQuadrant[] = [],
+  sectionRange?: { startTime: string; endTime: string },
+): PlannerQuadrant[] {
+  const safeCount = Math.max(2, Math.min(5, Math.round(count)));
+  const startMinutes = parseTimeInput(sectionRange?.startTime ?? form.startTime) ?? 9 * 60;
+  const endMinutes = parseTimeInput(sectionRange?.endTime ?? form.endTime) ?? Math.max(startMinutes + 60, 17 * 60);
+  const total = Math.max(safeCount, endMinutes - startMinutes);
+  const colors: PlannerQuadrantColorToken[] = ["dawn", "mint", "sky", "sand", "rose"];
+
+  return Array.from({ length: safeCount }, (_, index) => {
+    const sectionStart = startMinutes + Math.floor((total * index) / safeCount);
+    const sectionEnd =
+      index === safeCount - 1
+        ? endMinutes
+        : startMinutes + Math.floor((total * (index + 1)) / safeCount);
+    const previous = existingQuadrants[index];
+    return {
+      id: previous?.id ?? generateQuadrantId(),
+      label: previous?.label?.trim() || `Section ${index + 1}`,
+      startTime: formatTimeFromMinutes(sectionStart),
+      endTime: formatTimeFromMinutes(Math.max(sectionStart + 1, sectionEnd)),
+      focusItems: previous?.focusItems?.slice(0, 5) ?? [],
+      colorToken: previous?.colorToken ?? colors[index % colors.length],
+      enabled: previous?.enabled ?? true,
+    };
+  });
 }
 
 function normalizeActivitySlot(raw: unknown): ActivitySlot | null {
@@ -221,18 +413,16 @@ export function normalizeTimeBlockForm(raw: unknown, dateKey: string): TimeBlock
       ? candidate.endTime
       : fallback.endTime;
 
-  // Migrate from old format if activities array doesn't exist
   let activities: ActivitySlot[];
   if (Array.isArray(candidate.activities) && candidate.activities.length > 0) {
     activities = candidate.activities
       .map(normalizeActivitySlot)
       .filter((a): a is ActivitySlot => a !== null)
-      .slice(0, 5); // Max 5 activities
+      .slice(0, 5);
     if (activities.length === 0) {
       activities = fallback.activities;
     }
   } else if (candidate.wantLabel !== undefined || candidate.shouldLabel !== undefined) {
-    // Migrate from old want/should format
     activities = [
       {
         id: generateActivityId(),
@@ -295,6 +485,145 @@ function normalizeTimeBlockEntry(raw: unknown): TimeBlockEntry | null {
   };
 }
 
+function normalizeConstraintTarget(raw: unknown): PlannerConstraintTarget | null {
+  if (!raw || typeof raw !== "object") return null;
+  const candidate = raw as Partial<PlannerConstraintTarget>;
+  const kind = candidate.kind === "want" || candidate.kind === "should" ? candidate.kind : null;
+  if (!kind) return null;
+
+  const label = normalizeOptionalLabel(candidate.label);
+  return label ? { kind, label } : { kind };
+}
+
+function normalizeConstraintRule(raw: unknown): PlannerConstraintRule | null {
+  if (!raw || typeof raw !== "object") return null;
+  const candidate = raw as Partial<PlannerConstraintRule>;
+  const kind = candidate.kind === "cutoff" || candidate.kind === "until" ? candidate.kind : null;
+  const target = normalizeConstraintTarget(candidate.target);
+  const time = typeof candidate.time === "string" && TIME_KEY_PATTERN.test(candidate.time) ? candidate.time : null;
+
+  if (!kind || !target || !time) return null;
+
+  const normalized: PlannerConstraintRule = {
+    id:
+      typeof candidate.id === "string" && candidate.id.trim()
+        ? candidate.id
+        : generateConstraintId(),
+    kind,
+    target,
+    time,
+    enabled: candidate.enabled !== false,
+    displayText:
+      typeof candidate.displayText === "string" && candidate.displayText.trim()
+        ? candidate.displayText.trim()
+        : "",
+  };
+
+  return {
+    ...normalized,
+    displayText: normalized.displayText || describeConstraintRule(normalized),
+  };
+}
+
+function normalizeConstraintRules(raw: unknown): PlannerConstraintRule[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map(normalizeConstraintRule)
+    .filter((rule): rule is PlannerConstraintRule => rule !== null);
+}
+
+function normalizeQuadrantColorToken(value: unknown, fallback: PlannerQuadrantColorToken): PlannerQuadrantColorToken {
+  return value === "dawn" || value === "mint" || value === "sky" || value === "sand" || value === "rose"
+    ? value
+    : fallback;
+}
+
+function normalizeQuadrant(raw: unknown, index: number): PlannerQuadrant | null {
+  if (!raw || typeof raw !== "object") return null;
+  const candidate = raw as Partial<PlannerQuadrant>;
+  const startTime =
+    typeof candidate.startTime === "string" && TIME_KEY_PATTERN.test(candidate.startTime)
+      ? candidate.startTime
+      : null;
+  const endTime =
+    typeof candidate.endTime === "string" && TIME_KEY_PATTERN.test(candidate.endTime)
+      ? candidate.endTime
+      : null;
+  const startMinute = startTime ? parseTimeInput(startTime) : null;
+  const endMinute = endTime ? parseTimeInput(endTime) : null;
+  const label = normalizeText(candidate.label, "");
+  const colors: PlannerQuadrantColorToken[] = ["dawn", "mint", "sky", "sand", "rose"];
+
+  if (!startTime || !endTime || startMinute === null || endMinute === null || endMinute <= startMinute || !label) {
+    return null;
+  }
+
+  return {
+    id:
+      typeof candidate.id === "string" && candidate.id.trim()
+        ? candidate.id
+        : generateQuadrantId(),
+    label,
+    startTime,
+    endTime,
+    focusItems: Array.isArray(candidate.focusItems)
+      ? candidate.focusItems
+          .filter((item): item is string => typeof item === "string")
+          .map((item) => item.trim())
+          .filter(Boolean)
+          .slice(0, 5)
+      : [],
+    colorToken: normalizeQuadrantColorToken(candidate.colorToken, colors[index % colors.length]),
+    enabled: candidate.enabled !== false,
+  };
+}
+
+function normalizeQuadrants(raw: unknown, form: TimeBlockFormState): PlannerQuadrant[] {
+  if (!Array.isArray(raw)) return [];
+  if (raw.length > 0 && (raw.length < 2 || raw.length > 5)) return [];
+  const quadrants = raw
+    .map((quadrant, index) => normalizeQuadrant(quadrant, index))
+    .filter((quadrant): quadrant is PlannerQuadrant => quadrant !== null)
+    .sort((a, b) => {
+      const aStart = parseTimeInput(a.startTime) ?? 0;
+      const bStart = parseTimeInput(b.startTime) ?? 0;
+      return aStart - bStart;
+    });
+
+  if (quadrants.length > 0 && (quadrants.length < 2 || quadrants.length > 5)) return [];
+  if (quadrants.length === 0) return [];
+
+  const formStart = parseTimeInput(form.startTime);
+  const formEnd = parseTimeInput(form.endTime);
+  if (formStart === null || formEnd === null || formEnd <= formStart) return [];
+
+  for (let index = 0; index < quadrants.length; index += 1) {
+    const quadrant = quadrants[index];
+    const start = parseTimeInput(quadrant.startTime);
+    const end = parseTimeInput(quadrant.endTime);
+    if (start === null || end === null || end <= start) return [];
+    if (index === 0 && start !== formStart) return [];
+    if (index === quadrants.length - 1 && end !== formEnd) return [];
+    if (index > 0) {
+      const previousEnd = parseTimeInput(quadrants[index - 1].endTime);
+      if (previousEnd === null || previousEnd !== start) return [];
+    }
+  }
+
+  return quadrants;
+}
+
+function normalizeTimeBlockPlannerDefaults(raw: unknown): TimeBlockPlannerDefaults {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    return { constraints: [] };
+  }
+
+  const candidate = raw as Partial<TimeBlockPlannerDefaults>;
+  return {
+    constraints: normalizeConstraintRules(candidate.constraints),
+  };
+}
+
 export function normalizeTimeBlockDayPlan(raw: unknown, dateKey: string): TimeBlockDayPlan {
   const fallback = createEmptyTimeBlockDayPlan(dateKey);
   if (!raw || typeof raw !== "object") return fallback;
@@ -320,28 +649,73 @@ export function normalizeTimeBlockDayPlan(raw: unknown, dateKey: string): TimeBl
     }
   }
 
+  const disabledDefaultConstraintIds = Array.isArray(candidate.disabledDefaultConstraintIds)
+    ? candidate.disabledDefaultConstraintIds.filter(
+        (value): value is string => typeof value === "string" && value.trim().length > 0,
+      )
+    : [];
+  const sectionStartTime =
+    typeof candidate.sectionStartTime === "string" && TIME_KEY_PATTERN.test(candidate.sectionStartTime)
+      ? candidate.sectionStartTime
+      : null;
+  const sectionEndTime =
+    typeof candidate.sectionEndTime === "string" && TIME_KEY_PATTERN.test(candidate.sectionEndTime)
+      ? candidate.sectionEndTime
+      : null;
+  const normalizedSectionRange = getSectionRangeForDay({
+    form,
+    sectionStartTime,
+    sectionEndTime,
+  });
+
   return {
     form,
     blocks,
     generatedAt,
     blockNotes,
+    constraints: normalizeConstraintRules(candidate.constraints),
+    disabledDefaultConstraintIds,
+    sectionStartTime: normalizedSectionRange.startTime,
+    sectionEndTime: normalizedSectionRange.endTime,
+    quadrants: normalizeQuadrants(candidate.quadrants, {
+      ...form,
+      startTime: normalizedSectionRange.startTime,
+      endTime: normalizedSectionRange.endTime,
+    }),
   };
 }
 
 export function normalizeTimeBlockPlannerStore(raw: unknown): TimeBlockPlannerStore {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const fallback = createEmptyTimeBlockPlannerStore();
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return fallback;
 
-  const store: TimeBlockPlannerStore = {};
-  for (const [dateKey, value] of Object.entries(raw as Record<string, unknown>)) {
+  const candidate = raw as Record<string, unknown> & {
+    days?: unknown;
+    defaults?: unknown;
+  };
+
+  const rawDays =
+    candidate.days && typeof candidate.days === "object" && !Array.isArray(candidate.days)
+      ? (candidate.days as Record<string, unknown>)
+      : candidate;
+
+  const days: Record<string, TimeBlockDayPlan> = {};
+  for (const [dateKey, value] of Object.entries(rawDays)) {
     if (!DATE_KEY_PATTERN.test(dateKey)) continue;
-    store[dateKey] = normalizeTimeBlockDayPlan(value, dateKey);
+    days[dateKey] = normalizeTimeBlockDayPlan(value, dateKey);
   }
 
-  return store;
+  return {
+    days,
+    defaults: normalizeTimeBlockPlannerDefaults(candidate.defaults),
+  };
 }
 
 export function plannerStoreToJson(store: TimeBlockPlannerStore): Prisma.InputJsonValue {
-  return store as unknown as Prisma.InputJsonValue;
+  return {
+    days: store.days,
+    defaults: store.defaults,
+  } as unknown as Prisma.InputJsonValue;
 }
 
 function normalizeText(value: unknown, fallback: string): string {
@@ -350,9 +724,52 @@ function normalizeText(value: unknown, fallback: string): string {
   return trimmed || fallback;
 }
 
+function normalizeOptionalLabel(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  return trimmed || undefined;
+}
+
 function formatTimeFromMinutes(totalMinutes: number): string {
   const safeMinutes = Math.max(0, Math.min(23 * 60 + 59, Math.round(totalMinutes)));
   const hours = `${Math.floor(safeMinutes / 60)}`.padStart(2, "0");
   const minutes = `${safeMinutes % 60}`.padStart(2, "0");
   return `${hours}:${minutes}`;
+}
+
+function formatTimeLabel(time: string): string {
+  const minutes = parseTimeInput(time);
+  return minutes === null ? time : formatMinuteOfDay(minutes);
+}
+
+function getConstraintCutoffForPhase(
+  phase: { kind: TimeBlockKind; label: string },
+  constraints: PlannerConstraintRule[],
+): number | null {
+  const matchingCutoffs = constraints
+    .filter((rule) => constraintMatchesPhase(rule, phase))
+    .map((rule) => parseTimeInput(rule.time))
+    .filter((value): value is number => value !== null);
+
+  if (matchingCutoffs.length === 0) return null;
+  return Math.min(...matchingCutoffs);
+}
+
+function constraintMatchesPhase(
+  rule: PlannerConstraintRule,
+  phase: { kind: TimeBlockKind; label: string },
+): boolean {
+  if (rule.target.kind !== phase.kind) return false;
+  if (!rule.target.label) return true;
+  return rule.target.label.trim().toLowerCase() === phase.label.trim().toLowerCase();
+}
+
+function findQuadrantForMinute(quadrants: PlannerQuadrant[], minute: number): PlannerQuadrant | null {
+  for (const quadrant of quadrants) {
+    const start = parseTimeInput(quadrant.startTime);
+    const end = parseTimeInput(quadrant.endTime);
+    if (start === null || end === null) continue;
+    if (minute >= start && minute < end) return quadrant;
+  }
+  return null;
 }

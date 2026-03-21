@@ -6,9 +6,17 @@
  */
 
 import type { DailyAnchor } from '@/lib/anchors';
-import type { TimeBlockEntry } from '@/lib/time-block-planner';
-import type { CalendarEventType, TimelineItem } from './types';
+import type {
+  PlannerConstraintRule,
+  PlannerQuadrant,
+  TimeBlockEntry,
+  TimeBlockDayPlan,
+  TimeBlockFormState,
+  TimeBlockPlannerDefaults,
+} from '@/lib/time-block-planner';
+import type { CalendarEventType, SectionColumnData, TimelineItem } from './types';
 import { parseHHMMToMinutes } from './time-utils';
+import { getActiveConstraintsForDay, getActiveQuadrantsForDay } from '@/lib/time-block-planner';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Calendar Event Types (imported from MiniCalendar to avoid circular deps)
@@ -195,6 +203,66 @@ export function timeBlocksToTimelineItems(
   );
 }
 
+export function constraintToTimelineItem(
+  constraint: PlannerConstraintRule,
+  form: TimeBlockFormState,
+): TimelineItem | null {
+  const stopMinute = parseHHMMToMinutes(constraint.time);
+  const startMinute =
+    constraint.kind === 'until'
+      ? parseHHMMToMinutes(form.startTime)
+      : stopMinute;
+
+  if (constraint.kind === 'until' && stopMinute <= startMinute) {
+    return null;
+  }
+
+  return {
+    id: `constraint-${constraint.id}`,
+    type: 'constraint',
+    label: constraint.displayText,
+    startMinute,
+    endMinute: constraint.kind === 'until' ? stopMinute : undefined,
+    durationMinutes: constraint.kind === 'until' ? stopMinute - startMinute : undefined,
+    constraintKind: constraint.kind,
+    blockKind: constraint.target.kind,
+    constraintTargetLabel: constraint.target.label,
+  };
+}
+
+export function constraintsToTimelineItems(
+  dayPlan: TimeBlockDayPlan,
+  defaults?: TimeBlockPlannerDefaults,
+): TimelineItem[] {
+  const activeConstraints = getActiveConstraintsForDay(dayPlan, defaults);
+  return activeConstraints
+    .map((constraint) => constraintToTimelineItem(constraint, dayPlan.form))
+    .filter((item): item is TimelineItem => item !== null);
+}
+
+export function quadrantToTimelineItem(quadrant: PlannerQuadrant): TimelineItem | null {
+  const startMinute = parseHHMMToMinutes(quadrant.startTime);
+  const endMinute = parseHHMMToMinutes(quadrant.endTime);
+  if (endMinute <= startMinute) return null;
+
+  return {
+    id: `quadrant-${quadrant.id}`,
+    type: 'quadrant',
+    label: quadrant.label,
+    startMinute,
+    endMinute,
+    durationMinutes: endMinute - startMinute,
+    quadrantFocusItems: quadrant.focusItems,
+    quadrantColorToken: quadrant.colorToken,
+  };
+}
+
+export function quadrantsToTimelineItems(dayPlan: TimeBlockDayPlan): TimelineItem[] {
+  return getActiveQuadrantsForDay(dayPlan)
+    .map((quadrant) => quadrantToTimelineItem(quadrant))
+    .filter((item): item is TimelineItem => item !== null);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Combined Conversion
 // ─────────────────────────────────────────────────────────────────────────────
@@ -204,11 +272,13 @@ export function timeBlocksToTimelineItems(
  * Anchors come first at the same time, then events, then blocks.
  */
 export function combineAndSortItems(
+  quadrants: TimelineItem[],
   anchors: TimelineItem[],
   events: TimelineItem[],
   blocks: TimelineItem[],
+  constraints: TimelineItem[] = [],
 ): TimelineItem[] {
-  const all = [...anchors, ...events, ...blocks];
+  const all = [...quadrants, ...anchors, ...events, ...constraints, ...blocks];
 
   return all.sort((a, b) => {
     // Sort by start time
@@ -217,7 +287,7 @@ export function combineAndSortItems(
     }
 
     // At same time: anchors first, then events, then blocks
-    const typeOrder = { anchor: 0, event: 1, 'time-block': 2 };
+    const typeOrder = { quadrant: 0, anchor: 1, event: 2, constraint: 3, 'time-block': 4 };
     return typeOrder[a.type] - typeOrder[b.type];
   });
 }
@@ -233,5 +303,56 @@ export function filterItemsInWindow(
   return items.filter((item) => {
     const itemEnd = item.endMinute ?? item.startMinute;
     return item.startMinute < endMinute && itemEnd > startMinute;
+  });
+}
+
+function findSectionIndexByMinute(sections: TimelineItem[], minute: number): number {
+  return sections.findIndex((section) => minute >= section.startMinute && minute < (section.endMinute ?? section.startMinute));
+}
+
+export function groupItemsIntoSections(
+  sections: TimelineItem[],
+  items: TimelineItem[],
+  constraints: TimelineItem[] = [],
+): SectionColumnData[] {
+  const activeSections = sections
+    .filter((section) => section.type === 'quadrant' && (section.endMinute ?? section.startMinute) > section.startMinute)
+    .sort((a, b) => a.startMinute - b.startMinute);
+
+  return activeSections.map((section) => {
+    const sectionItems = items
+      .filter((item) => {
+        if (item.isAllDay || item.type === 'quadrant' || item.type === 'constraint') return false;
+        return item.startMinute >= section.startMinute && item.startMinute < (section.endMinute ?? section.startMinute);
+      })
+      .sort((a, b) => {
+        if (a.startMinute !== b.startMinute) return a.startMinute - b.startMinute;
+        const typeOrder = { anchor: 0, event: 1, 'time-block': 2, constraint: 3, quadrant: 4 };
+        return typeOrder[a.type] - typeOrder[b.type];
+      });
+
+    const sectionConstraints = constraints
+      .filter((constraint) => {
+        const effectiveMinute = constraint.constraintKind === 'until'
+          ? (constraint.endMinute ?? constraint.startMinute)
+          : constraint.startMinute;
+        return findSectionIndexByMinute(activeSections, effectiveMinute) === activeSections.indexOf(section);
+      })
+      .sort((a, b) => {
+        const aMinute = a.constraintKind === 'until' ? (a.endMinute ?? a.startMinute) : a.startMinute;
+        const bMinute = b.constraintKind === 'until' ? (b.endMinute ?? b.startMinute) : b.startMinute;
+        return aMinute - bMinute;
+      });
+
+    return {
+      id: section.id,
+      label: section.label,
+      startMinute: section.startMinute,
+      endMinute: section.endMinute ?? section.startMinute,
+      focusItems: section.quadrantFocusItems ?? [],
+      colorToken: section.quadrantColorToken,
+      items: sectionItems,
+      constraints: sectionConstraints,
+    };
   });
 }

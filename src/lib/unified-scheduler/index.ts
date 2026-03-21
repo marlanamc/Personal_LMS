@@ -12,14 +12,15 @@ export type {
   DateKey,
   DayPlan,
   DayScheduleData,
+  SectionColumnData,
   DayTask,
-  TimeBlockKind,
   TimelineConfig,
   TimelineItem,
   TimelineItemStatus,
   TimelineItemType,
   TimeOfDay,
 } from './types';
+export type { TimeBlockKind } from '@/lib/time-block-planner';
 
 export { DEFAULT_TIMELINE_CONFIG } from './types';
 
@@ -72,6 +73,11 @@ export {
   eventToTimelineItem,
   eventsToTimelineItems,
   separateAllDayEvents,
+  constraintToTimelineItem,
+  constraintsToTimelineItems,
+  quadrantToTimelineItem,
+  quadrantsToTimelineItems,
+  groupItemsIntoSections,
   // Time block converters
   timeBlockToTimelineItem,
   timeBlocksToTimelineItems,

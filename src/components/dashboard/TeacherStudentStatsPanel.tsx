@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { StudentStatsView } from "./StudentStatsView";
 
 type Student = {
@@ -52,9 +53,9 @@ export function TeacherStudentStatsPanel({ students, activities, progressByStude
     return (
         <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
-                <div>
+                <div className="flex items-center">
                     <h2 className="text-xl font-bold text-text">Member Activity Progress</h2>
-                    <p className="text-sm text-text-muted">Switch between members or view the overall average.</p>
+                    <InfoTooltip content="Switch between members or view the overall average." />
                 </div>
                 <select
                     value={selectedId}

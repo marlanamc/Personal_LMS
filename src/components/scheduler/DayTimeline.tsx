@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, type RefObject } from 'react';
 import type { TimelineConfig, TimelineItem } from '@/lib/unified-scheduler';
 import {
   DEFAULT_TIMELINE_CONFIG,
@@ -14,6 +14,8 @@ import { TimelineAnchorMarker } from './items/TimelineAnchorMarker';
 import { TimelineAnchorRangeMarker } from './items/TimelineAnchorRangeMarker';
 import { TimelineEventCard } from './items/TimelineEventCard';
 import { TimelineBlockCard } from './items/TimelineBlockCard';
+import { TimelineConstraintMarker } from './items/TimelineConstraintMarker';
+import { TimelineQuadrantBand } from './items/TimelineQuadrantBand';
 import { cn } from '@/lib/utils';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -44,6 +46,9 @@ export interface DayTimelineProps {
 
   /** Whether this is on mobile (affects interaction hints) */
   isMobile?: boolean;
+
+  /** Optional ref for the current-time indicator so parents can scroll to it */
+  nowIndicatorRef?: RefObject<HTMLDivElement | null>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -59,6 +64,7 @@ export function DayTimeline({
   buildStartTimerHref,
   className,
   isMobile = false,
+  nowIndicatorRef,
 }: DayTimelineProps) {
   const config: TimelineConfig = useMemo(
     () => ({ ...DEFAULT_TIMELINE_CONFIG, ...configOverrides }),
@@ -72,14 +78,16 @@ export function DayTimeline({
   const timeLabels = useMemo(() => generateTimeLabels(config), [config]);
 
   // Separate items by type for layered rendering; split anchors into point vs range
-  const { pointAnchors, rangeAnchors, events, blocks } = useMemo(() => {
+  const { pointAnchors, rangeAnchors, events, blocks, constraints, quadrants } = useMemo(() => {
     const anchors = items.filter((item) => item.type === 'anchor');
     const pointAnchors = anchors.filter((a) => a.endMinute == null || a.endMinute <= a.startMinute);
     const rangeAnchors = anchors.filter((a) => a.endMinute != null && a.endMinute > a.startMinute);
     return {
+      quadrants: items.filter((item) => item.type === 'quadrant'),
       pointAnchors,
       rangeAnchors,
       events: items.filter((item) => item.type === 'event' && !item.isAllDay),
+      constraints: items.filter((item) => item.type === 'constraint'),
       blocks: items.filter((item) => item.type === 'time-block'),
     };
   }, [items]);
@@ -140,6 +148,31 @@ export function DayTimeline({
             />
           ))}
 
+        {/* Quadrant bands */}
+        {quadrants
+          .filter((item) => {
+            const itemEnd = item.endMinute ?? item.startMinute;
+            return itemEnd > config.startHour * 60 && item.startMinute < config.endHour * 60;
+          })
+          .map((item) => {
+            const startMin = Math.max(item.startMinute, config.startHour * 60);
+            const endMin = Math.min(item.endMinute ?? item.startMinute, config.endHour * 60);
+            const duration = endMin - startMin;
+            return (
+              <TimelineQuadrantBand
+                key={item.id}
+                item={item}
+                style={{
+                  position: 'absolute',
+                  left: isMobile ? '0.25rem' : '0.375rem',
+                  right: isMobile ? '0.25rem' : '0.375rem',
+                  top: getTop(startMin) + 2,
+                  height: Math.max(getHeight(duration) - 4, 54),
+                }}
+              />
+            );
+          })}
+
         {/* Events layer (behind blocks) */}
         {events
           .filter((item) => {
@@ -169,6 +202,34 @@ export function DayTimeline({
             />
           );
         })}
+
+        {/* Constraints layer */}
+        {constraints
+          .filter((item) => {
+            const itemEnd = item.endMinute ?? item.startMinute;
+            return itemEnd > config.startHour * 60 && item.startMinute < config.endHour * 60;
+          })
+          .map((item) => {
+            const startMin = Math.max(item.startMinute, config.startHour * 60);
+            const rawEnd = item.endMinute ?? item.startMinute;
+            const endMin = Math.min(rawEnd, config.endHour * 60);
+            const duration = Math.max(endMin - startMin, 0);
+
+            return (
+              <TimelineConstraintMarker
+                key={item.id}
+                item={item}
+                style={{
+                  position: 'absolute',
+                  left: isMobile ? '0.375rem' : '0.5rem',
+                  right: isMobile ? '0.375rem' : '0.5rem',
+                  top: getTop(startMin) + (item.constraintKind === 'until' ? 4 : 0),
+                  height: item.constraintKind === 'until' ? Math.max(getHeight(duration) - 6, 40) : undefined,
+                  transform: item.constraintKind === 'until' ? undefined : 'translateY(-50%)',
+                }}
+              />
+            );
+          })}
 
         {/* Time blocks layer */}
         {blocks
@@ -258,6 +319,7 @@ export function DayTimeline({
         {/* Current time indicator */}
         {showNowIndicator && (
           <div
+            ref={nowIndicatorRef}
             className="absolute left-0 right-0 z-30 flex items-center pointer-events-none"
             style={{ top: getTop(nowMinute!) }}
           >

@@ -82,15 +82,19 @@ describe("time block planner route", () => {
         updatedAt: true,
       },
     });
-    expect(payload.store["2026-03-08"].form.activities).toEqual([
+    expect(payload.store.days["2026-03-08"].form.activities).toEqual([
       { id: expect.any(String), kind: "want", label: "Coding", minutes: 60 },
       { id: expect.any(String), kind: "should", label: "Cleaning", minutes: 30 },
     ]);
-    expect(payload.store["2026-03-08"].blocks[0]).toMatchObject({
+    expect(payload.store.days["2026-03-08"].blocks[0]).toMatchObject({
       kind: "want",
       label: "Coding",
       durationMinutes: 60,
     });
+    expect(payload.store.days["2026-03-08"].sectionStartTime).toBe("09:00");
+    expect(payload.store.days["2026-03-08"].sectionEndTime).toBe("11:30");
+    expect(payload.store.days["2026-03-08"].quadrants).toEqual([]);
+    expect(payload.store.defaults.constraints).toEqual([]);
   });
 
   it("normalizes and saves the posted store", async () => {
@@ -144,62 +148,82 @@ describe("time block planner route", () => {
         userId: "user-1",
         subjectKey: "time-block-planner",
         checklist: {
-          "2026-03-08": {
-            blockNotes: {},
-            form: {
-              date: "2026-03-08",
-              startTime: "09:00",
-              endTime: "11:10",
-              activities: [
-                { id: expect.any(String), kind: "want", label: "Coding", minutes: 60 },
-                { id: expect.any(String), kind: "should", label: "Cleaning", minutes: 30 },
-              ],
-            },
-            blocks: [
-              {
-                id: "want-540-600",
-                kind: "want",
-                label: "Coding",
+          days: {
+            "2026-03-08": {
+              blockNotes: {},
+              constraints: [],
+              disabledDefaultConstraintIds: [],
+              sectionStartTime: "09:00",
+              sectionEndTime: "11:10",
+              quadrants: [],
+              form: {
+                date: "2026-03-08",
                 startTime: "09:00",
-                endTime: "10:00",
-                startMinuteOfDay: 540,
-                endMinuteOfDay: 600,
-                durationMinutes: 60,
-                isTrimmed: false,
+                endTime: "11:10",
+                activities: [
+                  { id: expect.any(String), kind: "want", label: "Coding", minutes: 60 },
+                  { id: expect.any(String), kind: "should", label: "Cleaning", minutes: 30 },
+                ],
               },
-            ],
-            generatedAt: "2026-03-08T10:00:00.000Z",
+              blocks: [
+                {
+                  id: "want-540-600",
+                  kind: "want",
+                  label: "Coding",
+                  startTime: "09:00",
+                  endTime: "10:00",
+                  startMinuteOfDay: 540,
+                  endMinuteOfDay: 600,
+                  durationMinutes: 60,
+                  isTrimmed: false,
+                },
+              ],
+              generatedAt: "2026-03-08T10:00:00.000Z",
+            },
+          },
+          defaults: {
+            constraints: [],
           },
         },
         links: [],
       },
       update: {
         checklist: {
-          "2026-03-08": {
-            blockNotes: {},
-            form: {
-              date: "2026-03-08",
-              startTime: "09:00",
-              endTime: "11:10",
-              activities: [
-                { id: expect.any(String), kind: "want", label: "Coding", minutes: 60 },
-                { id: expect.any(String), kind: "should", label: "Cleaning", minutes: 30 },
-              ],
-            },
-            blocks: [
-              {
-                id: "want-540-600",
-                kind: "want",
-                label: "Coding",
+          days: {
+            "2026-03-08": {
+              blockNotes: {},
+              constraints: [],
+              disabledDefaultConstraintIds: [],
+              sectionStartTime: "09:00",
+              sectionEndTime: "11:10",
+              quadrants: [],
+              form: {
+                date: "2026-03-08",
                 startTime: "09:00",
-                endTime: "10:00",
-                startMinuteOfDay: 540,
-                endMinuteOfDay: 600,
-                durationMinutes: 60,
-                isTrimmed: false,
+                endTime: "11:10",
+                activities: [
+                  { id: expect.any(String), kind: "want", label: "Coding", minutes: 60 },
+                  { id: expect.any(String), kind: "should", label: "Cleaning", minutes: 30 },
+                ],
               },
-            ],
-            generatedAt: "2026-03-08T10:00:00.000Z",
+              blocks: [
+                {
+                  id: "want-540-600",
+                  kind: "want",
+                  label: "Coding",
+                  startTime: "09:00",
+                  endTime: "10:00",
+                  startMinuteOfDay: 540,
+                  endMinuteOfDay: 600,
+                  durationMinutes: 60,
+                  isTrimmed: false,
+                },
+              ],
+              generatedAt: "2026-03-08T10:00:00.000Z",
+            },
+          },
+          defaults: {
+            constraints: [],
           },
         },
       },

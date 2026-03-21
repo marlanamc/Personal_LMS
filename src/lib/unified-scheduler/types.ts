@@ -7,6 +7,11 @@
  */
 
 import type { AnchorColor, AnchorIcon, AnchorStatus, SkipReason } from '@/lib/anchors';
+import type {
+  PlannerConstraintRuleKind,
+  PlannerQuadrantColorToken,
+  TimeBlockKind,
+} from '@/lib/time-block-planner';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Core Time Types
@@ -31,17 +36,12 @@ export type DateKey = string;
 // Timeline Item Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type TimelineItemType = 'anchor' | 'event' | 'time-block';
+export type TimelineItemType = 'anchor' | 'event' | 'time-block' | 'constraint' | 'quadrant';
 
 /**
  * Event type from calendar events (assignments, holidays, etc.)
  */
 export type CalendarEventType = 'due' | 'holiday' | 'event' | 'reminder' | 'quiz' | 'appointment' | 'workout';
-
-/**
- * Time block kind for On Again/Off Again planner
- */
-export type TimeBlockKind = 'want' | 'should';
 
 /**
  * Unified timeline item that can represent any schedulable thing.
@@ -83,6 +83,25 @@ export interface TimelineItem {
   blockKind?: TimeBlockKind;
   blockNote?: string;
   isTrimmed?: boolean;
+
+  // ─── Constraint-specific fields ───
+  constraintKind?: PlannerConstraintRuleKind;
+  constraintTargetLabel?: string;
+
+  // ─── Quadrant-specific fields ───
+  quadrantFocusItems?: string[];
+  quadrantColorToken?: PlannerQuadrantColorToken;
+}
+
+export interface SectionColumnData {
+  id: string;
+  label: string;
+  startMinute: number;
+  endMinute: number;
+  focusItems: string[];
+  colorToken?: PlannerQuadrantColorToken;
+  items: TimelineItem[];
+  constraints: TimelineItem[];
 }
 
 /**
@@ -130,6 +149,9 @@ export interface DayScheduleData {
 
   /** Generated time blocks from On Again/Off Again planner */
   timeBlocks: TimelineItem[];
+
+  /** Day quadrants / sections for this date */
+  quadrants?: TimelineItem[];
 
   /** Notes and tasks for this day */
   plan: DayPlan;

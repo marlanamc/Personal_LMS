@@ -23,7 +23,7 @@ import {
 import { useFocusTimer } from '@/context/FocusTimerContext';
 import { ActivityPanelContent } from '@/components/dashboard/ActivityPanelContent';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
-import { formatMinuteOfDay, normalizeTimeBlockPlannerStore, type TimeBlockPlannerStore } from '@/lib/time-block-planner';
+import { formatMinuteOfDay, normalizeTimeBlockPlannerStore } from '@/lib/time-block-planner';
 
 type SpotifyConnectionStatus = {
     configured: boolean;
@@ -446,7 +446,7 @@ export const FocusTimer = () => {
                 .then((payload: { store?: unknown }) => {
                     if (cancelled) return;
                     const store = normalizeTimeBlockPlannerStore(payload?.store ?? null);
-                    const dayPlan = store[sequenceDateKey];
+                    const dayPlan = store.days[sequenceDateKey];
                     if (dayPlan?.blocks?.length) {
                         loadSequence(dayPlan.blocks);
                         setSessionTitleInput(dayPlan.blocks[0].label);
