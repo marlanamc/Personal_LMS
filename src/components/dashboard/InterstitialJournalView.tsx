@@ -1,9 +1,9 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpenText, ChevronDown, Clock3, PlusCircle, Sparkles, Tag, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, Clock3, Lightbulb, Plus, Sparkles, Tag, Trash2, X } from 'lucide-react';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
-import { useCalendarPlanner } from '@/components/dashboard/useCalendarPlanner';
+import { useCalendarPlanner, type CustomTag } from '@/components/dashboard/useCalendarPlanner';
 import { getNextDateKey, getPreviousDateKey, getTodayKey, isToday } from '@/lib/unified-scheduler';
 
 interface InterstitialJournalViewProps {
@@ -31,58 +31,263 @@ function formatEntryTime(createdAt: string) {
   return parsed.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 
-const TAG_OPTIONS = [
-  { value: 'health', label: 'Health' },
-  { value: 'work', label: 'Work' },
-  { value: 'cleaning', label: 'Cleaning' },
-  { value: 'admin', label: 'Admin' },
-  { value: 'home', label: 'Home' },
-] as const;
+// Default tags
+const DEFAULT_TAGS: Array<{ value: string; label: string; color: CustomTag['color'] }> = [
+  { value: 'health', label: 'Health', color: 'mint' },
+  { value: 'work', label: 'Work', color: 'sky' },
+  { value: 'cleaning', label: 'Cleaning', color: 'peach' },
+  { value: 'admin', label: 'Admin', color: 'periwinkle' },
+  { value: 'home', label: 'Home', color: 'rose' },
+];
 
-const TAG_STYLES: Record<string, { pill: string; tag: string; glow: string }> = {
-  health: {
-    pill: 'border-emerald-300/45 bg-emerald-100/80 text-emerald-700',
-    tag: 'border-emerald-300/45 bg-emerald-50/90 text-emerald-700',
-    glow: 'rgba(52, 211, 153, 0.18)',
+// Color mappings for styling - softer palette matching site theme
+const COLOR_MAP: Record<CustomTag['color'], { node: string; entry: string; timestamp: string; tag: string; pill: string }> = {
+  peach: {
+    node: 'moment-node-peach',
+    entry: 'moment-entry-peach',
+    timestamp: 'moment-timestamp-peach',
+    tag: 'moment-tag-peach',
+    pill: 'moment-tag-pill-selected-peach',
   },
-  work: {
-    pill: 'border-sky-300/45 bg-sky-100/85 text-sky-700',
-    tag: 'border-sky-300/45 bg-sky-50/90 text-sky-700',
-    glow: 'rgba(56, 189, 248, 0.18)',
+  sky: {
+    node: 'moment-node-sky',
+    entry: 'moment-entry-sky',
+    timestamp: 'moment-timestamp-sky',
+    tag: 'moment-tag-sky',
+    pill: 'moment-tag-pill-selected-sky',
   },
-  cleaning: {
-    pill: 'border-amber-300/45 bg-amber-100/85 text-amber-700',
-    tag: 'border-amber-300/45 bg-amber-50/90 text-amber-700',
-    glow: 'rgba(251, 191, 36, 0.18)',
+  mint: {
+    node: 'moment-node-mint',
+    entry: 'moment-entry-mint',
+    timestamp: 'moment-timestamp-mint',
+    tag: 'moment-tag-mint',
+    pill: 'moment-tag-pill-selected-mint',
   },
-  admin: {
-    pill: 'border-violet-300/45 bg-violet-100/85 text-violet-700',
-    tag: 'border-violet-300/45 bg-violet-50/90 text-violet-700',
-    glow: 'rgba(167, 139, 250, 0.18)',
+  periwinkle: {
+    node: 'moment-node-periwinkle',
+    entry: 'moment-entry-periwinkle',
+    timestamp: 'moment-timestamp-periwinkle',
+    tag: 'moment-tag-periwinkle',
+    pill: 'moment-tag-pill-selected-periwinkle',
   },
-  home: {
-    pill: 'border-rose-300/45 bg-rose-100/85 text-rose-700',
-    tag: 'border-rose-300/45 bg-rose-50/90 text-rose-700',
-    glow: 'rgba(251, 113, 133, 0.18)',
+  lavender: {
+    node: 'moment-node-lavender',
+    entry: 'moment-entry-lavender',
+    timestamp: 'moment-timestamp-lavender',
+    tag: 'moment-tag-lavender',
+    pill: 'moment-tag-pill-selected-lavender',
   },
-  default: {
-    pill: 'border-accent-teal/20 bg-accent-teal/10 text-accent-teal',
-    tag: 'border-border-subtle/70 bg-bg-surface/80 text-text-secondary',
-    glow: 'rgba(94, 196, 191, 0.14)',
+  rose: {
+    node: 'moment-node-rose',
+    entry: 'moment-entry-rose',
+    timestamp: 'moment-timestamp-rose',
+    tag: 'moment-tag-rose',
+    pill: 'moment-tag-pill-selected-rose',
+  },
+  coral: {
+    node: 'moment-node-coral',
+    entry: 'moment-entry-coral',
+    timestamp: 'moment-timestamp-coral',
+    tag: 'moment-tag-coral',
+    pill: 'moment-tag-pill-selected-coral',
+  },
+  sage: {
+    node: 'moment-node-sage',
+    entry: 'moment-entry-sage',
+    timestamp: 'moment-timestamp-sage',
+    tag: 'moment-tag-sage',
+    pill: 'moment-tag-pill-selected-sage',
+  },
+  blush: {
+    node: 'moment-node-blush',
+    entry: 'moment-entry-blush',
+    timestamp: 'moment-timestamp-blush',
+    tag: 'moment-tag-blush',
+    pill: 'moment-tag-pill-selected-blush',
+  },
+  slate: {
+    node: 'moment-node-slate',
+    entry: 'moment-entry-slate',
+    timestamp: 'moment-timestamp-slate',
+    tag: 'moment-tag-slate',
+    pill: 'moment-tag-pill-selected-slate',
   },
 };
+
+// Inspiration categories and prompts
+const INSPIRATION_CATEGORIES: Array<{ id: string; label: string; prompts: string[] }> = [
+  {
+    id: 'transition',
+    label: 'Transition / reset',
+    prompts: [
+      "I'm done with ___, I'm moving into ___ now.",
+      'Okay, closing out ___, shifting into ___.',
+      "That part's done. Next up: ___.",
+    ],
+  },
+  {
+    id: 'emotional',
+    label: 'Emotional awareness → choice',
+    prompts: [
+      "Right now I feel ___, so I'm choosing to ___.",
+      "I'm noticing ___, and I'm going to ___.",
+      'Feeling ___, but I can still ___.',
+    ],
+  },
+  {
+    id: 'starting',
+    label: 'Starting the next task',
+    prompts: [
+      'First tiny step: ___.',
+      "I'm just going to start with ___.",
+      'Let me do ___ and see what happens.',
+    ],
+  },
+  {
+    id: 'grounding',
+    label: 'Grounding',
+    prompts: [
+      'Just be here for a second.',
+      "I'm here. That's enough for now.",
+      'Pause. Where am I actually right now?',
+    ],
+  },
+  {
+    id: 'awareness',
+    label: 'Awareness / reflection',
+    prompts: [
+      'What just changed?',
+      'Something just shifted… what was it?',
+      'Wait, what actually happened there?',
+    ],
+  },
+  {
+    id: 'noticing',
+    label: 'Noticing',
+    prompts: [
+      "I'm noticing ___.",
+      "Huh. That's interesting: ___.",
+      "Oh… I didn't realize ___.",
+    ],
+  },
+];
+
+// Color picker options for custom tags
+const COLOR_OPTIONS: CustomTag['color'][] = ['peach', 'coral', 'sky', 'mint', 'sage', 'periwinkle', 'lavender', 'blush', 'rose', 'slate'];
+
+const COLOR_HEX: Record<CustomTag['color'], string> = {
+  peach: '#e0b89a',
+  sky: '#9dc5e8',
+  mint: '#7dbba3',
+  periwinkle: '#9ba3d4',
+  lavender: '#b8a5c8',
+  rose: '#c9a0ab',
+  coral: '#e8b4a8',
+  sage: '#8bc4b8',
+  blush: '#d4b8c4',
+  slate: '#a4b0c4',
+};
+
+function getTagColor(tagValue: string, customTags: CustomTag[]): CustomTag['color'] | null {
+  const defaultTag = DEFAULT_TAGS.find((t) => t.value === tagValue);
+  if (defaultTag) return defaultTag.color;
+  const customTag = customTags.find((t) => t.id === tagValue || t.label.toLowerCase() === tagValue.toLowerCase());
+  if (customTag) return customTag.color;
+  return null;
+}
+
+function getTagLabel(tagValue: string, customTags: CustomTag[]): string {
+  const defaultTag = DEFAULT_TAGS.find((t) => t.value === tagValue);
+  if (defaultTag) return defaultTag.label;
+  const customTag = customTags.find((t) => t.id === tagValue);
+  if (customTag) return customTag.label;
+  return tagValue;
+}
 
 export function InterstitialJournalView({ storageScope }: InterstitialJournalViewProps) {
   const todayKey = getTodayKey();
   const [selectedDateKey, setSelectedDateKey] = useState(todayKey);
   const [entryDraft, setEntryDraft] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const { getPlan, updatePlanField, isSaving, saveError } = useCalendarPlanner(storageScope);
+  const [showPrompts, setShowPrompts] = useState(false);
+  const [inspirationTab, setInspirationTab] = useState(INSPIRATION_CATEGORIES[0].id);
+  const [showTagSelector, setShowTagSelector] = useState(false);
+  const [showCustomTagForm, setShowCustomTagForm] = useState(false);
+  const [newTagLabel, setNewTagLabel] = useState('');
+  const [newTagColor, setNewTagColor] = useState<CustomTag['color']>('lavender');
+  const [customTags, setCustomTags] = useState<CustomTag[]>([]);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const mobileInputRef = useRef<HTMLInputElement>(null);
+  const promptsRef = useRef<HTMLDivElement>(null);
+  const mobilePromptsRef = useRef<HTMLDivElement>(null);
+  const tagSelectorRef = useRef<HTMLDivElement>(null);
+  const mobileTagSelectorRef = useRef<HTMLDivElement>(null);
+
+  const { getPlan, updatePlanField, plannerStore, isSaving, saveError } = useCalendarPlanner(storageScope);
+
+  // Load custom tags from store
+  useEffect(() => {
+    const storedTags = (plannerStore as { _customTags?: CustomTag[] })._customTags;
+    if (storedTags && Array.isArray(storedTags)) {
+      setCustomTags(storedTags);
+    }
+  }, [plannerStore]);
 
   const plan = getPlan(selectedDateKey);
   const entries = plan.interstitialJournalEntries ?? [];
   const selectedDate = useMemo(() => new Date(`${selectedDateKey}T12:00:00`), [selectedDateKey]);
   const isSelectedToday = isToday(selectedDateKey);
+
+  // Close popovers on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+      const isInsidePrompts = promptsRef.current?.contains(target) || mobilePromptsRef.current?.contains(target);
+      const isInsideTags = tagSelectorRef.current?.contains(target) || mobileTagSelectorRef.current?.contains(target);
+
+      if (!isInsidePrompts) {
+        setShowPrompts(false);
+      }
+      if (!isInsideTags) {
+        setShowTagSelector(false);
+        setShowCustomTagForm(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const saveCustomTags = useCallback((tags: CustomTag[]) => {
+    setCustomTags(tags);
+    // Save to planner store under _customTags key
+    const newStore = { ...plannerStore, _customTags: tags };
+    // We need to trigger a save - update a dummy field then restore
+    // This is a workaround since updatePlanField is for day plans
+    fetch('/api/calendar-planner', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ store: newStore }),
+    }).catch(console.error);
+  }, [plannerStore]);
+
+  const addCustomTag = () => {
+    const label = newTagLabel.trim();
+    if (!label) return;
+
+    const newTag: CustomTag = {
+      id: crypto.randomUUID(),
+      label,
+      color: newTagColor,
+    };
+
+    saveCustomTags([...customTags, newTag]);
+    setSelectedTag(newTag.id);
+    setNewTagLabel('');
+    setNewTagColor('lavender');
+    setShowCustomTagForm(false);
+    setShowTagSelector(false);
+  };
 
   const addEntry = () => {
     const text = entryDraft.trim();
@@ -98,6 +303,7 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
     updatePlanField(selectedDateKey, 'interstitialJournalEntries', [nextEntry, ...entries]);
     setEntryDraft('');
     setSelectedTag(null);
+    inputRef.current?.focus();
   };
 
   const removeEntry = (entryId: string) => {
@@ -108,23 +314,45 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
     );
   };
 
+  const selectPrompt = (prompt: string) => {
+    setEntryDraft(prompt);
+    setShowPrompts(false);
+    inputRef.current?.focus();
+  };
+
+  const toggleTag = (tagValue: string) => {
+    setSelectedTag((prev) => (prev === tagValue ? null : tagValue));
+    setShowTagSelector(false);
+  };
+
   const goToPreviousDay = () => setSelectedDateKey(getPreviousDateKey(selectedDateKey));
   const goToNextDay = () => setSelectedDateKey(getNextDateKey(selectedDateKey));
 
+  const allTags = useMemo(() => {
+    return [
+      ...DEFAULT_TAGS.map((t) => ({ id: t.value, label: t.label, color: t.color })),
+      ...customTags,
+    ];
+  }, [customTags]);
+
+  const selectedTagColor = selectedTag ? getTagColor(selectedTag, customTags) : null;
+
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-4xl flex-col">
-      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mx-auto flex min-h-[70vh] max-w-2xl flex-col">
+      {/* Header */}
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <header className="flex min-w-0 items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-accent-teal/25 bg-accent-teal/10 shadow-[0_4px_12px_rgba(94,196,191,0.12)]">
-            <BookOpenText className="h-5 w-5 text-accent-teal" aria-hidden />
+            <Clock3 className="h-5 w-5 text-accent-teal" aria-hidden />
           </div>
-          <div className="min-w-0 flex items-center">
-            <h1 className="font-display text-xl font-bold tracking-tight text-text">Interstitial journalling</h1>
-            <InfoTooltip content="Quick log entries for the in-between moments, each marked with the time." />
+          <div className="flex min-w-0 items-center">
+            <h1 className="font-display text-xl font-bold tracking-tight text-text">Moment Log</h1>
+            <InfoTooltip content="Capture moments between tasks. Note what you finished and what you are starting next." />
           </div>
         </header>
 
-        <div className="inline-flex items-center gap-0.5 rounded-full border border-border-subtle/60 bg-bg-surface/80 px-1 py-0.5 shadow-sm backdrop-blur-md">
+        {/* Date Navigator */}
+        <div className="inline-flex items-center gap-0.5 self-start rounded-full border border-border-subtle/60 bg-bg-surface/80 px-1 py-0.5 shadow-sm backdrop-blur-md sm:self-auto">
           <button
             type="button"
             onClick={goToPreviousDay}
@@ -136,7 +364,7 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
           <label className="cursor-pointer rounded-full px-2 py-0.5 text-center hover:bg-bg-elevated/60">
             <span className="sr-only">Choose date</span>
             <span className="pointer-events-none inline-flex items-center gap-1 text-xs font-medium text-text">
-              {selectedDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              {selectedDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
               {isSelectedToday && <Sparkles size={10} className="text-accent-teal" />}
             </span>
             <input
@@ -158,127 +386,467 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
         </div>
       </div>
 
-      <section
-        className="overflow-hidden rounded-[2rem] border border-border-subtle/50 shadow-[0_22px_60px_rgba(145,104,72,0.12)]"
-        style={{
-          background:
-            'linear-gradient(180deg, color-mix(in srgb, var(--color-bg-surface) 97%, white 3%) 0%, color-mix(in srgb, var(--color-bg-surface) 90%, var(--color-accent-sakura) 10%) 55%, color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-accent-teal) 12%) 100%)',
-        }}
-      >
-        <div className="border-b border-border-subtle/35 px-6 py-5">
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-            <BookOpenText size={13} />
-            Interstitial Log
-          </div>
-        </div>
+      {/* Main Content Area */}
+      <section className="flex-1">
+        {/* Desktop Input (inline) */}
+        <div className="relative z-20 mb-6 hidden sm:block">
+          <div className="relative flex items-center gap-2 rounded-xl border border-border-subtle/50 bg-bg-surface/60 p-2 backdrop-blur-sm">
+            <input
+              ref={inputRef}
+              type="text"
+              value={entryDraft}
+              onChange={(event) => setEntryDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  addEntry();
+                }
+              }}
+              className="h-10 flex-1 rounded-lg bg-transparent px-3 text-sm text-text transition-all placeholder:text-text-muted/40 focus:outline-none"
+              aria-label="New moment entry"
+            />
 
-        <div className="px-6 py-6">
-          <div className="flex flex-col">
-            <div className="relative flex items-center">
-              <input
-                type="text"
-                value={entryDraft}
-                onChange={(event) => setEntryDraft(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault();
-                    addEntry();
-                  }
-                }}
-                placeholder="What just shifted? Press enter to save..."
-                className="h-11 flex-1 rounded-xl bg-bg-surface/40 px-4 pr-[110px] sm:pr-[120px] text-sm text-text transition-all placeholder:text-text-muted/50 focus:bg-bg-surface/80 focus:outline-none focus:ring-2 focus:ring-accent-teal/20"
-              />
+            {/* Prompt Inspiration Button */}
+            <div className="relative" ref={promptsRef}>
+              <button
+                type="button"
+                onClick={() => setShowPrompts(!showPrompts)}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
+                aria-label="Show prompt inspirations"
+              >
+                <Lightbulb size={18} />
+              </button>
 
-              <div className="absolute right-11 flex items-center pr-1">
-                <div className={`relative flex items-center h-7 rounded-lg transition-all ${
-                  selectedTag
-                    ? `${TAG_STYLES[selectedTag].tag} border border-border-subtle/50 shadow-[0_2px_8px_rgba(0,0,0,0.04)]`
-                    : 'text-text-muted/60 hover:bg-bg-elevated hover:text-text'
-                }`}>
-                  {!selectedTag && (
-                    <Tag size={13} className="absolute left-2.5 pointer-events-none" />
-                  )}
+              {showPrompts && (
+                <div className="moment-prompts-popover">
+                  <div className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                    Inspiration
+                  </div>
+                  <label htmlFor="inspiration-category-desktop" className="mb-1.5 block text-[11px] font-medium text-text-muted">
+                    Category
+                  </label>
                   <select
-                    className={`peer appearance-none bg-transparent h-full w-full ${!selectedTag ? 'pl-7 pr-6' : 'pl-2.5 pr-6'} text-[11px] font-semibold tracking-wide outline-none cursor-pointer`}
-                    value={selectedTag || ''}
-                    onChange={(e) => setSelectedTag(e.target.value || null)}
-                    aria-label="Select tag"
+                    id="inspiration-category-desktop"
+                    value={inspirationTab}
+                    onChange={(e) => setInspirationTab(e.target.value)}
+                    className="moment-inspiration-select mb-3 w-full"
+                    aria-label="Choose inspiration category"
                   >
-                    <option value="">Tag…</option>
-                    {TAG_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
+                    {INSPIRATION_CATEGORIES.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.label}
                       </option>
                     ))}
                   </select>
-                  <ChevronDown size={12} className="absolute right-1.5 pointer-events-none opacity-50 peer-hover:opacity-100 transition-opacity" />
+                  <div className="border-t border-border-subtle/60 pt-3">
+                    <p className="mb-1.5 text-[11px] font-medium text-text-muted">Pick a starter</p>
+                    <div className="space-y-0.5">
+                      {INSPIRATION_CATEGORIES.find((c) => c.id === inspirationTab)?.prompts.map((prompt, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => selectPrompt(prompt)}
+                          className="moment-prompt-item"
+                        >
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
+            </div>
 
+            {/* Tag Selector */}
+            <div className="relative" ref={tagSelectorRef}>
               <button
                 type="button"
-                onClick={addEntry}
-                disabled={!entryDraft.trim()}
-                className="absolute right-2 flex h-7 w-7 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-elevated hover:text-text disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-text-muted"
-                aria-label="Add journal entry"
+                onClick={() => {
+                  setShowTagSelector(!showTagSelector);
+                  setShowCustomTagForm(false);
+                }}
+                className={`flex h-9 items-center gap-1.5 rounded-lg px-2.5 transition-colors ${
+                  selectedTag
+                    ? `${COLOR_MAP[selectedTagColor || 'lavender'].pill}`
+                    : 'text-text-muted hover:bg-bg-elevated hover:text-text'
+                }`}
+                aria-label="Select tag"
               >
-                <PlusCircle size={18} />
+                <Tag size={14} />
+                <span className="text-xs font-medium">
+                  {selectedTag ? getTagLabel(selectedTag, customTags) : 'Tag'}
+                </span>
+              </button>
+
+              {showTagSelector && (
+                <div className="absolute right-0 top-full z-[100] mt-2 w-64 rounded-xl border border-border-subtle bg-bg-elevated p-2 shadow-xl">
+                  {!showCustomTagForm ? (
+                    <>
+                      <div className="mb-2 flex flex-wrap gap-1.5">
+                        {allTags.map((tag) => (
+                          <button
+                            key={tag.id}
+                            type="button"
+                            onClick={() => toggleTag(tag.id)}
+                            className={`moment-tag-pill ${
+                              selectedTag === tag.id
+                                ? COLOR_MAP[tag.color].pill
+                                : 'moment-tag-pill-unselected'
+                            }`}
+                          >
+                            {tag.label}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowCustomTagForm(true)}
+                        className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border-subtle py-1.5 text-xs text-text-muted transition-colors hover:border-text-muted hover:text-text"
+                      >
+                        <Plus size={12} />
+                        New tag
+                      </button>
+                    </>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-text">New Tag</span>
+                        <button
+                          type="button"
+                          onClick={() => setShowCustomTagForm(false)}
+                          className="rounded p-0.5 text-text-muted hover:text-text"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        value={newTagLabel}
+                        onChange={(e) => setNewTagLabel(e.target.value)}
+                        placeholder="Tag name"
+                        className="w-full rounded-lg border border-border-subtle bg-bg-surface px-2.5 py-1.5 text-sm text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-1 focus:ring-accent-teal/30"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addCustomTag();
+                          }
+                        }}
+                        autoFocus
+                      />
+                      <div className="flex flex-wrap justify-center gap-1.5">
+                        {COLOR_OPTIONS.map((color) => (
+                          <button
+                            key={color}
+                            type="button"
+                            onClick={() => setNewTagColor(color)}
+                            className={`h-5 w-5 shrink-0 rounded-full transition-transform sm:h-6 sm:w-6 ${
+                              newTagColor === color ? 'scale-110 ring-2 ring-white/50' : ''
+                            }`}
+                            style={{ backgroundColor: COLOR_HEX[color] }}
+                            aria-label={`Select ${color} color`}
+                          />
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={addCustomTag}
+                        disabled={!newTagLabel.trim()}
+                        className="w-full rounded-lg bg-accent-teal/20 py-1.5 text-xs font-medium text-accent-teal transition-colors hover:bg-accent-teal/30 disabled:opacity-40 disabled:hover:bg-accent-teal/20"
+                      >
+                        Create Tag
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Add Button */}
+            <button
+              type="button"
+              onClick={addEntry}
+              disabled={!entryDraft.trim()}
+              className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-teal/15 text-accent-teal transition-all hover:bg-accent-teal/25 disabled:opacity-30 disabled:hover:bg-accent-teal/15"
+              aria-label="Add moment entry"
+            >
+              <Plus size={18} />
+            </button>
+          </div>
+
+          {/* Save status */}
+          <div className="mt-2 h-4 text-[11px] font-medium text-text-muted">
+            {saveError ? saveError : isSaving ? 'Saving...' : ''}
+          </div>
+        </div>
+
+        {/* Timeline + Entries */}
+        <div className="moment-log-container relative pb-32 sm:pb-4">
+          {/* Timeline Track */}
+          {entries.length > 0 && <div className="moment-track" aria-hidden="true" />}
+
+          {/* Entries List */}
+          {entries.length === 0 ? (
+            <div className="moment-empty">
+              <div className="moment-empty-visual">
+                <div className="moment-empty-track" />
+                <div className="moment-empty-node" />
+                <div className="moment-empty-node" />
+                <div className="moment-empty-node" />
+              </div>
+              <h3 className="mb-1 text-base font-semibold text-text">Capture your first moment</h3>
+              <p className="mb-4 text-sm text-text-muted">
+                Note what you finished or what you are about to start.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPrompts(true);
+                  inputRef.current?.focus();
+                }}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border-subtle px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
+              >
+                <Lightbulb size={14} />
+                Need inspiration?
               </button>
             </div>
-          </div>
-
-          <div className="mt-5 min-h-[1.25rem] text-[11px] font-medium text-text-muted">
-            {saveError ? saveError : isSaving ? 'Saving entries…' : ''}
-          </div>
-
-          <div className="mt-4 space-y-3">
-            {entries.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border-subtle/40 bg-white/20 px-5 py-8 text-center ring-1 ring-white/50">
-                <p className="text-sm italic text-text-muted/70">No timestamped entries yet.</p>
-              </div>
-            ) : (
-              entries.map((entry) => {
-                const style = entry.tag ? TAG_STYLES[entry.tag] ?? TAG_STYLES.default : TAG_STYLES.default;
+          ) : (
+            <div className="space-y-1.5" role="feed" aria-label="Moment entries">
+              {entries.map((entry, index) => {
+                const tagColor = entry.tag ? getTagColor(entry.tag, customTags) : null;
+                const colorClasses = tagColor ? COLOR_MAP[tagColor] : null;
+                const isRecent = index === 0;
 
                 return (
                   <article
                     key={entry.id}
-                    className="group relative flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 rounded-2xl border border-white/60 bg-bg-surface/30 px-4 py-3 sm:px-5 sm:py-3.5 shadow-sm backdrop-blur-md transition-all hover:bg-bg-surface/50"
+                    className={`moment-entry group ${colorClasses?.entry || ''}`}
+                    style={{ '--moment-node-color': tagColor ? `var(--color-${tagColor === 'mint' || tagColor === 'sage' ? 'secondary' : tagColor === 'sky' || tagColor === 'slate' ? 'info' : tagColor === 'peach' || tagColor === 'coral' ? 'warning' : tagColor === 'periwinkle' ? 'accent' : tagColor === 'rose' || tagColor === 'blush' ? 'primary' : 'text-muted'})` : 'var(--color-accent-teal)' } as React.CSSProperties}
                   >
-                    <div className="flex items-center">
-                      <div className={`shrink-0 inline-flex items-center gap-1.5 rounded-[0.65rem] px-2.5 py-1 text-[11px] font-semibold ${style.pill} border-none shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] ring-1 ring-black/5`}>
-                        <Clock3 size={11} className="opacity-70" />
-                        {formatEntryTime(entry.createdAt)}
-                      </div>
-                    </div>
-                    
-                    <p className="min-w-0 flex-1 text-[15px] leading-relaxed text-text">
-                      {entry.text}
-                    </p>
+                    {/* Timeline Node */}
+                    <div
+                      className={`moment-node ${colorClasses?.node || ''} ${isRecent ? 'moment-node-recent' : ''}`}
+                      aria-hidden="true"
+                    />
 
-                    <div className="flex shrink-0 items-center justify-between sm:justify-end gap-3 mt-1 sm:mt-0">
+                    {/* Content - compact inline layout */}
+                    <div className="flex items-center gap-2 ml-3">
+                      <time
+                        dateTime={entry.createdAt}
+                        className={`moment-timestamp shrink-0 ${colorClasses?.timestamp || ''}`}
+                      >
+                        {formatEntryTime(entry.createdAt)}
+                      </time>
+                      <p className="moment-text min-w-0 flex-1">{entry.text}</p>
                       {entry.tag && (
-                        <div className={`inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] ${style.tag} border-none shadow-sm ring-1 ring-black/5`}>
-                          {entry.tag}
-                        </div>
+                        <span className={`moment-tag shrink-0 ${colorClasses?.tag || ''}`}>
+                          {getTagLabel(entry.tag, customTags)}
+                        </span>
                       )}
-                      
                       <button
                         type="button"
                         onClick={() => removeEntry(entry.id)}
-                        className="rounded-lg p-1.5 text-text-muted/50 transition-all hover:bg-bg-elevated hover:text-text-muted sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
-                        aria-label="Delete journal entry"
+                        className="moment-delete shrink-0"
+                        aria-label="Delete entry"
                       >
-                        <Trash2 size={15} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </article>
                 );
-              })
-            )}
-          </div>
+              })}
+            </div>
+          )}
         </div>
       </section>
+
+      {/* Mobile Sticky Input */}
+      <div className="moment-input-sticky sm:hidden">
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={entryDraft}
+            onChange={(event) => setEntryDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                addEntry();
+              }
+            }}
+            className="h-10 flex-1 rounded-lg border border-border-subtle/50 bg-bg-surface/80 px-3 text-sm text-text placeholder:text-text-muted/40 focus:outline-none focus:ring-1 focus:ring-accent-teal/30"
+            aria-label="New moment entry"
+          />
+
+          {/* Mobile Prompt Button */}
+          <div className="relative" ref={mobilePromptsRef}>
+            <button
+              type="button"
+              onClick={() => setShowPrompts(!showPrompts)}
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-border-subtle/50 text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
+              aria-label="Show prompt inspirations"
+            >
+              <Lightbulb size={18} />
+            </button>
+
+            {showPrompts && (
+              <div className="moment-prompts-popover">
+                <div className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                  Inspiration
+                </div>
+                <label htmlFor="inspiration-category-mobile" className="mb-1.5 block text-[11px] font-medium text-text-muted">
+                  Category
+                </label>
+                <select
+                  id="inspiration-category-mobile"
+                  value={inspirationTab}
+                  onChange={(e) => setInspirationTab(e.target.value)}
+                  className="moment-inspiration-select mb-3 w-full"
+                  aria-label="Choose inspiration category"
+                >
+                  {INSPIRATION_CATEGORIES.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="border-t border-border-subtle/60 pt-3">
+                  <p className="mb-1.5 text-[11px] font-medium text-text-muted">Pick a starter</p>
+                  <div className="space-y-0.5">
+                    {INSPIRATION_CATEGORIES.find((c) => c.id === inspirationTab)?.prompts.map((prompt, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => selectPrompt(prompt)}
+                        className="moment-prompt-item"
+                      >
+                        {prompt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Tag Button */}
+          <div className="relative" ref={mobileTagSelectorRef}>
+            <button
+              type="button"
+              onClick={() => {
+                setShowTagSelector(!showTagSelector);
+                setShowCustomTagForm(false);
+              }}
+              className={`flex h-10 w-10 items-center justify-center rounded-lg border transition-colors ${
+                selectedTag
+                  ? `${COLOR_MAP[selectedTagColor || 'lavender'].pill} border-transparent`
+                  : 'border-border-subtle/50 text-text-muted hover:bg-bg-elevated hover:text-text'
+              }`}
+              aria-label="Select tag"
+            >
+              <Tag size={18} />
+            </button>
+
+            {showTagSelector && (
+              <div className="fixed bottom-[calc(var(--bottom-nav-height,52px)+env(safe-area-inset-bottom,0px)+60px)] left-4 right-4 z-[100] max-w-xs rounded-xl border border-border-subtle bg-bg-elevated p-3 shadow-xl sm:absolute sm:bottom-full sm:left-auto sm:right-0 sm:mb-2 sm:w-64">
+                {!showCustomTagForm ? (
+                  <>
+                    <div className="mb-3 flex flex-wrap gap-2">
+                      {allTags.map((tag) => (
+                        <button
+                          key={tag.id}
+                          type="button"
+                          onClick={() => toggleTag(tag.id)}
+                          className={`moment-tag-pill ${
+                            selectedTag === tag.id
+                              ? COLOR_MAP[tag.color].pill
+                              : 'moment-tag-pill-unselected'
+                          }`}
+                        >
+                          {tag.label}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowCustomTagForm(true)}
+                      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border-subtle py-2 text-xs text-text-muted transition-colors hover:border-text-muted hover:text-text"
+                    >
+                      <Plus size={12} />
+                      New tag
+                    </button>
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-text">New Tag</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowCustomTagForm(false)}
+                        className="rounded p-0.5 text-text-muted hover:text-text"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={newTagLabel}
+                      onChange={(e) => setNewTagLabel(e.target.value)}
+                      placeholder="Tag name"
+                      className="w-full rounded-lg border border-border-subtle bg-bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted/50 focus:outline-none focus:ring-1 focus:ring-accent-teal/30"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addCustomTag();
+                        }
+                      }}
+                      autoFocus
+                    />
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {COLOR_OPTIONS.map((color) => (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => setNewTagColor(color)}
+                          className={`h-5 w-5 shrink-0 rounded-full transition-transform sm:h-6 sm:w-6 ${
+                            newTagColor === color ? 'scale-110 ring-2 ring-white/50' : ''
+                          }`}
+                          style={{ backgroundColor: COLOR_HEX[color] }}
+                          aria-label={`Select ${color} color`}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addCustomTag}
+                      disabled={!newTagLabel.trim()}
+                      className="w-full rounded-lg bg-accent-teal/20 py-2 text-sm font-medium text-accent-teal transition-colors hover:bg-accent-teal/30 disabled:opacity-40 disabled:hover:bg-accent-teal/20"
+                    >
+                      Create Tag
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Add Button */}
+          <button
+            type="button"
+            onClick={addEntry}
+            disabled={!entryDraft.trim()}
+            className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-teal text-white transition-all hover:bg-accent-teal/90 disabled:opacity-30 disabled:hover:bg-accent-teal"
+            aria-label="Add moment entry"
+          >
+            <Plus size={20} />
+          </button>
+        </div>
+
+        {/* Mobile save status */}
+        {(saveError || isSaving) && (
+          <div className="mt-1.5 text-center text-[10px] font-medium text-text-muted">
+            {saveError ? saveError : 'Saving...'}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

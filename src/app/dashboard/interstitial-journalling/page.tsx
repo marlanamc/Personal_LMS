@@ -4,8 +4,8 @@ import { authOptions } from '@/lib/auth';
 import { InterstitialJournalView } from '@/components/dashboard/InterstitialJournalView';
 
 export const metadata = {
-  title: 'Interstitial Journalling | Personal LMS',
-  description: 'Pause between blocks, clear residue, and write yourself into the next state.',
+  title: 'Moment Log | Personal LMS',
+  description: 'Capture moments between tasks. Note what you finished and what you are starting next.',
 };
 
 export default async function InterstitialJournallingPage() {

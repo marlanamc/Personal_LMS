@@ -11,7 +11,6 @@ import {
   Columns2,
   FileText,
   Heart,
-  LocateFixed,
   Play,
   Sparkles,
   SunMedium,
@@ -283,26 +282,6 @@ export function DayPlannerView({
     ? `/dashboard/timer?sequenceDateKey=${encodeURIComponent(selectedDateKey)}`
     : null;
   const isSectionsMode = plannerViewMode === 'sections' && canUseSectionsView;
-  const jumpToNow = useCallback(() => {
-    if (!isSelectedToday || nowMinute === null) return;
-    if (plannerViewMode === 'sections') {
-      setPlannerViewMode('timeline');
-    }
-    if (showEarlierHours) {
-      setShowEarlierHours(false);
-    }
-
-    const scroll = () => {
-      nowIndicatorRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-    };
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(scroll);
-    });
-  }, [isSelectedToday, nowMinute, plannerViewMode, showEarlierHours]);
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-fadeIn">
@@ -324,35 +303,37 @@ export function DayPlannerView({
           </div>
         </div>
 
-        {(blockSummary || quadrantSummary.length > 0) && (
-          <div className="flex flex-wrap items-center gap-2 rounded-[1.4rem] border border-border-subtle/40 bg-bg-elevated/35 px-3.5 py-2.5 text-sm">
-            {quadrantSummary.slice(0, 2).map((quadrant) => (
-              <span
-                key={quadrant.id}
-                className="inline-flex min-w-0 items-center gap-1 rounded-full bg-bg-surface/85 px-2 py-1 text-xs font-semibold text-text"
-              >
-                <span className="truncate">{quadrant.label}</span>
-              </span>
-            ))}
-            {blockSummary?.items.slice(0, 2).map((item) => (
-              <span
-                key={item.label}
-                className={`inline-flex min-w-0 items-center gap-1 rounded-full px-2 py-1 ${
-                  item.kind === 'want'
-                    ? 'bg-accent-teal/10 text-accent-teal'
-                    : 'bg-accent-sakura/10 text-accent-sakura'
+        {canUseSectionsView && (
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-1 rounded-full border border-border-subtle/55 bg-bg-surface/85 p-1 shadow-sm">
+              <button
+                type="button"
+                onClick={() => setPlannerViewMode('timeline')}
+                className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
+                  plannerViewMode === 'timeline'
+                    ? 'bg-bg-elevated text-text shadow-sm'
+                    : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
                 }`}
+                aria-pressed={plannerViewMode === 'timeline'}
               >
-                {item.kind === 'want' ? <Heart size={12} className="fill-current" /> : <Target size={12} />}
-                <span className="truncate text-xs font-semibold">{item.label}</span>
-                <span className="text-xs font-bold">{formatDuration(item.totalMinutes)}</span>
-              </span>
-            ))}
-            {blockSummary ? (
-              <span className="text-xs font-medium text-text-muted">
-                {blockSummary.blockCount} blocks
-              </span>
-            ) : null}
+                <StretchHorizontal size={15} />
+                Timeline
+              </button>
+              <button
+                type="button"
+                onClick={() => setPlannerViewMode('sections')}
+                className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
+                  plannerViewMode === 'sections'
+                    ? 'bg-bg-elevated text-text shadow-sm'
+                    : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
+                }`}
+                aria-pressed={plannerViewMode === 'sections'}
+                title="View sections side by side"
+              >
+                <Columns2 size={15} />
+                Sections
+              </button>
+            </div>
           </div>
         )}
 
@@ -410,17 +391,6 @@ export function DayPlannerView({
                 Start Sequence
               </Link>
             ) : null}
-            {isSelectedToday && nowMinute !== null ? (
-              <button
-                type="button"
-                onClick={jumpToNow}
-                className="inline-flex items-center justify-center gap-2 rounded-[1.75rem] border border-border-subtle/60 bg-bg-surface/80 px-4 py-[9px] text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md h-[42px]"
-                title="Jump to the current time"
-              >
-                <LocateFixed size={15} className="text-accent-sakura" />
-                Now
-              </button>
-            ) : null}
             <button
               type="button"
               ref={(node) => {
@@ -466,35 +436,37 @@ export function DayPlannerView({
             )}
           </div>
 
-          {(blockSummary || quadrantSummary.length > 0) && (
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
-              {quadrantSummary.slice(0, 3).map((quadrant) => (
-                <span
-                  key={quadrant.id}
-                  className="inline-flex items-center gap-1 rounded-full border border-border-subtle/45 bg-bg-surface/80 px-2.5 py-1 text-text"
-                >
-                  <span className="font-medium">{quadrant.label}</span>
-                </span>
-              ))}
-              {blockSummary?.items.slice(0, 3).map((item) => (
-                <span
-                  key={item.label}
-                  className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 ${
-                    item.kind === 'want'
-                      ? 'border-accent-teal/20 bg-accent-teal/8 text-accent-teal'
-                      : 'border-accent-sakura/20 bg-accent-sakura/8 text-accent-sakura'
+          {canUseSectionsView && (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-1 rounded-full border border-border-subtle/55 bg-bg-surface/85 p-1 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setPlannerViewMode('timeline')}
+                  className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
+                    plannerViewMode === 'timeline'
+                      ? 'bg-bg-elevated text-text shadow-sm'
+                      : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
                   }`}
+                  aria-pressed={plannerViewMode === 'timeline'}
                 >
-                  {item.kind === 'want' ? <Heart size={12} className="fill-current" /> : <Target size={12} />}
-                  <span className="font-medium">{item.label}</span>
-                  <span className="font-semibold">{formatDuration(item.totalMinutes)}</span>
-                </span>
-              ))}
-              {blockSummary ? (
-                <span className="ml-1 text-xs font-medium uppercase tracking-[0.16em] text-text-muted/75">
-                  {blockSummary.blockCount} blocks
-                </span>
-              ) : null}
+                  <StretchHorizontal size={15} />
+                  Timeline
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPlannerViewMode('sections')}
+                  className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
+                    plannerViewMode === 'sections'
+                      ? 'bg-bg-elevated text-text shadow-sm'
+                      : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
+                  }`}
+                  aria-pressed={plannerViewMode === 'sections'}
+                  title="View sections side by side"
+                >
+                  <Columns2 size={15} />
+                  Sections
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -543,17 +515,6 @@ export function DayPlannerView({
                 Today
               </button>
             )}
-            {isSelectedToday && nowMinute !== null ? (
-              <button
-                type="button"
-                onClick={jumpToNow}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-border-subtle/60 bg-bg-surface/80 px-4 py-2.5 text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md"
-                title="Jump to the current time"
-              >
-                <LocateFixed size={15} className="text-accent-sakura" />
-                Now
-              </button>
-            ) : null}
             <Link
               href={`/dashboard/calendar?date=${selectedDateKey}`}
               className="inline-flex items-center justify-center rounded-full border border-border-subtle/60 bg-bg-surface/80 p-2.5 text-text-secondary shadow-sm transition-all hover:bg-bg-elevated hover:text-text backdrop-blur-md"
@@ -645,40 +606,6 @@ export function DayPlannerView({
               </button>
             </div>
           )}
-
-          {canUseSectionsView ? (
-            <div className="mb-3 flex sm:mb-4 sm:justify-end">
-              <div className="inline-flex w-full min-w-0 items-center gap-1 rounded-full border border-border-subtle/55 bg-bg-surface/85 p-1 shadow-sm sm:w-auto">
-                <button
-                  type="button"
-                  onClick={() => setPlannerViewMode('timeline')}
-                  className={`inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors sm:flex-initial ${
-                    plannerViewMode === 'timeline'
-                      ? 'bg-bg-elevated text-text shadow-sm'
-                      : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
-                  }`}
-                  aria-pressed={plannerViewMode === 'timeline'}
-                >
-                  <StretchHorizontal size={15} />
-                  Timeline
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPlannerViewMode('sections')}
-                  className={`inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors sm:flex-initial ${
-                    plannerViewMode === 'sections'
-                      ? 'bg-bg-elevated text-text shadow-sm'
-                      : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
-                  }`}
-                  aria-pressed={plannerViewMode === 'sections'}
-                  title="View sections side by side"
-                >
-                  <Columns2 size={15} />
-                  Sections
-                </button>
-              </div>
-            </div>
-          ) : null}
 
           {timelineItems.length === 0 && anchorItems.length === 0 ? (
             <div className="rounded-xl sm:rounded-[2rem] border border-dashed border-border-subtle/40 bg-bg-elevated/30 backdrop-blur-sm p-6 sm:p-10 text-center">

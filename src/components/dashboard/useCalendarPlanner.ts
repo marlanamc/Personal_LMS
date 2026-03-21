@@ -15,6 +15,12 @@ export type InterstitialJournalEntry = {
   tag?: string;
 };
 
+export type CustomTag = {
+  id: string;
+  label: string;
+  color: 'peach' | 'sky' | 'mint' | 'periwinkle' | 'lavender' | 'rose' | 'coral' | 'sage' | 'blush' | 'slate';
+};
+
 export type DayPlan = {
   notes: string;
   tasks: PlannerTask[];
@@ -22,7 +28,9 @@ export type DayPlan = {
   interstitialJournalEntries?: InterstitialJournalEntry[];
 };
 
-export type PlannerStore = Record<string, DayPlan>;
+export type PlannerStore = Record<string, DayPlan> & {
+  _customTags?: CustomTag[];
+};
 
 const EMPTY_DAY_PLAN: DayPlan = { notes: '', tasks: [], thoughtDownload: '', interstitialJournalEntries: [] };
 

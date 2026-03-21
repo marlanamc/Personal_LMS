@@ -24,7 +24,7 @@ const quickLinks = [
   { href: '/dashboard/timer', label: 'Focus Timer', icon: Timer },
   { href: '/dashboard/calendar', label: 'Monthly Calendar', icon: Calendar },
   { href: '/dashboard/thought-download', label: 'Thought Download', icon: Moon },
-  { href: '/dashboard/interstitial-journalling', label: 'Interstitial Journalling', icon: BookOpenText },
+  { href: '/dashboard/interstitial-journalling', label: 'Moment Log', icon: BookOpenText },
   { href: '/dashboard/anchors', label: 'Edit Anchors', icon: Pencil },
   { href: '/dashboard/subjects', label: 'All Subjects', icon: BookOpen },
   { href: '/dashboard/reset', label: 'Get Unstuck', icon: Sparkles },
