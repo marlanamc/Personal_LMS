@@ -3,357 +3,259 @@ import type { InteractiveGuideContent } from "@/types/activity";
 export const spanishReflexiveVerbsRoutinesContent: InteractiveGuideContent = {
   type: "interactive-guide",
   tableOfContents: true,
+  canDo: [
+    "describe a daily routine naturally",
+    "choose the right reflexive pronoun for the subject",
+    "sequence a routine in clear steps",
+  ],
+  taskScenario: {
+    title: "Explain your day so another person can picture it",
+    summary:
+      "You are introducing your morning or evening routine to a classmate or language partner. The goal is not just to name verbs, but to make the sequence easy to follow.",
+    learnerRole: "Learner describing real self-care and routine habits.",
+    outcome: "You can narrate a short routine with reflexive verbs and sequence words.",
+  },
+  inputMaterials: [
+    {
+      id: "refl-message",
+      title: "Voice-note transcript",
+      kind: "audio-transcript",
+      prompt: "Notice how the speaker uses reflexive verbs as part of a sequence.",
+      content: `
+        <p>Primero me despierto a las seis. Luego me ducho y me visto rápido. Después preparo café y salgo al trabajo.</p>
+      `,
+    },
+    {
+      id: "refl-schedule",
+      title: "Mini routine card",
+      kind: "notice",
+      content: `
+        <ul>
+          <li>6:30 - me levanto</li>
+          <li>6:45 - me ducho</li>
+          <li>7:00 - me visto</li>
+          <li>7:20 - salgo</li>
+        </ul>
+      `,
+    },
+  ],
+  taskStages: [
+    {
+      id: "refl-stage-pronouns",
+      title: "Match the person and the routine action",
+      goal: "Use the correct reflexive pronoun with the subject.",
+      prompt: "Choose or build the form that sounds right for each person.",
+      expectedOutput: "select",
+      completionMode: "mastery",
+    },
+    {
+      id: "refl-stage-routine",
+      title: "Build routine sentences",
+      goal: "Produce complete routine phrases with reflexive forms.",
+      prompt: "Describe what someone does in a normal morning or evening routine.",
+      expectedOutput: "short-response",
+      completionMode: "mastery",
+    },
+    {
+      id: "refl-stage-sequence",
+      title: "Sequence the routine clearly",
+      goal: "Connect actions in an order the listener can follow.",
+      prompt: "Use primero, luego, después, and finalmente to organize the routine.",
+      expectedOutput: "write",
+      completionMode: "mastery",
+    },
+  ],
+  focusOnFormTriggers: [
+    {
+      id: "refl-trigger-pronoun",
+      stageId: "refl-stage-pronouns",
+      triggerType: "agreement",
+      failureReasonTag: "reflexive-pronoun-choice",
+      detectedIssue: "The reflexive pronoun does not match the subject.",
+      microExplanation: "The pronoun changes with the subject: me, te, se, nos, se.",
+      contrastExamples: ["Yo me levanto.", "Nosotros nos acostamos."],
+      repairPrompt: "Try again and make the pronoun agree with the person.",
+    },
+    {
+      id: "refl-trigger-complete-form",
+      stageId: "refl-stage-routine",
+      triggerType: "production",
+      failureReasonTag: "incomplete-routine-form",
+      detectedIssue: "The answer is missing part of the reflexive form.",
+      microExplanation: "A full routine form needs pronoun + conjugated verb, not just the infinitive.",
+      contrastExamples: ["Wrong: vestir", "Better: me visto"],
+      repairPrompt: "Rewrite the answer as a complete reflexive form.",
+    },
+    {
+      id: "refl-trigger-sequence",
+      stageId: "refl-stage-sequence",
+      triggerType: "repair",
+      failureReasonTag: "routine-sequencing",
+      detectedIssue: "The routine is understandable, but the order is unclear.",
+      microExplanation: "Sequence words help the listener follow the day step by step.",
+      contrastExamples: ["Primero me despierto. Luego me ducho. Después me visto."],
+      repairPrompt: "Revise the routine so each step follows logically.",
+    },
+  ],
   sections: [
     {
-      id: "reflexive-basics",
-      title: "Reflexive Verbs for Daily Routines",
+      id: "reflexive-task-1",
+      title: "Stage 1: Who is doing it to themselves?",
       icon: "🪞",
+      taskStageId: "refl-stage-pronouns",
+      inputMaterialIds: ["refl-message"],
+      focusOnFormTriggerIds: ["refl-trigger-pronoun"],
       explanation: `
-        <h3>A2 Routine Language</h3>
-        <p>Reflexive verbs show actions you do to yourself: <em>me levanto</em> (I get up), <em>se acuesta</em> (he/she goes to bed).</p>
-        <p>Pronouns: <strong>me, te, se, nos, os, se</strong></p>
+        <h3>Reflexive routines are about the subject and the action together</h3>
+        <p>In a real routine, the first thing to control is the pronoun that matches the person.</p>
       `,
       verbTable: {
-        title: "Reflexive Pronoun + Verb Pattern",
+        title: "Core reflexive pattern",
         headers: ["Subject", "Pronoun", "Example"],
         rows: [
           ["yo", "me", "me levanto"],
           ["tú", "te", "te duchas"],
-          ["él/ella/usted", "se", "se viste"],
+          ["él/ella", "se", "se viste"],
           ["nosotros/as", "nos", "nos acostamos"],
-          ["ellos/ellas/ustedes", "se", "se despiertan"],
+          ["ellos/ellas", "se", "se preparan"],
         ],
       },
       exercises: [
         {
-          id: "sp-reflexive-1",
-          title: "Choose the Correct Pronoun",
-          instructions: "Match the subject and reflexive pronoun.",
+          id: "refl-stage-1",
+          title: "Pick the pronoun that fits",
+          instructions: "Choose the reflexive pronoun that matches the subject.",
           items: [
-            {
-              type: "select",
-              label: "Yo ___ levanto a las 6.",
-              options: ["me", "te", "se"],
-              expectedAnswer: "me",
-            },
-            {
-              type: "select",
-              label: "Nosotros ___ acostamos tarde.",
-              options: ["nos", "se", "me"],
-              expectedAnswer: "nos",
-            },
-            {
-              type: "select",
-              label: "Ella ___ prepara para el trabajo.",
-              options: ["te", "se", "nos"],
-              expectedAnswer: "se",
-            },
+            { type: "select", label: "Yo ___ levanto temprano.", options: ["me", "te", "se"], expectedAnswer: "me" },
+            { type: "select", label: "Nosotros ___ acostamos tarde.", options: ["nos", "me", "se"], expectedAnswer: "nos" },
           ],
         },
       ],
     },
     {
-      id: "common-routine-verbs",
+      id: "reflexive-task-2",
       stepNumber: 1,
-      title: "Most Useful Reflexive Routine Verbs",
+      title: "Stage 2: Build routine sentences",
       icon: "📋",
+      taskStageId: "refl-stage-routine",
+      inputMaterialIds: ["refl-schedule"],
+      focusOnFormTriggerIds: ["refl-trigger-complete-form"],
       explanation: `
-        <h3>High-Frequency A2 Verbs</h3>
-        <ul>
-          <li><strong>despertarse</strong> = to wake up</li>
-          <li><strong>levantarse</strong> = to get up</li>
-          <li><strong>ducharse</strong> = to shower</li>
-          <li><strong>vestirse</strong> = to get dressed</li>
-          <li><strong>acostarse</strong> = to go to bed</li>
-        </ul>
+        <h3>Now say the action as a real sentence</h3>
+        <p>The listener needs more than a vocabulary list. Give a complete form they could actually hear in conversation.</p>
       `,
-      usageMeanings: [
-        {
-          title: "Sample Routine",
-          description: "Use sequence markers to sound natural.",
-          examples: [
-            {
-              sentence: "Primero me despierto, luego me ducho y después me visto.",
-              explanation: "first, then, after that",
-            },
-            {
-              sentence: "Nos acostamos a las once porque trabajamos temprano.",
-              explanation: "Use reflexive form with nosotros.",
-            },
-          ],
-        },
-      ],
       exercises: [
         {
-          id: "sp-reflexive-2",
-          title: "Complete with the Correct Form",
-          instructions: "Write the best reflexive form.",
+          id: "refl-stage-2",
+          title: "Complete the routine action",
+          instructions: "Write the full reflexive form.",
           items: [
-            {
-              type: "text",
-              label: "Tú ______ (ducharse) por la mañana.",
-              correctAnswer: "te duchas",
-              expectedAnswers: ["te duchas"],
-            },
-            {
-              type: "text",
-              label: "Yo ______ (vestirse) rápido.",
-              correctAnswer: "me visto",
-              expectedAnswers: ["me visto"],
-            },
-            {
-              type: "text",
-              label: "Ellos ______ (acostarse) tarde.",
-              correctAnswer: "se acuestan",
-              expectedAnswers: ["se acuestan"],
-            },
+            { type: "text", label: "Tú ______ (ducharse) por la mañana.", correctAnswer: "te duchas", expectedAnswers: ["te duchas"] },
+            { type: "text", label: "Yo ______ (vestirse) rápido.", correctAnswer: "me visto", expectedAnswers: ["me visto"] },
+            { type: "text", label: "Ellos ______ (acostarse) tarde.", correctAnswer: "se acuestan", expectedAnswers: ["se acuestan"] },
           ],
         },
       ],
     },
     {
-      id: "routine-time-and-order",
+      id: "reflexive-task-3",
       stepNumber: 2,
-      title: "Sequencing Your Routine",
+      title: "Stage 3: Make the routine easy to follow",
       icon: "⏱️",
+      taskStageId: "refl-stage-sequence",
+      focusOnFormTriggerIds: ["refl-trigger-sequence"],
       explanation: `
-        <h3>Connect Actions in Order</h3>
-        <p>Use simple connectors:</p>
-        <ul>
-          <li><strong>primero</strong> (first)</li>
-          <li><strong>luego</strong> (then)</li>
-          <li><strong>después</strong> (afterwards)</li>
-          <li><strong>finalmente</strong> (finally)</li>
-        </ul>
+        <h3>Routine language needs order</h3>
+        <p>When you describe a day, the sequence words do part of the communication work.</p>
       `,
       exercises: [
         {
-          id: "sp-reflexive-3",
-          title: "Order the Routine",
-          instructions: "Pick the best sequence.",
-          items: [
-            {
-              type: "radio",
-              label: "Logical order:",
-              options: [
-                {
-                  value: "a",
-                  label: "Primero me acuesto, luego me despierto, después desayuno.",
-                },
-                {
-                  value: "b",
-                  label: "Primero me despierto, luego me visto, finalmente salgo.",
-                },
-              ],
-              expectedAnswer: "b",
-            },
-            {
-              type: "select",
-              label: "___ me preparo y salgo al trabajo.",
-              options: ["Después", "Ayer", "Nunca"],
-              expectedAnswer: "Después",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "daily-routine-speaking",
-      stepNumber: 3,
-      title: "Routine Speaking Template",
-      icon: "🗣️",
-      explanation: `
-        <h3>Use This Speaking Frame</h3>
-        <p><em>Primero me ____. Luego ____. Después ____. Finalmente ____.</em></p>
-        <p>This frame helps you produce a full routine in 4 connected steps. <strong>Success criteria:</strong> Use at least two reflexive verbs (e.g. levantarse, ducharse, vestirse, acostarse). One action per step. Example: <em>Primero me levanto. Luego me ducho. Después me visto. Finalmente desayuno.</em></p>
-      `,
-      exercises: [
-        {
-          id: "sp-reflexive-4",
-          title: "Write a 4-Step Routine",
-          instructions: "Write your morning or evening routine in 4 steps. Use at least two reflexive verbs. One complete sentence per step. Sequence: primero → luego → después → finalmente.",
+          id: "refl-stage-3",
+          title: "Write a 4-step routine",
+          instructions: "Write a short morning or evening routine in four steps. Use at least two reflexive verbs.",
           answerExpectation: "full-sentence",
           items: [
-            {
-              type: "text",
-              label: "Step 1 (primero, e.g. Primero me levanto):",
-              placeholder: "Ejemplo: Primero me levanto a las siete.",
-              acceptAnyAttempt: true,
-            },
-            {
-              type: "text",
-              label: "Step 2 (luego, e.g. Luego me ducho):",
-              placeholder: "Ejemplo: Luego me ducho.",
-              acceptAnyAttempt: true,
-            },
-            {
-              type: "text",
-              label: "Step 3 (después, e.g. Después me visto):",
-              placeholder: "Ejemplo: Después me visto.",
-              acceptAnyAttempt: true,
-            },
-            {
-              type: "text",
-              label: "Step 4 (finalmente, e.g. Finalmente desayuno):",
-              placeholder: "Ejemplo: Finalmente desayuno.",
-              acceptAnyAttempt: true,
-            },
+            { type: "text", label: "Step 1 (primero):", placeholder: "Ejemplo: Primero me despierto.", acceptAnyAttempt: true },
+            { type: "text", label: "Step 2 (luego):", placeholder: "Ejemplo: Luego me ducho.", acceptAnyAttempt: true },
+            { type: "text", label: "Step 3 (después):", placeholder: "Ejemplo: Después me visto.", acceptAnyAttempt: true },
+            { type: "text", label: "Step 4 (finalmente):", placeholder: "Ejemplo: Finalmente salgo.", acceptAnyAttempt: true },
           ],
         },
       ],
-    },
-    {
-      id: "quick-reference-refl",
-      stepNumber: 4,
-      title: "Quick Reference: Reflexive Pronouns",
-      icon: "📋",
-      explanation: `
-        <h3>At a Glance</h3>
-        <p><strong>Pronouns:</strong> me, te, se, nos, os, se (match the subject). Common reflexive verbs: levantarse, ducharse, vestirse, acostarse. Pronoun goes before conjugated verb or attached to infinitive (voy a levantarme).</p>
-      `,
-      exercises: [
-        {
-          id: "sp-refl-quickref",
-          title: "Recall",
-          instructions: "Choose the correct form.",
-          items: [
-            { type: "radio", label: "With 'yo' the reflexive pronoun is ___.", options: [{ value: "me", label: "me" }, { value: "te", label: "te" }], expectedAnswer: "me" },
-            { type: "radio", label: "With 'él/ella' the reflexive pronoun is ___.", options: [{ value: "se", label: "se" }, { value: "le", label: "le" }], expectedAnswer: "se" },
-          ],
-        },
-      ],
-    },
-    {
-      id: "common-mistakes-refl",
-      stepNumber: 5,
-      title: "Common Mistakes",
-      icon: "⚠️",
-      explanation: `
-        <h3>What to Avoid</h3>
-        <p>Using the wrong pronoun for the subject (yo me levanto, not yo te levanto). Forgetting the pronoun (me ducho, not ducho). Putting the pronoun in the wrong place with two verbs (debo levantarme early, or me debo levantar).</p>
-      `,
-      exercises: [
-        {
-          id: "sp-refl-mistakes",
-          title: "Correct?",
-          instructions: "Which is correct?",
-          items: [
-            { type: "radio", label: "I wake up:", options: [{ value: "a", label: "Me despierto." }, { value: "b", label: "Despierto." }], expectedAnswer: "a" },
-          ],
-        },
-      ],
+      postTaskReflection: {
+        prompt: "Check whether the routine moves in a believable order and whether at least two steps use reflexive verbs.",
+      },
     },
   ],
-  miniQuiz: [
-    {
-      id: "refl-q1",
-      question: "Which reflexive pronoun goes with 'yo'?",
-      options: [
-        { value: "a", label: "me" },
-        { value: "b", label: "te" },
-        { value: "c", label: "se" },
-      ],
-      correctAnswer: "a",
-      explanation: "Yo uses me.",
-    },
-    {
-      id: "refl-q2",
-      question: "Choose the correct sentence:",
-      options: [
-        { value: "a", label: "Yo levanto a las seis." },
-        { value: "b", label: "Yo me levanto a las seis." },
-        { value: "c", label: "Yo te levanto a las seis." },
-      ],
-      correctAnswer: "b",
-      explanation: "Routine action to yourself requires reflexive pronoun.",
-    },
-    {
-      id: "refl-q3",
-      question: "What is 'we go to bed' with acostarse?",
-      options: [
-        { value: "a", label: "nos acostamos" },
-        { value: "b", label: "se acostamos" },
-        { value: "c", label: "me acuesto" },
-      ],
-      correctAnswer: "a",
-      explanation: "Nosotros takes nos: nos acostamos.",
-    },
-    {
-      id: "refl-q4",
-      question: "Which connector means 'then'?",
-      options: [
-        { value: "a", label: "luego" },
-        { value: "b", label: "nunca" },
-        { value: "c", label: "ayer" },
-      ],
-      correctAnswer: "a",
-      explanation: "Luego means then.",
-    },
-    {
-      id: "refl-q5",
-      question: "Which is best for 'she gets dressed'?",
-      options: [
-        { value: "a", label: "se viste" },
-        { value: "b", label: "me visto" },
-        { value: "c", label: "te vistes" },
-      ],
-      correctAnswer: "a",
-      explanation: "Ella uses se: se viste.",
-    },
-    {
-      id: "refl-q6",
-      question: "Reflexive verbs are common for...",
-      options: [
-        { value: "a", label: "daily routines and personal actions" },
-        { value: "b", label: "only weather reports" },
-        { value: "c", label: "only commands" },
-      ],
-      correctAnswer: "a",
-      explanation: "They are very common when describing personal routines.",
-    },
-    {
-      id: "refl-q7",
-      question: "Choose the correct pronoun for 'tú'.",
-      options: [
-        { value: "a", label: "me" },
-        { value: "b", label: "te" },
-        { value: "c", label: "nos" },
-      ],
-      correctAnswer: "b",
-      explanation: "Tú uses te.",
-    },
-    {
-      id: "refl-q8",
-      question: "Which is correct for 'ellos se despiertan'?",
-      options: [
-        { value: "a", label: "They wake up" },
-        { value: "b", label: "They go to bed" },
-        { value: "c", label: "They get dressed" },
-      ],
-      correctAnswer: "a",
-      explanation: "Despertarse means to wake up.",
-    },
-    {
-      id: "refl-q9",
-      question: "Pick the best ordered routine sequence.",
-      options: [
-        { value: "a", label: "Finalmente, luego, primero, después" },
-        { value: "b", label: "Primero, luego, después, finalmente" },
-        { value: "c", label: "Después, ayer, luego, finalmente" },
-      ],
-      correctAnswer: "b",
-      explanation: "This sequence is the expected narrative order for routines.",
-    },
-    {
-      id: "refl-q10",
-      question: "Which sentence is reflexive and correctly conjugated?",
-      options: [
-        { value: "a", label: "Nosotros nos acostamos temprano." },
-        { value: "b", label: "Nosotros me acostamos temprano." },
-        { value: "c", label: "Nosotros acostamos temprano." },
-      ],
-      correctAnswer: "a",
-      explanation: "Nosotros takes nos and the conjugated verb form acostamos.",
-    },
-  ],
+  communicativeCheckpoint: {
+    title: "Checkpoint: describe a routine naturally",
+    questions: [
+      {
+        id: "refl-cq1",
+        question: "Best sentence for “I get up at six”:",
+        options: [
+          { value: "a", label: "Me levanto a las seis." },
+          { value: "b", label: "Levanto a las seis." },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "routine-self-description",
+        failureReasonTag: "reflexive-pronoun-choice",
+      },
+      {
+        id: "refl-cq2",
+        question: "Which sentence matches nosotros?",
+        options: [
+          { value: "a", label: "Nos acostamos tarde." },
+          { value: "b", label: "Se acostamos tarde." },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "routine-group-reference",
+        failureReasonTag: "reflexive-pronoun-choice",
+      },
+      {
+        id: "refl-cq3",
+        question: "Best repair for “yo vestir rápido”:",
+        options: [
+          { value: "a", label: "me visto rápido" },
+          { value: "b", label: "me vestir rápido" },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "routine-form-repair",
+        failureReasonTag: "incomplete-routine-form",
+      },
+      {
+        id: "refl-cq4",
+        question: "Best sequence opener:",
+        options: [
+          { value: "a", label: "Primero me despierto." },
+          { value: "b", label: "Nunca me despierto." },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "routine-sequencing",
+        failureReasonTag: "routine-sequencing",
+      },
+      {
+        id: "refl-cq5",
+        question: "Choose the sentence that sounds like a real routine step.",
+        options: [
+          { value: "a", label: "Luego me ducho." },
+          { value: "b", label: "Luego duchar." },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "routine-step-production",
+        failureReasonTag: "incomplete-routine-form",
+      },
+      {
+        id: "refl-cq6",
+        question: "Best routine ending:",
+        options: [
+          { value: "a", label: "Finalmente me acuesto." },
+          { value: "b", label: "Finalmente acostarse." },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "routine-sequencing",
+        failureReasonTag: "routine-sequencing",
+      },
+    ],
+  },
 };

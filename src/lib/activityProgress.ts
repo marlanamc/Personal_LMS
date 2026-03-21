@@ -17,6 +17,11 @@ export interface FetchedActivityProgress {
 export interface GuideState {
     lastSectionIndex: number;
     completedSectionIds?: string[];
+    startedStageIds?: string[];
+    attemptedStageIds?: string[];
+    supportViewedStageIds?: string[];
+    revisedStageIds?: string[];
+    completedStageIds?: string[];
 }
 
 function normalizeAssignmentId(value: string | null | undefined): string | null {

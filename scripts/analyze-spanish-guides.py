@@ -5,8 +5,8 @@ Analyze Spanish guide content files and output a summary table.
 Usage: python scripts/analyze-spanish-guides.py
        or from repo root: python scripts/analyze-spanish-guides.py
 
-Output: Markdown table with guide name, section count, detailed explanations (YES/NO),
-        total exercise blocks, total exercise items, and mini quiz question count.
+Output: Markdown table with guide name, section count, task-first status,
+        total exercise blocks, total exercise items, and checkpoint/mini quiz question count.
 """
 
 import re
@@ -43,12 +43,7 @@ def analyze_guide(filepath: Path) -> dict:
     if section_count == 0:
         section_count = len(re.findall(r'\n\s+id:\s*"[^"]+",\s*\n\s+title:\s*"', before_quiz))
 
-    # 2) Detailed explanations: YES if "Why this matters" (any case) or any explanation
-    #    block has substantial content (e.g. > 200 chars or multiple <p>/<h3>)
-    why_matters = bool(re.search(r"Why\s+this\s+matters|Why\s+This\s+Matters", text, re.I))
-    # Or at least one long explanation block (explanation: ` ... ` with 200+ chars)
-    long_explanation = bool(re.search(r"explanation:\s*`[^`]{200,}", text))
-    detailed_explanations = "YES" if (why_matters or long_explanation) else "NO"
+    task_first = "YES" if ("taskStages:" in text and "focusOnFormTriggers:" in text) else "NO"
 
     # 3) Number of exercise blocks (each has "instructions: ")
     exercise_blocks = len(re.findall(r'\binstructions:\s*["\']', before_quiz))
@@ -57,17 +52,21 @@ def analyze_guide(filepath: Path) -> dict:
     #    Only in before_quiz to exclude mini quiz
     exercise_items = len(re.findall(r'\btype:\s*"(?:text|select|radio|word-scramble|word-select)"', before_quiz))
 
-    # 5) Mini quiz question count: after "miniQuiz: [", count correctAnswer:
-    mini_quiz_count = len(re.findall(r'\bcorrectAnswer\s*:', after_quiz))
+    # 5) Checkpoint / mini quiz question count
+    if "communicativeCheckpoint:" in text:
+        after_checkpoint = text.split("communicativeCheckpoint:", 1)[1]
+        checkpoint_count = len(re.findall(r'\bcorrectAnswer\s*:', after_checkpoint))
+    else:
+        checkpoint_count = len(re.findall(r'\bcorrectAnswer\s*:', after_quiz))
 
     return {
         "name": file_to_display_name(stem),
         "guide_id": guide_id,
         "sections": section_count,
-        "detailed_explanations": detailed_explanations,
+        "task_first": task_first,
         "exercise_blocks": exercise_blocks,
         "exercise_items": exercise_items,
-        "mini_quiz_questions": mini_quiz_count,
+        "mini_quiz_questions": checkpoint_count,
     }
 
 
@@ -100,7 +99,7 @@ def main():
                 "name": path.stem,
                 "guide_id": path.stem,
                 "sections": "?",
-                "detailed_explanations": "?",
+                "task_first": "?",
                 "exercise_blocks": "?",
                 "exercise_items": "?",
                 "mini_quiz_questions": f"Error: {e}",
@@ -115,11 +114,11 @@ def main():
         rows.sort(key=lambda r: (r["name"].lower(),))
 
     # Print markdown table
-    print("| Guide | Sections | Detailed explanations | Exercise blocks | Exercise items | Mini quiz questions |")
-    print("|-------|----------|------------------------|-----------------|----------------|---------------------|")
+    print("| Guide | Sections | Task-first | Exercise blocks | Exercise items | Checkpoint/quiz questions |")
+    print("|-------|----------|------------|-----------------|----------------|---------------------------|")
     for r in rows:
         print(
-            f"| {r['name']} | {r['sections']} | {r['detailed_explanations']} | "
+            f"| {r['name']} | {r['sections']} | {r['task_first']} | "
             f"{r['exercise_blocks']} | {r['exercise_items']} | {r['mini_quiz_questions']} |"
         )
 
@@ -128,10 +127,10 @@ def main():
     total_blocks = sum(r["exercise_blocks"] for r in rows if isinstance(r["exercise_blocks"], int))
     total_items = sum(r["exercise_items"] for r in rows if isinstance(r["exercise_items"], int))
     total_quiz = sum(r["mini_quiz_questions"] for r in rows if isinstance(r["mini_quiz_questions"], int))
-    yes_count = sum(1 for r in rows if r["detailed_explanations"] == "YES")
+    yes_count = sum(1 for r in rows if r["task_first"] == "YES")
     print()
-    print("**Totals:**", len(rows), "guides |", total_sections, "sections |", yes_count, "with detailed explanations |",
-          total_blocks, "exercise blocks |", total_items, "exercise items |", total_quiz, "mini quiz questions")
+    print("**Totals:**", len(rows), "guides |", total_sections, "sections |", yes_count, "task-first guides |",
+          total_blocks, "exercise blocks |", total_items, "exercise items |", total_quiz, "checkpoint/quiz questions")
 
 
 if __name__ == "__main__":

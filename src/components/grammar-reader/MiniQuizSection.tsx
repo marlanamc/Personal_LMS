@@ -12,9 +12,17 @@ interface MiniQuizSectionProps {
     onScoreSubmit?: (score: number, total: number, responses?: QuestionResponse[]) => void;
     topicTitle?: string;
     onBack?: () => void;
+    improvedAfterSupportDefault?: boolean;
 }
 
-export function MiniQuizSection({ questions, onComplete, onScoreSubmit, topicTitle = "this grammar topic", onBack }: MiniQuizSectionProps) {
+export function MiniQuizSection({
+    questions,
+    onComplete,
+    onScoreSubmit,
+    topicTitle = "this grammar topic",
+    onBack,
+    improvedAfterSupportDefault = false,
+}: MiniQuizSectionProps) {
     const [answers, setAnswers] = useState<Record<string, string>>({});
     const [submitted, setSubmitted] = useState(false);
     const [score, setScore] = useState(0);
@@ -33,6 +41,9 @@ export function MiniQuizSection({ questions, onComplete, onScoreSubmit, topicTit
                 userAnswer,
                 isCorrect,
                 skillTag: q.skillTag,
+                communicativeGoalTag: q.communicativeGoalTag,
+                failureReasonTag: q.failureReasonTag,
+                improvedAfterSupport: isCorrect ? improvedAfterSupportDefault : false,
                 difficulty: q.difficulty,
                 topic: q.topic,
             });

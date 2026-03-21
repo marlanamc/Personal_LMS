@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import type { InteractiveGuideSection } from "@/types/activity";
+import type { InputMaterial, InteractiveGuideSection, TaskScenario, TaskStage } from "@/types/activity";
 import { Button } from "@/components/ui/Button";
 import { sanitizeHtml } from "@/utils/sanitize";
 import { FormulaBox } from "./FormulaBox";
@@ -11,10 +11,15 @@ import { VerbTableDisplay } from "./VerbTableDisplay";
 import { TipBox } from "./TipBox";
 import { TimelineVisual } from "./TimelineVisual";
 import { FutureChoiceFlow } from "./FutureChoiceFlow";
+import { TaskScenarioPanel } from "./TaskScenarioPanel";
 import { LockKeyhole, CheckCircle2 } from "lucide-react";
 
 interface ExplanationPanelProps {
     section: InteractiveGuideSection;
+    taskScenario?: TaskScenario;
+    taskStage?: TaskStage | null;
+    inputMaterials?: InputMaterial[];
+    isTaskFirst?: boolean;
     onUnlockExercises: () => void;
     practiceUnlocked: boolean;
     hasExercises: boolean;
@@ -26,6 +31,10 @@ interface ExplanationPanelProps {
 
 export const ExplanationPanel = React.memo(function ExplanationPanel({
     section,
+    taskScenario,
+    taskStage,
+    inputMaterials = [],
+    isTaskFirst = false,
     onUnlockExercises,
     practiceUnlocked,
     hasExercises,
@@ -62,6 +71,14 @@ export const ExplanationPanel = React.memo(function ExplanationPanel({
                         ? "mx-auto max-w-3xl" 
                         : "max-w-none"
             }`}>
+                {isTaskFirst && (
+                    <TaskScenarioPanel
+                        scenario={taskScenario}
+                        stage={taskStage}
+                        inputMaterials={inputMaterials}
+                    />
+                )}
+
                 {/* Main Explanation */}
                 {section.explanation && (
                     <div
@@ -131,10 +148,12 @@ export const ExplanationPanel = React.memo(function ExplanationPanel({
                             
                             <div className="space-y-1 max-w-sm">
                                 <h3 className="text-xl font-display font-bold text-text">
-                                    Ready to practice?
+                                    {isTaskFirst ? "Start the task stage?" : "Ready to practice?"}
                                 </h3>
                                 <p className="text-text-muted">
-                                    Unlock the exercises to test your understanding of this section.
+                                    {isTaskFirst
+                                        ? "Begin with your first attempt. If you hit a problem, the guide will surface focused support in context."
+                                        : "Unlock the exercises to test your understanding of this section."}
                                 </p>
                             </div>
 
@@ -145,7 +164,7 @@ export const ExplanationPanel = React.memo(function ExplanationPanel({
                                     className="px-8 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
                                 >
                                     <LockKeyhole className="w-4 h-4" />
-                                    Unlock Exercises
+                                    {isTaskFirst ? "Start Task Stage" : "Unlock Exercises"}
                                 </Button>
                             </div>
                         </div>
@@ -160,7 +179,13 @@ export const ExplanationPanel = React.memo(function ExplanationPanel({
                         <div className="flex items-center gap-2">
                             <CheckCircle2 className="w-5 h-5 text-success" />
                             <p className="text-sm font-medium text-success">
-                                {showPractice ? "Exercises unlocked — visible on the right →" : "Exercises hidden"}
+                                {showPractice
+                                    ? isTaskFirst
+                                        ? "Task stage active — attempt and revise on the right →"
+                                        : "Exercises unlocked — visible on the right →"
+                                    : isTaskFirst
+                                        ? "Task stage hidden"
+                                        : "Exercises hidden"}
                             </p>
                         </div>
                         {onTogglePractice && (

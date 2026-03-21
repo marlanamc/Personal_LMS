@@ -13,6 +13,11 @@ import { RelatedPracticeSection } from "./RelatedPracticeSection";
 import { PointsToast } from "@/components/ui/PointsToast";
 import Link from "next/link";
 import { saveActivityProgress } from "@/lib/activityProgress";
+import {
+    getCheckpointQuestions,
+    getResolvedSectionTaskData,
+    isTaskFirstGuide,
+} from "@/lib/interactive-guide-task-flow";
 import type { ExerciseCompletionInfo } from "./exercises/ExerciseSection";
 
 interface GrammarReaderProps {
@@ -46,6 +51,11 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
     const [completedSections, setCompletedSections] = useState<Set<string>>(
         new Set()
     );
+    const [startedStages, setStartedStages] = useState<Set<string>>(new Set());
+    const [attemptedStages, setAttemptedStages] = useState<Set<string>>(new Set());
+    const [supportViewedStages, setSupportViewedStages] = useState<Set<string>>(new Set());
+    const [revisedStages, setRevisedStages] = useState<Set<string>>(new Set());
+    const [completedStages, setCompletedStages] = useState<Set<string>>(new Set());
     const [exerciseAnswers, setExerciseAnswers] = useState<
         Record<string, Record<number, string>>
     >({});
@@ -84,6 +94,10 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
     const sectionKeys = useMemo(
         () => content.sections.map((section, index) => section.id || `section-${index}`),
         [content.sections]
+    );
+    const taskStageIds = useMemo(
+        () => (content.taskStages ?? []).map((stage) => stage.id),
+        [content.taskStages]
     );
 
     const readAssignmentId = useCallback((): string | null => {
@@ -127,10 +141,23 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
 
                 let restoredLastSectionIndex: number | null = null;
                 let restoredCompletedSectionIds: string[] = [];
+                let restoredStartedStageIds: string[] = [];
+                let restoredAttemptedStageIds: string[] = [];
+                let restoredSupportViewedStageIds: string[] = [];
+                let restoredRevisedStageIds: string[] = [];
+                let restoredCompletedStageIds: string[] = [];
                 const categoryData = data.categoryData;
                 if (categoryData && typeof categoryData === "string") {
                     const parsed = JSON.parse(categoryData) as {
-                        _guide?: { lastSectionIndex?: number; completedSectionIds?: string[] };
+                        _guide?: {
+                            lastSectionIndex?: number;
+                            completedSectionIds?: string[];
+                            startedStageIds?: string[];
+                            attemptedStageIds?: string[];
+                            supportViewedStageIds?: string[];
+                            revisedStageIds?: string[];
+                            completedStageIds?: string[];
+                        };
                     };
                     const idx = parsed?._guide?.lastSectionIndex;
                     if (typeof idx === "number") {
@@ -144,6 +171,61 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                                     .filter((item): item is string => typeof item === "string")
                                     .map((item) => item.trim())
                                     .filter((item) => sectionKeys.includes(item))
+                            )
+                        );
+                    }
+                    const savedStarted = parsed?._guide?.startedStageIds;
+                    if (Array.isArray(savedStarted)) {
+                        restoredStartedStageIds = Array.from(
+                            new Set(
+                                savedStarted
+                                    .filter((item): item is string => typeof item === "string")
+                                    .map((item) => item.trim())
+                                    .filter((item) => taskStageIds.includes(item))
+                            )
+                        );
+                    }
+                    const savedAttempted = parsed?._guide?.attemptedStageIds;
+                    if (Array.isArray(savedAttempted)) {
+                        restoredAttemptedStageIds = Array.from(
+                            new Set(
+                                savedAttempted
+                                    .filter((item): item is string => typeof item === "string")
+                                    .map((item) => item.trim())
+                                    .filter((item) => taskStageIds.includes(item))
+                            )
+                        );
+                    }
+                    const savedSupport = parsed?._guide?.supportViewedStageIds;
+                    if (Array.isArray(savedSupport)) {
+                        restoredSupportViewedStageIds = Array.from(
+                            new Set(
+                                savedSupport
+                                    .filter((item): item is string => typeof item === "string")
+                                    .map((item) => item.trim())
+                                    .filter((item) => taskStageIds.includes(item))
+                            )
+                        );
+                    }
+                    const savedRevised = parsed?._guide?.revisedStageIds;
+                    if (Array.isArray(savedRevised)) {
+                        restoredRevisedStageIds = Array.from(
+                            new Set(
+                                savedRevised
+                                    .filter((item): item is string => typeof item === "string")
+                                    .map((item) => item.trim())
+                                    .filter((item) => taskStageIds.includes(item))
+                            )
+                        );
+                    }
+                    const savedCompletedStages = parsed?._guide?.completedStageIds;
+                    if (Array.isArray(savedCompletedStages)) {
+                        restoredCompletedStageIds = Array.from(
+                            new Set(
+                                savedCompletedStages
+                                    .filter((item): item is string => typeof item === "string")
+                                    .map((item) => item.trim())
+                                    .filter((item) => taskStageIds.includes(item))
                             )
                         );
                     }
@@ -162,6 +244,11 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                 } else {
                     setCompletedSections(new Set());
                 }
+                setStartedStages(new Set(restoredStartedStageIds));
+                setAttemptedStages(new Set(restoredAttemptedStageIds));
+                setSupportViewedStages(new Set(restoredSupportViewedStageIds));
+                setRevisedStages(new Set(restoredRevisedStageIds));
+                setCompletedStages(new Set(restoredCompletedStageIds));
             } catch {
                 // non-blocking; start at section 0
             } finally {
@@ -171,7 +258,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
             }
         })();
         return () => { cancelled = true; };
-    }, [activityId, content.sections.length, readAssignmentId, sectionKeys]);
+    }, [activityId, content.sections.length, readAssignmentId, sectionKeys, taskStageIds]);
 
     // Choose where the "Subjects" breadcrumb should take the user based on entry point.
     useEffect(() => {
@@ -251,6 +338,11 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                     {
                         lastSectionIndex: Math.max(0, content.sections.length - 1),
                         completedSectionIds: sectionKeys,
+                        startedStageIds: Array.from(startedStages),
+                        attemptedStageIds: Array.from(attemptedStages),
+                        supportViewedStageIds: Array.from(supportViewedStages),
+                        revisedStageIds: Array.from(revisedStages),
+                        completedStageIds: Array.from(completedStages),
                     }
                 );
                 const savedProgress = typeof result?.progress === "number" ? result.progress : 100;
@@ -264,7 +356,19 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                 setAwardSent(true);
             }
         }
-    }, [completionKey, awardSent, activityId, content.sections.length, readAssignmentId, sectionKeys]);
+    }, [
+        completionKey,
+        awardSent,
+        activityId,
+        attemptedStages,
+        completedStages,
+        content.sections.length,
+        readAssignmentId,
+        revisedStages,
+        sectionKeys,
+        startedStages,
+        supportViewedStages,
+    ]);
 
     // Track progress as user navigates through sections (and save last section for resume)
     useEffect(() => {
@@ -275,15 +379,24 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
         }
 
         const totalSections = content.sections.length;
-        const sectionsViewed = currentSectionIndex + 1;
-        const sectionsCompleted = completedSections.size;
+        let totalProgress = 0;
 
-        // Calculate progress based on sections viewed and completed
-        // Weight: 20% for viewing sections, 80% for completing exercises
-        // This prioritizes actually doing the work over just clicking through
-        const viewProgress = (sectionsViewed / totalSections) * 20;
-        const completionProgress = (sectionsCompleted / totalSections) * 80;
-        const totalProgress = Math.round(viewProgress + completionProgress);
+        if (taskStageIds.length > 0) {
+            const stageCount = taskStageIds.length;
+            totalProgress = Math.round(
+                (startedStages.size / stageCount) * 15 +
+                (attemptedStages.size / stageCount) * 20 +
+                (supportViewedStages.size / stageCount) * 10 +
+                (revisedStages.size / stageCount) * 20 +
+                (completedStages.size / stageCount) * 35
+            );
+        } else {
+            const sectionsViewed = currentSectionIndex + 1;
+            const sectionsCompleted = completedSections.size;
+            const viewProgress = (sectionsViewed / totalSections) * 20;
+            const completionProgress = (sectionsCompleted / totalSections) * 80;
+            totalProgress = Math.round(viewProgress + completionProgress);
+        }
         const progressToSave = Math.max(totalProgress, persistedProgressRef.current);
         const assignmentId = readAssignmentId();
 
@@ -299,6 +412,11 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                 {
                     lastSectionIndex: currentSectionIndex,
                     completedSectionIds: Array.from(completedSections),
+                    startedStageIds: Array.from(startedStages),
+                    attemptedStageIds: Array.from(attemptedStages),
+                    supportViewedStageIds: Array.from(supportViewedStages),
+                    revisedStageIds: Array.from(revisedStages),
+                    completedStageIds: Array.from(completedStages),
                 }
             );
             if (cancelled) return;
@@ -313,7 +431,20 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
         return () => {
             cancelled = true;
         };
-    }, [activityId, currentSectionIndex, completedSections, content.sections.length, progressHydrated, readAssignmentId]);
+    }, [
+        activityId,
+        attemptedStages,
+        completedSections,
+        completedStages,
+        content.sections.length,
+        currentSectionIndex,
+        progressHydrated,
+        readAssignmentId,
+        revisedStages,
+        startedStages,
+        supportViewedStages,
+        taskStageIds,
+    ]);
 
     useEffect(() => {
         try {
@@ -333,6 +464,8 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
         ? null
         : content.sections[currentSectionIndex];
     const currentSectionKey = currentSection?.id || `section-${currentSectionIndex}`;
+    const taskFirstGuide = useMemo(() => isTaskFirstGuide(content), [content]);
+    const checkpointQuestions = useMemo(() => getCheckpointQuestions(content), [content]);
 
     const effectiveSection: InteractiveGuideSection | null = useMemo(() => {
         if (!currentSection) return null;
@@ -341,6 +474,14 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
             exercises: currentSection.exercises || [],
         };
     }, [currentSection]);
+    const resolvedTaskData = useMemo(
+        () =>
+            effectiveSection
+                ? getResolvedSectionTaskData(content, effectiveSection)
+                : { taskStage: null, inputMaterials: [], focusOnFormTriggers: [], reflection: null },
+        [content, effectiveSection]
+    );
+    const currentTaskStageId = resolvedTaskData.taskStage?.id ?? null;
 
     const currentHasExercises = !!effectiveSection?.exercises && effectiveSection.exercises.length > 0;
     const practiceUnlocked = currentHasExercises
@@ -375,11 +516,11 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
             markCurrentSectionComplete();
             setCurrentSectionIndex((prev) => prev + 1);
             window.scrollTo({ top: 0, behavior: "smooth" });
-        } else if (content.miniQuiz && !showQuiz) {
+        } else if (checkpointQuestions && !showQuiz) {
             // Show quiz after last section
             markCurrentSectionComplete();
             setShowQuiz(true);
-        } else if (!content.miniQuiz) {
+        } else if (!checkpointQuestions) {
             // Completed without quiz
             markCurrentSectionComplete();
             void awardCompletion();
@@ -387,7 +528,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                 onComplete();
             }
         }
-    }, [isLastSection, content.miniQuiz, showQuiz, awardCompletion, onComplete, markCurrentSectionComplete]);
+    }, [isLastSection, checkpointQuestions, showQuiz, awardCompletion, onComplete, markCurrentSectionComplete]);
 
     const handlePrevious = useCallback(() => {
         if (showQuiz) {
@@ -453,7 +594,15 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
             next.add(currentSectionKey);
             return next;
         });
-    }, [currentHasExercises, currentSectionKey]);
+        if (currentTaskStageId) {
+            setStartedStages((prev) => {
+                if (prev.has(currentTaskStageId)) return prev;
+                const next = new Set(prev);
+                next.add(currentTaskStageId);
+                return next;
+            });
+        }
+    }, [currentHasExercises, currentSectionKey, currentTaskStageId]);
 
     const handleTogglePractice = useCallback(() => {
         if (!currentHasExercises || !practiceUnlocked) return;
@@ -649,7 +798,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                                         onSelectSection={handleJumpToSection}
                                         currentIndex={currentSectionIndex}
                                         completedSections={completedSections}
-                                        hasMiniQuiz={!!content.miniQuiz}
+                                        hasMiniQuiz={!!checkpointQuestions}
                                         showingQuiz={showQuiz}
                                         onSelectQuiz={() => setShowQuiz(true)}
                                     />
@@ -659,14 +808,15 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                     </div>
 
                     {/* Mini Quiz Section */}
-                    {showQuiz && content.miniQuiz && (
+                    {showQuiz && checkpointQuestions && (
                         <div className="md:p-6">
                             <MiniQuizSection
-                                questions={content.miniQuiz}
+                                questions={checkpointQuestions}
                                 onComplete={handleQuizComplete}
                                 onScoreSubmit={handleQuizScoreSubmit}
-                                topicTitle={guideTitle}
+                                topicTitle={content.communicativeCheckpoint?.title ?? guideTitle}
                                 onBack={() => setShowQuiz(false)}
+                                improvedAfterSupportDefault={taskFirstGuide && revisedStages.size > 0}
                             />
                         </div>
                     )}
@@ -697,6 +847,10 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                                     {/* Left Side: Explanation */}
                                     <ExplanationPanel
                                         section={effectiveSection!}
+                                        taskScenario={content.taskScenario}
+                                        taskStage={resolvedTaskData.taskStage}
+                                        inputMaterials={resolvedTaskData.inputMaterials}
+                                        isTaskFirst={taskFirstGuide}
                                         onUnlockExercises={handleUnlockExercises}
                                         practiceUnlocked={practiceUnlocked}
                                         hasExercises={currentHasExercises}
@@ -716,9 +870,49 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                                         <PracticePanel
                                             section={effectiveSection!}
                                             sectionId={currentSectionKey}
+                                            taskStage={resolvedTaskData.taskStage}
+                                            focusOnFormTriggers={resolvedTaskData.focusOnFormTriggers}
+                                            reflection={resolvedTaskData.reflection}
+                                            isTaskFirst={taskFirstGuide}
                                             answers={exerciseAnswers}
                                             onAnswerChange={handleAnswerChange}
                                             onSectionComplete={handleSectionComplete}
+                                            onStageAttempted={() => {
+                                                if (!currentTaskStageId) return;
+                                                setAttemptedStages((prev) => {
+                                                    if (prev.has(currentTaskStageId)) return prev;
+                                                    const next = new Set(prev);
+                                                    next.add(currentTaskStageId);
+                                                    return next;
+                                                });
+                                            }}
+                                            onStageSupportViewed={() => {
+                                                if (!currentTaskStageId) return;
+                                                setSupportViewedStages((prev) => {
+                                                    if (prev.has(currentTaskStageId)) return prev;
+                                                    const next = new Set(prev);
+                                                    next.add(currentTaskStageId);
+                                                    return next;
+                                                });
+                                            }}
+                                            onStageRevised={() => {
+                                                if (!currentTaskStageId) return;
+                                                setRevisedStages((prev) => {
+                                                    if (prev.has(currentTaskStageId)) return prev;
+                                                    const next = new Set(prev);
+                                                    next.add(currentTaskStageId);
+                                                    return next;
+                                                });
+                                            }}
+                                            onStageCompleted={() => {
+                                                if (!currentTaskStageId) return;
+                                                setCompletedStages((prev) => {
+                                                    if (prev.has(currentTaskStageId)) return prev;
+                                                    const next = new Set(prev);
+                                                    next.add(currentTaskStageId);
+                                                    return next;
+                                                });
+                                            }}
                                             onExerciseComplete={handleExerciseComplete}
                                             unlocked={practiceUnlocked}
                                         />
@@ -728,6 +922,10 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                                 <div className="w-full min-h-[500px]">
                                     <ExplanationPanel
                                         section={effectiveSection!}
+                                        taskScenario={content.taskScenario}
+                                        taskStage={resolvedTaskData.taskStage}
+                                        inputMaterials={resolvedTaskData.inputMaterials}
+                                        isTaskFirst={taskFirstGuide}
                                         onUnlockExercises={handleUnlockExercises}
                                         practiceUnlocked={practiceUnlocked}
                                         hasExercises={currentHasExercises}
@@ -796,7 +994,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                         {/* Next Button - Right Side */}
                         <button
                             onClick={handleNext}
-                            disabled={showQuiz && !content.miniQuiz}
+                            disabled={showQuiz && !checkpointQuestions}
                             className="practice-nav-button practice-nav-button-next fixed right-4 top-1/2 -translate-y-1/2 z-40 w-14 h-14 rounded-full flex items-center justify-center group disabled:opacity-50 disabled:cursor-not-allowed"
                             aria-label="Next section"
                         >
@@ -814,7 +1012,7 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
                                 />
                             </svg>
                             <span className="absolute right-full mr-3 px-3 py-2 bg-text text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                {isLastSection && content.miniQuiz && !showQuiz
+                                {isLastSection && checkpointQuestions && !showQuiz
                                     ? "Take Quiz"
                                     : showQuiz
                                         ? "Finish"

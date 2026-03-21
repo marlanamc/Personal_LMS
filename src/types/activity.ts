@@ -100,6 +100,9 @@ export interface InteractiveGuideSection {
     stepNumber?: number;
     title: string;
     icon?: string; // Emoji or icon name
+    taskStageId?: string;
+    inputMaterialIds?: string[];
+    focusOnFormTriggerIds?: string[];
     explanation?: string;
     formula?: FormulaPart[];
     examples?: string[];
@@ -136,6 +139,11 @@ export interface InteractiveGuideSection {
             color: string; // e.g. "cyan", "green", "violet", "amber"
         }>;
     };
+    postTaskReflection?: {
+        title?: string;
+        prompt: string;
+        checklist?: string[];
+    };
     postExplanation?: string;
 }
 
@@ -157,8 +165,81 @@ export interface MiniQuizQuestion {
     skill?: string;
     /** Specific skill tag for granular diagnostic tracking (e.g., "form-positive-he-she-it", "meaning-habit-vs-now") */
     skillTag?: string;
+    /** Communicative outcome tag (e.g., "travel-check-in", "present-routine-intro") */
+    communicativeGoalTag?: string;
+    /** Failure-reason tag for diagnostics (e.g., "politeness", "agreement", "tense-choice") */
+    failureReasonTag?: string;
     /** Difficulty level for adaptive learning and reporting */
     difficulty?: "easy" | "medium" | "hard";
+}
+
+export interface TaskScenario {
+    title: string;
+    summary: string;
+    learnerRole?: string;
+    situation?: string;
+    outcome?: string;
+    successCriteria?: string[];
+}
+
+export interface InputMaterial {
+    id: string;
+    title: string;
+    kind:
+        | "dialogue"
+        | "message"
+        | "notice"
+        | "menu"
+        | "itinerary"
+        | "audio-transcript"
+        | "model"
+        | "visual";
+    prompt?: string;
+    content: string;
+}
+
+export interface TaskStage {
+    id: string;
+    title: string;
+    goal: string;
+    prompt: string;
+    expectedOutput: "speak" | "write" | "select" | "short-response" | "multi-step";
+    completionMode?: "attempt" | "mastery";
+    successCriteria?: string[];
+}
+
+export interface FocusOnFormTrigger {
+    id: string;
+    stageId: string;
+    triggerType:
+        | "comprehension"
+        | "production"
+        | "politeness"
+        | "agreement"
+        | "tense-choice"
+        | "word-choice"
+        | "word-order"
+        | "pronoun-choice"
+        | "register"
+        | "repair";
+    detectedIssue: string;
+    failureReasonTag?: string;
+    microExplanation: string;
+    contrastExamples: string[];
+    repairPrompt: string;
+    referenceLabel?: string;
+}
+
+export interface PostTaskReflection {
+    title?: string;
+    prompt: string;
+    checklist?: string[];
+}
+
+export interface CommunicativeCheckpoint {
+    title: string;
+    description?: string;
+    questions: MiniQuizQuestion[];
 }
 
 /** Individual question response for diagnostic tracking */
@@ -167,6 +248,9 @@ export interface QuestionResponse {
     userAnswer: string;
     isCorrect: boolean;
     skillTag?: string;
+    communicativeGoalTag?: string;
+    failureReasonTag?: string;
+    improvedAfterSupport?: boolean;
     difficulty?: string;
     topic?: string;
 }
@@ -298,6 +382,13 @@ export interface InteractiveGuideContent {
     type?: "interactive-guide";
     sections: InteractiveGuideSection[];
     miniQuiz?: MiniQuizQuestion[]; // Optional final comprehension check
+    canDo?: string[];
+    taskScenario?: TaskScenario;
+    inputMaterials?: InputMaterial[];
+    taskStages?: TaskStage[];
+    focusOnFormTriggers?: FocusOnFormTrigger[];
+    postTaskReflection?: PostTaskReflection;
+    communicativeCheckpoint?: CommunicativeCheckpoint;
     tableOfContents?: boolean; // Show TOC
     metadata?: LegacyGuideMetadata;
 }

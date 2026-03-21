@@ -35,6 +35,7 @@ Use these files as the canonical structure:
 ### Add a new Spanish guide
 
 1. Create content file in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/src/content/spanish/guides/` (follow `spanish-*.ts` pattern).
+   - For redesigned guides, start with `taskScenario`, `taskStages`, `inputMaterials`, `focusOnFormTriggers`, and `communicativeCheckpoint`.
 2. Import and add it in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/prisma/seed-spanish-guides.ts` (add to `contentByGuideId`).
 3. Add the new guide ID to `SPANISH_GUIDE_IDS` and add an entry to `SPANISH_GUIDE_META` (tier: basics | intermediate | advanced, lessonNumber, topic, description) in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/src/content/spanish/registry.ts`.
 4. Run:
@@ -82,6 +83,7 @@ npx tsx prisma/seed-personal-games.ts
 - Seed scripts now validate registry alignment and fail fast if an ID is added in one place but not the other.
 - Dashboard category ordering uses registry constants instead of duplicated hardcoded arrays.
 - Removed stale dashboard ordering reference to `spanish-refresher` (that activity is removed by `seed-personal-content`).
+- Task-first guides can coexist with legacy guides; the shared reader supports both modes.
 
 ## 5) Language by tier
 
@@ -94,9 +96,10 @@ After adding content:
 
 1. Run `npm run typecheck`
 2. Run `npm run check:spanish-b1-language` (validates Spanish-only for Intermediate/Advanced guides)
-3. Run `npm run check:spanish-guides` (analyzes section counts, exercises, mini quiz; targets 6–10 sections per guide)
-4. Confirm all checklist items in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/SPANISH_GUIDE_QA_CHECKLIST.md`
-5. Seed the relevant script(s)
-6. Open `/dashboard/activities?category=spanish`
-7. Confirm your activity appears in the expected Spanish section
-8. For Intermediate/Advanced guides, confirm all text is in Spanish
+3. Run `npm run check:spanish-task-first` (validates redesigned guides that use the new task-first fields)
+4. Run `npm run check:spanish-guides` (analyzes section counts, exercises, and checkpoint/quiz coverage)
+5. Confirm all checklist items in `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/SPANISH_GUIDE_QA_CHECKLIST.md`
+6. Seed the relevant script(s)
+7. Open `/dashboard/activities?category=spanish`
+8. Confirm your activity appears in the expected Spanish section
+9. For Intermediate/Advanced guides, confirm all text is in Spanish

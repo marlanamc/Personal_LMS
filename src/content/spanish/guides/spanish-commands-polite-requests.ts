@@ -3,14 +3,116 @@ import type { InteractiveGuideContent } from "@/types/activity";
 export const spanishCommandsPoliteRequestsContent: InteractiveGuideContent = {
   type: "interactive-guide",
   tableOfContents: true,
+  canDo: [
+    "give a short instruction sequence",
+    "soften a request in a service context",
+    "switch between tú and usted based on relationship",
+  ],
+  taskScenario: {
+    title: "Necesitas que otra persona haga algo",
+    summary:
+      "A veces das instrucciones a una amiga; otras veces pides algo a una recepcionista o a una profesora. El objetivo es conseguir la acción con el tono adecuado.",
+    learnerRole: "Persona que resuelve situaciones cotidianas con instrucciones o peticiones.",
+    outcome: "Das instrucciones claras y eliges un nivel de cortesía apropiado.",
+    successCriteria: [
+      "Seleccionas bien entre tú y usted.",
+      "La petición suena natural para el contexto.",
+      "La instrucción final es clara y accionable.",
+    ],
+  },
+  inputMaterials: [
+    {
+      id: "commands-service-dialogue",
+      title: "Atención al cliente",
+      kind: "dialogue",
+      content: `
+        <p><strong>Empleado:</strong> Pase por aquí, por favor.</p>
+        <p><strong>Cliente:</strong> Gracias.</p>
+        <p><strong>Empleado:</strong> Firme aquí y después espere un momento.</p>
+      `,
+    },
+    {
+      id: "commands-friend-dialogue",
+      title: "Con una amiga",
+      kind: "dialogue",
+      content: `
+        <p><strong>Ana:</strong> Abre la ventana, por favor.</p>
+        <p><strong>Leo:</strong> Vale. ¿Algo más?</p>
+        <p><strong>Ana:</strong> Sí, no hagas ruido.</p>
+      `,
+    },
+  ],
+  taskStages: [
+    {
+      id: "commands-stage-choose-tone",
+      title: "Elige el tipo de mandato según la relación",
+      goal: "Decidir si la situación pide tú o usted.",
+      prompt: "Mira el contexto y elige la forma que mejor encaja con la relación entre hablante y oyente.",
+      expectedOutput: "select",
+      completionMode: "mastery",
+    },
+    {
+      id: "commands-stage-build-request",
+      title: "Construye una petición útil y cortés",
+      goal: "Usar una forma imperativa o una petición cortés que consiga cooperación.",
+      prompt: "Formula una instrucción o petición que funcione en un contexto real.",
+      expectedOutput: "multi-step",
+      completionMode: "mastery",
+    },
+    {
+      id: "commands-stage-production",
+      title: "Organiza una secuencia de instrucciones",
+      goal: "Encadenar varios mandatos con propósito claro.",
+      prompt: "Produce una secuencia breve donde cada paso haga avanzar la tarea.",
+      expectedOutput: "write",
+      completionMode: "mastery",
+    },
+  ],
+  focusOnFormTriggers: [
+    {
+      id: "commands-trigger-negative-tu",
+      stageId: "commands-stage-build-request",
+      triggerType: "production",
+      detectedIssue: "La forma negativa de tú no está bien formada.",
+      microExplanation:
+        "Con tú negativo no usamos el presente normal. Necesitamos no + subjuntivo: no hables, no comas.",
+      contrastExamples: ["Incorrecto: no hablas", "Mejor: no hables"],
+      repairPrompt: "Reescribe el mandato negativo con no + subjuntivo.",
+    },
+    {
+      id: "commands-trigger-register",
+      stageId: "commands-stage-choose-tone",
+      triggerType: "register",
+      detectedIssue: "La relación exige más o menos distancia.",
+      microExplanation:
+        "Con amistades cercanas suele funcionar tú. Con profesorado, clientes o personal de servicio, suele convenir usted.",
+      contrastExamples: ["Amiga: Ven aquí.", "Profesora: Venga aquí, por favor."],
+      repairPrompt: "Ajusta la forma verbal al nivel de cercanía del contexto.",
+    },
+    {
+      id: "commands-trigger-sequence",
+      stageId: "commands-stage-production",
+      triggerType: "repair",
+      detectedIssue: "La secuencia no guía la acción con claridad.",
+      microExplanation:
+        "Una buena secuencia marca pasos y evita mezclar tonos. Primero..., luego..., después..., finalmente....",
+      contrastExamples: [
+        "Primero abre la puerta. Luego no corras. Después pase por aquí, por favor.",
+      ],
+      repairPrompt: "Reorganiza la producción para que cada paso tenga un objetivo claro.",
+    },
+  ],
   sections: [
     {
       id: "commands-intro",
       title: "Commands and Polite Requests",
       icon: "🧭",
+      taskStageId: "commands-stage-choose-tone",
+      inputMaterialIds: ["commands-service-dialogue", "commands-friend-dialogue"],
+      focusOnFormTriggerIds: ["commands-trigger-register"],
       explanation: `
-        <h3>Give Instructions Clearly</h3>
-        <p>In Spanish, commands change depending on who you are addressing.</p>
+        <h3>Primero importa la relación</h3>
+        <p>Antes de pensar en reglas, piensa en la situación: ¿hablas con una amiga o con alguien a quien debes tratar con más distancia?</p>
         <ul>
           <li><strong>Tú affirmative:</strong> Habla, come, escribe</li>
           <li><strong>Tú negative:</strong> No hables, no comas, no escribas</li>
@@ -52,8 +154,10 @@ export const spanishCommandsPoliteRequestsContent: InteractiveGuideContent = {
       stepNumber: 1,
       title: "Tú Commands: Affirmative and Negative",
       icon: "👥",
+      taskStageId: "commands-stage-build-request",
+      focusOnFormTriggerIds: ["commands-trigger-negative-tu"],
       explanation: `
-        <h3>Core Pattern</h3>
+        <h3>Cuando ya sabes a quién hablas, eliges la forma</h3>
         <p>Affirmative tú often uses the 3rd person singular present form.</p>
         <p>Negative tú uses <strong>no + present subjunctive</strong>.</p>
       `,
@@ -101,6 +205,8 @@ export const spanishCommandsPoliteRequestsContent: InteractiveGuideContent = {
       stepNumber: 2,
       title: "Usted Commands for Polite Requests",
       icon: "🤝",
+      taskStageId: "commands-stage-build-request",
+      focusOnFormTriggerIds: ["commands-trigger-register"],
       explanation: `
         <h3>Polite and Professional Tone</h3>
         <p>Use usted commands in customer service, formal settings, and respectful requests.</p>
@@ -175,6 +281,8 @@ export const spanishCommandsPoliteRequestsContent: InteractiveGuideContent = {
       stepNumber: 3,
       title: "Production: Instruction Sequences",
       icon: "📝",
+      taskStageId: "commands-stage-production",
+      focusOnFormTriggerIds: ["commands-trigger-sequence"],
       explanation: `
         <h3>Give Multi-Step Instructions</h3>
         <p>Combine commands with sequence markers: <strong>primero, luego, después, finalmente</strong>.</p>
@@ -214,6 +322,15 @@ export const spanishCommandsPoliteRequestsContent: InteractiveGuideContent = {
           ],
         },
       ],
+      postTaskReflection: {
+        title: "Revisión después de producir",
+        prompt: "Comprueba si cada paso tiene una acción clara y si mantuviste el tono correcto en toda la secuencia.",
+        checklist: [
+          "¿Hay una instrucción por paso?",
+          "¿Usaste tú o usted con coherencia?",
+          "¿Incluiste al menos una forma negativa o una petición cortés cuando hacía falta?",
+        ],
+      },
     },
     {
       id: "quick-reference-cmd",
@@ -257,7 +374,11 @@ export const spanishCommandsPoliteRequestsContent: InteractiveGuideContent = {
       ],
     },
   ],
-  miniQuiz: [
+  communicativeCheckpoint: {
+    title: "Checkpoint: lograr acciones con el tono adecuado",
+    description:
+      "El objetivo es elegir la forma que mejor encaja con la relación y la tarea, no repetir reglas aisladas.",
+    questions: [
     {
       id: "cmd-q1",
       question: "Choose the affirmative tú command of hablar.",
@@ -369,4 +490,5 @@ export const spanishCommandsPoliteRequestsContent: InteractiveGuideContent = {
       explanation: "Firme is the formal usted command used in polite requests.",
     },
   ],
+  },
 };

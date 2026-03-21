@@ -7,10 +7,14 @@ Use this before merging any new Spanish guide.
 - [ ] Tier (Basics/Intermediate/Advanced) is explicitly set and matches the objective in `src/content/spanish/course-map.ts`.
 - [ ] Guide ID is added to `src/content/spanish/registry.ts` and `SPANISH_GUIDE_META` (tier, lesson number, topic, description).
 - [ ] Guide is wired in `prisma/seed-spanish-guides.ts` (content in `contentByGuideId`).
-- [ ] `miniQuiz` has 10-20 questions.
-- [ ] Mini quiz covers form, meaning/usage, and error recognition.
+- [ ] Redesigned guides start with a meaning-focused task, not a rule lecture.
+- [ ] If the guide uses task-first mode, `taskScenario`, `taskStages`, and `focusOnFormTriggers` are present and aligned.
+- [ ] If the guide uses task-first mode, section 1 has a `taskStageId`.
+- [ ] `communicativeCheckpoint` or `miniQuiz` exists and matches the task outcomes.
+- [ ] Checkpoint/quiz covers meaning/usage, repair, and context-based choices.
 - [ ] At least one production task exists in guide exercises.
 - [ ] Exercises are progressively harder from section 1 to final section.
+- [ ] At least one revise-after-feedback moment exists via `postTaskReflection` or equivalent.
 
 ## Language by tier
 
@@ -30,7 +34,8 @@ Use this before merging any new Spanish guide.
 ```bash
 npm run typecheck
 npm run check:spanish-b1-language
+npm run check:spanish-task-first
 npm run check:spanish-guides
 ```
 
-Use the analysis script to verify section counts (6–10 per guide), exercise blocks, exercise items, and mini quiz questions (10–20).
+Use the analysis scripts to verify section counts, exercise blocks, exercise items, and whether redesigned guides include task-first fields.

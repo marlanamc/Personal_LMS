@@ -1,26 +1,37 @@
 # Spanish Guide Upgrade Standards
 
-Use these standards when creating or upgrading Spanish grammar guides to ensure consistency, pedagogical quality, and engagement.
+Use these standards when creating or upgrading Spanish guides to ensure consistency, pedagogical quality, and task-first alignment.
+
+## 0. Default Lesson Architecture
+
+Spanish guides now default to a task-first focus-on-form structure:
+
+- `communicative task -> rich input -> learner attempt -> focus-on-form support -> revised attempt -> checkpoint`
+- Grammar explanations are support materials, not the main spine of the lesson.
+- New or redesigned guides should use `taskScenario`, `taskStages`, `inputMaterials`, `focusOnFormTriggers`, and `communicativeCheckpoint`.
+- Legacy explanation-first guides may remain temporarily, but every migrated guide should start with a task stage in section 1.
 
 ## 1. Section Count
 
 - **Minimum:** 6 sections per guide
 - **Target:** 6–10 sections
-- Typical structure: overview → formation/usage → comparison (if applicable) → quick reference → common mistakes
+- For migrated guides, sections should follow task stages rather than a rule lecture sequence.
 
 Run `npm run check:spanish-guides` to verify section counts across all guides.
 
 ## 2. Exercise Requirements
 
-- Each section should have at least one exercise block (unless purely reference)
+- Each task stage should have at least one exercise block or attempt prompt (unless purely reference)
 - Exercise items: mix of radio, select, text, and open-ended as appropriate
 - Include at least one **production task** per guide (e.g. write a short paragraph, compose a 4-step instruction sequence)
 - Exercises should increase in difficulty from first to final section
+- Rich input should be less impoverished than old drill-style prompts: use short dialogues, notices, menus, messages, routes, or transcripts when relevant
 
-## 3. Mini Quiz
+## 3. Checkpoint
 
-- **10–20 questions** per guide
-- Coverage: form recognition, meaning/usage, error recognition
+- Use `communicativeCheckpoint` for redesigned guides; `miniQuiz` remains valid for legacy guides
+- **6–20 questions** per checkpoint, depending on task scope
+- Coverage should emphasize interpretation, choice-in-context, repair, and short production decisions
 - Options should be plausible distractors, not obviously wrong
 
 ## 4. Visual and Structural Elements
@@ -36,7 +47,16 @@ Use these where they add clarity:
 | **tipBox**  | Common mistakes, quick reference           | All guides                |
 | **verbTable** | Conjugations or command forms          | Present, Preterite, Commands |
 
-## 5. Production Task Scaffolding
+## 5. Task-First Authoring Rules
+
+- The first section of a redesigned guide must attach to a `taskStageId`.
+- `taskScenario.summary` should state the real-world problem before any grammar explanation.
+- `inputMaterials` should supply context learners can interpret before they are asked to produce.
+- `focusOnFormTriggers` must be tied to a stage via `stageId`.
+- Each redesigned guide should include at least one revise-after-feedback moment via `postTaskReflection` or a section reflection.
+- Keep grammar support brief and local to the learner problem; avoid long standalone lectures at the start.
+
+## 6. Production Task Scaffolding
 
 For open-ended production tasks (`acceptAnyAttempt: true`):
 
@@ -46,7 +66,7 @@ For open-ended production tasks (`acceptAnyAttempt: true`):
 - **answerExpectation:** Set `answerExpectation: "full-sentence"` so learners know they should write full sentences.
 - **Section explanation:** Add a "Success criteria" paragraph with model examples when helpful.
 
-## 6. Content Patterns
+## 7. Content Patterns
 
 ### Formula boxes (`section.formula`)
 
@@ -72,22 +92,23 @@ Use when contrasting two forms or uses:
 Use for tense markers (ayer, mañana, etc.):
 - `word`, `usage`, `examples[]`
 
-## 7. Language Policy
+## 8. Language Policy
 
 - **Basics:** May use English or mixed English/Spanish
 - **Intermediate and Advanced:** Spanish only—all pedagogical text (explanations, instructions, options, feedback) must be in Spanish
 
 Run `npm run check:spanish-b1-language` to validate Intermediate/Advanced guides.
 
-## 8. Validation Commands
+## 9. Validation Commands
 
 ```bash
 npm run typecheck
 npm run check:spanish-b1-language
+npm run check:spanish-task-first
 npm run check:spanish-guides
 ```
 
-## 9. Related Docs
+## 10. Related Docs
 
 - `docs/SPANISH_CONTENT_SYSTEM.md` – Source of truth and naming rules
 - `docs/SPANISH_GUIDE_QA_CHECKLIST.md` – Pre-merge checklist

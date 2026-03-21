@@ -1,622 +1,355 @@
 import type { InteractiveGuideContent } from "@/types/activity";
 
 export const spanishPresentTenseContent: InteractiveGuideContent = {
-    type: "interactive-guide",
-    tableOfContents: true,
-    sections: [
-        // Introduction Section
+  type: "interactive-guide",
+  tableOfContents: true,
+  canDo: [
+    "introduce yourself and your routine",
+    "use common present-tense verbs in practical conversation",
+    "distinguish everyday habits from right-now actions",
+  ],
+  taskScenario: {
+    title: "Introduce yourself and describe a normal day",
+    summary:
+      "You meet someone new and need to say who you are, what you do, and what your day normally looks like.",
+    learnerRole: "Learner handling a basic first conversation.",
+    outcome: "You can give a simple self-introduction with clear present-tense verbs.",
+  },
+  inputMaterials: [
+    {
+      id: "present-intro-dialogue",
+      title: "First conversation",
+      kind: "dialogue",
+      content: `
+        <p><strong>Leo:</strong> Hola, soy Leo. Trabajo en una escuela y estudio español por la noche.</p>
+        <p><strong>Sara:</strong> Mucho gusto. Yo vivo en Boston y camino al trabajo cada día.</p>
+      `,
+    },
+    {
+      id: "present-profile-card",
+      title: "Profile card",
+      kind: "notice",
+      content: `
+        <ul>
+          <li>Nombre: Marta</li>
+          <li>Profesión: enfermera</li>
+          <li>Rutina: trabaja de día, estudia por la noche</li>
+        </ul>
+      `,
+    },
+  ],
+  taskStages: [
+    {
+      id: "present-stage-routine",
+      title: "Say what you normally do",
+      goal: "Use present tense to describe habits and routines.",
+      prompt: "Respond as if you are telling someone about your usual day.",
+      expectedOutput: "multi-step",
+      completionMode: "mastery",
+    },
+    {
+      id: "present-stage-regular",
+      title: "Build regular present-tense forms",
+      goal: "Choose the right endings for common regular verbs.",
+      prompt: "Use the subject to select the present-tense form that sounds natural.",
+      expectedOutput: "select",
+      completionMode: "mastery",
+    },
+    {
+      id: "present-stage-irregular",
+      title: "Handle the most common irregulars",
+      goal: "Use ser, estar, ir, tener, and hacer in everyday speech.",
+      prompt: "Choose the irregular verb form that fits the context.",
+      expectedOutput: "select",
+      completionMode: "mastery",
+    },
+    {
+      id: "present-stage-contrast",
+      title: "Keep habits separate from right-now actions",
+      goal: "Avoid using the simple present when the context calls for a progressive meaning and vice versa.",
+      prompt: "Decide whether the speaker is talking about a routine or a current action.",
+      expectedOutput: "short-response",
+      completionMode: "mastery",
+    },
+  ],
+  focusOnFormTriggers: [
+    {
+      id: "present-trigger-ending",
+      stageId: "present-stage-regular",
+      triggerType: "agreement",
+      failureReasonTag: "present-ending-choice",
+      detectedIssue: "The verb ending does not match the subject.",
+      microExplanation:
+        "The stem is not enough; the ending carries the person. Yo hablo, ella come, nosotros vivimos.",
+      contrastExamples: ["Yo hablo.", "Nosotros vivimos."],
+      repairPrompt: "Check the subject and choose the ending that agrees with it.",
+    },
+    {
+      id: "present-trigger-irregular",
+      stageId: "present-stage-irregular",
+      triggerType: "word-choice",
+      failureReasonTag: "common-irregular-choice",
+      detectedIssue: "A high-frequency irregular form is being treated like a regular verb.",
+      microExplanation:
+        "Some of the most common verbs are irregular and need to be learned as everyday chunks: soy, estoy, voy, tengo, hago.",
+      contrastExamples: ["yo soy", "yo estoy", "yo voy", "yo tengo", "yo hago"],
+      repairPrompt: "Choose the form people actually say in daily conversation.",
+    },
+    {
+      id: "present-trigger-habit-vs-now",
+      stageId: "present-stage-contrast",
+      triggerType: "tense-choice",
+      failureReasonTag: "habit-vs-now",
+      detectedIssue: "The answer mixes up a routine meaning and a right-now meaning.",
+      microExplanation:
+        "Simple present is for routine, schedule, or fact. If the context is literally right now, another form may be better.",
+      contrastExamples: ["Trabajo cada día. = routine", "Estoy trabajando ahora. = right now"],
+      repairPrompt: "Decide whether the speaker means a habit or a current action and revise the sentence.",
+    },
+  ],
+  sections: [
+    {
+      id: "present-task-1",
+      title: "Stage 1: Talk about your day",
+      icon: "🎯",
+      taskStageId: "present-stage-routine",
+      inputMaterialIds: ["present-intro-dialogue"],
+      explanation: `
+        <h3>Start with communication, not conjugation charts</h3>
+        <p>The present tense matters because it lets you describe your life immediately: work, study, live, walk, eat, want.</p>
+      `,
+      exercises: [
         {
-            id: "introduction",
-            title: "Spanish Present Tense: Hablar del Ahora",
-            icon: "🎯",
-            explanation: `
-                <div style="background: linear-gradient(135deg, rgba(200, 107, 81, 0.1) 0%, rgba(110, 145, 118, 0.1) 100%); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
-                    <p style="font-size: 1.125rem; margin-bottom: 0;">¡Bienvenido! The present tense is essential Spanish. Whether you're talking about your daily routine, current situations, or general truths, you'll use the present tense constantly. Let's master it together!</p>
-                </div>
-
-                <h3>Why This Matters</h3>
-                <p>The present tense in Spanish allows you to describe what you do every day, what's happening right now, and facts about your life. It's the foundation of everyday communication.</p>
-                <p>To describe actions <em>in progress right now</em>, use the present progressive: <strong>estar + gerundio</strong> (-ando / -iendo).</p>
-            `,
-            timeExpressions: [
-                { word: "siempre", usage: "always", examples: ["Siempre como en casa."] },
-                { word: "nunca", usage: "never", examples: ["Nunca llego tarde."] },
-                { word: "a veces", usage: "sometimes", examples: ["A veces estudio por la noche."] },
-                { word: "cada día", usage: "every day", examples: ["Cada día camino al trabajo."] },
-                { word: "normalmente", usage: "normally", examples: ["Normalmente trabajo hasta las seis."] },
-            ],
-            formula: [
-                { text: "subject", type: "subject" },
-                { text: "+", type: "other" },
-                { text: "estar", type: "verb" },
-                { text: "+", type: "other" },
-                { text: "gerundio (-ando/-iendo)", type: "object" },
-            ],
-            exercises: [
-                {
-                    id: "sp-intro-1",
-                    title: "Quick Check: Present or Not?",
-                    instructions: "Which sentence uses the present tense?",
-                    items: [
-                        {
-                            type: "radio",
-                            label: "Choose the present tense sentence:",
-                            options: [
-                                { value: "present", label: "Yo hablo español" },
-                                { value: "past", label: "Yo hablé español" },
-                            ],
-                            expectedAnswer: "present",
-                        },
-                        {
-                            type: "radio",
-                            label: "Which describes a current action?",
-                            options: [
-                                { value: "present", label: "Estoy estudiando" },
-                                { value: "past", label: "Estuve estudiando" },
-                            ],
-                            expectedAnswer: "present",
-                        },
-                    ],
-                },
-            ],
-        },
-
-        // Regular Verbs Section
-        {
-            id: "regular-verbs",
-            stepNumber: 1,
-            title: "Regular Present Tense Verbs",
-            icon: "📝",
-            explanation: `
-                <h3>Three Main Types of Regular Verbs</h3>
-                <p>Spanish regular verbs fall into three categories based on their infinitive ending: <strong>-AR</strong>, <strong>-ER</strong>, and <strong>-IR</strong>. Each group follows its own pattern. Learn the endings in the table below and you can conjugate hundreds of verbs.</p>
-            `,
-            tipBox: {
-                title: "Quick reference",
-                content: "Regular present endings: -AR → yo -o, tú -as, él/ella -a, nosotros -amos, ellos -an. -ER/-IR share the same pattern except: -ER tú -es, él -e, nosotros -emos, ellos -en; -IR nosotros -imos, ellos -en.",
+          id: "present-stage-1",
+          title: "Routine introduction",
+          instructions: "Choose or complete the response that sounds like a real self-introduction.",
+          items: [
+            {
+              type: "radio",
+              label: "Best introduction:",
+              options: [
+                { value: "a", label: "Trabajo en una escuela y estudio español por la noche." },
+                { value: "b", label: "Trabajar escuela español noche." },
+              ],
+              expectedAnswer: "a",
             },
-            verbTable: {
-                title: "Regular Present Tense Conjugations",
-                headers: ["Person", "-AR (hablar)", "-ER (comer)", "-IR (vivir)"],
-                rows: [
-                    ["yo", "hablo", "como", "vivo"],
-                    ["tú", "hablas", "comes", "vives"],
-                    ["él/ella/usted", "habla", "come", "vive"],
-                    ["nosotros/as", "hablamos", "comemos", "vivimos"],
-                    ["ellos/ellas/ustedes", "hablan", "comen", "viven"],
-                ],
+            {
+              type: "text",
+              label: "Complete: Yo ___ en Boston. (vivir)",
+              correctAnswer: "vivo",
+              expectedAnswers: ["vivo"],
             },
-            usageMeanings: [
-                {
-                    title: "🗣️ -AR Verbs (Most Common)",
-                    description: "The most common type of Spanish verb",
-                    examples: [
-                        {
-                            sentence: "Yo <strong>hablo</strong> español en clase.",
-                            explanation:
-                                "I speak Spanish in class. Hablar = to speak (infinitive), hablo = I speak (present)",
-                        },
-                        {
-                            sentence: "Mi hermana <strong>trabaja</strong> en un restaurante.",
-                            explanation:
-                                "My sister works in a restaurant. Notice the -a ending for third person singular.",
-                        },
-                        {
-                            sentence: "Nosotros <strong>caminamos</strong> al parque cada día.",
-                            explanation:
-                                "We walk to the park every day. Nosotros always adds -amos.",
-                        },
-                    ],
-                },
-                {
-                    title: "🍴 -ER Verbs (Action Verbs)",
-                    description: "Verbs that often describe actions or consumption",
-                    examples: [
-                        {
-                            sentence: "¿Qué <strong>comes</strong> para el desayuno?",
-                            explanation:
-                                "What do you eat for breakfast? Comer = to eat, comes = you eat",
-                        },
-                        {
-                            sentence: "Ellos <strong>beben</strong> café después de trabajar.",
-                            explanation:
-                                "They drink coffee after working. Note the -en ending for third person plural.",
-                        },
-                        {
-                            sentence: "Yo <strong>comprendo</strong> la lección.",
-                            explanation:
-                                "I understand the lesson. Comprender = to understand, comprendo = I understand",
-                        },
-                    ],
-                },
-                {
-                    title: "🏠 -IR Verbs (Specific Actions)",
-                    description: "Verbs describing motion or specific actions",
-                    examples: [
-                        {
-                            sentence: "¿Dónde <strong>vives</strong>?",
-                            explanation:
-                                "Where do you live? Vivir = to live, vives = you live",
-                        },
-                        {
-                            sentence: "<strong>Abro</strong> la puerta cada mañana.",
-                            explanation:
-                                "I open the door every morning. Abrir = to open, abro = I open",
-                        },
-                        {
-                            sentence: "Nosotros <strong>escribimos</strong> muchos emails.",
-                            explanation:
-                                "We write many emails. Escribir = to write, escribimos = we write",
-                        },
-                    ],
-                },
-            ],
-            exercises: [
-                {
-                    id: "sp-regular-1",
-                    title: "Conjugate Regular Verbs",
-                    instructions: "Fill in the correct present tense conjugation for the verb in parentheses.",
-                    items: [
-                        {
-                            type: "text",
-                            label: "Yo ______ (hablar) español bien.",
-                            correctAnswer: "hablo",
-                            expectedAnswers: ["hablo"],
-                        },
-                        {
-                            type: "text",
-                            label: "Ella ______ (comer) una manzana cada día.",
-                            correctAnswer: "come",
-                            expectedAnswers: ["come"],
-                        },
-                        {
-                            type: "text",
-                            label: "Nosotros ______ (vivir) en la ciudad.",
-                            correctAnswer: "vivimos",
-                            expectedAnswers: ["vivimos"],
-                        },
-                        {
-                            type: "text",
-                            label: "¿Tú ______ (trabajar) mañana?",
-                            correctAnswer: "trabajas",
-                            expectedAnswers: ["trabajas"],
-                        },
-                    ],
-                },
-                {
-                    id: "sp-regular-2",
-                    title: "Identify the Verb Type",
-                    instructions: "Identify whether each infinitive is -AR, -ER, or -IR.",
-                    items: [
-                        {
-                            type: "radio",
-                            label: "Estudiar",
-                            options: [
-                                { value: "ar", label: "-AR" },
-                                { value: "er", label: "-ER" },
-                                { value: "ir", label: "-IR" },
-                            ],
-                            expectedAnswer: "ar",
-                        },
-                        {
-                            type: "radio",
-                            label: "Aprender",
-                            options: [
-                                { value: "ar", label: "-AR" },
-                                { value: "er", label: "-ER" },
-                                { value: "ir", label: "-IR" },
-                            ],
-                            expectedAnswer: "er",
-                        },
-                        {
-                            type: "radio",
-                            label: "Partir",
-                            options: [
-                                { value: "ar", label: "-AR" },
-                                { value: "er", label: "-ER" },
-                                { value: "ir", label: "-IR" },
-                            ],
-                            expectedAnswer: "ir",
-                        },
-                    ],
-                },
-            ],
+          ],
         },
-
-        // Common Irregular Verbs
+      ],
+      postTaskReflection: {
+        prompt: "Check whether a real person could understand your normal routine from the sentence alone.",
+      },
+    },
+    {
+      id: "present-task-2",
+      stepNumber: 1,
+      title: "Stage 2: Regular present-tense patterns",
+      icon: "📝",
+      taskStageId: "present-stage-regular",
+      inputMaterialIds: ["present-profile-card"],
+      focusOnFormTriggerIds: ["present-trigger-ending"],
+      explanation: `
+        <h3>Endings matter because they point to the subject</h3>
+        <p>Once the situation is clear, the next support move is choosing the ending that matches the person.</p>
+      `,
+      verbTable: {
+        title: "Core regular patterns",
+        headers: ["Person", "-AR", "-ER", "-IR"],
+        rows: [
+          ["yo", "hablo", "como", "vivo"],
+          ["tú", "hablas", "comes", "vives"],
+          ["él/ella", "habla", "come", "vive"],
+          ["nosotros", "hablamos", "comemos", "vivimos"],
+          ["ellos", "hablan", "comen", "viven"],
+        ],
+      },
+      exercises: [
         {
-            id: "irregular-verbs",
-            stepNumber: 2,
-            title: "Common Irregular Present Tense Verbs",
-            icon: "⚡",
-            explanation: `
-                <h3>Spanish Loves Exceptions</h3>
-                <p>Some of the most common Spanish verbs don't follow the regular patterns. But the good news? You only need to memorize a few essential ones to speak fluently.</p>
-            `,
-            tipBox: {
-                title: "Remember",
-                content: "Ser, estar, ir, tener, and hacer are used every day. Learn their present forms first; you will see them in almost every conversation.",
+          id: "present-stage-2",
+          title: "Match the subject and ending",
+          instructions: "Choose the form that agrees with the subject.",
+          items: [
+            { type: "text", label: "Ella ___ una manzana cada día. (comer)", correctAnswer: "come", expectedAnswers: ["come"] },
+            { type: "text", label: "Nosotros ___ en la ciudad. (vivir)", correctAnswer: "vivimos", expectedAnswers: ["vivimos"] },
+            { type: "text", label: "Tú ___ español bien. (hablar)", correctAnswer: "hablas", expectedAnswers: ["hablas"] },
+          ],
+        },
+      ],
+    },
+    {
+      id: "present-task-3",
+      stepNumber: 2,
+      title: "Stage 3: Everyday irregular verbs",
+      icon: "⚡",
+      taskStageId: "present-stage-irregular",
+      focusOnFormTriggerIds: ["present-trigger-irregular"],
+      explanation: `
+        <h3>These verbs appear everywhere</h3>
+        <p>Identity, location, movement, possession, and action all depend on a small set of irregular verbs.</p>
+      `,
+      verbTable: {
+        title: "Essential irregulars",
+        headers: ["Verb", "Yo", "Tú", "Él/Ella"],
+        rows: [
+          ["ser", "soy", "eres", "es"],
+          ["estar", "estoy", "estás", "está"],
+          ["ir", "voy", "vas", "va"],
+          ["tener", "tengo", "tienes", "tiene"],
+          ["hacer", "hago", "haces", "hace"],
+        ],
+      },
+      exercises: [
+        {
+          id: "present-stage-3",
+          title: "Choose the everyday form",
+          instructions: "Pick the form people use in daily life.",
+          items: [
+            {
+              type: "radio",
+              label: "I am a teacher.",
+              options: [
+                { value: "soy", label: "Soy profesor/a." },
+                { value: "estoy", label: "Estoy profesor/a." },
+              ],
+              expectedAnswer: "soy",
             },
-            verbTable: {
-                title: "Essential Irregular Verbs",
-                headers: ["Person", "Ser (to be)", "Estar (to be)", "Ir (to go)", "Tener (to have)", "Hacer (to do/make)"],
-                rows: [
-                    ["yo", "soy", "estoy", "voy", "tengo", "hago"],
-                    ["tú", "eres", "estás", "vas", "tienes", "haces"],
-                    ["él/ella/usted", "es", "está", "va", "tiene", "hace"],
-                    ["nosotros/as", "somos", "estamos", "vamos", "tenemos", "hacemos"],
-                    ["ellos/ellas/ustedes", "son", "están", "van", "tienen", "hacen"],
-                ],
+            {
+              type: "radio",
+              label: "I have two classes today.",
+              options: [
+                { value: "tengo", label: "Tengo dos clases hoy." },
+                { value: "teno", label: "Teno dos clases hoy." },
+              ],
+              expectedAnswer: "tengo",
             },
-            usageMeanings: [
-                {
-                    title: "🎭 Ser (Permanent Identity)",
-                    description: "Who you are, what you do for work, permanent characteristics",
-                    examples: [
-                        {
-                            sentence: "Yo <strong>soy</strong> ingeniero.",
-                            explanation: "I am an engineer. Ser for profession.",
-                        },
-                        {
-                            sentence: "Ella <strong>es</strong> inteligente.",
-                            explanation: "She is intelligent. Ser for permanent qualities.",
-                        },
-                    ],
-                },
-                {
-                    title: "📍 Estar (Location & Condition)",
-                    description: "Where something is, how you feel right now",
-                    examples: [
-                        {
-                            sentence: "¿Dónde <strong>estás</strong>?",
-                            explanation: "Where are you? Estar for location.",
-                        },
-                        {
-                            sentence: "Yo <strong>estoy</strong> cansado hoy.",
-                            explanation: "I am tired today. Estar for temporary conditions.",
-                        },
-                    ],
-                },
-                {
-                    title: "🚀 Ir (Movement)",
-                    description: "Going somewhere",
-                    examples: [
-                        {
-                            sentence: "¿Adónde <strong>vas</strong>?",
-                            explanation: "Where are you going?",
-                        },
-                        {
-                            sentence: "Nosotros <strong>vamos</strong> al cine.",
-                            explanation: "We are going to the cinema.",
-                        },
-                    ],
-                },
-            ],
-            exercises: [
-                {
-                    id: "sp-irregular-1",
-                    title: "Conjugate Irregular Verbs",
-                    instructions: "Fill in the correct conjugation for the irregular verb.",
-                    items: [
-                        {
-                            type: "text",
-                            label: "Yo ______ (ser) profesor.",
-                            correctAnswer: "soy",
-                            expectedAnswers: ["soy"],
-                        },
-                        {
-                            type: "text",
-                            label: "Ella ______ (estar) en casa.",
-                            correctAnswer: "está",
-                            expectedAnswers: ["está"],
-                        },
-                        {
-                            type: "text",
-                            label: "Nosotros ______ (ir) a la playa.",
-                            correctAnswer: "vamos",
-                            expectedAnswers: ["vamos"],
-                        },
-                        {
-                            type: "text",
-                            label: "¿Tú ______ (tener) dinero?",
-                            correctAnswer: "tienes",
-                            expectedAnswers: ["tienes"],
-                        },
-                    ],
-                },
-            ],
+          ],
         },
-
-        // Usage & Context
+      ],
+    },
+    {
+      id: "present-task-4",
+      stepNumber: 3,
+      title: "Stage 4: Habit or right now?",
+      icon: "↔️",
+      taskStageId: "present-stage-contrast",
+      focusOnFormTriggerIds: ["present-trigger-habit-vs-now"],
+      explanation: `
+        <h3>The present tense usually describes routine, not every current action</h3>
+        <p>When learners overuse the present for “right now,” communication gets blurry.</p>
+      `,
+      comparison: {
+        title: "Routine vs right now",
+        leftLabel: "Routine / habit",
+        rightLabel: "Right now",
+        rows: [
+          { label: "work", left: "Trabajo cada día.", right: "Estoy trabajando ahora." },
+          { label: "eat", left: "Desayuno a las siete.", right: "Estoy desayunando." },
+        ],
+      },
+      exercises: [
         {
-            id: "usage-context",
-            stepNumber: 3,
-            title: "When to Use the Present Tense",
-            icon: "⏰",
-            explanation: `
-                <h3>Understanding Context</h3>
-                <p>The present tense has multiple uses in Spanish. Understanding when to use it is key to sounding natural.</p>
-            `,
-            usageMeanings: [
-                {
-                    title: "🔄 Habitual Actions (Daily Routines)",
-                    description: "Things you do regularly or every day",
-                    examples: [
-                        {
-                            sentence: "Cada mañana me <strong>despierto</strong> a las 6 y <strong>tomo</strong> café.",
-                            explanation:
-                                "Every morning I wake up at 6 and drink coffee. These are regular habits.",
-                        },
-                        {
-                            sentence: "Mi familia <strong>cena</strong> juntos los viernes.",
-                            explanation: "My family dines together on Fridays. A regular weekly habit.",
-                        },
-                    ],
-                },
-                {
-                    title: "🎯 Present Facts & Truths",
-                    description: "General truths or facts that are currently true",
-                    examples: [
-                        {
-                            sentence: "El español <strong>es</strong> una lengua hermosa.",
-                            explanation: "Spanish is a beautiful language. A general truth.",
-                        },
-                        {
-                            sentence: "La Tierra <strong>gira</strong> alrededor del sol.",
-                            explanation: "The Earth revolves around the sun. A scientific fact.",
-                        },
-                    ],
-                },
-                {
-                    title: "📖 Narrative Present (Storytelling)",
-                    description: "Used when telling a story as if it's happening now",
-                    examples: [
-                        {
-                            sentence: "Pedro <strong>entra</strong> al café y <strong>ve</strong> a su amigo Miguel.",
-                            explanation:
-                                "Pedro enters the café and sees his friend Miguel. Used for dramatic effect in stories.",
-                        },
-                    ],
-                },
-            ],
-            exercises: [
-                {
-                    id: "sp-usage-1",
-                    title: "Choose the Correct Present Tense Verb",
-                    instructions: "Select the correct present tense form.",
-                    items: [
-                        {
-                            type: "select",
-                            label: "Yo ______ al trabajo cada mañana.",
-                            options: ["voy", "iba", "iré"],
-                            expectedAnswer: "voy",
-                        },
-                        {
-                            type: "select",
-                            label: "Ella ______ tres hijos.",
-                            options: ["tiene", "tenía", "tendrá"],
-                            expectedAnswer: "tiene",
-                        },
-                        {
-                            type: "select",
-                            label: "Nosotros ______ en un apartamento céntrico.",
-                            options: ["vivimos", "vivíamos", "viviremos"],
-                            expectedAnswer: "vivimos",
-                        },
-                    ],
-                },
-            ],
-        },
-
-        {
-            id: "quick-reference-present",
-            stepNumber: 4,
-            title: "Quick Reference: Present Tense",
-            icon: "📋",
-            explanation: `
-                <h3>At a Glance</h3>
-                <p><strong>-AR:</strong> -o, -as, -a, -amos, -an. <strong>-ER:</strong> -o, -es, -e, -emos, -en. <strong>-IR:</strong> -o, -es, -e, -imos, -en. Irregulars to memorize: ser, estar, ir, tener, hacer. Use present for habits, facts, and ongoing actions.</p>
-            `,
-            tipBox: {
-                title: "Remember",
-                content: "The yo form of regular -AR verbs always ends in -o. For -ER/-IR, yo ends in -o, tú in -es, él/ella in -e.",
+          id: "present-stage-4",
+          title: "Choose the better sentence for the context",
+          instructions: "Pick the sentence that matches routine or right-now meaning.",
+          items: [
+            {
+              type: "radio",
+              label: "You mean: I eat breakfast every day.",
+              options: [
+                { value: "simple", label: "Desayuno cada día." },
+                { value: "prog", label: "Estoy desayunando cada día." },
+              ],
+              expectedAnswer: "simple",
             },
-            exercises: [
-                {
-                    id: "sp-present-quickref",
-                    title: "Recall",
-                    instructions: "Choose the correct ending.",
-                    items: [
-                        {
-                            type: "radio",
-                            label: "-AR yo form ends in ___",
-                            options: [
-                                { value: "o", label: "-o" },
-                                { value: "a", label: "-a" },
-                            ],
-                            expectedAnswer: "o",
-                        },
-                    ],
-                },
-            ],
+            {
+              type: "radio",
+              label: "You mean: right now I am studying.",
+              options: [
+                { value: "simple", label: "Estudio ahora." },
+                { value: "prog", label: "Estoy estudiando ahora." },
+              ],
+              expectedAnswer: "prog",
+            },
+          ],
         },
-
-        // Mini Quiz
-        {
-            id: "mini-quiz",
-            title: "Review: Present Tense Mastery",
-            icon: "🎓",
-            explanation: `
-                <h3>Let's Test Your Knowledge</h3>
-                <p>Try these sentences to see how well you've mastered the present tense!</p>
-            `,
-            exercises: [
-                {
-                    id: "sp-review-1",
-                    title: "Complete the Sentences",
-                    instructions: "Fill in the correct present tense verb.",
-                    items: [
-                        {
-                            type: "text",
-                            label: "Nosotros ______ (trabajar) en una oficina grande.",
-                            correctAnswer: "trabajamos",
-                            expectedAnswers: ["trabajamos"],
-                        },
-                        {
-                            type: "text",
-                            label: "¿Cuántos años ______ (tener) tu hermana?",
-                            correctAnswer: "tiene",
-                            expectedAnswers: ["tiene"],
-                        },
-                        {
-                            type: "text",
-                            label: "Los niños ______ (jugar) en el parque.",
-                            correctAnswer: "juegan",
-                            expectedAnswers: ["juegan"],
-                        },
-                        {
-                            type: "text",
-                            label: "Yo ______ (entender) perfectamente.",
-                            correctAnswer: "entiendo",
-                            expectedAnswers: ["entiendo"],
-                        },
-                    ],
-                },
-            ],
-        },
+      ],
+    },
+  ],
+  communicativeCheckpoint: {
+    title: "Checkpoint: describe your daily life clearly",
+    questions: [
+      {
+        id: "present-cq1",
+        question: "Best sentence for a daily routine:",
+        options: [
+          { value: "a", label: "Trabajo en una escuela." },
+          { value: "b", label: "Trabajo una escuela." },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "present-routine-description",
+        failureReasonTag: "present-ending-choice",
+      },
+      {
+        id: "present-cq2",
+        question: "Correct yo form of vivir:",
+        options: [
+          { value: "a", label: "vivo" },
+          { value: "b", label: "vive" },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "present-self-intro",
+        failureReasonTag: "present-ending-choice",
+      },
+      {
+        id: "present-cq3",
+        question: "Best form for identity:",
+        options: [
+          { value: "a", label: "Soy estudiante." },
+          { value: "b", label: "Estoy estudiante." },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "present-identity",
+        failureReasonTag: "common-irregular-choice",
+      },
+      {
+        id: "present-cq4",
+        question: "Best form for possession:",
+        options: [
+          { value: "a", label: "Tengo dos trabajos." },
+          { value: "b", label: "Teno dos trabajos." },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "present-possession",
+        failureReasonTag: "common-irregular-choice",
+      },
+      {
+        id: "present-cq5",
+        question: "Choose the sentence for a routine, not right now:",
+        options: [
+          { value: "a", label: "Camino al trabajo cada día." },
+          { value: "b", label: "Estoy caminando al trabajo cada día." },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "present-routine-vs-now",
+        failureReasonTag: "habit-vs-now",
+      },
+      {
+        id: "present-cq6",
+        question: "Choose the sentence for right now:",
+        options: [
+          { value: "a", label: "Estoy estudiando ahora." },
+          { value: "b", label: "Estudio ahora mismo cada día." },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "present-routine-vs-now",
+        failureReasonTag: "habit-vs-now",
+      },
     ],
-    miniQuiz: [
-        {
-            id: "q1",
-            question: "Which verb ending do -AR verbs use for 'yo' in the present tense?",
-            options: [
-                { value: "a", label: "-o" },
-                { value: "b", label: "-a" },
-                { value: "c", label: "-e" },
-            ],
-            correctAnswer: "a",
-            explanation: "Regular -AR verbs use -o for the 'yo' form. Yo hablo, yo trabajo, yo camino.",
-        },
-        {
-            id: "q2",
-            question: "What is the present tense 'nosotros' form of hablar?",
-            options: [
-                { value: "a", label: "hablamos" },
-                { value: "b", label: "hablan" },
-                { value: "c", label: "hablas" },
-            ],
-            correctAnswer: "a",
-            explanation: "Nosotros hablamos. The -mos ending is used for all regular verbs with nosotros.",
-        },
-        {
-            id: "q3",
-            question: "The verb 'ser' is irregular. What is the 'yo' form?",
-            options: [
-                { value: "a", label: "soy" },
-                { value: "b", label: "seré" },
-                { value: "c", label: "era" },
-            ],
-            correctAnswer: "a",
-            explanation: "Yo soy. This is one of the most important irregular verbs in Spanish.",
-        },
-        {
-            id: "q4",
-            question: "What is the present tense 'tú' form of comer?",
-            options: [
-                { value: "a", label: "comes" },
-                { value: "b", label: "come" },
-                { value: "c", label: "comen" },
-            ],
-            correctAnswer: "a",
-            explanation: "For regular -ER verbs, tú ends in -es. Example: tú comes.",
-        },
-        {
-            id: "q5",
-            question: "Which is correct for 'they live' (vivir)?",
-            options: [
-                { value: "a", label: "viven" },
-                { value: "b", label: "vivimos" },
-                { value: "c", label: "vivo" },
-            ],
-            correctAnswer: "a",
-            explanation: "Ellos/Ellas/Ustedes use the -en ending with -IR verbs: viven.",
-        },
-        {
-            id: "q6",
-            question: "Complete: 'Nosotros ___ en Boston.' (hablar)",
-            options: [
-                { value: "a", label: "hablamos" },
-                { value: "b", label: "hablan" },
-                { value: "c", label: "hablas" },
-            ],
-            correctAnswer: "a",
-            explanation: "Nosotros takes -amos with regular -AR verbs in present tense.",
-        },
-        {
-            id: "q7",
-            question: "Which sentence uses an irregular 'tener' form correctly?",
-            options: [
-                { value: "a", label: "Yo tengo dos hermanos." },
-                { value: "b", label: "Yo teno dos hermanos." },
-                { value: "c", label: "Yo tiene dos hermanos." },
-            ],
-            correctAnswer: "a",
-            explanation: "'Tener' is irregular in yo form: yo tengo.",
-        },
-        {
-            id: "q8",
-            question: "Choose the correct question form.",
-            options: [
-                { value: "a", label: "¿Dónde vives?" },
-                { value: "b", label: "¿Dónde vive tú?" },
-                { value: "c", label: "¿Dónde vivir tú?" },
-            ],
-            correctAnswer: "a",
-            explanation: "Use the conjugated verb form directly with tú: ¿Dónde vives?",
-        },
-        {
-            id: "q9",
-            question: "What is the present tense 'yo' form of estar?",
-            options: [
-                { value: "a", label: "estoy" },
-                { value: "b", label: "esta" },
-                { value: "c", label: "estaba" },
-            ],
-            correctAnswer: "a",
-            explanation: "Estar is irregular: yo estoy.",
-        },
-        {
-            id: "q10",
-            question: "Which sentence best shows a present-time routine?",
-            options: [
-                { value: "a", label: "Cada semana estudiamos español." },
-                { value: "b", label: "Ayer estudiamos español." },
-                { value: "c", label: "Mañana estudiaremos español." },
-            ],
-            correctAnswer: "a",
-            explanation: "Present tense describes current routines and repeated habits.",
-        },
-        {
-            id: "q11",
-            question: "Which sentence has an error?",
-            options: [
-                { value: "a", label: "Yo tengo dos hermanos." },
-                { value: "b", label: "Ella tiene hambre." },
-                { value: "c", label: "Ellos tiene mucho que hacer." },
-            ],
-            correctAnswer: "c",
-            explanation: "With ellos/ellas, tener must be tienen, not tiene. Correct: Ellos tienen mucho que hacer.",
-        },
-        {
-            id: "q12",
-            question: "Choose the correct -ER ending for 'ellos comen'.",
-            options: [
-                { value: "a", label: "-en (correct for ellos/ellas with -ER)" },
-                { value: "b", label: "-an" },
-                { value: "c", label: "-emos" },
-            ],
-            correctAnswer: "a",
-            explanation: "-ER and -IR verbs use -en for ellos/ellas/ustedes; -an is for -AR only.",
-        },
-    ],
+  },
 };

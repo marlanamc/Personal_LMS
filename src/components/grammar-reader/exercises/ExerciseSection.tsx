@@ -27,6 +27,7 @@ interface ExerciseSectionProps {
     onAnswerChange: (itemIndex: number, value: string) => void;
     onComplete: () => void;
     onExerciseComplete?: (info: ExerciseCompletionInfo) => void;
+    onCheckResult?: (allCorrect: boolean) => void;
 }
 
 export function ExerciseSection({
@@ -37,6 +38,7 @@ export function ExerciseSection({
     onAnswerChange,
     onComplete,
     onExerciseComplete,
+    onCheckResult,
 }: ExerciseSectionProps) {
     const [submitted, setSubmitted] = useState(false);
     const [results, setResults] = useState<Record<number, boolean>>({});
@@ -120,6 +122,7 @@ export function ExerciseSection({
 
         // Check if all correct
         const allCorrect = Object.values(newResults).every((r) => r);
+        onCheckResult?.(allCorrect);
         if (allCorrect) {
             onComplete();
             // Notify parent about exercise completion for points tracking

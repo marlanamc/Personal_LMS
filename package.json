@@ -24,6 +24,7 @@
     "audit:diagram-contrast": "node --import tsx scripts/audit-diagram-contrast.ts",
     "check:nullable-upserts": "node scripts/check-null-assignment-upserts.mjs",
     "check:spanish-b1-language": "node --import tsx scripts/check-spanish-b1-language.ts",
+    "check:spanish-task-first": "node --import tsx scripts/check-spanish-task-first.ts",
     "check:spanish-guides": "python3 scripts/analyze-spanish-guides.py",
     "typecheck": "tsc --noEmit",
     "db:seed": "npm run db:seed:base",

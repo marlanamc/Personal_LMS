@@ -3,91 +3,154 @@ import type { InteractiveGuideContent } from "@/types/activity";
 export const spanishQuestionWordsSentencesContent: InteractiveGuideContent = {
   type: "interactive-guide",
   tableOfContents: true,
+  canDo: [
+    "ask basic information questions",
+    "form simple follow-up questions in conversation",
+    "keep a short exchange going with clear question words",
+  ],
+  taskScenario: {
+    title: "Meet someone new and keep the conversation moving",
+    summary:
+      "You are meeting a new classmate or neighbor. You need to ask for real information, react, and ask one follow-up so the exchange does not die after one sentence.",
+    learnerRole: "Learner starting a basic conversation.",
+    outcome: "You can ask useful questions and build a short exchange.",
+  },
+  inputMaterials: [
+    {
+      id: "qw-dialogue",
+      title: "Short first meeting",
+      kind: "dialogue",
+      content: `
+        <p><strong>Ana:</strong> Hola. ¿Cómo te llamas?</p>
+        <p><strong>Luis:</strong> Me llamo Luis.</p>
+        <p><strong>Ana:</strong> ¿De dónde eres?</p>
+        <p><strong>Luis:</strong> Soy de Boston. ¿Y tú?</p>
+      `,
+    },
+  ],
+  taskStages: [
+    {
+      id: "qw-stage-match",
+      title: "Choose the question word that gets the right information",
+      goal: "Match the question word to meaning and communicative goal.",
+      prompt: "Ask for place, time, reason, identity, and quantity accurately.",
+      expectedOutput: "select",
+      completionMode: "mastery",
+    },
+    {
+      id: "qw-stage-build",
+      title: "Build complete questions",
+      goal: "Turn prompts into actual Spanish questions a person could ask.",
+      prompt: "Write the question, not just the isolated word.",
+      expectedOutput: "short-response",
+      completionMode: "mastery",
+    },
+    {
+      id: "qw-stage-followup",
+      title: "Keep the exchange going",
+      goal: "Use one question and one follow-up to sustain conversation.",
+      prompt: "Create a short two-line exchange with a clear information question and reaction.",
+      expectedOutput: "write",
+      completionMode: "mastery",
+    },
+  ],
+  focusOnFormTriggers: [
+    {
+      id: "qw-trigger-word-choice",
+      stageId: "qw-stage-match",
+      triggerType: "word-choice",
+      failureReasonTag: "question-word-choice",
+      detectedIssue: "The question word does not match the information needed.",
+      microExplanation:
+        "Ask yourself what information the speaker needs: place, time, reason, person, or quantity.",
+      contrastExamples: ["¿Dónde vives? = place", "¿Cuándo estudias? = time"],
+      repairPrompt: "Choose the question word that gets the missing information directly.",
+    },
+    {
+      id: "qw-trigger-question-form",
+      stageId: "qw-stage-build",
+      triggerType: "production",
+      failureReasonTag: "question-formation",
+      detectedIssue: "The answer names the meaning, but not a full question.",
+      microExplanation: "A conversation needs a complete question, not just dónde or cuándo by itself.",
+      contrastExamples: ["Word only: Dónde", "Question: ¿Dónde vives?"],
+      repairPrompt: "Rewrite the prompt as a full Spanish question.",
+    },
+    {
+      id: "qw-trigger-followup",
+      stageId: "qw-stage-followup",
+      triggerType: "repair",
+      failureReasonTag: "follow-up-conversation",
+      detectedIssue: "The exchange stops after one question and one answer.",
+      microExplanation: "A simple follow-up like ¿y tú?, ¿por qué?, or another question word keeps the conversation alive.",
+      contrastExamples: ["¿Cómo te llamas? Me llamo Ana. ¿Y tú?"],
+      repairPrompt: "Add a follow-up that invites the other person to keep speaking.",
+    },
+  ],
   sections: [
     {
-      id: "question-words-core",
-      title: "Question Words and Basic Sentence Building",
+      id: "qw-task-1",
+      title: "Stage 1: Ask for the right information",
       icon: "❓",
+      taskStageId: "qw-stage-match",
+      inputMaterialIds: ["qw-dialogue"],
+      focusOnFormTriggerIds: ["qw-trigger-word-choice"],
       explanation: `
-        <h3>A1 to A2 Communication Builder</h3>
-        <p>Question words help you start real conversations. Mastering these forms gives you immediate speaking power.</p>
+        <h3>Question words are conversation tools</h3>
+        <p>Choose them based on what you need to know, not just on English translation lists.</p>
       `,
       verbTable: {
-        title: "Essential Question Words",
-        headers: ["Spanish", "Meaning", "Common Use"],
+        title: "Core question words",
+        headers: ["Word", "Meaning", "Use"],
         rows: [
-          ["¿qué?", "what?", "¿Qué haces?"],
-          ["¿quién?", "who?", "¿Quién es ella?"],
-          ["¿dónde?", "where?", "¿Dónde vives?"],
-          ["¿cuándo?", "when?", "¿Cuándo estudias?"],
-          ["¿por qué?", "why?", "¿Por qué llegaste tarde?"],
-          ["¿cómo?", "how?", "¿Cómo estás?"],
-          ["¿cuánto/a/os/as?", "how much/many?", "¿Cuántos años tienes?"],
+          ["¿qué?", "what", "¿Qué haces?"],
+          ["¿quién?", "who", "¿Quién es ella?"],
+          ["¿dónde?", "where", "¿Dónde vives?"],
+          ["¿cuándo?", "when", "¿Cuándo estudias?"],
+          ["¿por qué?", "why", "¿Por qué aprendes español?"],
+          ["¿cómo?", "how", "¿Cómo estás?"],
+          ["¿cuánto/a/os/as?", "how much / many", "¿Cuántos años tienes?"],
         ],
       },
       exercises: [
         {
-          id: "sp-qw-1",
-          title: "Pick the Right Question Word",
-          instructions: "Choose the best option for each meaning.",
+          id: "qw-stage-1",
+          title: "Pick the best question word",
+          instructions: "Choose the word that gets the information you want.",
           items: [
-            {
-              type: "select",
-              label: "___ vives? (where)",
-              options: ["Qué", "Dónde", "Quién"],
-              expectedAnswer: "Dónde",
-            },
-            {
-              type: "select",
-              label: "___ estudias español? (why)",
-              options: ["Por qué", "Cómo", "Cuándo"],
-              expectedAnswer: "Por qué",
-            },
-            {
-              type: "select",
-              label: "___ años tienes? (how many)",
-              options: ["Qué", "Cuántos", "Quién"],
-              expectedAnswer: "Cuántos",
-            },
+            { type: "select", label: "___ vives? (where)", options: ["Qué", "Dónde", "Quién"], expectedAnswer: "Dónde" },
+            { type: "select", label: "___ estudias español? (why)", options: ["Por qué", "Cómo", "Cuándo"], expectedAnswer: "Por qué" },
+            { type: "select", label: "___ años tienes? (how many)", options: ["Qué", "Cuántos", "Quién"], expectedAnswer: "Cuántos" },
           ],
         },
       ],
     },
     {
-      id: "question-structure",
+      id: "qw-task-2",
       stepNumber: 1,
-      title: "Question Structure and Intonation",
+      title: "Stage 2: Turn ideas into real questions",
       icon: "🧱",
+      taskStageId: "qw-stage-build",
+      focusOnFormTriggerIds: ["qw-trigger-question-form"],
       explanation: `
-        <h3>How to Build Questions</h3>
-        <p>Spanish usually keeps the same core order as statements, but uses:</p>
-        <ul>
-          <li>question marks: <strong>¿ ... ?</strong></li>
-          <li>rising intonation when speaking</li>
-          <li>question words at the beginning for information questions</li>
-        </ul>
-        <p>Examples:</p>
-        <ul>
-          <li>Statement: <em>Tú trabajas hoy.</em></li>
-          <li>Yes/No question: <em>¿Tú trabajas hoy?</em></li>
-          <li>Info question: <em>¿Dónde trabajas hoy?</em></li>
-        </ul>
+        <h3>A full question is what moves the conversation</h3>
+        <p>Use the word, the verb, and the punctuation together.</p>
       `,
       exercises: [
         {
-          id: "sp-qw-2",
-          title: "Turn into a Question",
+          id: "qw-stage-2",
+          title: "Build the full question",
           instructions: "Rewrite each prompt as a Spanish question.",
           items: [
             {
               type: "text",
-              label: "You live in Boston. Ask: where do you live?",
+              label: "Ask: where do you live?",
               correctAnswer: "¿Dónde vives?",
               expectedAnswers: ["¿Dónde vives?", "Dónde vives"],
             },
             {
               type: "text",
-              label: "She studies at night. Ask: when does she study?",
+              label: "Ask: when does she study?",
               correctAnswer: "¿Cuándo estudia?",
               expectedAnswers: ["¿Cuándo estudia?", "Cuándo estudia"],
             },
@@ -96,292 +159,102 @@ export const spanishQuestionWordsSentencesContent: InteractiveGuideContent = {
       ],
     },
     {
-      id: "negation-and-basic-links",
+      id: "qw-task-3",
       stepNumber: 2,
-      title: "Negation and Connecting Ideas",
-      icon: "🔗",
-      explanation: `
-        <h3>Speak More Naturally</h3>
-        <p>In A2 conversations, you often combine questions with short follow-ups.</p>
-        <ul>
-          <li><strong>No</strong> goes before the verb: <em>No entiendo.</em></li>
-          <li>Use connectors: <strong>y</strong> (and), <strong>pero</strong> (but), <strong>porque</strong> (because).</li>
-        </ul>
-      `,
-      usageMeanings: [
-        {
-          title: "Conversation Frames",
-          description: "Use these to ask and react in class or daily life.",
-          examples: [
-            {
-              sentence: "¿Cómo te llamas? <strong>Y</strong> ¿de dónde eres?",
-              explanation: "Ask two related questions naturally.",
-            },
-            {
-              sentence: "No puedo ir hoy <strong>porque</strong> trabajo.",
-              explanation: "Negation + reason.",
-            },
-            {
-              sentence: "¿Quieres café <strong>o</strong> té?",
-              explanation: "Offer simple choices.",
-            },
-          ],
-        },
-      ],
-      exercises: [
-        {
-          id: "sp-qw-3",
-          title: "Complete the Dialogue",
-          instructions: "Choose the best word or phrase.",
-          items: [
-            {
-              type: "select",
-              label: "—¿___ estás? —Estoy bien.",
-              options: ["Cómo", "Dónde", "Cuándo"],
-              expectedAnswer: "Cómo",
-            },
-            {
-              type: "select",
-              label: "No voy a la fiesta ___ tengo examen.",
-              options: ["pero", "porque", "y"],
-              expectedAnswer: "porque",
-            },
-            {
-              type: "radio",
-              label: "Best yes/no question punctuation:",
-              options: [
-                { value: "a", label: "Tu estudias hoy?" },
-                { value: "b", label: "¿Tú estudias hoy?" },
-              ],
-              expectedAnswer: "b",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "a2-conversation-check",
-      stepNumber: 3,
-      title: "A2 Mini Conversation Pattern",
+      title: "Stage 3: Keep the exchange going",
       icon: "💬",
+      taskStageId: "qw-stage-followup",
+      focusOnFormTriggerIds: ["qw-trigger-followup"],
       explanation: `
-        <h3>Use a 3-Step Exchange</h3>
-        <ol>
-          <li>Ask an information question.</li>
-          <li>React with a short opinion.</li>
-          <li>Ask one follow-up question.</li>
-        </ol>
-        <p>Example:</p>
-        <p><em>¿Dónde trabajas? Trabajo en una escuela, pero quiero otro horario. ¿Y tú?</em></p>
+        <h3>One good question is a start, not the whole conversation</h3>
+        <p>Add a short answer and a follow-up so the exchange sounds human.</p>
       `,
       exercises: [
         {
-          id: "sp-qw-4",
-          title: "Build Your Own",
-          instructions: "Write one short 2-line exchange.",
+          id: "qw-stage-3",
+          title: "Write a mini exchange",
+          instructions: "Write one question and one answer/follow-up line.",
+          answerExpectation: "full-sentence",
           items: [
-            {
-              type: "text",
-              label: "Line 1: Ask a question with ¿dónde?",
-              acceptAnyAttempt: true,
-            },
-            {
-              type: "text",
-              label: "Line 2: Answer using 'porque'.",
-              acceptAnyAttempt: true,
-            },
+            { type: "text", label: "Line 1: ask a question with ¿dónde?, ¿cómo?, or ¿cuándo?", placeholder: "Ejemplo: ¿Dónde trabajas?", acceptAnyAttempt: true },
+            { type: "text", label: "Line 2: answer and add a follow-up or reaction.", placeholder: "Ejemplo: Trabajo en una escuela. ¿Y tú?", acceptAnyAttempt: true },
           ],
         },
       ],
-    },
-    {
-      id: "quick-reference-qw",
-      stepNumber: 4,
-      title: "Quick Reference: Question Words",
-      icon: "📋",
-      explanation: `
-        <h3>At a Glance</h3>
-        <ul>
-          <li><strong>Quién</strong> = who. <strong>Qué</strong> = what. <strong>Dónde</strong> = where. <strong>Cuándo</strong> = when.</li>
-          <li><strong>Cómo</strong> = how. <strong>Por qué</strong> = why. <strong>Cuánto/a</strong> = how much. <strong>Cuántos/as</strong> = how many.</li>
-          <li>Questions need opening ¿ and closing ?. Verb usually comes after the question word.</li>
-        </ul>
-      `,
-      exercises: [
-        {
-          id: "sp-qw-quick-ref",
-          title: "Match the Word",
-          instructions: "Choose the question word that fits.",
-          items: [
-            {
-              type: "radio",
-              label: "To ask for a place you use ___.",
-              options: [
-                { value: "donde", label: "¿Dónde?" },
-                { value: "cuando", label: "¿Cuándo?" },
-              ],
-              expectedAnswer: "donde",
-            },
-            {
-              type: "radio",
-              label: "To ask for a reason you use ___.",
-              options: [
-                { value: "porque", label: "¿Por qué?" },
-                { value: "que", label: "¿Qué?" },
-              ],
-              expectedAnswer: "porque",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "common-mistakes-qw",
-      stepNumber: 5,
-      title: "Common Mistakes",
-      icon: "⚠️",
-      explanation: `
-        <h3>What to Avoid</h3>
-        <ul>
-          <li><strong>Forgetting the opening ¿</strong> — Spanish questions use both ¿ and ?.</li>
-          <li><strong>Confusing por qué (why) with porque (because)</strong> — The accent and space matter.</li>
-          <li><strong>Using qué for "how many"</strong> — Use cuántos/cuántas for quantity.</li>
-        </ul>
-      `,
-      tipBox: {
-        title: "Tip",
-        content: "¿Por qué? = why (question). Porque = because (answer).",
+      postTaskReflection: {
+        prompt: "Check whether the exchange sounds like something two people could really say out loud.",
       },
-      exercises: [
-        {
-          id: "sp-qw-mistakes",
-          title: "Correct or Incorrect?",
-          instructions: "Which is written correctly?",
-          items: [
-            {
-              type: "radio",
-              label: "How do you write 'Where do you live?'",
-              options: [
-                { value: "a", label: "¿Dónde vives?" },
-                { value: "b", label: "Dónde vives?" },
-              ],
-              expectedAnswer: "a",
-            },
-          ],
-        },
-      ],
     },
   ],
-  miniQuiz: [
-    {
-      id: "qw-q1",
-      question: "Which question word means 'where'?",
-      options: [
-        { value: "a", label: "¿Quién?" },
-        { value: "b", label: "¿Dónde?" },
-        { value: "c", label: "¿Cómo?" },
-      ],
-      correctAnswer: "b",
-      explanation: "¿Dónde? asks for location.",
-    },
-    {
-      id: "qw-q2",
-      question: "How do you ask 'Why do you study Spanish?'",
-      options: [
-        { value: "a", label: "¿Por qué estudias español?" },
-        { value: "b", label: "¿Qué estudias español?" },
-        { value: "c", label: "¿Dónde estudias español?" },
-      ],
-      correctAnswer: "a",
-      explanation: "Use ¿por qué? for 'why'.",
-    },
-    {
-      id: "qw-q3",
-      question: "Choose the correct punctuation:",
-      options: [
-        { value: "a", label: "Dónde vives?" },
-        { value: "b", label: "¿Dónde vives?" },
-        { value: "c", label: "¿Dónde vives" },
-      ],
-      correctAnswer: "b",
-      explanation: "Spanish requires opening and closing question marks.",
-    },
-    {
-      id: "qw-q4",
-      question: "Which connector means 'because'?",
-      options: [
-        { value: "a", label: "pero" },
-        { value: "b", label: "porque" },
-        { value: "c", label: "y" },
-      ],
-      correctAnswer: "b",
-      explanation: "Porque introduces reasons.",
-    },
-    {
-      id: "qw-q5",
-      question: "Which asks 'How many years do you have?'",
-      options: [
-        { value: "a", label: "¿Cuántos años tienes?" },
-        { value: "b", label: "¿Cómo años tienes?" },
-        { value: "c", label: "¿Quién años tienes?" },
-      ],
-      correctAnswer: "a",
-      explanation: "Use cuánto/a/os/as for quantity.",
-    },
-    {
-      id: "qw-q6",
-      question: "Where does 'no' usually go in basic negation?",
-      options: [
-        { value: "a", label: "After the verb" },
-        { value: "b", label: "Before the verb" },
-        { value: "c", label: "At the end of sentence" },
-      ],
-      correctAnswer: "b",
-      explanation: "No goes before the conjugated verb: No entiendo.",
-    },
-    {
-      id: "qw-q7",
-      question: "Which question word asks about a person?",
-      options: [
-        { value: "a", label: "¿Quién?" },
-        { value: "b", label: "¿Cuándo?" },
-        { value: "c", label: "¿Dónde?" },
-      ],
-      correctAnswer: "a",
-      explanation: "¿Quién? asks who.",
-    },
-    {
-      id: "qw-q8",
-      question: "Choose the best response using 'porque'.",
-      options: [
-        { value: "a", label: "¿Dónde vives?" },
-        { value: "b", label: "Porque me gusta estudiar." },
-        { value: "c", label: "¿Cómo te llamas?" },
-      ],
-      correctAnswer: "b",
-      explanation: "Porque introduces a reason in the answer.",
-    },
-    {
-      id: "qw-q9",
-      question: "Which sentence asks about time?",
-      options: [
-        { value: "a", label: "¿Cuándo empieza la clase?" },
-        { value: "b", label: "¿Qué estudias?" },
-        { value: "c", label: "¿Quién llega hoy?" },
-      ],
-      correctAnswer: "a",
-      explanation: "¿Cuándo? asks when.",
-    },
-    {
-      id: "qw-q10",
-      question: "Pick the correct question format:",
-      options: [
-        { value: "a", label: "¿Qué tú haces?" },
-        { value: "b", label: "¿Qué haces tú?" },
-        { value: "c", label: "Qué haces tú?" },
-      ],
-      correctAnswer: "b",
-      explanation: "This option uses proper question punctuation and natural word order.",
-    },
-  ],
+  communicativeCheckpoint: {
+    title: "Checkpoint: basic information exchange",
+    questions: [
+      {
+        id: "qw-cq1",
+        question: "You want to ask for a place. Best option:",
+        options: [
+          { value: "a", label: "¿Dónde vives?" },
+          { value: "b", label: "¿Cuándo vives?" },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "basic-info-question",
+        failureReasonTag: "question-word-choice",
+      },
+      {
+        id: "qw-cq2",
+        question: "Best full question for “when does she study?”",
+        options: [
+          { value: "a", label: "¿Cuándo estudia?" },
+          { value: "b", label: "¿Cuándo?" },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "question-building",
+        failureReasonTag: "question-formation",
+      },
+      {
+        id: "qw-cq3",
+        question: "You want to know why someone learns Spanish:",
+        options: [
+          { value: "a", label: "¿Por qué aprendes español?" },
+          { value: "b", label: "¿Quién aprendes español?" },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "reason-question",
+        failureReasonTag: "question-word-choice",
+      },
+      {
+        id: "qw-cq4",
+        question: "Which follow-up keeps the exchange going?",
+        options: [
+          { value: "a", label: "¿Y tú?" },
+          { value: "b", label: "Qué." },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "follow-up-conversation",
+        failureReasonTag: "follow-up-conversation",
+      },
+      {
+        id: "qw-cq5",
+        question: "Best question for quantity:",
+        options: [
+          { value: "a", label: "¿Cuántos años tienes?" },
+          { value: "b", label: "¿Quién años tienes?" },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "quantity-question",
+        failureReasonTag: "question-word-choice",
+      },
+      {
+        id: "qw-cq6",
+        question: "Best repair for a one-word answer “Dónde” when the task asks for a full question:",
+        options: [
+          { value: "a", label: "¿Dónde trabajas?" },
+          { value: "b", label: "Dónde." },
+        ],
+        correctAnswer: "a",
+        communicativeGoalTag: "question-repair",
+        failureReasonTag: "question-formation",
+      },
+    ],
+  },
 };

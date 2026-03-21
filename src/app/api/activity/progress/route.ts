@@ -56,6 +56,18 @@ function sanitizeGuideCompletedSectionIds(value: unknown): string[] | undefined 
     return Array.from(new Set(cleaned));
 }
 
+function sanitizeGuideStringList(value: unknown): string[] | undefined {
+    if (!Array.isArray(value)) return undefined;
+    const cleaned = value
+        .filter((item): item is string => typeof item === "string")
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0)
+        .slice(0, 200);
+
+    if (cleaned.length === 0) return undefined;
+    return Array.from(new Set(cleaned));
+}
+
 function isVocabCategoryData(data: Record<string, unknown> | null): boolean {
     if (!data) return false;
     return VOCAB_TYPES.some((type) => Object.prototype.hasOwnProperty.call(data, type));
@@ -383,15 +395,33 @@ export async function POST(request: Request) {
 
     // Grammar guides: store resume state so the guide can restore section and completion state.
     if (guideState != null && typeof guideState === "object" && typeof (guideState as { lastSectionIndex?: number }).lastSectionIndex === "number") {
-        const parsedGuideState = guideState as { lastSectionIndex: number; completedSectionIds?: unknown };
+        const parsedGuideState = guideState as {
+            lastSectionIndex: number;
+            completedSectionIds?: unknown;
+            startedStageIds?: unknown;
+            attemptedStageIds?: unknown;
+            supportViewedStageIds?: unknown;
+            revisedStageIds?: unknown;
+            completedStageIds?: unknown;
+        };
         const lastSectionIndex = Math.max(0, Math.round(parsedGuideState.lastSectionIndex));
         const completedSectionIds = sanitizeGuideCompletedSectionIds(parsedGuideState.completedSectionIds);
+        const startedStageIds = sanitizeGuideStringList(parsedGuideState.startedStageIds);
+        const attemptedStageIds = sanitizeGuideStringList(parsedGuideState.attemptedStageIds);
+        const supportViewedStageIds = sanitizeGuideStringList(parsedGuideState.supportViewedStageIds);
+        const revisedStageIds = sanitizeGuideStringList(parsedGuideState.revisedStageIds);
+        const completedStageIds = sanitizeGuideStringList(parsedGuideState.completedStageIds);
         const existingGuide = asObject(currentData._guide) ?? {};
 
         currentData._guide = {
             ...existingGuide,
             lastSectionIndex,
             ...(completedSectionIds ? { completedSectionIds } : {}),
+            ...(startedStageIds ? { startedStageIds } : {}),
+            ...(attemptedStageIds ? { attemptedStageIds } : {}),
+            ...(supportViewedStageIds ? { supportViewedStageIds } : {}),
+            ...(revisedStageIds ? { revisedStageIds } : {}),
+            ...(completedStageIds ? { completedStageIds } : {}),
         };
     }
 
