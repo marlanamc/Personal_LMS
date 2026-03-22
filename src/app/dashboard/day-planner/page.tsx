@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
@@ -71,12 +72,14 @@ export default async function DayPlannerPage({ searchParams }: PageProps) {
 
   return (
     <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-2.5 pb-24 sm:pt-6 md:pt-8 md:pb-12 overflow-x-clip">
-      <DayPlannerView
-        events={calendarEvents}
-        initialDateKey={initialDateKey}
-        initialOpenTool={openTool}
-        storageScope={userId}
-      />
+      <Suspense fallback={<div className="min-h-[40vh] animate-pulse rounded-2xl bg-bg-elevated/20" aria-hidden />}>
+        <DayPlannerView
+          events={calendarEvents}
+          initialDateKey={initialDateKey}
+          initialOpenTool={openTool}
+          storageScope={userId}
+        />
+      </Suspense>
     </main>
   );
 }

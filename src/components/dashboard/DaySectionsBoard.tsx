@@ -27,31 +27,37 @@ interface DaySectionsBoardProps {
   onItemClick?: (item: TimelineItem) => void;
 }
 
+// Soft, embedded surface styling - sections feel like regions, not cards
 const SECTION_COLOR_MAP = {
   dawn: {
-    shell: 'border-accent-sakura/25 bg-[color-mix(in_srgb,var(--color-accent-sakura)_7%,var(--color-bg-surface))]',
-    chip: 'bg-accent-sakura/10 text-accent-sakura',
-    line: 'bg-accent-sakura/35',
+    shell: 'bg-gradient-to-b from-accent-sakura/[0.04] to-transparent',
+    accent: 'bg-accent-sakura/40',
+    chip: 'bg-accent-sakura/8 text-accent-sakura/80',
+    label: 'text-accent-sakura/60',
   },
   mint: {
-    shell: 'border-accent-mint/25 bg-[color-mix(in_srgb,var(--color-accent-mint)_7%,var(--color-bg-surface))]',
-    chip: 'bg-accent-mint/12 text-accent-mint',
-    line: 'bg-accent-mint/40',
+    shell: 'bg-gradient-to-b from-accent-mint/[0.05] to-transparent',
+    accent: 'bg-accent-mint/45',
+    chip: 'bg-accent-mint/10 text-accent-mint/80',
+    label: 'text-accent-mint/60',
   },
   sky: {
-    shell: 'border-accent-teal/25 bg-[color-mix(in_srgb,var(--color-accent-teal)_6%,var(--color-bg-surface))]',
-    chip: 'bg-accent-teal/10 text-accent-teal',
-    line: 'bg-accent-teal/40',
+    shell: 'bg-gradient-to-b from-accent-teal/[0.04] to-transparent',
+    accent: 'bg-accent-teal/40',
+    chip: 'bg-accent-teal/8 text-accent-teal/80',
+    label: 'text-accent-teal/60',
   },
   sand: {
-    shell: 'border-[rgba(217,171,102,0.24)] bg-[rgba(217,171,102,0.07)]',
-    chip: 'bg-[rgba(217,171,102,0.14)] text-[rgb(176,128,56)]',
-    line: 'bg-[rgba(217,171,102,0.45)]',
+    shell: 'bg-gradient-to-b from-[rgba(217,171,102,0.04)] to-transparent',
+    accent: 'bg-[rgba(217,171,102,0.4)]',
+    chip: 'bg-[rgba(217,171,102,0.1)] text-[rgba(176,128,56,0.8)]',
+    label: 'text-[rgba(176,128,56,0.6)]',
   },
   rose: {
-    shell: 'border-[rgba(195,116,140,0.24)] bg-[rgba(195,116,140,0.07)]',
-    chip: 'bg-[rgba(195,116,140,0.14)] text-[rgb(182,99,125)]',
-    line: 'bg-[rgba(195,116,140,0.42)]',
+    shell: 'bg-gradient-to-b from-[rgba(195,116,140,0.04)] to-transparent',
+    accent: 'bg-[rgba(195,116,140,0.4)]',
+    chip: 'bg-[rgba(195,116,140,0.1)] text-[rgba(182,99,125,0.8)]',
+    label: 'text-[rgba(182,99,125,0.6)]',
   },
 } as const;
 
@@ -67,11 +73,11 @@ function ItemTimerButton({ item, buildStartTimerHref }: { item: TimelineItem; bu
     <Link
       href={href}
       onClick={(event) => event.stopPropagation()}
-      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border-subtle/45 bg-bg-surface/85 text-text-muted transition-colors hover:bg-bg-elevated hover:text-accent-teal"
+      className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-text-muted/50 transition-colors hover:bg-bg-elevated/60 hover:text-accent-teal"
       aria-label={`Start timer for ${item.label}`}
       title="Start focus timer"
     >
-      <Play size={13} />
+      <Play size={12} />
     </Link>
   );
 }
@@ -82,22 +88,12 @@ function ConstraintNotice({ item }: { item: TimelineItem }) {
     : item.startMinute;
 
   return (
-    <div className="rounded-2xl border border-border-subtle/45 bg-bg-surface/88 px-3 py-2 shadow-sm">
-      <div className="flex items-start gap-2">
-        <span className="mt-1 inline-flex h-2 w-2 shrink-0 rounded-full bg-accent-sakura/70" />
-        <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted/80">
-            Constraint
-          </p>
-          <p className="mt-1 text-sm font-semibold leading-snug text-text">
-            {item.label}
-          </p>
-          <p className="mt-1 text-xs font-medium text-text-muted">
-            {item.constraintKind === 'until' ? 'Hard stop at ' : 'Starts at '}
-            {formatMinuteOfDay(effectiveMinute)}
-          </p>
-        </div>
-      </div>
+    <div className="flex items-center gap-2 rounded-lg bg-accent-sakura/5 px-2.5 py-1.5">
+      <span className="inline-flex h-1.5 w-1.5 shrink-0 rounded-full bg-accent-sakura/60" />
+      <p className="text-[11px] font-medium text-text-muted">
+        {item.label} · {item.constraintKind === 'until' ? 'until ' : ''}
+        {formatMinuteOfDay(effectiveMinute)}
+      </p>
     </div>
   );
 }
@@ -136,48 +132,43 @@ function BlockCard({
 }) {
   const isWant = item.blockKind === 'want';
   const status = getItemStatus(item, nowMinute ?? null, dateKey);
-  const accentClass = isWant ? 'text-accent-teal' : 'text-accent-sakura';
-  const badgeClass = isWant ? 'bg-accent-teal/10 text-accent-teal' : 'bg-accent-sakura/10 text-accent-sakura';
+  const accentClass = isWant ? 'text-accent-teal/70' : 'text-accent-sakura/70';
   const statusIcon =
     status === 'completed'
-      ? <Check size={13} />
+      ? <Check size={11} className="text-accent-mint" />
       : status === 'current'
-        ? <Play size={13} className="fill-current" />
-        : <Circle size={12} />;
+        ? <Play size={11} className="fill-current text-accent-teal" />
+        : null;
 
   return (
     <button
       type="button"
       onClick={() => onItemClick?.(item)}
-      className="w-full rounded-[1.3rem] border border-border-subtle/45 bg-bg-elevated/85 px-3.5 py-3 text-left shadow-sm transition-colors hover:bg-bg-elevated"
+      className="w-full rounded-lg bg-bg-elevated/50 px-3 py-2.5 text-left transition-colors hover:bg-bg-elevated/70"
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2.5">
         <div className={`mt-0.5 inline-flex shrink-0 ${accentClass}`}>
-          {isWant ? <Heart size={15} className="fill-current" /> : <Target size={15} />}
+          {isWant ? <Heart size={13} className="fill-current" /> : <Target size={13} />}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="text-sm font-bold text-text">{item.label}</p>
-              <div className="mt-1 flex flex-wrap items-center gap-2">
+              <p className="text-[13px] font-semibold text-text/90">{item.label}</p>
+              <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
                 <TimeRange item={item} />
-                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] ${badgeClass}`}>
-                  {statusIcon}
-                  {item.blockKind === 'want' ? 'Want' : 'Focus'}
-                </span>
-                <span className="text-[11px] font-semibold text-text-muted/75">
+                <span className="text-[10px] font-medium text-text-muted/60">
                   {formatDuration(item.durationMinutes ?? 0)}
                 </span>
+                {statusIcon}
               </div>
             </div>
             <ItemTimerButton item={item} buildStartTimerHref={buildStartTimerHref} />
           </div>
-          {item.blockNote ? (
-            <div className="mt-2 inline-flex max-w-full items-center gap-1.5 rounded-full border border-border-subtle/45 bg-bg-surface/70 px-2.5 py-1 text-[11px] font-medium text-text-muted">
-              <FileText size={11} />
-              <span className="truncate">{item.blockNote}</span>
-            </div>
-          ) : null}
+          {item.blockNote && (
+            <p className="mt-1.5 text-[11px] font-medium text-text-muted/70 truncate">
+              {item.blockNote}
+            </p>
+          )}
         </div>
       </div>
     </button>
@@ -192,27 +183,22 @@ function EventCard({
   buildStartTimerHref?: (item: TimelineItem) => string | undefined;
 }) {
   return (
-    <div className="rounded-[1.3rem] border border-border-subtle/45 bg-bg-elevated/85 px-3.5 py-3 shadow-sm">
-      <div className="flex items-start gap-3">
-        <CalendarDays size={15} className="mt-0.5 shrink-0 text-accent-terracotta" />
+    <div className="rounded-lg bg-bg-elevated/50 px-3 py-2.5">
+      <div className="flex items-start gap-2.5">
+        <CalendarDays size={13} className="mt-0.5 shrink-0 text-accent-terracotta/70" />
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="text-sm font-bold text-text">{item.label}</p>
-              <div className="mt-1 flex flex-wrap items-center gap-2">
-                <TimeRange item={item} />
-                <span className="inline-flex rounded-full bg-accent-terracotta/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-accent-terracotta">
-                  Event
-                </span>
-              </div>
+              <p className="text-[13px] font-semibold text-text/90">{item.label}</p>
+              <TimeRange item={item} />
             </div>
             <ItemTimerButton item={item} buildStartTimerHref={buildStartTimerHref} />
           </div>
-          {item.eventDescription ? (
-            <p className="mt-2 text-xs leading-relaxed text-text-muted">
+          {item.eventDescription && (
+            <p className="mt-1 text-[11px] leading-relaxed text-text-muted/70 line-clamp-2">
               {item.eventDescription}
             </p>
-          ) : null}
+          )}
         </div>
       </div>
     </div>
@@ -221,34 +207,22 @@ function EventCard({
 
 function AnchorCard({ item }: { item: TimelineItem }) {
   const palette = getAnchorColorPalette(item.anchorColor, item.anchorIcon ?? 'calendar');
-  const isRange = item.endMinute != null && item.endMinute > item.startMinute;
-  const statusLabel =
-    item.anchorStatus === 'done'
-      ? 'Done'
-      : item.anchorStatus === 'skipped'
-        ? 'Skipped'
-        : 'Anchor';
 
   return (
     <div
-      className="rounded-[1.3rem] border px-3.5 py-3 shadow-sm"
-      style={{ borderColor: palette.border, backgroundColor: palette.soft }}
+      className="rounded-lg px-3 py-2.5"
+      style={{ backgroundColor: `color-mix(in srgb, ${palette.solid} 8%, transparent)` }}
     >
-      <div className="flex items-start gap-3">
-        <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: palette.solid }} />
+      <div className="flex items-start gap-2.5">
+        <span
+          className="mt-1 h-2 w-2 shrink-0 rounded-full"
+          style={{ backgroundColor: `color-mix(in srgb, ${palette.solid} 60%, transparent)` }}
+        />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold" style={{ color: palette.deep }}>
+          <p className="text-[13px] font-semibold" style={{ color: palette.deep }}>
             {item.label}
           </p>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            <TimeRange item={item} />
-            <span
-              className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em]"
-              style={{ backgroundColor: 'rgba(255,255,255,0.45)', color: palette.deep }}
-            >
-              {isRange ? 'Anchor block' : statusLabel}
-            </span>
-          </div>
+          <TimeRange item={item} />
         </div>
       </div>
     </div>
@@ -257,8 +231,8 @@ function AnchorCard({ item }: { item: TimelineItem }) {
 
 function EmptySectionState() {
   return (
-    <div className="rounded-[1.3rem] border border-dashed border-border-subtle/40 bg-bg-surface/50 px-3.5 py-5 text-center">
-      <p className="text-sm font-semibold text-text-muted">Nothing scheduled in this section yet.</p>
+    <div className="py-6 text-center">
+      <p className="text-xs font-medium text-text-muted/50">Nothing scheduled</p>
     </div>
   );
 }
@@ -293,8 +267,8 @@ export function DaySectionsBoard({
   return (
     <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
       <div
-        className="grid min-w-max gap-3 sm:gap-4"
-        style={{ gridTemplateColumns: `repeat(${sections.length}, minmax(17rem, 1fr))` }}
+        className="grid min-w-max gap-2 sm:gap-3"
+        style={{ gridTemplateColumns: `repeat(${sections.length}, minmax(16rem, 1fr))` }}
       >
         {sections.map((section) => {
           const colors = getSectionColors(section.colorToken);
@@ -302,47 +276,46 @@ export function DaySectionsBoard({
           return (
             <section
               key={section.id}
-              className={`flex min-h-[24rem] flex-col rounded-[1.8rem] border p-4 shadow-sm backdrop-blur-sm ${colors.shell}`}
+              className={`relative flex min-h-[22rem] flex-col rounded-xl px-3 py-3 ${colors.shell}`}
             >
-              <div className="sticky top-0 z-10 -mx-1 rounded-[1.3rem] bg-bg-surface/88 px-3 py-3 backdrop-blur-md">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted/80">
-                      Day Section
-                    </p>
-                    <h3 className="mt-1 text-lg font-display font-bold text-text">
-                      {section.label}
-                    </h3>
-                    <p className="mt-1 text-sm font-semibold text-text-muted/85">
-                      {formatMinuteOfDay(section.startMinute)} - {formatMinuteOfDay(section.endMinute)}
-                    </p>
-                  </div>
-                  <span className={`mt-1 inline-flex h-2.5 w-10 rounded-full ${colors.line}`} />
+              {/* Subtle left accent edge */}
+              <div className={`absolute left-0 top-3 bottom-3 w-[2px] rounded-full ${colors.accent}`} />
+
+              {/* Section header - minimal, inline */}
+              <div className="mb-3 pl-2">
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-sm font-semibold text-text/90">
+                    {section.label}
+                  </h3>
+                  <span className="text-[10px] font-medium text-text-muted/50 tabular-nums">
+                    {formatMinuteOfDay(section.startMinute)} - {formatMinuteOfDay(section.endMinute)}
+                  </span>
                 </div>
 
-                {section.focusItems.length > 0 ? (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
+                {section.focusItems.length > 0 && (
+                  <div className="mt-1.5 flex flex-wrap gap-1">
                     {section.focusItems.map((focus) => (
                       <span
                         key={focus}
-                        className={`inline-flex max-w-full truncate rounded-full px-2.5 py-1 text-[11px] font-semibold ${colors.chip}`}
+                        className={`inline-flex max-w-full truncate rounded-md px-1.5 py-0.5 text-[10px] font-medium ${colors.chip}`}
                       >
                         {focus}
                       </span>
                     ))}
                   </div>
-                ) : null}
+                )}
 
-                {section.constraints.length > 0 ? (
-                  <div className="mt-3 space-y-2">
+                {section.constraints.length > 0 && (
+                  <div className="mt-2 space-y-1.5">
                     {section.constraints.map((constraint) => (
                       <ConstraintNotice key={constraint.id} item={constraint} />
                     ))}
                   </div>
-                ) : null}
+                )}
               </div>
 
-              <div className="mt-4 flex flex-1 flex-col gap-3">
+              {/* Items - with subtle spacing */}
+              <div className="flex flex-1 flex-col gap-2 pl-2">
                 {section.items.length === 0 ? (
                   <EmptySectionState />
                 ) : (

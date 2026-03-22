@@ -106,7 +106,7 @@ export function DayTimeline({
   return (
     <div
       className={cn(
-        'flex rounded-none sm:rounded-2xl border-transparent sm:border sm:border-border-subtle/40 sm:bg-bg-elevated/30 overflow-hidden',
+        'flex overflow-hidden',
         className,
       )}
       style={{ minHeight: timelineHeight + timelinePadding * 2 }}
@@ -114,15 +114,23 @@ export function DayTimeline({
       {/* Time labels column */}
       <div
         className={cn(
-          'shrink-0 relative border-r border-border-subtle/40 bg-[#f5ebe0]/50 dark:bg-bg-base/60',
+          'shrink-0 relative timeline-gutter',
           gutterWidthClass,
         )}
         style={{ height: timelineHeight + timelinePadding * 2 }}
       >
+        {/* Soft divider line */}
+        <div className="absolute right-0 top-4 bottom-4 z-[1] timeline-gutter-divider" />
+
         {timeLabels.map(({ minute, label }) => (
           <div
             key={minute}
-            className="absolute left-0 right-0 pl-2 pr-1 text-[11px] font-semibold text-text-muted/80 tabular-nums sm:pl-2.5 sm:text-[10px]"
+            className={cn(
+              'absolute left-0 right-0 z-[1] pr-2.5 text-right tabular-nums',
+              minute % 60 === 0
+                ? 'text-[11px] font-semibold text-text-muted/85 sm:text-[10px]'
+                : 'text-[10px] font-medium text-text-muted/50 sm:text-[9px]'
+            )}
             style={{
               top: getTop(minute),
               transform: 'translateY(-50%)',
@@ -143,7 +151,7 @@ export function DayTimeline({
           timeLabels.map(({ minute }) => (
             <div
               key={`line-${minute}`}
-              className="absolute left-0 right-0 border-t border-border-subtle/30"
+              className="absolute left-0 right-0 timeline-grid-line"
               style={{ top: getTop(minute) }}
             />
           ))}

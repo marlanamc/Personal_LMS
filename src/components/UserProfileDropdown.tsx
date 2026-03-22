@@ -8,6 +8,7 @@ import { Code2, UserRound } from "lucide-react";
 import { UserIcon } from "@/components/icons/Icons";
 import { useTheme } from "@/context/ThemeContext";
 import type { ThemePreference } from "@/context/ThemeContext";
+import { useLiveSync, LiveSyncControl } from "@/components/dashboard/LiveSyncManager";
 
 interface UserProfileDropdownProps {
     userName: string;
@@ -17,6 +18,7 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
+    const liveSync = useLiveSync();
     const {
         preference,
         resolvedTheme,
@@ -77,8 +79,9 @@ export default function UserProfileDropdown({ userName }: UserProfileDropdownPro
 
             {isOpen && (
                 <div className="absolute right-0 mt-2 w-64 bg-bg-secondary/95 backdrop-blur-sm rounded-xl shadow-xl border border-border/60 py-2 z-50 animate-fade-in-up">
-                    <div className="px-4 py-2 border-b border-border/40 bg-bg-light/45">
-                        <p className="text-sm font-medium text-text truncate">{userName}</p>
+                    <div className="px-4 py-2 border-b border-border/40 bg-bg-light/45 flex items-center gap-2 min-w-0 overflow-visible">
+                        <p className="text-sm font-medium text-text truncate min-w-0 flex-1">{userName}</p>
+                        <LiveSyncControl {...liveSync} variant="menu" />
                     </div>
                     <button
                         onClick={handleProfileClick}

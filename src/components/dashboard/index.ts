@@ -1,4 +1,5 @@
 export * from './DashboardHeader';
+export * from './DashboardLayoutClient';
 export * from './StatsOverview';
 export * from './AssignmentCard';
 export * from './ActivityBrowseGrid';
