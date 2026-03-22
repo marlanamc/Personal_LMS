@@ -114,7 +114,7 @@ export function DayTimeline({
       {/* Time labels column */}
       <div
         className={cn(
-          'shrink-0 relative border-r border-border-subtle/40 sm:bg-bg-surface/50',
+          'shrink-0 relative border-r border-border-subtle/40 bg-[#f5ebe0]/50 dark:bg-bg-base/60',
           gutterWidthClass,
         )}
         style={{ height: timelineHeight + timelinePadding * 2 }}

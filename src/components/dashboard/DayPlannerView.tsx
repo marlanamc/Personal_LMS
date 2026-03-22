@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { motion, useSpring, useTransform } from 'framer-motion';
 import {
   ArrowLeft,
   ArrowRight,
@@ -70,6 +71,23 @@ export function DayPlannerView({
   const [showEarlierHours, setShowEarlierHours] = useState(false);
   const planningHelpTriggerRef = useRef<HTMLElement | null>(null);
   const nowIndicatorRef = useRef<HTMLDivElement | null>(null);
+
+  // Pull-to-reveal earlier hours (mobile)
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isPulling, setIsPulling] = useState(false);
+  const pullStartY = useRef<number | null>(null);
+  const pullLock = useRef<'none' | 'pull' | 'scroll'>('none');
+  const hapticTriggered = useRef(false);
+  const timelineSectionRef = useRef<HTMLElement>(null);
+  const [hasUsedPullGesture, setHasUsedPullGesture] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('hasUsedTimelinePull') === 'true';
+  });
+
+  // Spring animation for pull distance
+  const springPull = useSpring(0, { stiffness: 300, damping: 25 });
+  const pullIndicatorY = useTransform(springPull, [0, 80], [0, 24]);
+  const pullIndicatorOpacity = useTransform(springPull, [0, 40, 80], [hasUsedPullGesture ? 0.3 : 0.6, 0.8, 1]);
 
   // Data hooks
   const { getStateForDate } = useDailyAnchors(storageScope);
@@ -213,6 +231,93 @@ export function DayPlannerView({
     ? { startHour: condensedStartHour }
     : undefined;
 
+  // Pull-to-reveal gesture handlers (mobile only)
+  const canPullToReveal = isMobile && isSelectedToday && condensedStartHour > 6 && !showEarlierHours;
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (!canPullToReveal || e.touches.length !== 1) return;
+
+      // Check if we're at scroll top (allow small threshold for bounce)
+      const scrollContainer = document.scrollingElement || document.documentElement;
+      if (scrollContainer.scrollTop > 8) return;
+
+      pullStartY.current = e.touches[0].clientY;
+      pullLock.current = 'none';
+      hapticTriggered.current = false;
+    },
+    [canPullToReveal],
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!canPullToReveal || pullStartY.current === null) return;
+
+      const currentY = e.touches[0].clientY;
+      const dy = currentY - pullStartY.current;
+
+      // Lock to scroll if pulling up or already locked to scroll
+      if (pullLock.current === 'scroll') return;
+      if (dy < -5 && pullLock.current === 'none') {
+        pullLock.current = 'scroll';
+        return;
+      }
+
+      // Lock to pull if pulling down
+      if (dy > 10 && pullLock.current === 'none') {
+        pullLock.current = 'pull';
+      }
+
+      if (pullLock.current === 'pull') {
+        e.preventDefault();
+        setIsPulling(true);
+
+        // Rubber-band easing: pull distance diminishes as you pull further
+        const maxPull = 120;
+        const rawPull = Math.min(Math.max(dy, 0), maxPull);
+        const easedPull = rawPull * (1 - rawPull / (maxPull * 2));
+
+        setPullDistance(easedPull);
+        springPull.set(easedPull);
+
+        // Haptic feedback at threshold
+        if (easedPull >= 80 && !hapticTriggered.current) {
+          hapticTriggered.current = true;
+          if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            navigator.vibrate(12);
+          }
+        }
+      }
+    },
+    [canPullToReveal, springPull],
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    if (!canPullToReveal || pullStartY.current === null) return;
+
+    const wasAtThreshold = pullDistance >= 80;
+
+    if (wasAtThreshold && pullLock.current === 'pull') {
+      // Reveal earlier hours
+      setShowEarlierHours(true);
+      setHasUsedPullGesture(true);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('hasUsedTimelinePull', 'true');
+      }
+    }
+
+    // Reset pull state
+    setPullDistance(0);
+    setIsPulling(false);
+    springPull.set(0);
+    pullStartY.current = null;
+    pullLock.current = 'none';
+    hapticTriggered.current = false;
+  }, [canPullToReveal, pullDistance, springPull]);
+
+  // Calculate pull progress (0-1) for passing to DayTimeline
+  const pullProgress = Math.min(pullDistance / 80, 1);
+
   const openPlanningHelp = (trigger: HTMLElement | null) => {
     planningHelpTriggerRef.current = trigger;
     setIsDrawerOpen(true);
@@ -275,7 +380,7 @@ export function DayPlannerView({
   return (
     <div className="space-y-4 sm:space-y-6 animate-fadeIn">
       {/* Mobile top area */}
-      <section className="space-y-3 sm:hidden">
+      <section className="space-y-2 sm:hidden">
         {/* Day navigation at top - replaces title */}
         <div className="flex min-w-0 items-center gap-1 rounded-[1.75rem] border border-border-subtle/60 bg-bg-surface/80 p-1 shadow-sm backdrop-blur-md">
           <button
@@ -311,69 +416,56 @@ export function DayPlannerView({
         </div>
 
         {/* View toggle + action buttons on same line */}
-        {(canUseSectionsView || !isSelectedToday || startSequenceHref || (isSelectedToday && condensedStartHour > 6)) && (
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-2">
-              {canUseSectionsView && (
-                <div className="inline-flex items-center gap-1 rounded-full border border-border-subtle/55 bg-bg-surface/85 p-1 shadow-sm">
-                  <button
-                    type="button"
-                    onClick={() => setPlannerViewMode('timeline')}
-                    className={`inline-flex items-center justify-center rounded-full p-2.5 transition-colors ${
-                      plannerViewMode === 'timeline'
-                        ? 'bg-bg-elevated text-text shadow-sm ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-surface'
-                        : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
-                    }`}
-                    aria-pressed={plannerViewMode === 'timeline'}
-                    aria-label="Timeline view"
-                  >
-                    <StretchHorizontal size={18} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPlannerViewMode('sections')}
-                    className={`inline-flex items-center justify-center rounded-full p-2.5 transition-colors ${
-                      plannerViewMode === 'sections'
-                        ? 'bg-bg-elevated text-text shadow-sm ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-surface'
-                        : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
-                    }`}
-                    aria-pressed={plannerViewMode === 'sections'}
-                    aria-label="Sections view"
-                  >
-                    <Columns2 size={18} />
-                  </button>
-                </div>
-              )}
-              {!isSelectedToday && (
+        {(canUseSectionsView || !isSelectedToday || startSequenceHref) && (
+          <div className="flex flex-wrap items-center gap-2">
+            {canUseSectionsView && (
+              <div className="inline-flex items-center gap-1 rounded-full border border-border-subtle/55 bg-bg-surface/85 p-1 shadow-sm">
                 <button
                   type="button"
-                  onClick={goToToday}
-                  className="inline-flex items-center justify-center rounded-full border border-accent-teal/20 bg-accent-teal/8 px-4 py-[9px] text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/12 h-[42px]"
+                  onClick={() => setPlannerViewMode('timeline')}
+                  className={`inline-flex items-center justify-center rounded-full p-2.5 transition-colors ${
+                    plannerViewMode === 'timeline'
+                      ? 'bg-bg-elevated text-text shadow-sm ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-surface'
+                      : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
+                  }`}
+                  aria-pressed={plannerViewMode === 'timeline'}
+                  aria-label="Timeline view"
                 >
-                  Today
+                  <StretchHorizontal size={18} />
                 </button>
-              )}
-              {startSequenceHref ? (
-                <Link
-                  href={startSequenceHref}
-                  className="inline-flex items-center justify-center gap-2 rounded-[1.75rem] border border-accent-teal/40 bg-accent-teal/10 px-4 py-[9px] text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/20 backdrop-blur-md h-[42px]"
-                  title="Start full sequence in Focus Timer"
+                <button
+                  type="button"
+                  onClick={() => setPlannerViewMode('sections')}
+                  className={`inline-flex items-center justify-center rounded-full p-2.5 transition-colors ${
+                    plannerViewMode === 'sections'
+                      ? 'bg-bg-elevated text-text shadow-sm ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-surface'
+                      : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
+                  }`}
+                  aria-pressed={plannerViewMode === 'sections'}
+                  aria-label="Sections view"
                 >
-                  <Play size={15} />
-                  Start Sequence
-                </Link>
-              ) : null}
-            </div>
-            {isSelectedToday && condensedStartHour > 6 ? (
+                  <Columns2 size={18} />
+                </button>
+              </div>
+            )}
+            {!isSelectedToday && (
               <button
                 type="button"
-                onClick={() => setShowEarlierHours((current) => !current)}
-                className="icon-button inline-flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full border-2 border-accent-teal/55 bg-accent-teal/30 text-accent-teal shadow-sm transition-colors hover:bg-accent-teal/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
-                aria-label={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
-                title={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
+                onClick={goToToday}
+                className="inline-flex items-center justify-center rounded-full border border-accent-teal/20 bg-accent-teal/8 px-4 py-[9px] text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/12 h-[42px]"
               >
-                <SunMedium size={18} className="shrink-0" aria-hidden />
+                Today
               </button>
+            )}
+            {startSequenceHref ? (
+              <Link
+                href={startSequenceHref}
+                className="inline-flex items-center justify-center gap-2 rounded-[1.75rem] border border-accent-teal/40 bg-accent-teal/10 px-4 py-[9px] text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/20 backdrop-blur-md h-[42px]"
+                title="Start full sequence in Focus Timer"
+              >
+                <Play size={15} />
+                Start Sequence
+              </Link>
             ) : null}
           </div>
         )}
@@ -547,7 +639,43 @@ export function DayPlannerView({
       )}
 
       {/* Main timeline */}
-      <section className="relative overflow-hidden sm:rounded-[2rem] border-transparent sm:border sm:border-border-subtle/30 sm:bg-bg-surface/60 p-0 py-2 sm:p-6 sm:shadow-sm sm:backdrop-blur-xl -mx-4 sm:mx-0">
+      <motion.section
+        ref={timelineSectionRef}
+        className="relative overflow-hidden sm:rounded-[2rem] border-transparent sm:border sm:border-border-subtle/30 bg-white/45 sm:bg-white/55 dark:bg-bg-elevated/50 sm:dark:bg-bg-elevated/60 p-0 py-1 sm:py-2 sm:p-6 sm:shadow-sm sm:backdrop-blur-xl -mx-4 sm:mx-0"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{
+          paddingTop: isPulling ? pullDistance * 0.4 : undefined,
+        }}
+        animate={{
+          paddingTop: isPulling ? undefined : 4,
+        }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+      >
+        {/* Pull-to-reveal indicator (mobile only, when condensed) */}
+        {canPullToReveal && (
+          <motion.div
+            className="absolute top-0 left-0 right-0 flex justify-center pointer-events-none z-20 sm:hidden"
+            style={{
+              y: pullIndicatorY,
+              opacity: pullIndicatorOpacity,
+            }}
+          >
+            <div className="flex items-center gap-1.5 py-1.5 px-3 rounded-full bg-bg-surface/60 backdrop-blur-sm">
+              <ChevronUp
+                size={12}
+                className={`text-text-muted transition-transform duration-200 ${
+                  pullProgress >= 1 ? 'rotate-180' : 'animate-pulse'
+                }`}
+              />
+              <span className="text-[10px] font-medium text-text-muted">
+                {pullProgress >= 1 ? 'Release' : 'Earlier hours'}
+              </span>
+            </div>
+          </motion.div>
+        )}
+
         {/* Ambient background (desktop only) */}
         <div className="hidden sm:block absolute top-0 right-0 w-[400px] h-[400px] bg-accent-sakura/8 blur-[100px] rounded-full pointer-events-none" />
         <div className="hidden sm:block absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-teal/8 blur-[100px] rounded-full pointer-events-none" />
@@ -608,7 +736,7 @@ export function DayPlannerView({
             />
           )}
         </div>
-      </section>
+      </motion.section>
 
       {/* Block note modal (tap/click a time block to add notes) */}
       {editingBlockId ? (
