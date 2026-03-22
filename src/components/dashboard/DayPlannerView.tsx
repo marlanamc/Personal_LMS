@@ -266,9 +266,10 @@ export function DayPlannerView({
     day: 'numeric',
   });
   const fullDateLabel = selectedDate.toLocaleDateString(undefined, {
-    weekday: 'short',
-    month: 'short',
+    weekday: 'long',
+    month: 'long',
     day: 'numeric',
+    year: 'numeric',
   });
   const currentHour = nowMinute !== null ? Math.floor(nowMinute / 60) : null;
   const condensedStartHour =
@@ -287,7 +288,7 @@ export function DayPlannerView({
       <DayPlannerHeaderDateNav
         selectedDateKey={selectedDateKey}
         isSelectedToday={isSelectedToday}
-        mobileDateLabel={mobileDateLabel}
+        dateLabel={mobileDateLabel}
         onPrev={goToPreviousDay}
         onNext={goToNextDay}
         onPickDate={applyDateKey}
@@ -298,7 +299,7 @@ export function DayPlannerView({
         <button
           type="button"
           onClick={goToToday}
-          className="shrink-0 inline-flex items-center justify-center rounded-full p-2 sm:p-2.5 text-accent-teal hover:bg-bg-elevated/40 active:scale-95 transition-colors"
+          className="shrink-0 inline-flex items-center justify-center rounded-full p-2 text-accent-teal hover:bg-bg-elevated/40 active:scale-95 transition-colors sm:hidden"
           aria-label="Go to today"
           title="Go to today"
         >
@@ -471,6 +472,23 @@ export function DayPlannerView({
 
   return (
     <div className="space-y-2 sm:space-y-3 animate-fadeIn">
+      {/* Desktop: date + arrows in a card below the sticky header (mobile keeps them in the bar). */}
+      {syncHeaderDateNav && (
+        <div className="day-planner-desktop-date-rail hidden sm:block">
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-5">
+            <DayPlannerHeaderDateNav
+              selectedDateKey={selectedDateKey}
+              isSelectedToday={isSelectedToday}
+              dateLabel={fullDateLabel}
+              variant="desktopRail"
+              onPrev={goToPreviousDay}
+              onNext={goToNextDay}
+              onPickDate={applyDateKey}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Mobile: date row only when not using dashboard header center (/plan embed). */}
       {(!syncHeaderDateNav || canUseSectionsView || startSequenceHref) && (
       <header className="sm:hidden">
@@ -593,29 +611,58 @@ export function DayPlannerView({
       {/* Desktop: full date row only when not using dashboard header center */}
       <header className="hidden sm:block">
         {syncHeaderDateNav ? (
-          <>
+          <div
+            className={`flex flex-wrap items-center gap-x-4 gap-y-2 ${
+              canUseSectionsView ? 'justify-between' : 'justify-end'
+            }`}
+          >
+            {canUseSectionsView && (
+              <div className="inline-flex items-center gap-0.5 rounded-lg bg-bg-elevated/30 p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setPlannerViewMode('timeline')}
+                  className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+                    plannerViewMode === 'timeline'
+                      ? 'bg-bg-surface/80 text-text shadow-sm'
+                      : 'text-text-muted hover:text-text'
+                  }`}
+                  aria-pressed={plannerViewMode === 'timeline'}
+                >
+                  <StretchHorizontal size={14} />
+                  Timeline
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPlannerViewMode('sections')}
+                  className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+                    plannerViewMode === 'sections'
+                      ? 'bg-bg-surface/80 text-text shadow-sm'
+                      : 'text-text-muted hover:text-text'
+                  }`}
+                  aria-pressed={plannerViewMode === 'sections'}
+                  title="View sections side by side"
+                >
+                  <Columns2 size={14} />
+                  Sections
+                </button>
+              </div>
+            )}
             <div className="flex flex-wrap items-center justify-end gap-2">
               {!isSelectedToday && (
                 <button
                   type="button"
                   onClick={goToToday}
-                  className="text-sm font-medium text-accent-teal hover:text-accent-teal/80 transition-colors px-2 py-1"
+                  className="inline-flex items-center gap-2 rounded-full border border-accent-teal/25 bg-accent-teal/8 px-4 py-2 text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/14"
+                  aria-label="Go to today"
                 >
+                  <CalendarDays size={17} className="shrink-0" aria-hidden />
                   Today
                 </button>
               )}
-              <Link
-                href={`/dashboard/calendar?date=${selectedDateKey}`}
-                className="rounded-full p-2 text-text-muted hover:text-text hover:bg-bg-elevated/50 transition-all"
-                aria-label="Calendar"
-                title="Calendar"
-              >
-                <CalendarDays size={18} />
-              </Link>
               {startSequenceHref && (
                 <Link
                   href={startSequenceHref}
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-teal hover:text-accent-teal/80 transition-colors px-2 py-1"
+                  className="inline-flex items-center gap-1.5 px-2 py-1 text-sm font-medium text-accent-teal transition-colors hover:text-accent-teal/80"
                   title="Start full sequence in Focus Timer"
                 >
                   <Play size={14} />
@@ -630,142 +677,64 @@ export function DayPlannerView({
                   }
                 }}
                 onClick={(event) => openPlanningHelp(event.currentTarget)}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary hover:text-text hover:bg-bg-elevated/50 transition-all"
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary transition-all hover:bg-bg-elevated/50 hover:text-text"
               >
                 <Wand2 size={14} className="text-accent-teal" />
                 Plan
               </button>
             </div>
-            {canUseSectionsView && (
-              <div className="mt-3 flex items-center gap-4">
-                <div className="inline-flex items-center gap-0.5 rounded-lg bg-bg-elevated/30 p-0.5">
-                  <button
-                    type="button"
-                    onClick={() => setPlannerViewMode('timeline')}
-                    className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
-                      plannerViewMode === 'timeline'
-                        ? 'bg-bg-surface/80 text-text'
-                        : 'text-text-muted hover:text-text'
-                    }`}
-                    aria-pressed={plannerViewMode === 'timeline'}
-                  >
-                    <StretchHorizontal size={14} />
-                    Timeline
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPlannerViewMode('sections')}
-                    className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
-                      plannerViewMode === 'sections'
-                        ? 'bg-bg-surface/80 text-text'
-                        : 'text-text-muted hover:text-text'
-                    }`}
-                    aria-pressed={plannerViewMode === 'sections'}
-                    title="View sections side by side"
-                  >
-                    <Columns2 size={14} />
-                    Sections
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
+          </div>
         ) : (
-          <>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={goToPreviousDay}
-                  className="rounded-full p-2 transition-colors hover:bg-bg-elevated/50"
-                  aria-label="Previous day"
-                >
-                  <ArrowLeft size={18} className="text-text-muted" />
-                </button>
-                <label className="cursor-pointer">
-                  <span className="sr-only">Choose date</span>
-                  <span className="pointer-events-none inline-flex items-center gap-2">
-                    <span className="text-xl font-display font-semibold text-text">
-                      {fullDateLabel}
-                    </span>
-                    {isSelectedToday && (
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-accent-sakura">
-                        <SunMedium size={12} />
-                        Today
-                      </span>
-                    )}
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <button
+                type="button"
+                onClick={goToPreviousDay}
+                className="rounded-full p-2 transition-colors hover:bg-bg-elevated/50"
+                aria-label="Previous day"
+              >
+                <ArrowLeft size={18} className="text-text-muted" />
+              </button>
+              <label className="min-w-0 cursor-pointer">
+                <span className="sr-only">Choose date</span>
+                <span className="pointer-events-none inline-flex items-center gap-2">
+                  <span className="font-display text-lg font-semibold leading-snug text-text sm:text-xl">
+                    {fullDateLabel}
                   </span>
-                  <input
-                    type="date"
-                    value={selectedDateKey}
-                    onChange={(event) => applyDateKey(event.target.value || getTodayKey())}
-                    className="sr-only"
-                    aria-label="Choose date"
-                  />
-                </label>
-                <button
-                  type="button"
-                  onClick={goToNextDay}
-                  className="rounded-full p-2 transition-colors hover:bg-bg-elevated/50"
-                  aria-label="Next day"
-                >
-                  <ArrowRight size={18} className="text-text-muted" />
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {!isSelectedToday && (
-                  <button
-                    type="button"
-                    onClick={goToToday}
-                    className="text-sm font-medium text-accent-teal hover:text-accent-teal/80 transition-colors px-2 py-1"
-                  >
-                    Today
-                  </button>
-                )}
-                <Link
-                  href={`/dashboard/calendar?date=${selectedDateKey}`}
-                  className="rounded-full p-2 text-text-muted hover:text-text hover:bg-bg-elevated/50 transition-all"
-                  aria-label="Calendar"
-                  title="Calendar"
-                >
-                  <CalendarDays size={18} />
-                </Link>
-                {startSequenceHref && (
-                  <Link
-                    href={startSequenceHref}
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-teal hover:text-accent-teal/80 transition-colors px-2 py-1"
-                    title="Start full sequence in Focus Timer"
-                  >
-                    <Play size={14} />
-                    Start
-                  </Link>
-                )}
-                <button
-                  type="button"
-                  ref={(node) => {
-                    if (node && !planningHelpTriggerRef.current) {
-                      planningHelpTriggerRef.current = node;
-                    }
-                  }}
-                  onClick={(event) => openPlanningHelp(event.currentTarget)}
-                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary hover:text-text hover:bg-bg-elevated/50 transition-all"
-                >
-                  <Wand2 size={14} className="text-accent-teal" />
-                  Plan
-                </button>
-              </div>
+                  {isSelectedToday && (
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-accent-sakura">
+                      <SunMedium size={12} />
+                      Today
+                    </span>
+                  )}
+                </span>
+                <input
+                  type="date"
+                  value={selectedDateKey}
+                  onChange={(event) => applyDateKey(event.target.value || getTodayKey())}
+                  className="sr-only"
+                  aria-label="Choose date"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={goToNextDay}
+                className="rounded-full p-2 transition-colors hover:bg-bg-elevated/50"
+                aria-label="Next day"
+              >
+                <ArrowRight size={18} className="text-text-muted" />
+              </button>
             </div>
 
-            {canUseSectionsView && (
-              <div className="mt-3 flex items-center gap-4">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {canUseSectionsView && (
                 <div className="inline-flex items-center gap-0.5 rounded-lg bg-bg-elevated/30 p-0.5">
                   <button
                     type="button"
                     onClick={() => setPlannerViewMode('timeline')}
                     className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
                       plannerViewMode === 'timeline'
-                        ? 'bg-bg-surface/80 text-text'
+                        ? 'bg-bg-surface/80 text-text shadow-sm'
                         : 'text-text-muted hover:text-text'
                     }`}
                     aria-pressed={plannerViewMode === 'timeline'}
@@ -778,7 +747,7 @@ export function DayPlannerView({
                     onClick={() => setPlannerViewMode('sections')}
                     className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
                       plannerViewMode === 'sections'
-                        ? 'bg-bg-surface/80 text-text'
+                        ? 'bg-bg-surface/80 text-text shadow-sm'
                         : 'text-text-muted hover:text-text'
                     }`}
                     aria-pressed={plannerViewMode === 'sections'}
@@ -788,9 +757,49 @@ export function DayPlannerView({
                     Sections
                   </button>
                 </div>
-              </div>
-            )}
-          </>
+              )}
+              {!isSelectedToday && (
+                <button
+                  type="button"
+                  onClick={goToToday}
+                  className="px-2 py-1 text-sm font-medium text-accent-teal transition-colors hover:text-accent-teal/80"
+                >
+                  Today
+                </button>
+              )}
+              <Link
+                href={`/dashboard/calendar?date=${selectedDateKey}`}
+                className="rounded-full p-2 text-text-muted transition-all hover:bg-bg-elevated/50 hover:text-text"
+                aria-label="Calendar"
+                title="Calendar"
+              >
+                <CalendarDays size={18} />
+              </Link>
+              {startSequenceHref && (
+                <Link
+                  href={startSequenceHref}
+                  className="inline-flex items-center gap-1.5 px-2 py-1 text-sm font-medium text-accent-teal transition-colors hover:text-accent-teal/80"
+                  title="Start full sequence in Focus Timer"
+                >
+                  <Play size={14} />
+                  Start
+                </Link>
+              )}
+              <button
+                type="button"
+                ref={(node) => {
+                  if (node && !planningHelpTriggerRef.current) {
+                    planningHelpTriggerRef.current = node;
+                  }
+                }}
+                onClick={(event) => openPlanningHelp(event.currentTarget)}
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary transition-all hover:bg-bg-elevated/50 hover:text-text"
+              >
+                <Wand2 size={14} className="text-accent-teal" />
+                Plan
+              </button>
+            </div>
+          </div>
         )}
       </header>
 

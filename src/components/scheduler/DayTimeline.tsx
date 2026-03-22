@@ -143,7 +143,7 @@ export function DayTimeline({
 
       {/* Timeline track */}
       <div
-        className="flex-1 relative min-w-0"
+        className="timeline-track-surface flex-1 relative min-w-0 overflow-hidden"
         style={{ height: timelineHeight + timelinePadding * 2 }}
       >
         {/* Hour grid lines */}

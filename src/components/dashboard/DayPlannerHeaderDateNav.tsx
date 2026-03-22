@@ -3,54 +3,87 @@
 import { ArrowLeft, ArrowRight, SunMedium } from 'lucide-react';
 import { getTodayKey } from '@/lib/unified-scheduler';
 
+export type DayPlannerHeaderDateNavVariant = 'compact' | 'desktopRail';
+
 export interface DayPlannerHeaderDateNavProps {
   selectedDateKey: string;
   isSelectedToday: boolean;
-  mobileDateLabel: string;
+  /** Short string for the sticky header; use a long weekday/month string for `desktopRail`. */
+  dateLabel: string;
+  variant?: DayPlannerHeaderDateNavVariant;
   onPrev: () => void;
   onNext: () => void;
   onPickDate: (dateKey: string) => void;
 }
 
 /**
- * Compact prev / date / next cluster for the sticky dashboard header (day planner route).
+ * Prev / date / next cluster for the day planner (compact header or desktop rail).
  */
 export function DayPlannerHeaderDateNav({
   selectedDateKey,
   isSelectedToday,
-  mobileDateLabel,
+  dateLabel,
+  variant = 'compact',
   onPrev,
   onNext,
   onPickDate,
 }: DayPlannerHeaderDateNavProps) {
+  const isRail = variant === 'desktopRail';
+
   return (
-    <div className="flex items-center justify-center gap-0 w-full min-w-0 max-w-full">
+    <div
+      className={
+        isRail
+          ? 'flex w-full min-w-0 max-w-3xl items-center justify-center gap-2 sm:gap-3'
+          : 'flex w-full min-w-0 max-w-full items-center justify-center gap-0'
+      }
+    >
       <button
         type="button"
         onClick={onPrev}
-        className="shrink-0 rounded-full p-1.5 sm:p-2 transition-colors hover:bg-bg-elevated/40 active:scale-95 touch-manipulation"
+        className={
+          isRail
+            ? 'shrink-0 rounded-full p-2.5 text-text-muted transition-colors hover:bg-bg-elevated/50 active:scale-95'
+            : 'shrink-0 touch-manipulation rounded-full p-1.5 text-text-muted transition-colors hover:bg-bg-elevated/40 active:scale-95 sm:p-2'
+        }
         aria-label="Previous day"
       >
-        <ArrowLeft size={18} className="text-text-muted" />
+        <ArrowLeft size={isRail ? 20 : 18} />
       </button>
 
-      <label className="min-w-0 flex-1 cursor-pointer text-center px-0.5 sm:px-1 max-w-full">
+      <label
+        className={
+          isRail
+            ? 'min-w-0 max-w-full flex-1 cursor-pointer px-2 text-center'
+            : 'min-w-0 max-w-full flex-1 cursor-pointer px-0.5 text-center sm:px-1'
+        }
+      >
         <span className="sr-only">Choose date</span>
         <span
-          className={`pointer-events-none flex items-center justify-center min-w-0 ${
-            isSelectedToday ? 'gap-0.5' : 'gap-0'
+          className={`pointer-events-none flex min-w-0 flex-col items-center justify-center gap-1.5 sm:flex-row sm:gap-2 ${
+            isRail ? 'rounded-2xl border border-border-subtle/50 bg-bg-elevated/45 px-4 py-3 shadow-sm backdrop-blur-sm' : ''
           }`}
         >
           {isSelectedToday && (
             <span
-              className="inline-flex items-center justify-center size-4 shrink-0 rounded-full bg-accent-sakura/15"
+              className={
+                isRail
+                  ? 'inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-accent-sakura/18 text-accent-sakura ring-1 ring-accent-sakura/25'
+                  : 'inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-accent-sakura/15'
+              }
               title="Today"
             >
-              <SunMedium size={11} className="text-accent-sakura" />
+              <SunMedium size={isRail ? 16 : 11} className="text-accent-sakura" />
             </span>
           )}
-          <span className="text-[13px] min-[380px]:text-[15px] sm:text-base font-display font-semibold text-text leading-none whitespace-nowrap tabular-nums">
-            {mobileDateLabel}
+          <span
+            className={
+              isRail
+                ? 'text-center font-display text-lg font-bold leading-snug tracking-tight text-text sm:text-xl'
+                : 'whitespace-nowrap font-display text-[13px] font-semibold tabular-nums leading-none text-text min-[380px]:text-[15px] sm:text-base'
+            }
+          >
+            {dateLabel}
           </span>
         </span>
         <input
@@ -65,10 +98,14 @@ export function DayPlannerHeaderDateNav({
       <button
         type="button"
         onClick={onNext}
-        className="shrink-0 rounded-full p-1.5 sm:p-2 transition-colors hover:bg-bg-elevated/40 active:scale-95 touch-manipulation"
+        className={
+          isRail
+            ? 'shrink-0 rounded-full p-2.5 text-text-muted transition-colors hover:bg-bg-elevated/50 active:scale-95'
+            : 'shrink-0 touch-manipulation rounded-full p-1.5 text-text-muted transition-colors hover:bg-bg-elevated/40 active:scale-95 sm:p-2'
+        }
         aria-label="Next day"
       >
-        <ArrowRight size={18} className="text-text-muted" />
+        <ArrowRight size={isRail ? 20 : 18} />
       </button>
     </div>
   );

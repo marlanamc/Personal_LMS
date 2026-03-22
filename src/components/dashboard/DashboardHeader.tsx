@@ -85,15 +85,15 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
             <header className="dashboard-header-shell sticky top-0 z-50 transition-colors bg-transparent border-b-0 shadow-none backdrop-blur-0 md:bg-bg-elevated/95 md:border-b md:border-border/70 md:shadow-sm md:backdrop-blur-sm">
                 <div className="max-w-[1800px] mx-auto py-1 md:py-4 px-3 sm:px-6 lg:px-8">
                     {headerCenter ? (
-                        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
-                            {/* shrink-0: logo only — lets the date row use all space between sides */}
-                            <div className="shrink-0 flex items-center gap-4 min-w-0">
+                        <div className="flex w-full min-w-0 items-center justify-between gap-1.5 sm:gap-3">
+                            <div className="flex shrink-0 items-center gap-4 min-w-0">
                                 {brandBlock}
                             </div>
-                            <div className="flex-1 min-w-0 flex justify-center px-0.5 sm:px-1">
+                            {/* Date nav: mobile only; hidden sm+ (e.g. day planner moves it below header on desktop) */}
+                            <div className="flex min-w-0 flex-1 justify-center px-0.5 sm:hidden">
                                 {headerCenter}
                             </div>
-                            <div className="shrink-0 flex items-center justify-end min-w-0">
+                            <div className="flex shrink-0 items-center justify-end min-w-0">
                                 {actionsBlock}
                             </div>
                         </div>

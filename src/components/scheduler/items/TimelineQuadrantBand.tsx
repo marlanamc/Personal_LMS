@@ -8,58 +8,73 @@ interface TimelineQuadrantBandProps {
   style?: CSSProperties;
 }
 
-// Very subtle tints that blend with the timeline surface
-const COLOR_MAP: Record<
+/** Strong enough to read as a colored “slice” of the day; aligned with sections board / quadrants tool */
+const BAND_MAP: Record<
   NonNullable<TimelineItem['quadrantColorToken']>,
-  { bg: string; accent: string; chip: string }
+  {
+    shell: string;
+    bar: string;
+    label: string;
+    chip: string;
+  }
 > = {
   dawn: {
-    bg: 'color-mix(in srgb, var(--color-accent-sakura) 4%, transparent)',
-    accent: 'var(--color-accent-sakura)',
-    chip: 'bg-accent-sakura/8 text-accent-sakura/80',
+    shell:
+      'bg-gradient-to-b from-accent-sakura/26 via-accent-sakura/12 to-accent-sakura/[0.07] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-accent-sakura)_36%,transparent)]',
+    bar: 'bg-accent-sakura',
+    label: 'text-accent-sakura/92',
+    chip: 'bg-accent-sakura/18 text-accent-sakura border border-accent-sakura/28',
   },
   mint: {
-    bg: 'color-mix(in srgb, var(--color-accent-mint) 5%, transparent)',
-    accent: 'var(--color-accent-mint)',
-    chip: 'bg-accent-mint/10 text-accent-mint/80',
+    shell:
+      'bg-gradient-to-b from-accent-mint/26 via-accent-mint/12 to-accent-mint/[0.07] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-accent-mint)_38%,transparent)]',
+    bar: 'bg-accent-mint',
+    label: 'text-accent-mint/92',
+    chip: 'bg-accent-mint/18 text-accent-mint border border-accent-mint/30',
   },
   sky: {
-    bg: 'color-mix(in srgb, var(--color-accent-teal) 4%, transparent)',
-    accent: 'var(--color-accent-teal)',
-    chip: 'bg-accent-teal/8 text-accent-teal/80',
+    shell:
+      'bg-gradient-to-b from-accent-teal/24 via-accent-teal/11 to-accent-teal/[0.065] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-accent-teal)_34%,transparent)]',
+    bar: 'bg-accent-teal',
+    label: 'text-accent-teal/92',
+    chip: 'bg-accent-teal/17 text-accent-teal border border-accent-teal/26',
   },
   sand: {
-    bg: 'rgba(217, 171, 102, 0.03)',
-    accent: 'rgb(217, 171, 102)',
-    chip: 'bg-[rgba(217,171,102,0.08)] text-[rgba(176,128,56,0.8)]',
+    shell:
+      'bg-gradient-to-b from-[rgba(217,171,102,0.28)] via-[rgba(217,171,102,0.12)] to-[rgba(217,171,102,0.06)] shadow-[inset_0_0_0_1px_rgba(196,145,70,0.38)]',
+    bar: 'bg-[rgba(196,145,70,0.95)]',
+    label: 'text-[rgba(95,62,22,0.92)]',
+    chip:
+      'bg-[rgba(217,171,102,0.22)] text-[rgba(95,62,22,0.95)] border border-[rgba(196,145,70,0.4)]',
   },
   rose: {
-    bg: 'rgba(195, 116, 140, 0.03)',
-    accent: 'rgb(195, 116, 140)',
-    chip: 'bg-[rgba(195,116,140,0.08)] text-[rgba(182,99,125,0.8)]',
+    shell:
+      'bg-gradient-to-b from-[rgba(195,116,140,0.26)] via-[rgba(195,116,140,0.11)] to-[rgba(195,116,140,0.055)] shadow-[inset_0_0_0_1px_rgba(175,90,118,0.38)]',
+    bar: 'bg-[rgba(175,90,118,0.95)]',
+    label: 'text-[rgba(105,48,68,0.92)]',
+    chip:
+      'bg-[rgba(195,116,140,0.2)] text-[rgba(105,48,68,0.95)] border border-[rgba(175,90,118,0.4)]',
   },
 };
 
 export function TimelineQuadrantBand({ item, style }: TimelineQuadrantBandProps) {
-  const colors = COLOR_MAP[item.quadrantColorToken ?? 'sky'];
+  const colors = BAND_MAP[item.quadrantColorToken ?? 'sky'];
   const focusItems = item.quadrantFocusItems ?? [];
 
   return (
     <div
-      style={{
-        ...style,
-        background: `linear-gradient(180deg, ${colors.bg} 0%, transparent 100%)`,
-      }}
-      className="pointer-events-none z-0 overflow-hidden rounded-xl px-3 py-2 sm:px-3.5"
+      style={style}
+      className={`pointer-events-none relative z-0 overflow-hidden rounded-xl px-3 py-2 sm:px-3.5 ${colors.shell}`}
     >
-      {/* Subtle left edge accent - replaces border */}
       <div
-        className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full opacity-30"
-        style={{ background: colors.accent }}
+        className={`absolute left-0 top-2 bottom-2 w-1 rounded-full opacity-[0.72] ${colors.bar}`}
+        aria-hidden
       />
 
-      <div className="flex items-center gap-2">
-        <p className="text-[10px] font-medium text-text-muted/50">{item.label}</p>
+      <div className="relative flex items-center gap-2 pl-1">
+        <p className={`text-[10px] font-semibold tracking-tight sm:text-[11px] ${colors.label}`}>
+          {item.label}
+        </p>
         {focusItems.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {focusItems.slice(0, 3).map((focus) => (

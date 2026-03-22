@@ -27,37 +27,49 @@ interface DaySectionsBoardProps {
   onItemClick?: (item: TimelineItem) => void;
 }
 
-// Soft, embedded surface styling - sections feel like regions, not cards
+// Section columns: visible regions (border + tint + shadow) so modes read clearly at a glance
 const SECTION_COLOR_MAP = {
   dawn: {
-    shell: 'bg-gradient-to-b from-accent-sakura/[0.04] to-transparent',
-    accent: 'bg-accent-sakura/40',
-    chip: 'bg-accent-sakura/8 text-accent-sakura/80',
-    label: 'text-accent-sakura/60',
+    shell: 'bg-gradient-to-b from-accent-sakura/24 via-accent-sakura/10 to-accent-sakura/[0.055]',
+    accent: 'bg-accent-sakura',
+    accentSoft: 'shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-accent-sakura)_36%,transparent)]',
+    chip: 'bg-accent-sakura/18 text-accent-sakura border border-accent-sakura/26',
+    label: 'text-accent-sakura/90',
+    headingBar: 'bg-accent-sakura/16 border-b border-accent-sakura/26',
   },
   mint: {
-    shell: 'bg-gradient-to-b from-accent-mint/[0.05] to-transparent',
-    accent: 'bg-accent-mint/45',
-    chip: 'bg-accent-mint/10 text-accent-mint/80',
-    label: 'text-accent-mint/60',
+    shell: 'bg-gradient-to-b from-accent-mint/24 via-accent-mint/11 to-accent-mint/[0.055]',
+    accent: 'bg-accent-mint',
+    accentSoft: 'shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-accent-mint)_38%,transparent)]',
+    chip: 'bg-accent-mint/18 text-accent-mint border border-accent-mint/28',
+    label: 'text-accent-mint/90',
+    headingBar: 'bg-accent-mint/16 border-b border-accent-mint/28',
   },
   sky: {
-    shell: 'bg-gradient-to-b from-accent-teal/[0.04] to-transparent',
-    accent: 'bg-accent-teal/40',
-    chip: 'bg-accent-teal/8 text-accent-teal/80',
-    label: 'text-accent-teal/60',
+    shell: 'bg-gradient-to-b from-accent-teal/22 via-accent-teal/10 to-accent-teal/[0.05]',
+    accent: 'bg-accent-teal',
+    accentSoft: 'shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-accent-teal)_34%,transparent)]',
+    chip: 'bg-accent-teal/17 text-accent-teal border border-accent-teal/24',
+    label: 'text-accent-teal/90',
+    headingBar: 'bg-accent-teal/15 border-b border-accent-teal/24',
   },
   sand: {
-    shell: 'bg-gradient-to-b from-[rgba(217,171,102,0.04)] to-transparent',
-    accent: 'bg-[rgba(217,171,102,0.4)]',
-    chip: 'bg-[rgba(217,171,102,0.1)] text-[rgba(176,128,56,0.8)]',
-    label: 'text-[rgba(176,128,56,0.6)]',
+    shell:
+      'bg-gradient-to-b from-[rgba(217,171,102,0.26)] via-[rgba(217,171,102,0.1)] to-[rgba(217,171,102,0.045)]',
+    accent: 'bg-[rgba(196,145,70,0.95)]',
+    accentSoft: 'shadow-[inset_0_0_0_1px_rgba(196,145,70,0.38)]',
+    chip: 'bg-[rgba(217,171,102,0.22)] text-[rgba(95,62,22,0.95)] border border-[rgba(196,145,70,0.4)]',
+    label: 'text-[rgba(95,62,22,0.9)]',
+    headingBar: 'bg-[rgba(217,171,102,0.18)] border-b border-[rgba(196,145,70,0.34)]',
   },
   rose: {
-    shell: 'bg-gradient-to-b from-[rgba(195,116,140,0.04)] to-transparent',
-    accent: 'bg-[rgba(195,116,140,0.4)]',
-    chip: 'bg-[rgba(195,116,140,0.1)] text-[rgba(182,99,125,0.8)]',
-    label: 'text-[rgba(182,99,125,0.6)]',
+    shell:
+      'bg-gradient-to-b from-[rgba(195,116,140,0.24)] via-[rgba(195,116,140,0.09)] to-[rgba(195,116,140,0.045)]',
+    accent: 'bg-[rgba(175,90,118,0.95)]',
+    accentSoft: 'shadow-[inset_0_0_0_1px_rgba(175,90,118,0.38)]',
+    chip: 'bg-[rgba(195,116,140,0.2)] text-[rgba(105,48,68,0.95)] border border-[rgba(175,90,118,0.4)]',
+    label: 'text-[rgba(105,48,68,0.9)]',
+    headingBar: 'bg-[rgba(195,116,140,0.16)] border-b border-[rgba(175,90,118,0.32)]',
   },
 } as const;
 
@@ -267,7 +279,7 @@ export function DaySectionsBoard({
   return (
     <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
       <div
-        className="grid min-w-max gap-2 sm:gap-3"
+        className="grid min-w-max gap-3 sm:gap-4"
         style={{ gridTemplateColumns: `repeat(${sections.length}, minmax(16rem, 1fr))` }}
       >
         {sections.map((section) => {
@@ -276,28 +288,31 @@ export function DaySectionsBoard({
           return (
             <section
               key={section.id}
-              className={`relative flex min-h-[22rem] flex-col rounded-xl px-3 py-3 ${colors.shell}`}
+              className={`relative flex min-h-[22rem] flex-col overflow-hidden rounded-2xl border border-border-subtle/55 shadow-md shadow-black/[0.06] ${colors.shell} ${colors.accentSoft}`}
             >
-              {/* Subtle left accent edge */}
-              <div className={`absolute left-0 top-3 bottom-3 w-[2px] rounded-full ${colors.accent}`} />
+              {/* Strong left rail */}
+              <div
+                className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl ${colors.accent} opacity-90`}
+                aria-hidden
+              />
 
-              {/* Section header - minimal, inline */}
-              <div className="mb-3 pl-2">
-                <div className="flex items-baseline gap-2">
-                  <h3 className="text-sm font-semibold text-text/90">
+              {/* Section header — banded so each column reads as its own “zone” */}
+              <div className={`relative mb-3 -mx-px -mt-px rounded-t-[0.95rem] px-3 py-2.5 pl-4 ${colors.headingBar}`}>
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <h3 className={`font-display text-base font-bold tracking-tight ${colors.label}`}>
                     {section.label}
                   </h3>
-                  <span className="text-[10px] font-medium text-text-muted/50 tabular-nums">
-                    {formatMinuteOfDay(section.startMinute)} - {formatMinuteOfDay(section.endMinute)}
+                  <span className="text-[11px] font-semibold tabular-nums text-text-muted/75">
+                    {formatMinuteOfDay(section.startMinute)} – {formatMinuteOfDay(section.endMinute)}
                   </span>
                 </div>
 
                 {section.focusItems.length > 0 && (
-                  <div className="mt-1.5 flex flex-wrap gap-1">
+                  <div className="mt-2 flex flex-wrap gap-1.5">
                     {section.focusItems.map((focus) => (
                       <span
                         key={focus}
-                        className={`inline-flex max-w-full truncate rounded-md px-1.5 py-0.5 text-[10px] font-medium ${colors.chip}`}
+                        className={`inline-flex max-w-full truncate rounded-lg px-2 py-0.5 text-[10px] font-semibold ${colors.chip}`}
                       >
                         {focus}
                       </span>
@@ -314,8 +329,8 @@ export function DaySectionsBoard({
                 )}
               </div>
 
-              {/* Items - with subtle spacing */}
-              <div className="flex flex-1 flex-col gap-2 pl-2">
+              {/* Items */}
+              <div className="flex flex-1 flex-col gap-2 px-3 pb-3 pl-4">
                 {section.items.length === 0 ? (
                   <EmptySectionState />
                 ) : (

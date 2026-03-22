@@ -18,11 +18,6 @@ export function TimelineAnchorRangeMarker({ item, style }: TimelineAnchorRangeMa
     : isSkipped
       ? 'bg-text-muted/10 border-text-muted/25'
       : '';
-  const orbClass = isDone
-    ? 'bg-secondary border-secondary shadow-sm'
-    : isSkipped
-      ? 'bg-text-muted/50 border-text-muted/40'
-      : 'shadow-sm';
 
   // Convert hex to rgba with transparency for see-through effect
   const hexToRgba = (hex: string, alpha: number) => {
@@ -34,22 +29,10 @@ export function TimelineAnchorRangeMarker({ item, style }: TimelineAnchorRangeMa
 
   return (
     <div
-      className={`absolute left-0 right-0 flex items-stretch rounded-lg border ${barClass} z-10 overflow-visible`}
+      className={`absolute left-0 right-0 flex items-stretch rounded-lg border ${barClass} z-10 overflow-hidden`}
       style={!isDone && !isSkipped ? { ...style, backgroundColor: hexToRgba(palette.soft, 0.65), borderColor: palette.border } : style}
       title={item.label}
     >
-      {/* Start orb */}
-      <div
-        className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-2 border-bg-surface ${orbClass}`}
-        style={!isDone && !isSkipped ? { backgroundColor: palette.solid, borderColor: palette.deep } : undefined}
-        aria-hidden
-      />
-      {/* End orb */}
-      <div
-        className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3 h-3 rounded-full border-2 border-bg-surface ${orbClass}`}
-        style={!isDone && !isSkipped ? { backgroundColor: palette.solid, borderColor: palette.deep } : undefined}
-        aria-hidden
-      />
       {/* Label */}
       <div className="flex-1 flex items-center justify-center min-w-0 px-4 py-1">
         <span
