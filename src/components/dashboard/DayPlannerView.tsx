@@ -21,6 +21,7 @@ import {
 import { type CalendarEvent } from './MiniCalendar';
 import { DayTimeline } from '@/components/scheduler';
 import { DaySectionsBoard } from './DaySectionsBoard';
+import { CalendarPanel } from './CalendarPanel';
 import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
@@ -253,10 +254,6 @@ export function DayPlannerView({
     applyDateKey(getNextDateKey(selectedDateKey));
   }, [triggerHaptic, applyDateKey, selectedDateKey]);
 
-  const goToToday = useCallback(() => {
-    triggerHaptic();
-    applyDateKey(getTodayKey());
-  }, [triggerHaptic, applyDateKey]);
 
   // Format date for display
   const isSelectedToday = isToday(selectedDateKey);
@@ -281,17 +278,37 @@ export function DayPlannerView({
     ? { startHour: condensedStartHour }
     : undefined;
 
-  // Clear header center on mobile - we show date nav in the unified card instead
   useLayoutEffect(() => {
     if (!syncHeaderDateNav || !setHeaderCenter || !setHeaderEndAccessory) return;
-    // Desktop keeps header center empty, mobile moves date nav into the card
-    setHeaderCenter(null);
-    setHeaderEndAccessory(null);
+    
+    if (!isMobile) {
+      setHeaderCenter(
+        <div className="flex items-center justify-center -my-2 transform scale-90 sm:scale-100">
+          <DayPlannerHeaderDateNav
+            selectedDateKey={selectedDateKey}
+            isSelectedToday={isSelectedToday}
+            dateLabel={fullDateLabel}
+            variant="desktopRail"
+            onPrev={goToPreviousDay}
+            onNext={goToNextDay}
+            onPickDate={applyDateKey}
+          />
+        </div>
+      );
+      setHeaderEndAccessory(null);
+    } else {
+      setHeaderCenter(null);
+      setHeaderEndAccessory(null);
+    }
+    
     return () => {
       setHeaderCenter(null);
       setHeaderEndAccessory(null);
     };
-  }, [syncHeaderDateNav, setHeaderCenter, setHeaderEndAccessory]);
+  }, [
+    syncHeaderDateNav, setHeaderCenter, setHeaderEndAccessory, isMobile,
+    selectedDateKey, isSelectedToday, fullDateLabel, goToPreviousDay, goToNextDay, applyDateKey
+  ]);
 
   // Pull-to-reveal gesture handlers (mobile only)
   const canPullToReveal = isMobile && isSelectedToday && condensedStartHour > 6 && !showEarlierHours;
@@ -535,17 +552,6 @@ export function DayPlannerView({
               </div>
             )}
             <div className="flex flex-wrap items-center justify-end gap-2">
-              {!isSelectedToday && (
-                <button
-                  type="button"
-                  onClick={goToToday}
-                  className="inline-flex items-center gap-2 rounded-full border border-accent-teal/25 bg-accent-teal/8 px-4 py-2 text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/14"
-                  aria-label="Go to today"
-                >
-                  <CalendarDays size={17} className="shrink-0" aria-hidden />
-                  Today
-                </button>
-              )}
               {startSequenceHref && (
                 <Link
                   href={startSequenceHref}
@@ -632,15 +638,6 @@ export function DayPlannerView({
                   </button>
                 </div>
               )}
-              {!isSelectedToday && (
-                <button
-                  type="button"
-                  onClick={goToToday}
-                  className="px-2 py-1 text-sm font-medium text-accent-teal transition-colors hover:text-accent-teal/80"
-                >
-                  Today
-                </button>
-              )}
               <Link
                 href={`/dashboard/calendar?date=${selectedDateKey}`}
                 className="rounded-full p-2 text-text-muted transition-all hover:bg-bg-elevated/50 hover:text-text"
@@ -698,84 +695,79 @@ export function DayPlannerView({
         </div>
       )}
 
-      {/* Desktop: date nav bar */}
-      {syncHeaderDateNav && (
-        <div className="hidden sm:block -mx-4 sm:-mx-6 px-4 sm:px-6 -mt-2 mb-2">
-          <div className="day-planner-desktop-date-rail bg-bg-elevated/95 backdrop-blur-sm border border-border-subtle/40 rounded-2xl px-6 py-4 shadow-sm">
-            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-5">
-              <DayPlannerHeaderDateNav
-                selectedDateKey={selectedDateKey}
-                isSelectedToday={isSelectedToday}
-                dateLabel={fullDateLabel}
-                variant="desktopRail"
-                onPrev={goToPreviousDay}
-                onNext={goToNextDay}
-                onPickDate={applyDateKey}
+      {/* Desktop: timeline card */}
+      <div className="hidden sm:grid sm:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px] gap-6 items-start">
+        <div className="rounded-3xl border border-border-subtle/40 bg-bg-surface/60 overflow-hidden shadow-sm">
+          {/* Desktop timeline content */}
+          <div className="px-6 py-6">
+            {isSelectedToday && condensedStartHour > 6 && (
+              <div className="py-3 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowEarlierHours((current) => !current)}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-text-muted/70 hover:text-text-muted transition-colors"
+                  aria-label={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
+                  title={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
+                >
+                  <ChevronUp size={12} className={shouldCondenseTimeline ? '' : 'rotate-180'} />
+                  {shouldCondenseTimeline ? 'Earlier hours' : 'Hide passed'}
+                </button>
+              </div>
+            )}
+
+            {timelineItems.length === 0 && anchorItems.length === 0 ? (
+              <div className="relative py-12 text-center">
+                <div className="absolute inset-0 pointer-events-none opacity-30">
+                  <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-accent-teal/8 blur-3xl" />
+                </div>
+                <div className="relative mx-auto w-12 h-12 flex items-center justify-center mb-4">
+                  <Sparkles className="w-6 h-6 text-text-muted/40" />
+                </div>
+                <p className="relative text-sm text-text-muted/70 mb-5">
+                  Nothing planned yet
+                </p>
+                <button
+                  type="button"
+                  onClick={(event) => openPlanningHelp(event.currentTarget)}
+                  className="relative inline-flex items-center gap-1.5 text-sm font-medium text-accent-teal hover:text-accent-teal/80 transition-colors"
+                >
+                  <Wand2 size={14} />
+                  Start planning
+                </button>
+              </div>
+            ) : isSectionsMode ? (
+              <DaySectionsBoard
+                dateKey={selectedDateKey}
+                sections={sectionColumns}
+                nowMinute={nowMinute}
+                onItemClick={handleItemClick}
+                buildStartTimerHref={buildStartTimerHref}
               />
-            </div>
+            ) : (
+              <DayTimeline
+                dateKey={selectedDateKey}
+                items={timelineItems}
+                nowMinute={nowMinute}
+                onItemClick={handleItemClick}
+                buildStartTimerHref={buildStartTimerHref}
+                isMobile={false}
+                config={timelineConfig}
+                nowIndicatorRef={nowIndicatorRef}
+              />
+            )}
           </div>
         </div>
-      )}
-
-      {/* Desktop: timeline card */}
-      <div className="hidden sm:block rounded-3xl border border-border-subtle/40 bg-bg-surface/60 overflow-hidden">
-        {/* Desktop timeline content */}
-        <div className="px-6 py-6">
-          {isSelectedToday && condensedStartHour > 6 && (
-            <div className="py-3 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setShowEarlierHours((current) => !current)}
-                className="inline-flex items-center gap-1 text-xs font-medium text-text-muted/70 hover:text-text-muted transition-colors"
-                aria-label={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
-                title={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
-              >
-                <ChevronUp size={12} className={shouldCondenseTimeline ? '' : 'rotate-180'} />
-                {shouldCondenseTimeline ? 'Earlier hours' : 'Hide passed'}
-              </button>
-            </div>
-          )}
-
-          {timelineItems.length === 0 && anchorItems.length === 0 ? (
-            <div className="relative py-12 text-center">
-              <div className="absolute inset-0 pointer-events-none opacity-30">
-                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-accent-teal/8 blur-3xl" />
-              </div>
-              <div className="relative mx-auto w-12 h-12 flex items-center justify-center mb-4">
-                <Sparkles className="w-6 h-6 text-text-muted/40" />
-              </div>
-              <p className="relative text-sm text-text-muted/70 mb-5">
-                Nothing planned yet
-              </p>
-              <button
-                type="button"
-                onClick={(event) => openPlanningHelp(event.currentTarget)}
-                className="relative inline-flex items-center gap-1.5 text-sm font-medium text-accent-teal hover:text-accent-teal/80 transition-colors"
-              >
-                <Wand2 size={14} />
-                Start planning
-              </button>
-            </div>
-          ) : isSectionsMode ? (
-            <DaySectionsBoard
-              dateKey={selectedDateKey}
-              sections={sectionColumns}
-              nowMinute={nowMinute}
-              onItemClick={handleItemClick}
-              buildStartTimerHref={buildStartTimerHref}
-            />
-          ) : (
-            <DayTimeline
-              dateKey={selectedDateKey}
-              items={timelineItems}
-              nowMinute={nowMinute}
-              onItemClick={handleItemClick}
-              buildStartTimerHref={buildStartTimerHref}
-              isMobile={false}
-              config={timelineConfig}
-              nowIndicatorRef={nowIndicatorRef}
-            />
-          )}
+        
+        {/* Right Sidebar: Monthly Calendar & Upcoming */}
+        <div className="sticky top-6 hidden sm:block">
+          <CalendarPanel 
+            calendarEvents={events} 
+            selectedDate={selectedDate} 
+            onDateSelect={(date: Date) => {
+              const pad = (n: number) => n.toString().padStart(2, '0');
+              applyDateKey(`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`);
+            }}
+          />
         </div>
       </div>
 
@@ -952,7 +944,7 @@ export function DayPlannerView({
           }
         }}
         onClick={(event) => openPlanningHelp(event.currentTarget)}
-        className="fixed bottom-24 right-4 sm:bottom-8 sm:right-[max(2rem,calc(50vw-28rem))] z-[110] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent-teal to-accent-mint text-bg-base shadow-lg shadow-accent-teal/25 transition-all hover:scale-105 active:scale-95 touch-manipulation pointer-events-auto"
+        className="fixed bottom-24 right-4 sm:bottom-8 sm:right-8 lg:right-10 z-[110] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent-teal to-accent-mint text-bg-base shadow-lg shadow-accent-teal/25 transition-all hover:scale-105 active:scale-95 touch-manipulation pointer-events-auto"
         aria-label="Planning Help"
       >
         <Wand2 size={22} className="animate-wand-wobble" />

@@ -45,7 +45,7 @@ export function TimelineEventCard({
     >
       {/* Accent bar */}
       <div
-        className="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg"
+        className="absolute left-0 top-0 bottom-0 w-[6px] rounded-l-lg"
         style={{ background: eventColor }}
       />
 

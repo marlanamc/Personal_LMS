@@ -187,8 +187,8 @@ export interface TimelineConfig {
 export const DEFAULT_TIMELINE_CONFIG: TimelineConfig = {
   startHour: 6,
   endHour: 24,
-  /** Scale so 15-min blocks get ~33px, keeping short tasks legible */
-  pxPerMinute: 2.2,
+  /** Scale so 15-min blocks get ~18px (1 hour = 72px), very compact per user request */
+  pxPerMinute: 1.2,
   showNowIndicator: true,
   showGridLines: true,
 };

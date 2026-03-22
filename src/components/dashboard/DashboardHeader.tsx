@@ -89,8 +89,8 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
                             <div className="flex shrink-0 items-center gap-4 min-w-0">
                                 {brandBlock}
                             </div>
-                            {/* Date nav: mobile only; hidden sm+ (e.g. day planner moves it below header on desktop) */}
-                            <div className="flex min-w-0 flex-1 justify-center px-0.5 sm:hidden">
+                            {/* Center content slot (e.g. date nav) */}
+                            <div className="flex min-w-0 flex-1 justify-center px-0.5">
                                 {headerCenter}
                             </div>
                             <div className="flex shrink-0 items-center justify-end min-w-0">

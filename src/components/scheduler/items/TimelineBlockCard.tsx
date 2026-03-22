@@ -85,7 +85,7 @@ export function TimelineBlockCard({
     >
       {/* Accent bar */}
       <div
-        className={`absolute left-0 top-0 bottom-0 w-1 sm:w-1 rounded-l-lg ${
+        className={`absolute left-0 top-0 bottom-0 w-[6px] rounded-l-lg ${
           isWant ? 'bg-accent-teal/60' : 'bg-accent-sakura/60'
         }`}
       />

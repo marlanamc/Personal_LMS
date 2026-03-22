@@ -143,7 +143,7 @@ export function DayTimeline({
 
       {/* Timeline track */}
       <div
-        className="timeline-track-surface flex-1 relative min-w-0 overflow-hidden"
+        className="timeline-track-surface flex-1 relative min-w-0"
         style={{ height: timelineHeight + timelinePadding * 2 }}
       >
         {/* Hour grid lines */}
@@ -329,8 +329,11 @@ export function DayTimeline({
         {showNowIndicator && (
           <div
             ref={nowIndicatorRef}
-            className="absolute left-0 right-0 z-30 flex items-center pointer-events-none"
-            style={{ top: getTop(nowMinute!) }}
+            className="absolute right-0 z-30 flex items-center pointer-events-none"
+            style={{ 
+              top: getTop(nowMinute!),
+              left: '-12px',
+            }}
           >
             <div className="h-2.5 w-2.5 rounded-full bg-accent-sakura shadow-lg shadow-accent-sakura/40 ring-2 ring-bg-surface animate-pulse" />
             <div className="flex-1 h-[2px] bg-gradient-to-r from-accent-sakura via-accent-sakura/60 to-transparent" />
