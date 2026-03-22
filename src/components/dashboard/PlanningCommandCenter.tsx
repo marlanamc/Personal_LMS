@@ -294,7 +294,7 @@ function PlanningCommandCenterInner() {
         {/* View Content */}
         <div>
           {currentView === 'day' && (
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 md:py-8 pb-24 md:pb-12 overflow-hidden">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-2.5 pb-24 sm:pt-6 md:pt-8 md:pb-12 overflow-x-clip">
               <DayPlannerView
                 events={calendarEvents}
                 initialDateKey={selectedDateKey}
@@ -329,7 +329,7 @@ function PlanningCommandCenterInner() {
           )}
 
           {currentView === 'time-blocks' && (
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 md:py-8 pb-24 md:pb-12 overflow-hidden">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-2.5 pb-24 sm:pt-6 md:pt-8 md:pb-12 overflow-x-clip">
               <DayPlannerView
                 events={calendarEvents}
                 initialDateKey={selectedDateKey}

@@ -60,13 +60,44 @@ export const viewport: Viewport = {
   ],
 };
 
+// Inline script to set theme before React hydrates (prevents flash)
+const themeInitScript = `
+(function() {
+  var STORAGE_KEY = 'marlie-theme-preference';
+  var stored = null;
+  try { stored = localStorage.getItem(STORAGE_KEY); } catch(e) {}
+
+  var preference = (stored === 'light' || stored === 'dark' || stored === 'auto') ? stored : 'auto';
+  var theme;
+
+  if (preference === 'light') {
+    theme = 'light';
+  } else if (preference === 'dark') {
+    theme = 'dark';
+  } else {
+    // Auto mode: 6am-6pm = light, otherwise dark
+    var hour = new Date().getHours();
+    theme = (hour >= 6 && hour < 18) ? 'light' : 'dark';
+  }
+
+  var root = document.documentElement;
+  root.classList.remove('light', 'dark');
+  root.classList.add(theme);
+  root.setAttribute('data-theme', theme);
+  root.style.colorScheme = theme;
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" data-theme="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body
         className={`${lora.variable} ${dmSans.variable} ${caveat.variable} bg-bg-primary text-text antialiased`}
       >

@@ -151,7 +151,7 @@ export function StableDialog({
           aria-describedby={describedBy}
           tabIndex={-1}
           className={cn(
-            'flex w-full max-h-[85svh] flex-col overflow-x-hidden overflow-y-hidden rounded-[2rem] border border-border-subtle/40 bg-bg-surface shadow-2xl outline-none overscroll-contain animate-in zoom-in-95 duration-300 sm:max-h-[90vh] sm:max-w-lg sm:rounded-[1.75rem]',
+            'flex min-h-0 w-full max-h-[85svh] flex-col overflow-hidden rounded-[2rem] border border-border-subtle/40 bg-bg-surface shadow-2xl outline-none overscroll-contain animate-in zoom-in-95 duration-300 sm:max-h-[90vh] sm:max-w-lg sm:rounded-[1.75rem]',
             panelClassName,
           )}
         >

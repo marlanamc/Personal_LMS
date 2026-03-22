@@ -40,10 +40,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({ items }) => {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`bottom-nav-item flex items-center justify-center transition-[color,transform,background-color,border-color] duration-150 cursor-pointer touch-manipulation relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${
+                className={`bottom-nav-item flex items-center justify-center transition-[color,transform,background-color,border-color] duration-150 cursor-pointer touch-manipulation relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 min-h-[44px] min-w-[44px] ${
                   isTimerTab ? 'is-timer' : ''
                 } ${
-                  isActive ? 'is-active' : 'active:scale-95'
+                  isActive ? 'is-active' : ''
                 }`}
                 style={{
                   color: isActive

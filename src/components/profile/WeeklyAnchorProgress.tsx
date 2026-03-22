@@ -72,22 +72,22 @@ export function WeeklyAnchorProgress({ anchorStates }: WeeklyAnchorProgressProps
   }, [anchorStates, weekOffset]);
 
   return (
-    <div className="rounded-3xl p-6 bg-bg-secondary border border-border/40 shadow-sm h-full flex flex-col min-h-0">
-      <div className="flex items-center gap-4 mb-4 shrink-0">
-        <div className="w-10 h-10 rounded-xl bg-accent-teal/10 flex items-center justify-center shrink-0">
-          <span className="text-lg" aria-hidden>📋</span>
+    <div className="rounded-3xl p-4 sm:p-6 bg-bg-secondary border border-border/40 shadow-sm h-full flex flex-col min-h-0 overflow-hidden">
+      <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4 shrink-0">
+        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-accent-teal/10 flex items-center justify-center shrink-0">
+          <span className="text-base sm:text-lg" aria-hidden>📋</span>
         </div>
-        <div>
-          <h3 className="text-lg font-bold text-text">Weekly Anchor Progress</h3>
-          <p className="text-sm text-text-muted">Completion rate</p>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base sm:text-lg font-bold text-text truncate">Weekly Anchor Progress</h3>
+          <p className="text-xs sm:text-sm text-text-muted">Completion rate</p>
         </div>
-        <div className="text-right ml-auto">
-          <div className="text-3xl font-black text-primary">{weeklyAverage}%</div>
-          <div className="text-xs font-bold text-text-muted uppercase tracking-wider">Weekly avg</div>
+        <div className="text-right shrink-0">
+          <div className="text-2xl sm:text-3xl font-black text-primary">{weeklyAverage}%</div>
+          <div className="text-[10px] sm:text-xs font-bold text-text-muted uppercase tracking-wider">Weekly avg</div>
         </div>
       </div>
 
-      <div className="flex items-end justify-between gap-2 sm:gap-4 h-80 sm:h-96 min-h-[20rem] flex-1 pt-4">
+      <div className="flex items-end justify-between gap-1.5 sm:gap-3 flex-1 min-h-[12rem] sm:min-h-[18rem] pt-4">
         {days.map((day) => (
           <div key={day.dateKey} className="flex-1 flex flex-col items-center gap-4 h-full group">
             <div className="relative flex-1 w-full flex items-end justify-center">
@@ -104,8 +104,9 @@ export function WeeklyAnchorProgress({ anchorStates }: WeeklyAnchorProgressProps
                 )}
               </div>
             </div>
-            <div className="text-[10px] sm:text-xs font-bold text-text-muted uppercase text-center leading-tight truncate max-w-full">
-              {day.label}
+            <div className="text-[9px] sm:text-xs font-bold text-text-muted uppercase text-center leading-tight">
+              <span className="sm:hidden">{day.label.substring(0, 3)}</span>
+              <span className="hidden sm:inline">{day.label}</span>
             </div>
           </div>
         ))}

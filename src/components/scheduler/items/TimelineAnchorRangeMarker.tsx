@@ -24,10 +24,18 @@ export function TimelineAnchorRangeMarker({ item, style }: TimelineAnchorRangeMa
       ? 'bg-text-muted/50 border-text-muted/40'
       : 'shadow-sm';
 
+  // Convert hex to rgba with transparency for see-through effect
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
   return (
     <div
       className={`absolute left-0 right-0 flex items-stretch rounded-lg border ${barClass} z-10 overflow-visible`}
-      style={!isDone && !isSkipped ? { ...style, backgroundColor: palette.soft, borderColor: palette.border } : style}
+      style={!isDone && !isSkipped ? { ...style, backgroundColor: hexToRgba(palette.soft, 0.65), borderColor: palette.border } : style}
       title={item.label}
     >
       {/* Start orb */}

@@ -78,12 +78,16 @@ function pushRecentGrocery(recent: string[], text: string): string[] {
   return [t, ...next].slice(0, 40);
 }
 
-function collectMealTexts(mealPlans: Record<WeekKey, Record<string, DayMeals>>): string[] {
+function collectMealTexts(
+  mealPlans: Record<WeekKey, Record<string, DayMeals>>,
+  slotFilter?: MealSlotKey,
+): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
+  const slotsToCheck = slotFilter ? [slotFilter] : MEAL_SLOT_KEYS;
   for (const week of Object.values(mealPlans)) {
     for (const day of Object.values(week)) {
-      for (const key of MEAL_SLOT_KEYS) {
+      for (const key of slotsToCheck) {
         const text = day[key]?.text?.trim();
         if (!text) continue;
         const k = text.toLowerCase();
@@ -350,7 +354,10 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
   } | null>(null);
 
   const weekDates = useMemo(() => getWeekDateKeys(weekKey), [weekKey]);
-  const mealIdeas = useMemo(() => collectMealTexts(plannerStore.mealPlans), [plannerStore.mealPlans]);
+  const mealIdeas = useMemo(
+    () => collectMealTexts(plannerStore.mealPlans, mealEdit?.slot),
+    [plannerStore.mealPlans, mealEdit?.slot],
+  );
 
   const suggestedGroceries = useMemo(() => {
     const combined = [...plannerStore.recentItems];

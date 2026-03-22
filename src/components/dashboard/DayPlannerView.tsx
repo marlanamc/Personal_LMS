@@ -276,136 +276,107 @@ export function DayPlannerView({
     <div className="space-y-4 sm:space-y-6 animate-fadeIn">
       {/* Mobile top area */}
       <section className="space-y-3 sm:hidden">
-        <div>
-          <p className="ml-1 text-[11px] font-bold uppercase tracking-[0.2em] text-text-muted/80">
-            Day Planner
-          </p>
-          <div className="mt-2 flex items-center gap-2">
-            <h1 className="text-[2rem] leading-[0.98] font-display font-bold tracking-tight text-text">
+        {/* Day navigation at top - replaces title */}
+        <div className="flex min-w-0 items-center gap-1 rounded-[1.75rem] border border-border-subtle/60 bg-bg-surface/80 p-1 shadow-sm backdrop-blur-md">
+          <button
+            type="button"
+            onClick={goToPreviousDay}
+            className="rounded-full p-2.5 transition-colors hover:bg-bg-elevated"
+            aria-label="Previous day"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <label className="min-w-0 flex-1 cursor-pointer rounded-full px-3 py-2 text-center hover:bg-bg-elevated/60">
+            <span className="sr-only">Choose date</span>
+            <span className="pointer-events-none inline-flex items-center justify-center gap-1.5 text-base font-display font-bold text-text">
               {fullDateLabel}
-            </h1>
-            {isSelectedToday && (
-              <span className="inline-flex items-center rounded-full bg-accent-teal/10 px-2.5 py-1 text-[11px] font-semibold text-accent-teal">
-                Today
-              </span>
-            )}
-          </div>
+              {isSelectedToday && <Sparkles size={14} className="text-accent-teal" />}
+            </span>
+            <input
+              type="date"
+              value={selectedDateKey}
+              onChange={(event) => setSelectedDateKey(event.target.value || getTodayKey())}
+              className="sr-only"
+              aria-label="Choose date"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={goToNextDay}
+            className="rounded-full p-2.5 transition-colors hover:bg-bg-elevated"
+            aria-label="Next day"
+          >
+            <ArrowRight size={18} />
+          </button>
         </div>
 
-        {canUseSectionsView && (
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex items-center gap-1 rounded-full border border-border-subtle/55 bg-bg-surface/85 p-1 shadow-sm">
-              <button
-                type="button"
-                onClick={() => setPlannerViewMode('timeline')}
-                className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
-                  plannerViewMode === 'timeline'
-                    ? 'bg-bg-elevated text-text shadow-sm ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-surface'
-                    : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text border-2 border-transparent'
-                }`}
-                aria-pressed={plannerViewMode === 'timeline'}
-              >
-                <StretchHorizontal size={15} />
-                Timeline
-              </button>
-              <button
-                type="button"
-                onClick={() => setPlannerViewMode('sections')}
-                className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
-                  plannerViewMode === 'sections'
-                    ? 'bg-bg-elevated text-text shadow-sm ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-surface'
-                    : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text border-2 border-transparent'
-                }`}
-                aria-pressed={plannerViewMode === 'sections'}
-                title="View sections side by side"
-              >
-                <Columns2 size={15} />
-                Sections
-              </button>
+        {/* View toggle + action buttons on same line */}
+        {(canUseSectionsView || !isSelectedToday || startSequenceHref || (isSelectedToday && condensedStartHour > 6)) && (
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {canUseSectionsView && (
+                <div className="inline-flex items-center gap-1 rounded-full border border-border-subtle/55 bg-bg-surface/85 p-1 shadow-sm">
+                  <button
+                    type="button"
+                    onClick={() => setPlannerViewMode('timeline')}
+                    className={`inline-flex items-center justify-center rounded-full p-2.5 transition-colors ${
+                      plannerViewMode === 'timeline'
+                        ? 'bg-bg-elevated text-text shadow-sm ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-surface'
+                        : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
+                    }`}
+                    aria-pressed={plannerViewMode === 'timeline'}
+                    aria-label="Timeline view"
+                  >
+                    <StretchHorizontal size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPlannerViewMode('sections')}
+                    className={`inline-flex items-center justify-center rounded-full p-2.5 transition-colors ${
+                      plannerViewMode === 'sections'
+                        ? 'bg-bg-elevated text-text shadow-sm ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-surface'
+                        : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
+                    }`}
+                    aria-pressed={plannerViewMode === 'sections'}
+                    aria-label="Sections view"
+                  >
+                    <Columns2 size={18} />
+                  </button>
+                </div>
+              )}
+              {!isSelectedToday && (
+                <button
+                  type="button"
+                  onClick={goToToday}
+                  className="inline-flex items-center justify-center rounded-full border border-accent-teal/20 bg-accent-teal/8 px-4 py-[9px] text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/12 h-[42px]"
+                >
+                  Today
+                </button>
+              )}
+              {startSequenceHref ? (
+                <Link
+                  href={startSequenceHref}
+                  className="inline-flex items-center justify-center gap-2 rounded-[1.75rem] border border-accent-teal/40 bg-accent-teal/10 px-4 py-[9px] text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/20 backdrop-blur-md h-[42px]"
+                  title="Start full sequence in Focus Timer"
+                >
+                  <Play size={15} />
+                  Start Sequence
+                </Link>
+              ) : null}
             </div>
-          </div>
-        )}
-
-        <div className="space-y-2">
-          <div className="flex min-w-0 items-center gap-1 rounded-[1.75rem] border border-border-subtle/60 bg-bg-surface/80 p-1 shadow-sm backdrop-blur-md">
-            <button
-              type="button"
-              onClick={goToPreviousDay}
-              className="rounded-full p-2.5 transition-colors hover:bg-bg-elevated"
-              aria-label="Previous day"
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <label className="min-w-0 flex-1 cursor-pointer rounded-full px-3 py-2 text-center hover:bg-bg-elevated/60">
-              <span className="sr-only">Choose date</span>
-              <span className="pointer-events-none inline-flex items-center gap-1.5 text-base font-semibold text-text">
-                {mobileDateLabel}
-                {isSelectedToday && <Sparkles size={14} className="text-accent-teal" />}
-              </span>
-              <input
-                type="date"
-                value={selectedDateKey}
-                onChange={(event) => setSelectedDateKey(event.target.value || getTodayKey())}
-                className="sr-only"
-                aria-label="Choose date"
-              />
-            </label>
-            <button
-              type="button"
-              onClick={goToNextDay}
-              className="rounded-full p-2.5 transition-colors hover:bg-bg-elevated"
-              aria-label="Next day"
-            >
-              <ArrowRight size={18} />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
-            {!isSelectedToday && (
-              <button
-                type="button"
-                onClick={goToToday}
-                className="inline-flex items-center justify-center rounded-full border border-accent-teal/20 bg-accent-teal/8 px-4 py-[9px] text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/12 h-[42px]"
-              >
-                Today
-              </button>
-            )}
-            {startSequenceHref ? (
-              <Link
-                href={startSequenceHref}
-                className="inline-flex items-center justify-center gap-2 rounded-[1.75rem] border border-accent-teal/40 bg-accent-teal/10 px-4 py-[9px] text-sm font-semibold text-accent-teal transition-colors hover:bg-accent-teal/20 backdrop-blur-md h-[42px]"
-                title="Start full sequence in Focus Timer"
-              >
-                <Play size={15} />
-                Start Sequence
-              </Link>
-            ) : null}
-            <button
-              type="button"
-              ref={(node) => {
-                if (node && !planningHelpTriggerRef.current) {
-                  planningHelpTriggerRef.current = node;
-                }
-              }}
-              onClick={(event) => openPlanningHelp(event.currentTarget)}
-              className={`inline-flex items-center justify-center gap-2 rounded-[1.75rem] border border-border-subtle/60 bg-bg-surface/80 px-4 py-[9px] text-sm font-semibold text-text shadow-sm transition-all hover:bg-bg-elevated backdrop-blur-md h-[42px] ${isSelectedToday && !startSequenceHref ? 'col-span-1' : ''}`}
-            >
-              <Wand2 size={15} className="text-accent-teal" />
-              Planning Help
-            </button>
             {isSelectedToday && condensedStartHour > 6 ? (
               <button
                 type="button"
                 onClick={() => setShowEarlierHours((current) => !current)}
-                className="w-[42px] h-[42px] inline-flex items-center justify-center rounded-full border border-border-subtle/60 bg-bg-surface text-text-secondary shadow-sm transition-colors hover:bg-bg-elevated hover:text-text backdrop-blur-md shrink-0"
+                className="icon-button inline-flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full border-2 border-accent-teal/55 bg-accent-teal/30 text-accent-teal shadow-sm transition-colors hover:bg-accent-teal/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
                 aria-label={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
                 title={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
               >
-                <SunMedium size={18} className="text-accent-teal" />
+                <SunMedium size={18} className="shrink-0" aria-hidden />
               </button>
             ) : null}
           </div>
-        </div>
+        )}
       </section>
 
       {/* Desktop header */}
@@ -582,16 +553,16 @@ export function DayPlannerView({
         <div className="hidden sm:block absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-teal/8 blur-[100px] rounded-full pointer-events-none" />
 
         <div className="relative z-10 px-4 sm:px-0">
-          {isSelectedToday && condensedStartHour > 6 && !isMobile && (
-            <div className="mb-3 flex justify-end sm:mb-4">
+          {isSelectedToday && condensedStartHour > 6 && (
+            <div className="mb-3 hidden justify-end sm:flex sm:mb-4">
               <button
                 type="button"
                 onClick={() => setShowEarlierHours((current) => !current)}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border-subtle/60 bg-bg-surface text-text-secondary shadow-sm transition-colors hover:bg-bg-elevated hover:text-text backdrop-blur-md"
+                className="icon-button inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-accent-teal/55 bg-accent-teal/30 text-accent-teal shadow-sm transition-colors hover:bg-accent-teal/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
                 aria-label={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
                 title={shouldCondenseTimeline ? 'Show earlier hours' : 'Hide passed time'}
               >
-                <SunMedium size={18} className="text-accent-teal" />
+                <SunMedium size={18} className="shrink-0" aria-hidden />
               </button>
             </div>
           )}
@@ -690,6 +661,21 @@ export function DayPlannerView({
           </div>
         </div>
       ) : null}
+
+      {/* Mobile floating Planning Help button */}
+      <button
+        type="button"
+        ref={(node) => {
+          if (node && !planningHelpTriggerRef.current) {
+            planningHelpTriggerRef.current = node;
+          }
+        }}
+        onClick={(event) => openPlanningHelp(event.currentTarget)}
+        className="sm:hidden fixed bottom-24 right-4 z-[110] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent-teal to-accent-mint text-bg-base shadow-lg shadow-accent-teal/25 transition-all hover:scale-105 active:scale-95 touch-manipulation pointer-events-auto"
+        aria-label="Planning Help"
+      >
+        <Wand2 size={22} />
+      </button>
 
       {/* Planning Help drawer */}
       <PlanningHelpDrawer
