@@ -269,7 +269,6 @@ export function DayPlannerView({
     weekday: 'long',
     month: 'long',
     day: 'numeric',
-    year: 'numeric',
   });
   const currentHour = nowMinute !== null ? Math.floor(nowMinute / 60) : null;
   const condensedStartHour =
@@ -282,47 +281,17 @@ export function DayPlannerView({
     ? { startHour: condensedStartHour }
     : undefined;
 
+  // Clear header center on mobile - we show date nav in the unified card instead
   useLayoutEffect(() => {
     if (!syncHeaderDateNav || !setHeaderCenter || !setHeaderEndAccessory) return;
-    setHeaderCenter(
-      <DayPlannerHeaderDateNav
-        selectedDateKey={selectedDateKey}
-        isSelectedToday={isSelectedToday}
-        dateLabel={mobileDateLabel}
-        onPrev={goToPreviousDay}
-        onNext={goToNextDay}
-        onPickDate={applyDateKey}
-      />,
-    );
-    setHeaderEndAccessory(
-      !isSelectedToday ? (
-        <button
-          type="button"
-          onClick={goToToday}
-          className="shrink-0 inline-flex items-center justify-center rounded-full p-2 text-accent-teal hover:bg-bg-elevated/40 active:scale-95 transition-colors sm:hidden"
-          aria-label="Go to today"
-          title="Go to today"
-        >
-          <CalendarDays size={18} className="shrink-0" aria-hidden />
-        </button>
-      ) : null,
-    );
+    // Desktop keeps header center empty, mobile moves date nav into the card
+    setHeaderCenter(null);
+    setHeaderEndAccessory(null);
     return () => {
       setHeaderCenter(null);
       setHeaderEndAccessory(null);
     };
-  }, [
-    syncHeaderDateNav,
-    setHeaderCenter,
-    setHeaderEndAccessory,
-    selectedDateKey,
-    isSelectedToday,
-    mobileDateLabel,
-    goToPreviousDay,
-    goToNextDay,
-    goToToday,
-    applyDateKey,
-  ]);
+  }, [syncHeaderDateNav, setHeaderCenter, setHeaderEndAccessory]);
 
   // Pull-to-reveal gesture handlers (mobile only)
   const canPullToReveal = isMobile && isSelectedToday && condensedStartHour > 6 && !showEarlierHours;
@@ -471,92 +440,10 @@ export function DayPlannerView({
   const isSectionsMode = plannerViewMode === 'sections' && canUseSectionsView;
 
   return (
-    <div className="space-y-2 sm:space-y-3 animate-fadeIn">
-      {/* Desktop: date + arrows in a card below the sticky header (mobile keeps them in the bar). */}
-      {syncHeaderDateNav && (
-        <div className="day-planner-desktop-date-rail hidden sm:block">
-          <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-5">
-            <DayPlannerHeaderDateNav
-              selectedDateKey={selectedDateKey}
-              isSelectedToday={isSelectedToday}
-              dateLabel={fullDateLabel}
-              variant="desktopRail"
-              onPrev={goToPreviousDay}
-              onNext={goToNextDay}
-              onPickDate={applyDateKey}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Mobile: date row only when not using dashboard header center (/plan embed). */}
-      {(!syncHeaderDateNav || canUseSectionsView || startSequenceHref) && (
+    <div className="space-y-2 sm:space-y-0 animate-fadeIn">
+      {/* Mobile: Toggle + Start Sequence controls (date nav moved to unified card) */}
+      {(canUseSectionsView || startSequenceHref) && (
       <header className="sm:hidden">
-        {!syncHeaderDateNav && (
-        <div className="flex items-center justify-center gap-0 w-full py-1">
-          <button
-            type="button"
-            onClick={goToPreviousDay}
-            className="shrink-0 rounded-full p-2 transition-colors hover:bg-bg-elevated/40 active:scale-95"
-            aria-label="Previous day"
-          >
-            <ArrowLeft size={18} className="text-text-muted" />
-          </button>
-
-          <label className="min-w-0 shrink cursor-pointer text-center px-1 max-w-[min(16rem,78vw)]">
-            <span className="sr-only">Choose date</span>
-            <span
-              className={`pointer-events-none flex items-center justify-center min-w-0 ${
-                isSelectedToday ? 'gap-0.5' : 'gap-1.5'
-              }`}
-            >
-              {!isSelectedToday && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    goToToday();
-                  }}
-                  className="pointer-events-auto shrink-0 inline-flex items-center justify-center rounded-full p-2.5 text-accent-teal hover:bg-bg-elevated/40 active:scale-95 transition-colors"
-                  aria-label="Go to today"
-                  title="Go to today"
-                >
-                  <CalendarDays size={18} className="shrink-0" aria-hidden />
-                </button>
-              )}
-              {isSelectedToday && (
-                <span
-                  className="inline-flex items-center justify-center size-4 shrink-0 rounded-full bg-accent-sakura/15"
-                  title="Today"
-                >
-                  <SunMedium size={11} className="text-accent-sakura" />
-                </span>
-              )}
-              <span className="text-[15px] font-display font-semibold text-text min-w-0 leading-none truncate">
-                {mobileDateLabel}
-              </span>
-            </span>
-            <input
-              type="date"
-              value={selectedDateKey}
-              onChange={(event) => applyDateKey(event.target.value || getTodayKey())}
-              className="sr-only"
-              aria-label="Choose date"
-            />
-          </label>
-
-          <button
-            type="button"
-            onClick={goToNextDay}
-            className="shrink-0 rounded-full p-2 transition-colors hover:bg-bg-elevated/40 active:scale-95"
-            aria-label="Next day"
-          >
-            <ArrowRight size={18} className="text-text-muted" />
-          </button>
-        </div>
-        )}
-
         {/* Toggle + Start Sequence - subtle inline row */}
         {(canUseSectionsView || startSequenceHref) && (
           <div className="flex items-center justify-center gap-3 py-1.5">
@@ -669,19 +556,6 @@ export function DayPlannerView({
                   Start
                 </Link>
               )}
-              <button
-                type="button"
-                ref={(node) => {
-                  if (node && !planningHelpTriggerRef.current) {
-                    planningHelpTriggerRef.current = node;
-                  }
-                }}
-                onClick={(event) => openPlanningHelp(event.currentTarget)}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary transition-all hover:bg-bg-elevated/50 hover:text-text"
-              >
-                <Wand2 size={14} className="text-accent-teal" />
-                Plan
-              </button>
             </div>
           </div>
         ) : (
@@ -785,27 +659,14 @@ export function DayPlannerView({
                   Start
                 </Link>
               )}
-              <button
-                type="button"
-                ref={(node) => {
-                  if (node && !planningHelpTriggerRef.current) {
-                    planningHelpTriggerRef.current = node;
-                  }
-                }}
-                onClick={(event) => openPlanningHelp(event.currentTarget)}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-secondary transition-all hover:bg-bg-elevated/50 hover:text-text"
-              >
-                <Wand2 size={14} className="text-accent-teal" />
-                Plan
-              </button>
             </div>
           </div>
         )}
       </header>
 
-      {/* All-day events - subtle inline */}
+      {/* All-day events - subtle inline (mobile only, desktop shows inside card) */}
       {allDayEvents.length > 0 && (
-        <div className="px-1">
+        <div className="px-1 sm:hidden">
           <button
             type="button"
             onClick={() => setShowAllDayEvents(!showAllDayEvents)}
@@ -837,45 +698,31 @@ export function DayPlannerView({
         </div>
       )}
 
-      {/* Main timeline */}
-      <motion.section
-        ref={timelineSectionRef}
-        className="relative overflow-hidden -mx-4 sm:mx-0"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={{
-          paddingTop: isPulling ? pullDistance * 0.4 : undefined,
-        }}
-        animate={{
-          paddingTop: isPulling ? undefined : 4,
-        }}
-        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-      >
-        {/* Pull-to-reveal indicator (mobile only, when condensed) */}
-        {canPullToReveal && (
-          <motion.div
-            className="absolute top-0 left-0 right-0 flex justify-center pointer-events-none z-20 sm:hidden"
-            style={{
-              y: pullIndicatorY,
-              opacity: pullIndicatorOpacity,
-            }}
-          >
-            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-text-muted/70">
-              <ChevronUp
-                size={10}
-                className={`transition-transform duration-200 ${
-                  pullProgress >= 1 ? 'rotate-180' : ''
-                }`}
+      {/* Desktop: sticky date nav bar - outside the card for true sticky behavior */}
+      {syncHeaderDateNav && (
+        <div className="hidden sm:block sticky top-[var(--header-height-desktop)] z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 -mt-2 mb-2">
+          <div className="day-planner-desktop-date-rail bg-bg-elevated/95 backdrop-blur-sm border border-border-subtle/40 rounded-2xl px-6 py-4 shadow-sm">
+            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-5">
+              <DayPlannerHeaderDateNav
+                selectedDateKey={selectedDateKey}
+                isSelectedToday={isSelectedToday}
+                dateLabel={fullDateLabel}
+                variant="desktopRail"
+                onPrev={goToPreviousDay}
+                onNext={goToNextDay}
+                onPickDate={applyDateKey}
               />
-              {pullProgress >= 1 ? 'Release' : 'Pull for earlier'}
-            </span>
-          </motion.div>
-        )}
+            </div>
+          </div>
+        </div>
+      )}
 
-        <div className="relative px-4 sm:px-0">
+      {/* Desktop: timeline card */}
+      <div className="hidden sm:block rounded-3xl border border-border-subtle/40 bg-bg-surface/60 overflow-hidden scroll-contain">
+        {/* Desktop timeline content */}
+        <div className="px-6 py-6">
           {isSelectedToday && condensedStartHour > 6 && (
-            <div className="mb-2 hidden justify-end sm:flex">
+            <div className="py-3 flex justify-end">
               <button
                 type="button"
                 onClick={() => setShowEarlierHours((current) => !current)}
@@ -890,23 +737,16 @@ export function DayPlannerView({
           )}
 
           {timelineItems.length === 0 && anchorItems.length === 0 ? (
-            <div className="relative py-12 sm:py-16 text-center">
-              {/* Subtle decorative gradient */}
+            <div className="relative py-12 text-center">
               <div className="absolute inset-0 pointer-events-none opacity-30">
                 <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-accent-teal/8 blur-3xl" />
               </div>
-
-              {/* Icon - minimal */}
               <div className="relative mx-auto w-12 h-12 flex items-center justify-center mb-4">
                 <Sparkles className="w-6 h-6 text-text-muted/40" />
               </div>
-
-              {/* Message - subdued */}
               <p className="relative text-sm text-text-muted/70 mb-5">
                 Nothing planned yet
               </p>
-
-              {/* Primary action - subtle */}
               <button
                 type="button"
                 onClick={(event) => openPlanningHelp(event.currentTarget)}
@@ -931,13 +771,125 @@ export function DayPlannerView({
               nowMinute={nowMinute}
               onItemClick={handleItemClick}
               buildStartTimerHref={buildStartTimerHref}
-              isMobile={isMobile}
+              isMobile={false}
               config={timelineConfig}
               nowIndicatorRef={nowIndicatorRef}
             />
           )}
         </div>
-      </motion.section>
+      </div>
+
+      {/* Mobile: sticky date nav bar - outside the card for true sticky behavior */}
+      <div className="sm:hidden sticky top-[var(--header-height-mobile)] z-30 -mx-4 px-3 pb-2">
+        <div className="bg-bg-elevated/95 backdrop-blur-sm border border-border-subtle/40 rounded-xl px-2 py-2 shadow-sm">
+          <div className="flex items-center justify-center gap-1">
+            <button
+              type="button"
+              onClick={goToPreviousDay}
+              className="shrink-0 rounded-full p-2 transition-colors hover:bg-bg-elevated/40 active:scale-95"
+              aria-label="Previous day"
+            >
+              <ArrowLeft size={18} className="text-text-muted" />
+            </button>
+
+            <label className="min-w-0 flex-1 cursor-pointer text-center px-1">
+              <span className="sr-only">Choose date</span>
+              <span className="pointer-events-none flex items-center justify-center gap-1.5">
+                {isSelectedToday && (
+                  <span
+                    className="inline-flex items-center justify-center size-5 shrink-0 rounded-full bg-accent-sakura/15"
+                    title="Today"
+                  >
+                    <SunMedium size={12} className="text-accent-sakura" />
+                  </span>
+                )}
+                <span className="text-base font-display font-semibold text-text leading-none">
+                  {fullDateLabel}
+                </span>
+              </span>
+              <input
+                type="date"
+                value={selectedDateKey}
+                onChange={(event) => applyDateKey(event.target.value || getTodayKey())}
+                className="sr-only"
+                aria-label="Choose date"
+              />
+            </label>
+
+            <button
+              type="button"
+              onClick={goToNextDay}
+              className="shrink-0 rounded-full p-2 transition-colors hover:bg-bg-elevated/40 active:scale-95"
+              aria-label="Next day"
+            >
+              <ArrowRight size={18} className="text-text-muted" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile: timeline card */}
+      <div className="sm:hidden rounded-2xl border border-border-subtle/40 bg-bg-surface/60 overflow-hidden -mx-1 scroll-contain">
+        {/* Mobile timeline content */}
+        <div className="relative">
+          {/* See earlier button */}
+          {isSelectedToday && condensedStartHour > 6 && (
+            <div className="flex justify-center py-2">
+              <button
+                type="button"
+                onClick={() => setShowEarlierHours((current) => !current)}
+                className="inline-flex items-center gap-1 text-xs font-medium text-text-muted/60 hover:text-text-muted transition-colors"
+              >
+                <ChevronUp size={12} className={shouldCondenseTimeline ? '' : 'rotate-180'} />
+                {shouldCondenseTimeline ? 'See earlier' : 'Hide earlier'}
+              </button>
+            </div>
+          )}
+
+          <div className="relative px-3 pb-4">
+          {timelineItems.length === 0 && anchorItems.length === 0 ? (
+            <div className="relative py-12 text-center">
+              <div className="absolute inset-0 pointer-events-none opacity-30">
+                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-accent-teal/8 blur-3xl" />
+              </div>
+              <div className="relative mx-auto w-12 h-12 flex items-center justify-center mb-4">
+                <Sparkles className="w-6 h-6 text-text-muted/40" />
+              </div>
+              <p className="relative text-sm text-text-muted/70 mb-5">
+                Nothing planned yet
+              </p>
+              <button
+                type="button"
+                onClick={(event) => openPlanningHelp(event.currentTarget)}
+                className="relative inline-flex items-center gap-1.5 text-sm font-medium text-accent-teal hover:text-accent-teal/80 transition-colors"
+              >
+                <Wand2 size={14} />
+                Start planning
+              </button>
+            </div>
+          ) : isSectionsMode ? (
+            <DaySectionsBoard
+              dateKey={selectedDateKey}
+              sections={sectionColumns}
+              nowMinute={nowMinute}
+              onItemClick={handleItemClick}
+              buildStartTimerHref={buildStartTimerHref}
+            />
+          ) : (
+            <DayTimeline
+              dateKey={selectedDateKey}
+              items={timelineItems}
+              nowMinute={nowMinute}
+              onItemClick={handleItemClick}
+              buildStartTimerHref={buildStartTimerHref}
+              isMobile={true}
+              config={timelineConfig}
+              nowIndicatorRef={nowIndicatorRef}
+            />
+          )}
+          </div>
+        </div>
+      </div>
 
       {/* Block note modal (tap/click a time block to add notes) */}
       {editingBlockId ? (
@@ -991,7 +943,7 @@ export function DayPlannerView({
         </div>
       ) : null}
 
-      {/* Mobile floating Planning Help button */}
+      {/* Floating Planning Help button (both mobile and desktop) */}
       <button
         type="button"
         ref={(node) => {
@@ -1000,7 +952,7 @@ export function DayPlannerView({
           }
         }}
         onClick={(event) => openPlanningHelp(event.currentTarget)}
-        className="sm:hidden fixed bottom-24 right-4 z-[110] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent-teal to-accent-mint text-bg-base shadow-lg shadow-accent-teal/25 transition-all hover:scale-105 active:scale-95 touch-manipulation pointer-events-auto"
+        className="fixed bottom-24 right-4 sm:bottom-8 sm:right-[max(2rem,calc(50vw-28rem))] z-[110] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent-teal to-accent-mint text-bg-base shadow-lg shadow-accent-teal/25 transition-all hover:scale-105 active:scale-95 touch-manipulation pointer-events-auto"
         aria-label="Planning Help"
       >
         <Wand2 size={22} className="animate-wand-wobble" />

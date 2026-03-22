@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
 import { BackButton } from "@/components/ui/BackButton";
+import { PWA_PAGE_HEADER_CLASS_NAME } from "@/components/ui/pageHeader";
 import { FeatureToggleButton } from "@/components/dashboard";
 import { ClassAnnouncementEditor } from "@/components/dashboard/ClassAnnouncementEditor";
 
@@ -49,7 +50,7 @@ export default async function ClassDetailPage({ params }: Props) {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <header className="bg-bg-secondary/90 shadow">
+            <header className={PWA_PAGE_HEADER_CLASS_NAME}>
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <div>
                         <BackButton href="/dashboard" className="mb-2">Back to Dashboard</BackButton>

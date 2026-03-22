@@ -7,6 +7,8 @@
   "background_color": "#0f0f1e",
   "theme_color": "#0f0f1e",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "id": "/dashboard",
   "icons": [
     {
       "src": "/icon-192-v2.png",
@@ -24,5 +26,13 @@
   "categories": ["education", "productivity"],
   "lang": "en-US",
   "dir": "ltr",
+  "display_override": ["standalone", "minimal-ui"],
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
   "screenshots": []
 }

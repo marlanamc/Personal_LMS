@@ -313,6 +313,7 @@ export function DayTimeline({
             <TimelineAnchorMarker
               key={item.id}
               item={item}
+              isMobile={isMobile}
               style={{
                 position: 'absolute',
                 left: 0,

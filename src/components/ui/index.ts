@@ -9,4 +9,5 @@ export { ActivityTimeline } from './ActivityTimeline';
 export { CertificateMedal } from './CertificateMedal';
 export { CertificateShowcase } from './CertificateShowcase';
 export { MiniCertificateCard, EmptyCertificateCard, NeedsImprovementCard } from './MiniCertificateCard';
+export { PWA_PAGE_HEADER_CLASS_NAME } from './pageHeader';
 export * from './MedalIcons';

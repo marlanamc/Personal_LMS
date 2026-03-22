@@ -377,7 +377,7 @@ function MobileAnchorItem({
                     setIsTimeScrubberOpen((open) => !open);
                   }}
                   className={`
-                    text-xl font-medium tabular-nums transition-colors
+                    text-base font-medium tabular-nums transition-colors
                     ${isSkipped ? 'text-text-muted/50 line-through decoration-text-muted/40' : 'text-text-secondary/70 hover:text-text-secondary'}
                   `}
                   aria-label={`Adjust ${anchor.label} time`}

@@ -109,6 +109,8 @@
 
   /* Layout */
   --bottom-nav-height: 64px;
+  --header-height-mobile: 44px;
+  --header-height-desktop: 72px;
 }
 
 :root {
@@ -253,6 +255,83 @@ body {
   color: var(--color-text);
   min-height: 100vh;
   font-size: 1rem;
+
+  /* PWA Polish: Prevent overscroll bounce on the whole page */
+  overscroll-behavior: none;
+  /* Smooth momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ========== PWA Polish: Native-feeling interactions ========== */
+
+/* Prevent text selection on interactive elements */
+button,
+[role="button"],
+nav,
+.select-none {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Remove tap highlight on mobile (use active states instead) */
+button,
+a,
+[role="button"],
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Disable double-tap zoom on interactive elements for instant response */
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+/* Contain scroll within scrollable containers - prevents parent bounce */
+.scroll-contain {
+  overscroll-behavior: contain;
+}
+
+/* GPU-accelerated animations for smooth performance */
+.gpu-accelerated,
+.animate-fadeIn,
+.animate-slideInRight,
+.animate-scaleIn,
+[data-animate] {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Remove will-change after animation completes to free GPU memory */
+.gpu-accelerated-once {
+  animation-fill-mode: forwards;
+}
+.gpu-accelerated-once:not(:hover):not(:focus):not(:active) {
+  will-change: auto;
+}
+
+/* Minimum loader display time - prevents flickering for fast loads */
+@keyframes loaderMinDisplay {
+  0%, 100% { opacity: 1; }
+}
+.loader-min-display {
+  animation: loaderMinDisplay 200ms linear;
+}
+
+/* Smooth page transitions - no white flash */
+html {
+  background-color: var(--color-bg-base);
+}
+
+/* Spring-like easing curve for native feel */
+:root {
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 /* ========== Shared Typography Scale ========== */

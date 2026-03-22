@@ -7,13 +7,15 @@ import type { TimelineItem } from '@/lib/unified-scheduler';
 interface TimelineAnchorMarkerProps {
   item: TimelineItem;
   style?: CSSProperties;
+  /** When true, label uses remaining timeline width (no max-width cap / ellipsis). */
+  isMobile?: boolean;
 }
 
 function stemGradient(solid: string): string {
   return `linear-gradient(90deg, ${solid} 0%, color-mix(in srgb, ${solid} 45%, transparent) 55%, transparent 100%)`;
 }
 
-export function TimelineAnchorMarker({ item, style }: TimelineAnchorMarkerProps) {
+export function TimelineAnchorMarker({ item, style, isMobile = false }: TimelineAnchorMarkerProps) {
   const isDone = item.anchorStatus === 'done';
   const isSkipped = item.anchorStatus === 'skipped';
   const palette = getAnchorColorPalette(item.anchorColor, item.anchorIcon ?? 'calendar');
@@ -38,7 +40,7 @@ export function TimelineAnchorMarker({ item, style }: TimelineAnchorMarkerProps)
       style={style}
       title={`${item.label}`}
     >
-      <div className="flex min-w-0 max-w-full items-center gap-1.5 sm:gap-2">
+      <div className="flex w-full min-w-0 items-center gap-1.5 sm:gap-2">
         <div
           className={`ml-[-3px] h-2.5 w-2.5 shrink-0 rounded-full border-2 border-bg-surface shadow-sm ${dotClass}`}
           style={!isDone && !isSkipped ? { backgroundColor: palette.solid } : undefined}
@@ -50,7 +52,9 @@ export function TimelineAnchorMarker({ item, style }: TimelineAnchorMarkerProps)
           aria-hidden
         />
         <div
-          className={`flex min-w-0 max-w-[min(18rem,calc(100%-3.5rem))] items-center gap-1.5 rounded-full border px-2 py-[0.3125rem] shadow-sm ${
+          className={`flex min-w-0 items-center gap-1.5 rounded-full border px-2 py-[0.3125rem] shadow-sm ${
+            isMobile ? 'flex-1' : 'max-w-[min(18rem,calc(100%-3.5rem))]'
+          } ${
             isDone
               ? 'bg-[color-mix(in_srgb,var(--color-secondary)_14%,var(--color-bg-surface))] border-[color-mix(in_srgb,var(--color-secondary)_28%,transparent)] text-secondary'
               : isSkipped
@@ -60,10 +64,16 @@ export function TimelineAnchorMarker({ item, style }: TimelineAnchorMarkerProps)
           style={!isDone && !isSkipped ? { backgroundColor: palette.soft, borderColor: palette.border, color: palette.deep } : undefined}
         >
           <div
-            className={`h-1.5 w-1.5 rounded-full shrink-0 ${dotClass}`}
+            className={`h-1.5 w-1.5 shrink-0 rounded-full ${dotClass}`}
             style={!isDone && !isSkipped ? { backgroundColor: palette.solid } : undefined}
           />
-          <span className="truncate text-[9px] font-bold uppercase tracking-[0.16em] sm:text-[9px] sm:tracking-[0.18em]">
+          <span
+            className={
+              isMobile
+                ? 'min-w-0 flex-1 text-left text-[9px] font-bold uppercase leading-snug tracking-[0.12em] [overflow-wrap:anywhere] whitespace-normal'
+                : 'truncate text-[9px] font-bold uppercase tracking-[0.16em] sm:text-[9px] sm:tracking-[0.18em]'
+            }
+          >
             {item.label}
           </span>
         </div>

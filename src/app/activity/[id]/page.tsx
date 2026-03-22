@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import Script from "next/script";
 import Link from "next/link";
 import { BackButton } from "@/components/ui/BackButton";
+import { PWA_PAGE_HEADER_CLASS_NAME } from "@/components/ui/pageHeader";
 import { type ActivityContent, isInteractiveGuideContent, isLegacyGuideContent, isVocabularyContent, parseActivityContent } from "@/types/activity";
 import ActivityRenderer from "@/components/ActivityRenderer";
 import { ActivityProgressBadge } from "@/components/ActivityProgressBadge";
@@ -241,7 +242,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
         return (
             <div className="fixed inset-0 bg-bg-primary flex flex-col overflow-hidden">
                 {/* Minimal Header */}
-                <header className="bg-bg-secondary/95 border-b border-border px-4 sm:px-6 py-3 sm:py-4 z-10 flex-shrink-0 backdrop-blur-md">
+                <header className={`${PWA_PAGE_HEADER_CLASS_NAME} px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0`}>
                     {/* Mobile Layout: Stacked */}
                     <div className="flex flex-col gap-2 sm:hidden">
                         <div className="flex items-center justify-between gap-2">
@@ -329,7 +330,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
     if (isMatchingGame) {
         return (
             <div className="min-h-screen bg-bg-primary">
-                <header className="bg-bg-secondary/95 border-b border-border">
+                <header className={PWA_PAGE_HEADER_CLASS_NAME}>
                     <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                         {/* Mobile Layout: Stacked */}
                         <div className="flex flex-col gap-2 sm:hidden">
@@ -400,7 +401,7 @@ export default async function ActivityPage({ params, searchParams }: Props) {
     // Standard layout for other activities
     return (
         <div className="min-h-screen bg-bg-primary">
-            <header className="bg-bg-secondary shadow-sm border-b border-border">
+            <header className={PWA_PAGE_HEADER_CLASS_NAME}>
                 <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
                     {/* Mobile Layout: Stacked */}
                     <div className="flex flex-col gap-2 sm:hidden">
