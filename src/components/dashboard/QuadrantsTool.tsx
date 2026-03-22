@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDown, ArrowUp, ChevronDown, LocateFixed, RefreshCw, RotateCcw, Save, X } from 'lucide-react';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
@@ -51,6 +51,14 @@ const SWATCH_SOLID_MAP: Record<PlannerQuadrantColorToken, string> = {
   rose: 'bg-[#C3748C]',
 };
 
+const SWATCH_STYLE_MAP: Record<PlannerQuadrantColorToken, { backgroundColor: string }> = {
+  dawn: { backgroundColor: 'var(--color-accent-sakura)' },
+  mint: { backgroundColor: 'var(--color-accent-mint)' },
+  sky: { backgroundColor: 'var(--color-accent-teal)' },
+  sand: { backgroundColor: '#D9AB66' },
+  rose: { backgroundColor: '#C3748C' },
+};
+
 const TOGGLE_ACTIVE_MAP: Record<PlannerQuadrantColorToken, string> = {
   dawn: 'bg-accent-sakura',
   mint: 'bg-accent-mint',
@@ -89,50 +97,66 @@ function ColorSwatchPicker({
   onChange: (color: PlannerQuadrantColorToken) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, [isOpen]);
 
   return (
-    <div className="relative">
+    <div ref={wrapperRef} className={`relative ${isOpen ? 'z-40' : ''}`}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className={`
-          h-9 w-9 rounded-xl shadow-sm transition-all duration-200
-          hover:scale-110 active:scale-95
-          ${SWATCH_SOLID_MAP[value]}
-          ring-2 ring-white/20 ring-offset-2 ring-offset-bg-base
-        `}
+        onClick={() => setIsOpen((open) => !open)}
+        className="icon-button flex min-h-0 min-w-0 items-center gap-2 rounded-2xl border border-border-subtle/35 bg-white/55 px-3 py-2 shadow-sm backdrop-blur-sm transition-colors hover:bg-white/70"
         aria-label="Change section color"
+        aria-expanded={isOpen}
       >
+        <span
+          className="h-8 w-8 shrink-0 rounded-full border-2 border-white/85 shadow-sm"
+          style={SWATCH_STYLE_MAP[value]}
+        />
         <ChevronDown
-          size={12}
-          className="absolute -bottom-0.5 -right-0.5 rounded-full bg-bg-base p-0.5 text-text-muted"
+          size={14}
+          className={`shrink-0 text-text-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
-      {isOpen && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute left-0 top-11 z-20 flex gap-1.5 rounded-xl border border-border-subtle/50 bg-bg-elevated/95 p-2 shadow-xl backdrop-blur-md">
-            {COLOR_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => {
-                  onChange(option.value);
-                  setIsOpen(false);
-                }}
-                className={`
-                  h-7 w-7 rounded-lg transition-all duration-150
-                  hover:scale-110 active:scale-95
-                  ${SWATCH_SOLID_MAP[option.value]}
-                  ${value === option.value ? 'ring-2 ring-white/60 ring-offset-1 ring-offset-bg-elevated' : ''}
-                `}
-                aria-label={option.label}
-              />
-            ))}
-          </div>
-        </>
-      )}
+      {isOpen ? (
+        <div className="absolute left-0 top-full z-50 mt-2 flex w-max min-w-[14.5rem] items-center justify-between gap-2 rounded-2xl border border-border-subtle/35 bg-bg-elevated/95 p-2 shadow-xl backdrop-blur-md">
+          {COLOR_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => {
+                onChange(option.value);
+                setIsOpen(false);
+              }}
+              className={`
+                icon-button min-h-0 min-w-0 h-8 w-8 shrink-0 rounded-full border-2 transition-all duration-200
+                ${
+                  value === option.value
+                    ? 'border-white ring-2 ring-text/15 ring-offset-2 ring-offset-bg-elevated shadow-md'
+                    : 'border-white/65 hover:scale-110'
+                }
+              `}
+              style={SWATCH_STYLE_MAP[option.value]}
+              aria-label={`Set color to ${option.label}`}
+              aria-pressed={value === option.value}
+              title={option.label}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -175,7 +199,7 @@ function FocusTagInput({
           <button
             type="button"
             onClick={() => removeTag(i)}
-            className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-white/10"
+            className="icon-button ml-0.5 min-h-0 min-w-0 rounded-full p-0.5 transition-colors hover:bg-white/10"
             aria-label={`Remove ${item}`}
           >
             <X size={10} />
@@ -215,23 +239,28 @@ function VisualToggle({
   colorToken: PlannerQuadrantColorToken;
 }) {
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={`
-        relative h-6 w-11 rounded-full transition-colors duration-200
-        ${checked ? TOGGLE_ACTIVE_MAP[colorToken] : 'bg-bg-surface/80'}
-      `}
-    >
-      <span
+    <div className="flex items-center gap-2 rounded-full border border-border-subtle/35 bg-white/40 px-2 py-1 shadow-sm backdrop-blur-sm">
+      <span className={`text-[10px] font-bold uppercase tracking-[0.18em] ${checked ? 'text-text' : 'text-text-muted/70'}`}>
+        {checked ? 'On' : 'Off'}
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
         className={`
-          absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200
-          ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}
+          icon-button relative min-h-0 min-w-0 h-7 w-12 shrink-0 rounded-full border transition-all duration-200
+          ${checked ? `${TOGGLE_ACTIVE_MAP[colorToken]} border-white/25 shadow-md shadow-black/10` : 'border-border-subtle/35 bg-white/70'}
         `}
-      />
-    </button>
+      >
+        <span
+          className={`
+            absolute left-0.5 top-0.5 h-[22px] w-[22px] rounded-full border border-black/5 bg-white shadow-sm transition-transform duration-200
+            ${checked ? 'translate-x-5' : 'translate-x-0'}
+          `}
+        />
+      </button>
+    </div>
   );
 }
 
@@ -243,7 +272,14 @@ export function QuadrantsTool({ dateKey, onClose }: QuadrantsToolProps) {
   const { plannerStore, plannerDefaults, setPlan, isSaving, saveError } = useTimeBlockPlanner();
   const currentPlan = plannerStore[dateKey] ?? createEmptyTimeBlockDayPlan(dateKey);
   const [message, setMessage] = useState<string | null>(null);
-  const sectionRange = getSectionRangeForDay(currentPlan);
+  const storedSectionRange = getSectionRangeForDay(currentPlan);
+  const sectionRange =
+    currentPlan.quadrants.length >= 2
+      ? {
+          startTime: currentPlan.quadrants[0]?.startTime ?? storedSectionRange.startTime,
+          endTime: currentPlan.quadrants[currentPlan.quadrants.length - 1]?.endTime ?? storedSectionRange.endTime,
+        }
+      : storedSectionRange;
   const isToday = dateKey === toDateKey(new Date());
 
   const activeConstraints = useMemo(
@@ -448,14 +484,14 @@ export function QuadrantsTool({ dateKey, onClose }: QuadrantsToolProps) {
             type="time"
             value={sectionRange.startTime}
             onChange={(e) => updateSectionRange('startTime', e.target.value)}
-            className="w-28 shrink-0 rounded-lg border border-border-subtle/40 bg-bg-surface/60 px-3 py-2 font-mono text-sm text-text transition-colors focus:border-accent-teal/50"
+            className="w-32 shrink-0 rounded-lg border border-border-subtle/40 bg-bg-surface/60 px-2 py-2 font-mono text-sm text-text transition-colors focus:border-accent-teal/50"
           />
           <span className="shrink-0 text-text-muted/50">to</span>
           <input
             type="time"
             value={sectionRange.endTime}
             onChange={(e) => updateSectionRange('endTime', e.target.value)}
-            className="w-28 shrink-0 rounded-lg border border-border-subtle/40 bg-bg-surface/60 px-3 py-2 font-mono text-sm text-text transition-colors focus:border-accent-teal/50"
+            className="w-32 shrink-0 rounded-lg border border-border-subtle/40 bg-bg-surface/60 px-2 py-2 font-mono text-sm text-text transition-colors focus:border-accent-teal/50"
           />
           {isToday && (
             <button
@@ -516,10 +552,10 @@ export function QuadrantsTool({ dateKey, onClose }: QuadrantsToolProps) {
                 'Regenerated even sections.',
               )
             }
-            className="ml-1 inline-flex items-center gap-1 rounded-lg border border-border-subtle/40 bg-bg-surface/50 px-2.5 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:bg-bg-surface/70 hover:text-text"
+            className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-border-subtle/30 bg-bg-surface/40 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-text-muted transition-all hover:bg-bg-surface/70 hover:text-text active:scale-95"
           >
             <RefreshCw size={12} />
-            Even
+            Even Split
           </button>
         )}
       </div>
@@ -610,38 +646,41 @@ export function QuadrantsTool({ dateKey, onClose }: QuadrantsToolProps) {
           <div
             key={quadrant.id}
             className={`
-              group relative overflow-hidden rounded-2xl p-4 transition-all duration-300
-              ${!quadrant.enabled ? 'opacity-50' : ''}
+              group relative rounded-2xl p-6 transition-all duration-300
+              border border-transparent hover:border-border-subtle/30 hover:shadow-2xl hover:shadow-black/5 hover:scale-[1.005]
+              ${!quadrant.enabled ? 'opacity-50 grayscale-[0.2]' : ''}
             `}
           >
-            {/* Background gradient */}
-            <div className={`absolute inset-0 ${SECTION_GRADIENT_MAP[quadrant.colorToken]}`} />
-            {/* Glass overlay */}
-            <div className="absolute inset-0 border border-border-subtle/30 bg-bg-base/50 backdrop-blur-sm" />
+            {/* Background layers - with distinct overflow control */}
+            <div className="absolute inset-0 overflow-hidden rounded-2xl">
+              <div className={`absolute inset-0 ${SECTION_GRADIENT_MAP[quadrant.colorToken]}`} />
+              <div className="absolute inset-0 border border-border-subtle/25 bg-bg-base/40 backdrop-blur-md" />
+            </div>
 
-            {/* Content */}
-            <div className="relative">
-              {/* Header row */}
-              <div className="mb-3 flex items-center gap-3">
-                <ColorSwatchPicker
-                  value={quadrant.colorToken}
-                  onChange={(color) => patchQuadrant(index, { colorToken: color })}
-                />
+              <div className="relative z-10">
+                {/* Header row */}
+                <div className="mb-4 flex flex-wrap items-center gap-4">
+                  <ColorSwatchPicker
+                    value={quadrant.colorToken}
+                    onChange={(color) => patchQuadrant(index, { colorToken: color })}
+                  />
 
-                <input
-                  type="text"
-                  value={quadrant.label}
-                  onChange={(e) => patchQuadrant(index, { label: e.target.value || `Section ${index + 1}` })}
-                  className="min-w-0 flex-1 border-none bg-transparent text-base font-bold text-text placeholder-text-muted/50 focus:outline-none focus:ring-0"
-                  placeholder={`Section ${index + 1}`}
-                />
+                  <input
+                    type="text"
+                    value={quadrant.label}
+                    onChange={(e) => patchQuadrant(index, { label: e.target.value || `Section ${index + 1}` })}
+                    className="min-w-0 flex-1 border-none bg-transparent text-lg font-bold text-text placeholder-text-muted/50 focus:outline-none focus:ring-0"
+                    placeholder={`Section ${index + 1}`}
+                  />
 
-                <VisualToggle
-                  checked={quadrant.enabled}
-                  onChange={(checked) => patchQuadrant(index, { enabled: checked })}
-                  colorToken={quadrant.colorToken}
-                />
-              </div>
+                  <div className="ml-auto flex shrink-0 items-center pr-2">
+                    <VisualToggle
+                      checked={quadrant.enabled}
+                      onChange={(checked) => patchQuadrant(index, { enabled: checked })}
+                      colorToken={quadrant.colorToken}
+                    />
+                  </div>
+                </div>
 
               {/* Time range + reorder */}
               <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -666,19 +705,19 @@ export function QuadrantsTool({ dateKey, onClose }: QuadrantsToolProps) {
                     type="button"
                     onClick={() => moveQuadrant(index, -1)}
                     disabled={index === 0}
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-border-subtle/30 bg-bg-surface/40 text-text-muted transition-colors hover:bg-bg-surface/60 hover:text-text disabled:opacity-30"
+                    className="icon-button inline-flex min-h-0 min-w-0 h-8 w-8 items-center justify-center rounded-lg border border-border-subtle/30 bg-bg-surface/40 text-text-muted transition-all hover:bg-bg-surface/70 hover:text-text active:scale-90 disabled:opacity-20"
                     aria-label="Move section earlier"
                   >
-                    <ArrowUp size={13} />
+                    <ArrowUp size={14} />
                   </button>
                   <button
                     type="button"
                     onClick={() => moveQuadrant(index, 1)}
                     disabled={index === currentPlan.quadrants.length - 1}
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-border-subtle/30 bg-bg-surface/40 text-text-muted transition-colors hover:bg-bg-surface/60 hover:text-text disabled:opacity-30"
+                    className="icon-button inline-flex min-h-0 min-w-0 h-8 w-8 items-center justify-center rounded-lg border border-border-subtle/30 bg-bg-surface/40 text-text-muted transition-all hover:bg-bg-surface/70 hover:text-text active:scale-90 disabled:opacity-20"
                     aria-label="Move section later"
                   >
-                    <ArrowDown size={13} />
+                    <ArrowDown size={14} />
                   </button>
                 </div>
               </div>

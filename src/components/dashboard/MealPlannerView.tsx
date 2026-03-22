@@ -1,7 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
+  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -31,6 +33,8 @@ import { useMealPlanner } from './useMealPlanner';
 // ─────────────────────────────────────────────────────────────────────────────
 // Labels & helpers
 // ─────────────────────────────────────────────────────────────────────────────
+
+const COMMON_GROCERIES = ['Milk', 'Eggs', 'Bread', 'Bananas', 'Spinach', 'Onions', 'Garlic', 'Chicken', 'Rice'];
 
 const CATEGORY_LABEL: Record<GroceryCategory, string> = {
   produce: 'Produce',
@@ -227,7 +231,7 @@ function MealEditSheet({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-modal flex items-end justify-center md:items-center md:p-4" role="presentation">
+    <div className="fixed inset-0 z-modal flex items-center justify-center p-4" role="presentation">
       <button
         type="button"
         className="absolute inset-0 bg-black/35 backdrop-blur-[2px]"
@@ -238,7 +242,7 @@ function MealEditSheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby="meal-edit-title"
-        className="relative z-10 w-full max-w-md rounded-t-2xl border border-border-subtle/50 bg-bg-surface/95 p-5 shadow-xl backdrop-blur-md md:rounded-2xl"
+        className="relative z-10 w-full max-w-md rounded-2xl border border-white/20 bg-bg-surface/95 p-5 shadow-2xl backdrop-blur-xl dark:border-white/10"
       >
         <div className="mb-4 flex items-start justify-between gap-3">
           <h2 id="meal-edit-title" className="font-display text-lg text-text-primary">
@@ -259,20 +263,22 @@ function MealEditSheet({
         <input
           ref={textRef}
           id="meal-edit-text"
+          name="meal-edit-text"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="What are you eating?"
-          className="mb-3 w-full rounded-xl border border-border-subtle/50 bg-bg-elevated/60 px-4 py-3 text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent-sakura/35"
+          className="mb-3 w-full rounded-xl border border-border-subtle/50 bg-bg-elevated/60 px-4 py-3 text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-sakura/35 transition"
         />
         <label className="mb-1 block text-xs font-medium text-text-secondary" htmlFor="meal-edit-notes">
           Notes (optional)
         </label>
         <textarea
           id="meal-edit-notes"
+          name="meal-edit-notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
-          className="mb-3 w-full resize-none rounded-xl border border-border-subtle/50 bg-bg-elevated/60 px-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent-sakura/35"
+          className="mb-3 w-full resize-none rounded-xl border border-border-subtle/50 bg-bg-elevated/60 px-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-sakura/35 transition"
           placeholder="Prep tips, recipe link…"
         />
         {mealSuggestions.length > 0 && (
@@ -280,17 +286,19 @@ function MealEditSheet({
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-text-muted">Recent meals</p>
             <div className="flex flex-wrap gap-2">
               {mealSuggestions.map((idea) => (
-                <button
+                <motion.button
                   key={idea}
                   type="button"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => {
                     setText(idea);
                     triggerHaptic();
                   }}
-                  className="rounded-full border border-accent-sakura/25 bg-accent-sakura-soft px-3 py-1.5 text-xs font-medium text-accent-sakura transition hover:border-accent-sakura/45"
+                  className="rounded-full border border-accent-sakura/25 bg-accent-sakura-soft px-3 py-1.5 text-xs font-medium text-accent-sakura transition-colors hover:border-accent-sakura/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-sakura/35"
                 >
                   {idea}
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
@@ -344,6 +352,16 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
   const weekDates = useMemo(() => getWeekDateKeys(weekKey), [weekKey]);
   const mealIdeas = useMemo(() => collectMealTexts(plannerStore.mealPlans), [plannerStore.mealPlans]);
 
+  const suggestedGroceries = useMemo(() => {
+    const combined = [...plannerStore.recentItems];
+    for (const c of COMMON_GROCERIES) {
+      if (!combined.some((r) => r.toLowerCase() === c.toLowerCase())) {
+        combined.push(c);
+      }
+    }
+    return combined;
+  }, [plannerStore.recentItems]);
+
   const sortedGroceries = useMemo(() => sortGroceries(plannerStore.groceryList), [plannerStore.groceryList]);
 
   const groceriesByCategory = useMemo(() => {
@@ -356,8 +374,9 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
     return map;
   }, [sortedGroceries]);
 
-  const addGroceryFromCapture = useCallback(() => {
-    const text = captureDraft.trim();
+  const addGroceryFromCapture = useCallback((overrideText?: string) => {
+    const isString = typeof overrideText === 'string';
+    const text = (isString ? overrideText : captureDraft).trim();
     if (!text) return;
     const item: GroceryItem = {
       id: newId('g'),
@@ -371,7 +390,7 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
       groceryList: [item, ...prev.groceryList],
       recentItems: pushRecentGrocery(prev.recentItems, text),
     }));
-    setCaptureDraft('');
+    if (!isString) setCaptureDraft('');
     triggerHaptic();
     setCaptureGlow(true);
     window.setTimeout(() => setCaptureGlow(false), 550);
@@ -484,14 +503,20 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
   const datalistId = 'meal-planner-recent-groceries';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <header className="space-y-1">
-        <h1 className="font-display text-2xl md:text-3xl text-text-primary tracking-tight">Meal & grocery planner</h1>
+        <h1 className="font-display text-xl md:text-3xl text-text-primary tracking-tight">Meal & grocery planner</h1>
         <p className="text-sm text-text-secondary max-w-xl">
           Quick capture for the store, a calm grid for the week. Everything saves automatically.
         </p>
         <div className="flex flex-wrap items-center gap-2 pt-2 text-xs text-text-muted">
-          {isSaving ? <span>Saving…</span> : isLoaded ? <span>Saved</span> : <span>Loading…</span>}
+          {isSaving ? (
+            <span className="animate-pulse text-text-secondary">Saving…</span>
+          ) : isLoaded ? (
+            <span className="flex items-center gap-1 text-accent-mint font-medium"><Check className="h-3.5 w-3.5" /> Saved</span>
+          ) : (
+            <span>Loading…</span>
+          )}
           {saveError ? <span className="text-amber-700 dark:text-amber-400">{saveError}</span> : null}
         </div>
       </header>
@@ -524,11 +549,20 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
         </button>
       </div>
 
-      {/* Quick capture — grocery tab; sticky on small screens */}
-      {tab === 'grocery' && (
-        <div className="sticky top-0 z-sticky -mx-1 px-1 pt-1 pb-2 bg-gradient-to-b from-bg-base via-bg-base/95 to-transparent md:static md:bg-transparent md:p-0">
-          <div
-            className={`flex items-stretch gap-2 rounded-2xl border bg-bg-surface/80 p-2 backdrop-blur-sm transition-shadow duration-300 ${
+      <AnimatePresence mode="wait">
+        {tab === 'grocery' && (
+          <motion.div
+            key="grocery"
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.15 }}
+            className="space-y-4 md:space-y-6"
+          >
+            {/* Quick capture — grocery tab; sticky on small screens */}
+            <div className="sticky top-0 z-sticky -mx-1 px-1 pt-1 pb-2 bg-gradient-to-b from-bg-base via-bg-base/95 to-transparent md:static md:bg-transparent md:p-0">
+              <div
+                className={`flex items-stretch gap-2 rounded-2xl border bg-bg-surface/80 p-2 backdrop-blur-sm transition-shadow duration-300 ${
               captureGlow
                 ? 'border-accent-mint/50 shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-accent-mint)_35%,transparent)]'
                 : 'border-border-subtle/50'
@@ -543,7 +577,8 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
               </label>
               <input
                 id="grocery-quick-capture"
-                list={plannerStore.recentItems.length ? datalistId : undefined}
+                name="grocery-quick-capture"
+                list={suggestedGroceries.length ? datalistId : undefined}
                 value={captureDraft}
                 onChange={(e) => setCaptureDraft(e.target.value)}
                 onKeyDown={(e) => {
@@ -553,32 +588,30 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
                   }
                 }}
                 placeholder="Add grocery item…"
-                className="h-12 w-full rounded-xl border border-border-subtle/50 bg-bg-elevated/60 px-3 text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent-mint/35"
+                className="h-12 w-full rounded-xl border border-border-subtle/50 bg-bg-elevated/60 px-3 text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-mint/35 transition"
                 autoComplete="off"
               />
               <span className="mt-0.5 hidden text-[11px] text-text-muted sm:block">Enter to add</span>
             </div>
             <button
               type="button"
-              onClick={addGroceryFromCapture}
+              onClick={() => addGroceryFromCapture()}
               className="shrink-0 self-center rounded-xl bg-accent-mint/15 px-4 py-3 text-sm font-semibold text-accent-mint transition hover:bg-accent-mint/25"
             >
               Add
             </button>
           </div>
-          {plannerStore.recentItems.length > 0 && (
+          {suggestedGroceries.length > 0 && (
             <datalist id={datalistId}>
-              {plannerStore.recentItems.map((item) => (
+              {suggestedGroceries.map((item) => (
                 <option key={item} value={item} />
               ))}
             </datalist>
           )}
         </div>
-      )}
 
-      {tab === 'grocery' && (
-        <section className="rounded-2xl border border-border-subtle/50 bg-bg-surface/80 p-4 backdrop-blur-sm md:p-5">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <section className="rounded-2xl border border-border-subtle/50 bg-bg-surface/80 p-4 backdrop-blur-sm md:p-5">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-display text-lg text-text-primary">Your list</h2>
             <button
               type="button"
@@ -604,19 +637,28 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
                   <div key={cat} className="rounded-xl border border-border-subtle/40 bg-bg-elevated/25">
                     <button
                       type="button"
+                      aria-expanded={!collapsed}
                       onClick={() => setCollapsedCat((prev) => ({ ...prev, [cat]: !collapsed }))}
-                      className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left"
+                      className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left transition hover:bg-bg-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-subtle focus-visible:rounded-lg"
                     >
                       <span className="text-sm font-semibold text-text-primary">{CATEGORY_LABEL[cat]}</span>
                       <ChevronDown
-                        className={`h-4 w-4 text-text-muted transition ${collapsed ? '-rotate-90' : ''}`}
+                        className={`h-4 w-4 text-text-muted transition-transform duration-200 ${collapsed ? '-rotate-90' : ''}`}
                       />
                     </button>
                     {!collapsed && (
                       <ul className="space-y-2 border-t border-border-subtle/30 px-2 py-2">
-                        {items.map((item) => (
-                          <li key={item.id}>
-                            <SwipeableRow onDelete={() => removeGrocery(item.id)}>
+                        <AnimatePresence mode="popLayout">
+                          {items.map((item) => (
+                            <motion.li
+                              key={item.id}
+                              layout
+                              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.9, filter: 'blur(2px)' }}
+                              transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                            >
+                              <SwipeableRow onDelete={() => removeGrocery(item.id)}>
                               <div
                                 className={`flex items-center gap-3 rounded-xl border border-border-subtle/40 bg-bg-surface/70 px-2 py-2 transition ${
                                   item.checked ? 'opacity-50' : ''
@@ -627,16 +669,14 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
                                   role="checkbox"
                                   aria-checked={item.checked}
                                   onClick={() => toggleGrocery(item.id)}
-                                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-2 transition ${
+                                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-2 transition hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-mint/50 ${
                                     item.checked
-                                      ? 'border-accent-mint bg-accent-mint text-bg-base'
-                                      : 'border-border-subtle/70 bg-transparent'
+                                      ? 'border-accent-mint bg-accent-mint text-bg-base shadow-sm'
+                                      : 'border-border-subtle/70 bg-transparent hover:border-accent-mint/50'
                                   }`}
                                 >
                                   {item.checked ? (
-                                    <span className="text-lg leading-none" aria-hidden>
-                                      ✓
-                                    </span>
+                                    <Check className="h-5 w-5" aria-hidden />
                                   ) : null}
                                 </button>
                                 <span
@@ -668,9 +708,10 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
                                   <Trash2 className="h-4 w-4" />
                                 </button>
                               </div>
-                            </SwipeableRow>
-                          </li>
-                        ))}
+                              </SwipeableRow>
+                            </motion.li>
+                          ))}
+                        </AnimatePresence>
                       </ul>
                     )}
                   </div>
@@ -678,13 +719,22 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
               })}
             </div>
           )}
-        </section>
-      )}
+            </section>
+          </motion.div>
+        )}
 
-      {tab === 'meals' && (
-        <section className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border-subtle/50 bg-bg-surface/80 px-4 py-3 backdrop-blur-sm">
-            <button
+        {tab === 'meals' && (
+          <motion.div
+            key="meals"
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.15 }}
+            className="space-y-4"
+          >
+            <section className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border-subtle/50 bg-bg-surface/80 px-4 py-3 backdrop-blur-sm">
+                <button
               type="button"
               onClick={() => setWeekKey((k) => addDaysToDateKey(k, -7))}
               className="rounded-xl border border-border-subtle/50 p-2 text-text-secondary hover:bg-bg-elevated/60"
@@ -714,10 +764,10 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
 
           {/* Desktop grid */}
           <div className="hidden md:block overflow-x-auto rounded-2xl border border-border-subtle/50 bg-bg-surface/80 backdrop-blur-sm">
-            <table className="w-full min-w-[720px] border-collapse text-sm">
+            <table className="w-full min-w-[720px] table-fixed border-collapse text-sm">
               <thead>
                 <tr>
-                  <th className="sticky left-0 z-base bg-bg-surface/95 p-2 text-left text-xs font-semibold text-text-muted" />
+                  <th className="sticky left-0 z-base w-24 bg-bg-surface/95 p-2 text-left text-xs font-semibold text-text-muted" />
                   {weekDates.map((dk) => (
                     <th
                       key={dk}
@@ -747,10 +797,10 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
                           <button
                             type="button"
                             onClick={() => openMealEditor(dk, slot)}
-                            className={`min-h-[52px] w-full rounded-xl border px-2 py-2 text-left text-xs transition ${
+                            className={`min-h-[52px] w-full rounded-xl border px-2 py-2 text-left text-xs transition-all hover:scale-[1.02] hover:shadow-sm ${
                               meal
-                                ? 'border-border-subtle/60 bg-bg-elevated/50 text-text-primary hover:border-accent-sakura/35'
-                                : 'border-dashed border-border-subtle/50 text-text-muted hover:border-accent-sakura/30'
+                                ? 'border-border-subtle/60 bg-bg-elevated/50 text-text-primary hover:border-accent-sakura/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-sakura/35'
+                                : 'border-dashed border-border-subtle/50 text-text-muted hover:border-accent-sakura/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-sakura/35'
                             } ${
                               isTodayCol
                                 ? 'ring-2 ring-accent-sakura/35 ring-offset-2 ring-offset-bg-surface'
@@ -758,7 +808,7 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
                             }`}
                           >
                             {meal ? (
-                              <span className="line-clamp-3">{meal.text}</span>
+                              <span className="line-clamp-3 break-words">{meal.text}</span>
                             ) : (
                               <span className="flex items-center justify-center gap-1 opacity-70">
                                 <Plus className="h-3.5 w-3.5" />
@@ -801,13 +851,15 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
                     {MEAL_SLOT_KEYS.map((slot) => {
                       const meal = dayMeals?.[slot];
                       return (
-                        <button
+                        <motion.button
                           key={slot}
                           type="button"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={() => openMealEditor(dk, slot)}
-                          className={`flex min-h-[64px] flex-col rounded-xl border px-2 py-2 text-left transition ${
+                          className={`flex min-h-[64px] flex-col rounded-xl border px-2 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-sakura/35 ${
                             meal
-                              ? 'border-border-subtle/60 bg-bg-elevated/45'
+                              ? 'border-border-subtle/60 bg-bg-elevated/45 shadow-sm'
                               : 'border-dashed border-border-subtle/50'
                           }`}
                         >
@@ -817,7 +869,7 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
                           <span className={`mt-1 line-clamp-2 text-xs ${meal ? 'text-text-primary' : 'text-text-muted'}`}>
                             {meal?.text ?? '＋'}
                           </span>
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
@@ -825,8 +877,10 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
               );
             })}
           </div>
-        </section>
-      )}
+            </section>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <MealEditSheet
         open={mealEdit !== null}

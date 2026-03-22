@@ -37,5 +37,4 @@ export * from './InterstitialJournalView';
 
 // Planning Command Center
 export * from './PlanningCommandCenter';
-export * from './MomentLogPanel';
 export * from './MealPlannerView';

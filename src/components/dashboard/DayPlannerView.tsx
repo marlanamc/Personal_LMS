@@ -10,12 +10,10 @@ import {
   ChevronUp,
   Columns2,
   FileText,
-  Heart,
   Play,
   Sparkles,
   SunMedium,
   StretchHorizontal,
-  Target,
   Wand2,
 } from 'lucide-react';
 import { type CalendarEvent } from './MiniCalendar';
@@ -28,7 +26,6 @@ import {
   combineAndSortItems,
   constraintsToTimelineItems,
   eventsToTimelineItems,
-  formatDuration,
   getNextDateKey,
   getNowMinuteForDate,
   getPreviousDateKey,
@@ -43,7 +40,6 @@ import {
 import { isAnchorScheduledForDate } from '@/lib/anchors';
 import { getCalendarMarkerColor } from './MiniCalendar';
 import { PlanningHelpDrawer } from './PlanningHelpDrawer';
-import { MomentLogPanel } from './MomentLogPanel';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -72,7 +68,6 @@ export function DayPlannerView({
   const [plannerViewMode, setPlannerViewMode] = useState<'timeline' | 'sections'>('timeline');
   const [showAllDayEvents, setShowAllDayEvents] = useState(false);
   const [showEarlierHours, setShowEarlierHours] = useState(false);
-  const [momentLogCollapsed, setMomentLogCollapsed] = useState(true);
   const planningHelpTriggerRef = useRef<HTMLElement | null>(null);
   const nowIndicatorRef = useRef<HTMLDivElement | null>(null);
 
@@ -184,14 +179,6 @@ export function DayPlannerView({
 
     return { items, totalMinutes, blockCount: blockItems.length };
   }, [blockItems]);
-
-  const quadrantSummary = useMemo(() => {
-    return quadrantItems.map((quadrant) => ({
-      id: quadrant.id,
-      label: quadrant.label,
-      focusItems: quadrant.quadrantFocusItems ?? [],
-    }));
-  }, [quadrantItems]);
 
   useEffect(() => {
     if (!canUseSectionsView && plannerViewMode === 'sections') {
@@ -587,14 +574,6 @@ export function DayPlannerView({
           )}
         </div>
       )}
-
-      {/* Moment Log Panel */}
-      <MomentLogPanel
-        dateKey={selectedDateKey}
-        storageScope={storageScope}
-        collapsed={momentLogCollapsed}
-        onToggleCollapse={() => setMomentLogCollapsed(!momentLogCollapsed)}
-      />
 
       {/* Main timeline */}
       <section className="relative overflow-hidden sm:rounded-[2rem] border-transparent sm:border sm:border-border-subtle/30 sm:bg-bg-surface/60 p-0 py-2 sm:p-6 sm:shadow-sm sm:backdrop-blur-xl -mx-4 sm:mx-0">
