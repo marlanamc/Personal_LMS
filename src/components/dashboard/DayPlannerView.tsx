@@ -440,7 +440,7 @@ export function DayPlannerView({
   const isSectionsMode = plannerViewMode === 'sections' && canUseSectionsView;
 
   return (
-    <div className="space-y-2 sm:space-y-0 animate-fadeIn">
+    <div className="space-y-2 sm:space-y-0">
       {/* Mobile: Toggle + Start Sequence controls (date nav moved to unified card) */}
       {(canUseSectionsView || startSequenceHref) && (
       <header className="sm:hidden">
@@ -698,9 +698,9 @@ export function DayPlannerView({
         </div>
       )}
 
-      {/* Desktop: sticky date nav bar - outside the card for true sticky behavior */}
+      {/* Desktop: date nav bar */}
       {syncHeaderDateNav && (
-        <div className="hidden sm:block sticky top-[var(--header-height-desktop)] z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 -mt-2 mb-2">
+        <div className="hidden sm:block -mx-4 sm:-mx-6 px-4 sm:px-6 -mt-2 mb-2">
           <div className="day-planner-desktop-date-rail bg-bg-elevated/95 backdrop-blur-sm border border-border-subtle/40 rounded-2xl px-6 py-4 shadow-sm">
             <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-5">
               <DayPlannerHeaderDateNav
@@ -718,7 +718,7 @@ export function DayPlannerView({
       )}
 
       {/* Desktop: timeline card */}
-      <div className="hidden sm:block rounded-3xl border border-border-subtle/40 bg-bg-surface/60 overflow-hidden scroll-contain">
+      <div className="hidden sm:block rounded-3xl border border-border-subtle/40 bg-bg-surface/60 overflow-hidden">
         {/* Desktop timeline content */}
         <div className="px-6 py-6">
           {isSelectedToday && condensedStartHour > 6 && (
@@ -779,8 +779,8 @@ export function DayPlannerView({
         </div>
       </div>
 
-      {/* Mobile: sticky date nav bar - outside the card for true sticky behavior */}
-      <div className="sm:hidden sticky top-[var(--header-height-mobile)] z-30 -mx-4 px-3 pb-2">
+      {/* Mobile: date nav bar */}
+      <div className="sm:hidden -mx-4 px-3 pb-2">
         <div className="bg-bg-elevated/95 backdrop-blur-sm border border-border-subtle/40 rounded-xl px-2 py-2 shadow-sm">
           <div className="flex items-center justify-center gap-1">
             <button
@@ -829,7 +829,7 @@ export function DayPlannerView({
       </div>
 
       {/* Mobile: timeline card */}
-      <div className="sm:hidden rounded-2xl border border-border-subtle/40 bg-bg-surface/60 overflow-hidden -mx-1 scroll-contain">
+      <div className="sm:hidden rounded-2xl border border-border-subtle/40 bg-bg-surface/60 overflow-hidden -mx-1">
         {/* Mobile timeline content */}
         <div className="relative">
           {/* See earlier button */}

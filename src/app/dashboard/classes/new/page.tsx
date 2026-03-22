@@ -3,7 +3,6 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import CreateClassForm from "@/components/CreateClassForm";
 import { BackButton } from "@/components/ui/BackButton";
-import { PWA_PAGE_HEADER_CLASS_NAME } from "@/components/ui/pageHeader";
 
 export default async function NewClassPage() {
     const session = await getServerSession(authOptions);
@@ -14,7 +13,7 @@ export default async function NewClassPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <header className={PWA_PAGE_HEADER_CLASS_NAME}>
+            <header className="bg-bg-secondary/90 shadow">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     <BackButton href="/dashboard" className="mb-4">Back to Dashboard</BackButton>
                     <h1 className="text-3xl font-bold text-text">Create New Class</h1>

@@ -4,7 +4,6 @@ import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import EditActivityForm from "@/components/EditActivityForm";
 import { BackButton } from "@/components/ui/BackButton";
-import { PWA_PAGE_HEADER_CLASS_NAME } from "@/components/ui/pageHeader";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -31,7 +30,7 @@ export default async function EditActivityPage({ params }: Props) {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <header className={PWA_PAGE_HEADER_CLASS_NAME}>
+            <header className="bg-bg-secondary/90 shadow">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     <BackButton href="/dashboard/subjects" className="mb-4">Back to Subjects</BackButton>
                     <h1 className="text-3xl font-bold text-text">Edit Activity</h1>
@@ -45,7 +44,6 @@ export default async function EditActivityPage({ params }: Props) {
         </div>
     );
 }
-
 
 
 

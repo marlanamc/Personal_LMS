@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { collapseEdPronunciationActivities } from "@/lib/activity-list-dedupe";
 import CreateAssignmentForm from "@/components/CreateAssignmentForm";
 import { BackButton } from "@/components/ui/BackButton";
-import { PWA_PAGE_HEADER_CLASS_NAME } from "@/components/ui/pageHeader";
 import { canManageClass } from "@/lib/class-access";
 
 interface Props {
@@ -49,7 +48,7 @@ export default async function NewAssignmentPage({ params }: Props) {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <header className={PWA_PAGE_HEADER_CLASS_NAME}>
+            <header className="bg-bg-secondary/90 shadow">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     <BackButton href={`/dashboard/classes/${id}`} className="mb-4">Back to Class</BackButton>
                     <h1 className="text-3xl font-bold text-text">Create Assignment</h1>
@@ -64,7 +63,6 @@ export default async function NewAssignmentPage({ params }: Props) {
         </div>
     );
 }
-
 
 
 
