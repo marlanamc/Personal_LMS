@@ -300,8 +300,8 @@ export function DayPlannerView({
                 onClick={() => setPlannerViewMode('timeline')}
                 className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
                   plannerViewMode === 'timeline'
-                    ? 'bg-bg-elevated text-text shadow-sm'
-                    : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
+                    ? 'bg-bg-elevated text-text shadow-sm ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-surface'
+                    : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text border-2 border-transparent'
                 }`}
                 aria-pressed={plannerViewMode === 'timeline'}
               >
@@ -313,8 +313,8 @@ export function DayPlannerView({
                 onClick={() => setPlannerViewMode('sections')}
                 className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
                   plannerViewMode === 'sections'
-                    ? 'bg-bg-elevated text-text shadow-sm'
-                    : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
+                    ? 'bg-bg-elevated text-text shadow-sm ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-surface'
+                    : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text border-2 border-transparent'
                 }`}
                 aria-pressed={plannerViewMode === 'sections'}
                 title="View sections side by side"
@@ -433,8 +433,8 @@ export function DayPlannerView({
                   onClick={() => setPlannerViewMode('timeline')}
                   className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
                     plannerViewMode === 'timeline'
-                      ? 'bg-bg-elevated text-text shadow-sm'
-                      : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
+                      ? 'bg-bg-elevated text-text shadow-sm ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-surface'
+                      : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text border-2 border-transparent'
                   }`}
                   aria-pressed={plannerViewMode === 'timeline'}
                 >
@@ -446,8 +446,8 @@ export function DayPlannerView({
                   onClick={() => setPlannerViewMode('sections')}
                   className={`inline-flex items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
                     plannerViewMode === 'sections'
-                      ? 'bg-bg-elevated text-text shadow-sm'
-                      : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text'
+                      ? 'bg-bg-elevated text-text shadow-sm ring-2 ring-accent-teal/40 ring-offset-2 ring-offset-bg-surface'
+                      : 'text-text-muted hover:bg-bg-elevated/70 hover:text-text border-2 border-transparent'
                   }`}
                   aria-pressed={plannerViewMode === 'sections'}
                   title="View sections side by side"

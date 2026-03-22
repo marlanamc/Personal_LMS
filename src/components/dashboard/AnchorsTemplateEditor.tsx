@@ -8,6 +8,7 @@ import {
   BookOpen,
   Briefcase,
   Calendar,
+  Check,
   ChevronDown,
   ChevronRight,
   ChevronUp,
@@ -176,17 +177,38 @@ function ScheduleRow({
   const isActive = Boolean(slot);
 
   return (
-    <div className="grid grid-cols-[auto_1fr] gap-3 rounded-2xl border border-border-subtle/50 bg-bg-elevated/30 p-3 lg:grid-cols-[8rem_1fr_auto] lg:items-center">
+    <div
+      className={`grid grid-cols-[auto_1fr] gap-3 rounded-2xl border-2 p-3 lg:grid-cols-[10rem_1fr_auto] lg:items-center transition-colors ${
+        isActive
+          ? 'border-accent-sakura/45 bg-accent-sakura/[0.09] shadow-sm shadow-accent-sakura/10'
+          : 'border-border-subtle/70 border-dashed bg-bg-elevated/25'
+      }`}
+    >
       <button
         type="button"
         onClick={onToggle}
-        className={`inline-flex h-10 items-center justify-center rounded-xl border px-3 text-sm font-semibold transition-colors ${
+        aria-pressed={isActive}
+        aria-label={`${day.label}: ${isActive ? 'scheduled' : 'off'}. Press to toggle.`}
+        className={`inline-flex h-10 min-w-[9rem] items-center justify-start gap-2 rounded-xl border-2 px-2.5 text-sm font-semibold transition-colors ${
           isActive
-            ? 'border-primary/30 bg-primary/10 text-text'
-            : 'border-border-subtle/60 bg-bg-surface text-text-muted'
+            ? 'border-accent-sakura/55 bg-bg-surface text-text shadow-sm'
+            : 'border-[color-mix(in_srgb,var(--color-text-muted)_42%,transparent)] bg-bg-surface/70 text-text-muted'
         }`}
       >
-        {day.short}
+        <span
+          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors ${
+            isActive
+              ? 'border-accent-sakura bg-accent-sakura text-white'
+              : 'border-[color-mix(in_srgb,var(--color-text-muted)_45%,transparent)] bg-transparent'
+          }`}
+          aria-hidden
+        >
+          {isActive ? <Check className="h-3 w-3" strokeWidth={3} /> : null}
+        </span>
+        <span className="tabular-nums">{day.short}</span>
+        {!isActive ? (
+          <span className="ml-auto text-[10px] font-bold uppercase tracking-wide text-text-muted/80">Off</span>
+        ) : null}
       </button>
 
       <div className="grid grid-cols-2 gap-2">
@@ -195,7 +217,11 @@ function ScheduleRow({
           value={slot?.scheduledTime ?? ''}
           disabled={!isActive}
           onChange={(event) => onChange({ scheduledTime: event.target.value })}
-          className="h-10 rounded-xl border border-border-subtle/60 bg-bg-surface px-3 text-sm text-text disabled:cursor-not-allowed disabled:opacity-45"
+          className={`h-10 rounded-xl border px-3 text-sm text-text disabled:cursor-not-allowed disabled:opacity-45 ${
+            isActive
+              ? 'border-accent-sakura/35 bg-bg-surface'
+              : 'border-border-subtle/50 bg-bg-surface/50'
+          }`}
           aria-label={`${day.label} start time`}
         />
         <input
@@ -203,7 +229,11 @@ function ScheduleRow({
           value={slot?.endTime ?? ''}
           disabled={!isActive}
           onChange={(event) => onChange({ endTime: event.target.value || undefined })}
-          className="h-10 rounded-xl border border-border-subtle/60 bg-bg-surface px-3 text-sm text-text disabled:cursor-not-allowed disabled:opacity-45"
+          className={`h-10 rounded-xl border px-3 text-sm text-text disabled:cursor-not-allowed disabled:opacity-45 ${
+            isActive
+              ? 'border-accent-sakura/35 bg-bg-surface'
+              : 'border-border-subtle/50 bg-bg-surface/50'
+          }`}
           aria-label={`${day.label} end time`}
         />
       </div>
@@ -508,8 +538,10 @@ export function AnchorsTemplateEditor({
                                           key={option.value}
                                           type="button"
                                           onClick={() => updateTemplate(template.id, { color: option.value as AnchorColor })}
-                                          className={`rounded-2xl border p-2 text-left transition-all ${
-                                            isSelected ? 'border-text shadow-sm scale-[1.02]' : 'border-border-subtle/50 hover:bg-bg-elevated/40'
+                                          className={`rounded-2xl border-2 p-2 text-left transition-all ${
+                                            isSelected
+                                              ? 'border-accent-sakura/55 shadow-sm ring-2 ring-accent-sakura/25 scale-[1.02]'
+                                              : 'border-[color-mix(in_srgb,var(--color-text-muted)_35%,transparent)] hover:bg-bg-elevated/40'
                                           }`}
                                         >
                                           <span

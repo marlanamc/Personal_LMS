@@ -43,6 +43,12 @@ export interface DailyAnchor {
   actualTime?: string;
   skipReason?: SkipReason;
   isTimeOverridden?: boolean;
+  /** Copied from template - start of active range */
+  activeFrom?: string;
+  /** Copied from template - end of active range */
+  activeUntil?: string;
+  /** Copied from template - linked project ID */
+  linkedProjectId?: string;
 }
 
 export interface DailyAnchorTemplate {
@@ -52,6 +58,12 @@ export interface DailyAnchorTemplate {
   color?: AnchorColor;
   importanceNote?: string;
   weeklySchedule: WeeklyAnchorSchedule;
+  /** Optional start date (YYYY-MM-DD) - anchor only active from this date */
+  activeFrom?: string;
+  /** Optional end date (YYYY-MM-DD) - anchor only active until this date */
+  activeUntil?: string;
+  /** Optional link to a project ID if created from project planner */
+  linkedProjectId?: string;
 }
 
 export interface DailyAnchorState {
@@ -297,9 +309,17 @@ export function normalizeWeeklySchedule(
   const source = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : null;
 
   if (source) {
+    // Only include days explicitly present on `source`. Missing keys mean "off" for that weekday.
+    // Previously we passed `undefined` into normalizeScheduleSlot, which returned `fallbackSlot` and
+    // re-added days from default templates after save (e.g. user clears Tuesday, it came back).
     for (const day of [0, 1, 2, 3, 4, 5, 6] as DayOfWeek[]) {
+      const key = String(day);
+      if (!Object.prototype.hasOwnProperty.call(source, key)) continue;
+      const rawDay = source[key];
+      if (rawDay === null || rawDay === undefined) continue;
+
       const fallbackSlot = fallback?.[day];
-      const normalized = normalizeScheduleSlot(source[String(day)], fallbackSlot);
+      const normalized = normalizeScheduleSlot(rawDay, fallbackSlot);
       if (normalized) {
         result[day] = normalized;
       }
@@ -362,6 +382,8 @@ export function resolveAnchorTemplateForDate(
   return template.weeklySchedule[date.getDay() as DayOfWeek] ?? null;
 }
 
+const DATE_KEY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
 function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): DailyAnchorTemplate {
   const candidate = (raw && typeof raw === 'object' ? raw : {}) as {
     id?: unknown;
@@ -374,6 +396,9 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
     endTime?: unknown;
     daysOfWeek?: unknown;
     durationMinutes?: unknown;
+    activeFrom?: unknown;
+    activeUntil?: unknown;
+    linkedProjectId?: unknown;
   };
 
   const fallbackId = fallback?.id ?? `anchor-${Date.now()}`;
@@ -390,6 +415,20 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
     daysOfWeek: candidate.daysOfWeek,
   });
 
+  // Handle date range fields
+  const activeFrom =
+    typeof candidate.activeFrom === 'string' && DATE_KEY_REGEX.test(candidate.activeFrom)
+      ? candidate.activeFrom
+      : fallback?.activeFrom;
+  const activeUntil =
+    typeof candidate.activeUntil === 'string' && DATE_KEY_REGEX.test(candidate.activeUntil)
+      ? candidate.activeUntil
+      : fallback?.activeUntil;
+  const linkedProjectId =
+    typeof candidate.linkedProjectId === 'string' && candidate.linkedProjectId.trim()
+      ? candidate.linkedProjectId.trim()
+      : fallback?.linkedProjectId;
+
   return {
     id,
     label,
@@ -397,6 +436,9 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
     ...(color ? { color } : {}),
     ...(importanceNote ? { importanceNote } : {}),
     weeklySchedule,
+    ...(activeFrom ? { activeFrom } : {}),
+    ...(activeUntil ? { activeUntil } : {}),
+    ...(linkedProjectId ? { linkedProjectId } : {}),
   };
 }
 
@@ -442,6 +484,9 @@ function toStateAnchor(template: DailyAnchorTemplate, date: Date, existing?: Dai
     actualTime: existing?.actualTime,
     skipReason: existing?.skipReason,
     ...(shouldPreserveOverride ? { isTimeOverridden: true } : existing?.isTimeOverridden ? { isTimeOverridden: true } : {}),
+    ...(template.activeFrom ? { activeFrom: template.activeFrom } : {}),
+    ...(template.activeUntil ? { activeUntil: template.activeUntil } : {}),
+    ...(template.linkedProjectId ? { linkedProjectId: template.linkedProjectId } : {}),
   };
 }
 
@@ -496,6 +541,18 @@ export function isAnchorScheduledForDate(
   date: Date,
 ): boolean {
   return Boolean(anchor.weeklySchedule?.[date.getDay() as DayOfWeek]);
+}
+
+/**
+ * Check if a template is within its active date range (if any)
+ */
+export function isTemplateActiveForDate(
+  template: Pick<DailyAnchorTemplate, 'activeFrom' | 'activeUntil'>,
+  dateKey: string,
+): boolean {
+  if (template.activeFrom && dateKey < template.activeFrom) return false;
+  if (template.activeUntil && dateKey > template.activeUntil) return false;
+  return true;
 }
 
 export function getRecentSkippedAnchorStreak(
@@ -706,12 +763,15 @@ export function normalizeDailyAnchorState(
   raw: unknown,
   templates: DailyAnchorTemplate[] = getDefaultAnchorTemplates(),
 ): DailyAnchorState {
-  const fallback = createDefaultDailyAnchorState(dateKey, templates);
+  // Filter templates to only those active for this date
+  const activeTemplates = templates.filter((t) => isTemplateActiveForDate(t, dateKey));
+
+  const fallback = createDefaultDailyAnchorState(dateKey, activeTemplates);
   if (!raw || typeof raw !== 'object') return fallback;
 
   const candidate = raw as { date?: unknown; anchors?: unknown[]; sleepRhythmDayComplete?: unknown };
   const sourceAnchors = Array.isArray(candidate.anchors) ? candidate.anchors : [];
-  const templatesById = new Map(templates.map((template) => [template.id, template]));
+  const templatesById = new Map(activeTemplates.map((template) => [template.id, template]));
   const date = dateKeyToDate(dateKey);
 
   const anchors =
@@ -723,10 +783,10 @@ export function normalizeDailyAnchorState(
             return normalizeAnchor(dateKey, rawAnchor, id ? templatesById.get(id) : undefined);
           })
           .filter((anchor, idx, arr) => arr.findIndex((entry) => entry.id === anchor.id) === idx)
-      : templates.map((template) => toStateAnchor(template, date));
+      : activeTemplates.map((template) => toStateAnchor(template, date));
 
   const existingById = new Map(anchors.map((anchor) => [anchor.id, anchor]));
-  const mergedAnchors = templates.map((template) => toStateAnchor(template, date, existingById.get(template.id)));
+  const mergedAnchors = activeTemplates.map((template) => toStateAnchor(template, date, existingById.get(template.id)));
 
   const tentativeState: DailyAnchorState = {
     date: typeof candidate.date === 'string' ? candidate.date : dateKey,
@@ -747,7 +807,9 @@ export function mergeDailyAnchorStateWithTemplates(
   const existingById = new Map(state.anchors.map((anchor) => [anchor.id, anchor]));
   const date = dateKeyToDate(state.date);
 
-  const anchors = templates.map((template) => toStateAnchor(template, date, existingById.get(template.id)));
+  // Filter templates to only those active for this date
+  const activeTemplates = templates.filter((t) => isTemplateActiveForDate(t, state.date));
+  const anchors = activeTemplates.map((template) => toStateAnchor(template, date, existingById.get(template.id)));
 
   const nextStateBase: DailyAnchorState = {
     ...state,

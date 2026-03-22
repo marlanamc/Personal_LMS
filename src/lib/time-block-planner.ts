@@ -195,7 +195,7 @@ export function describeConstraintRule(rule: PlannerConstraintRule): string {
     return `Only schedule ${activityName} until ${timeLabel}`;
   }
 
-  return `Stop scheduling ${activityName} after ${timeLabel}`;
+  return `No more ${activityName} after ${timeLabel}`;
 }
 
 export function getActiveConstraintsForDay(

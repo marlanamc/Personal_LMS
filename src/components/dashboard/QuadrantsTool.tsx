@@ -250,7 +250,7 @@ function VisualToggle({
         onClick={() => onChange(!checked)}
         className={`
           icon-button relative min-h-0 min-w-0 h-7 w-12 shrink-0 rounded-full border transition-all duration-200
-          ${checked ? `${TOGGLE_ACTIVE_MAP[colorToken]} border-white/25 shadow-md shadow-black/10` : 'border-border-subtle/35 bg-white/70'}
+          ${checked ? `${TOGGLE_ACTIVE_MAP[colorToken]} border-white/25 shadow-md shadow-black/10` : 'border-[color-mix(in_srgb,var(--color-text-muted)_42%,transparent)] bg-white/70'}
         `}
       >
         <span

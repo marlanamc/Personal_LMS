@@ -505,8 +505,8 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
                                 }}
                                 className={`flex h-5 w-5 items-center justify-center rounded-full transition-colors ${
                                   isWant
-                                    ? 'bg-accent-teal/20 text-accent-teal'
-                                    : 'text-text-muted/70 hover:bg-bg-surface'
+                                    ? 'bg-accent-teal/20 text-accent-teal ring-2 ring-accent-teal/50 ring-offset-1 ring-offset-bg-surface'
+                                    : 'text-text-muted/70 hover:bg-bg-surface border border-[color-mix(in_srgb,var(--color-text-muted)_38%,transparent)]'
                                 }`}
                                 aria-label="Set as want"
                                 aria-pressed={isWant}
@@ -523,8 +523,8 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
                                 }}
                                 className={`flex h-5 w-5 items-center justify-center rounded-full transition-colors ${
                                   isShould
-                                    ? 'bg-accent-sakura/20 text-accent-sakura'
-                                    : 'text-text-muted/70 hover:bg-bg-surface'
+                                    ? 'bg-accent-sakura/20 text-accent-sakura ring-2 ring-accent-sakura/50 ring-offset-1 ring-offset-bg-surface'
+                                    : 'text-text-muted/70 hover:bg-bg-surface border border-[color-mix(in_srgb,var(--color-text-muted)_38%,transparent)]'
                                 }`}
                                 aria-label="Set as should"
                                 aria-pressed={isShould}

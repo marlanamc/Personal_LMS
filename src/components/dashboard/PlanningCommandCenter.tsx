@@ -8,6 +8,7 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  FolderKanban,
   LayoutGrid,
   Sparkles,
 } from 'lucide-react';
@@ -17,6 +18,7 @@ import CalendarPlanner from './CalendarPlanner';
 import { AnchorsTemplateEditor } from './AnchorsTemplateEditor';
 import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import { PlanningHelpDrawer } from './PlanningHelpDrawer';
+import { ProjectPlannerView } from './ProjectPlannerView';
 import type { CalendarEvent } from './MiniCalendar';
 import type { DailyAnchorTemplate } from '@/lib/anchors';
 import { getTodayKey } from '@/lib/unified-scheduler';
@@ -70,6 +72,13 @@ const VIEWS: {
     shortLabel: 'Blocks',
     icon: LayoutGrid,
     description: 'Set up your want/should activity schedule',
+  },
+  {
+    id: 'projects',
+    label: 'Projects',
+    shortLabel: 'Projects',
+    icon: FolderKanban,
+    description: 'Multi-week projects broken into daily tasks',
   },
 ];
 
@@ -205,11 +214,11 @@ function PlanningCommandCenterInner() {
                     onClick={() => setCurrentView(view.id)}
                     className={`
                       flex w-full items-center gap-3 rounded-xl px-3 py-2.5
-                      text-left transition-all duration-150
+                      text-left transition-all duration-150 border-2
                       ${
                         isActive
-                          ? 'bg-accent-sakura/15 text-accent-sakura'
-                          : 'text-text-secondary hover:bg-bg-elevated hover:text-text-primary'
+                          ? 'border-accent-sakura/45 bg-accent-sakura/15 text-accent-sakura shadow-sm'
+                          : 'border-transparent text-text-secondary hover:bg-bg-elevated hover:text-text-primary'
                       }
                     `}
                     title={sidebarCollapsed ? view.label : undefined}
@@ -265,11 +274,11 @@ function PlanningCommandCenterInner() {
                     onClick={() => setCurrentView(view.id)}
                     className={`
                       flex flex-shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5
-                      text-sm font-medium transition-all
+                      text-sm font-medium transition-all border-2
                       ${
                         isActive
-                          ? 'bg-accent-sakura/15 text-accent-sakura'
-                          : 'text-text-muted hover:text-text-secondary'
+                          ? 'border-accent-sakura/45 bg-accent-sakura/15 text-accent-sakura shadow-sm'
+                          : 'border-transparent text-text-muted hover:text-text-secondary'
                       }
                     `}
                   >
@@ -327,6 +336,12 @@ function PlanningCommandCenterInner() {
                 initialOpenTool="on-again-off-again"
                 storageScope={storageScope}
               />
+            </div>
+          )}
+
+          {currentView === 'projects' && (
+            <div className="max-w-2xl mx-auto py-6 md:py-8 pb-24 md:pb-12">
+              <ProjectPlannerView storageScope={storageScope} />
             </div>
           )}
         </div>
