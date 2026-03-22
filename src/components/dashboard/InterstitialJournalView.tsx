@@ -864,7 +864,8 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
       </section>
 
       {/* Mobile Sticky Input */}
-      <div className="moment-input-sticky sm:hidden">
+      {(isComposerOpen || saveError || isSaving) && (
+        <div className="moment-input-sticky sm:hidden">
         {isComposerOpen ? (
         <div className="flex items-center gap-2">
           <input
@@ -1078,6 +1079,7 @@ export function InterstitialJournalView({ storageScope }: InterstitialJournalVie
           </div>
         )}
       </div>
+      )}
 
       {!isComposerOpen && (
         <button
