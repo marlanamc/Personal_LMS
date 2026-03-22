@@ -281,25 +281,20 @@ export function DayPlannerView({
   useLayoutEffect(() => {
     if (!syncHeaderDateNav || !setHeaderCenter || !setHeaderEndAccessory) return;
     
-    if (!isMobile) {
-      setHeaderCenter(
-        <div className="flex items-center justify-center -my-2 transform scale-90 sm:scale-100">
-          <DayPlannerHeaderDateNav
-            selectedDateKey={selectedDateKey}
-            isSelectedToday={isSelectedToday}
-            dateLabel={fullDateLabel}
-            variant="desktopRail"
-            onPrev={goToPreviousDay}
-            onNext={goToNextDay}
-            onPickDate={applyDateKey}
-          />
-        </div>
-      );
-      setHeaderEndAccessory(null);
-    } else {
-      setHeaderCenter(null);
-      setHeaderEndAccessory(null);
-    }
+    setHeaderCenter(
+      <div className="flex items-center justify-center -my-2 transform scale-[0.80] sm:scale-100">
+        <DayPlannerHeaderDateNav
+          selectedDateKey={selectedDateKey}
+          isSelectedToday={isSelectedToday}
+          dateLabel={fullDateLabel}
+          variant="desktopRail"
+          onPrev={goToPreviousDay}
+          onNext={goToNextDay}
+          onPickDate={applyDateKey}
+        />
+      </div>
+    );
+    setHeaderEndAccessory(null);
     
     return () => {
       setHeaderCenter(null);
@@ -771,57 +766,9 @@ export function DayPlannerView({
         </div>
       </div>
 
-      {/* Mobile: date nav bar */}
-      <div className="sm:hidden -mx-4 px-3 pb-2">
-        <div className="bg-bg-elevated/95 backdrop-blur-sm border border-border-subtle/40 rounded-xl px-2 py-2 shadow-sm">
-          <div className="flex items-center justify-center gap-1">
-            <button
-              type="button"
-              onClick={goToPreviousDay}
-              className="shrink-0 rounded-full p-2 transition-colors hover:bg-bg-elevated/40 active:scale-95"
-              aria-label="Previous day"
-            >
-              <ArrowLeft size={18} className="text-text-muted" />
-            </button>
-
-            <label className="min-w-0 flex-1 cursor-pointer text-center px-1">
-              <span className="sr-only">Choose date</span>
-              <span className="pointer-events-none flex items-center justify-center gap-1.5">
-                {isSelectedToday && (
-                  <span
-                    className="inline-flex items-center justify-center size-5 shrink-0 rounded-full bg-accent-sakura/15"
-                    title="Today"
-                  >
-                    <SunMedium size={12} className="text-accent-sakura" />
-                  </span>
-                )}
-                <span className="text-base font-display font-semibold text-text leading-none">
-                  {fullDateLabel}
-                </span>
-              </span>
-              <input
-                type="date"
-                value={selectedDateKey}
-                onChange={(event) => applyDateKey(event.target.value || getTodayKey())}
-                className="sr-only"
-                aria-label="Choose date"
-              />
-            </label>
-
-            <button
-              type="button"
-              onClick={goToNextDay}
-              className="shrink-0 rounded-full p-2 transition-colors hover:bg-bg-elevated/40 active:scale-95"
-              aria-label="Next day"
-            >
-              <ArrowRight size={18} className="text-text-muted" />
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Mobile: timeline card */}
-      <div className="sm:hidden rounded-2xl border border-border-subtle/40 bg-bg-surface/60 overflow-hidden -mx-1">
+      <div className="sm:hidden -mx-4 border-y border-border-subtle/40 bg-bg-surface/60 overflow-hidden pb-4">
         {/* Mobile timeline content */}
         <div className="relative">
           {/* See earlier button */}
