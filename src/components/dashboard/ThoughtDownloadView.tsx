@@ -14,11 +14,12 @@ import { getNextDateKey, getPreviousDateKey, getTodayKey, isToday } from '@/lib/
 
 interface ThoughtDownloadViewProps {
   storageScope: string;
+  initialDateKey?: string;
 }
 
-export function ThoughtDownloadView({ storageScope }: ThoughtDownloadViewProps) {
+export function ThoughtDownloadView({ storageScope, initialDateKey }: ThoughtDownloadViewProps) {
   const todayKey = getTodayKey();
-  const [selectedDateKey, setSelectedDateKey] = useState(todayKey);
+  const [selectedDateKey, setSelectedDateKey] = useState(initialDateKey ?? todayKey);
   const [showToolbar, setShowToolbar] = useState(false);
   const editorRef = useRef<MDXEditorMethods>(null);
   const { getPlan, updatePlanField, isLoaded, isSaving, saveError, lastSyncedAt } = useCalendarPlanner(storageScope);

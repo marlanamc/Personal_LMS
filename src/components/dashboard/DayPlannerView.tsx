@@ -12,7 +12,6 @@ import {
   ChevronUp,
   Columns2,
   FileText,
-  Play,
   Sparkles,
   SunMedium,
   StretchHorizontal,
@@ -21,7 +20,7 @@ import {
 import { type CalendarEvent } from './MiniCalendar';
 import { DayTimeline } from '@/components/scheduler';
 import { DaySectionsBoard } from './DaySectionsBoard';
-import { CalendarPanel } from './CalendarPanel';
+import { DayPlannerSidebarWorkspace } from './DayPlannerSidebarWorkspace';
 import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
@@ -204,32 +203,6 @@ export function DayPlannerView({
     if (!canUseSectionsView) return [];
     return groupItemsIntoSections(quadrantItems, timelineItems, constraintItems);
   }, [canUseSectionsView, constraintItems, quadrantItems, timelineItems]);
-
-  // Calculate summary stats for blocks
-  const blockSummary = useMemo(() => {
-    if (blockItems.length === 0) return null;
-
-    const byLabel = new Map<string, { kind: 'want' | 'should'; totalMinutes: number }>();
-    for (const block of blockItems) {
-      const existing = byLabel.get(block.label);
-      const duration = block.durationMinutes ?? 30;
-      if (existing) {
-        existing.totalMinutes += duration;
-      } else {
-        byLabel.set(block.label, { kind: block.blockKind ?? 'want', totalMinutes: duration });
-      }
-    }
-
-    const items = Array.from(byLabel.entries()).map(([label, data]) => ({
-      label,
-      kind: data.kind,
-      totalMinutes: data.totalMinutes,
-    }));
-
-    const totalMinutes = items.reduce((sum, item) => sum + item.totalMinutes, 0);
-
-    return { items, totalMinutes, blockCount: blockItems.length };
-  }, [blockItems]);
 
   useEffect(() => {
     if (!canUseSectionsView && plannerViewMode === 'sections') {
@@ -446,76 +419,53 @@ export function DayPlannerView({
     return undefined;
   }, []);
 
-  const startSequenceHref = blockSummary
-    ? `/dashboard/timer?sequenceDateKey=${encodeURIComponent(selectedDateKey)}`
-    : null;
   const isSectionsMode = plannerViewMode === 'sections' && canUseSectionsView;
 
   return (
     <div className="space-y-2 sm:space-y-0">
-      {/* Mobile: Toggle + Start Sequence controls (date nav moved to unified card) */}
-      {(canUseSectionsView || startSequenceHref) && (
+      {/* Mobile: view mode toggle */}
+      {canUseSectionsView && (
       <header className="sm:hidden">
-        {/* Toggle + Start Sequence - subtle inline row */}
-        {(canUseSectionsView || startSequenceHref) && (
           <div className="flex items-center justify-center gap-3 py-1.5">
-            {canUseSectionsView && (
-              <div className="inline-flex items-center gap-0.5 rounded-lg bg-bg-elevated/30 p-0.5">
-                <button
-                  type="button"
-                  onClick={() => setPlannerViewMode('timeline')}
-                  className={`inline-flex items-center justify-center rounded-md px-2.5 py-1.5 text-xs font-medium transition-all ${
-                    plannerViewMode === 'timeline'
-                      ? 'bg-bg-surface/80 text-text'
-                      : 'text-text-muted hover:text-text'
-                  }`}
-                  aria-pressed={plannerViewMode === 'timeline'}
-                  aria-label="Timeline view"
-                >
-                  <StretchHorizontal size={13} className="mr-1" />
-                  Timeline
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPlannerViewMode('sections')}
-                  className={`inline-flex items-center justify-center rounded-md px-2.5 py-1.5 text-xs font-medium transition-all ${
-                    plannerViewMode === 'sections'
-                      ? 'bg-bg-surface/80 text-text'
-                      : 'text-text-muted hover:text-text'
-                  }`}
-                  aria-pressed={plannerViewMode === 'sections'}
-                  aria-label="Sections view"
-                >
-                  <Columns2 size={13} className="mr-1" />
-                  Sections
-                </button>
-              </div>
-            )}
-
-            {startSequenceHref && (
-              <Link
-                href={startSequenceHref}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-accent-teal hover:text-accent-teal/80 transition-colors"
-                title="Start full sequence in Focus Timer"
+            <div className="inline-flex items-center gap-0.5 rounded-lg bg-bg-elevated/30 p-0.5">
+              <button
+                type="button"
+                onClick={() => setPlannerViewMode('timeline')}
+                className={`inline-flex items-center justify-center rounded-md px-2.5 py-1.5 text-xs font-medium transition-all ${
+                  plannerViewMode === 'timeline'
+                    ? 'bg-bg-surface/80 text-text'
+                    : 'text-text-muted hover:text-text'
+                }`}
+                aria-pressed={plannerViewMode === 'timeline'}
+                aria-label="Timeline view"
               >
-                <Play size={12} />
-                <span>Start</span>
-              </Link>
-            )}
+                <StretchHorizontal size={13} className="mr-1" />
+                Timeline
+              </button>
+              <button
+                type="button"
+                onClick={() => setPlannerViewMode('sections')}
+                className={`inline-flex items-center justify-center rounded-md px-2.5 py-1.5 text-xs font-medium transition-all ${
+                  plannerViewMode === 'sections'
+                    ? 'bg-bg-surface/80 text-text'
+                    : 'text-text-muted hover:text-text'
+                }`}
+                aria-pressed={plannerViewMode === 'sections'}
+                aria-label="Sections view"
+              >
+                <Columns2 size={13} className="mr-1" />
+                Sections
+              </button>
+            </div>
           </div>
-        )}
       </header>
       )}
 
       {/* Desktop: full date row only when not using dashboard header center */}
       <header className="hidden sm:block">
         {syncHeaderDateNav ? (
-          <div
-            className={`flex flex-wrap items-center gap-x-4 gap-y-2 ${
-              canUseSectionsView ? 'justify-between' : 'justify-end'
-            }`}
-          >
-            {canUseSectionsView && (
+          canUseSectionsView ? (
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
               <div className="inline-flex items-center gap-0.5 rounded-lg bg-bg-elevated/30 p-0.5">
                 <button
                   type="button"
@@ -545,20 +495,8 @@ export function DayPlannerView({
                   Sections
                 </button>
               </div>
-            )}
-            <div className="flex flex-wrap items-center justify-end gap-2">
-              {startSequenceHref && (
-                <Link
-                  href={startSequenceHref}
-                  className="inline-flex items-center gap-1.5 px-2 py-1 text-sm font-medium text-accent-teal transition-colors hover:text-accent-teal/80"
-                  title="Start full sequence in Focus Timer"
-                >
-                  <Play size={14} />
-                  Start
-                </Link>
-              )}
             </div>
-          </div>
+          ) : null
         ) : (
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <div className="flex min-w-0 items-center gap-2">
@@ -641,16 +579,6 @@ export function DayPlannerView({
               >
                 <CalendarDays size={18} />
               </Link>
-              {startSequenceHref && (
-                <Link
-                  href={startSequenceHref}
-                  className="inline-flex items-center gap-1.5 px-2 py-1 text-sm font-medium text-accent-teal transition-colors hover:text-accent-teal/80"
-                  title="Start full sequence in Focus Timer"
-                >
-                  <Play size={14} />
-                  Start
-                </Link>
-              )}
             </div>
           </div>
         )}
@@ -691,7 +619,7 @@ export function DayPlannerView({
       )}
 
       {/* Desktop: timeline card */}
-      <div className="hidden sm:grid sm:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px] gap-6 items-start">
+      <div className="hidden sm:grid sm:grid-cols-[minmax(0,1fr)_300px] lg:grid-cols-[minmax(0,1fr)_340px] gap-6 items-start">
         <div className="rounded-3xl border border-border-subtle/40 bg-bg-surface/60 overflow-hidden shadow-sm">
           {/* Desktop timeline content */}
           <div className="px-6 py-6">
@@ -754,16 +682,16 @@ export function DayPlannerView({
         </div>
         
         {/* Right Sidebar: Monthly Calendar & Upcoming */}
-        <div className="sticky top-6 hidden sm:block">
-          <CalendarPanel 
-            calendarEvents={events} 
-            selectedDate={selectedDate} 
-            onDateSelect={(date: Date) => {
-              const pad = (n: number) => n.toString().padStart(2, '0');
-              applyDateKey(`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`);
-            }}
-          />
-        </div>
+        <DayPlannerSidebarWorkspace
+          calendarEvents={events}
+          storageScope={storageScope}
+          dateKey={selectedDateKey}
+          selectedDate={selectedDate}
+          onDateSelect={(date: Date) => {
+            const pad = (n: number) => n.toString().padStart(2, '0');
+            applyDateKey(`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`);
+          }}
+        />
       </div>
 
 

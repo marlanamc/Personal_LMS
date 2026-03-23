@@ -8,7 +8,11 @@ export const metadata = {
   description: 'Offload what’s on your mind — not for scheduling, just to clear your head.',
 };
 
-export default async function ThoughtDownloadPage() {
+interface PageProps {
+  searchParams: Promise<{ date?: string }>;
+}
+
+export default async function ThoughtDownloadPage({ searchParams }: PageProps) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -20,9 +24,15 @@ export default async function ThoughtDownloadPage() {
     redirect('/dashboard');
   }
 
+  const params = await searchParams;
+  const initialDateKey =
+    params.date && /^\d{4}-\d{2}-\d{2}$/.test(params.date)
+      ? params.date
+      : undefined;
+
   return (
     <main className="px-3 pb-24 pt-6 sm:px-6 md:pt-8 lg:px-8">
-      <ThoughtDownloadView storageScope={userId} />
+      <ThoughtDownloadView storageScope={userId} initialDateKey={initialDateKey} />
     </main>
   );
 }

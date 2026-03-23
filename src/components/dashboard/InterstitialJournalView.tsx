@@ -8,6 +8,7 @@ import { getNextDateKey, getPreviousDateKey, getTodayKey, isToday } from '@/lib/
 
 interface InterstitialJournalViewProps {
   storageScope: string;
+  initialDateKey?: string;
 }
 
 type TagFilterMode = 'all' | 'tagged';
@@ -224,9 +225,9 @@ function getEntryTagMeta(tagValue: string | undefined, tagMeta: JournalTagMeta |
   return null;
 }
 
-export function InterstitialJournalView({ storageScope }: InterstitialJournalViewProps) {
+export function InterstitialJournalView({ storageScope, initialDateKey }: InterstitialJournalViewProps) {
   const todayKey = getTodayKey();
-  const [selectedDateKey, setSelectedDateKey] = useState(todayKey);
+  const [selectedDateKey, setSelectedDateKey] = useState(initialDateKey ?? todayKey);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [entryDraft, setEntryDraft] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
