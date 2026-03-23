@@ -125,6 +125,47 @@ export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolPro
     return null;
   }, [hasEnergy, hasFocus, hasUnsetKinds, hasValidWindow, previewBlocks.length, typedActivities.length]);
 
+  const previewSummary = useMemo(() => {
+    const summaryMap = new Map<
+      string,
+      { label: string; kind: 'want' | 'should'; totalMinutes: number }
+    >();
+
+    for (const activity of form.activities) {
+      if (activity.kind === null || activity.label.trim().length === 0) continue;
+      const key = `${activity.kind}:${activity.label.trim().toLowerCase()}`;
+      if (!summaryMap.has(key)) {
+        summaryMap.set(key, {
+          label: activity.label.trim(),
+          kind: activity.kind,
+          totalMinutes: 0,
+        });
+      }
+    }
+
+    for (const block of previewBlocks) {
+      const key = `${block.kind}:${block.label.trim().toLowerCase()}`;
+      const existing = summaryMap.get(key);
+      if (existing) {
+        existing.totalMinutes += block.durationMinutes;
+        continue;
+      }
+
+      summaryMap.set(key, {
+        label: block.label,
+        kind: block.kind,
+        totalMinutes: block.durationMinutes,
+      });
+    }
+
+    return Array.from(summaryMap.values()).filter((item) => item.totalMinutes > 0);
+  }, [form.activities, previewBlocks]);
+
+  const previewSummaryMinutes = useMemo(
+    () => previewSummary.reduce((total, item) => total + item.totalMinutes, 0),
+    [previewSummary],
+  );
+
   const generatedSummary = blocks.reduce((total, block) => total + block.durationMinutes, 0);
   const visiblePreviewBlocks = previewBlocks.slice(0, 6);
 
@@ -435,6 +476,40 @@ export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolPro
           </div>
         ) : (
           <div className="mt-4 space-y-2">
+            <div className="rounded-2xl border border-border-subtle/35 bg-bg-surface/65 px-3.5 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-text-muted">Time Breakdown</p>
+                  <p className="mt-1 text-sm text-text-secondary">
+                    {formatDurationSummary(previewSummaryMinutes)} across {previewSummary.length} task
+                    {previewSummary.length === 1 ? '' : 's'} in this preview.
+                  </p>
+                </div>
+                <span className="rounded-full border border-border-subtle/35 bg-bg-base/60 px-2.5 py-1 text-xs font-semibold text-text-muted">
+                  Full preview
+                </span>
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {previewSummary.map((item) => (
+                  <div
+                    key={`preview-summary-${item.kind}-${item.label}`}
+                    className={`rounded-xl border px-3 py-2.5 ${
+                      item.kind === 'want'
+                        ? 'border-accent-teal/25 bg-accent-teal/10'
+                        : 'border-accent-sakura/25 bg-accent-sakura/10'
+                    }`}
+                  >
+                    <p className="text-sm font-semibold text-text">{item.label}</p>
+                    <div className="mt-1 flex items-center justify-between gap-3">
+                      <p className="text-xs text-text-muted">{item.kind === 'want' ? 'Energy' : 'Focus'} task</p>
+                      <p className="text-xs font-semibold text-text-secondary">
+                        {formatDurationSummary(item.totalMinutes)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
             {visiblePreviewBlocks.map((block) => (
               <div
                 key={`preview-${block.id}`}
