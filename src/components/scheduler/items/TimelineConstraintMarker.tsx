@@ -1,7 +1,7 @@
 'use client';
 
 import type { CSSProperties } from 'react';
-import { Ban, Flag } from 'lucide-react';
+import { AlarmClock, Ban, Flag } from 'lucide-react';
 import type { TimelineItem } from '@/lib/unified-scheduler';
 
 interface TimelineConstraintMarkerProps {
@@ -11,6 +11,7 @@ interface TimelineConstraintMarkerProps {
 
 export function TimelineConstraintMarker({ item, style }: TimelineConstraintMarkerProps) {
   const isUntil = item.constraintKind === 'until';
+  const isDeadline = item.constraintKind === 'deadline';
   const accentClass = item.blockKind === 'want' ? 'text-accent-teal' : 'text-accent-sakura';
   const borderClass = item.blockKind === 'want' ? 'border-accent-teal/35' : 'border-accent-sakura/35';
   const bgClass = item.blockKind === 'want' ? 'bg-accent-teal/8' : 'bg-accent-sakura/8';
@@ -22,7 +23,7 @@ export function TimelineConstraintMarker({ item, style }: TimelineConstraintMark
         <div
           className={`ml-2 inline-flex max-w-[16rem] items-center gap-1 rounded-full border ${borderClass} ${bgClass} px-2 py-1 text-[10px] font-semibold shadow-sm backdrop-blur-sm ${accentClass}`}
         >
-          <Ban size={11} />
+          {isDeadline ? <AlarmClock size={11} /> : <Ban size={11} />}
           <span className="truncate">{item.label}</span>
         </div>
       </div>

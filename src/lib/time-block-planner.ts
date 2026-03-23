@@ -3,7 +3,7 @@ import type { Prisma } from "@prisma/client";
 export const TIME_BLOCK_PLANNER_SUBJECT_KEY = "time-block-planner";
 
 export type TimeBlockKind = "want" | "should";
-export type PlannerConstraintRuleKind = "cutoff" | "until";
+export type PlannerConstraintRuleKind = "cutoff" | "until" | "deadline";
 export type PlannerQuadrantColorToken = "dawn" | "mint" | "sky" | "sand" | "rose";
 
 export type PlannerConstraintTarget = {
@@ -85,6 +85,17 @@ export type TimeBlockDayPlan = {
 export type TimeBlockPlannerStore = {
   days: Record<string, TimeBlockDayPlan>;
   defaults: TimeBlockPlannerDefaults;
+};
+
+type PlannerPhase = {
+  kind: TimeBlockKind;
+  label: string;
+  durationMinutes: number;
+};
+
+type PlannerPhaseSelection = {
+  phase: PlannerPhase;
+  advanceBy: number;
 };
 
 const TIME_KEY_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
@@ -194,6 +205,9 @@ export function describeConstraintRule(rule: PlannerConstraintRule): string {
   if (rule.kind === "until") {
     return `Only schedule ${activityName} until ${timeLabel}`;
   }
+  if (rule.kind === "deadline") {
+    return `Schedule ${activityName} by ${timeLabel}`;
+  }
 
   return `No more ${activityName} after ${timeLabel}`;
 }
@@ -264,7 +278,7 @@ export function buildTimeBlockPlan(
     return [];
   }
 
-  const phases: Array<{ kind: TimeBlockKind; label: string; durationMinutes: number }> =
+  const phases: PlannerPhase[] =
     form.activities
       .filter(
         (a): a is ActivitySlot & { kind: TimeBlockKind } =>
@@ -283,6 +297,7 @@ export function buildTimeBlockPlan(
   const activeConstraints = constraints.filter((rule) => rule.enabled);
   const activeQuadrants = quadrants.filter((quadrant) => quadrant.enabled);
   const blocks: TimeBlockEntry[] = [];
+  const satisfiedDeadlineConstraintIds = new Set<string>();
   let cursor = startMinutes;
   let phaseIndex = 0;
   let skippedInRow = 0;
@@ -300,7 +315,14 @@ export function buildTimeBlockPlan(
       continue;
     }
 
-    const phase = phases[phaseIndex % phases.length];
+    const phaseSelection = selectNextPlannerPhase(
+      phases,
+      phaseIndex,
+      cursor,
+      activeConstraints,
+      satisfiedDeadlineConstraintIds,
+    );
+    const phase = phaseSelection.phase;
     const cutoff = getConstraintCutoffForPhase(phase, activeConstraints);
     const quadrantEnd = activeQuadrant ? parseTimeInput(activeQuadrant.endTime) : null;
     const effectiveEnd = [endMinutes, cutoff, quadrantEnd]
@@ -308,7 +330,7 @@ export function buildTimeBlockPlan(
       .reduce((min, value) => Math.min(min, value), endMinutes);
 
     if (effectiveEnd <= cursor) {
-      phaseIndex += 1;
+      phaseIndex += phaseSelection.advanceBy;
       skippedInRow += 1;
       if (skippedInRow >= phases.length) break;
       continue;
@@ -318,7 +340,7 @@ export function buildTimeBlockPlan(
     const actualDuration = nextEnd - cursor;
 
     if (actualDuration <= 0) {
-      phaseIndex += 1;
+      phaseIndex += phaseSelection.advanceBy;
       skippedInRow += 1;
       if (skippedInRow >= phases.length) break;
       continue;
@@ -336,8 +358,13 @@ export function buildTimeBlockPlan(
       isTrimmed: actualDuration !== phase.durationMinutes,
     });
 
+    markDeadlineConstraintsSatisfied(
+      satisfiedDeadlineConstraintIds,
+      phase,
+      activeConstraints,
+    );
     cursor = nextEnd;
-    phaseIndex += 1;
+    phaseIndex += phaseSelection.advanceBy;
     skippedInRow = 0;
   }
 
@@ -496,7 +523,10 @@ function normalizeConstraintTarget(raw: unknown): PlannerConstraintTarget | null
 function normalizeConstraintRule(raw: unknown): PlannerConstraintRule | null {
   if (!raw || typeof raw !== "object") return null;
   const candidate = raw as Partial<PlannerConstraintRule>;
-  const kind = candidate.kind === "cutoff" || candidate.kind === "until" ? candidate.kind : null;
+  const kind =
+    candidate.kind === "cutoff" || candidate.kind === "until" || candidate.kind === "deadline"
+      ? candidate.kind
+      : null;
   const target = normalizeConstraintTarget(candidate.target);
   const time = typeof candidate.time === "string" && TIME_KEY_PATTERN.test(candidate.time) ? candidate.time : null;
 
@@ -740,17 +770,110 @@ function formatTimeLabel(time: string): string {
   return minutes === null ? time : formatMinuteOfDay(minutes);
 }
 
+function selectNextPlannerPhase(
+  phases: PlannerPhase[],
+  phaseIndex: number,
+  cursor: number,
+  constraints: PlannerConstraintRule[],
+  satisfiedDeadlineConstraintIds: Set<string>,
+): PlannerPhaseSelection {
+  const fallback = phases[phaseIndex % phases.length];
+  const urgentDeadlineMatches = constraints
+    .filter(
+      (rule) =>
+        rule.kind === "deadline" &&
+        rule.enabled &&
+        !satisfiedDeadlineConstraintIds.has(rule.id),
+    )
+    .map((rule) => {
+      const deadlineMinute = parseTimeInput(rule.time);
+      if (deadlineMinute === null || cursor > deadlineMinute) return null;
+
+      const nextMatch = findNextMatchingPhase(phases, phaseIndex, rule);
+      if (!nextMatch) return null;
+      if (cursor + nextMatch.waitMinutes <= deadlineMinute) return null;
+
+      return {
+        ...nextMatch,
+        deadlineMinute,
+      };
+    })
+    .filter(
+      (
+        match,
+      ): match is {
+        phase: PlannerPhase;
+        offset: number;
+        waitMinutes: number;
+        deadlineMinute: number;
+      } => match !== null,
+    )
+    .sort(
+      (a, b) =>
+        a.deadlineMinute - b.deadlineMinute ||
+        a.waitMinutes - b.waitMinutes ||
+        a.offset - b.offset,
+    );
+
+  if (urgentDeadlineMatches.length > 0) {
+    const selected = urgentDeadlineMatches[0];
+    return {
+      phase: selected.phase,
+      advanceBy: selected.offset + 1,
+    };
+  }
+
+  return {
+    phase: fallback,
+    advanceBy: 1,
+  };
+}
+
 function getConstraintCutoffForPhase(
   phase: { kind: TimeBlockKind; label: string },
   constraints: PlannerConstraintRule[],
 ): number | null {
   const matchingCutoffs = constraints
-    .filter((rule) => constraintMatchesPhase(rule, phase))
+    .filter((rule) => rule.kind !== "deadline" && constraintMatchesPhase(rule, phase))
     .map((rule) => parseTimeInput(rule.time))
     .filter((value): value is number => value !== null);
 
   if (matchingCutoffs.length === 0) return null;
   return Math.min(...matchingCutoffs);
+}
+
+function findNextMatchingPhase(
+  phases: PlannerPhase[],
+  phaseIndex: number,
+  rule: PlannerConstraintRule,
+): { phase: PlannerPhase; offset: number; waitMinutes: number } | null {
+  let waitMinutes = 0;
+
+  for (let offset = 0; offset < phases.length; offset += 1) {
+    const phase = phases[(phaseIndex + offset) % phases.length];
+    if (constraintMatchesPhase(rule, phase)) {
+      return { phase, offset, waitMinutes };
+    }
+    waitMinutes += phase.durationMinutes;
+  }
+
+  return null;
+}
+
+function markDeadlineConstraintsSatisfied(
+  satisfiedDeadlineConstraintIds: Set<string>,
+  phase: PlannerPhase,
+  constraints: PlannerConstraintRule[],
+) {
+  for (const rule of constraints) {
+    if (
+      rule.kind === "deadline" &&
+      !satisfiedDeadlineConstraintIds.has(rule.id) &&
+      constraintMatchesPhase(rule, phase)
+    ) {
+      satisfiedDeadlineConstraintIds.add(rule.id);
+    }
+  }
 }
 
 function constraintMatchesPhase(

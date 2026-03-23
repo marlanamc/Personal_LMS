@@ -49,10 +49,34 @@ export function TimelineBlockCard({
   const durationMinutes = item.durationMinutes ?? (item.endMinute ?? item.startMinute) - item.startMinute;
   const height = Math.max(Number(style?.height) ?? 44, isMobile ? 52 : 44);
   const isCompact = height < 52;
+  const interactionHint = isMobile ? 'Tap to edit note' : 'Click to edit note';
+  const noteBadge = item.blockNote ? (
+    <span
+      role="note"
+      className={`inline-flex items-center gap-1 min-w-0 shrink max-w-[38%] sm:max-w-[44%] rounded-full border font-semibold ${
+        isCompact ? 'px-1 py-0.5 text-[9px]' : 'px-1.5 py-0.5 text-[9px] sm:text-[11px] shadow-sm'
+      } ${
+        isWant
+          ? 'border-accent-teal/30 bg-accent-teal/10 text-accent-teal'
+          : 'border-accent-sakura/30 bg-accent-sakura/10 text-accent-sakura'
+      }`}
+      title={`Note: ${item.blockNote}`}
+    >
+      <FileText size={isCompact ? 9 : 10} className="shrink-0 opacity-80" />
+      <span className="truncate">{item.blockNote}</span>
+    </span>
+  ) : null;
 
   return (
     <article
-      aria-label={`${item.label}, ${isWant ? 'Want to do' : 'Should do'}, ${durationMinutes} minutes`}
+      aria-label={[
+        item.label,
+        isWant ? 'Want to do' : 'Should do',
+        `${durationMinutes} minutes`,
+        item.blockNote ? `note: ${item.blockNote}` : null,
+      ]
+        .filter(Boolean)
+        .join(', ')}
       onClick={onClick}
       className={`rounded-lg sm:rounded-lg border shadow-sm flex flex-col justify-center transition-all duration-200 hover:shadow-md hover:z-10 overflow-hidden group cursor-pointer min-h-[44px] ${
         isCompact ? 'px-2 py-1 sm:px-2.5 sm:py-1' : 'px-1.5 py-1.5 sm:px-3 sm:py-1.5'
@@ -64,11 +88,11 @@ export function TimelineBlockCard({
           : ''
       } ${status === 'completed' ? 'opacity-60' : ''}`}
       title={
-        item.blockNote && isCompact
-          ? `${item.blockNote} · Tap or double-click to edit`
+        item.blockNote
+          ? `${item.blockNote} · ${interactionHint}`
           : isMobile
             ? 'Tap to add a note'
-            : 'Double-click to add a note'
+            : 'Click to add a note'
       }
       style={{
         background: blockStyle.background,
@@ -122,27 +146,14 @@ export function TimelineBlockCard({
 
           {/* Label */}
           <span
-            className={`font-body font-bold text-text min-w-0 leading-tight truncate ${
+            className={`flex-1 font-body font-bold text-text min-w-0 leading-tight truncate ${
               isCompact ? 'text-[11px] sm:text-xs' : 'text-[13px] sm:text-[15px] sm:leading-snug sm:break-words sm:line-clamp-2'
             }`}
           >
             {item.label}
           </span>
 
-          {/* Note badge - hide in compact to save space */}
-          {!isCompact && item.blockNote && (
-              <span
-                className={`inline-flex items-center gap-1 min-w-0 shrink sm:shrink-0 max-w-[35%] sm:max-w-[45%] rounded-full border px-1.5 py-0.5 text-[9px] sm:text-[11px] font-semibold shadow-sm ${
-                  isWant
-                    ? 'border-accent-teal/30 bg-accent-teal/10 text-accent-teal'
-                    : 'border-accent-sakura/30 bg-accent-sakura/10 text-accent-sakura'
-                }`}
-                title={item.blockNote}
-              >
-                <FileText size={10} className="hidden sm:block shrink-0 opacity-80" />
-                <span className="truncate">{item.blockNote}</span>
-              </span>
-            )}
+          {noteBadge}
         </div>
 
         {/* Time, duration, and Start Timer */}

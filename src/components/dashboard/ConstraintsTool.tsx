@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, type ReactNode } from 'react';
-import { Ban, CopyPlus, Edit3, Flag, Info, Plus, Save, Trash2 } from 'lucide-react';
+import { AlarmClock, Ban, CopyPlus, Edit3, Flag, Info, Plus, Save, Trash2 } from 'lucide-react';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
   buildTimeBlockPlan,
@@ -40,6 +40,33 @@ const DEFAULT_DRAFT: ConstraintDraft = {
   time: '20:00',
   enabled: true,
 };
+
+function getConstraintKindMeta(kind: PlannerConstraintRuleKind) {
+  if (kind === 'until') {
+    return {
+      label: 'Schedule Until',
+      targetLabel: 'What to Limit',
+      timeLabel: 'Until Time',
+      Icon: Flag,
+    };
+  }
+
+  if (kind === 'deadline') {
+    return {
+      label: 'Must Happen By',
+      targetLabel: 'What Must Happen',
+      timeLabel: 'By Time',
+      Icon: AlarmClock,
+    };
+  }
+
+  return {
+    label: 'Stop After',
+    targetLabel: 'What to Limit',
+    timeLabel: 'Stop Time',
+    Icon: Ban,
+  };
+}
 
 function draftToRule(draft: ConstraintDraft, id = generateConstraintId()): PlannerConstraintRule {
   const targetLabel = draft.targetLabel.trim();
@@ -94,18 +121,19 @@ function RuleChip({
   actions?: ReactNode;
   trailing?: ReactNode;
 }) {
-  const isUntil = rule.kind === 'until';
+  const kindMeta = getConstraintKindMeta(rule.kind);
   const accentClass = rule.target.kind === 'want' ? 'text-accent-teal' : 'text-accent-sakura';
   const borderClass = rule.target.kind === 'want' ? 'border-accent-teal/20' : 'border-accent-sakura/20';
   const bgClass = rule.target.kind === 'want' ? 'bg-accent-teal/8' : 'bg-accent-sakura/8';
+  const KindIcon = kindMeta.Icon;
 
   return (
     <div className={`rounded-[1.15rem] border ${borderClass} ${bgClass} p-3`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.18em] ${accentClass}`}>
-            {isUntil ? <Flag size={11} /> : <Ban size={11} />}
-            {isUntil ? 'Schedule Until' : 'Stop After'}
+            <KindIcon size={11} />
+            {kindMeta.label}
           </div>
           <p className="mt-1 text-sm font-semibold text-text">{rule.displayText}</p>
           <p className="mt-1 text-xs text-text-muted">
@@ -132,6 +160,7 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
     () => getActiveConstraintsForDay(currentPlan, plannerDefaults),
     [currentPlan, plannerDefaults],
   );
+  const draftKindMeta = getConstraintKindMeta(draft.kind);
   const disabledDefaultIds = new Set(currentPlan.disabledDefaultConstraintIds);
 
   const rebuildDayPlan = (nextPlan: TimeBlockDayPlan, nextDefaults = plannerDefaults) => {
@@ -234,11 +263,12 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
             >
               <option value="cutoff">Stop scheduling after...</option>
               <option value="until">Only schedule until...</option>
+              <option value="deadline">Must be scheduled by...</option>
             </select>
           </label>
 
           <label className="space-y-1.5">
-            <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">What to Limit</span>
+            <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">{draftKindMeta.targetLabel}</span>
             <select
               value={draft.targetKind}
               onChange={(event) => setDraft((current) => ({ ...current, targetKind: event.target.value as PlannerConstraintTarget['kind'] }))}
@@ -263,7 +293,7 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
           </label>
 
           <label className="space-y-1.5">
-            <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">Stop Time</span>
+            <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">{draftKindMeta.timeLabel}</span>
             <input
               type="time"
               value={draft.time}
@@ -276,6 +306,9 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
         <div className="rounded-xl border border-border-subtle/35 bg-bg-elevated/40 px-3 py-2.5">
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">Preview</p>
           <p className="mt-1 text-sm font-semibold text-text">{describeConstraintRule(draftToRule(draft, 'preview'))}</p>
+          {draft.kind === 'deadline' ? (
+            <p className="mt-1 text-xs text-text-muted">If needed, the planner will pull this block earlier so it appears by that time.</p>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap gap-2">

@@ -193,6 +193,37 @@ describe("time block planner helpers", () => {
     ]);
   });
 
+  it("pulls a matching block earlier when it must be scheduled by a deadline", () => {
+    const blocks = buildTimeBlockPlan(
+      {
+        date: "2026-03-08",
+        startTime: "09:00",
+        endTime: "12:00",
+        activities: [
+          { id: "a", kind: "should", label: "Work", minutes: 60 },
+          { id: "b", kind: "want", label: "Reset", minutes: 30 },
+        ],
+      },
+      [
+        {
+          id: "constraint-1",
+          kind: "deadline",
+          target: { kind: "want", label: "Reset" },
+          time: "09:30",
+          enabled: true,
+          displayText: "Schedule Reset by 9:30 AM",
+        },
+      ],
+    );
+
+    expect(blocks.map((block) => `${block.label}:${block.startTime}-${block.endTime}`)).toEqual([
+      "Reset:09:00-09:30",
+      "Work:09:30-10:30",
+      "Reset:10:30-11:00",
+      "Work:11:00-12:00",
+    ]);
+  });
+
   it("normalizes legacy store payloads and merges active defaults with day rules", () => {
     const store = normalizeTimeBlockPlannerStore({
       "2026-03-08": {

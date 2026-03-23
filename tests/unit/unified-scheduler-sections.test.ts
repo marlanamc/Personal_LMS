@@ -124,11 +124,19 @@ describe("groupItemsIntoSections", () => {
         constraintKind: "until",
         blockKind: "should",
       },
+      {
+        id: "constraint-3",
+        type: "constraint",
+        label: "Schedule Workout by 4 PM",
+        startMinute: 16 * 60,
+        constraintKind: "deadline",
+        blockKind: "want",
+      },
     ];
 
     const grouped = groupItemsIntoSections(sections, [], constraints);
 
     expect(grouped[0]?.constraints.map((item) => item.id)).toEqual([]);
-    expect(grouped[1]?.constraints.map((item) => item.id)).toEqual(["constraint-2", "constraint-1"]);
+    expect(grouped[1]?.constraints.map((item) => item.id)).toEqual(["constraint-2", "constraint-1", "constraint-3"]);
   });
 });
