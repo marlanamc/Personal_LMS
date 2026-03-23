@@ -95,18 +95,32 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
             <header className="dashboard-header-shell sticky top-0 z-50 transition-colors bg-bg-elevated/95 border-b border-border/70 shadow-sm backdrop-blur-sm">
                 <div className="max-w-[1800px] mx-auto py-1 md:py-4 px-3 sm:px-6 lg:px-8">
                     {headerCenter ? (
-                        <div className="flex w-full min-w-0 items-center justify-between gap-1.5 sm:gap-3">
-                            <div className="flex shrink-0 items-center gap-4 min-w-0">
-                                {brandBlock}
+                        <>
+                            <div className="flex w-full items-center justify-between gap-2 sm:hidden">
+                                <div className="flex min-w-0 shrink items-center gap-3">
+                                    {brandBlock}
+                                </div>
+                                <div className="flex min-w-0 flex-1 items-center justify-end">
+                                    {actionsBlock}
+                                </div>
                             </div>
-                            {/* Center content slot (e.g. date nav) */}
-                            <div className="flex min-w-0 flex-1 justify-center px-0.5">
+                            <div className="pt-2 sm:hidden">
                                 {headerCenter}
                             </div>
-                            <div className="flex shrink-0 items-center justify-end min-w-0">
-                                {actionsBlock}
+
+                            <div className="hidden w-full min-w-0 items-center justify-between gap-1.5 sm:flex sm:gap-3">
+                                <div className="flex shrink-0 items-center gap-4 min-w-0">
+                                    {brandBlock}
+                                </div>
+                                {/* Center content slot (e.g. date nav) */}
+                                <div className="flex min-w-0 flex-1 justify-center px-0.5">
+                                    {headerCenter}
+                                </div>
+                                <div className="flex shrink-0 items-center justify-end min-w-0">
+                                    {actionsBlock}
+                                </div>
                             </div>
-                        </div>
+                        </>
                     ) : (
                         <div className="flex justify-between items-center">
                             <div className="flex-1 flex items-center gap-4">{brandBlock}</div>

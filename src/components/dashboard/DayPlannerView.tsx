@@ -255,12 +255,18 @@ export function DayPlannerView({
     if (!syncHeaderDateNav || !setHeaderCenter || !setHeaderEndAccessory) return;
     
     setHeaderCenter(
-      <div className="flex items-center justify-center -my-2 transform scale-[0.80] sm:scale-100">
+      <div
+        className={
+          isMobile
+            ? 'mx-auto flex w-full max-w-[22rem] items-center justify-center'
+            : 'flex items-center justify-center -my-2 transform scale-[0.80] sm:scale-100'
+        }
+      >
         <DayPlannerHeaderDateNav
           selectedDateKey={selectedDateKey}
           isSelectedToday={isSelectedToday}
-          dateLabel={fullDateLabel}
-          variant="desktopRail"
+          dateLabel={isMobile ? mobileDateLabel : fullDateLabel}
+          variant={isMobile ? 'compact' : 'desktopRail'}
           onPrev={goToPreviousDay}
           onNext={goToNextDay}
           onPickDate={applyDateKey}
@@ -275,7 +281,7 @@ export function DayPlannerView({
     };
   }, [
     syncHeaderDateNav, setHeaderCenter, setHeaderEndAccessory, isMobile,
-    selectedDateKey, isSelectedToday, fullDateLabel, goToPreviousDay, goToNextDay, applyDateKey
+    selectedDateKey, isSelectedToday, mobileDateLabel, fullDateLabel, goToPreviousDay, goToNextDay, applyDateKey
   ]);
 
   // Pull-to-reveal gesture handlers (mobile only)
