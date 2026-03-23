@@ -3,6 +3,7 @@ import {
   buildTimeBlockPlan,
   createEqualQuadrants,
   createDefaultTimeBlockForm,
+  getActiveTimeBlockStatus,
   getActiveConstraintsForDay,
   normalizeTimeBlockPlannerStore,
   roundToNextTimeIncrement,
@@ -222,6 +223,97 @@ describe("time block planner helpers", () => {
       "Reset:10:30-11:00",
       "Work:11:00-12:00",
     ]);
+  });
+
+  it("returns the active time block status and remaining minutes for today", () => {
+    const status = getActiveTimeBlockStatus(
+      "2026-03-23",
+      [
+        {
+          id: "block-1",
+          kind: "should",
+          label: "Focus Work",
+          startTime: "10:00",
+          endTime: "10:30",
+          startMinuteOfDay: 600,
+          endMinuteOfDay: 630,
+          durationMinutes: 30,
+          isTrimmed: false,
+        },
+      ],
+      608,
+      "2026-03-23",
+    );
+
+    expect(status).toMatchObject({
+      remainingMinutes: 22,
+      block: {
+        label: "Focus Work",
+        kind: "should",
+      },
+    });
+  });
+
+  it("treats the start minute as active and the end minute as inactive", () => {
+    const blocks = [
+      {
+        id: "block-1",
+        kind: "want" as const,
+        label: "Reset",
+        startTime: "09:00",
+        endTime: "09:30",
+        startMinuteOfDay: 540,
+        endMinuteOfDay: 570,
+        durationMinutes: 30,
+        isTrimmed: false,
+      },
+    ];
+
+    expect(getActiveTimeBlockStatus("2026-03-23", blocks, 540, "2026-03-23")).toMatchObject({
+      remainingMinutes: 30,
+      block: {
+        label: "Reset",
+      },
+    });
+    expect(getActiveTimeBlockStatus("2026-03-23", blocks, 570, "2026-03-23")).toBeNull();
+  });
+
+  it("returns no active time block status for non-today dates", () => {
+    const blocks = [
+      {
+        id: "block-1",
+        kind: "should" as const,
+        label: "Focus Work",
+        startTime: "10:00",
+        endTime: "10:30",
+        startMinuteOfDay: 600,
+        endMinuteOfDay: 630,
+        durationMinutes: 30,
+        isTrimmed: false,
+      },
+    ];
+
+    expect(getActiveTimeBlockStatus("2026-03-24", blocks, 610, "2026-03-23")).toBeNull();
+  });
+
+  it("returns no active time block status when there is no current block", () => {
+    const blocks = [
+      {
+        id: "block-1",
+        kind: "should" as const,
+        label: "Focus Work",
+        startTime: "10:00",
+        endTime: "10:30",
+        startMinuteOfDay: 600,
+        endMinuteOfDay: 630,
+        durationMinutes: 30,
+        isTrimmed: false,
+      },
+    ];
+
+    expect(getActiveTimeBlockStatus("2026-03-23", [], 610, "2026-03-23")).toBeNull();
+    expect(getActiveTimeBlockStatus("2026-03-23", blocks, null, "2026-03-23")).toBeNull();
+    expect(getActiveTimeBlockStatus("2026-03-23", blocks, 590, "2026-03-23")).toBeNull();
   });
 
   it("normalizes legacy store payloads and merges active defaults with day rules", () => {

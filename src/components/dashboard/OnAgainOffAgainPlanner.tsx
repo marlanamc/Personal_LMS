@@ -14,6 +14,7 @@ import {
   createEmptyTimeBlockDayPlan,
   formatMinuteOfDay,
   generateActivityId,
+  getActiveTimeBlockStatus,
   getActiveConstraintsForDay,
   getActiveQuadrantsForDay,
   getSectionRangeForDay,
@@ -380,17 +381,10 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
   }, [blocks, form.activities]);
 
   // Find the current block for mobile header display
-  const currentBlockInfo = useMemo(() => {
-    if (blocks.length === 0 || nowMinuteOfDay === null) return null;
-    const todayDateKey = toDateKey(new Date());
-    if (selectedDateKey !== todayDateKey) return null;
-    const block = blocks.find(
-      (b) => b.startMinuteOfDay <= nowMinuteOfDay && b.endMinuteOfDay > nowMinuteOfDay
-    );
-    if (!block) return null;
-    const remaining = block.endMinuteOfDay - nowMinuteOfDay;
-    return { block, remainingMinutes: remaining > 0 ? remaining : 0 };
-  }, [blocks, selectedDateKey, nowMinuteOfDay]);
+  const currentBlockInfo = useMemo(
+    () => getActiveTimeBlockStatus(selectedDateKey, blocks, nowMinuteOfDay),
+    [blocks, selectedDateKey, nowMinuteOfDay],
+  );
 
   // Filter anchors that fall within the plan time window
   const timelineAnchors = useMemo(() => {

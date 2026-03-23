@@ -71,6 +71,11 @@ export type TimeBlockEntry = {
   isTrimmed: boolean;
 };
 
+export type ActiveTimeBlockStatus = {
+  block: TimeBlockEntry;
+  remainingMinutes: number;
+};
+
 export type TimeBlockDayPlan = {
   form: TimeBlockFormState;
   blocks: TimeBlockEntry[];
@@ -159,6 +164,34 @@ export function formatMinuteOfDay(totalMinutes: number): string {
   const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
   if (minutes === 0) return `${hour12} ${period}`;
   return `${hour12}:${`${minutes}`.padStart(2, "0")} ${period}`;
+}
+
+export function getActiveTimeBlockStatus(
+  dateKey: string,
+  blocks: TimeBlockEntry[] | null | undefined,
+  nowMinuteOfDay: number | null,
+  todayDateKey = toDateKey(new Date()),
+): ActiveTimeBlockStatus | null {
+  if (!blocks?.length || nowMinuteOfDay === null) {
+    return null;
+  }
+
+  if (dateKey !== todayDateKey) {
+    return null;
+  }
+
+  const block = blocks.find(
+    (entry) => entry.startMinuteOfDay <= nowMinuteOfDay && entry.endMinuteOfDay > nowMinuteOfDay,
+  );
+
+  if (!block) {
+    return null;
+  }
+
+  return {
+    block,
+    remainingMinutes: Math.max(0, block.endMinuteOfDay - nowMinuteOfDay),
+  };
 }
 
 export function generateActivityId(): string {

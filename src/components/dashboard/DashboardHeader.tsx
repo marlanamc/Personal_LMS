@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from "react";
-import Link from "next/link";
-import { BookOpenIcon, TimerIcon } from "@/components/icons/Icons";
+import { useEffect, useMemo, useState } from "react";
+import { BookOpenIcon } from "@/components/icons/Icons";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
-import { NavigationSidePanel } from ".";
 import { useFocusTimer } from "@/context/FocusTimerContext";
+import { getActiveTimeBlockStatus, toDateKey } from "@/lib/time-block-planner";
 import {
     useDashboardHeaderCenterContent,
     useDashboardHeaderEndAccessoryContent,
 } from "./DashboardHeaderCenterContext";
+import { HeaderStatusChips } from "./HeaderStatusChips";
+import { NavigationSidePanel } from "./NavigationSidePanel";
+import { useTimeBlockPlanner } from "./useTimeBlockPlanner";
 
 interface DashboardHeaderProps {
     userName?: string;
@@ -19,9 +21,31 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) {
     const [isNavOpen, setIsNavOpen] = useState(false);
     const { isActive, formattedTime, activeSessionLabel } = useFocusTimer();
+    const { plannerStore } = useTimeBlockPlanner();
     const displayTitle = title;
     const headerCenter = useDashboardHeaderCenterContent();
     const headerEndAccessory = useDashboardHeaderEndAccessoryContent();
+    const [nowMs, setNowMs] = useState(() => Date.now());
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const update = () => setNowMs(Date.now());
+        update();
+        const intervalId = window.setInterval(update, 30000);
+        return () => window.clearInterval(intervalId);
+    }, []);
+
+    const today = useMemo(() => new Date(nowMs), [nowMs]);
+    const todayDateKey = useMemo(() => toDateKey(today), [today]);
+    const nowMinuteOfDay = today.getHours() * 60 + today.getMinutes();
+    const todayBlocks = plannerStore[todayDateKey]?.blocks;
+    const activeTimeBlockStatus = useMemo(
+        () => getActiveTimeBlockStatus(todayDateKey, todayBlocks, nowMinuteOfDay),
+        [todayBlocks, todayDateKey, nowMinuteOfDay],
+    );
 
     const brandBlock = (
         <>
@@ -53,28 +77,14 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
 
     const actionsBlock = (
         <div className="flex items-center gap-2 sm:gap-4 animate-fade-in-up delay-100 shrink-0 justify-end">
-                        <Link
-                            href="/dashboard/timer"
-                            className={`focus-timer-chip items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full transition-colors font-semibold text-sm border ${
-                                isActive ? 'inline-flex' : 'hidden md:inline-flex'
-                            }`}
-                            aria-label={isActive ? `Focus Timer running: ${formattedTime} remaining` : "Focus Timer"}
-                        >
-                            <TimerIcon className="w-4 h-4" />
-                            {isActive ? (
-                                <>
-                                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent-mint animate-pulse" />
-                                    <span className="flex flex-col leading-tight">
-                                        <span className="hidden sm:block text-[10px] tracking-[0.04em] text-text">
-                                            {(activeSessionLabel || "Focus Timer").slice(0, 28)}
-                                        </span>
-                                        <span className="text-sm text-text">{formattedTime}</span>
-                                    </span>
-                                </>
-                            ) : (
-                                "Focus Timer"
-                            )}
-                        </Link>
+                        <HeaderStatusChips
+                            activeTimeBlockStatus={activeTimeBlockStatus}
+                            focusTimer={{
+                                isActive,
+                                formattedTime,
+                                activeSessionLabel,
+                            }}
+                        />
                         {headerEndAccessory}
                         <UserProfileDropdown userName={userName} />
         </div>
