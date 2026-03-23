@@ -124,7 +124,7 @@ export function DayPlannerMomentLogPanel({
 
   return (
     <section
-      className="rounded-2xl border border-border-subtle/50 bg-bg-elevated/80 p-4 shadow-sm backdrop-blur-sm"
+      className="flex min-h-[36rem] flex-col rounded-2xl border border-border-subtle/50 bg-bg-elevated/80 p-4 shadow-sm backdrop-blur-sm lg:min-h-[38rem]"
       aria-label="Moment Log panel"
     >
       <div className="mb-4 flex items-start justify-between gap-3">
@@ -205,11 +205,11 @@ export function DayPlannerMomentLogPanel({
       )}
 
       {!isLoaded ? (
-        <div className="mt-3 h-20 rounded-xl border border-border-subtle/40 bg-bg-surface/40" aria-hidden />
+        <div className="mt-3 flex-1 rounded-xl border border-border-subtle/40 bg-bg-surface/40" aria-hidden />
       ) : visibleEntries.length === 0 ? (
-        <div className="mt-3 h-20 rounded-xl border border-dashed border-border-subtle/50 bg-bg-surface/30" aria-hidden />
+        <div className="mt-3 flex-1 rounded-xl border border-dashed border-border-subtle/50 bg-bg-surface/30" aria-hidden />
       ) : (
-        <div className="mt-3 max-h-[22rem] space-y-2 overflow-y-auto pr-1">
+        <div className="mt-3 flex-1 space-y-2 overflow-y-auto pr-1">
           {visibleEntries.map((entry) => {
             const tagMeta = resolveTagMeta(entry.tag, entry.tagMeta);
             return (

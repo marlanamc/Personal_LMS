@@ -28,6 +28,8 @@ const SIDEBAR_TABS: Array<{
   { id: 'thought-download', label: 'Thought Download', icon: Moon },
 ];
 
+const PANEL_SHELL_CLASS = 'min-h-[36rem] lg:min-h-[38rem]';
+
 function createTimestampForDate(dateKey: string) {
   const now = new Date();
   const [year, month, day] = dateKey.split('-').map(Number);
@@ -127,6 +129,7 @@ export function DayPlannerSidebarWorkspace({
           calendarEvents={calendarEvents}
           selectedDate={selectedDate}
           onDateSelect={onDateSelect}
+          className={PANEL_SHELL_CLASS}
         />
       ) : null}
 

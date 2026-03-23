@@ -349,7 +349,7 @@ describe("time block planner helpers", () => {
     expect(store.days["2026-03-08"].sectionEndTime).toBe("11:00");
     expect(store.defaults.constraints[0]).toMatchObject({
       id: "default-1",
-      displayText: "Stop scheduling Focus after 8 PM",
+      displayText: "No more Focus after 8 PM",
     });
 
     const active = getActiveConstraintsForDay(store.days["2026-03-08"], store.defaults);

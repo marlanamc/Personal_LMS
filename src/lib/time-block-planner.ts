@@ -206,8 +206,9 @@ export function generateQuadrantId(): string {
   return `quadrant-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export function createDefaultTimeBlockForm(dateKey: string, _now = new Date()): TimeBlockFormState {
-  const startTime = "09:00";
+export function createDefaultTimeBlockForm(dateKey: string, now = new Date()): TimeBlockFormState {
+  const todayKey = toDateKey(now);
+  const startTime = dateKey === todayKey ? roundToNextTimeIncrement(now) : "09:00";
   const endTime = "23:59";
 
   return {

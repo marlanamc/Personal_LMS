@@ -20,7 +20,7 @@ export function DayPlannerThoughtDownloadPanel({
 }: DayPlannerThoughtDownloadPanelProps) {
   return (
     <section
-      className="rounded-2xl border border-border-subtle/50 bg-bg-elevated/80 p-4 shadow-sm backdrop-blur-sm"
+      className="flex min-h-[36rem] flex-col rounded-2xl border border-border-subtle/50 bg-bg-elevated/80 p-4 shadow-sm backdrop-blur-sm lg:min-h-[38rem]"
       aria-label="Thought Download panel"
     >
       <div className="mb-4 flex items-start justify-between gap-3">
@@ -39,7 +39,7 @@ export function DayPlannerThoughtDownloadPanel({
       <textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-[18rem] w-full rounded-2xl border border-border-subtle/50 bg-bg-surface/80 px-4 py-3 text-sm leading-6 text-text focus:outline-none focus:ring-2 focus:ring-primary/20"
+        className="min-h-[24rem] flex-1 w-full rounded-2xl border border-border-subtle/50 bg-bg-surface/80 px-4 py-3 text-sm leading-6 text-text focus:outline-none focus:ring-2 focus:ring-primary/20 lg:min-h-[28rem]"
         disabled={!isLoaded}
       />
 

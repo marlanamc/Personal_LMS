@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { CalendarIcon, BookOpenIcon, PanelRightClose } from 'lucide-react';
 import { MiniCalendar, type CalendarEvent } from './MiniCalendar';
 import UpcomingEventsList from './UpcomingEventsList';
+import { cn } from '@/lib/utils';
 
 interface CalendarPanelProps {
   calendarEvents: CalendarEvent[];
@@ -11,9 +12,17 @@ interface CalendarPanelProps {
   showJumpToToday?: boolean;
   selectedDate?: Date | null;
   onDateSelect?: (date: Date) => void;
+  className?: string;
 }
 
-export function CalendarPanel({ calendarEvents, onToggle, showJumpToToday = false, selectedDate: selectedDateProp, onDateSelect }: CalendarPanelProps) {
+export function CalendarPanel({
+  calendarEvents,
+  onToggle,
+  showJumpToToday = false,
+  selectedDate: selectedDateProp,
+  onDateSelect,
+  className,
+}: CalendarPanelProps) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
@@ -46,7 +55,10 @@ export function CalendarPanel({ calendarEvents, onToggle, showJumpToToday = fals
 
   return (
     <div
-      className="rounded-2xl p-4 space-y-4 overflow-hidden relative elevation-2 border border-border-subtle/50"
+      className={cn(
+        'rounded-2xl p-4 space-y-4 overflow-hidden relative elevation-2 border border-border-subtle/50',
+        className,
+      )}
       style={{
         background: "linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 98%, white 2%) 0%, color-mix(in srgb, var(--color-bg-elevated) 94%, var(--color-accent-sakura) 2%) 100%)",
       }}
