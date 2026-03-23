@@ -310,6 +310,79 @@ describe("time block planner helpers", () => {
     expect(active.map((rule) => rule.id)).toEqual(["default-2", "day-1"]);
   });
 
+  it("filters repeating defaults by weekdays and custom days", () => {
+    const store = normalizeTimeBlockPlannerStore({
+      days: {
+        "2026-03-10": {
+          form: {
+            date: "2026-03-10",
+            startTime: "09:00",
+            endTime: "11:00",
+            activities: [],
+          },
+          blocks: [],
+          generatedAt: null,
+          constraints: [],
+          disabledDefaultConstraintIds: [],
+        },
+        "2026-03-11": {
+          form: {
+            date: "2026-03-11",
+            startTime: "09:00",
+            endTime: "11:00",
+            activities: [],
+          },
+          blocks: [],
+          generatedAt: null,
+          constraints: [],
+          disabledDefaultConstraintIds: [],
+        },
+        "2026-03-14": {
+          form: {
+            date: "2026-03-14",
+            startTime: "09:00",
+            endTime: "11:00",
+            activities: [],
+          },
+          blocks: [],
+          generatedAt: null,
+          constraints: [],
+          disabledDefaultConstraintIds: [],
+        },
+      },
+      defaults: {
+        constraints: [
+          {
+            id: "weekday",
+            kind: "cutoff",
+            target: { kind: "should" },
+            time: "18:00",
+            daysOfWeek: [1, 2, 3, 4, 5],
+          },
+          {
+            id: "mon-wed",
+            kind: "deadline",
+            target: { kind: "want" },
+            time: "10:00",
+            daysOfWeek: [3, 1],
+          },
+          {
+            id: "weekend",
+            kind: "cutoff",
+            target: { kind: "want" },
+            time: "22:00",
+            daysOfWeek: [0, 6],
+          },
+        ],
+      },
+    });
+
+    expect(store.defaults.constraints[1]?.daysOfWeek).toEqual([1, 3]);
+    expect(getActiveConstraintsForDay(store.days["2026-03-10"], store.defaults).map((rule) => rule.id)).toEqual(["weekday"]);
+    expect(getActiveConstraintsForDay(store.days["2026-03-11"], store.defaults).map((rule) => rule.id)).toEqual(["weekday", "mon-wed"]);
+    expect(getActiveConstraintsForDay(store.days["2026-03-14"], store.defaults).map((rule) => rule.id)).toEqual(["weekend"]);
+  });
+
   it("trims blocks at quadrant boundaries", () => {
     const form = {
         date: "2026-03-08",

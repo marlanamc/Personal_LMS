@@ -4,6 +4,7 @@ export const TIME_BLOCK_PLANNER_SUBJECT_KEY = "time-block-planner";
 
 export type TimeBlockKind = "want" | "should";
 export type PlannerConstraintRuleKind = "cutoff" | "until" | "deadline";
+export type PlannerConstraintDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type PlannerQuadrantColorToken = "dawn" | "mint" | "sky" | "sand" | "rose";
 
 export type PlannerConstraintTarget = {
@@ -18,6 +19,7 @@ export type PlannerConstraintRule = {
   time: string;
   enabled: boolean;
   displayText: string;
+  daysOfWeek?: PlannerConstraintDay[];
 };
 
 export type TimeBlockPlannerDefaults = {
@@ -100,6 +102,16 @@ type PlannerPhaseSelection = {
 
 const TIME_KEY_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const CONSTRAINT_DAY_ORDER: PlannerConstraintDay[] = [1, 2, 3, 4, 5, 6, 0];
+const CONSTRAINT_DAY_LABELS: Record<PlannerConstraintDay, string> = {
+  0: "Sun",
+  1: "Mon",
+  2: "Tue",
+  3: "Wed",
+  4: "Thu",
+  5: "Fri",
+  6: "Sat",
+};
 
 function clampDuration(minutes: number): number {
   if (!Number.isFinite(minutes)) return 5;
@@ -212,12 +224,38 @@ export function describeConstraintRule(rule: PlannerConstraintRule): string {
   return `No more ${activityName} after ${timeLabel}`;
 }
 
+export function describeConstraintRuleDays(rule: Pick<PlannerConstraintRule, "daysOfWeek">): string {
+  const days = normalizeConstraintDays(rule.daysOfWeek);
+  if (!days || days.length === 0 || days.length === 7) return "Every day";
+  if (days.length === 5 && days.every((day, index) => day === CONSTRAINT_DAY_ORDER[index])) {
+    return "Weekdays";
+  }
+  if (days.length === 2 && days[0] === 6 && days[1] === 0) {
+    return "Weekends";
+  }
+  return days.map((day) => CONSTRAINT_DAY_LABELS[day]).join(", ");
+}
+
+export function constraintAppliesToDate(
+  rule: Pick<PlannerConstraintRule, "daysOfWeek">,
+  dateKey: string,
+): boolean {
+  const days = normalizeConstraintDays(rule.daysOfWeek);
+  if (!days || days.length === 0 || days.length === 7) return true;
+  return days.includes(getDayOfWeekForDateKey(dateKey));
+}
+
 export function getActiveConstraintsForDay(
   dayPlan: TimeBlockDayPlan | undefined,
   defaults: TimeBlockPlannerDefaults | undefined,
 ): PlannerConstraintRule[] {
   const disabledIds = new Set(dayPlan?.disabledDefaultConstraintIds ?? []);
-  const inherited = (defaults?.constraints ?? []).filter((rule) => !disabledIds.has(rule.id));
+  const dateKey = dayPlan?.form.date;
+  const inherited = (defaults?.constraints ?? []).filter(
+    (rule) =>
+      !disabledIds.has(rule.id) &&
+      (!dateKey || constraintAppliesToDate(rule, dateKey)),
+  );
   return [...inherited, ...(dayPlan?.constraints ?? [])].filter((rule) => rule.enabled);
 }
 
@@ -520,6 +558,27 @@ function normalizeConstraintTarget(raw: unknown): PlannerConstraintTarget | null
   return label ? { kind, label } : { kind };
 }
 
+function normalizeConstraintDays(raw: unknown): PlannerConstraintDay[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+
+  const uniqueDays = Array.from(
+    new Set(
+      raw
+        .map((value) => Number(value))
+        .filter(
+          (value): value is PlannerConstraintDay =>
+            Number.isInteger(value) && value >= 0 && value <= 6,
+        ),
+    ),
+  );
+
+  if (uniqueDays.length === 0) return undefined;
+
+  return [...uniqueDays].sort(
+    (a, b) => CONSTRAINT_DAY_ORDER.indexOf(a) - CONSTRAINT_DAY_ORDER.indexOf(b),
+  );
+}
+
 function normalizeConstraintRule(raw: unknown): PlannerConstraintRule | null {
   if (!raw || typeof raw !== "object") return null;
   const candidate = raw as Partial<PlannerConstraintRule>;
@@ -545,6 +604,7 @@ function normalizeConstraintRule(raw: unknown): PlannerConstraintRule | null {
       typeof candidate.displayText === "string" && candidate.displayText.trim()
         ? candidate.displayText.trim()
         : "",
+    daysOfWeek: normalizeConstraintDays(candidate.daysOfWeek),
   };
 
   return {
@@ -768,6 +828,11 @@ function formatTimeFromMinutes(totalMinutes: number): string {
 function formatTimeLabel(time: string): string {
   const minutes = parseTimeInput(time);
   return minutes === null ? time : formatMinuteOfDay(minutes);
+}
+
+function getDayOfWeekForDateKey(dateKey: string): PlannerConstraintDay {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  return new Date(year, (month || 1) - 1, day || 1, 12, 0, 0, 0).getDay() as PlannerConstraintDay;
 }
 
 function selectNextPlannerPhase(

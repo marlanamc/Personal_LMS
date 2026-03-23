@@ -1,15 +1,18 @@
 'use client';
 
 import { useMemo, useState, type ReactNode } from 'react';
-import { AlarmClock, Ban, CopyPlus, Edit3, Flag, Info, Plus, Save, Trash2 } from 'lucide-react';
+import { AlarmClock, Ban, Edit3, Flag, Info, Plus, Save, Trash2 } from 'lucide-react';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
   buildTimeBlockPlan,
+  constraintAppliesToDate,
   createEmptyTimeBlockDayPlan,
   describeConstraintRule,
+  describeConstraintRuleDays,
   generateConstraintId,
   getActiveConstraintsForDay,
   getActiveQuadrantsForDay,
+  type PlannerConstraintDay,
   type PlannerConstraintRule,
   type PlannerConstraintRuleKind,
   type PlannerConstraintTarget,
@@ -25,13 +28,29 @@ type EditorMode =
   | { source: 'day'; id: string }
   | { source: 'default'; id: string };
 
+type ConstraintRepeatPattern = 'daily' | 'weekdays' | 'weekends' | 'custom';
+
 type ConstraintDraft = {
   kind: PlannerConstraintRuleKind;
   targetKind: PlannerConstraintTarget['kind'];
   targetLabel: string;
   time: string;
   enabled: boolean;
+  repeatPattern: ConstraintRepeatPattern;
+  customDays: PlannerConstraintDay[];
 };
+
+const WEEKDAY_DAYS: PlannerConstraintDay[] = [1, 2, 3, 4, 5];
+const WEEKEND_DAYS: PlannerConstraintDay[] = [6, 0];
+const DAY_PICKER_OPTIONS: Array<{ value: PlannerConstraintDay; short: string; full: string }> = [
+  { value: 1, short: 'Mon', full: 'Monday' },
+  { value: 2, short: 'Tue', full: 'Tuesday' },
+  { value: 3, short: 'Wed', full: 'Wednesday' },
+  { value: 4, short: 'Thu', full: 'Thursday' },
+  { value: 5, short: 'Fri', full: 'Friday' },
+  { value: 6, short: 'Sat', full: 'Saturday' },
+  { value: 0, short: 'Sun', full: 'Sunday' },
+];
 
 const DEFAULT_DRAFT: ConstraintDraft = {
   kind: 'cutoff',
@@ -39,6 +58,8 @@ const DEFAULT_DRAFT: ConstraintDraft = {
   targetLabel: '',
   time: '20:00',
   enabled: true,
+  repeatPattern: 'daily',
+  customDays: [],
 };
 
 function getConstraintKindMeta(kind: PlannerConstraintRuleKind) {
@@ -68,7 +89,54 @@ function getConstraintKindMeta(kind: PlannerConstraintRuleKind) {
   };
 }
 
-function draftToRule(draft: ConstraintDraft, id = generateConstraintId()): PlannerConstraintRule {
+function sameDays(a: PlannerConstraintDay[], b: PlannerConstraintDay[]) {
+  return a.length === b.length && a.every((day, index) => day === b[index]);
+}
+
+function sortDays(days: PlannerConstraintDay[]) {
+  const seen = new Set<PlannerConstraintDay>();
+  return DAY_PICKER_OPTIONS
+    .map((option) => option.value)
+    .filter((day) => {
+      if (!days.includes(day) || seen.has(day)) return false;
+      seen.add(day);
+      return true;
+    });
+}
+
+function getDraftDaysOfWeek(draft: ConstraintDraft): PlannerConstraintDay[] | undefined {
+  if (draft.repeatPattern === 'daily') return undefined;
+  if (draft.repeatPattern === 'weekdays') return WEEKDAY_DAYS;
+  if (draft.repeatPattern === 'weekends') return WEEKEND_DAYS;
+  return draft.customDays.length > 0 ? sortDays(draft.customDays) : undefined;
+}
+
+function getDraftRepeatSummary(draft: ConstraintDraft) {
+  if (draft.repeatPattern === 'custom' && draft.customDays.length === 0) {
+    return 'Pick days';
+  }
+  return describeConstraintRuleDays({ daysOfWeek: getDraftDaysOfWeek(draft) });
+}
+
+function getRepeatPatternFromRule(rule: PlannerConstraintRule): Pick<ConstraintDraft, 'repeatPattern' | 'customDays'> {
+  const days = sortDays(rule.daysOfWeek ?? []);
+  if (days.length === 0 || days.length === 7) {
+    return { repeatPattern: 'daily', customDays: [] };
+  }
+  if (sameDays(days, WEEKDAY_DAYS)) {
+    return { repeatPattern: 'weekdays', customDays: [] };
+  }
+  if (sameDays(days, WEEKEND_DAYS)) {
+    return { repeatPattern: 'weekends', customDays: [] };
+  }
+  return { repeatPattern: 'custom', customDays: days };
+}
+
+function draftToRule(
+  draft: ConstraintDraft,
+  id = generateConstraintId(),
+  daysOfWeek?: PlannerConstraintDay[],
+): PlannerConstraintRule {
   const targetLabel = draft.targetLabel.trim();
   const rule: PlannerConstraintRule = {
     id,
@@ -77,6 +145,7 @@ function draftToRule(draft: ConstraintDraft, id = generateConstraintId()): Plann
     time: draft.time,
     enabled: draft.enabled,
     displayText: '',
+    daysOfWeek,
   };
 
   return {
@@ -92,6 +161,7 @@ function ruleToDraft(rule: PlannerConstraintRule): ConstraintDraft {
     targetLabel: rule.target.label ?? '',
     time: rule.time,
     enabled: rule.enabled,
+    ...getRepeatPatternFromRule(rule),
   };
 }
 
@@ -116,16 +186,19 @@ function RuleChip({
   rule,
   actions,
   trailing,
+  showRepeatSummary = false,
 }: {
   rule: PlannerConstraintRule;
   actions?: ReactNode;
   trailing?: ReactNode;
+  showRepeatSummary?: boolean;
 }) {
   const kindMeta = getConstraintKindMeta(rule.kind);
   const accentClass = rule.target.kind === 'want' ? 'text-accent-teal' : 'text-accent-sakura';
   const borderClass = rule.target.kind === 'want' ? 'border-accent-teal/20' : 'border-accent-sakura/20';
   const bgClass = rule.target.kind === 'want' ? 'bg-accent-teal/8' : 'bg-accent-sakura/8';
   const KindIcon = kindMeta.Icon;
+  const repeatSummary = showRepeatSummary ? describeConstraintRuleDays(rule) : null;
 
   return (
     <div className={`rounded-[1.15rem] border ${borderClass} ${bgClass} p-3`}>
@@ -139,6 +212,7 @@ function RuleChip({
           <p className="mt-1 text-xs text-text-muted">
             {rule.target.kind === 'want' ? 'Energy' : 'Focus'}
             {rule.target.label ? ` · ${rule.target.label}` : ''}
+            {repeatSummary ? ` · ${repeatSummary}` : ''}
           </p>
         </div>
         {trailing}
@@ -195,7 +269,7 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
     setEditorMode({ source: 'new' });
   };
 
-  const saveDayRule = (alsoSaveAsDefault = false) => {
+  const saveDayRule = () => {
     const nextRule = draftToRule(draft, editorMode.source === 'day' ? editorMode.id : generateConstraintId());
     const nextConstraints =
       editorMode.source === 'day'
@@ -207,19 +281,22 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
       constraints: nextConstraints,
     });
 
-    if (alsoSaveAsDefault) {
-      updateDefaults({
-        ...plannerDefaults,
-        constraints: [...plannerDefaults.constraints, draftToRule(draft)],
-      });
-    }
-
-    setMessage(alsoSaveAsDefault ? 'Saved for today and as everyday boundary.' : 'Saved boundary for today.');
+    setMessage('Saved just for today.');
     resetEditor();
   };
 
-  const saveDefaultRule = () => {
-    const nextRule = draftToRule(draft, editorMode.source === 'default' ? editorMode.id : generateConstraintId());
+  const saveRepeatingRule = () => {
+    if (draft.repeatPattern === 'custom' && draft.customDays.length === 0) {
+      setMessage('Pick at least one day for a custom repeating rule.');
+      return;
+    }
+
+    const daysOfWeek = getDraftDaysOfWeek(draft);
+    const nextRule = draftToRule(
+      draft,
+      editorMode.source === 'default' ? editorMode.id : generateConstraintId(),
+      daysOfWeek,
+    );
     const nextDefaults =
       editorMode.source === 'default'
         ? {
@@ -232,7 +309,7 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
           };
 
     updateDefaults(nextDefaults);
-    setMessage('Saved everyday boundary.');
+    setMessage('Saved repeating boundary.');
     resetEditor();
   };
 
@@ -242,7 +319,7 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
         <div className="flex gap-3">
           <Info className="mt-0.5 shrink-0" size={16} />
           <p>
-            <strong>Time Boundaries</strong> help shape your auto-generated schedule. They don't hide your calendar events or anchors, but they ensure we don't schedule focus or energy blocks when you want to rest or switch gears.
+            <strong>Time Boundaries</strong> help shape your auto-generated schedule. Save one just for today, or save a repeating one for every day, weekdays, weekends, or custom days.
           </p>
         </div>
       </section>
@@ -250,7 +327,7 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
       <section className="space-y-3 rounded-[1.35rem] border border-border-subtle/40 bg-bg-surface/70 p-4 shadow-sm">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-accent-teal/80">New Boundary</p>
-          <p className="mt-1 text-sm text-text-secondary">Create a rule for when certain types of work should or shouldn't be scheduled.</p>
+          <p className="mt-1 text-sm text-text-secondary">Create a rule for when certain types of work should or should not be scheduled.</p>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -303,9 +380,71 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
           </label>
         </div>
 
+        <div className="rounded-xl border border-border-subtle/35 bg-bg-elevated/40 px-3 py-3">
+          <div className="grid gap-3 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-start">
+            <label className="space-y-1.5">
+              <span className="ml-1 text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">Repeating Rule Days</span>
+              <select
+                value={draft.repeatPattern}
+                onChange={(event) =>
+                  setDraft((current) => ({
+                    ...current,
+                    repeatPattern: event.target.value as ConstraintRepeatPattern,
+                  }))
+                }
+                className="w-full rounded-xl border border-border-subtle/40 bg-bg-surface/80 px-3 py-2.5 text-sm font-medium text-text"
+              >
+                <option value="daily">Every day</option>
+                <option value="weekdays">Weekdays</option>
+                <option value="weekends">Weekends</option>
+                <option value="custom">Custom days</option>
+              </select>
+            </label>
+
+            <div className="space-y-2">
+              {draft.repeatPattern === 'custom' ? (
+                <div className="flex flex-wrap gap-2">
+                  {DAY_PICKER_OPTIONS.map((day) => {
+                    const isSelected = draft.customDays.includes(day.value);
+                    return (
+                      <button
+                        key={day.value}
+                        type="button"
+                        onClick={() =>
+                          setDraft((current) => ({
+                            ...current,
+                            customDays: isSelected
+                              ? current.customDays.filter((value) => value !== day.value)
+                              : sortDays([...current.customDays, day.value]),
+                          }))
+                        }
+                        className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                          isSelected
+                            ? 'border-accent-teal/40 bg-accent-teal/15 text-accent-teal'
+                            : 'border-border-subtle/40 bg-bg-surface/80 text-text-muted hover:bg-bg-elevated'
+                        }`}
+                        aria-pressed={isSelected}
+                        title={day.full}
+                      >
+                        {day.short}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-border-subtle/35 bg-bg-surface/75 px-3 py-2 text-sm font-medium text-text">
+                  Repeats on {getDraftRepeatSummary(draft).toLowerCase()}.
+                </div>
+              )}
+              <p className="text-xs text-text-muted">Used when you save a repeating rule.</p>
+            </div>
+          </div>
+        </div>
+
         <div className="rounded-xl border border-border-subtle/35 bg-bg-elevated/40 px-3 py-2.5">
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">Preview</p>
           <p className="mt-1 text-sm font-semibold text-text">{describeConstraintRule(draftToRule(draft, 'preview'))}</p>
+          <p className="mt-1 text-xs text-text-muted">Repeating rule: {getDraftRepeatSummary(draft)}.</p>
           {draft.kind === 'deadline' ? (
             <p className="mt-1 text-xs text-text-muted">If needed, the planner will pull this block earlier so it appears by that time.</p>
           ) : null}
@@ -314,27 +453,19 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => saveDayRule(false)}
+            onClick={saveDayRule}
             className="inline-flex items-center gap-2 rounded-xl bg-text px-4 py-2.5 text-sm font-bold text-bg-base"
           >
             {editorMode.source === 'day' ? <Save size={15} /> : <Plus size={15} />}
-            Save Day Rule
+            Save Just for Today
           </button>
           <button
             type="button"
-            onClick={() => saveDayRule(true)}
-            className="inline-flex items-center gap-2 rounded-xl border border-border-subtle/60 bg-bg-surface/80 px-4 py-2.5 text-sm font-bold text-text"
-          >
-            <CopyPlus size={15} />
-            Save as Everyday Rule
-          </button>
-          <button
-            type="button"
-            onClick={saveDefaultRule}
+            onClick={saveRepeatingRule}
             className="inline-flex items-center gap-2 rounded-xl border border-accent-teal/25 bg-accent-teal/10 px-4 py-2.5 text-sm font-bold text-accent-teal"
           >
             <Save size={15} />
-            {editorMode.source === 'default' ? 'Update Everyday Rule' : 'Save Everyday Rule Only'}
+            {editorMode.source === 'default' ? 'Update Repeating Rule' : 'Save Repeating Rule'}
           </button>
           {editorMode.source !== 'new' ? (
             <button
@@ -351,45 +482,54 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">Everyday Boundaries</p>
-            <p className="mt-1 text-sm text-text-secondary">These apply automatically unless you turn them off for this day.</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">Repeating Boundaries</p>
+            <p className="mt-1 text-sm text-text-secondary">These can run every day, weekdays, weekends, or custom days.</p>
           </div>
           <span className="rounded-full border border-border-subtle/40 bg-bg-surface/70 px-2.5 py-1 text-xs font-semibold text-text-muted">
-            {plannerDefaults.constraints.length} defaults
+            {plannerDefaults.constraints.length} rules
           </span>
         </div>
 
         {plannerDefaults.constraints.length === 0 ? (
           <div className="rounded-[1.15rem] border border-dashed border-border-subtle/45 bg-bg-surface/55 px-4 py-4 text-sm text-text-secondary text-center">
-            No everyday boundaries yet.
+            No repeating boundaries yet.
           </div>
         ) : (
           <div className="space-y-3">
             {plannerDefaults.constraints.map((rule) => {
               const isDisabledForDay = disabledDefaultIds.has(rule.id);
+              const runsToday = constraintAppliesToDate(rule, dateKey);
+
               return (
                 <RuleChip
                   key={rule.id}
                   rule={rule}
+                  showRepeatSummary
                   trailing={
-                    <label className="inline-flex items-center gap-2 text-xs font-semibold text-text-muted">
-                      <input
-                        type="checkbox"
-                        checked={!isDisabledForDay}
-                        onChange={(event) => {
-                          const nextDisabled = event.target.checked
-                            ? currentPlan.disabledDefaultConstraintIds.filter((id) => id !== rule.id)
-                            : [...currentPlan.disabledDefaultConstraintIds, rule.id];
+                    runsToday ? (
+                      <label className="inline-flex items-center gap-2 text-xs font-semibold text-text-muted">
+                        <input
+                          type="checkbox"
+                          checked={!isDisabledForDay}
+                          onChange={(event) => {
+                            const nextDisabled = event.target.checked
+                              ? currentPlan.disabledDefaultConstraintIds.filter((id) => id !== rule.id)
+                              : [...currentPlan.disabledDefaultConstraintIds, rule.id];
 
-                          rebuildDayPlan({
-                            ...currentPlan,
-                            disabledDefaultConstraintIds: nextDisabled,
-                          });
-                        }}
-                        className="h-4 w-4 rounded border-border-subtle"
-                      />
-                      Use today
-                    </label>
+                            rebuildDayPlan({
+                              ...currentPlan,
+                              disabledDefaultConstraintIds: nextDisabled,
+                            });
+                          }}
+                          className="h-4 w-4 rounded border-border-subtle"
+                        />
+                        Use today
+                      </label>
+                    ) : (
+                      <span className="rounded-full border border-border-subtle/35 bg-bg-surface/75 px-2.5 py-1 text-[11px] font-semibold text-text-muted">
+                        Not scheduled today
+                      </span>
+                    )
                   }
                   actions={
                     <>
@@ -411,7 +551,7 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
                             ...plannerDefaults,
                             constraints: plannerDefaults.constraints.filter((item) => item.id !== rule.id),
                           });
-                          setMessage('Removed everyday boundary.');
+                          setMessage('Removed repeating boundary.');
                         }}
                         className="inline-flex items-center gap-1 rounded-full border border-border-subtle/45 bg-bg-surface/70 px-3 py-1.5 text-xs font-semibold text-text"
                       >

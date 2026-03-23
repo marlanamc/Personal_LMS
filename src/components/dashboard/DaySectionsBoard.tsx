@@ -2,10 +2,13 @@
 
 import Link from 'next/link';
 import {
+  AlarmClock,
+  Ban,
   CalendarDays,
   Check,
   Circle,
   FileText,
+  Flag,
   Heart,
   Play,
   Target,
@@ -94,17 +97,52 @@ function ItemTimerButton({ item, buildStartTimerHref }: { item: TimelineItem; bu
   );
 }
 
+function getConstraintPalette(kind?: TimelineItem['constraintKind']) {
+  if (kind === 'until') {
+    return {
+      Icon: Flag,
+      dotClass: 'bg-accent-mint/75',
+      textClass: 'text-accent-mint',
+      borderClass: 'border-accent-mint/30',
+      bgClass: 'bg-accent-mint/10',
+    };
+  }
+
+  if (kind === 'deadline') {
+    return {
+      Icon: AlarmClock,
+      dotClass: 'bg-accent-amethyst/80',
+      textClass: 'text-accent-amethyst',
+      borderClass: 'border-accent-amethyst/30',
+      bgClass: 'bg-accent-amethyst/10',
+    };
+  }
+
+  return {
+    Icon: Ban,
+    dotClass: 'bg-accent-sakura/75',
+    textClass: 'text-accent-sakura',
+    borderClass: 'border-accent-sakura/30',
+    bgClass: 'bg-accent-sakura/10',
+  };
+}
+
 function ConstraintNotice({ item }: { item: TimelineItem }) {
   const effectiveMinute = item.constraintKind === 'until'
     ? (item.endMinute ?? item.startMinute)
     : item.startMinute;
+  const palette = getConstraintPalette(item.constraintKind);
+  const Icon = palette.Icon;
 
   return (
-    <div className="flex items-center gap-2 rounded-lg bg-accent-sakura/5 px-2.5 py-1.5">
-      <span className="inline-flex h-1.5 w-1.5 shrink-0 rounded-full bg-accent-sakura/60" />
+    <div className={`flex items-center gap-2 rounded-lg border ${palette.borderClass} ${palette.bgClass} px-2.5 py-1.5`}>
+      <span className={`inline-flex h-1.5 w-1.5 shrink-0 rounded-full ${palette.dotClass}`} />
+      <span className={`inline-flex shrink-0 ${palette.textClass}`}>
+        <Icon size={11} />
+      </span>
       <p className="text-[11px] font-medium text-text-muted">
-        {item.label} · {item.constraintKind === 'until' ? 'until ' : ''}
-        {formatMinuteOfDay(effectiveMinute)}
+        <span className={palette.textClass}>{item.label}</span>
+        <span className="text-text-muted"> · {item.constraintKind === 'until' ? 'until ' : ''}{formatMinuteOfDay(effectiveMinute)}</span>
       </p>
     </div>
   );
