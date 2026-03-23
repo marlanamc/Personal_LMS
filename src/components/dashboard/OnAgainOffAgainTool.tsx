@@ -1,8 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { AlarmClock, ArrowRight, Heart, Plus, Target, TimerReset, Wand2, X } from 'lucide-react';
+import { Heart, Plus, Target, TimerReset, Wand2, X } from 'lucide-react';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import {
   buildTimeBlockPlan,
@@ -95,7 +94,6 @@ function getKindUi(kind: 'want' | 'should' | null) {
 
 export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolProps) {
   const [message, setMessage] = useState<string | null>(null);
-  const [autoStartAtScheduledTime, setAutoStartAtScheduledTime] = useState(true);
   const { plannerStore, plannerDefaults, isLoaded, isSaving, saveError, setPlan } = useTimeBlockPlanner();
 
   const currentPlan = plannerStore[dateKey] ?? createEmptyTimeBlockDayPlan(dateKey);
@@ -552,38 +550,14 @@ export function OnAgainOffAgainTool({ dateKey, onClose }: OnAgainOffAgainToolPro
           <TimerReset size={16} />
           Reset
         </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-border-subtle/80 bg-bg-surface/80 px-5 py-3 text-sm font-bold text-text transition-all hover:bg-bg-elevated"
+        >
+          Close
+        </button>
       </div>
-
-      {blocks.length > 0 && (
-        <section className="space-y-3 rounded-[1.4rem] border border-accent-teal/25 bg-accent-teal/10 p-4">
-          <label className="flex items-center gap-2 text-sm font-semibold text-text cursor-pointer">
-            <input
-              type="checkbox"
-              checked={autoStartAtScheduledTime}
-              onChange={(event) => setAutoStartAtScheduledTime(event.target.checked)}
-              className="h-4 w-4 rounded border-2 border-border-subtle text-accent-teal focus:ring-2 focus:ring-accent-teal/30"
-            />
-            <AlarmClock size={16} className="text-accent-teal" />
-            Auto-start at {formatMinuteOfDay(blocks[0].startMinuteOfDay)}
-          </label>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href={`/dashboard/timer?sequenceDateKey=${encodeURIComponent(dateKey)}${autoStartAtScheduledTime ? '&autoStart=1' : ''}`}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-teal to-accent-mint px-5 py-3 text-sm font-bold text-bg-base shadow-md shadow-accent-teal/20 transition-all hover:opacity-95 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              Start Sequence
-              <ArrowRight size={15} />
-            </Link>
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border-subtle/80 bg-bg-surface/80 px-5 py-3 text-sm font-bold text-text transition-all hover:bg-bg-elevated"
-            >
-              Close
-            </button>
-          </div>
-        </section>
-      )}
 
       <div className="space-y-1 text-xs text-text-muted">
         <p>{isSaving ? 'Saving...' : saveError || message || (isLoaded ? 'Ready to build your day.' : 'Loading your saved plan...')}</p>

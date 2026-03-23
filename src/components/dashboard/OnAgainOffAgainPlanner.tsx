@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState, useEffect } from 'react';
-import { AlarmClock, ArrowLeft, ArrowRight, CalendarDays, Check, ChevronRight, Circle, FileText, Play, Pause, Plus, Settings2, Sparkles, TimerReset, Wand2, Heart, Target, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CalendarDays, Check, ChevronRight, Circle, FileText, Play, Pause, Plus, Settings2, Sparkles, TimerReset, Wand2, Heart, Target, X } from 'lucide-react';
 import { type CalendarEvent, getCalendarMarkerColor } from './MiniCalendar';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 import { useFocusTimer } from '@/context/FocusTimerContext';
@@ -157,7 +157,6 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
   const [isPlannerCollapsed, setIsPlannerCollapsed] = useState(false);
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
   const [editingNoteText, setEditingNoteText] = useState('');
-  const [autoStartAtScheduledTime, setAutoStartAtScheduledTime] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const { plannerStore, plannerDefaults, isLoaded, isSaving, saveError, setPlan } = useTimeBlockPlanner();
 
@@ -647,27 +646,6 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
                 <TimerReset size={16} />
                 Reset
               </button>
-              {blocks.length > 0 && (
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-text cursor-pointer shrink-0">
-                    <input
-                      type="checkbox"
-                      checked={autoStartAtScheduledTime}
-                      onChange={(e) => setAutoStartAtScheduledTime(e.target.checked)}
-                      className="h-4 w-4 rounded border-2 border-border-subtle text-accent-teal focus:ring-2 focus:ring-accent-teal/30"
-                    />
-                    <AlarmClock size={16} className="text-accent-teal shrink-0" />
-                    Auto-start at {formatMinuteOfDay(blocks[0].startMinuteOfDay)}
-                  </label>
-                  <Link
-                    href={`/dashboard/timer?sequenceDateKey=${encodeURIComponent(selectedDateKey)}${autoStartAtScheduledTime ? '&autoStart=1' : ''}`}
-                    className="inline-flex items-center justify-center gap-2 rounded-[1.25rem] bg-gradient-to-r from-accent-teal to-accent-mint px-5 py-3 text-sm font-bold text-bg-base transition-all hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-accent-teal/20 whitespace-nowrap"
-                  >
-                    Start Sequence
-                    <ArrowRight size={15} />
-                  </Link>
-                </div>
-              )}
             </div>
 
             <div className="mt-4 space-y-1 text-xs text-text-muted min-h-12">
