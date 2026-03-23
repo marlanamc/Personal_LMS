@@ -622,9 +622,9 @@ export function DayPlannerView({
       <div className="hidden sm:grid sm:grid-cols-[minmax(0,1fr)_300px] lg:grid-cols-[minmax(0,1fr)_340px] gap-6 items-start">
         <div className="rounded-3xl border border-border-subtle/40 bg-bg-surface/60 overflow-hidden shadow-sm">
           {/* Desktop timeline content */}
-          <div className="px-6 py-6">
+          <div className="relative px-6 py-6">
             {isSelectedToday && condensedStartHour > 6 && (
-              <div className="py-3 flex justify-end">
+              <div className="absolute right-6 top-4 z-10">
                 <button
                   type="button"
                   onClick={() => setShowEarlierHours((current) => !current)}
@@ -638,46 +638,48 @@ export function DayPlannerView({
               </div>
             )}
 
-            {timelineItems.length === 0 && anchorItems.length === 0 ? (
-              <div className="relative py-12 text-center">
-                <div className="absolute inset-0 pointer-events-none opacity-30">
-                  <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-accent-teal/8 blur-3xl" />
+            <div className="mt-10">
+              {timelineItems.length === 0 && anchorItems.length === 0 ? (
+                <div className="relative py-12 text-center">
+                  <div className="absolute inset-0 pointer-events-none opacity-30">
+                    <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-accent-teal/8 blur-3xl" />
+                  </div>
+                  <div className="relative mx-auto w-12 h-12 flex items-center justify-center mb-4">
+                    <Sparkles className="w-6 h-6 text-text-muted/40" />
+                  </div>
+                  <p className="relative text-sm text-text-muted/70 mb-5">
+                    Nothing planned yet
+                  </p>
+                  <button
+                    type="button"
+                    onClick={(event) => openPlanningHelp(event.currentTarget)}
+                    className="relative inline-flex items-center gap-1.5 text-sm font-medium text-accent-teal hover:text-accent-teal/80 transition-colors"
+                  >
+                    <Wand2 size={14} />
+                    Start planning
+                  </button>
                 </div>
-                <div className="relative mx-auto w-12 h-12 flex items-center justify-center mb-4">
-                  <Sparkles className="w-6 h-6 text-text-muted/40" />
-                </div>
-                <p className="relative text-sm text-text-muted/70 mb-5">
-                  Nothing planned yet
-                </p>
-                <button
-                  type="button"
-                  onClick={(event) => openPlanningHelp(event.currentTarget)}
-                  className="relative inline-flex items-center gap-1.5 text-sm font-medium text-accent-teal hover:text-accent-teal/80 transition-colors"
-                >
-                  <Wand2 size={14} />
-                  Start planning
-                </button>
-              </div>
-            ) : isSectionsMode ? (
-              <DaySectionsBoard
-                dateKey={selectedDateKey}
-                sections={sectionColumns}
-                nowMinute={nowMinute}
-                onItemClick={handleItemClick}
-                buildStartTimerHref={buildStartTimerHref}
-              />
-            ) : (
-              <DayTimeline
-                dateKey={selectedDateKey}
-                items={timelineItems}
-                nowMinute={nowMinute}
-                onItemClick={handleItemClick}
-                buildStartTimerHref={buildStartTimerHref}
-                isMobile={false}
-                config={timelineConfig}
-                nowIndicatorRef={nowIndicatorRef}
-              />
-            )}
+              ) : isSectionsMode ? (
+                <DaySectionsBoard
+                  dateKey={selectedDateKey}
+                  sections={sectionColumns}
+                  nowMinute={nowMinute}
+                  onItemClick={handleItemClick}
+                  buildStartTimerHref={buildStartTimerHref}
+                />
+              ) : (
+                <DayTimeline
+                  dateKey={selectedDateKey}
+                  items={timelineItems}
+                  nowMinute={nowMinute}
+                  onItemClick={handleItemClick}
+                  buildStartTimerHref={buildStartTimerHref}
+                  isMobile={false}
+                  config={timelineConfig}
+                  nowIndicatorRef={nowIndicatorRef}
+                />
+              )}
+            </div>
           </div>
         </div>
         
