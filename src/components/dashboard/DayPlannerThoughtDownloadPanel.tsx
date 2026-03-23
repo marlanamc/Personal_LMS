@@ -1,7 +1,15 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Moon } from 'lucide-react';
+import type { MDXEditorMethods } from '@mdxeditor/editor';
+
+const ThoughtDownloadEditor = dynamic(
+  () => import('./ThoughtDownloadEditor'),
+  { ssr: false, loading: () => <div className="h-full w-full" aria-hidden /> }
+);
 
 interface DayPlannerThoughtDownloadPanelProps {
   dateKey: string;
@@ -18,6 +26,14 @@ export function DayPlannerThoughtDownloadPanel({
   saveError,
   onChange,
 }: DayPlannerThoughtDownloadPanelProps) {
+  const [draft, setDraft] = useState(value);
+  const editorRef = useRef<MDXEditorMethods>(null);
+
+  useEffect(() => {
+    setDraft(value);
+    editorRef.current?.setMarkdown(value);
+  }, [value]);
+
   return (
     <section
       className="flex min-h-[36rem] flex-col rounded-2xl border border-border-subtle/50 bg-bg-elevated/80 p-4 shadow-sm backdrop-blur-sm lg:min-h-[38rem]"
@@ -36,12 +52,18 @@ export function DayPlannerThoughtDownloadPanel({
         </Link>
       </div>
 
-      <textarea
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="min-h-[24rem] flex-1 w-full rounded-2xl border border-border-subtle/50 bg-bg-surface/80 px-4 py-3 text-sm leading-6 text-text focus:outline-none focus:ring-2 focus:ring-primary/20 lg:min-h-[28rem]"
-        disabled={!isLoaded}
-      />
+      <div className="min-h-[24rem] flex-1 overflow-hidden rounded-2xl border border-border-subtle/50 bg-bg-surface/80 focus-within:ring-2 focus-within:ring-primary/20 lg:min-h-[28rem]">
+        <ThoughtDownloadEditor
+          ref={editorRef}
+          markdown={draft}
+          onChange={(nextValue) => {
+            setDraft(nextValue);
+            onChange(nextValue);
+          }}
+          disabled={!isLoaded}
+          showToolbar={false}
+        />
+      </div>
 
       {saveError ? (
         <p className="mt-3 text-[11px] font-medium text-error">{saveError}</p>
