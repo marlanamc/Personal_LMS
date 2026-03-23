@@ -206,7 +206,7 @@ export function describeConstraintRule(rule: PlannerConstraintRule): string {
     return `Only schedule ${activityName} until ${timeLabel}`;
   }
   if (rule.kind === "deadline") {
-    return `Schedule ${activityName} by ${timeLabel}`;
+    return `Must be ${activityName} by ${timeLabel}`;
   }
 
   return `No more ${activityName} after ${timeLabel}`;

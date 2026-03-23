@@ -211,7 +211,7 @@ describe("time block planner helpers", () => {
           target: { kind: "want", label: "Reset" },
           time: "09:30",
           enabled: true,
-          displayText: "Schedule Reset by 9:30 AM",
+          displayText: "Must be Reset by 9:30 AM",
         },
       ],
     );

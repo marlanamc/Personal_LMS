@@ -127,7 +127,7 @@ describe("groupItemsIntoSections", () => {
       {
         id: "constraint-3",
         type: "constraint",
-        label: "Schedule Workout by 4 PM",
+        label: "Must be Workout by 4 PM",
         startMinute: 16 * 60,
         constraintKind: "deadline",
         blockKind: "want",

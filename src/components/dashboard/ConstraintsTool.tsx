@@ -53,7 +53,7 @@ function getConstraintKindMeta(kind: PlannerConstraintRuleKind) {
 
   if (kind === 'deadline') {
     return {
-      label: 'Must Happen By',
+      label: 'Must Be By',
       targetLabel: 'What Must Happen',
       timeLabel: 'By Time',
       Icon: AlarmClock,
@@ -263,7 +263,7 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
             >
               <option value="cutoff">Stop scheduling after...</option>
               <option value="until">Only schedule until...</option>
-              <option value="deadline">Must be scheduled by...</option>
+              <option value="deadline">Must be ... by ...</option>
             </select>
           </label>
 
