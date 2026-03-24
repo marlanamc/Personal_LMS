@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { X, BookOpen, Timer, User, Home, Code, Heart, Briefcase, Calendar, Pencil, Sparkles, LayoutList, Moon, BookOpenText, UtensilsCrossed, FolderKanban } from 'lucide-react';
+import { X, BookOpen, Timer, User, Home, Code, Heart, Briefcase, Calendar, Pencil, Sparkles, LayoutList, Moon, BookOpenText, UtensilsCrossed, FolderKanban, Activity } from 'lucide-react';
 import { SpanishSubjectIcon } from '@/components/icons/SpanishSubjectIcon';
 
 interface NavigationSidePanelProps {
@@ -28,6 +28,7 @@ const quickLinks = [
   { href: '/dashboard/thought-download', label: 'Thought Download', icon: Moon },
   { href: '/dashboard/interstitial-journalling', label: 'Moment Log', icon: BookOpenText },
   { href: '/dashboard/anchors', label: 'Edit Anchors', icon: Pencil },
+  { href: '/dashboard/health-tracker', label: 'Health Log', icon: Activity },
   { href: '/dashboard/subjects', label: 'All Subjects', icon: BookOpen },
   { href: '/dashboard/reset', label: 'Get Unstuck', icon: Sparkles },
   { href: '/dashboard/profile', label: 'Profile', icon: User },

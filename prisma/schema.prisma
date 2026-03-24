@@ -35,6 +35,10 @@ model User {
   achievements          UserAchievement[]
   utilitySubjectStates  UtilitySubjectState[]
 
+  healthTrackers        HealthTracker[]
+  bpReadings            BloodPressureReading[]
+  momentTrackers        MomentTracker[]
+
   @@index([weeklyPoints])
 }
 
@@ -300,4 +304,74 @@ model UtilitySubjectState {
   @@unique([userId, subjectKey])
   @@index([userId])
   @@index([subjectKey])
+}
+
+// ============================================
+// Health Tracking System
+// ============================================
+
+model HealthTracker {
+  id        String               @id @default(cuid())
+  userId    String
+  name      String
+  emoji     String?
+  type      String               // "boolean" | "number"
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  entries   HealthTrackerEntry[]
+
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model HealthTrackerEntry {
+  id         String        @id @default(cuid())
+  trackerId  String
+  dateKey    String        // "YYYY-MM-DD"
+  valueBool  Boolean?      // used if type="boolean"
+  valueNum   Float?        // used if type="number"
+  recordedAt DateTime      @default(now())
+
+  tracker    HealthTracker @relation(fields: [trackerId], references: [id], onDelete: Cascade)
+
+  @@unique([trackerId, dateKey])
+}
+
+model BloodPressureReading {
+  id         String   @id @default(cuid())
+  userId     String
+  systolic   Int
+  diastolic  Int
+  note       String?
+  recordedAt DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, recordedAt])
+}
+
+model MomentTracker {
+  id        String          @id @default(cuid())
+  userId    String
+  name      String
+  emoji     String?
+  unit      String?         // e.g. "Control Level (1-10)"
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  readings  MomentReading[]
+
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+}
+
+model MomentReading {
+  id         String        @id @default(cuid())
+  trackerId  String
+  value      Float?
+  note       String?
+  recordedAt DateTime      @default(now())
+  
+  tracker    MomentTracker @relation(fields: [trackerId], references: [id], onDelete: Cascade)
+  @@index([trackerId, recordedAt])
 }
