@@ -233,8 +233,8 @@ export default async function DashboardPage() {
   ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
-    <div className="min-h-screen bg-bg-base light-ambient-surface overflow-x-clip">
-      <main className="container mx-auto pt-2 md:pt-6 pb-24 md:pb-12 px-3 sm:px-6 lg:px-8 max-w-full lg:max-w-[1600px]">
+    <div className="dashboard-home-shell min-h-screen bg-bg-base light-ambient-surface overflow-x-clip">
+      <main className="dashboard-home-main container mx-auto pt-2 md:pt-6 pb-24 md:pb-12 px-3 sm:px-6 lg:px-8 max-w-full lg:max-w-[1600px]">
         <DashboardContent
           userName={currentUser?.name || session.user.name || "there"}
           currentStreak={effectiveCurrentStreak}

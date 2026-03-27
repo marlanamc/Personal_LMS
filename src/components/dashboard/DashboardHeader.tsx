@@ -93,7 +93,7 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
     return (
         <>
             <header className="dashboard-header-shell sticky top-0 z-50 transition-colors bg-bg-elevated/95 border-b border-border/70 shadow-sm backdrop-blur-sm">
-                <div className="max-w-[1800px] mx-auto py-1 md:py-4 px-3 sm:px-6 lg:px-8">
+                <div className="dashboard-header-inner max-w-[1800px] mx-auto py-1 md:py-4 px-3 sm:px-6 lg:px-8">
                     {headerCenter ? (
                         <>
                             <div className="flex w-full items-center justify-between gap-2 sm:hidden">

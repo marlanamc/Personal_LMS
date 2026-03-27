@@ -483,6 +483,8 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   const [hoveredAnchor, setHoveredAnchor] = useState<AnchorId | null>(null);
   const [draggingAnchor, setDraggingAnchor] = useState<AnchorId | null>(null);
   const [dragPreviewTime, setDragPreviewTime] = useState<string | null>(null);
+  const [dragPreviewEndTime, setDragPreviewEndTime] = useState<string | null>(null);
+  const draggedAnchorDurationRef = useRef<number | null>(null);
   const [isEditingAnchors, setIsEditingAnchors] = useState(false);
   const [skipReasonAnchor, setSkipReasonAnchor] = useState<{ id: AnchorId; label: string } | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -557,8 +559,20 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
 
   const handleDragStart = useCallback((anchorId: AnchorId, e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
+    setHoveredAnchor(null);
+
+    // Calculate duration for range anchors
+    const anchor = anchors.find(a => a.id === anchorId);
+    if (anchor?.endTime) {
+      const startMinutes = parseHHMMToMinutes(anchor.scheduledTime);
+      const endMinutes = parseHHMMToMinutes(anchor.endTime);
+      draggedAnchorDurationRef.current = endMinutes - startMinutes;
+    } else {
+      draggedAnchorDurationRef.current = null;
+    }
+
     setDraggingAnchor(anchorId);
-  }, []);
+  }, [anchors]);
 
   const handleDragMove = useCallback(
     (e: MouseEvent | TouchEvent) => {
@@ -566,7 +580,32 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
       const rect = timelineRef.current.getBoundingClientRect();
       const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
       const positionPercent = ((clientX - rect.left) / rect.width) * 100;
-      setDragPreviewTime(positionToTime(positionPercent));
+      let newStartTime = positionToTime(positionPercent);
+
+      // Calculate end time preview for range anchors
+      if (draggedAnchorDurationRef.current !== null) {
+        let newStartMinutes = parseHHMMToMinutes(newStartTime);
+        let newEndMinutes = newStartMinutes + draggedAnchorDurationRef.current;
+
+        // Clamp to timeline bounds - shift start if end would exceed
+        const maxEndMinutes = TIMELINE_END_HOUR * 60;
+        if (newEndMinutes > maxEndMinutes) {
+          newStartMinutes = maxEndMinutes - draggedAnchorDurationRef.current;
+          newEndMinutes = maxEndMinutes;
+          const startHours = Math.floor(newStartMinutes / 60);
+          const startMins = newStartMinutes % 60;
+          newStartTime = `${String(startHours).padStart(2, '0')}:${String(startMins).padStart(2, '0')}`;
+        }
+
+        const endHours = Math.floor(newEndMinutes / 60);
+        const endMins = newEndMinutes % 60;
+        const newEndTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`;
+        setDragPreviewEndTime(newEndTime);
+      } else {
+        setDragPreviewEndTime(null);
+      }
+
+      setDragPreviewTime(newStartTime);
     },
     [draggingAnchor],
   );
@@ -575,16 +614,26 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
     if (!draggingAnchor || !dragPreviewTime) {
       setDraggingAnchor(null);
       setDragPreviewTime(null);
+      setDragPreviewEndTime(null);
+      draggedAnchorDurationRef.current = null;
       return;
     }
 
-    const updatedTodayAnchors = anchors.map((anchor) =>
-      anchor.id === draggingAnchor ? { ...anchor, scheduledTime: dragPreviewTime, isTimeOverridden: true } : anchor,
-    );
+    const updatedTodayAnchors = anchors.map((anchor) => {
+      if (anchor.id !== draggingAnchor) return anchor;
+      return {
+        ...anchor,
+        scheduledTime: dragPreviewTime,
+        ...(dragPreviewEndTime ? { endTime: dragPreviewEndTime } : {}),
+        isTimeOverridden: true,
+      };
+    });
     setTodayAnchors(updatedTodayAnchors);
     setDraggingAnchor(null);
     setDragPreviewTime(null);
-  }, [draggingAnchor, dragPreviewTime, anchors, setTodayAnchors]);
+    setDragPreviewEndTime(null);
+    draggedAnchorDurationRef.current = null;
+  }, [draggingAnchor, dragPreviewTime, dragPreviewEndTime, anchors, setTodayAnchors]);
 
   useEffect(() => {
     if (!draggingAnchor) return;
@@ -811,8 +860,11 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                       : 'is-future';
 
                 if (isRange && endPosition != null && endPosition > position) {
-                  const segmentLeft = position;
-                  const segmentWidth = endPosition - position;
+                  // Use preview times during drag for range anchors
+                  const displayEndTime = isDragging && dragPreviewEndTime ? dragPreviewEndTime : anchor.endTime;
+                  const segmentLeft = getTimePosition(displayTime);
+                  const segmentRight = displayEndTime ? getTimePosition(displayEndTime) : endPosition;
+                  const segmentWidth = segmentRight - segmentLeft;
                   const orbBaseClass = `
                     daily-anchors-dot w-12 h-12 rounded-2xl flex items-center justify-center
                     border-2 shadow-md overflow-hidden transition-all duration-300
@@ -830,18 +882,62 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                   return (
                     <div
                       key={anchor.id}
-                      className="absolute top-1/2 -translate-y-1/2 z-20 h-8"
+                      className={`absolute top-1/2 -translate-y-1/2 h-8 ${isDragging ? 'z-30' : 'z-20'}`}
                       style={{
                         left: `${segmentLeft}%`,
                         width: `${segmentWidth}%`,
                         minWidth: 0,
+                        transition: isDragging ? 'none' : 'left 300ms ease, width 300ms ease',
                       }}
                       onMouseEnter={() => setHoveredAnchor(anchor.id)}
                       onMouseLeave={() => setHoveredAnchor(null)}
                     >
+                      {/* Hover tooltip for range anchor */}
+                      <div
+                        className={`
+                          absolute -top-14 left-1/2 -translate-x-1/2 px-3 py-2 rounded-xl
+                          pointer-events-none bg-bg-elevated/95 backdrop-blur-sm border border-border-subtle shadow-xl
+                          transition-all duration-200 z-50
+                          ${isHovered || isDragging ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}
+                        `}
+                      >
+                        <div className="text-xs font-bold text-text whitespace-nowrap">
+                          {isDragging && dragPreviewTime && dragPreviewEndTime
+                            ? formatTimeRange(dragPreviewTime, dragPreviewEndTime, true)
+                            : formatTimeRange(displayTime, anchor.endTime!, true)}
+                        </div>
+                        {!isDragging && (
+                          <div className={`text-[10px] whitespace-nowrap ${isDone ? 'text-secondary' : isMissed ? 'text-error/70' : isSkipped ? 'text-text-muted/70' : 'text-text-muted'}`}>
+                            {isDone ? 'Completed' : isMissed ? 'Missed' : isSkipped ? 'Skipped' : `In: ${inLabel}`}
+                          </div>
+                        )}
+                        {isDragging && <div className="text-[10px] text-primary whitespace-nowrap">Release to set</div>}
+                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-bg-elevated border-r border-b border-border-subtle rotate-45" />
+                      </div>
+
+                      {/* Drag grip for range anchors */}
+                      <div
+                        className={`
+                          absolute left-1/2 -translate-x-1/2 -top-7 z-30 rounded-xl border border-border-subtle/50
+                          bg-bg-elevated/90 px-1.5 py-1
+                          cursor-grab active:cursor-grabbing backdrop-blur-sm
+                          text-text-muted/55 shadow-sm transition-all
+                          ${isHovered ? 'opacity-100 scale-100 -translate-y-0.5' : 'opacity-80 scale-100'}
+                          hover:opacity-100 hover:text-text hover:border-accent-teal/40
+                        `}
+                        onMouseDown={(e) => handleDragStart(anchor.id, e)}
+                        onTouchStart={(e) => handleDragStart(anchor.id, e)}
+                        title={`Drag to retime ${anchor.label}`}
+                        aria-label={`Drag to retime ${anchor.label}`}
+                      >
+                        <GripVertical size={13} />
+                      </div>
+
+                      {/* Bar background */}
                       <div
                         className={`
                           absolute inset-0 rounded-full border-2
+                          ${isDragging ? 'ring-2 ring-accent-teal/35 shadow-lg' : ''}
                           ${isDone
                             ? 'bg-secondary/20 border-secondary/40'
                             : isMissed
@@ -852,21 +948,24 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                           }
                         `}
                       />
+                      {/* Start orb */}
                       <button
                         type="button"
-                        onClick={() => toggleAnchor(anchor.id)}
+                        onClick={() => !isDragging && toggleAnchor(anchor.id)}
                         onContextMenu={(e) => {
+                          if (isDragging) return;
                           e.preventDefault();
                           e.stopPropagation();
                           handleToggleSkipToday(anchor.id, isSkipped);
                         }}
-                        disabled={!isLoaded}
-                        title={anchor.endTime ? `${formatTimeRange(anchor.scheduledTime, anchor.endTime, true)} · ${anchor.label}` : anchor.label}
+                        disabled={!isLoaded || isDragging}
+                        title={isSkipped ? 'Right-click to undo skip' : 'Right-click to skip today'}
                         className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 ${orbBaseClass}
                           opacity-85 hover:opacity-100
                           hover:scale-105 active:scale-95
                           disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
                           ${!isDone && !isMissed && !isSkipped ? 'border-primary/30 text-text backdrop-blur-sm' : ''}
+                          ${isDragging ? 'scale-110 shadow-xl ring-2 ring-accent-teal/35' : ''}
                         `}
                         style={
                           !isDone && !isMissed && !isSkipped

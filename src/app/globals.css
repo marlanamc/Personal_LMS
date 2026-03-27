@@ -232,14 +232,22 @@
     0 18px 32px rgba(177, 139, 118, 0.2);
 }
 
-html,
-body {
-  max-width: 100%;
-  overflow-x: hidden;
-  overflow-x: clip;
+/* PWA: Lock the viewport to prevent iOS elastic bounce in any direction */
+html {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  overflow-x: clip;
   background:
     radial-gradient(
       circle at 8% -12%,
@@ -253,13 +261,24 @@ body {
       var(--color-bg-surface) 100%
     );
   color: var(--color-text);
-  min-height: 100vh;
   font-size: 1rem;
 
-  /* PWA Polish: Prevent overscroll bounce on the whole page */
+  /* PWA Polish: Prevent overscroll bounce in both directions */
   overscroll-behavior: none;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: none;
   /* Smooth momentum scrolling on iOS */
   -webkit-overflow-scrolling: touch;
+}
+
+.dashboard-shell-frame {
+  position: relative;
+  min-height: 100vh;
+}
+
+.dashboard-header-inner {
+  position: relative;
+  z-index: 1;
 }
 
 /* ========== PWA Polish: Native-feeling interactions ========== */
@@ -2584,7 +2603,6 @@ kbd {
 
   @media (display-mode: standalone) {
     body {
-      padding-top: max(0px, env(safe-area-inset-top));
       min-height: 100svh;
     }
   }
@@ -4159,11 +4177,97 @@ kbd {
 }
 
 @media (max-width: 639px) {
+  .dashboard-shell-frame .dashboard-header-shell {
+    position: sticky;
+    top: 0;
+    isolation: isolate;
+    padding-top: max(0px, env(safe-area-inset-top));
+    backdrop-filter: blur(18px) saturate(155%);
+    -webkit-backdrop-filter: blur(18px) saturate(155%);
+  }
+
+  .dashboard-shell-frame .dashboard-header-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: inherit;
+  }
+
+  :where(:root[data-theme="light"], :root.light) .dashboard-shell-frame {
+    background:
+      radial-gradient(
+        circle at 14% 0%,
+        rgba(255, 248, 242, 0.52) 0%,
+        transparent 28%
+      ),
+      linear-gradient(
+        180deg,
+        #e8c7b8 0%,
+        color-mix(in srgb, #e8c7b8 66%, var(--color-bg-base) 34%) 7.5rem,
+        var(--color-bg-base) 20rem
+      );
+  }
+
+  :where(:root[data-theme="light"], :root.light) .dashboard-home-shell {
+    background: transparent;
+  }
+
   :where(:root[data-theme="light"], :root.light) .dashboard-header-shell {
-    background: transparent !important;
-    border-bottom-color: transparent !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
+    background: color-mix(
+      in srgb,
+      #e8c7b8 88%,
+      rgba(255, 248, 242, 0.92) 12%
+    ) !important;
+    border-bottom-color: color-mix(
+      in srgb,
+      var(--color-border-subtle) 82%,
+      #d8b9aa 18%
+    ) !important;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.48),
+      0 10px 24px rgba(156, 126, 98, 0.18) !important;
+  }
+
+  :where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .dashboard-shell-frame {
+    background:
+      radial-gradient(
+        circle at 18% 0%,
+        rgba(74, 104, 134, 0.26) 0%,
+        transparent 24%
+      ),
+      linear-gradient(
+        180deg,
+        #16283d 0%,
+        color-mix(in srgb, #16283d 74%, var(--color-bg-base) 26%) 7rem,
+        var(--color-bg-base) 18rem
+      );
+  }
+
+  :where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .dashboard-home-shell {
+    background: transparent;
+  }
+
+  :where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .dashboard-header-shell {
+    background: color-mix(
+      in srgb,
+      #16283d 88%,
+      rgba(17, 24, 39, 0.96) 12%
+    ) !important;
+    border-bottom-color: color-mix(
+      in srgb,
+      var(--color-border-subtle) 70%,
+      #35506c 30%
+    ) !important;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.03),
+      0 14px 28px rgba(6, 12, 20, 0.34) !important;
+  }
+
+  .dashboard-home-main {
+    position: relative;
+    z-index: 1;
   }
 }
 

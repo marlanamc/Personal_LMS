@@ -9,7 +9,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     const session = await getServerSession(authOptions);
 
     return (
-        <div className="min-h-screen bg-bg-base light-ambient-surface relative overflow-x-clip">
+        <div className="dashboard-shell-frame min-h-screen bg-bg-base light-ambient-surface relative overflow-x-clip">
             <DashboardLayoutClient userName={session?.user?.name || ""}>
                 {children}
             </DashboardLayoutClient>

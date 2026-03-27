@@ -5,6 +5,12 @@ import Providers from "@/components/Providers";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import { Analytics } from "@vercel/analytics/next";
+import {
+  DARK_DASHBOARD_THEME_COLOR,
+  DARK_DEFAULT_THEME_COLOR,
+  LIGHT_DASHBOARD_THEME_COLOR,
+  LIGHT_DEFAULT_THEME_COLOR,
+} from "@/lib/pwa-theme-colors";
 
 const lora = Lora({
   variable: "--font-display",
@@ -55,8 +61,8 @@ export const viewport: Viewport = {
   userScalable: false,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#122033" },
-    { media: "(prefers-color-scheme: light)", color: "#F3F4F8" },
+    { media: "(prefers-color-scheme: dark)", color: DARK_DASHBOARD_THEME_COLOR },
+    { media: "(prefers-color-scheme: light)", color: LIGHT_DASHBOARD_THEME_COLOR },
   ],
 };
 
@@ -85,6 +91,22 @@ const themeInitScript = `
   root.classList.add(theme);
   root.setAttribute('data-theme', theme);
   root.style.colorScheme = theme;
+
+  var isDashboardPath = window.location.pathname.indexOf('/dashboard') === 0;
+  var themeColor = isDashboardPath
+    ? (theme === 'light' ? '${LIGHT_DASHBOARD_THEME_COLOR}' : '${DARK_DASHBOARD_THEME_COLOR}')
+    : (theme === 'light' ? '${LIGHT_DEFAULT_THEME_COLOR}' : '${DARK_DEFAULT_THEME_COLOR}');
+  var metaSelector = 'meta[name="theme-color"][data-runtime-theme="true"]';
+  var runtimeMeta = document.head.querySelector(metaSelector);
+
+  if (!runtimeMeta) {
+    runtimeMeta = document.createElement('meta');
+    runtimeMeta.setAttribute('name', 'theme-color');
+    runtimeMeta.setAttribute('data-runtime-theme', 'true');
+    document.head.appendChild(runtimeMeta);
+  }
+
+  runtimeMeta.setAttribute('content', themeColor);
 })();
 `;
 

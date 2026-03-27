@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -9,6 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { getPwaThemeColor } from "@/lib/pwa-theme-colors";
 
 export type ThemePreference = "auto" | "light" | "dark";
 export type ResolvedTheme = "light" | "dark";
@@ -53,6 +55,7 @@ function isValidThemePreference(
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [preference, setPreference] = useState<ThemePreference>(() => {
     if (typeof window === "undefined") return "auto";
 
@@ -157,7 +160,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [resolvedTheme]);
 
   useEffect(() => {
-    const themeColor = resolvedTheme === "light" ? "#F2E7DA" : "#122033";
+    const themeColor = getPwaThemeColor(resolvedTheme, pathname);
     const metaSelector = 'meta[name="theme-color"][data-runtime-theme="true"]';
     let runtimeMeta = document.head.querySelector<HTMLMetaElement>(metaSelector);
 
@@ -169,7 +172,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
 
     runtimeMeta.setAttribute("content", themeColor);
-  }, [resolvedTheme]);
+  }, [pathname, resolvedTheme]);
 
   const setThemePreference = useCallback((nextPreference: ThemePreference) => {
     setPreference(nextPreference);
