@@ -26,6 +26,7 @@ export * from './CalendarPanel';
 export * from './ContextSidebar';
 export * from './useZenMode';
 export * from './DashboardContent';
+export * from './HomePlanningHub';
 export * from './NavigationSidePanel';
 
 // Day Planner components
@@ -39,3 +40,11 @@ export * from './InterstitialJournalView';
 // Planning Command Center
 export * from './PlanningCommandCenter';
 export * from './MealPlannerView';
+
+// Today Flow Components (Dashboard rework)
+export * from './useTodayFlow';
+export * from './TodayFlowTimeline';
+export * from './AnchorTimeWindowCard';
+export * from './CaptureDock';
+export * from './MobileCommandHeader';
+export * from './LmsCompactStrip';
