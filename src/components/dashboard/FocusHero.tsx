@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { FlameIcon, TrophyIcon } from '@/components/icons/Icons';
+import { DailyFocusTriad } from './DailyFocusTriad';
 import { DailyAnchorsTimeline } from './DailyAnchorsTimeline';
 import { CalendarPanelRestoreButton } from './ContextSidebar';
 import type { CalendarPlannerApi } from '@/components/dashboard/useCalendarPlanner';
@@ -111,6 +112,8 @@ export function FocusHero({
               calendarPlanner={calendarPlanner}
             />
           </div>
+
+          <DailyFocusTriad storageScope={storageScope} />
         </div>
       </div>
     </div>

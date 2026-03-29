@@ -3804,6 +3804,287 @@ kbd {
     0 8px 20px rgba(156, 126, 98, 0.2);
 }
 
+/* ============================================
+   Daily Focus Triad — cohesive single-surface
+   ============================================ */
+
+/* Panel: the single outer surface */
+.daily-focus-panel {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 60%, transparent);
+  transition: box-shadow 300ms ease, border-color 300ms ease;
+}
+
+/* --- Dark theme panel --- */
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .daily-focus-panel {
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--color-bg-elevated) 86%, var(--color-accent-amethyst) 14%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 90%, var(--color-accent-teal) 10%) 100%
+    );
+  box-shadow:
+    0 8px 28px color-mix(in srgb, var(--color-bg-base) 72%, transparent),
+    inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+}
+
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .daily-focus-aurora {
+  background:
+    radial-gradient(
+      ellipse at 10% 0%,
+      color-mix(in srgb, var(--color-accent-amethyst) 22%, transparent) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 90% 100%,
+      color-mix(in srgb, var(--color-accent-teal) 16%, transparent) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 50% 50%,
+      color-mix(in srgb, var(--color-accent-sakura) 8%, transparent) 0%,
+      transparent 60%
+    );
+}
+
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .daily-focus-textarea {
+  background: color-mix(in srgb, var(--color-bg-base) 55%, var(--color-bg-elevated) 45%);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 50%, transparent);
+  box-shadow: inset 0 1px 3px color-mix(in srgb, var(--color-bg-base) 30%, transparent);
+}
+
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .daily-focus-textarea:focus {
+  border-color: color-mix(in srgb, var(--color-accent-amethyst) 40%, var(--color-border-subtle) 60%);
+  box-shadow:
+    inset 0 1px 3px color-mix(in srgb, var(--color-bg-base) 20%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--color-accent-amethyst) 14%, transparent);
+}
+
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .daily-focus-zone.is-focused {
+  background: color-mix(in srgb, var(--color-accent-amethyst) 4%, transparent);
+}
+
+/* --- Light theme panel --- */
+:where(:root[data-theme="light"], :root.light) .daily-focus-panel {
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-light-hero-start) 28%, white 72%) 0%,
+      color-mix(in srgb, var(--color-light-hero-mid) 14%, white 86%) 50%,
+      color-mix(in srgb, var(--color-light-hero-end) 18%, white 82%) 100%
+    );
+  border-color: color-mix(in srgb, #e2d2c7 55%, transparent);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6),
+    0 4px 16px rgba(156, 126, 98, 0.1),
+    0 0 0 1px color-mix(in srgb, #e2d2c7 30%, transparent);
+}
+
+:where(:root[data-theme="light"], :root.light) .daily-focus-aurora {
+  background:
+    radial-gradient(
+      ellipse at 5% 0%,
+      color-mix(in srgb, var(--color-light-hero-start) 32%, transparent) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 95% 100%,
+      color-mix(in srgb, var(--color-light-hero-end) 22%, transparent) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at 50% 50%,
+      color-mix(in srgb, var(--color-light-hero-mid) 10%, transparent) 0%,
+      transparent 55%
+    );
+}
+
+:where(:root[data-theme="light"], :root.light) .daily-focus-textarea {
+  background: color-mix(in srgb, white 82%, var(--color-bg-surface) 18%);
+  border: 1px solid color-mix(in srgb, #e2d2c7 45%, transparent);
+  box-shadow: inset 0 1px 2px rgba(156, 126, 98, 0.06);
+}
+
+:where(:root[data-theme="light"], :root.light) .daily-focus-textarea:focus {
+  border-color: color-mix(in srgb, var(--color-accent-sakura) 45%, #e2d2c7 55%);
+  box-shadow:
+    inset 0 1px 2px rgba(156, 126, 98, 0.04),
+    0 0 0 2px color-mix(in srgb, var(--color-accent-sakura) 12%, transparent);
+}
+
+:where(:root[data-theme="light"], :root.light) .daily-focus-zone.is-focused {
+  background: color-mix(in srgb, var(--color-light-hero-mid) 6%, transparent);
+}
+
+:where(:root[data-theme="light"], :root.light) .daily-focus-zone {
+  border-color: color-mix(in srgb, #e2d2c7 40%, transparent) !important;
+}
+
+/* Zone hover/focus transitions */
+.daily-focus-zone {
+  transition: background 250ms ease;
+}
+
+/* Tag badge styling */
+.daily-focus-tag {
+  letter-spacing: 0.08em;
+}
+
+/* Parsed meta (when / where / barrier / pair) shown as emoji chips under the main line */
+.daily-focus-meta-strip {
+  list-style: none;
+}
+
+.daily-focus-zone.is-done .daily-focus-meta-chip {
+  opacity: 0.9;
+}
+
+/* Main line locked after saving from the guided modal (read-only, no resize handle) */
+.daily-focus-main-locked {
+  resize: none;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
+  background: color-mix(in srgb, var(--color-bg-elevated) 88%, var(--color-bg-base) 12%);
+}
+
+:where(:root[data-theme="light"], :root.light) .daily-focus-main-locked {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #e2d2c7 45%, transparent);
+  background: color-mix(in srgb, white 92%, var(--color-bg-surface) 8%);
+}
+
+/* Mobile: transparent panel background to match hero plain mode */
+@media (max-width: 639px) {
+  .daily-focus-panel {
+    border-radius: 1rem;
+  }
+}
+
+/* Saved indicator animation */
+.daily-focus-saved {
+  will-change: opacity, transform;
+}
+
+/* Need help panel */
+.daily-focus-help-trigger:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .daily-focus-help-panel {
+  background: color-mix(in srgb, var(--color-bg-elevated) 75%, var(--color-accent-amethyst) 8%);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 55%, var(--color-accent-teal) 20%);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 4%, transparent);
+}
+
+:where(:root[data-theme="light"], :root.light) .daily-focus-help-panel {
+  background: color-mix(in srgb, white 88%, var(--color-light-hero-mid) 12%);
+  border: 1px solid color-mix(in srgb, #e2d2c7 50%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+/* Done toggle */
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .daily-focus-done-btn {
+  border-color: color-mix(in srgb, var(--color-border-subtle) 65%, transparent);
+  background: color-mix(in srgb, var(--color-bg-base) 40%, transparent);
+  color: color-mix(in srgb, var(--color-text-muted) 85%, white 15%);
+}
+
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .daily-focus-done-btn[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--color-secondary) 55%, var(--color-border-subtle) 45%);
+  background: color-mix(in srgb, var(--color-secondary) 18%, var(--color-bg-surface) 82%);
+  color: color-mix(in srgb, var(--color-secondary) 90%, white 10%);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-secondary) 22%, transparent);
+}
+
+:where(:root[data-theme="light"], :root.light) .daily-focus-done-btn {
+  border-color: color-mix(in srgb, #e2d2c7 70%, transparent);
+  background: color-mix(in srgb, white 92%, var(--color-bg-surface) 8%);
+  color: var(--color-text-muted);
+}
+
+:where(:root[data-theme="light"], :root.light) .daily-focus-done-btn[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--color-accent-mint) 45%, #e2d2c7 55%);
+  background: color-mix(in srgb, var(--color-accent-mint) 14%, white 86%);
+  color: color-mix(in srgb, var(--color-secondary-dark) 65%, var(--color-text) 35%);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent-mint) 20%, transparent);
+}
+
+/* Zone marked done: calmer field */
+.daily-focus-zone.is-done .daily-focus-textarea {
+  opacity: 0.88;
+}
+
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .daily-focus-zone.is-done {
+  background: color-mix(in srgb, var(--color-secondary) 3%, transparent);
+}
+
+:where(:root[data-theme="light"], :root.light) .daily-focus-zone.is-done {
+  background: color-mix(in srgb, var(--color-accent-mint) 5%, transparent);
+}
+
+@keyframes daily-focus-celebrate-pulse {
+  0% {
+    box-shadow:
+      0 0 0 0 color-mix(in srgb, var(--color-secondary) 0%, transparent),
+      inset 0 0 0 0 color-mix(in srgb, var(--color-secondary) 0%, transparent);
+  }
+  35% {
+    box-shadow:
+      0 0 20px color-mix(in srgb, var(--color-secondary) 28%, transparent),
+      inset 0 0 0 1px color-mix(in srgb, var(--color-secondary) 12%, transparent);
+  }
+  100% {
+    box-shadow:
+      0 0 0 0 transparent,
+      inset 0 0 0 0 transparent;
+  }
+}
+
+@keyframes daily-focus-celebrate-pulse-light {
+  0% {
+    box-shadow:
+      0 0 0 0 transparent,
+      inset 0 0 0 0 transparent;
+  }
+  35% {
+    box-shadow:
+      0 0 18px color-mix(in srgb, var(--color-accent-mint) 22%, transparent),
+      inset 0 0 0 1px color-mix(in srgb, var(--color-accent-mint) 14%, transparent);
+  }
+  100% {
+    box-shadow:
+      0 0 0 0 transparent,
+      inset 0 0 0 0 transparent;
+  }
+}
+
+.daily-focus-zone.daily-focus-celebrate {
+  animation: daily-focus-celebrate-pulse 0.65s ease-out;
+}
+
+:where(:root[data-theme="light"], :root.light) .daily-focus-zone.daily-focus-celebrate {
+  animation-name: daily-focus-celebrate-pulse-light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .daily-focus-zone.daily-focus-celebrate {
+    animation: none;
+  }
+
+  .daily-focus-zone.daily-focus-celebrate .daily-focus-done-btn {
+    animation: daily-focus-celebrate-fade 0.35s ease-out;
+  }
+}
+
+@keyframes daily-focus-celebrate-fade {
+  0% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* Subtle pulse animation for active timeline dots */
 @keyframes pulse-subtle {
   0%, 100% { opacity: 1; }
