@@ -48,8 +48,12 @@ import { getCalendarMarkerColor, type CalendarEvent } from './MiniCalendar';
 import type { DailyOverviewItem } from '@/types/daily-overview';
 import {
   boundaryKindRailClass,
+  getAnchorOverviewTimeChipStyles,
   getAnchorOrbStyles,
   getAnchorRowChromeStyles,
+  getBoundaryOverviewTimeChipStyles,
+  getCalendarMarkerTimeChipStyles,
+  getSessionOverviewTimeChipStyles,
   overviewOrbDepthClass,
   overviewOrbDepthDashedClass,
 } from './daily-overview-styles';
@@ -82,20 +86,65 @@ const iconByName: Record<string, LucideIcon> = {
   timer: Timer,
 };
 
-/** Shared micro-label chip (sentence case); icon + label, sits below title. */
-const overviewTypeChipClass =
-  'inline-flex w-fit items-center gap-1 rounded-full border border-border-subtle/60 bg-bg-elevated/70 px-2 py-0.5 text-[10px] font-medium text-text-muted/90';
+function formatCompactAnchorChipTime(startTime: string, endTime?: string): string {
+  const [rawH1 = '0', rawM1 = '00'] = startTime.split(':');
+  const h1Num = Number(rawH1);
+  const m1Num = Number(rawM1);
+  if (Number.isNaN(h1Num) || Number.isNaN(m1Num)) return startTime;
 
-function OverviewTypeChip({ label, icon: Icon, muted }: { label: string; icon: LucideIcon; muted?: boolean }) {
+  const p1 = h1Num >= 12 ? 'pm' : 'am';
+  const h1 = h1Num % 12 || 12;
+  const startLabel = `${h1}:${String(m1Num).padStart(2, '0')}`;
+
+  if (!endTime) return `${startLabel}${p1}`;
+
+  const [rawH2 = '0', rawM2 = '00'] = endTime.split(':');
+  const h2Num = Number(rawH2);
+  const m2Num = Number(rawM2);
+  if (Number.isNaN(h2Num) || Number.isNaN(m2Num)) return `${startLabel}${p1}`;
+
+  const p2 = h2Num >= 12 ? 'pm' : 'am';
+  const h2 = h2Num % 12 || 12;
+  const endLabel = `${h2}:${String(m2Num).padStart(2, '0')}`;
+
+  return p1 === p2 ? `${startLabel}-${endLabel}${p1}` : `${startLabel}${p1}-${endLabel}${p2}`;
+}
+
+/**
+ * Shared shell for all row time chips (anchor / boundary / …).
+ * `whitespace-nowrap` keeps range times on one line so they match boundary chip height (wrapping was making anchors look huge).
+ */
+const overviewTimeChipShellClass =
+  'inline-flex max-w-full min-h-0 shrink-0 items-center justify-center rounded-full border px-1.5 py-px text-[10px] font-normal tabular-nums tracking-tight leading-none whitespace-nowrap';
+
+/** Interactive time chip (anchor — opens time editor). */
+const overviewTimeChipButtonClass = cn(
+  overviewTimeChipShellClass,
+  'icon-button min-h-0 min-w-0 h-auto appearance-none transition-[filter,box-shadow] touch-manipulation',
+);
+
+/** Non-interactive time chip (event / boundary / session rows). */
+const overviewTimeChipStaticClass = overviewTimeChipShellClass;
+
+/** Demoted row kind label (Anchor, Calendar, …) — lighter than time. */
+function OverviewKindMeta({ label, icon: Icon, muted }: { label: string; icon: LucideIcon; muted?: boolean }) {
   return (
     <span
       className={cn(
-        overviewTypeChipClass,
-        muted && 'border-border-subtle/45 bg-bg-elevated/45 text-[9px] text-text-muted/75',
+        'inline-flex items-center gap-0.5 text-[10px] font-medium text-text-muted/75',
+        muted && 'opacity-70',
       )}
     >
-      <Icon className={cn('h-3 w-3 shrink-0', muted ? 'opacity-75' : 'opacity-90')} strokeWidth={2} aria-hidden />
+      <Icon className={cn('h-2.5 w-2.5 shrink-0', muted ? 'opacity-75' : 'opacity-90')} strokeWidth={2} aria-hidden />
       {label}
+    </span>
+  );
+}
+
+function OverviewMetaSeparator() {
+  return (
+    <span className="shrink-0 select-none text-[10px] text-text-muted/35" aria-hidden>
+      ·
     </span>
   );
 }
@@ -144,6 +193,7 @@ function AnchorOverviewRow({
   const id = item.id as AnchorId;
   const palette = getAnchorColorPalette(anchorData.color, anchorData.icon);
   const { resolvedTheme } = useTheme();
+  const anchorTimeChipLabel = formatCompactAnchorChipTime(anchorData.scheduledTime, anchorData.endTime);
 
   const done = item.isDone && !isSkipped;
 
@@ -151,8 +201,8 @@ function AnchorOverviewRow({
     <div role="group" aria-label={`Anchor: ${item.label}, ${item.time}${done ? ', completed' : ''}`}>
       <div
         className={cn(
-          'group flex w-full items-center border-l-[3px] px-5 pl-4 transition-colors',
-          done ? 'gap-3 py-2.5 hover:bg-bg-elevated/28' : 'gap-4 py-4 hover:bg-bg-elevated/40',
+          'group flex w-full items-start border-l-[3px] px-5 pl-4 transition-colors',
+          done ? 'gap-2.5 py-2.5 hover:bg-bg-elevated/28' : 'gap-3 py-4 hover:bg-bg-elevated/40',
         )}
         style={getAnchorRowChromeStyles(palette, resolvedTheme, done)}
       >
@@ -163,68 +213,80 @@ function AnchorOverviewRow({
             if (isEditorOpen) return;
             toggleAnchor(id);
           }}
-          className={cn('flex min-w-0 flex-1 items-center text-left', done ? 'gap-3' : 'gap-4')}
-        >
-          <div
-            className={cn(
-              'flex shrink-0 items-center justify-center',
-              done ? 'h-11 w-11 rounded-2xl' : 'h-14 w-14 rounded-3xl',
-              item.isDone
-                ? 'bg-secondary/20 text-secondary'
-                : isSkipped
-                  ? 'bg-bg-surface/50 text-text-muted/50'
-                  : '',
-              (item.isDone || isSkipped) && overviewOrbDepthClass,
-              !item.isDone && !isSkipped &&
-                'transition-transform duration-200 will-change-transform group-hover:-translate-y-px active:translate-y-0',
-            )}
-            style={getAnchorOrbStyles(palette, resolvedTheme, item.isDone, isSkipped)}
-          >
-            {item.isDone ? (
-              <svg
-                className={done ? 'h-5 w-5' : 'h-6 w-6'}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-            ) : (() => {
-              const IconComponent = iconByName[item.icon];
-              return IconComponent ? <IconComponent className="w-6 h-6" strokeWidth={1.5} /> : <span>{item.icon}</span>;
-            })()}
-          </div>
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <p
-              className={cn(
-                'leading-snug',
-                isSkipped && 'text-text-muted/65 line-through decoration-text-muted/40',
-                !isSkipped && done && 'text-base font-medium text-text/88',
-                !isSkipped && !done && 'text-lg font-semibold text-text',
-              )}
-            >
-              {item.label}
-            </p>
-            <OverviewTypeChip label="Anchor" icon={AnchorTypeIcon} muted={done} />
-          </div>
-        </button>
-        <button
-          type="button"
-          disabled={!isLoaded}
-          onClick={(e) => {
-            e.stopPropagation();
-            setOpenEditorAnchorId((prev) => (prev === item.id ? null : id));
-          }}
           className={cn(
-            'flex shrink-0 self-center text-right tabular-nums transition-colors touch-manipulation',
-            isSkipped && 'text-text-muted/50 line-through decoration-text-muted/40',
-            !isSkipped && done && 'text-sm font-medium text-text-muted/72',
-            !isSkipped && !done && 'text-base font-medium text-text-secondary hover:text-text',
+            'flex shrink-0 items-center justify-center',
+            done ? 'h-11 w-11 rounded-2xl' : 'h-14 w-14 rounded-2xl',
+            item.isDone
+              ? 'bg-secondary/20 text-secondary'
+              : isSkipped
+                ? 'bg-bg-surface/50 text-text-muted/50'
+                : '',
+            (item.isDone || isSkipped) && overviewOrbDepthClass,
+            !item.isDone &&
+              !isSkipped &&
+              'transition-transform duration-200 will-change-transform group-hover:-translate-y-px active:translate-y-0',
           )}
-          aria-label={`Adjust ${item.label} time`}
+          style={getAnchorOrbStyles(palette, resolvedTheme, item.isDone, isSkipped)}
+          aria-label={`Toggle ${item.label}`}
         >
-          {item.time}
+          {item.isDone ? (
+            <svg
+              className={done ? 'h-5 w-5' : 'h-6 w-6'}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+          ) : (() => {
+            const IconComponent = iconByName[item.icon];
+            return IconComponent ? <IconComponent className="w-6 h-6" strokeWidth={1.5} /> : <span>{item.icon}</span>;
+          })()}
         </button>
+
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <button
+            type="button"
+            disabled={!isLoaded}
+            onClick={() => {
+              if (isEditorOpen) return;
+              toggleAnchor(id);
+            }}
+            className={cn(
+              'w-full text-left',
+              isSkipped && 'text-text-muted/65 line-through decoration-text-muted/40',
+              !isSkipped && done && 'text-[0.9375rem] font-medium text-text/88',
+              !isSkipped && !done && 'text-base font-medium text-text',
+            )}
+          >
+            <p className="leading-snug">{item.label}</p>
+          </button>
+
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <button
+              type="button"
+              disabled={!isLoaded}
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenEditorAnchorId((prev) => (prev === item.id ? null : id));
+              }}
+              style={getAnchorOverviewTimeChipStyles(palette, {
+                muted: done || isSkipped,
+                skipped: isSkipped,
+              })}
+              className={cn(
+                overviewTimeChipButtonClass,
+                !isSkipped && !done && 'hover:brightness-[1.05] active:brightness-[0.98]',
+                isSkipped && 'line-through decoration-text-muted/40',
+              )}
+              aria-label={`Adjust ${item.label} time`}
+            >
+              {anchorTimeChipLabel}
+            </button>
+            <OverviewMetaSeparator />
+            <OverviewKindMeta label="Anchor" icon={AnchorTypeIcon} muted={done} />
+          </div>
+        </div>
       </div>
       {isEditorOpen && (
         <div className="px-5 pb-4">
@@ -259,7 +321,7 @@ function EventOverviewRow({
       type="button"
       onClick={onAcknowledge}
       className={cn(
-        'group flex w-full items-center border-l-[3px] px-5 pl-4 text-left transition-colors',
+        'group flex w-full items-start border-l-[3px] px-5 pl-4 text-left transition-colors',
         win ? 'gap-3 py-2.5 hover:bg-bg-elevated/35' : 'gap-4 py-4 hover:bg-bg-elevated/50',
       )}
       style={{
@@ -300,21 +362,19 @@ function EventOverviewRow({
         >
           {item.label}
         </p>
-        <OverviewTypeChip label="Calendar" icon={Calendar} muted={win} />
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span
+            style={getCalendarMarkerTimeChipStyles(marker, win)}
+            className={overviewTimeChipStaticClass}
+          >
+            {item.time}
+          </span>
+          <OverviewMetaSeparator />
+          <OverviewKindMeta label="Calendar" icon={Calendar} muted={win} />
+        </div>
         {item.description ? (
           <p className={cn('mt-0.5 text-text-muted', win ? 'text-xs opacity-90' : 'text-sm')}>{item.description}</p>
         ) : null}
-      </div>
-
-      <div className="flex shrink-0 self-center text-right">
-        <p
-          className={cn(
-            'tabular-nums',
-            win ? 'text-sm font-medium text-text-muted/72' : 'text-base font-medium text-text-secondary',
-          )}
-        >
-          {item.time}
-        </p>
       </div>
     </button>
   );
@@ -370,18 +430,16 @@ function BoundaryOverviewRow({
         >
           {item.label}
         </p>
-        <OverviewTypeChip label="Time boundary" icon={Clock} muted={win} />
-      </div>
-
-      <div className="flex shrink-0 self-start text-right">
-        <p
-          className={cn(
-            'tabular-nums',
-            win ? 'text-sm font-medium text-text-muted/72' : 'text-base font-medium text-text-secondary',
-          )}
-        >
-          {item.time}
-        </p>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span
+            style={getBoundaryOverviewTimeChipStyles(item.boundaryKind ?? 'cutoff', win)}
+            className={overviewTimeChipStaticClass}
+          >
+            {item.time}
+          </span>
+          <OverviewMetaSeparator />
+          <OverviewKindMeta label="Time boundary" icon={Clock} muted={win} />
+        </div>
       </div>
     </button>
   );
@@ -401,7 +459,7 @@ function SessionPlaceholderRow({
       type="button"
       onClick={onAcknowledge}
       className={cn(
-        'group flex w-full items-center border-l-[3px] border-border-subtle px-5 pl-4 text-left transition-colors',
+        'group flex w-full items-start border-l-[3px] border-border-subtle px-5 pl-4 text-left transition-colors',
         win ? 'gap-3 bg-bg-surface/45 py-2.5 hover:bg-bg-elevated/35' : 'gap-4 bg-bg-surface/30 py-4 hover:bg-bg-elevated/50',
       )}
       aria-label={`Time block: ${item.label}, ${item.time}${win ? ', acknowledged' : ''}`}
@@ -430,20 +488,16 @@ function SessionPlaceholderRow({
         >
           {item.label}
         </p>
-        <OverviewTypeChip label="Time block" icon={Layers} muted={win} />
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span style={getSessionOverviewTimeChipStyles(win)} className={overviewTimeChipStaticClass}>
+            {item.time}
+          </span>
+          <OverviewMetaSeparator />
+          <OverviewKindMeta label="Time block" icon={Layers} muted={win} />
+        </div>
         {item.description ? (
           <p className={cn('mt-0.5 text-text-muted', win ? 'text-xs opacity-90' : 'text-sm')}>{item.description}</p>
         ) : null}
-      </div>
-      <div className="flex shrink-0 self-center text-right">
-        <p
-          className={cn(
-            'tabular-nums',
-            win ? 'text-sm font-medium text-text-muted/72' : 'text-base font-medium text-text-secondary',
-          )}
-        >
-          {item.time}
-        </p>
       </div>
     </button>
   );

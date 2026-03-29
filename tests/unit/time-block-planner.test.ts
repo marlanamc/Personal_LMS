@@ -764,7 +764,7 @@ describe("time block planner helpers", () => {
     expect(store.days["2026-03-08"].quadrants).toEqual([]);
   });
 
-  it("clamps saved section hours to the day plan window", () => {
+  it("expands the planner form when saved section hours extend outside the previous window", () => {
     const store = normalizeTimeBlockPlannerStore({
       days: {
         "2026-03-08": {
@@ -785,8 +785,10 @@ describe("time block planner helpers", () => {
       },
     });
 
-    expect(store.days["2026-03-08"].sectionStartTime).toBe("09:00");
-    expect(store.days["2026-03-08"].sectionEndTime).toBe("17:00");
+    expect(store.days["2026-03-08"].form.startTime).toBe("07:00");
+    expect(store.days["2026-03-08"].form.endTime).toBe("19:00");
+    expect(store.days["2026-03-08"].sectionStartTime).toBe("07:00");
+    expect(store.days["2026-03-08"].sectionEndTime).toBe("19:00");
   });
 
   it("uses a workday default for inherited full-day section ranges", () => {
@@ -812,7 +814,7 @@ describe("time block planner helpers", () => {
     expect(store.days["2026-03-08"].sectionEndTime).toBe("17:00");
   });
 
-  it("normalizes legacy inherited ranges that kept the rounded planner start but saved a 5 PM end", () => {
+  it("preserves non-9am section ranges when the planner form started later in the day", () => {
     const store = normalizeTimeBlockPlannerStore({
       days: {
         "2026-03-08": {
@@ -833,7 +835,7 @@ describe("time block planner helpers", () => {
       },
     });
 
-    expect(store.days["2026-03-08"].sectionStartTime).toBe("09:00");
+    expect(store.days["2026-03-08"].sectionStartTime).toBe("11:15");
     expect(store.days["2026-03-08"].sectionEndTime).toBe("17:00");
   });
 });

@@ -37,6 +37,7 @@ import {
   parseHHMMToMinutes,
   type AnchorIcon,
   type AnchorId,
+  type DailyAnchor,
   type DailyAnchorTemplate,
   type SkipReason,
 } from '@/lib/anchors';
@@ -97,21 +98,13 @@ function getTimePosition(timeStr: string): number {
   return Math.max(2, Math.min(98, position));
 }
 
-function getTimelineNowPosition(timeStr: string): number | null {
-  const minutes = parseHHMMToMinutes(timeStr);
+/** 0–100: elapsed share of the visible day window (6:00–24:00); aligns track fill with the “now” line. */
+function getDayProgressPercentFromMinutes(nowMinutes: number): number {
   const startMinutes = TIMELINE_START_HOUR * 60;
   const endMinutes = TIMELINE_END_HOUR * 60;
-
-  if (minutes < startMinutes || minutes >= endMinutes) {
-    return null;
-  }
-
-  const position = ((minutes - startMinutes) / TIMELINE_TOTAL_MINUTES) * 100;
-  if (position < 3 || position > 97) {
-    return null;
-  }
-
-  return Math.max(0, Math.min(100, position));
+  if (nowMinutes < startMinutes) return 0;
+  if (nowMinutes >= endMinutes) return 100;
+  return ((nowMinutes - startMinutes) / TIMELINE_TOTAL_MINUTES) * 100;
 }
 
 function positionToTime(positionPercent: number): string {
@@ -145,6 +138,191 @@ function getRiverFlowGradient(icon: AnchorIcon): { from: string; to: string; glo
     moon: { from: 'from-violet-400/20', to: 'to-purple-300/10', glow: 'rgba(167, 139, 250, 0.3)' },
   };
   return gradients[icon] || { from: 'from-primary/20', to: 'to-accent/10', glow: 'rgba(212, 138, 166, 0.3)' };
+}
+
+interface MobileAnchorsTimelineStripProps {
+  hourMarkers: { hour: number; label: string }[];
+  sortedAnchors: DailyAnchor[];
+  /** Elapsed time through the day window (matches “now” marker). */
+  timeFillPercent: number;
+  showNowMarker: boolean;
+  isLoaded: boolean;
+  activeAnchor: DailyAnchor;
+  toggleAnchor: (id: AnchorId) => void;
+  onToggleSkip: (id: AnchorId, isSkipped: boolean) => void;
+}
+
+/** Compact timeline for viewports below lg: hour axis + track + anchor markers above the daily list. */
+function MobileAnchorsTimelineStrip({
+  hourMarkers,
+  sortedAnchors,
+  timeFillPercent,
+  showNowMarker,
+  isLoaded,
+  activeAnchor,
+  toggleAnchor,
+  onToggleSkip,
+}: MobileAnchorsTimelineStripProps) {
+  if (sortedAnchors.length === 0) {
+    return null;
+  }
+
+  return (
+    <div
+      className="mb-3 rounded-2xl border border-border-subtle/60 bg-bg-surface/45 px-3 pt-2.5 pb-3"
+      aria-label="Daily anchors timeline"
+    >
+      <div className="flex justify-between gap-1 mb-1.5 px-0.5">
+        {hourMarkers.map(({ hour, label }) => (
+          <span key={hour} className="daily-anchors-hour-tick text-[9px] text-text-muted/45 font-medium tabular-nums">
+            {label}
+          </span>
+        ))}
+      </div>
+
+      <div className="relative h-11 py-1">
+        <div className="daily-anchors-track-base absolute top-1/2 left-0 right-0 h-1.5 -translate-y-1/2 rounded-full bg-gradient-to-r from-bg-surface/40 via-bg-surface/60 to-bg-surface/40 overflow-hidden" />
+
+        <motion.div
+          className="daily-anchors-track-progress absolute top-1/2 left-0 h-1.5 -translate-y-1/2 rounded-full bg-gradient-to-r from-secondary via-primary to-accent-teal"
+          initial={{ width: 0 }}
+          animate={{ width: `${timeFillPercent}%` }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+        />
+
+        {showNowMarker && (
+          <div
+            className="absolute top-1/2 z-10 flex flex-col items-center pointer-events-none -translate-x-1/2 -translate-y-1/2"
+            style={{ left: `${timeFillPercent}%` }}
+          >
+            <div className="daily-anchors-now-line w-0.5 h-9 bg-gradient-to-b from-primary/80 via-primary/55 to-transparent rounded-full" />
+            <span className="daily-anchors-now-label absolute top-full mt-0.5 text-[7px] font-bold text-primary/80 uppercase tracking-wider">
+              now
+            </span>
+          </div>
+        )}
+
+        {sortedAnchors.map((anchor) => {
+          const Icon = iconByName[anchor.icon] || Moon;
+          const isActive = anchor.id === activeAnchor.id;
+          const isDone = anchor.status === 'done';
+          const isMissed = anchor.status === 'missed';
+          const isSkipped = anchor.status === 'skipped';
+          const isRange = Boolean(
+            anchor.endTime && parseHHMMToMinutes(anchor.endTime) > parseHHMMToMinutes(anchor.scheduledTime),
+          );
+
+          const displayTime = anchor.scheduledTime;
+          const position = getTimePosition(displayTime);
+          const endPosition = isRange && anchor.endTime ? getTimePosition(anchor.endTime) : null;
+
+          const stateClass = isDone
+            ? 'is-done'
+            : isMissed
+              ? 'is-missed'
+              : isSkipped
+                ? 'is-skipped'
+                : isActive
+                  ? 'is-active'
+                  : 'is-future';
+
+          if (isRange && endPosition != null && endPosition > position) {
+            const segmentLeft = getTimePosition(displayTime);
+            const segmentRight = anchor.endTime ? getTimePosition(anchor.endTime) : endPosition;
+            const segmentWidth = segmentRight - segmentLeft;
+            const w = Math.max(segmentWidth, 2);
+            return (
+              <button
+                key={anchor.id}
+                type="button"
+                disabled={!isLoaded}
+                title={anchor.endTime ? formatTimeRange(displayTime, anchor.endTime, true) : anchor.label}
+                aria-label={`${anchor.label}, ${anchor.endTime ? formatTimeRange(displayTime, anchor.endTime, true) : displayTime}`}
+                className={`
+                  absolute top-1/2 -translate-y-1/2 z-[15] h-2 min-h-[6px] rounded-full border shadow-sm transition-transform
+                  active:scale-[0.98]
+                  ${isDone
+                    ? 'border-secondary/45 bg-secondary/75'
+                    : isMissed
+                      ? 'border-border-subtle/50 bg-bg-surface/50'
+                      : isSkipped
+                        ? 'border-border-subtle/45 bg-bg-surface/40 grayscale'
+                        : `border-primary/25 bg-gradient-to-r ${getRiverFlowGradient(anchor.icon).from} ${getRiverFlowGradient(anchor.icon).to} opacity-90`
+                  }
+                  ${!isLoaded ? 'opacity-50' : ''}
+                `}
+                style={{
+                  left: `${segmentLeft}%`,
+                  width: `${w}%`,
+                  minWidth: '8px',
+                }}
+                onClick={() => toggleAnchor(anchor.id)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onToggleSkip(anchor.id, isSkipped);
+                }}
+              />
+            );
+          }
+
+          return (
+            <div
+              key={anchor.id}
+              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20"
+              style={{ left: `${position}%` }}
+            >
+              <button
+                type="button"
+                disabled={!isLoaded}
+                title={anchor.label}
+                aria-label={`${anchor.label}, ${formatShortTime(displayTime)}`}
+                onClick={() => toggleAnchor(anchor.id)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onToggleSkip(anchor.id, isSkipped);
+                }}
+                className={`
+                  daily-anchors-dot relative flex h-9 w-9 items-center justify-center rounded-xl border-2 shadow-md
+                  transition-all duration-300 overflow-hidden
+                  ${
+                    isDone
+                      ? 'bg-gradient-to-br from-secondary to-secondary/80 text-white border-secondary/50'
+                      : isMissed
+                        ? 'bg-bg-surface/50 text-text-muted/40 border-border-subtle/50'
+                        : isSkipped
+                          ? 'bg-bg-surface/40 text-text-muted/45 border-border-subtle/45 grayscale'
+                          : isActive
+                            ? `bg-gradient-to-br ${gradientByIcon(anchor.icon)} border-2 border-primary/30 text-text`
+                            : `bg-gradient-to-br ${gradientByIcon(anchor.icon)} border-2 border-border-subtle text-text-muted`
+                  }
+                  ${stateClass}
+                  ${isActive && !isDone && !isMissed && !isSkipped ? 'ring-2 ring-accent-teal/25 animate-pulse-subtle' : ''}
+                  active:scale-95
+                  ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                `}
+              >
+                {!isDone && !isMissed && !isSkipped && (
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${gradientByIcon(anchor.icon)} opacity-35`}
+                    aria-hidden
+                  />
+                )}
+                <span className="relative z-10">
+                  {isDone ? (
+                    <Check size={16} strokeWidth={2.5} />
+                  ) : (
+                    <Icon size={16} strokeWidth={1.7} className={isActive ? 'text-text' : ''} />
+                  )}
+                </span>
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export function DailyAnchorsTimeline({
@@ -188,15 +366,18 @@ export function DailyAnchorsTimeline({
     [sortedAnchors],
   );
 
-  const progressPercent = useMemo(() => {
-    if (completedCount === 0) return 0;
-    const completedAnchors = sortedAnchors.filter((anchor) => anchor.status === 'done');
-    if (completedAnchors.length === 0) return 0;
-    return Math.max(...completedAnchors.map((anchor) => getTimePosition(anchor.scheduledTime)));
-  }, [sortedAnchors, completedCount]);
-
-  const [currentTimePosition, setCurrentTimePosition] = useState<number | null>(null);
   const [nowMinutes, setNowMinutes] = useState<number | null>(null);
+
+  /** Track fill + “now” line: time elapsed in the 6:00–24:00 window (not anchor completion). */
+  const dayProgressPercent = useMemo(() => {
+    if (nowMinutes === null) return 0;
+    return getDayProgressPercentFromMinutes(nowMinutes);
+  }, [nowMinutes]);
+
+  const showNowMarker = useMemo(() => {
+    if (nowMinutes === null) return false;
+    return nowMinutes >= TIMELINE_START_HOUR * 60 && nowMinutes < TIMELINE_END_HOUR * 60;
+  }, [nowMinutes]);
 
   const recentSkippedStreak = useMemo(
     () => getRecentSkippedAnchorStreak(sortedAnchors, nowMinutes),
@@ -206,11 +387,7 @@ export function DailyAnchorsTimeline({
   useEffect(() => {
     const updateCurrentTime = () => {
       const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-      const nowStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-      setNowMinutes(hours * 60 + minutes);
-      setCurrentTimePosition(getTimelineNowPosition(nowStr));
+      setNowMinutes(now.getHours() * 60 + now.getMinutes());
     };
 
     updateCurrentTime();
@@ -450,14 +627,14 @@ export function DailyAnchorsTimeline({
               <motion.div
                 className="daily-anchors-track-progress absolute top-1/2 left-0 h-1.5 -translate-y-1/2 rounded-full bg-gradient-to-r from-secondary via-primary to-accent-teal"
                 initial={{ width: 0 }}
-                animate={{ width: `${progressPercent}%` }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
+                animate={{ width: `${dayProgressPercent}%` }}
+                transition={{ duration: 0.45, ease: 'easeOut' }}
               />
 
-              {currentTimePosition !== null && currentTimePosition >= 0 && currentTimePosition <= 100 && (
+              {showNowMarker && (
                 <div
-                  className="absolute top-1/2 -translate-y-1/2 z-10 flex flex-col items-center pointer-events-none"
-                  style={{ left: `${currentTimePosition}%` }}
+                  className="absolute top-1/2 z-10 flex flex-col items-center pointer-events-none -translate-x-1/2 -translate-y-1/2"
+                  style={{ left: `${dayProgressPercent}%` }}
                 >
                   <div className="daily-anchors-now-line w-0.5 h-12 bg-gradient-to-b from-primary/80 via-primary/60 to-transparent rounded-full" />
                   <div className="daily-anchors-now-label absolute top-full mt-1 text-[8px] font-bold text-primary/80 uppercase tracking-wider">now</div>
@@ -788,8 +965,18 @@ export function DailyAnchorsTimeline({
             </div>
           </div>
 
-          {/* Mobile/tablet layout - unified daily overview */}
+          {/* Mobile/tablet layout - compact timeline + unified daily overview */}
           <div className="lg:hidden mt-0">
+            <MobileAnchorsTimelineStrip
+              hourMarkers={hourMarkers}
+              sortedAnchors={sortedAnchors}
+              timeFillPercent={dayProgressPercent}
+              showNowMarker={showNowMarker}
+              isLoaded={isLoaded}
+              activeAnchor={activeAnchor}
+              toggleAnchor={toggleAnchor}
+              onToggleSkip={handleToggleSkipToday}
+            />
             <DailyOverviewList
               storageScope={storageScope}
               calendarEvents={calendarEvents}

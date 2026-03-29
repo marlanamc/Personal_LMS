@@ -7,6 +7,7 @@ import {
   buildTimeBlockPlan,
   createEmptyTimeBlockDayPlan,
   createEqualQuadrants,
+  expandFormToIncludeSectionRange,
   formatMinuteOfDay,
   getActiveConstraintsForDay,
   getActiveQuadrantsForDay,
@@ -334,23 +335,30 @@ export function QuadrantsTool({ dateKey, onClose }: QuadrantsToolProps) {
     const currentEnd = parseTimeInput(sectionRange.endTime) ?? formEnd;
     const raw = parseTimeInput(value) ?? currentStart;
 
+    const dayEnd = 23 * 60 + 59;
+    const minSectionSpan = 15;
+    const maxSectionStart = dayEnd - minSectionSpan;
+
     const nextStartMinute =
-      field === 'startTime' ? Math.max(formStart, Math.min(formEnd - 15, raw)) : currentStart;
+      field === 'startTime' ? Math.max(0, Math.min(maxSectionStart, raw)) : currentStart;
     const nextEndMinute =
-      field === 'endTime' ? Math.max(nextStartMinute + 15, Math.min(formEnd, raw)) : currentEnd;
-    const boundedEndMinute = Math.max(nextStartMinute + 15, nextEndMinute);
+      field === 'endTime' ? Math.max(nextStartMinute + minSectionSpan, Math.min(dayEnd, raw)) : currentEnd;
+    const boundedEndMinute = Math.max(nextStartMinute + minSectionSpan, nextEndMinute);
     const nextRange = {
       startTime: minutesToTimeString(nextStartMinute),
       endTime: minutesToTimeString(boundedEndMinute),
     };
 
+    const formForQuadrants = expandFormToIncludeSectionRange(currentPlan.form, nextRange.startTime, nextRange.endTime);
+
     const quadrants =
       currentPlan.quadrants.length >= 2
-        ? createEqualQuadrants(currentPlan.form, currentPlan.quadrants.length, currentPlan.quadrants, nextRange)
+        ? createEqualQuadrants(formForQuadrants, currentPlan.quadrants.length, currentPlan.quadrants, nextRange)
         : [];
 
     const nextPlan = {
       ...currentPlan,
+      form: formForQuadrants,
       sectionStartTime: nextRange.startTime,
       sectionEndTime: nextRange.endTime,
       quadrants,
@@ -471,33 +479,35 @@ export function QuadrantsTool({ dateKey, onClose }: QuadrantsToolProps) {
       {/* ─────────────────────────────────────────────────────────────────────
           Header: Title + Time Range
       ───────────────────────────────────────────────────────────────────── */}
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div>
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h2 className="font-display text-xl font-bold text-text">Day Sections</h2>
           <p className="mt-0.5 text-sm text-text-muted">
             {formatDisplayTime(sectionRange.startTime)} — {formatDisplayTime(sectionRange.endTime)}
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <input
-            type="time"
-            value={sectionRange.startTime}
-            onChange={(e) => updateSectionRange('startTime', e.target.value)}
-            className="w-32 shrink-0 rounded-lg border border-border-subtle/40 bg-bg-surface/60 px-2 py-2 font-mono text-sm text-text transition-colors focus:border-accent-teal/50"
-          />
-          <span className="shrink-0 text-text-muted/50">to</span>
-          <input
-            type="time"
-            value={sectionRange.endTime}
-            onChange={(e) => updateSectionRange('endTime', e.target.value)}
-            className="w-32 shrink-0 rounded-lg border border-border-subtle/40 bg-bg-surface/60 px-2 py-2 font-mono text-sm text-text transition-colors focus:border-accent-teal/50"
-          />
+        <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-2 sm:gap-y-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <input
+              type="time"
+              value={sectionRange.startTime}
+              onChange={(e) => updateSectionRange('startTime', e.target.value)}
+              className="min-w-0 flex-1 rounded-lg border border-border-subtle/40 bg-bg-surface/60 px-2 py-2 font-mono text-sm text-text transition-colors focus:border-accent-teal/50 sm:w-32 sm:flex-none"
+            />
+            <span className="shrink-0 text-text-muted/50">to</span>
+            <input
+              type="time"
+              value={sectionRange.endTime}
+              onChange={(e) => updateSectionRange('endTime', e.target.value)}
+              className="min-w-0 flex-1 rounded-lg border border-border-subtle/40 bg-bg-surface/60 px-2 py-2 font-mono text-sm text-text transition-colors focus:border-accent-teal/50 sm:w-32 sm:flex-none"
+            />
+          </div>
           {isToday && (
             <button
               type="button"
               onClick={setSectionStartToNow}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-accent-sakura/12 px-2.5 py-1.5 text-sm font-semibold text-accent-sakura transition-colors hover:bg-accent-sakura/18"
+              className="inline-flex w-full shrink-0 items-center justify-center gap-1.5 rounded-lg bg-accent-sakura/12 px-2.5 py-1.5 text-sm font-semibold text-accent-sakura transition-colors hover:bg-accent-sakura/18 sm:w-auto"
               title="Set start to now"
             >
               <LocateFixed size={14} />

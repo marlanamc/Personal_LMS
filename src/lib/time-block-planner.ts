@@ -306,6 +306,28 @@ export function getActiveQuadrantsForDay(dayPlan: TimeBlockDayPlan | undefined):
   return (dayPlan?.quadrants ?? []).filter((quadrant) => quadrant.enabled);
 }
 
+/**
+ * Widens the planner day window when saved section bounds extend outside the form.
+ * Used when normalizing persisted data and when editing day sections in the UI.
+ */
+export function expandFormToIncludeSectionRange(
+  form: TimeBlockFormState,
+  sectionStartTime: string,
+  sectionEndTime: string,
+): TimeBlockFormState {
+  const fs = parseTimeInput(form.startTime);
+  const fe = parseTimeInput(form.endTime);
+  const ss = parseTimeInput(sectionStartTime);
+  const se = parseTimeInput(sectionEndTime);
+  if (fs === null || fe === null || ss === null || se === null || se <= ss) return form;
+  if (ss >= fs && se <= fe) return form;
+  return {
+    ...form,
+    startTime: formatTimeFromMinutes(Math.min(fs, ss)),
+    endTime: formatTimeFromMinutes(Math.max(fe, se)),
+  };
+}
+
 export function getSectionRangeForDay(dayPlan: Pick<TimeBlockDayPlan, "form" | "sectionStartTime" | "sectionEndTime">): {
   startTime: string;
   endTime: string;
@@ -319,27 +341,39 @@ export function getSectionRangeForDay(dayPlan: Pick<TimeBlockDayPlan, "form" | "
     return { startTime: dayPlan.form.startTime, endTime: dayPlan.form.endTime };
   }
 
-  const looksLikeInheritedFullDayRange =
-    dayPlan.form.endTime === "23:59" &&
-    (
-      (sectionStart === null && sectionEnd === null) ||
-      (sectionStart === formStart && sectionEnd === formEnd)
-    );
+  /** No saved section yet: show a sensible 9–5 default for full-day forms (23:59 end). */
+  const defaultNineToFivePlaceholder =
+    dayPlan.form.endTime === "23:59" && sectionStart === null && sectionEnd === null;
 
+  /**
+   * Legacy rows where the planner still started at 9:00 and only the 5 PM end was persisted.
+   * Do not treat custom starts (e.g. 7:00) as legacy, or they would display as 9:00.
+   */
   const looksLikeLegacyWorkdayRange =
     dayPlan.form.endTime === "23:59" &&
+    formStart === 9 * 60 &&
     sectionStart === formStart &&
     sectionEnd === 17 * 60;
 
-  if (looksLikeInheritedFullDayRange || looksLikeLegacyWorkdayRange) {
+  if (defaultNineToFivePlaceholder || looksLikeLegacyWorkdayRange) {
     return {
       startTime: "09:00",
       endTime: "17:00",
     };
   }
 
-  const safeStart = sectionStart !== null ? Math.max(formStart, Math.min(formEnd - 15, sectionStart)) : formStart;
-  const safeEnd = sectionEnd !== null ? Math.max(safeStart + 15, Math.min(formEnd, sectionEnd)) : formEnd;
+  const effFormStart =
+    sectionStart !== null ? Math.min(formStart, sectionStart) : formStart;
+  const effFormEnd = sectionEnd !== null ? Math.max(formEnd, sectionEnd) : formEnd;
+
+  const safeStart =
+    sectionStart !== null
+      ? Math.max(effFormStart, Math.min(effFormEnd - 15, sectionStart))
+      : formStart;
+  const safeEnd =
+    sectionEnd !== null
+      ? Math.max(safeStart + 15, Math.min(effFormEnd, sectionEnd))
+      : formEnd;
 
   return {
     startTime: formatTimeFromMinutes(safeStart),
@@ -793,14 +827,18 @@ export function normalizeTimeBlockDayPlan(raw: unknown, dateKey: string): TimeBl
     typeof candidate.sectionEndTime === "string" && TIME_KEY_PATTERN.test(candidate.sectionEndTime)
       ? candidate.sectionEndTime
       : null;
+  const formExpandedForSections =
+    sectionStartTime && sectionEndTime
+      ? expandFormToIncludeSectionRange(form, sectionStartTime, sectionEndTime)
+      : form;
   const normalizedSectionRange = getSectionRangeForDay({
-    form,
+    form: formExpandedForSections,
     sectionStartTime,
     sectionEndTime,
   });
 
   return {
-    form,
+    form: formExpandedForSections,
     blocks,
     generatedAt,
     blockNotes,
@@ -809,7 +847,7 @@ export function normalizeTimeBlockDayPlan(raw: unknown, dateKey: string): TimeBl
     sectionStartTime: normalizedSectionRange.startTime,
     sectionEndTime: normalizedSectionRange.endTime,
     quadrants: normalizeQuadrants(candidate.quadrants, {
-      ...form,
+      ...formExpandedForSections,
       startTime: normalizedSectionRange.startTime,
       endTime: normalizedSectionRange.endTime,
     }),

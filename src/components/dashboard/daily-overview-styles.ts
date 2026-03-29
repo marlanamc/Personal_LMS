@@ -69,6 +69,192 @@ export function getAnchorOrbStyles(
   };
 }
 
+/** Time pill tint to match anchor row palette (DM Sans body; no mono). */
+export function getAnchorOverviewTimePillStyles(
+  palette: AnchorColorPalette,
+  theme: 'light' | 'dark',
+  options: { muted: boolean; skipped?: boolean }
+): CSSProperties {
+  const { muted, skipped } = options;
+  if (skipped) {
+    return {
+      backgroundColor: `color-mix(in srgb, ${palette.solid} 7%, var(--color-bg-elevated))`,
+      border: `1px solid color-mix(in srgb, ${palette.solid} 14%, transparent)`,
+      color: 'color-mix(in srgb, var(--color-text-muted) 90%, var(--color-text-primary) 10%)',
+    };
+  }
+  if (theme === 'light') {
+    if (muted) {
+      return {
+        backgroundColor: `color-mix(in srgb, ${palette.solid} 10%, var(--color-bg-elevated))`,
+        border: `1px solid color-mix(in srgb, ${palette.solid} 22%, transparent)`,
+        color: `color-mix(in srgb, var(--color-text-primary) 72%, ${palette.deep} 28%)`,
+      };
+    }
+    return {
+      backgroundColor: `color-mix(in srgb, ${palette.solid} 20%, var(--color-bg-elevated))`,
+      border: `1px solid color-mix(in srgb, ${palette.solid} 42%, transparent)`,
+      color: palette.deep,
+    };
+  }
+  if (muted) {
+    return {
+      backgroundColor: `color-mix(in srgb, ${palette.solid} 14%, var(--color-bg-elevated))`,
+      border: `1px solid color-mix(in srgb, ${palette.solid} 26%, transparent)`,
+      color: `color-mix(in srgb, var(--color-text-primary) 78%, ${palette.solid} 22%)`,
+    };
+  }
+  return {
+    backgroundColor: `color-mix(in srgb, ${palette.solid} 24%, var(--color-bg-elevated))`,
+    border: `1px solid color-mix(in srgb, ${palette.solid} 38%, transparent)`,
+    color: `color-mix(in srgb, ${palette.solid} 88%, var(--color-text-primary))`,
+  };
+}
+
+/** Calendar event marker color (hex/CSS) on the time pill. */
+export function getCalendarMarkerTimePillStyles(marker: string, muted: boolean): CSSProperties {
+  if (muted) {
+    return {
+      backgroundColor: `color-mix(in srgb, ${marker} 8%, var(--color-bg-elevated))`,
+      border: `1px solid color-mix(in srgb, ${marker} 18%, transparent)`,
+      color: `color-mix(in srgb, var(--color-text-primary) 80%, ${marker} 20%)`,
+    };
+  }
+  return {
+    backgroundColor: `color-mix(in srgb, ${marker} 17%, var(--color-bg-elevated))`,
+    border: `1px solid color-mix(in srgb, ${marker} 32%, transparent)`,
+    color: `color-mix(in srgb, ${marker} 48%, var(--color-text-primary))`,
+  };
+}
+
+function boundaryAccentVar(kind: PlannerConstraintRuleKind): string {
+  switch (kind) {
+    case 'cutoff':
+      return 'var(--color-warning)';
+    case 'until':
+      return 'var(--color-accent-teal)';
+    case 'deadline':
+      return 'var(--color-accent-amethyst)';
+    default:
+      return 'var(--color-border-subtle)';
+  }
+}
+
+/** Time boundary row pill: matches rail accent (warning / teal / amethyst). */
+export function getBoundaryOverviewTimePillStyles(
+  kind: PlannerConstraintRuleKind,
+  muted: boolean
+): CSSProperties {
+  const accent = boundaryAccentVar(kind);
+  if (muted) {
+    return {
+      backgroundColor: `color-mix(in srgb, ${accent} 8%, var(--color-bg-elevated))`,
+      border: `1px solid color-mix(in srgb, ${accent} 18%, transparent)`,
+      color: `color-mix(in srgb, var(--color-text-primary) 78%, ${accent} 22%)`,
+    };
+  }
+  return {
+    backgroundColor: `color-mix(in srgb, ${accent} 15%, var(--color-bg-elevated))`,
+    border: `1px solid color-mix(in srgb, ${accent} 28%, transparent)`,
+    color: `color-mix(in srgb, var(--color-text-primary) 28%, ${accent} 72%)`,
+  };
+}
+
+/** Session / time-block row pill: primary accent. */
+export function getSessionOverviewTimePillStyles(muted: boolean): CSSProperties {
+  const accent = 'var(--color-primary)';
+  if (muted) {
+    return {
+      backgroundColor: `color-mix(in srgb, ${accent} 8%, var(--color-bg-elevated))`,
+      border: `1px solid color-mix(in srgb, ${accent} 18%, transparent)`,
+      color: `color-mix(in srgb, var(--color-text-primary) 78%, ${accent} 22%)`,
+    };
+  }
+  return {
+    backgroundColor: `color-mix(in srgb, ${accent} 15%, var(--color-bg-elevated))`,
+    border: `1px solid color-mix(in srgb, ${accent} 28%, transparent)`,
+    color: `color-mix(in srgb, var(--color-text-primary) 28%, ${accent} 72%)`,
+  };
+}
+
+/**
+ * Compact time chip under row title.
+ * Uses the same color-mix recipe as time-boundary chips so Anchor / Calendar rows match that weight.
+ */
+export function getAnchorOverviewTimeChipStyles(
+  palette: AnchorColorPalette,
+  options: { muted: boolean; skipped?: boolean }
+): CSSProperties {
+  const { muted, skipped } = options;
+  const accent = palette.solid;
+  if (skipped) {
+    return {
+      backgroundColor: `color-mix(in srgb, ${accent} 5%, var(--color-bg-elevated))`,
+      border: `1px solid color-mix(in srgb, ${accent} 12%, transparent)`,
+      color: 'color-mix(in srgb, var(--color-text-muted) 90%, var(--color-text-primary) 10%)',
+    };
+  }
+  if (muted) {
+    return {
+      backgroundColor: `color-mix(in srgb, ${accent} 6%, var(--color-bg-elevated))`,
+      border: `1px solid color-mix(in srgb, ${accent} 14%, transparent)`,
+      color: `color-mix(in srgb, var(--color-text-primary) 82%, ${accent} 18%)`,
+    };
+  }
+  return {
+    backgroundColor: `color-mix(in srgb, ${accent} 14%, var(--color-bg-elevated))`,
+    border: `1px solid color-mix(in srgb, ${accent} 28%, transparent)`,
+    color: `color-mix(in srgb, var(--color-text-primary) 28%, ${accent} 72%)`,
+  };
+}
+
+export function getCalendarMarkerTimeChipStyles(marker: string, muted: boolean): CSSProperties {
+  if (muted) {
+    return {
+      backgroundColor: `color-mix(in srgb, ${marker} 6%, var(--color-bg-elevated))`,
+      border: `1px solid color-mix(in srgb, ${marker} 14%, transparent)`,
+      color: `color-mix(in srgb, var(--color-text-primary) 82%, ${marker} 18%)`,
+    };
+  }
+  return {
+    backgroundColor: `color-mix(in srgb, ${marker} 14%, var(--color-bg-elevated))`,
+    border: `1px solid color-mix(in srgb, ${marker} 28%, transparent)`,
+    color: `color-mix(in srgb, var(--color-text-primary) 28%, ${marker} 72%)`,
+  };
+}
+
+export function getBoundaryOverviewTimeChipStyles(kind: PlannerConstraintRuleKind, muted: boolean): CSSProperties {
+  const accent = boundaryAccentVar(kind);
+  if (muted) {
+    return {
+      backgroundColor: `color-mix(in srgb, ${accent} 6%, var(--color-bg-elevated))`,
+      border: `1px solid color-mix(in srgb, ${accent} 14%, transparent)`,
+      color: `color-mix(in srgb, var(--color-text-primary) 82%, ${accent} 18%)`,
+    };
+  }
+  return {
+    backgroundColor: `color-mix(in srgb, ${accent} 14%, var(--color-bg-elevated))`,
+    border: `1px solid color-mix(in srgb, ${accent} 28%, transparent)`,
+    color: `color-mix(in srgb, var(--color-text-primary) 28%, ${accent} 72%)`,
+  };
+}
+
+export function getSessionOverviewTimeChipStyles(muted: boolean): CSSProperties {
+  const accent = 'var(--color-primary)';
+  if (muted) {
+    return {
+      backgroundColor: `color-mix(in srgb, ${accent} 6%, var(--color-bg-elevated))`,
+      border: `1px solid color-mix(in srgb, ${accent} 14%, transparent)`,
+      color: `color-mix(in srgb, var(--color-text-primary) 82%, ${accent} 18%)`,
+    };
+  }
+  return {
+    backgroundColor: `color-mix(in srgb, ${accent} 14%, var(--color-bg-elevated))`,
+    border: `1px solid color-mix(in srgb, ${accent} 28%, transparent)`,
+    color: `color-mix(in srgb, var(--color-text-primary) 28%, ${accent} 72%)`,
+  };
+}
+
 /** Left border accent for planner constraint rows (not color-only: paired with "Time boundary" chip). */
 export function boundaryKindRailClass(kind: PlannerConstraintRuleKind): string {
   switch (kind) {
