@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
+  AlarmClock,
   BookOpen,
   Briefcase,
   Calendar,
@@ -11,12 +12,14 @@ import {
   Code2,
   Coffee,
   Dumbbell,
+  Flag,
   Flower2,
   GripVertical,
   Heart,
   Moon,
   Music,
   PenTool,
+  PhoneOff,
   Sunrise,
   Target,
   Users,
@@ -29,6 +32,7 @@ import { DailyOverviewList } from './DailyOverviewList';
 import type { CalendarPlannerApi } from '@/components/dashboard/useCalendarPlanner';
 import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
 import {
+  formatTimeLabel,
   formatTimeRange,
   getRecentSkippedAnchorStreak,
   getSkipReasonLabel,
@@ -48,6 +52,17 @@ import {
   getOvernightMinutesUntil,
   getTimeUntil,
 } from '@/lib/anchors-mobile-ui';
+import { getTodayKey } from '@/lib/unified-scheduler';
+import {
+  describeConstraintRule,
+  getActiveConstraintsForDay,
+  getConstraintDisplayDayPlan,
+  type PlannerConstraintRule,
+  type PlannerConstraintRuleKind,
+} from '@/lib/time-block-planner';
+import { useTimeBlockPlanner } from '@/components/dashboard/useTimeBlockPlanner';
+import { getCalendarMarkerColor } from '@/components/dashboard/MiniCalendar';
+import { getBoundaryKindAccent } from '@/components/dashboard/daily-overview-styles';
 
 interface DailyAnchorsTimelineProps {
   storageScope: string;
@@ -105,6 +120,171 @@ function getDayProgressPercentFromMinutes(nowMinutes: number): number {
   if (nowMinutes < startMinutes) return 0;
   if (nowMinutes >= endMinutes) return 100;
   return ((nowMinutes - startMinutes) / TIMELINE_TOTAL_MINUTES) * 100;
+}
+
+function constraintKindIcon(kind: PlannerConstraintRuleKind) {
+  switch (kind) {
+    case 'cutoff':
+      return PhoneOff;
+    case 'until':
+      return Flag;
+    case 'deadline':
+      return AlarmClock;
+    default:
+      return PhoneOff;
+  }
+}
+
+/** Relative time for overlay tooltips (matches list “in …” semantics without the leading “in ”). */
+function formatRiverInLabel(timeStr: string, nowMinutes: number | null): string {
+  if (nowMinutes === null) return '—';
+  const raw = getTimeUntil(timeStr, nowMinutes);
+  if (raw === 'Soon') return '—';
+  if (raw.startsWith('in ')) return raw.slice(3).trim();
+  return raw;
+}
+
+/** Matches desktop anchor hover bubble (range + point): tight padding, elevated glass, bottom caret. */
+function RiverOverlayHoverCard({
+  title,
+  timeLabel,
+  inLabel,
+  children,
+}: {
+  title: string;
+  timeLabel: string;
+  inLabel: string;
+  children: ReactNode;
+}) {
+  const fullLabel = `${title}. ${timeLabel}. In: ${inLabel}`;
+  return (
+    <div
+      className="group relative flex flex-col items-center justify-center rounded-sm outline-none pointer-events-auto focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
+      tabIndex={0}
+      aria-label={fullLabel}
+    >
+      {children}
+      <div
+        className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1.5 w-max max-w-[min(220px,calc(100vw-2rem))] -translate-x-1/2 rounded-xl border border-border-subtle bg-bg-elevated/95 px-3 py-2 text-left shadow-xl backdrop-blur-sm transition-all duration-200 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 group-focus-within:opacity-100 group-focus-within:scale-100"
+        role="tooltip"
+      >
+        <div className="text-xs font-bold text-text whitespace-nowrap">{timeLabel}</div>
+        <div className="mt-0.5 max-w-[200px] text-[10px] leading-snug text-text-muted line-clamp-2">{title}</div>
+        <div className="mt-0.5 text-[10px] whitespace-nowrap text-text-muted">{`In: ${inLabel}`}</div>
+        <div
+          className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r border-border-subtle bg-bg-elevated"
+          aria-hidden
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Shared NOW stack: glow + bright core; line stays vertically centered on the track, label sits above so it doesn’t collide with anchor titles. */
+/** z-[14]: below anchor orbs/labels (z-20) and range segments (z-[15]), above river overlays (z-[12]) + track. */
+function TimelineNowMarker({
+  leftPercent,
+  show,
+  compact,
+}: {
+  leftPercent: number;
+  show: boolean;
+  compact?: boolean;
+}) {
+  if (!show) return null;
+  /** Taller line reads over anchor orbs; mobile strip stays a bit shorter to reduce clipping. */
+  const lineH = compact ? 'h-14' : 'h-24';
+  const labelClass = compact ? 'text-[7px] mb-1' : 'text-[8px] mb-1.5';
+  return (
+    <div
+      className="absolute top-1/2 z-[14] pointer-events-none -translate-x-1/2 -translate-y-1/2"
+      style={{ left: `${leftPercent}%` }}
+      role="img"
+      aria-label="Current time"
+    >
+      <div className={`relative flex w-5 shrink-0 items-center justify-center ${lineH}`}>
+        <span
+          className={`daily-anchors-now-label absolute bottom-full left-1/2 -translate-x-1/2 font-extrabold uppercase tracking-wider whitespace-nowrap ${labelClass}`}
+        >
+          now
+        </span>
+        <div
+          className="absolute inset-y-0 -inset-x-1 rounded-full bg-primary/50 blur-md opacity-90"
+          aria-hidden
+        />
+        <div className={`daily-anchors-now-line relative z-[1] w-[2px] shrink-0 rounded-full ${lineH}`} />
+      </div>
+    </div>
+  );
+}
+
+/** Desktop-only: dashed constraint lines + light calendar ticks (below anchor orbs, z-[12]). */
+function DesktopPlannerRiverOverlays({
+  constraints,
+  todayCalendarEvents,
+  nowMinutes,
+}: {
+  constraints: PlannerConstraintRule[];
+  todayCalendarEvents: import('./MiniCalendar').CalendarEvent[];
+  nowMinutes: number | null;
+}) {
+  return (
+    <>
+      {constraints.map((c) => {
+        const Icon = constraintKindIcon(c.kind);
+        const accent = getBoundaryKindAccent(c.kind);
+        const titleText = c.displayText?.trim() || describeConstraintRule(c);
+        const timeLine = formatTimeLabel(c.time);
+        const inLine = formatRiverInLabel(c.time, nowMinutes);
+        const left = getTimePosition(c.time);
+        return (
+          <div
+            key={`river-constraint-${c.id}`}
+            className="absolute top-1/2 z-[12] flex min-h-[4.5rem] w-7 -translate-x-1/2 -translate-y-1/2 cursor-default items-center justify-center"
+            style={{ left: `${left}%` }}
+          >
+            <RiverOverlayHoverCard title={titleText} timeLabel={timeLine} inLabel={inLine}>
+              <div className="flex flex-col items-center">
+                <div
+                  className="h-16 w-0 shrink-0 rounded-full border-l-2 border-dashed"
+                  style={{ borderColor: `color-mix(in srgb, ${accent} 62%, transparent)` }}
+                  aria-hidden
+                />
+                <Icon
+                  className="relative -top-1.5 h-3 w-3 shrink-0 opacity-90"
+                  style={{ color: accent }}
+                  strokeWidth={2}
+                  aria-hidden
+                />
+              </div>
+            </RiverOverlayHoverCard>
+          </div>
+        );
+      })}
+      {todayCalendarEvents.map((ev) => {
+        const eventDate = new Date(ev.date);
+        const t = `${String(eventDate.getHours()).padStart(2, '0')}:${String(eventDate.getMinutes()).padStart(2, '0')}`;
+        const left = getTimePosition(t);
+        const marker = getCalendarMarkerColor(ev.type);
+        const titleText = ev.title?.trim() || 'Calendar';
+        const subtitle = ev.type ? `${titleText} · ${ev.type}` : titleText;
+        const timeLine = formatTimeLabel(t);
+        const inLine = formatRiverInLabel(t, nowMinutes);
+        const key = ev.id ?? `cal-${ev.date}`;
+        return (
+          <div
+            key={`river-cal-${key}`}
+            className="absolute top-1/2 z-[12] flex min-h-10 min-w-10 -translate-x-1/2 -translate-y-1/2 cursor-default items-center justify-center"
+            style={{ left: `${left}%` }}
+          >
+            <RiverOverlayHoverCard title={subtitle} timeLabel={timeLine} inLabel={inLine}>
+              <Calendar className="h-3.5 w-3.5 opacity-80" strokeWidth={2} style={{ color: marker }} aria-hidden />
+            </RiverOverlayHoverCard>
+          </div>
+        );
+      })}
+    </>
+  );
 }
 
 function positionToTime(positionPercent: number): string {
@@ -189,18 +369,6 @@ function MobileAnchorsTimelineStrip({
           animate={{ width: `${timeFillPercent}%` }}
           transition={{ duration: 0.45, ease: 'easeOut' }}
         />
-
-        {showNowMarker && (
-          <div
-            className="absolute top-1/2 z-10 flex flex-col items-center pointer-events-none -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${timeFillPercent}%` }}
-          >
-            <div className="daily-anchors-now-line w-0.5 h-9 bg-gradient-to-b from-primary/80 via-primary/55 to-transparent rounded-full" />
-            <span className="daily-anchors-now-label absolute top-full mt-0.5 text-[7px] font-bold text-primary/80 uppercase tracking-wider">
-              now
-            </span>
-          </div>
-        )}
 
         {sortedAnchors.map((anchor) => {
           const Icon = iconByName[anchor.icon] || Moon;
@@ -320,6 +488,8 @@ function MobileAnchorsTimelineStrip({
             </div>
           );
         })}
+
+        <TimelineNowMarker leftPercent={timeFillPercent} show={showNowMarker} compact />
       </div>
     </div>
   );
@@ -332,6 +502,7 @@ export function DailyAnchorsTimeline({
 }: DailyAnchorsTimelineProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { getPlan } = calendarPlanner;
   const { anchors, activeAnchor, toggleAnchor, anchorTemplates, setTodayAnchors, setTodayAnchorStatus, setAnchorTemplates, isLoaded, weeklySkipReasonInsight } =
     useDailyAnchorsForToday(storageScope);
 
@@ -349,9 +520,53 @@ export function DailyAnchorsTimeline({
     return anchors.filter((anchor) => isAnchorScheduledForDate(anchor, today));
   }, [anchors]);
 
-  const completedCount = todaysAnchors.filter((anchor) => anchor.status === 'done').length;
-  const totalCount = todaysAnchors.length;
-  const isAllComplete = totalCount > 0 && completedCount === totalCount;
+  const todayKey = getTodayKey();
+  const todayPlan = getPlan(todayKey);
+
+  const { plannerStore, plannerDefaults, isLoaded: isPlannerLoaded } = useTimeBlockPlanner();
+  const currentPlan = plannerStore[todayKey];
+  const activeConstraintsForRiver = useMemo(() => {
+    if (!isPlannerLoaded) return [];
+    const constraintPlan = getConstraintDisplayDayPlan(todayKey, currentPlan);
+    return getActiveConstraintsForDay(constraintPlan, plannerDefaults);
+  }, [currentPlan, plannerDefaults, isPlannerLoaded, todayKey]);
+
+  const todayCalendarEventsForRiver = useMemo(
+    () =>
+      calendarEvents.filter((event) => {
+        const eventDate = new Date(event.date);
+        const eventKey = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, '0')}-${String(eventDate.getDate()).padStart(2, '0')}`;
+        return eventKey === todayKey;
+      }),
+    [calendarEvents, todayKey],
+  );
+
+  /** Matches DailyOverviewList: anchors (done) + events/boundaries (acknowledged). */
+  const overviewProgress = useMemo(() => {
+    const ack = todayPlan?.acknowledgements ?? { boundaries: [], events: [], sessions: [] };
+    let completed = 0;
+    let total = 0;
+    for (const a of todaysAnchors) {
+      total += 1;
+      if (a.status === 'done') completed += 1;
+    }
+    for (const event of todayCalendarEventsForRiver) {
+      total += 1;
+      const eventId = event.id ?? `event-${event.date}`;
+      if (ack.events.includes(eventId)) completed += 1;
+    }
+    for (const c of activeConstraintsForRiver) {
+      total += 1;
+      if (ack.boundaries.includes(c.id)) completed += 1;
+    }
+    return { completed, total };
+  }, [todaysAnchors, todayCalendarEventsForRiver, activeConstraintsForRiver, todayPlan?.acknowledgements]);
+
+  const overviewCompletedCount = overviewProgress.completed;
+  const overviewTotalCount = overviewProgress.total;
+  const isOverviewAllComplete = overviewTotalCount > 0 && overviewCompletedCount === overviewTotalCount;
+
+  const isAllComplete = isOverviewAllComplete;
   const wakeAnchorForToday = useMemo(
     () => todaysAnchors.find((anchor) => anchor.id === 'wake') || todaysAnchors.find((anchor) => anchor.icon === 'sunrise'),
     [todaysAnchors],
@@ -542,14 +757,14 @@ export function DailyAnchorsTimeline({
           {/* Desktop header - side by side (mobile/tablet use card list) */}
           <div className="hidden lg:flex items-center justify-between gap-3 mb-6">
             <div className="flex items-center gap-2.5 min-w-0">
-              <h2 className="text-card font-display text-text tracking-wide truncate">Daily Anchors</h2>
+              <h2 className="text-card font-display text-text tracking-wide truncate">Daily Overview</h2>
               <span
                 className={`
                   text-meta font-semibold px-2 py-1 rounded-full shrink-0
                   ${isAllComplete ? 'bg-secondary/15 text-secondary' : 'bg-bg-surface/80 text-text-muted'}
                 `}
               >
-                {completedCount}/{totalCount}
+                {overviewCompletedCount}/{overviewTotalCount}
               </span>
             </div>
 
@@ -563,7 +778,7 @@ export function DailyAnchorsTimeline({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="3"
-                  strokeDasharray={`${totalCount > 0 ? (completedCount / totalCount) * 88 : 0} 100`}
+                  strokeDasharray={`${overviewTotalCount > 0 ? (overviewCompletedCount / overviewTotalCount) * 88 : 0} 100`}
                   strokeLinecap="round"
                   className={isAllComplete ? 'text-secondary' : 'text-primary'}
                   style={{ transition: 'stroke-dasharray 500ms ease' }}
@@ -631,15 +846,11 @@ export function DailyAnchorsTimeline({
                 transition={{ duration: 0.45, ease: 'easeOut' }}
               />
 
-              {showNowMarker && (
-                <div
-                  className="absolute top-1/2 z-10 flex flex-col items-center pointer-events-none -translate-x-1/2 -translate-y-1/2"
-                  style={{ left: `${dayProgressPercent}%` }}
-                >
-                  <div className="daily-anchors-now-line w-0.5 h-12 bg-gradient-to-b from-primary/80 via-primary/60 to-transparent rounded-full" />
-                  <div className="daily-anchors-now-label absolute top-full mt-1 text-[8px] font-bold text-primary/80 uppercase tracking-wider">now</div>
-                </div>
-              )}
+              <DesktopPlannerRiverOverlays
+                constraints={activeConstraintsForRiver}
+                todayCalendarEvents={todayCalendarEventsForRiver}
+                nowMinutes={nowMinutes}
+              />
 
               {sortedAnchors.length === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -961,6 +1172,8 @@ export function DailyAnchorsTimeline({
                   </div>
                 );
               })}
+
+              <TimelineNowMarker leftPercent={dayProgressPercent} show={showNowMarker} />
               </div>
             </div>
           </div>
