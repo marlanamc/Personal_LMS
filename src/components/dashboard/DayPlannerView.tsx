@@ -42,6 +42,7 @@ import {
 import { isAnchorScheduledForDate } from '@/lib/anchors';
 import { getCalendarMarkerColor } from './MiniCalendar';
 import { PlanningHelpDrawer } from './PlanningHelpDrawer';
+import { getConstraintDisplayDayPlan } from '@/lib/time-block-planner';
 import {
   useDashboardHeaderCenterSetter,
   useDashboardHeaderEndAccessorySetter,
@@ -78,7 +79,9 @@ export function DayPlannerView({
 
   const [selectedDateKey, setSelectedDateKey] = useState(initialDateKey);
   const [isDrawerOpen, setIsDrawerOpen] = useState(initialOpenTool === 'on-again-off-again');
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches,
+  );
   const [plannerViewMode, setPlannerViewMode] = useState<'timeline' | 'sections'>('timeline');
   const [showAllDayEvents, setShowAllDayEvents] = useState(false);
   const [showEarlierHours, setShowEarlierHours] = useState(false);
@@ -104,7 +107,7 @@ export function DayPlannerView({
 
   // Data hooks
   const { getStateForDate } = useDailyAnchors(storageScope);
-  const { plannerStore, plannerDefaults, setPlan } = useTimeBlockPlanner();
+  const { plannerStore, plannerDefaults, setPlan, isLoaded: isPlannerLoaded } = useTimeBlockPlanner();
 
   // Block note editing (tap/double-click a block to add or edit notes)
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
@@ -174,10 +177,11 @@ export function DayPlannerView({
   }, [plannerStore, selectedDateKey]);
 
   const constraintItems = useMemo(() => {
-    const dayPlan = plannerStore[selectedDateKey];
-    if (!dayPlan) return [];
+    // Only get constraints after planner data is loaded
+    if (!isPlannerLoaded) return [];
+    const dayPlan = getConstraintDisplayDayPlan(selectedDateKey, plannerStore[selectedDateKey]);
     return constraintsToTimelineItems(dayPlan, plannerDefaults);
-  }, [plannerDefaults, plannerStore, selectedDateKey]);
+  }, [isPlannerLoaded, plannerDefaults, plannerStore, selectedDateKey]);
   const quadrantItems = useMemo(() => {
     const dayPlan = plannerStore[selectedDateKey];
     if (!dayPlan) return [];
@@ -230,11 +234,6 @@ export function DayPlannerView({
 
   // Format date for display
   const isSelectedToday = isToday(selectedDateKey);
-  const mobileDateLabel = selectedDate.toLocaleDateString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  });
   const fullDateLabel = selectedDate.toLocaleDateString(undefined, {
     weekday: 'long',
     month: 'long',
@@ -253,20 +252,24 @@ export function DayPlannerView({
 
   useLayoutEffect(() => {
     if (!syncHeaderDateNav || !setHeaderCenter || !setHeaderEndAccessory) return;
-    
+
+    // Mobile: keep the shell to one row — date nav lives in-page (see below).
+    if (isMobile) {
+      setHeaderCenter(null);
+      setHeaderEndAccessory(null);
+      return () => {
+        setHeaderCenter(null);
+        setHeaderEndAccessory(null);
+      };
+    }
+
     setHeaderCenter(
-      <div
-        className={
-          isMobile
-            ? 'mx-auto flex w-full max-w-[22rem] items-center justify-center'
-            : 'flex items-center justify-center -my-2 transform scale-[0.80] sm:scale-100'
-        }
-      >
+      <div className="flex items-center justify-center -my-2 transform scale-[0.80] sm:scale-100">
         <DayPlannerHeaderDateNav
           selectedDateKey={selectedDateKey}
           isSelectedToday={isSelectedToday}
-          dateLabel={isMobile ? mobileDateLabel : fullDateLabel}
-          variant={isMobile ? 'compact' : 'desktopRail'}
+          dateLabel={fullDateLabel}
+          variant="desktopRail"
           onPrev={goToPreviousDay}
           onNext={goToNextDay}
           onPickDate={applyDateKey}
@@ -274,14 +277,22 @@ export function DayPlannerView({
       </div>
     );
     setHeaderEndAccessory(null);
-    
+
     return () => {
       setHeaderCenter(null);
       setHeaderEndAccessory(null);
     };
   }, [
-    syncHeaderDateNav, setHeaderCenter, setHeaderEndAccessory, isMobile,
-    selectedDateKey, isSelectedToday, mobileDateLabel, fullDateLabel, goToPreviousDay, goToNextDay, applyDateKey
+    syncHeaderDateNav,
+    setHeaderCenter,
+    setHeaderEndAccessory,
+    isMobile,
+    selectedDateKey,
+    isSelectedToday,
+    fullDateLabel,
+    goToPreviousDay,
+    goToNextDay,
+    applyDateKey,
   ]);
 
   // Pull-to-reveal gesture handlers (mobile only)
@@ -429,6 +440,24 @@ export function DayPlannerView({
 
   return (
     <div className="space-y-2 sm:space-y-0">
+      {/* Mobile: date lives in page content so the dashboard header stays a single row */}
+      {syncHeaderDateNav && isMobile && (
+        <div className="sm:hidden -mx-1 border-b border-border-subtle/30 pb-2.5 pt-0.5">
+          <div className="mx-auto flex w-full max-w-[22rem] items-center justify-center">
+            <DayPlannerHeaderDateNav
+              selectedDateKey={selectedDateKey}
+              isSelectedToday={isSelectedToday}
+              dateLabel={fullDateLabel}
+              variant="compact"
+              embedded
+              onPrev={goToPreviousDay}
+              onNext={goToNextDay}
+              onPickDate={applyDateKey}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Mobile: view mode toggle */}
       {canUseSectionsView && (
       <header className="sm:hidden">

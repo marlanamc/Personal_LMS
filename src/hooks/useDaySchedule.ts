@@ -5,6 +5,7 @@ import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import { isAnchorScheduledForDate } from '@/lib/anchors';
 import { useCalendarPlanner } from '@/components/dashboard/useCalendarPlanner';
 import { useTimeBlockPlanner } from '@/components/dashboard/useTimeBlockPlanner';
+import { getConstraintDisplayDayPlan } from '@/lib/time-block-planner';
 import {
   anchorsToTimelineItems,
   combineAndSortItems,
@@ -66,9 +67,9 @@ export function useDaySchedule(
     return quadrantsToTimelineItems(dayPlan);
   }, [dayPlan]);
   const constraintItems = useMemo((): TimelineItem[] => {
-    if (!dayPlan) return [];
-    return constraintsToTimelineItems(dayPlan, timeBlockHook.plannerDefaults);
-  }, [dayPlan, timeBlockHook.plannerDefaults]);
+    const constraintPlan = getConstraintDisplayDayPlan(dateKey, dayPlan);
+    return constraintsToTimelineItems(constraintPlan, timeBlockHook.plannerDefaults);
+  }, [dateKey, dayPlan, timeBlockHook.plannerDefaults]);
 
   // Combine all items sorted by start time
   const allItems = useMemo((): TimelineItem[] => {

@@ -52,13 +52,13 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
             <button
                 type="button"
                 onClick={() => setIsNavOpen(true)}
-                className="flex items-center gap-0 sm:gap-2 group w-max shrink-0"
+                className="group flex w-max shrink-0 items-center gap-0 rounded-xl sm:gap-2 min-h-[44px] min-w-[44px] justify-center sm:min-h-0 sm:min-w-0 sm:justify-start touch-manipulation transition-[transform,box-shadow] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
                 aria-label="Open navigation menu"
                 aria-expanded={isNavOpen}
                 aria-controls="dashboard-side-nav"
             >
-                <div className="w-8 h-8 rounded-lg bg-sakura-soft border border-border-subtle flex items-center justify-center transition-colors group-hover:border-primary/30 group-hover:bg-primary/10">
-                    <BookOpenIcon className="w-4 h-4 text-primary" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border-subtle/90 bg-sakura-soft/90 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] transition-colors group-hover:border-primary/35 group-hover:bg-primary/8 dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:h-8 sm:w-8 sm:rounded-lg">
+                    <BookOpenIcon className="h-[1.05rem] w-[1.05rem] text-primary sm:h-4 sm:w-4" />
                 </div>
                 {!displayTitle && (
                     <p className="hidden sm:block font-semibold text-primary tracking-[0.14em] uppercase text-[11px] sm:text-xs leading-tight">
@@ -76,37 +76,38 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
     );
 
     const actionsBlock = (
-        <div className="flex items-center gap-2 sm:gap-4 animate-fade-in-up delay-100 shrink-0 justify-end">
-                        <HeaderStatusChips
-                            activeTimeBlockStatus={activeTimeBlockStatus}
-                            focusTimer={{
-                                isActive,
-                                formattedTime,
-                                activeSessionLabel,
-                            }}
-                        />
-                        {headerEndAccessory}
-                        <UserProfileDropdown userName={userName} />
+        <div className="flex min-w-0 shrink-0 items-center justify-end gap-1.5 sm:gap-3 md:gap-4">
+            <HeaderStatusChips
+                activeTimeBlockStatus={activeTimeBlockStatus}
+                focusTimer={{
+                    isActive,
+                    formattedTime,
+                    activeSessionLabel,
+                }}
+            />
+            {headerEndAccessory}
+            <UserProfileDropdown userName={userName} />
         </div>
     );
 
     return (
         <>
-            <header className="dashboard-header-shell sticky top-0 z-50 transition-colors bg-bg-elevated/95 border-b border-border/70 shadow-sm backdrop-blur-sm">
-                <div className="dashboard-header-inner max-w-[1800px] mx-auto py-1 md:py-4 px-3 sm:px-6 lg:px-8">
+            <header
+                className="dashboard-header-shell sticky top-0 z-50 border-b border-border/70 bg-bg-elevated/95 shadow-sm backdrop-blur-sm transition-[background-color,box-shadow,border-color] duration-200"
+                aria-label="Dashboard toolbar"
+            >
+                <div className="dashboard-header-inner mx-auto max-w-[1800px] px-3 py-2.5 sm:px-6 md:py-4 lg:px-8">
                     {headerCenter ? (
                         <>
                             <div className="flex w-full items-center justify-between gap-2 sm:hidden">
-                                <div className="flex min-w-0 shrink items-center gap-3">
+                                <div className="flex min-w-0 shrink items-center gap-2">
                                     {brandBlock}
                                 </div>
-                                <div className="flex min-w-0 flex-1 items-center justify-end">
+                                <div className="flex min-w-0 flex-1 items-center justify-end pl-1">
                                     {actionsBlock}
                                 </div>
                             </div>
-                            <div className="pt-2 sm:hidden">
-                                {headerCenter}
-                            </div>
+                            <div className="pt-2 sm:hidden">{headerCenter}</div>
 
                             <div className="hidden w-full min-w-0 items-center justify-between gap-1.5 sm:flex sm:gap-3">
                                 <div className="flex shrink-0 items-center gap-4 min-w-0">
@@ -122,8 +123,8 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
                             </div>
                         </>
                     ) : (
-                        <div className="flex justify-between items-center">
-                            <div className="flex-1 flex items-center gap-4">{brandBlock}</div>
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="flex min-w-0 flex-1 items-center">{brandBlock}</div>
                             {actionsBlock}
                         </div>
                     )}

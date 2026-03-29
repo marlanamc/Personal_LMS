@@ -182,6 +182,18 @@ function preserveMatchingNotes(
   return { ...nextPlan, blockNotes };
 }
 
+function getShortConstraintLabel(rule: PlannerConstraintRule): string {
+  const targetLabel = rule.target.label?.trim();
+  const activityName = targetLabel || (rule.target.kind === 'want' ? 'Energy' : 'Focus');
+
+  if (rule.kind === 'until') {
+    return `Only schedule ${activityName}`;
+  } else if (rule.kind === 'deadline') {
+    return `Must be ${activityName}`;
+  }
+  return `No more ${activityName}`;
+}
+
 function RuleChip({
   rule,
   actions,
@@ -639,9 +651,10 @@ export function ConstraintsTool({ dateKey }: ConstraintsToolProps) {
             <p className="text-sm text-text-secondary text-center">No active boundaries for this day.</p>
           ) : (
             activeConstraints.map((rule) => (
-              <p key={rule.id} className="rounded-xl border border-border-subtle/35 bg-bg-surface/70 px-3 py-2 text-sm font-medium text-text">
-                {rule.displayText}
-              </p>
+              <div key={rule.id} className="flex items-center justify-between gap-3 rounded-xl border border-border-subtle/35 bg-bg-surface/70 px-3 py-2">
+                <p className="text-sm font-medium text-text">{getShortConstraintLabel(rule)}</p>
+                <p className="text-sm font-medium tabular-nums text-text-secondary">{formatTimeLabel(rule.time)}</p>
+              </div>
             ))
           )}
         </div>

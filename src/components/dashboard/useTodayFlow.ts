@@ -8,12 +8,18 @@ import {
   type DailyAnchor,
 } from '@/lib/anchors';
 import { getTodayKey } from '@/lib/unified-scheduler';
+import { computeDailyOverviewProgress } from '@/lib/daily-overview-progress';
 import {
-  useCalendarPlanner,
+  getConstraintDisplayDayPlan,
+  getActiveConstraintsForDay,
+} from '@/lib/time-block-planner';
+import {
+  type CalendarPlannerApi,
   type InterstitialJournalEntry,
   type PlannerTask,
 } from './useCalendarPlanner';
 import type { CalendarEvent } from './MiniCalendar';
+import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 
 // Extended PlannerTask with optional anchor pinning
 export interface PinnedPlannerTask extends PlannerTask {
@@ -45,7 +51,10 @@ export interface TodayFlowState {
   todaySummary: {
     completedAnchors: number;
     totalAnchors: number;
+    /** Anchors + calendar + boundaries (optional sessions), same formula as Daily Overview. */
     completionPercent: number;
+    completedOverviewItems: number;
+    totalOverviewItems: number;
     activeAnchor: DailyAnchor | null;
     upNextAnchor: DailyAnchor | null;
     minutesUntilNext: number | null;
@@ -187,7 +196,9 @@ function buildTimeWindows(
 
 export function useTodayFlow(
   storageScope: string,
-  calendarEvents: CalendarEvent[]
+  calendarEvents: CalendarEvent[],
+  /** Must be the same instance passed to {@link DailyOverviewList} so acknowledgements update the progress bar. */
+  calendarPlanner: CalendarPlannerApi
 ): TodayFlowState {
   const { anchors } = useDailyAnchorsForToday(storageScope);
   const {
@@ -197,11 +208,20 @@ export function useTodayFlow(
     isSaving,
     saveError,
     lastSyncedAt,
-  } = useCalendarPlanner(storageScope);
+  } = calendarPlanner;
+
+  const { plannerStore, plannerDefaults, isLoaded: isPlannerLoaded } = useTimeBlockPlanner();
 
   const today = useMemo(() => new Date(), []);
   const todayKey = getTodayKey();
   const todayPlan = getPlan(todayKey);
+
+  const currentPlan = plannerStore[todayKey];
+  const activeConstraints = useMemo(() => {
+    if (!isPlannerLoaded) return [];
+    const constraintPlan = getConstraintDisplayDayPlan(todayKey, currentPlan);
+    return getActiveConstraintsForDay(constraintPlan, plannerDefaults);
+  }, [currentPlan, plannerDefaults, isPlannerLoaded, todayKey]);
 
   // Current time in minutes
   const nowMinutes = useMemo(() => {
@@ -243,8 +263,20 @@ export function useTodayFlow(
       (a) => a.status === 'done'
     ).length;
     const totalAnchors = todayAnchors.length;
-    const completionPercent =
-      totalAnchors > 0 ? Math.round((completedAnchors / totalAnchors) * 100) : 0;
+
+    const ack = todayPlan.acknowledgements || {
+      boundaries: [] as string[],
+      events: [] as string[],
+      sessions: [] as string[],
+    };
+    const { percent: completionPercent, completed: completedOverviewItems, total: totalOverviewItems } =
+      computeDailyOverviewProgress({
+        todayAnchors,
+        calendarEvents,
+        todayKey,
+        activeConstraints,
+        acknowledgements: ack,
+      });
 
     // Find active and up-next anchors
     let activeAnchor: DailyAnchor | null = null;
@@ -265,11 +297,21 @@ export function useTodayFlow(
       completedAnchors,
       totalAnchors,
       completionPercent,
+      completedOverviewItems,
+      totalOverviewItems,
       activeAnchor,
       upNextAnchor,
       minutesUntilNext,
     };
-  }, [todayAnchors, timeWindows, nowMinutes]);
+  }, [
+    todayAnchors,
+    timeWindows,
+    nowMinutes,
+    calendarEvents,
+    todayKey,
+    activeConstraints,
+    todayPlan.acknowledgements,
+  ]);
 
   // Actions
   const updateThoughtDownload = (value: string) => {

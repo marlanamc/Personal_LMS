@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { FlameIcon, TrophyIcon } from '@/components/icons/Icons';
 import { DailyAnchorsTimeline } from './DailyAnchorsTimeline';
 import { CalendarPanelRestoreButton } from './ContextSidebar';
+import type { CalendarPlannerApi } from '@/components/dashboard/useCalendarPlanner';
+import type { CalendarEvent } from './MiniCalendar';
 
 interface FocusHeroProps {
   userName: string;
@@ -13,6 +15,8 @@ interface FocusHeroProps {
   storageScope: string;
   isCalendarRestoreVisible: boolean;
   onRestoreCalendar: () => void;
+  calendarEvents: CalendarEvent[];
+  calendarPlanner: CalendarPlannerApi;
 }
 
 export function FocusHero({
@@ -23,6 +27,8 @@ export function FocusHero({
   storageScope,
   isCalendarRestoreVisible,
   onRestoreCalendar,
+  calendarEvents,
+  calendarPlanner,
 }: FocusHeroProps) {
   // Determine which metric to show: streak if at risk, otherwise points
   const showStreakWarning = currentStreak > 0 && !hasActivityToday;
@@ -99,7 +105,11 @@ export function FocusHero({
 
           {/* Timeline moved inside hero container */}
           <div className="pr-0">
-            <DailyAnchorsTimeline storageScope={storageScope} />
+            <DailyAnchorsTimeline
+              storageScope={storageScope}
+              calendarEvents={calendarEvents}
+              calendarPlanner={calendarPlanner}
+            />
           </div>
         </div>
       </div>

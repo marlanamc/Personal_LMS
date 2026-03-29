@@ -61,7 +61,16 @@ export function TimelineAnchorMarker({ item, style, isMobile = false }: Timeline
                 ? 'bg-bg-surface/78 border-border-subtle/45 text-text-muted'
                 : ''
           }`}
-          style={!isDone && !isSkipped ? { backgroundColor: palette.soft, borderColor: palette.border, color: palette.deep } : undefined}
+          style={
+            !isDone && !isSkipped
+              ? {
+                  backgroundColor: `color-mix(in srgb, var(--color-bg-elevated) 82%, ${palette.solid} 18%)`,
+                  borderColor: `color-mix(in srgb, var(--color-border-subtle) 50%, ${palette.solid} 50%)`,
+                  color: `color-mix(in srgb, var(--color-text-primary) 74%, ${palette.solid} 26%)`,
+                  boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${palette.solid} 14%, transparent)`,
+                }
+              : undefined
+          }
         >
           <div
             className={`h-1.5 w-1.5 shrink-0 rounded-full ${dotClass}`}

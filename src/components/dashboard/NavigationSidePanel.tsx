@@ -113,9 +113,9 @@ export function NavigationSidePanel({ isOpen, onClose }: NavigationSidePanelProp
         aria-label="Main navigation"
         aria-hidden={!isOpen}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex min-h-0 flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border-subtle">
+          <div className="flex shrink-0 items-center justify-between p-4 border-b border-border-subtle">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-sakura-soft border border-border-subtle flex items-center justify-center">
                 <BookOpen className="w-4 h-4 text-primary" />
@@ -136,68 +136,68 @@ export function NavigationSidePanel({ isOpen, onClose }: NavigationSidePanelProp
             </button>
           </div>
 
-          {/* Quick Links */}
-          <div className="p-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-3">
-              Quick Links
-            </p>
-            <div className="space-y-1">
-              {quickLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={onClose}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group ${
-                    isPathActive(link.href)
-                      ? 'bg-bg-surface text-primary'
-                      : 'text-text hover:bg-bg-surface'
-                  }`}
-                  tabIndex={isOpen ? 0 : -1}
-                  aria-current={isPathActive(link.href) ? 'page' : undefined}
-                >
-                  <link.icon
-                    size={18}
-                    className={`transition-colors ${
-                      isPathActive(link.href) ? 'text-primary' : 'text-text-muted group-hover:text-primary'
+          {/* Scrollable nav body: flex-1 + min-h-0 so overflow-y works inside the drawer */}
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
+            {/* Quick Links */}
+            <div className="p-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-3">
+                Quick Links
+              </p>
+              <div className="space-y-1">
+                {quickLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={onClose}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group ${
+                      isPathActive(link.href)
+                        ? 'bg-bg-surface text-primary'
+                        : 'text-text hover:bg-bg-surface'
                     }`}
-                  />
-                  <span className="font-medium text-sm">{link.label}</span>
-                </Link>
-              ))}
+                    tabIndex={isOpen ? 0 : -1}
+                    aria-current={isPathActive(link.href) ? 'page' : undefined}
+                  >
+                    <link.icon
+                      size={18}
+                      className={`transition-colors ${
+                        isPathActive(link.href) ? 'text-primary' : 'text-text-muted group-hover:text-primary'
+                      }`}
+                    />
+                    <span className="font-medium text-sm">{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Subjects */}
+            <div className="p-4 border-t border-border-subtle">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-3">
+                Subjects
+              </p>
+              <div className="space-y-1">
+                {subjects.map((subject) => (
+                  <Link
+                    key={subject.href}
+                    href={subject.href}
+                    onClick={onClose}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group ${
+                      isSubjectActive(subject.href)
+                        ? 'bg-bg-surface text-primary'
+                        : 'text-text hover:bg-bg-surface'
+                    }`}
+                    tabIndex={isOpen ? 0 : -1}
+                    aria-current={isSubjectActive(subject.href) ? 'page' : undefined}
+                  >
+                    <subject.icon size={18} className={`${subject.color} group-hover:scale-110 transition-transform`} />
+                    <span className="font-medium text-sm">{subject.label}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
-
-          {/* Subjects */}
-          <div className="p-4 border-t border-border-subtle">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-muted mb-3">
-              Subjects
-            </p>
-            <div className="space-y-1">
-              {subjects.map((subject) => (
-                <Link
-                  key={subject.href}
-                  href={subject.href}
-                  onClick={onClose}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group ${
-                    isSubjectActive(subject.href)
-                      ? 'bg-bg-surface text-primary'
-                      : 'text-text hover:bg-bg-surface'
-                  }`}
-                  tabIndex={isOpen ? 0 : -1}
-                  aria-current={isSubjectActive(subject.href) ? 'page' : undefined}
-                >
-                  <subject.icon size={18} className={`${subject.color} group-hover:scale-110 transition-transform`} />
-                  <span className="font-medium text-sm">{subject.label}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Footer spacer */}
-          <div className="flex-1" />
 
           {/* Footer */}
-          <div className="p-4 border-t border-border-subtle">
+          <div className="shrink-0 p-4 border-t border-border-subtle">
             <p className="text-xs text-text-muted text-center">
               Press <kbd className="px-1.5 py-0.5 rounded bg-bg-surface border border-border-subtle text-[10px] font-mono">Esc</kbd> to close
             </p>

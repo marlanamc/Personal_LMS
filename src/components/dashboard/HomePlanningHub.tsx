@@ -10,6 +10,7 @@ import { MobileCommandHeader } from './MobileCommandHeader';
 import { LmsCompactStrip } from './LmsCompactStrip';
 import { isAnchorScheduledForDate, parseHHMMToMinutes } from '@/lib/anchors';
 import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
+import { useCalendarPlanner } from './useCalendarPlanner';
 import type { CalendarEvent } from './MiniCalendar';
 import type { ChecklistItem } from './checklist-item.types';
 
@@ -37,6 +38,7 @@ export function HomePlanningHub({
 
   // Get anchors for passing to CaptureDock
   const { anchors } = useDailyAnchorsForToday(storageScope);
+  const calendarPlanner = useCalendarPlanner(storageScope);
   const today = useMemo(() => new Date(), []);
   const todayAnchors = useMemo(
     () =>
@@ -60,7 +62,7 @@ export function HomePlanningHub({
     updateThoughtDownload,
     addTask,
     addMomentEntry,
-  } = useTodayFlow(storageScope, calendarEvents);
+  } = useTodayFlow(storageScope, calendarEvents, calendarPlanner);
 
   const lastSyncedLabel = lastSyncedAt
     ? lastSyncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
@@ -79,6 +81,8 @@ export function HomePlanningHub({
           completedAnchors={todaySummary.completedAnchors}
           totalAnchors={todaySummary.totalAnchors}
           completionPercent={todaySummary.completionPercent}
+          completedOverviewItems={todaySummary.completedOverviewItems}
+          totalOverviewItems={todaySummary.totalOverviewItems}
           activeAnchor={todaySummary.activeAnchor}
           upNextAnchor={todaySummary.upNextAnchor}
           minutesUntilNext={todaySummary.minutesUntilNext}
@@ -94,25 +98,14 @@ export function HomePlanningHub({
             storageScope={storageScope}
             isCalendarRestoreVisible={isZenMode}
             onRestoreCalendar={toggleZenMode}
+            calendarEvents={calendarEvents}
+            calendarPlanner={calendarPlanner}
           />
         </section>
 
-        {/* Desktop: Inline CaptureDock */}
-        <section className="hidden md:block animate-fade-in-up">
-          <CaptureDock
-            thoughtDownload={thoughtDownload}
-            onUpdateThoughtDownload={updateThoughtDownload}
-            isLoaded={isLoaded}
-            isSaving={isSaving}
-            saveError={saveError}
-            lastSyncedLabel={lastSyncedLabel}
-            onAddTask={addTask}
-            onAddMoment={addMomentEntry}
-            activeAnchor={todaySummary.activeAnchor}
-            anchors={todayAnchors}
-            lmsItemCount={assignments.length}
-            onOpenLms={() => setIsLmsExpanded(true)}
-          />
+        {/* Navigation Dock - visible on all screens */}
+        <section className="animate-fade-in-up">
+          <CaptureDock />
         </section>
 
         {/* LMS Compact Strip */}

@@ -7,6 +7,8 @@ interface MobileCommandHeaderProps {
   completedAnchors: number;
   totalAnchors: number;
   completionPercent: number;
+  completedOverviewItems: number;
+  totalOverviewItems: number;
   activeAnchor: DailyAnchor | null;
   upNextAnchor: DailyAnchor | null;
   minutesUntilNext: number | null;
@@ -22,7 +24,12 @@ function formatMinutesUntil(minutes: number | null): string {
 }
 
 export function MobileCommandHeader({
+  completedAnchors: _completedAnchors,
+  totalAnchors: _totalAnchors,
+  activeAnchor: _activeAnchor,
   completionPercent,
+  completedOverviewItems,
+  totalOverviewItems,
   upNextAnchor,
   minutesUntilNext,
 }: MobileCommandHeaderProps) {
@@ -35,20 +42,29 @@ export function MobileCommandHeader({
   }).format(today);
 
   return (
-    <section className="md:hidden pt-1 pb-1 px-1.5">
-      <h1 className="text-[2.15rem] leading-none font-display font-bold text-text">
-        {dateLabel}
-      </h1>
-      {upNextAnchor && (
+    <section className="md:hidden relative z-[1] pt-1 pb-1 px-1.5">
+      <h1 className="text-[2.15rem] leading-none font-display font-bold text-text">{dateLabel}</h1>
+      {upNextAnchor ? (
         <p className="mt-2 text-sm text-text-muted">
           Next:{' '}
-          <span className="text-accent-mint font-medium">{upNextAnchor.label}</span>
-          {' '}
+          <span className="text-accent-mint font-medium">{upNextAnchor.label}</span>{' '}
           {formatMinutesUntil(minutesUntilNext)}
         </p>
-      )}
+      ) : null}
       <div className="mt-2.5">
-        <div className="h-1 rounded-full bg-bg-surface/70 overflow-hidden">
+        <div
+          className="h-1 rounded-full bg-bg-surface/70 overflow-hidden"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={completionPercent}
+          aria-valuetext={
+            totalOverviewItems > 0
+              ? `${completedOverviewItems} of ${totalOverviewItems} items done (${completionPercent}%)`
+              : 'Nothing scheduled today'
+          }
+          aria-label="Today’s schedule progress"
+        >
           <div
             className="h-full rounded-full shadow-[0_0_10px_rgba(214,148,172,0.36)] transition-[width] duration-500 ease-out"
             style={{

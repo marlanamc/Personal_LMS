@@ -11,6 +11,10 @@ export interface DayPlannerHeaderDateNavProps {
   /** Short string for the sticky header; use a long weekday/month string for `desktopRail`. */
   dateLabel: string;
   variant?: DayPlannerHeaderDateNavVariant;
+  /**
+   * Lighter, flatter treatment for use inside page content (not stacked under the shell toolbar).
+   */
+  embedded?: boolean;
   onPrev: () => void;
   onNext: () => void;
   onPickDate: (dateKey: string) => void;
@@ -24,11 +28,24 @@ export function DayPlannerHeaderDateNav({
   isSelectedToday,
   dateLabel,
   variant = 'compact',
+  embedded = false,
   onPrev,
   onNext,
   onPickDate,
 }: DayPlannerHeaderDateNavProps) {
   const isRail = variant === 'desktopRail';
+
+  const pillClass = embedded
+    ? 'pointer-events-none flex min-w-0 flex-row flex-wrap items-center justify-center gap-1.5 rounded-xl border border-border-subtle/35 bg-bg-surface/50 px-3 py-1.5'
+    : 'pointer-events-none flex min-w-0 flex-row items-center justify-center gap-2 rounded-2xl border border-border-subtle/50 bg-bg-elevated/45 px-4 py-2.5 shadow-sm backdrop-blur-sm sm:py-3';
+
+  const sunClass = embedded
+    ? 'inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-sakura/14 text-accent-sakura ring-1 ring-accent-sakura/20'
+    : 'inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-accent-sakura/18 text-accent-sakura ring-1 ring-accent-sakura/25 sm:size-8';
+
+  const labelTextClass = embedded
+    ? 'text-balance text-center font-display text-sm font-semibold leading-snug tracking-tight text-text'
+    : 'whitespace-nowrap text-center font-display text-base font-bold leading-snug tracking-tight text-text sm:text-lg md:text-xl';
 
   return (
     <div
@@ -44,11 +61,13 @@ export function DayPlannerHeaderDateNav({
         className={
           isRail
             ? 'shrink-0 rounded-full p-2.5 text-text-muted transition-colors hover:bg-bg-elevated/50 active:scale-95'
-            : 'shrink-0 touch-manipulation rounded-full p-1.5 text-text-muted transition-colors hover:bg-bg-elevated/40 active:scale-95 sm:p-2'
+            : embedded
+              ? 'shrink-0 touch-manipulation rounded-full p-1 text-text-muted transition-colors hover:bg-bg-elevated/35 active:scale-95'
+              : 'shrink-0 touch-manipulation rounded-full p-1.5 text-text-muted transition-colors hover:bg-bg-elevated/40 active:scale-95 sm:p-2'
         }
         aria-label="Previous day"
       >
-        <ArrowLeft size={isRail ? 20 : 18} />
+        <ArrowLeft size={isRail ? 20 : embedded ? 16 : 18} />
       </button>
 
       <label
@@ -59,18 +78,13 @@ export function DayPlannerHeaderDateNav({
         }
       >
         <span className="sr-only">Choose date</span>
-        <span
-          className="pointer-events-none flex min-w-0 flex-row items-center justify-center gap-2 rounded-2xl border border-border-subtle/50 bg-bg-elevated/45 px-4 py-2.5 shadow-sm backdrop-blur-sm sm:py-3"
-        >
+        <span className={pillClass}>
           {isSelectedToday && (
-            <span
-              className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-accent-sakura/18 text-accent-sakura ring-1 ring-accent-sakura/25 sm:size-8"
-              title="Today"
-            >
-              <SunMedium size={14} className="text-accent-sakura sm:size-4" />
+            <span className={sunClass} title="Today">
+              <SunMedium size={embedded ? 12 : 14} className="text-accent-sakura" />
             </span>
           )}
-          <span className="whitespace-nowrap text-center font-display text-base font-bold leading-snug tracking-tight text-text sm:text-lg md:text-xl">
+          <span className={labelTextClass}>
             {dateLabel}
           </span>
         </span>
@@ -89,11 +103,13 @@ export function DayPlannerHeaderDateNav({
         className={
           isRail
             ? 'shrink-0 rounded-full p-2.5 text-text-muted transition-colors hover:bg-bg-elevated/50 active:scale-95'
-            : 'shrink-0 touch-manipulation rounded-full p-1.5 text-text-muted transition-colors hover:bg-bg-elevated/40 active:scale-95 sm:p-2'
+            : embedded
+              ? 'shrink-0 touch-manipulation rounded-full p-1 text-text-muted transition-colors hover:bg-bg-elevated/35 active:scale-95'
+              : 'shrink-0 touch-manipulation rounded-full p-1.5 text-text-muted transition-colors hover:bg-bg-elevated/40 active:scale-95 sm:p-2'
         }
         aria-label="Next day"
       >
-        <ArrowRight size={isRail ? 20 : 18} />
+        <ArrowRight size={isRail ? 20 : embedded ? 16 : 18} />
       </button>
     </div>
   );

@@ -236,6 +236,15 @@ export function createEmptyTimeBlockDayPlan(dateKey: string, now = new Date()): 
   };
 }
 
+export function getConstraintDisplayDayPlan(
+  dateKey: string,
+  dayPlan: TimeBlockDayPlan | undefined,
+  now = new Date(),
+): TimeBlockDayPlan {
+  if (dayPlan) return dayPlan;
+  return createEmptyTimeBlockDayPlan(dateKey, now);
+}
+
 export function createEmptyTimeBlockPlannerStore(): TimeBlockPlannerStore {
   return {
     days: {},

@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
   buildTimeBlockPlan,
+  createEmptyTimeBlockDayPlan,
   createEqualQuadrants,
   createDefaultTimeBlockForm,
   getActiveTimeBlockStatus,
   getActiveConstraintsForDay,
+  getConstraintDisplayDayPlan,
   normalizeTimeBlockPlannerStore,
   roundToNextTimeIncrement,
 } from "@/lib/time-block-planner";
+import { constraintsToTimelineItems } from "@/lib/unified-scheduler";
 
 describe("time block planner helpers", () => {
   it("alternates want and should blocks until the end time", () => {
@@ -473,6 +476,93 @@ describe("time block planner helpers", () => {
     expect(getActiveConstraintsForDay(store.days["2026-03-10"], store.defaults).map((rule) => rule.id)).toEqual(["weekday"]);
     expect(getActiveConstraintsForDay(store.days["2026-03-11"], store.defaults).map((rule) => rule.id)).toEqual(["weekday", "mon-wed"]);
     expect(getActiveConstraintsForDay(store.days["2026-03-14"], store.defaults).map((rule) => rule.id)).toEqual(["weekend"]);
+  });
+
+  it("applies repeating defaults for dates without a saved day plan", () => {
+    const defaults = {
+      constraints: [
+        {
+          id: "weekday",
+          kind: "cutoff" as const,
+          target: { kind: "should" as const },
+          time: "18:00",
+          enabled: true,
+          displayText: "No more Focus after 6 PM",
+          daysOfWeek: [1, 2, 3, 4, 5],
+        },
+      ],
+    };
+
+    const dayPlan = getConstraintDisplayDayPlan(
+      "2026-03-11",
+      undefined,
+      new Date("2026-03-01T08:00:00"),
+    );
+
+    expect(getActiveConstraintsForDay(dayPlan, defaults).map((rule) => rule.id)).toEqual(["weekday"]);
+    expect(constraintsToTimelineItems(dayPlan, defaults).map((item) => item.id)).toEqual(["constraint-weekday"]);
+  });
+
+  it("filters repeating defaults by day when using a synthesized day plan", () => {
+    const defaults = {
+      constraints: [
+        {
+          id: "weekday",
+          kind: "cutoff" as const,
+          target: { kind: "should" as const },
+          time: "18:00",
+          enabled: true,
+          displayText: "No more Focus after 6 PM",
+          daysOfWeek: [1, 2, 3, 4, 5],
+        },
+        {
+          id: "weekend",
+          kind: "cutoff" as const,
+          target: { kind: "want" as const },
+          time: "22:00",
+          enabled: true,
+          displayText: "No more Energy after 10 PM",
+          daysOfWeek: [0, 6],
+        },
+      ],
+    };
+
+    const weekdayPlan = getConstraintDisplayDayPlan(
+      "2026-03-11",
+      undefined,
+      new Date("2026-03-01T08:00:00"),
+    );
+    const weekendPlan = getConstraintDisplayDayPlan(
+      "2026-03-14",
+      undefined,
+      new Date("2026-03-01T08:00:00"),
+    );
+
+    expect(getActiveConstraintsForDay(weekdayPlan, defaults).map((rule) => rule.id)).toEqual(["weekday"]);
+    expect(getActiveConstraintsForDay(weekendPlan, defaults).map((rule) => rule.id)).toEqual(["weekend"]);
+  });
+
+  it("keeps past until constraints active in management but hides them from the timeline on today", () => {
+    const dayPlan = createEmptyTimeBlockDayPlan(
+      "2026-03-29",
+      new Date("2026-03-29T16:10:00"),
+    );
+    const defaults = {
+      constraints: [
+        {
+          id: "until-focus",
+          kind: "until" as const,
+          target: { kind: "should" as const },
+          time: "15:00",
+          enabled: true,
+          displayText: "Only schedule Focus until 3 PM",
+        },
+      ],
+    };
+
+    expect(dayPlan.form.startTime).toBe("16:15");
+    expect(getActiveConstraintsForDay(dayPlan, defaults).map((rule) => rule.id)).toEqual(["until-focus"]);
+    expect(constraintsToTimelineItems(dayPlan, defaults)).toEqual([]);
   });
 
   it("trims blocks at quadrant boundaries", () => {

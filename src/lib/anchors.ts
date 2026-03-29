@@ -518,13 +518,13 @@ export function formatTimeRange(startTime: string, endTime: string, short = fals
   if (short) {
     const [rawH1, rawM1] = startTime.split(':').map(Number);
     const [rawH2, rawM2] = endTime.split(':').map(Number);
-    const p1 = rawH1 >= 12 ? 'pm' : 'am';
-    const p2 = rawH2 >= 12 ? 'pm' : 'am';
+    const p1 = rawH1 >= 12 ? 'PM' : 'AM';
+    const p2 = rawH2 >= 12 ? 'PM' : 'AM';
     const h1 = rawH1 % 12 || 12;
     const h2 = rawH2 % 12 || 12;
-    if (p1 === p2 && rawM1 === 0 && rawM2 === 0) return `${h1}–${h2}${p1}`;
+    if (p1 === p2 && rawM1 === 0 && rawM2 === 0) return `${h1}–${h2} ${p1}`;
     if (p1 === p2) return `${h1}:${String(rawM1).padStart(2, '0')}–${h2}:${String(rawM2).padStart(2, '0')} ${p1}`;
-    return `${h1}:${String(rawM1).padStart(2, '0')}${p1} – ${h2}:${String(rawM2).padStart(2, '0')}${p2}`;
+    return `${h1}:${String(rawM1).padStart(2, '0')} ${p1} – ${h2}:${String(rawM2).padStart(2, '0')} ${p2}`;
   }
   return `${start} – ${end}`;
 }

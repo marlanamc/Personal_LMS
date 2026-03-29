@@ -24,10 +24,11 @@ import {
   Zap,
 } from 'lucide-react';
 import { EditAnchorsSheet } from './EditAnchorsSheet';
-import { MobileTimeScrubber } from './MobileTimeScrubber';
+import { AnchorSkipReasonDialog } from './AnchorSkipReasonDialog';
+import { DailyOverviewList } from './DailyOverviewList';
+import type { CalendarPlannerApi } from '@/components/dashboard/useCalendarPlanner';
 import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
 import {
-  formatTimeLabel,
   formatTimeRange,
   getRecentSkippedAnchorStreak,
   getSkipReasonLabel,
@@ -39,19 +40,19 @@ import {
   type DailyAnchorTemplate,
   type SkipReason,
 } from '@/lib/anchors';
+import {
+  formatDuration,
+  formatShortTime,
+  getMinutesBetweenEvents,
+  getOvernightMinutesUntil,
+  getTimeUntil,
+} from '@/lib/anchors-mobile-ui';
 
 interface DailyAnchorsTimelineProps {
   storageScope: string;
+  calendarEvents: import('./MiniCalendar').CalendarEvent[];
+  calendarPlanner: CalendarPlannerApi;
 }
-
-const SKIP_REASON_OPTIONS: Array<{ value: SkipReason; label: string }> = [
-  { value: 'tired', label: 'Too tired' },
-  { value: 'low_energy', label: 'Low energy' },
-  { value: 'schedule_changed', label: 'Schedule changed' },
-  { value: 'not_realistic', label: 'Not realistic today' },
-  { value: 'sick', label: 'Sick' },
-  { value: 'other', label: 'Other' },
-];
 
 
 const iconByName: Record<AnchorIcon, typeof Sunrise> = {
@@ -123,78 +124,6 @@ function positionToTime(positionPercent: number): string {
   return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
 }
 
-function getTimeUntil(timeStr: string, nowMinutes: number | null): string {
-  if (nowMinutes === null) return 'Soon';
-  const targetMinutes = parseHHMMToMinutes(timeStr);
-  const diffMinutes = targetMinutes - nowMinutes;
-
-  if (diffMinutes < -60) {
-    const hours = Math.abs(Math.floor(diffMinutes / 60));
-    return `${hours}h ago`;
-  }
-  if (diffMinutes < 0) return `${Math.abs(diffMinutes)}m ago`;
-  if (diffMinutes === 0) return 'Now';
-  if (diffMinutes < 60) return `in ${diffMinutes}m`;
-  const hours = Math.floor(diffMinutes / 60);
-  const mins = diffMinutes % 60;
-  return mins === 0 ? `in ${hours}h` : `in ${hours}h ${mins}m`;
-}
-
-function formatShortTime(timeStr: string): string {
-  return formatTimeLabel(timeStr).replace(':00 ', '').replace(' AM', 'a').replace(' PM', 'p');
-}
-
-function formatDuration(minutes: number): string {
-  const safeMinutes = Math.max(0, minutes);
-  const hours = Math.floor(safeMinutes / 60);
-  const mins = safeMinutes % 60;
-  if (mins === 0) return `${hours}h`;
-  return `${hours}h ${mins}m`;
-}
-
-function getOvernightMinutesUntil(startTime: string, nextDayTime: string): number {
-  const startMinutes = parseHHMMToMinutes(startTime);
-  const endMinutes = parseHHMMToMinutes(nextDayTime);
-  return (24 * 60 - startMinutes) + endMinutes;
-}
-
-function getMinutesBetweenEvents(currentTime: string, nextTime: string): number {
-  const currentMinutes = parseHHMMToMinutes(currentTime);
-  const nextMinutes = parseHHMMToMinutes(nextTime);
-  const diff = nextMinutes - currentMinutes;
-  return diff >= 0 ? diff : (24 * 60) + diff;
-}
-
-function getContextualLabel(
-  timeStr: string,
-  nowMinutes: number | null,
-  isUpNext: boolean,
-  status: 'waiting' | 'done' | 'missed' | 'skipped'
-): { label: string; variant: 'now' | 'upnext' | 'soon' | null } {
-  if (status === 'done' || status === 'skipped') return { label: '', variant: null };
-  if (nowMinutes === null) return { label: '', variant: null };
-
-  const scheduledMinutes = parseHHMMToMinutes(timeStr);
-  const diff = scheduledMinutes - nowMinutes;
-
-  // "Now" - currently active (within 30 min window after scheduled time)
-  if (diff <= 0 && diff >= -30) {
-    return { label: 'Now', variant: 'now' };
-  }
-
-  // "Up Next" - the immediate next anchor (regardless of time)
-  if (isUpNext && diff > 0) {
-    return { label: 'Up Next', variant: 'upnext' };
-  }
-
-  // "Soon" - within 30 minutes from now
-  if (diff > 0 && diff <= 30) {
-    return { label: 'Soon', variant: 'soon' };
-  }
-
-  return { label: '', variant: null };
-}
-
 // River Flow color schemes for different icon types
 function getRiverFlowGradient(icon: AnchorIcon): { from: string; to: string; glow: string } {
   const gradients: Record<string, { from: string; to: string; glow: string }> = {
@@ -218,263 +147,11 @@ function getRiverFlowGradient(icon: AnchorIcon): { from: string; to: string; glo
   return gradients[icon] || { from: 'from-primary/20', to: 'to-accent/10', glow: 'rgba(212, 138, 166, 0.3)' };
 }
 
-interface MobileAnchorItemProps {
-  anchor: {
-    id: AnchorId;
-    label: string;
-    icon: AnchorIcon;
-    scheduledTime: string;
-    endTime?: string;
-    status: 'waiting' | 'done' | 'missed' | 'skipped';
-  };
-  isActive: boolean;
-  isLast: boolean;
-  isFirst: boolean;
-  isLoaded: boolean;
-  isUpNext: boolean;
-  onToggle: () => void;
-  onToggleSkip: () => void;
-  onTimeChange: (anchorId: AnchorId, newTime: string) => void;
-  onEndTimeChange: (anchorId: AnchorId, newTime: string) => void;
-  iconByName: Record<AnchorIcon, typeof Sunrise>;
-  index: number;
-  nowMinutes: number | null;
-  timeUntilLabel: string;
-  nextEventLabel: string | null;
-}
-
-function MobileAnchorItem({
-  anchor,
-  isActive,
-  isLast: _isLast,
-  isFirst: _isFirst,
-  isLoaded,
-  isUpNext,
-  onToggle,
-  onToggleSkip,
-  onTimeChange,
-  onEndTimeChange,
-  iconByName,
-  index,
-  nowMinutes,
-  timeUntilLabel,
-  nextEventLabel,
-}: MobileAnchorItemProps) {
-  const [isTimeScrubberOpen, setIsTimeScrubberOpen] = useState(false);
-  const Icon = iconByName[anchor.icon] || Moon;
-  const isDone = anchor.status === 'done';
-  const isMissed = anchor.status === 'missed';
-  const isSkipped = anchor.status === 'skipped';
-  const hasRange = Boolean(anchor.endTime && parseHHMMToMinutes(anchor.endTime) > parseHHMMToMinutes(anchor.scheduledTime));
-  const contextLabel = getContextualLabel(anchor.scheduledTime, nowMinutes, isUpNext, anchor.status);
-
-  return (
-    <div className="relative" style={{ animationDelay: `${index * 80}ms` }}>
-      <div className="relative">
-        {/* Main Card - Horizontal layout with more breathing room. When time scrubber is open, don't toggle (edit mode). */}
-        <div
-          role="button"
-          tabIndex={isLoaded ? 0 : -1}
-          aria-disabled={!isLoaded}
-          aria-expanded={isTimeScrubberOpen}
-          onClick={() => {
-            if (!isLoaded || isTimeScrubberOpen) return;
-            onToggle();
-          }}
-          onKeyDown={(e) => {
-            if (!isLoaded || isTimeScrubberOpen) return;
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              onToggle();
-            }
-          }}
-          className={`
-            river-flow-card mobile-anchor-row group relative w-full rounded-none px-4 py-3.5 text-left
-            transition-colors duration-200 ease-out overflow-visible
-            border-0
-            ${isDone ? 'mobile-anchor-row-done' : ''}
-            ${isActive && !isDone ? 'mobile-anchor-row-active' : ''}
-            ${isMissed ? 'mobile-anchor-row-missed' : ''}
-            ${isSkipped ? 'mobile-anchor-row-skipped mobile-anchor-row-muted' : ''}
-            ${!isDone && !isActive && !isMissed && !isSkipped ? 'mobile-anchor-row-future' : ''}
-            ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-          `}
-        >
-          <div className="relative flex items-center gap-4">
-            {/* Icon Orb - slightly larger for better touch */}
-            <div
-              className={`
-                river-flow-orb mobile-anchor-orb relative w-12 h-12 rounded-2xl flex items-center justify-center shrink-0
-                transition-colors duration-200
-                ${isDone
-                  ? 'mobile-anchor-orb-done'
-                  : isMissed
-                    ? 'mobile-anchor-orb-missed'
-                    : isSkipped
-                      ? 'mobile-anchor-orb-skipped mobile-anchor-orb-muted'
-                    : isActive
-                      ? 'mobile-anchor-orb-active'
-                      : 'mobile-anchor-orb-future'
-                }
-              `}
-            >
-              {isDone ? (
-                <motion.div
-                  initial={{ scale: 0, rotate: -45 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                >
-                  <Check size={22} strokeWidth={2.5} />
-                </motion.div>
-              ) : (
-                <Icon
-                  size={21}
-                  strokeWidth={1.8}
-                  className="transition-transform duration-200"
-                />
-              )}
-            </div>
-
-            {/* Content - single row layout */}
-            <div className="min-w-0 flex-1 flex items-center justify-between gap-3">
-              {/* Label and time */}
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <p
-                    className={`
-                      text-base font-semibold leading-snug
-                      ${isDone ? 'text-text' : ''}
-                      ${isActive && !isDone ? 'text-text' : ''}
-                      ${isMissed ? 'text-text-muted/60' : ''}
-                      ${isSkipped ? 'text-text-muted/65 line-through decoration-text-muted/40' : ''}
-                      ${!isDone && !isActive && !isMissed && !isSkipped ? 'text-text' : ''}
-                    `}
-                  >
-                    {anchor.label}
-                  </p>
-                  {contextLabel.variant && (
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-[0.08em] ${
-                        contextLabel.variant === 'now'
-                          ? 'bg-primary/15 text-primary'
-                          : contextLabel.variant === 'upnext'
-                            ? 'bg-accent-teal/15 text-accent-teal'
-                            : 'bg-accent-amethyst/15 text-accent-amethyst'
-                      }`}
-                    >
-                      {contextLabel.label}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="relative shrink-0 text-right flex flex-col items-end">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsTimeScrubberOpen((open) => !open);
-                  }}
-                  className={`
-                    text-base font-medium tabular-nums transition-colors
-                    ${isSkipped ? 'text-text-muted/50 line-through decoration-text-muted/40' : 'text-text-secondary/70 hover:text-text-secondary'}
-                  `}
-                  aria-label={`Adjust ${anchor.label} time`}
-                >
-                  {anchor.endTime
-                    ? formatTimeRange(anchor.scheduledTime, anchor.endTime, true)
-                    : formatTimeLabel(anchor.scheduledTime)}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {isTimeScrubberOpen && (
-          <div
-            className="mt-2 rounded-xl border-2 border-primary/25 bg-bg-elevated shadow-[0_4px_20px_rgba(0,0,0,0.08)] px-3 py-2.5 ring-2 ring-primary/10"
-            role="dialog"
-            aria-label={`Adjust ${anchor.label} time`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted/65">
-                  Anchor Time
-                </p>
-                <p className="mt-0.5 text-lg font-semibold leading-tight text-text tabular-nums">
-                  {hasRange && anchor.endTime
-                    ? formatTimeRange(anchor.scheduledTime, anchor.endTime, true)
-                    : formatShortTime(anchor.scheduledTime)}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onToggleSkip();
-                }}
-                className="shrink-0 rounded-full border border-border-subtle/80 bg-bg-surface/80 px-2.5 py-1 text-[11px] font-semibold tracking-[0.01em] text-text-secondary/80 transition-colors hover:border-accent-teal/40 hover:bg-bg-surface hover:text-text"
-              >
-                {isSkipped ? 'Undo skip' : 'Skip today'}
-              </button>
-            </div>
-
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {isSkipped ? (
-                <span className="inline-flex items-center rounded-full bg-bg-surface/85 px-2.5 py-1 text-[11px] font-medium text-text-muted">
-                  Skipped for today
-                </span>
-              ) : (
-                <>
-                  <span className="inline-flex items-center rounded-full bg-bg-surface/85 px-2.5 py-1 text-[11px] text-text-muted">
-                    In: <span className="ml-1 font-semibold text-text">{timeUntilLabel}</span>
-                  </span>
-                  {nextEventLabel ? (
-                    <span className="inline-flex items-center rounded-full bg-bg-surface/85 px-2.5 py-1 text-[11px] text-text-muted">
-                      Next: <span className="ml-1 font-semibold text-text">{nextEventLabel}</span>
-                    </span>
-                  ) : null}
-                </>
-              )}
-              {nowMinutes === null ? (
-                <span className="inline-flex items-center rounded-full bg-bg-surface/85 px-2.5 py-1 text-[11px] text-text-muted/80">
-                  Live time unavailable
-                </span>
-              ) : null}
-            </div>
-
-            <MobileTimeScrubber
-              isOpen={isTimeScrubberOpen}
-              currentTime={anchor.scheduledTime}
-              currentEndTime={hasRange ? anchor.endTime : undefined}
-              onTimeChange={(newTime) => onTimeChange(anchor.id, newTime)}
-              onEndTimeChange={(newTime) => onEndTimeChange(anchor.id, newTime)}
-              onClose={() => setIsTimeScrubberOpen(false)}
-            />
-            <div className="mt-3 pt-2 border-t border-border-subtle/60">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsTimeScrubberOpen(false);
-                }}
-                className="w-full py-2.5 rounded-lg bg-primary text-white text-sm font-semibold touch-manipulation active:scale-[0.98]"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps) {
+export function DailyAnchorsTimeline({
+  storageScope,
+  calendarEvents,
+  calendarPlanner,
+}: DailyAnchorsTimelineProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { anchors, activeAnchor, toggleAnchor, anchorTemplates, setTodayAnchors, setTodayAnchorStatus, setAnchorTemplates, isLoaded, weeklySkipReasonInsight } =
@@ -525,22 +202,6 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
     () => getRecentSkippedAnchorStreak(sortedAnchors, nowMinutes),
     [sortedAnchors, nowMinutes],
   );
-
-  // Find the "up next" anchor - the first future anchor that isn't done/skipped
-  const upNextAnchorId = useMemo(() => {
-    if (nowMinutes === null) return null;
-    for (const anchor of sortedAnchors) {
-      if (anchor.status === 'done' || anchor.status === 'skipped') continue;
-      const scheduledMinutes = parseHHMMToMinutes(anchor.scheduledTime);
-      // Skip anchors that are currently "now" (within 30 min window)
-      if (scheduledMinutes <= nowMinutes && nowMinutes - scheduledMinutes <= 30) continue;
-      // This is the next upcoming anchor
-      if (scheduledMinutes > nowMinutes) {
-        return anchor.id;
-      }
-    }
-    return null;
-  }, [sortedAnchors, nowMinutes]);
 
   useEffect(() => {
     const updateCurrentTime = () => {
@@ -661,20 +322,6 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
   const closeAnchorEditor = useCallback(() => {
     setIsEditingAnchors(false);
   }, []);
-
-  const handleMobileTimeChange = useCallback((anchorId: AnchorId, newTime: string) => {
-    const updatedAnchors = anchors.map((anchor) =>
-      anchor.id === anchorId ? { ...anchor, scheduledTime: newTime, isTimeOverridden: true } : anchor
-    );
-    setTodayAnchors(updatedAnchors);
-  }, [anchors, setTodayAnchors]);
-
-  const handleMobileEndTimeChange = useCallback((anchorId: AnchorId, newTime: string) => {
-    const updatedAnchors = anchors.map((anchor) =>
-      anchor.id === anchorId ? { ...anchor, endTime: newTime, isTimeOverridden: true } : anchor
-    );
-    setTodayAnchors(updatedAnchors);
-  }, [anchors, setTodayAnchors]);
 
   const handleToggleSkipToday = useCallback((anchorId: AnchorId, isSkipped: boolean) => {
     if (isSkipped) {
@@ -1141,54 +788,13 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
             </div>
           </div>
 
-          {/* Mobile/tablet layout - clean card list */}
+          {/* Mobile/tablet layout - unified daily overview */}
           <div className="lg:hidden mt-0">
-            {sortedAnchors.length === 0 ? (
-              <div className="rounded-2xl border border-border-subtle bg-bg-elevated/50 px-4 py-6 text-center">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center">
-                  <Sunrise size={24} className="text-primary/60" />
-                </div>
-                <p className="text-sm text-text-muted">No anchors scheduled for today</p>
-                <p className="text-xs text-text-muted/60 mt-1">Tap the pencil to add your daily anchors</p>
-              </div>
-            ) : (
-              <div className="mobile-anchor-stack relative overflow-visible rounded-[2.2rem]">
-                <div className="rounded-[2.2rem] border border-border-subtle/70 bg-bg-surface/75 overflow-hidden">
-                  {sortedAnchors.map((anchor, idx) => (
-                    <MobileAnchorItem
-                      key={anchor.id}
-                      anchor={anchor}
-                      isActive={anchor.id === activeAnchor.id}
-                      isFirst={idx === 0}
-                      isLast={idx === sortedAnchors.length - 1}
-                      isLoaded={isLoaded}
-                      isUpNext={anchor.id === upNextAnchorId}
-                      onToggle={() => toggleAnchor(anchor.id)}
-                      onToggleSkip={() => handleToggleSkipToday(anchor.id, anchor.status === 'skipped')}
-                      onTimeChange={handleMobileTimeChange}
-                      onEndTimeChange={handleMobileEndTimeChange}
-                      iconByName={iconByName}
-                      index={idx}
-                      nowMinutes={nowMinutes}
-                      timeUntilLabel={(() => {
-                        const raw = getTimeUntil(anchor.scheduledTime, nowMinutes);
-                        return raw.startsWith('in ') ? raw.slice(3) : raw;
-                      })()}
-                      nextEventLabel={(() => {
-                        const nextScheduledAnchor = sortedAnchors[idx + 1];
-                        if (nextScheduledAnchor) {
-                          return formatDuration(getMinutesBetweenEvents(anchor.scheduledTime, nextScheduledAnchor.scheduledTime));
-                        }
-                        if (wakeAnchorForToday) {
-                          return formatDuration(getOvernightMinutesUntil(anchor.scheduledTime, wakeAnchorForToday.scheduledTime));
-                        }
-                        return null;
-                      })()}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+            <DailyOverviewList
+              storageScope={storageScope}
+              calendarEvents={calendarEvents}
+              calendarPlanner={calendarPlanner}
+            />
           </div>
 
         </div>
@@ -1201,44 +807,12 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
         onSave={handleSaveAnchors}
       />
 
-      {skipReasonAnchor && (
-        <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/35 p-4 lg:items-center">
-          <div className="w-full max-w-sm rounded-3xl border border-border-subtle bg-bg-surface p-4 shadow-2xl">
-            <h3 className="text-base font-semibold text-text">Why skip {skipReasonAnchor.label}?</h3>
-            <p className="mt-1 text-sm text-text-muted">
-              Pick a reason so the weekly summary can spot patterns.
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              {SKIP_REASON_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => handleConfirmSkipReason(option.value)}
-                  className="rounded-2xl border border-border-subtle bg-bg-elevated px-3 py-2 text-sm font-medium text-text transition-colors hover:border-accent-teal/50 hover:bg-bg-surface"
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-            <div className="mt-4 flex justify-between gap-2">
-              <button
-                type="button"
-                onClick={() => setSkipReasonAnchor(null)}
-                className="rounded-full px-3 py-1.5 text-xs font-semibold text-text-muted transition-colors hover:text-text"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => handleConfirmSkipReason()}
-                className="rounded-full border border-border-subtle bg-bg-elevated px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:bg-bg-surface"
-              >
-                Skip without reason
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AnchorSkipReasonDialog
+        open={!!skipReasonAnchor}
+        anchorLabel={skipReasonAnchor?.label ?? ''}
+        onCancel={() => setSkipReasonAnchor(null)}
+        onConfirm={(reason) => handleConfirmSkipReason(reason)}
+      />
     </>
   );
 }
