@@ -3,6 +3,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { AlarmClock, Ban, Edit3, Flag, Info, Plus, Save, Trash2 } from 'lucide-react';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
+import { formatTimeLabel } from '@/lib/anchors';
 import {
   buildTimeBlockPlan,
   constraintAppliesToDate,
