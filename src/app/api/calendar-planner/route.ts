@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api-error';
+import { normalizeOrganization, type ThoughtOrganization } from '@/lib/thought-organization';
 
 const SUBJECT_KEY = 'calendar-planner';
 
@@ -37,6 +38,7 @@ type DayPlan = {
   notes: string;
   tasks: PlannerTask[];
   thoughtDownload?: string;
+  thoughtOrganization?: ThoughtOrganization;
   interstitialJournalEntries?: InterstitialJournalEntry[];
 };
 
@@ -94,11 +96,12 @@ function normalizeCustomTag(raw: unknown): CustomTag | null {
 }
 
 function normalizeDayPlan(raw: unknown): DayPlan {
-  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '', interstitialJournalEntries: [] };
+  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '', thoughtOrganization: undefined, interstitialJournalEntries: [] };
   const candidate = raw as {
     notes?: unknown;
     tasks?: unknown;
     thoughtDownload?: unknown;
+    thoughtOrganization?: unknown;
     interstitialJournalEntries?: unknown;
   };
   const notes = typeof candidate.notes === 'string' ? candidate.notes : '';
@@ -106,12 +109,13 @@ function normalizeDayPlan(raw: unknown): DayPlan {
     ? candidate.tasks.map(normalizePlannerTask).filter((t): t is PlannerTask => t !== null)
     : [];
   const thoughtDownload = typeof candidate.thoughtDownload === 'string' ? candidate.thoughtDownload : '';
+  const thoughtOrganization = normalizeOrganization(candidate.thoughtOrganization as ThoughtOrganization | undefined);
   const interstitialJournalEntries = Array.isArray(candidate.interstitialJournalEntries)
     ? candidate.interstitialJournalEntries
         .map(normalizeInterstitialJournalEntry)
         .filter((entry): entry is InterstitialJournalEntry => entry !== null)
     : [];
-  return { notes, tasks, thoughtDownload, interstitialJournalEntries };
+  return { notes, tasks, thoughtDownload, thoughtOrganization, interstitialJournalEntries };
 }
 
 function normalizePlannerStore(raw: unknown): PlannerStore {
@@ -128,8 +132,9 @@ function normalizePlannerStore(raw: unknown): PlannerStore {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
     const plan = normalizeDayPlan(value);
     const hasThoughtDownload = typeof plan.thoughtDownload === 'string' && plan.thoughtDownload.trim() !== '';
+    const hasThoughtOrganization = plan.thoughtOrganization && plan.thoughtOrganization.bullets.length > 0;
     const hasInterstitialJournalEntries = (plan.interstitialJournalEntries?.length ?? 0) > 0;
-    if (plan.notes || plan.tasks.length > 0 || hasThoughtDownload || hasInterstitialJournalEntries) {
+    if (plan.notes || plan.tasks.length > 0 || hasThoughtDownload || hasThoughtOrganization || hasInterstitialJournalEntries) {
       store[key] = plan;
     }
   }
@@ -139,8 +144,9 @@ function normalizePlannerStore(raw: unknown): PlannerStore {
 function isPlanEmpty(plan: DayPlan): boolean {
   const hasThoughtDownload =
     typeof plan.thoughtDownload === 'string' && plan.thoughtDownload.trim() !== '';
+  const hasThoughtOrganization = plan.thoughtOrganization && plan.thoughtOrganization.bullets.length > 0;
   const hasInterstitialJournalEntries = (plan.interstitialJournalEntries?.length ?? 0) > 0;
-  return !plan.notes && plan.tasks.length === 0 && !hasThoughtDownload && !hasInterstitialJournalEntries;
+  return !plan.notes && plan.tasks.length === 0 && !hasThoughtDownload && !hasThoughtOrganization && !hasInterstitialJournalEntries;
 }
 
 export async function GET() {
@@ -218,18 +224,21 @@ export async function POST(req: NextRequest) {
 
       if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
       
-      const existingPlan = mergedStore[key] || { notes: '', tasks: [], thoughtDownload: '', interstitialJournalEntries: [] };
+      const existingPlan = mergedStore[key] || { notes: '', tasks: [], thoughtDownload: '', thoughtOrganization: undefined, interstitialJournalEntries: [] };
       const rawIncoming = value as Record<string, unknown>;
-      
+
       // Merge only if the field is present in the incoming data
       const newPlan: DayPlan = {
         notes: typeof rawIncoming.notes === 'string' ? rawIncoming.notes : existingPlan.notes,
-        tasks: Array.isArray(rawIncoming.tasks) 
-          ? rawIncoming.tasks.map(normalizePlannerTask).filter((t): t is PlannerTask => t !== null) 
+        tasks: Array.isArray(rawIncoming.tasks)
+          ? rawIncoming.tasks.map(normalizePlannerTask).filter((t): t is PlannerTask => t !== null)
           : existingPlan.tasks,
-        thoughtDownload: typeof rawIncoming.thoughtDownload === 'string' 
-          ? rawIncoming.thoughtDownload 
+        thoughtDownload: typeof rawIncoming.thoughtDownload === 'string'
+          ? rawIncoming.thoughtDownload
           : existingPlan.thoughtDownload,
+        thoughtOrganization: rawIncoming.thoughtOrganization !== undefined
+          ? normalizeOrganization(rawIncoming.thoughtOrganization as ThoughtOrganization | undefined)
+          : existingPlan.thoughtOrganization,
         interstitialJournalEntries: Array.isArray(rawIncoming.interstitialJournalEntries)
           ? rawIncoming.interstitialJournalEntries
               .map(normalizeInterstitialJournalEntry)

@@ -35,7 +35,7 @@ export function DayPlannerHeaderDateNav({
       className={
         isRail
           ? 'flex w-full min-w-0 max-w-3xl items-center justify-center gap-2 sm:gap-3'
-          : 'flex w-full min-w-0 max-w-full items-center justify-center gap-0'
+          : 'flex w-full min-w-0 max-w-full items-center justify-center gap-2'
       }
     >
       <button
@@ -60,29 +60,17 @@ export function DayPlannerHeaderDateNav({
       >
         <span className="sr-only">Choose date</span>
         <span
-          className={`pointer-events-none flex min-w-0 flex-col items-center justify-center gap-1.5 sm:flex-row sm:gap-2 ${
-            isRail ? 'rounded-2xl border border-border-subtle/50 bg-bg-elevated/45 px-4 py-3 shadow-sm backdrop-blur-sm' : ''
-          }`}
+          className="pointer-events-none flex min-w-0 flex-row items-center justify-center gap-2 rounded-2xl border border-border-subtle/50 bg-bg-elevated/45 px-4 py-2.5 shadow-sm backdrop-blur-sm sm:py-3"
         >
           {isSelectedToday && (
             <span
-              className={
-                isRail
-                  ? 'inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-accent-sakura/18 text-accent-sakura ring-1 ring-accent-sakura/25'
-                  : 'inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-accent-sakura/15'
-              }
+              className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-accent-sakura/18 text-accent-sakura ring-1 ring-accent-sakura/25 sm:size-8"
               title="Today"
             >
-              <SunMedium size={isRail ? 16 : 11} className="text-accent-sakura" />
+              <SunMedium size={14} className="text-accent-sakura sm:size-4" />
             </span>
           )}
-          <span
-            className={
-              isRail
-                ? 'text-center font-display text-lg font-bold leading-snug tracking-tight text-text sm:text-xl'
-                : 'whitespace-nowrap font-display text-[13px] font-semibold tabular-nums leading-none text-text min-[380px]:text-[15px] sm:text-base'
-            }
-          >
+          <span className="whitespace-nowrap text-center font-display text-base font-bold leading-snug tracking-tight text-text sm:text-lg md:text-xl">
             {dateLabel}
           </span>
         </span>

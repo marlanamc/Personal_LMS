@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ThoughtOrganization } from '@/lib/thought-organization';
+import { normalizeOrganization } from '@/lib/thought-organization';
 
 export type PlannerTask = {
   id: string;
@@ -32,6 +34,7 @@ export type DayPlan = {
   notes: string;
   tasks: PlannerTask[];
   thoughtDownload?: string;
+  thoughtOrganization?: ThoughtOrganization;
   interstitialJournalEntries?: InterstitialJournalEntry[];
 };
 
@@ -39,7 +42,7 @@ export type PlannerStore = Record<string, DayPlan> & {
   _customTags?: CustomTag[];
 };
 
-const EMPTY_DAY_PLAN: DayPlan = { notes: '', tasks: [], thoughtDownload: '', interstitialJournalEntries: [] };
+const EMPTY_DAY_PLAN: DayPlan = { notes: '', tasks: [], thoughtDownload: '', thoughtOrganization: undefined, interstitialJournalEntries: [] };
 
 function normalizePlannerTask(raw: unknown): PlannerTask | null {
   if (!raw || typeof raw !== 'object') return null;
@@ -91,11 +94,12 @@ function normalizeCustomTag(raw: unknown): CustomTag | null {
 }
 
 function normalizeDayPlan(raw: unknown): DayPlan {
-  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '', interstitialJournalEntries: [] };
+  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '', thoughtOrganization: undefined, interstitialJournalEntries: [] };
   const candidate = raw as {
     notes?: unknown;
     tasks?: unknown;
     thoughtDownload?: unknown;
+    thoughtOrganization?: unknown;
     interstitialJournalEntries?: unknown;
   };
   const notes = typeof candidate.notes === 'string' ? candidate.notes : '';
@@ -103,12 +107,13 @@ function normalizeDayPlan(raw: unknown): DayPlan {
     ? candidate.tasks.map(normalizePlannerTask).filter((t): t is PlannerTask => t !== null)
     : [];
   const thoughtDownload = typeof candidate.thoughtDownload === 'string' ? candidate.thoughtDownload : '';
+  const thoughtOrganization = normalizeOrganization(candidate.thoughtOrganization as ThoughtOrganization | undefined);
   const interstitialJournalEntries = Array.isArray(candidate.interstitialJournalEntries)
     ? candidate.interstitialJournalEntries
         .map(normalizeInterstitialJournalEntry)
         .filter((entry): entry is InterstitialJournalEntry => entry !== null)
     : [];
-  return { notes, tasks, thoughtDownload, interstitialJournalEntries };
+  return { notes, tasks, thoughtDownload, thoughtOrganization, interstitialJournalEntries };
 }
 
 function normalizePlannerStore(raw: unknown): PlannerStore {
@@ -309,6 +314,14 @@ export function useCalendarPlanner(storageScope: string) {
     });
   }, []);
 
+  const exportBulletsFromDay = useCallback(
+    (dateKeyStr: string): import('@/lib/thought-organization').ThoughtBullet[] => {
+      const plan = getPlan(dateKeyStr);
+      return plan.thoughtOrganization?.bullets || [];
+    },
+    [getPlan]
+  );
+
   return {
     plannerStore: store,
     isLoaded,
@@ -319,6 +332,7 @@ export function useCalendarPlanner(storageScope: string) {
     updatePlan,
     updatePlanField,
     setCustomTags,
+    exportBulletsFromDay,
     refresh: loadFromServer,
   };
 }

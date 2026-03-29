@@ -1130,7 +1130,6 @@ export function DailyAnchorsTimeline({ storageScope }: DailyAnchorsTimelineProps
                           )}
                         </span>
                       </button>
-
                       <span className={`absolute -bottom-5 text-[10px] font-semibold whitespace-nowrap ${isActive ? 'text-text' : 'text-text-muted/70'}`}>
                         {anchor.label}
                       </span>

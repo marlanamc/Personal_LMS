@@ -5,7 +5,6 @@ import { ContextSidebar } from './ContextSidebar';
 import { FocusHero } from './FocusHero';
 import { useZenMode } from './useZenMode';
 import { useTodayFlow } from './useTodayFlow';
-import { TodayFlowTimeline } from './TodayFlowTimeline';
 import { CaptureDock } from './CaptureDock';
 import { MobileCommandHeader } from './MobileCommandHeader';
 import { LmsCompactStrip } from './LmsCompactStrip';
@@ -52,8 +51,6 @@ export function HomePlanningHub({
 
   // Use the unified Today Flow hook
   const {
-    timeWindows,
-    unpinnedTasks,
     thoughtDownload,
     isLoaded,
     isSaving,
@@ -62,7 +59,6 @@ export function HomePlanningHub({
     todaySummary,
     updateThoughtDownload,
     addTask,
-    toggleTask,
     addMomentEntry,
   } = useTodayFlow(storageScope, calendarEvents);
 
@@ -98,17 +94,6 @@ export function HomePlanningHub({
             storageScope={storageScope}
             isCalendarRestoreVisible={isZenMode}
             onRestoreCalendar={toggleZenMode}
-          />
-        </section>
-
-        {/* Desktop only: Today Flow Timeline - anchors as time window cards */}
-        <section className="hidden md:block animate-fade-in-up">
-          <TodayFlowTimeline
-            timeWindows={timeWindows}
-            unpinnedTasks={unpinnedTasks}
-            onToggleTask={toggleTask}
-            onAddTask={addTask}
-            onAddMoment={addMomentEntry}
           />
         </section>
 

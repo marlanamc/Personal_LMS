@@ -104,6 +104,27 @@
   --shadow-lg: var(--color-card-shadow-hover);
   --shadow-xl: 0 18px 40px rgba(0, 0, 0, 0.52);
 
+  /* Enhanced Shadow System for Organize Page (Dark Mode Default) */
+  --shadow-organize-card-dark:
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    0 8px 16px rgba(0, 0, 0, 0.3);
+  --shadow-organize-card-dark-hover:
+    0 4px 8px rgba(0, 0, 0, 0.5),
+    0 12px 24px rgba(0, 0, 0, 0.4),
+    0 24px 48px rgba(0, 0, 0, 0.2);
+  --shadow-organize-card: var(--shadow-organize-card-dark);
+  --shadow-organize-card-hover: var(--shadow-organize-card-dark-hover);
+
+  /* Glow Effects (Dark Mode) */
+  --glow-primary: 0 0 24px rgba(212, 138, 166, 0.4);
+  --glow-teal: 0 0 24px rgba(79, 140, 158, 0.4);
+  --glow-mint: 0 0 24px rgba(120, 191, 165, 0.4);
+
+  /* Backdrop Blur Values */
+  --blur-glass-sm: 8px;
+  --blur-glass-md: 12px;
+  --blur-glass-lg: 16px;
+
   /* Z-Index Layers */
   --z-fixed: 100;
 
@@ -194,6 +215,24 @@
   --color-card-shadow-hover:
     0 1px 0 rgba(255, 255, 255, 0.7),
     var(--color-light-shadow-hover);
+
+  /* Enhanced Shadow System for Organize Page (Light Mode) */
+  --shadow-organize-card-light:
+    0 1px 0 rgba(255, 255, 255, 0.7),
+    0 2px 4px rgba(158, 132, 112, 0.08),
+    0 8px 16px rgba(158, 132, 112, 0.12);
+  --shadow-organize-card-light-hover:
+    0 1px 0 rgba(255, 255, 255, 0.8),
+    0 4px 8px rgba(158, 132, 112, 0.12),
+    0 12px 24px rgba(158, 132, 112, 0.16),
+    0 24px 48px rgba(158, 132, 112, 0.1);
+  --shadow-organize-card: var(--shadow-organize-card-light);
+  --shadow-organize-card-hover: var(--shadow-organize-card-light-hover);
+
+  /* Glow Effects (Light Mode - Softer) */
+  --glow-primary: 0 0 20px rgba(209, 138, 122, 0.3);
+  --glow-teal: 0 0 20px rgba(157, 184, 236, 0.3);
+  --glow-mint: 0 0 20px rgba(150, 180, 155, 0.3);
 
   --color-primary: var(--color-accent-sakura);
   --color-primary-light: #e3a892;
@@ -6189,4 +6228,74 @@ kbd {
 
 .fab-pulse-ring {
   animation: fab-pulse-ring 1.8s ease-out infinite;
+}
+
+/* ============================================
+   Organize Page Animations
+   ============================================ */
+
+@keyframes organize-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes organize-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes organize-pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: var(--glow-primary);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 32px rgba(212, 138, 166, 0.6);
+  }
+}
+
+@keyframes organize-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes organize-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Utility classes for organize animations */
+.animate-organize-fade-in-up {
+  animation: organize-fade-in-up 0.4s ease-out forwards;
+}
+
+.animate-organize-slide-in-left {
+  animation: organize-slide-in-left 0.3s ease-out forwards;
+}
+
+.animate-organize-scale-in {
+  animation: organize-scale-in 0.3s ease-out forwards;
 }

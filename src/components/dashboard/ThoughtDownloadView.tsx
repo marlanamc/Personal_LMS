@@ -45,7 +45,6 @@ export function ThoughtDownloadView({ storageScope, initialDateKey }: ThoughtDow
     updatePlanField(selectedDateKey, 'thoughtDownload', value);
   };
 
-
   const goToPreviousDay = () => setSelectedDateKey(getPreviousDateKey(selectedDateKey));
   const goToNextDay = () => setSelectedDateKey(getNextDateKey(selectedDateKey));
 
@@ -113,7 +112,7 @@ export function ThoughtDownloadView({ storageScope, initialDateKey }: ThoughtDow
 
       {/* Main content - Premium Seamless Container */}
       <div className="flex-1 flex flex-col min-h-0">
-        <div 
+        <div
           className="flex-1 rounded-[2rem] border border-border-subtle bg-bg-surface/30 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-sm overflow-hidden flex flex-col group focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/40 transition-all duration-500 ease-out hover:shadow-[0_12px_48px_rgba(0,0,0,0.18)]"
           style={{
             background: "linear-gradient(165deg, color-mix(in srgb, var(--color-bg-surface) 40%, transparent) 0%, color-mix(in srgb, var(--color-bg-elevated) 20%, transparent) 100%)",
@@ -129,28 +128,30 @@ export function ThoughtDownloadView({ storageScope, initialDateKey }: ThoughtDow
             />
           </div>
         </div>
-        <div id="thought-download-status" className="mt-2 min-h-[1.25rem] text-[10px] font-medium text-text-muted flex items-center gap-1.5 px-1">
-          {saveError ? (
-            <span className="text-error">{saveError}</span>
-          ) : isSaving ? (
-            <>
-              <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
-              <span>Saving to cloud…</span>
-            </>
-          ) : isLoaded ? (
-            <>
-              <Check className="w-3 h-3 text-accent-teal" />
-              <span>
-                Synced to cloud
-                {lastSyncedAt && ` • ${lastSyncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`}
-              </span>
-            </>
-          ) : (
-            <>
-              <Cloud className="w-3 h-3 animate-pulse" />
-              <span>Connecting…</span>
-            </>
-          )}
+        <div className="mt-2 flex items-center gap-3 px-1">
+          <div id="thought-download-status" className="min-h-[1.25rem] text-[10px] font-medium text-text-muted flex items-center gap-1.5">
+            {saveError ? (
+              <span className="text-error">{saveError}</span>
+            ) : isSaving ? (
+              <>
+                <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
+                <span>Saving to cloud…</span>
+              </>
+            ) : isLoaded ? (
+              <>
+                <Check className="w-3 h-3 text-accent-teal" />
+                <span>
+                  Synced to cloud
+                  {lastSyncedAt && ` • ${lastSyncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`}
+                </span>
+              </>
+            ) : (
+              <>
+                <Cloud className="w-3 h-3 animate-pulse" />
+                <span>Connecting…</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
