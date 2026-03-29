@@ -76,14 +76,8 @@ export function HomePlanningHub({
           isZenMode ? 'md:col-span-12' : 'md:col-span-8 lg:col-span-9'
         }`}
       >
-        {/* Mobile: Simple header with "Next: X in Ym" */}
+        {/* Mobile: date + next anchor line */}
         <MobileCommandHeader
-          completedAnchors={todaySummary.completedAnchors}
-          totalAnchors={todaySummary.totalAnchors}
-          completionPercent={todaySummary.completionPercent}
-          completedOverviewItems={todaySummary.completedOverviewItems}
-          totalOverviewItems={todaySummary.totalOverviewItems}
-          activeAnchor={todaySummary.activeAnchor}
           upNextAnchor={todaySummary.upNextAnchor}
           minutesUntilNext={todaySummary.minutesUntilNext}
         />

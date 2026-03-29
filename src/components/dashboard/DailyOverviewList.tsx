@@ -47,12 +47,19 @@ import { getActiveConstraintsForDay, getConstraintDisplayDayPlan } from '@/lib/t
 import { getCalendarMarkerColor, type CalendarEvent } from './MiniCalendar';
 import type { DailyOverviewItem } from '@/types/daily-overview';
 import {
+  computeOverviewScheduleStatus,
+  type OverviewScheduleStatus,
+} from '@/lib/daily-overview-schedule-status';
+import {
   boundaryKindRailClass,
   getAnchorOverviewTimeChipStyles,
   getAnchorOrbStyles,
   getAnchorRowChromeStyles,
+  getBoundaryKindAccent,
   getBoundaryOverviewTimeChipStyles,
   getCalendarMarkerTimeChipStyles,
+  getOverviewCurrentRowHighlightStyle,
+  getOverviewCurrentStatusBadgeStyle,
   getSessionOverviewTimeChipStyles,
   overviewOrbDepthClass,
   overviewOrbDepthDashedClass,
@@ -126,10 +133,24 @@ const overviewTimeChipButtonClass = cn(
 /** Non-interactive time chip (event / boundary / session rows). */
 const overviewTimeChipStaticClass = overviewTimeChipShellClass;
 
+const SESSION_ROW_ACCENT = 'var(--color-primary)';
+
 /** Demoted row kind label (Anchor, Calendar, …) — lighter than time. */
-function OverviewKindMeta({ label, icon: Icon, muted }: { label: string; icon: LucideIcon; muted?: boolean }) {
+function OverviewKindMeta({
+  label,
+  icon: Icon,
+  muted,
+  title: titleAttr,
+}: {
+  label: string;
+  icon: LucideIcon;
+  muted?: boolean;
+  /** Optional longer description for tooltips / accessibility */
+  title?: string;
+}) {
   return (
     <span
+      title={titleAttr}
       className={cn(
         'inline-flex items-center gap-0.5 text-[10px] font-medium text-text-muted/75',
         muted && 'opacity-70',
@@ -145,6 +166,40 @@ function OverviewMetaSeparator() {
   return (
     <span className="shrink-0 select-none text-[10px] text-text-muted/35" aria-hidden>
       ·
+    </span>
+  );
+}
+
+function OverviewRowStatusBadge({
+  status,
+  currentAccent,
+}: {
+  status: OverviewScheduleStatus | null | undefined;
+  /** When `current`, matches row anchor / marker (hex or `var(--…)`) */
+  currentAccent?: string;
+}) {
+  if (!status) return null;
+  const label = status === 'current' ? 'Current' : 'Up Next';
+  if (status === 'up-next') {
+    return (
+      <span
+        className="shrink-0 rounded-full border border-primary/40 bg-primary/12 px-2 py-0.5 text-[10px] font-semibold leading-tight tracking-wide text-primary"
+        aria-label={label}
+      >
+        {label}
+      </span>
+    );
+  }
+  return (
+    <span
+      style={currentAccent ? getOverviewCurrentStatusBadgeStyle(currentAccent) : undefined}
+      className={cn(
+        'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold leading-tight tracking-wide',
+        !currentAccent && 'border border-primary/35 bg-primary/10 text-primary',
+      )}
+      aria-label={label}
+    >
+      {label}
     </span>
   );
 }
@@ -168,6 +223,7 @@ function AnchorOverviewRow({
   handleTimeChange,
   handleEndTimeChange,
   handleToggleSkip,
+  scheduleStatus,
 }: {
   item: DailyOverviewItem;
   anchorData: DailyAnchor;
@@ -181,6 +237,7 @@ function AnchorOverviewRow({
   handleTimeChange: (id: AnchorId, t: string) => void;
   handleEndTimeChange: (id: AnchorId, t: string) => void;
   handleToggleSkip: (id: AnchorId) => void;
+  scheduleStatus: OverviewScheduleStatus | null | undefined;
 }) {
   const isEditorOpen = openEditorAnchorId === item.id;
   const { timeUntilLabel, nextEventLabel } = getAnchorMobileChipLabels(
@@ -202,9 +259,12 @@ function AnchorOverviewRow({
       <div
         className={cn(
           'group flex w-full items-start border-l-[3px] px-5 pl-4 transition-colors',
-          done ? 'gap-2.5 py-2.5 hover:bg-bg-elevated/28' : 'gap-3 py-4 hover:bg-bg-elevated/40',
+          done ? 'gap-2.5 py-2 max-lg:py-2 lg:py-2.5 hover:bg-bg-elevated/28' : 'gap-2.5 py-3 max-lg:py-3 lg:gap-3 lg:py-4 hover:bg-bg-elevated/40',
         )}
-        style={getAnchorRowChromeStyles(palette, resolvedTheme, done)}
+        style={{
+          ...getAnchorRowChromeStyles(palette, resolvedTheme, done),
+          ...(scheduleStatus === 'current' && !done ? getOverviewCurrentRowHighlightStyle(palette.solid) : {}),
+        }}
       >
         <button
           type="button"
@@ -212,7 +272,9 @@ function AnchorOverviewRow({
           onClick={() => toggleAnchor(id)}
           className={cn(
             'flex shrink-0 items-center justify-center',
-            done ? 'h-11 w-11 rounded-2xl' : 'h-14 w-14 rounded-2xl',
+            done
+              ? 'h-10 w-10 rounded-2xl lg:h-11 lg:w-11'
+              : 'h-12 w-12 rounded-2xl lg:h-14 lg:w-14',
             item.isDone
               ? 'bg-secondary/20 text-secondary'
               : isSkipped
@@ -228,7 +290,7 @@ function AnchorOverviewRow({
         >
           {item.isDone ? (
             <svg
-              className={done ? 'h-5 w-5' : 'h-6 w-6'}
+              className={done ? 'h-4 w-4 lg:h-5 lg:w-5' : 'h-5 w-5 lg:h-6 lg:w-6'}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -237,26 +299,36 @@ function AnchorOverviewRow({
             </svg>
           ) : (() => {
             const IconComponent = iconByName[item.icon];
-            return IconComponent ? <IconComponent className="w-6 h-6" strokeWidth={1.5} /> : <span>{item.icon}</span>;
+            return IconComponent ? (
+              <IconComponent className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={1.5} />
+            ) : (
+              <span>{item.icon}</span>
+            );
           })()}
         </button>
 
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <button
-            type="button"
-            disabled={!isLoaded}
-            onClick={() => setOpenEditorAnchorId((prev) => (prev === item.id ? null : id))}
-            className={cn(
-              'w-full text-left',
-              isSkipped && 'text-text-muted/65 line-through decoration-text-muted/40',
-              !isSkipped && done && 'text-[0.9375rem] font-medium text-text/88',
-              !isSkipped && !done && 'text-base font-medium text-text',
-            )}
-            aria-expanded={isEditorOpen}
-            aria-controls={isEditorOpen ? `anchor-edit-${item.id}` : undefined}
-          >
-            <p className="leading-snug">{item.label}</p>
-          </button>
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <div className="flex min-w-0 items-start justify-between gap-2">
+            <button
+              type="button"
+              disabled={!isLoaded}
+              onClick={() => setOpenEditorAnchorId((prev) => (prev === item.id ? null : id))}
+              className={cn(
+                'min-w-0 flex-1 text-left',
+                isSkipped && 'text-text-muted/65 line-through decoration-text-muted/40',
+                !isSkipped && done && 'text-[0.9375rem] font-medium text-text/88',
+                !isSkipped && !done && 'text-base font-medium text-text',
+              )}
+              aria-expanded={isEditorOpen}
+              aria-controls={isEditorOpen ? `anchor-edit-${item.id}` : undefined}
+            >
+              <p className="leading-snug">{item.label}</p>
+            </button>
+            <OverviewRowStatusBadge
+              status={scheduleStatus}
+              currentAccent={scheduleStatus === 'current' ? palette.solid : undefined}
+            />
+          </div>
 
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <button
@@ -305,9 +377,11 @@ function AnchorOverviewRow({
 function EventOverviewRow({
   item,
   onAcknowledge,
+  scheduleStatus,
 }: {
   item: DailyOverviewItem;
   onAcknowledge: () => void;
+  scheduleStatus: OverviewScheduleStatus | null | undefined;
 }) {
   const marker = getCalendarMarkerColor(item.eventType);
   const win = item.isAcknowledged;
@@ -318,26 +392,27 @@ function EventOverviewRow({
       onClick={onAcknowledge}
       className={cn(
         'group flex w-full items-start border-l-[3px] px-5 pl-4 text-left transition-colors',
-        win ? 'gap-3 py-2.5 hover:bg-bg-elevated/35' : 'gap-4 py-4 hover:bg-bg-elevated/50',
+        win ? 'gap-2.5 py-2 max-lg:py-2 lg:py-2.5 hover:bg-bg-elevated/35' : 'gap-2.5 py-3 max-lg:py-3 lg:gap-3 lg:py-4 hover:bg-bg-elevated/50',
       )}
       style={{
         borderLeftColor: marker,
         backgroundColor: win
           ? `color-mix(in srgb, ${marker} 6%, var(--color-bg-surface))`
           : `color-mix(in srgb, ${marker} 11%, transparent)`,
+        ...(scheduleStatus === 'current' && !win ? getOverviewCurrentRowHighlightStyle(marker) : {}),
       }}
       aria-label={`Calendar: ${item.label}, ${item.time}${win ? ', seen' : ''}`}
     >
       <div
         className={cn(
           'flex shrink-0 items-center justify-center rounded-2xl bg-bg-elevated/90',
-          win ? 'h-11 w-11' : 'h-14 w-14',
+          win ? 'h-10 w-10 lg:h-11 lg:w-11' : 'h-12 w-12 lg:h-14 lg:w-14',
           overviewOrbDepthClass,
         )}
       >
         {item.isAcknowledged ? (
           <svg
-            className={cn('text-secondary', win ? 'h-5 w-5' : 'h-6 w-6')}
+            className={cn('text-secondary', win ? 'h-4 w-4 lg:h-5 lg:w-5' : 'h-5 w-5 lg:h-6 lg:w-6')}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -345,19 +420,25 @@ function EventOverviewRow({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
         ) : (
-          <CalendarDays className="h-7 w-7 shrink-0" strokeWidth={1.5} style={{ color: marker }} />
+          <CalendarDays className="h-6 w-6 shrink-0 lg:h-7 lg:w-7" strokeWidth={1.5} style={{ color: marker }} />
         )}
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <p
-          className={cn(
-            'leading-snug',
-            win ? 'text-base font-medium text-text/88' : 'text-lg font-semibold text-text',
-          )}
-        >
-          {item.label}
-        </p>
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <p
+            className={cn(
+              'min-w-0 flex-1 leading-snug',
+              win ? 'text-base font-medium text-text/88' : 'text-lg font-semibold text-text',
+            )}
+          >
+            {item.label}
+          </p>
+          <OverviewRowStatusBadge
+            status={scheduleStatus}
+            currentAccent={scheduleStatus === 'current' ? marker : undefined}
+          />
+        </div>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span
             style={getCalendarMarkerTimeChipStyles(marker, win)}
@@ -379,12 +460,15 @@ function EventOverviewRow({
 function BoundaryOverviewRow({
   item,
   onAcknowledge,
+  scheduleStatus,
 }: {
   item: DailyOverviewItem;
   onAcknowledge: () => void;
+  scheduleStatus: OverviewScheduleStatus | null | undefined;
 }) {
   const rail = boundaryKindRailClass(item.boundaryKind ?? 'cutoff');
   const win = item.isAcknowledged;
+  const boundaryAccent = getBoundaryKindAccent(item.boundaryKind ?? 'cutoff');
 
   return (
     <button
@@ -392,40 +476,53 @@ function BoundaryOverviewRow({
       onClick={onAcknowledge}
       className={cn(
         'group flex w-full items-start px-5 pl-4 text-left transition-colors',
-        win ? 'gap-2.5 bg-bg-surface/40 py-2.5 hover:bg-bg-elevated/30' : 'gap-3 bg-bg-base/25 py-4 hover:bg-bg-elevated/40',
+        win
+          ? 'gap-2 bg-bg-surface/40 py-2 max-lg:py-1.5 lg:py-2 hover:bg-bg-elevated/30'
+          : 'gap-2 bg-bg-base/25 py-2.5 max-lg:py-2 lg:gap-2.5 lg:py-3 hover:bg-bg-elevated/40',
         rail,
       )}
+      style={scheduleStatus === 'current' && !win ? getOverviewCurrentRowHighlightStyle(boundaryAccent) : undefined}
       aria-label={`Time boundary: ${item.label}, ${item.time}${win ? ', acknowledged' : ''}`}
     >
       <div
         className={cn(
           'flex shrink-0 items-center justify-center rounded-2xl border-2 border-dashed border-border-subtle/90 bg-bg-surface/40',
-          win ? 'h-11 w-11' : 'h-14 w-14',
+          win ? 'h-9 w-9 lg:h-10 lg:w-10' : 'h-10 w-10 lg:h-12 lg:w-12',
           item.isAcknowledged ? 'border-secondary/40 bg-secondary/10' : 'text-text-muted',
           overviewOrbDepthDashedClass,
         )}
       >
         {item.isAcknowledged ? (
-          <svg className="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-4 w-4 text-secondary lg:h-4 lg:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
         ) : (
           (() => {
             const IconComponent = iconByName[item.icon];
-            return IconComponent ? <IconComponent className="h-5 w-5" strokeWidth={1.5} /> : <span>{item.icon}</span>;
+            return IconComponent ? (
+              <IconComponent className="h-4 w-4 lg:h-[18px] lg:w-[18px]" strokeWidth={1.5} />
+            ) : (
+              <span>{item.icon}</span>
+            );
           })()
         )}
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <p
-          className={cn(
-            'leading-snug',
-            win ? 'text-[0.9375rem] font-medium text-text/88' : 'text-base font-medium text-text',
-          )}
-        >
-          {item.label}
-        </p>
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <p
+            className={cn(
+              'min-w-0 flex-1 leading-snug',
+              win ? 'text-[0.9375rem] font-medium text-text/88' : 'text-[0.9375rem] font-medium text-text',
+            )}
+          >
+            {item.label}
+          </p>
+          <OverviewRowStatusBadge
+            status={scheduleStatus}
+            currentAccent={scheduleStatus === 'current' ? boundaryAccent : undefined}
+          />
+        </div>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span
             style={getBoundaryOverviewTimeChipStyles(item.boundaryKind ?? 'cutoff', win)}
@@ -434,7 +531,12 @@ function BoundaryOverviewRow({
             {item.time}
           </span>
           <OverviewMetaSeparator />
-          <OverviewKindMeta label="Time boundary" icon={Clock} muted={win} />
+          <OverviewKindMeta
+            label="Boundary"
+            title="Time boundary — limit on your schedule"
+            icon={Clock}
+            muted={win}
+          />
         </div>
       </div>
     </button>
@@ -444,9 +546,11 @@ function BoundaryOverviewRow({
 function SessionPlaceholderRow({
   item,
   onAcknowledge,
+  scheduleStatus,
 }: {
   item: DailyOverviewItem;
   onAcknowledge: () => void;
+  scheduleStatus: OverviewScheduleStatus | null | undefined;
 }) {
   const win = item.isAcknowledged;
 
@@ -456,34 +560,46 @@ function SessionPlaceholderRow({
       onClick={onAcknowledge}
       className={cn(
         'group flex w-full items-start border-l-[3px] border-border-subtle px-5 pl-4 text-left transition-colors',
-        win ? 'gap-3 bg-bg-surface/45 py-2.5 hover:bg-bg-elevated/35' : 'gap-4 bg-bg-surface/30 py-4 hover:bg-bg-elevated/50',
+        win ? 'gap-2.5 py-2 max-lg:py-2 lg:py-2.5 hover:bg-bg-elevated/35' : 'gap-2.5 py-3 max-lg:py-3 lg:gap-3 lg:py-4 hover:bg-bg-elevated/50',
       )}
+      style={scheduleStatus === 'current' && !win ? getOverviewCurrentRowHighlightStyle(SESSION_ROW_ACCENT) : undefined}
       aria-label={`Time block: ${item.label}, ${item.time}${win ? ', acknowledged' : ''}`}
     >
       <div
         className={cn(
           'flex shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-primary/15 to-accent/10 text-text-muted',
-          win ? 'h-11 w-11 rounded-2xl' : 'h-14 w-14',
+          win ? 'h-10 w-10 rounded-2xl lg:h-11 lg:w-11' : 'h-12 w-12 lg:h-14 lg:w-14',
           overviewOrbDepthClass,
         )}
       >
         {item.isAcknowledged ? (
-          <svg className={cn('text-secondary', win ? 'h-5 w-5' : 'h-6 w-6')} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            className={cn('text-secondary', win ? 'h-4 w-4 lg:h-5 lg:w-5' : 'h-5 w-5 lg:h-6 lg:w-6')}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
         ) : (
-          <Calendar className="h-6 w-6" strokeWidth={1.5} />
+          <Calendar className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={1.5} />
         )}
       </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <p
-          className={cn(
-            'leading-snug',
-            win ? 'text-base font-medium text-text/88' : 'text-lg font-semibold text-text',
-          )}
-        >
-          {item.label}
-        </p>
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <p
+            className={cn(
+              'min-w-0 flex-1 leading-snug',
+              win ? 'text-base font-medium text-text/88' : 'text-lg font-semibold text-text',
+            )}
+          >
+            {item.label}
+          </p>
+          <OverviewRowStatusBadge
+            status={scheduleStatus}
+            currentAccent={scheduleStatus === 'current' ? SESSION_ROW_ACCENT : undefined}
+          />
+        </div>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span style={getSessionOverviewTimeChipStyles(win)} className={overviewTimeChipStaticClass}>
             {item.time}
@@ -680,6 +796,14 @@ export function DailyOverviewList({
     return items.sort((a, b) => a.scheduledMinutes - b.scheduledMinutes);
   }, [todayAnchors, calendarEvents, activeConstraints, todayKey, todayPlan.acknowledgements]);
 
+  const scheduleStatusById = useMemo(
+    () =>
+      nowMinutes === null
+        ? new Map<string, OverviewScheduleStatus>()
+        : computeOverviewScheduleStatus(nowMinutes, overviewItems),
+    [nowMinutes, overviewItems],
+  );
+
   const handleAcknowledge = (itemId: string, itemType: DailyOverviewItem['type']) => {
     const current = todayPlan.acknowledgements || { boundaries: [], events: [], sessions: [] };
 
@@ -746,21 +870,25 @@ export function DailyOverviewList({
                   handleTimeChange={handleTimeChange}
                   handleEndTimeChange={handleEndTimeChange}
                   handleToggleSkip={handleToggleSkip}
+                  scheduleStatus={scheduleStatusById.get(item.id)}
                 />
               ) : item.type === 'event' ? (
                 <EventOverviewRow
                   item={item}
                   onAcknowledge={() => handleAcknowledge(item.id, item.type)}
+                  scheduleStatus={scheduleStatusById.get(item.id)}
                 />
               ) : item.type === 'boundary' ? (
                 <BoundaryOverviewRow
                   item={item}
                   onAcknowledge={() => handleAcknowledge(item.id, item.type)}
+                  scheduleStatus={scheduleStatusById.get(item.id)}
                 />
               ) : (
                 <SessionPlaceholderRow
                   item={item}
                   onAcknowledge={() => handleAcknowledge(item.id, item.type)}
+                  scheduleStatus={scheduleStatusById.get(item.id)}
                 />
               )}
             </div>

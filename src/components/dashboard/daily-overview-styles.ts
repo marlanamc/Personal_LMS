@@ -127,7 +127,8 @@ export function getCalendarMarkerTimePillStyles(marker: string, muted: boolean):
   };
 }
 
-function boundaryAccentVar(kind: PlannerConstraintRuleKind): string {
+/** CSS color (hex or `var(--…)`) for time-boundary row accents — matches rail + chip. */
+export function getBoundaryKindAccent(kind: PlannerConstraintRuleKind): string {
   switch (kind) {
     case 'cutoff':
       return 'var(--color-warning)';
@@ -145,7 +146,7 @@ export function getBoundaryOverviewTimePillStyles(
   kind: PlannerConstraintRuleKind,
   muted: boolean
 ): CSSProperties {
-  const accent = boundaryAccentVar(kind);
+  const accent = getBoundaryKindAccent(kind);
   if (muted) {
     return {
       backgroundColor: `color-mix(in srgb, ${accent} 8%, var(--color-bg-elevated))`,
@@ -224,7 +225,7 @@ export function getCalendarMarkerTimeChipStyles(marker: string, muted: boolean):
 }
 
 export function getBoundaryOverviewTimeChipStyles(kind: PlannerConstraintRuleKind, muted: boolean): CSSProperties {
-  const accent = boundaryAccentVar(kind);
+  const accent = getBoundaryKindAccent(kind);
   if (muted) {
     return {
       backgroundColor: `color-mix(in srgb, ${accent} 6%, var(--color-bg-elevated))`,
@@ -252,6 +253,29 @@ export function getSessionOverviewTimeChipStyles(muted: boolean): CSSProperties 
     backgroundColor: `color-mix(in srgb, ${accent} 14%, var(--color-bg-elevated))`,
     border: `1px solid color-mix(in srgb, ${accent} 28%, transparent)`,
     color: `color-mix(in srgb, var(--color-text-primary) 28%, ${accent} 72%)`,
+  };
+}
+
+/** Inset ring + soft outer glow when this overview row is the active "Current" window. */
+export function getOverviewCurrentRowHighlightStyle(accent: string): CSSProperties {
+  return {
+    boxShadow: [
+      `inset 0 0 0 1px color-mix(in srgb, ${accent} 44%, transparent)`,
+      `0 0 26px color-mix(in srgb, ${accent} 17%, transparent)`,
+    ].join(', '),
+  };
+}
+
+/** "Current" status chip: matches row accent + subtle glow. */
+export function getOverviewCurrentStatusBadgeStyle(accent: string): CSSProperties {
+  return {
+    color: `color-mix(in srgb, ${accent} 78%, var(--color-text-primary))`,
+    border: `1px solid color-mix(in srgb, ${accent} 48%, transparent)`,
+    backgroundColor: `color-mix(in srgb, ${accent} 15%, var(--color-bg-elevated))`,
+    boxShadow: [
+      `0 0 18px color-mix(in srgb, ${accent} 40%, transparent)`,
+      `0 0 5px color-mix(in srgb, ${accent} 22%, transparent)`,
+    ].join(', '),
   };
 }
 
