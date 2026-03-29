@@ -209,10 +209,7 @@ function AnchorOverviewRow({
         <button
           type="button"
           disabled={!isLoaded}
-          onClick={() => {
-            if (isEditorOpen) return;
-            toggleAnchor(id);
-          }}
+          onClick={() => toggleAnchor(id)}
           className={cn(
             'flex shrink-0 items-center justify-center',
             done ? 'h-11 w-11 rounded-2xl' : 'h-14 w-14 rounded-2xl',
@@ -248,16 +245,15 @@ function AnchorOverviewRow({
           <button
             type="button"
             disabled={!isLoaded}
-            onClick={() => {
-              if (isEditorOpen) return;
-              toggleAnchor(id);
-            }}
+            onClick={() => setOpenEditorAnchorId((prev) => (prev === item.id ? null : id))}
             className={cn(
               'w-full text-left',
               isSkipped && 'text-text-muted/65 line-through decoration-text-muted/40',
               !isSkipped && done && 'text-[0.9375rem] font-medium text-text/88',
               !isSkipped && !done && 'text-base font-medium text-text',
             )}
+            aria-expanded={isEditorOpen}
+            aria-controls={isEditorOpen ? `anchor-edit-${item.id}` : undefined}
           >
             <p className="leading-snug">{item.label}</p>
           </button>
@@ -289,7 +285,7 @@ function AnchorOverviewRow({
         </div>
       </div>
       {isEditorOpen && (
-        <div className="px-5 pb-4">
+        <div id={`anchor-edit-${item.id}`} className="px-5 pb-4">
           <MobileAnchorEditPanel
             anchor={anchorData}
             nowMinutes={nowMinutes}
