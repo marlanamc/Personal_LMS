@@ -60,7 +60,7 @@ function SwipeableRow({
 
   return (
     <div className="relative overflow-hidden rounded-xl">
-      <div className="absolute inset-y-0 right-0 w-20 bg-amber-500/80 flex items-center justify-center pointer-events-none">
+      <div className="absolute inset-y-0 right-0 w-20 bg-[#d48aa6]/80 flex items-center justify-center pointer-events-none">
         <Trash2 className="w-5 h-5 text-white" />
       </div>
       <div
@@ -69,7 +69,7 @@ function SwipeableRow({
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
         style={{ touchAction: 'pan-y' }}
-        className={`relative bg-white/95 transition-transform ${!disabled && 'cursor-grab'}`}
+        className={`relative bg-white dark:bg-[#1e3046] transition-transform ${!disabled && 'cursor-grab'}`}
       >
         {children}
       </div>
@@ -117,48 +117,48 @@ function CrisisItemEditSheet({
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: '100%', opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="w-full sm:max-w-md bg-gradient-to-b from-white to-amber-50/30 rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 space-y-4 sm:space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="w-full sm:max-w-md bg-white dark:bg-[#18273a] rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 space-y-4 sm:space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl"
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-amber-900">{title}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-amber-100/50 rounded-lg transition-colors">
-            <X className="w-5 h-5 text-amber-700" />
+          <h2 className="text-xl font-bold text-gray-900 dark:text-[#e6edf6]">{title}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#1e3046] rounded-lg transition-colors">
+            <X className="w-5 h-5 text-gray-600 dark:text-[#a9b7c8]" />
           </button>
         </div>
 
         <div className="space-y-3 sm:space-y-4">
           <div>
-            <label className="text-xs sm:text-sm font-semibold text-amber-900/70 block mb-2">What you want to remember</label>
+            <label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-[#a9b7c8] block mb-2">What you want to remember</label>
             <input
               autoFocus
               type="text"
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="e.g., 'Cold water on face'"
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200/50 transition-all bg-white/80 text-sm sm:text-base"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-[#253150] rounded-xl focus:outline-none focus:border-[#d48aa6] dark:focus:border-[#d48aa6] focus:ring-2 focus:ring-[#d48aa6]/20 transition-all bg-white dark:bg-[#1e3046] text-gray-900 dark:text-[#e6edf6] text-sm sm:text-base"
               maxLength={100}
             />
           </div>
 
           <div>
-            <label className="text-xs sm:text-sm font-semibold text-amber-900/70 block mb-2">Emoji (optional)</label>
+            <label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-[#a9b7c8] block mb-2">Emoji (optional)</label>
             <input
               type="text"
               value={emoji}
               onChange={(e) => setEmoji(e.target.value)}
               placeholder="🧊"
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200/50 transition-all bg-white/80 text-sm sm:text-base"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-[#253150] rounded-xl focus:outline-none focus:border-[#d48aa6] dark:focus:border-[#d48aa6] focus:ring-2 focus:ring-[#d48aa6]/20 transition-all bg-white dark:bg-[#1e3046] text-gray-900 dark:text-[#e6edf6] text-sm sm:text-base"
               maxLength={2}
             />
           </div>
 
           <div>
-            <label className="text-xs sm:text-sm font-semibold text-amber-900/70 block mb-2">Why it helps (optional)</label>
+            <label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-[#a9b7c8] block mb-2">Why it helps (optional)</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g., 'Cold = sensory reset + wakes up nervous system'"
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200/50 transition-all resize-none h-16 sm:h-20 bg-white/80 text-sm sm:text-base"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-[#253150] rounded-xl focus:outline-none focus:border-[#d48aa6] dark:focus:border-[#d48aa6] focus:ring-2 focus:ring-[#d48aa6]/20 transition-all resize-none h-16 sm:h-20 bg-white dark:bg-[#1e3046] text-gray-900 dark:text-[#e6edf6] text-sm sm:text-base"
               maxLength={200}
             />
           </div>
@@ -172,7 +172,7 @@ function CrisisItemEditSheet({
               onClear();
               onClose();
             }}
-            className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-amber-700 border-2 border-amber-300 rounded-xl hover:bg-amber-50 font-semibold transition-colors text-sm sm:text-base"
+            className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-gray-700 dark:text-[#a9b7c8] border border-gray-300 dark:border-[#253150] rounded-xl hover:bg-gray-50 dark:hover:bg-[#1e3046] font-semibold transition-colors text-sm sm:text-base"
           >
             Delete
           </motion.button>
@@ -180,7 +180,7 @@ function CrisisItemEditSheet({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleSave}
-            className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-xl hover:from-amber-500 hover:to-amber-600 font-semibold transition-all shadow-md hover:shadow-lg text-sm sm:text-base"
+            className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-[#d48aa6] dark:bg-[#d48aa6] hover:bg-[#c5778a] dark:hover:bg-[#e39bb5] text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm sm:text-base"
           >
             Save
           </motion.button>
@@ -254,7 +254,7 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-white dark:bg-[#122033] flex items-center justify-center p-4">
         <div className="text-center">
           <motion.div
             animate={{ scale: [1, 1.1, 1] }}
@@ -263,21 +263,21 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
           >
             🌊
           </motion.div>
-          <p className="text-amber-900/60 text-lg">Loading your menu...</p>
+          <p className="text-gray-600 dark:text-[#a9b7c8] text-lg">Loading your menu...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50">
+    <div className="min-h-screen bg-white dark:bg-[#122033]">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-amber-200/40 p-4 sm:p-8 shadow-sm">
+      <div className="sticky top-0 z-10 bg-white/95 dark:bg-[#18273a]/95 backdrop-blur-md border-b border-gray-200/50 dark:border-[#1e3046] p-4 sm:p-8 shadow-sm">
         {/* Mobile: Compact header */}
         <div className="flex sm:hidden items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="text-3xl">💙</div>
-            <h1 className="text-2xl font-display text-amber-900">Crisis</h1>
+            <h1 className="text-2xl font-display text-gray-900 dark:text-[#e6edf6]">Crisis</h1>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -285,8 +285,8 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
             onClick={() => setMode(mode === 'crisis' ? 'edit' : 'crisis')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               mode === 'crisis'
-                ? 'bg-amber-100 text-amber-900 hover:bg-amber-200'
-                : 'bg-amber-500/10 text-amber-700 hover:bg-amber-500/20'
+                ? 'bg-gray-200 dark:bg-[#1e3046] text-gray-900 dark:text-[#d48aa6] hover:bg-gray-300 dark:hover:bg-[#253150]'
+                : 'bg-gray-100/80 dark:bg-[#1e3046]/50 text-gray-700 dark:text-[#78bfa5] hover:bg-gray-200 dark:hover:bg-[#1e3046]'
             }`}
           >
             {mode === 'crisis' ? '✏️' : '🎯'}
@@ -298,8 +298,8 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
           <div className="flex items-center gap-3">
             <div className="text-4xl">💙</div>
             <div>
-              <h1 className="text-4xl font-display text-amber-900">Crisis Mode</h1>
-              <p className="text-sm text-amber-700/70 mt-1">You've got this. Pick something.</p>
+              <h1 className="text-4xl font-display text-gray-900 dark:text-[#e6edf6]">Crisis Mode</h1>
+              <p className="text-sm text-gray-600 dark:text-[#a9b7c8] mt-1">You've got this. Pick something.</p>
             </div>
           </div>
           <motion.button
@@ -308,8 +308,8 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
             onClick={() => setMode(mode === 'crisis' ? 'edit' : 'crisis')}
             className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
               mode === 'crisis'
-                ? 'bg-amber-100 text-amber-900 hover:bg-amber-200'
-                : 'bg-amber-500/10 text-amber-700 hover:bg-amber-500/20'
+                ? 'bg-gray-200 dark:bg-[#1e3046] text-gray-900 dark:text-[#d48aa6] hover:bg-gray-300 dark:hover:bg-[#253150]'
+                : 'bg-gray-100/80 dark:bg-[#1e3046]/50 text-gray-700 dark:text-[#78bfa5] hover:bg-gray-200 dark:hover:bg-[#1e3046]'
             }`}
           >
             {mode === 'crisis' ? '✏️ Edit' : '🎯 Back'}
@@ -326,8 +326,8 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
               onClick={() => setActiveTab(tab.id)}
               className={`whitespace-nowrap px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all snap-start flex items-center gap-1.5 ${
                 activeTab === tab.id
-                  ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-white shadow-md'
-                  : 'bg-white/60 text-amber-900/70 hover:bg-white/80 border border-amber-200/40'
+                  ? 'bg-[#d48aa6] dark:bg-[#d48aa6] text-white shadow-md'
+                  : 'bg-gray-100 dark:bg-[#1e3046] text-gray-700 dark:text-[#a9b7c8] hover:bg-gray-200 dark:hover:bg-[#253150] border border-gray-200 dark:border-[#253150]'
               }`}
             >
               <span className="text-lg sm:text-base">{tab.emoji}</span>
@@ -344,7 +344,7 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
           animate={{ opacity: 1, y: 0 }}
           className="px-4 sm:px-8 pt-4 sm:pt-6 pb-3"
         >
-          <p className="text-base sm:text-lg text-amber-900/70 font-semibold text-center">
+          <p className="text-base sm:text-lg text-gray-700 dark:text-[#a9b7c8] font-semibold text-center">
             {CRISIS_MESSAGES[activeTab]}
           </p>
         </motion.div>
@@ -363,7 +363,7 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
             >
               {currentItems.length === 0 ? (
-                <div className="col-span-full text-center py-16 text-amber-900/50">
+                <div className="col-span-full text-center py-16 text-gray-500 dark:text-[#6e7e91]">
                   <div className="text-5xl mb-4">🤔</div>
                   <p className="text-lg">No items yet. Switch to edit mode to add some.</p>
                 </div>
@@ -377,12 +377,12 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
                     whileHover={{ scale: 1.03, y: -4 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => triggerHaptic([12, 15])}
-                    className="bg-white/90 rounded-2xl p-5 sm:p-6 text-left border-2 border-amber-200/40 hover:border-amber-300 hover:shadow-lg transition-all min-h-36 sm:min-h-32 flex flex-col justify-start group active:bg-amber-50/80"
+                    className="bg-white dark:bg-[#1e3046] rounded-2xl p-5 sm:p-6 text-left border border-gray-200 dark:border-[#253150] hover:border-gray-300 dark:hover:border-[#2a3f5a] hover:shadow-lg dark:hover:shadow-black/30 transition-all min-h-36 sm:min-h-32 flex flex-col justify-start group active:bg-gray-50 dark:active:bg-[#253150]"
                   >
                     <div className="text-5xl sm:text-4xl mb-3 group-hover:scale-110 transition-transform leading-none">{item.emoji || '•'}</div>
-                    <div className="text-base sm:text-lg font-semibold text-amber-900 line-clamp-3">{item.text}</div>
+                    <div className="text-base sm:text-lg font-semibold text-gray-900 dark:text-[#e6edf6] line-clamp-3">{item.text}</div>
                     {item.notes && (
-                      <div className="text-xs sm:text-sm text-amber-700/60 mt-2 line-clamp-2">{item.notes}</div>
+                      <div className="text-xs sm:text-sm text-gray-600 dark:text-[#a9b7c8] mt-2 line-clamp-2">{item.notes}</div>
                     )}
                   </motion.button>
                 ))
@@ -398,7 +398,7 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
               className="space-y-4"
             >
               {/* Quick capture */}
-              <div className="relative sticky top-20 sm:top-24 z-5 bg-gradient-to-r from-white to-amber-50/80 rounded-2xl border-2 border-amber-200/60 p-4 sm:p-5 shadow-lg backdrop-blur-sm">
+              <div className="relative sticky top-20 sm:top-24 z-5 bg-white dark:bg-[#18273a] rounded-2xl border border-gray-200 dark:border-[#253150] p-4 sm:p-5 shadow-lg backdrop-blur-sm">
                 <div className="flex gap-2 sm:gap-3">
                   <input
                     type="text"
@@ -406,14 +406,14 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
                     onChange={(e) => setCaptureDraft(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && addItem()}
                     placeholder="Add something..."
-                    className="flex-1 focus:outline-none text-sm sm:text-base bg-transparent text-amber-900 placeholder-amber-700/40"
+                    className="flex-1 focus:outline-none text-sm sm:text-base bg-transparent text-gray-900 dark:text-[#e6edf6] placeholder-gray-500 dark:placeholder-[#6e7e91]"
                   />
                   <motion.button
                     animate={captureGlow ? { scale: 1.15 } : { scale: 1 }}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={addItem}
-                    className="p-3 bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-xl hover:from-amber-500 hover:to-amber-600 transition-all shadow-md"
+                    className="p-3 bg-[#d48aa6] dark:bg-[#d48aa6] hover:bg-[#c5778a] dark:hover:bg-[#e39bb5] text-white rounded-xl transition-all shadow-md"
                   >
                     <Plus className="w-5 h-5" />
                   </motion.button>
@@ -422,7 +422,7 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
 
               {/* Items list */}
               {currentItems.length === 0 ? (
-                <div className="text-center py-12 text-amber-900/50">
+                <div className="text-center py-12 text-gray-500 dark:text-[#6e7e91]">
                   <p className="text-lg">No items in {currentTab?.label}.</p>
                 </div>
               ) : (
@@ -435,13 +435,13 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
                       <motion.button
                         layout
                         onClick={() => setEditingItem({ tab: activeTab, item })}
-                        className="w-full p-3 sm:p-4 bg-white/90 rounded-xl text-left hover:bg-amber-50/80 transition-colors border border-amber-200/40 active:bg-amber-50"
+                        className="w-full p-3 sm:p-4 bg-white dark:bg-[#1e3046] rounded-xl text-left hover:bg-gray-50 dark:hover:bg-[#253150] transition-colors border border-gray-200 dark:border-[#253150] active:bg-gray-50 dark:active:bg-[#253150]"
                       >
                         <div className="flex gap-3 sm:gap-4 items-start">
                           <div className="text-3xl sm:text-4xl flex-shrink-0 leading-none">{item.emoji || '•'}</div>
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-amber-900 break-words text-sm sm:text-base">{item.text}</div>
-                            {item.notes && <div className="text-xs sm:text-sm text-amber-700/60 mt-1.5 sm:mt-2">{item.notes}</div>}
+                            <div className="font-semibold text-gray-900 dark:text-[#e6edf6] break-words text-sm sm:text-base">{item.text}</div>
+                            {item.notes && <div className="text-xs sm:text-sm text-gray-600 dark:text-[#a9b7c8] mt-1.5 sm:mt-2">{item.notes}</div>}
                           </div>
                         </div>
                       </motion.button>
