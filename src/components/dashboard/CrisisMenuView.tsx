@@ -117,7 +117,7 @@ function CrisisItemEditSheet({
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: '100%', opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="w-full sm:max-w-md bg-gradient-to-b from-white to-amber-50/30 rounded-t-3xl sm:rounded-3xl p-8 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="w-full sm:max-w-md bg-gradient-to-b from-white to-amber-50/30 rounded-t-3xl sm:rounded-3xl p-6 sm:p-8 space-y-4 sm:space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl"
       >
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-amber-900">{title}</h2>
@@ -126,45 +126,45 @@ function CrisisItemEditSheet({
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <div>
-            <label className="text-sm font-semibold text-amber-900/70 block mb-2">What you want to remember</label>
+            <label className="text-xs sm:text-sm font-semibold text-amber-900/70 block mb-2">What you want to remember</label>
             <input
               autoFocus
               type="text"
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="e.g., 'Cold water on face'"
-              className="w-full px-4 py-3 border-2 border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200/50 transition-all bg-white/80"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200/50 transition-all bg-white/80 text-sm sm:text-base"
               maxLength={100}
             />
           </div>
 
           <div>
-            <label className="text-sm font-semibold text-amber-900/70 block mb-2">Emoji (optional)</label>
+            <label className="text-xs sm:text-sm font-semibold text-amber-900/70 block mb-2">Emoji (optional)</label>
             <input
               type="text"
               value={emoji}
               onChange={(e) => setEmoji(e.target.value)}
               placeholder="🧊"
-              className="w-full px-4 py-3 border-2 border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200/50 transition-all bg-white/80"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200/50 transition-all bg-white/80 text-sm sm:text-base"
               maxLength={2}
             />
           </div>
 
           <div>
-            <label className="text-sm font-semibold text-amber-900/70 block mb-2">Why it helps (optional)</label>
+            <label className="text-xs sm:text-sm font-semibold text-amber-900/70 block mb-2">Why it helps (optional)</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g., 'Cold = sensory reset + wakes up nervous system'"
-              className="w-full px-4 py-3 border-2 border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200/50 transition-all resize-none h-20 bg-white/80"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200/50 transition-all resize-none h-16 sm:h-20 bg-white/80 text-sm sm:text-base"
               maxLength={200}
             />
           </div>
         </div>
 
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-2 sm:gap-3 pt-2 sm:pt-4">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -172,7 +172,7 @@ function CrisisItemEditSheet({
               onClear();
               onClose();
             }}
-            className="flex-1 px-4 py-3 text-amber-700 border-2 border-amber-300 rounded-xl hover:bg-amber-50 font-semibold transition-colors"
+            className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-amber-700 border-2 border-amber-300 rounded-xl hover:bg-amber-50 font-semibold transition-colors text-sm sm:text-base"
           >
             Delete
           </motion.button>
@@ -180,7 +180,7 @@ function CrisisItemEditSheet({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleSave}
-            className="flex-1 px-4 py-3 bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-xl hover:from-amber-500 hover:to-amber-600 font-semibold transition-all shadow-md hover:shadow-lg"
+            className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-xl hover:from-amber-500 hover:to-amber-600 font-semibold transition-all shadow-md hover:shadow-lg text-sm sm:text-base"
           >
             Save
           </motion.button>
@@ -272,12 +272,33 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-amber-200/40 p-6 sm:p-8 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
+      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-amber-200/40 p-4 sm:p-8 shadow-sm">
+        {/* Mobile: Compact header */}
+        <div className="flex sm:hidden items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="text-3xl">💙</div>
+            <h1 className="text-2xl font-display text-amber-900">Crisis</h1>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setMode(mode === 'crisis' ? 'edit' : 'crisis')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              mode === 'crisis'
+                ? 'bg-amber-100 text-amber-900 hover:bg-amber-200'
+                : 'bg-amber-500/10 text-amber-700 hover:bg-amber-500/20'
+            }`}
+          >
+            {mode === 'crisis' ? '✏️' : '🎯'}
+          </motion.button>
+        </div>
+
+        {/* Desktop: Full header */}
+        <div className="hidden sm:flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="text-4xl">💙</div>
             <div>
-              <h1 className="text-3xl sm:text-4xl font-display text-amber-900">Crisis Mode</h1>
+              <h1 className="text-4xl font-display text-amber-900">Crisis Mode</h1>
               <p className="text-sm text-amber-700/70 mt-1">You've got this. Pick something.</p>
             </div>
           </div>
@@ -303,14 +324,14 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab(tab.id)}
-              className={`whitespace-nowrap px-5 py-3 rounded-xl text-sm font-semibold transition-all snap-start ${
+              className={`whitespace-nowrap px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all snap-start flex items-center gap-1.5 ${
                 activeTab === tab.id
                   ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-white shadow-md'
                   : 'bg-white/60 text-amber-900/70 hover:bg-white/80 border border-amber-200/40'
               }`}
             >
-              <span className="mr-2">{tab.emoji}</span>
-              {tab.label}
+              <span className="text-lg sm:text-base">{tab.emoji}</span>
+              <span className="hidden sm:inline">{tab.label}</span>
             </motion.button>
           ))}
         </div>
@@ -321,16 +342,16 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="px-6 sm:px-8 pt-6 pb-2"
+          className="px-4 sm:px-8 pt-4 sm:pt-6 pb-3"
         >
-          <p className="text-lg text-amber-900/60 font-medium text-center">
+          <p className="text-base sm:text-lg text-amber-900/70 font-semibold text-center">
             {CRISIS_MESSAGES[activeTab]}
           </p>
         </motion.div>
       )}
 
       {/* Content */}
-      <div className="p-6 sm:p-8 max-w-4xl mx-auto">
+      <div className="px-4 sm:px-8 py-4 sm:py-6 max-w-4xl mx-auto">
         <AnimatePresence mode="wait">
           {mode === 'crisis' ? (
             <motion.div
@@ -339,7 +360,7 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
             >
               {currentItems.length === 0 ? (
                 <div className="col-span-full text-center py-16 text-amber-900/50">
@@ -356,12 +377,12 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
                     whileHover={{ scale: 1.03, y: -4 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => triggerHaptic([12, 15])}
-                    className="bg-white/90 rounded-2xl p-6 text-left border-2 border-amber-200/40 hover:border-amber-300 hover:shadow-lg transition-all min-h-32 flex flex-col justify-start group"
+                    className="bg-white/90 rounded-2xl p-5 sm:p-6 text-left border-2 border-amber-200/40 hover:border-amber-300 hover:shadow-lg transition-all min-h-36 sm:min-h-32 flex flex-col justify-start group active:bg-amber-50/80"
                   >
-                    <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">{item.emoji || '•'}</div>
-                    <div className="text-lg font-semibold text-amber-900 line-clamp-3">{item.text}</div>
+                    <div className="text-5xl sm:text-4xl mb-3 group-hover:scale-110 transition-transform leading-none">{item.emoji || '•'}</div>
+                    <div className="text-base sm:text-lg font-semibold text-amber-900 line-clamp-3">{item.text}</div>
                     {item.notes && (
-                      <div className="text-sm text-amber-700/60 mt-3 line-clamp-2">{item.notes}</div>
+                      <div className="text-xs sm:text-sm text-amber-700/60 mt-2 line-clamp-2">{item.notes}</div>
                     )}
                   </motion.button>
                 ))
@@ -377,15 +398,15 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
               className="space-y-4"
             >
               {/* Quick capture */}
-              <div className="relative sticky top-24 z-5 bg-gradient-to-r from-white to-amber-50/80 rounded-2xl border-2 border-amber-200/60 p-4 shadow-lg backdrop-blur-sm">
-                <div className="flex gap-3">
+              <div className="relative sticky top-20 sm:top-24 z-5 bg-gradient-to-r from-white to-amber-50/80 rounded-2xl border-2 border-amber-200/60 p-4 sm:p-5 shadow-lg backdrop-blur-sm">
+                <div className="flex gap-2 sm:gap-3">
                   <input
                     type="text"
                     value={captureDraft}
                     onChange={(e) => setCaptureDraft(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && addItem()}
-                    placeholder="Add something that helps..."
-                    className="flex-1 focus:outline-none text-base bg-transparent text-amber-900 placeholder-amber-700/40"
+                    placeholder="Add something..."
+                    className="flex-1 focus:outline-none text-sm sm:text-base bg-transparent text-amber-900 placeholder-amber-700/40"
                   />
                   <motion.button
                     animate={captureGlow ? { scale: 1.15 } : { scale: 1 }}
@@ -405,7 +426,7 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
                   <p className="text-lg">No items in {currentTab?.label}.</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {currentItems.map((item) => (
                     <SwipeableRow
                       key={item.id}
@@ -414,13 +435,13 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
                       <motion.button
                         layout
                         onClick={() => setEditingItem({ tab: activeTab, item })}
-                        className="w-full p-4 bg-white/90 rounded-xl text-left hover:bg-amber-50/80 transition-colors border border-amber-200/40"
+                        className="w-full p-3 sm:p-4 bg-white/90 rounded-xl text-left hover:bg-amber-50/80 transition-colors border border-amber-200/40 active:bg-amber-50"
                       >
-                        <div className="flex gap-4 items-start">
-                          <div className="text-3xl flex-shrink-0">{item.emoji || '•'}</div>
+                        <div className="flex gap-3 sm:gap-4 items-start">
+                          <div className="text-3xl sm:text-4xl flex-shrink-0 leading-none">{item.emoji || '•'}</div>
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-amber-900 break-words">{item.text}</div>
-                            {item.notes && <div className="text-sm text-amber-700/60 mt-2">{item.notes}</div>}
+                            <div className="font-semibold text-amber-900 break-words text-sm sm:text-base">{item.text}</div>
+                            {item.notes && <div className="text-xs sm:text-sm text-amber-700/60 mt-1.5 sm:mt-2">{item.notes}</div>}
                           </div>
                         </div>
                       </motion.button>
