@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { saveActivityProgress } from "@/lib/activityProgress";
 import { BackButton } from "@/components/ui/BackButton";
-import { PointsToast } from "@/components/ui/PointsToast";
 
 /**
  * FlashcardData interface matching the parser output in ActivityRenderer
@@ -40,7 +39,6 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
     const [mode, setMode] = useState<CardMode>("term-first");
     const [showExample, setShowExample] = useState(true);
     const [studiedCards, setStudiedCards] = useState<Set<number>>(new Set()); // Track cards that were actually flipped
-    const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
 
     // Touch/swipe handling
     const touchStartX = useRef<number | null>(null);
@@ -182,7 +180,6 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
                 vocabType
             );
             if (result?.pointsAwarded && result.pointsAwarded > 0) {
-                setPointsToast({ points: result.pointsAwarded, key: Date.now() });
             }
         };
 
@@ -194,13 +191,6 @@ export default function FlashcardCarousel({ cards, activityId, assignmentId, voc
     return (
         <div className="fixed inset-0 bg-bg-primary flex flex-col touch-manipulation md:static md:h-auto md:min-h-screen md:w-full md:max-w-4xl md:mx-auto md:px-4 md:py-4">
             {/* Points Toast */}
-            {pointsToast && (
-                <PointsToast
-                    key={pointsToast.key}
-                    points={pointsToast.points}
-                    onComplete={() => setPointsToast(null)}
-                />
-            )}
 
             {/* Top Bar - Progress & Settings (+ Navigation on Desktop) */}
             <div className="flex-shrink-0 bg-bg-secondary border-b-2 border-[var(--color-border)] px-4 py-3">

@@ -2,7 +2,6 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import bcrypt from "bcryptjs";
-import { trackLogin } from "./gamification";
 import { logger } from "./logger";
 import { headers } from "next/headers";
 
@@ -68,13 +67,6 @@ export const authOptions: NextAuthOptions = {
                     logger.info('User logged in successfully', {
                         username: user.username,
                         userId: user.id,
-                    });
-
-                    // Track login for activity calendar
-                    trackLogin(user.id).catch(err => {
-                        logger.error('Failed to track login activity', err, {
-                            userId: user.id,
-                        });
                     });
 
                     // Detect if login is from mobile device

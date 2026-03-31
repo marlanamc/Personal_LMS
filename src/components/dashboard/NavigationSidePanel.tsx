@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { X, BookOpen, Timer, User, Home, Code, Heart, Briefcase, Calendar, Pencil, Sparkles, LayoutList, Moon, BookOpenText, UtensilsCrossed, FolderKanban, Activity, ListTree, Flame } from 'lucide-react';
+import { X, BookOpen, Timer, User, Home, Code, Heart, Briefcase, Calendar, Pencil, LayoutList, Moon, BookOpenText, UtensilsCrossed, Activity, ListTree, Shield } from 'lucide-react';
 import { SpanishSubjectIcon } from '@/components/icons/SpanishSubjectIcon';
 
 interface NavigationSidePanelProps {
@@ -22,7 +22,7 @@ const quickLinks = [
   { href: '/dashboard', label: 'Home', icon: Home },
   { href: '/dashboard/day-planner', label: 'Day Planner', icon: LayoutList },
   { href: '/dashboard/meal-planner', label: 'Meal Planner', icon: UtensilsCrossed },
-  { href: '/dashboard/projects', label: 'Project Planner', icon: FolderKanban },
+  { href: '/dashboard/crisis', label: 'Crisis Mode', icon: Shield, color: 'text-amber-600' },
   { href: '/dashboard/timer', label: 'Focus Timer', icon: Timer },
   { href: '/dashboard/calendar', label: 'Monthly Calendar', icon: Calendar },
   { href: '/dashboard/thought-download', label: 'Thought Download', icon: Moon },
@@ -31,8 +31,6 @@ const quickLinks = [
   { href: '/dashboard/anchors', label: 'Edit Anchors', icon: Pencil },
   { href: '/dashboard/health-tracker', label: 'Health Log', icon: Activity },
   { href: '/dashboard/subjects', label: 'All Subjects', icon: BookOpen },
-  { href: '/dashboard/sparks', label: 'Sparks', icon: Flame },
-  { href: '/dashboard/reset', label: 'Get Unstuck', icon: Sparkles },
   { href: '/dashboard/profile', label: 'Profile', icon: User },
 ];
 
@@ -160,7 +158,11 @@ export function NavigationSidePanel({ isOpen, onClose }: NavigationSidePanelProp
                     <link.icon
                       size={18}
                       className={`transition-colors ${
-                        isPathActive(link.href) ? 'text-primary' : 'text-text-muted group-hover:text-primary'
+                        link.color
+                          ? link.color
+                          : isPathActive(link.href)
+                            ? 'text-primary'
+                            : 'text-text-muted group-hover:text-primary'
                       }`}
                     />
                     <span className="font-medium text-sm">{link.label}</span>

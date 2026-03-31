@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { saveActivityProgress } from "@/lib/activityProgress";
 import { RotateCcw } from "lucide-react";
 import { BackButton } from "@/components/ui/BackButton";
-import { PointsToast } from "@/components/ui/PointsToast";
 
 interface NumbersGameContent {
     type: "numbers-game";
@@ -220,7 +219,6 @@ export default function NumbersGame({ contentStr, activityId }: Props) {
     const [settings, setSettings] = useState({
         category: content.category || 'Basic Numbers (0-99)'
     });
-    const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
 
     // Get questions per round based on current category
     const QUESTIONS_PER_ROUND = CATEGORIES[settings.category]?.questionsPerRound || 10;
@@ -250,16 +248,13 @@ export default function NumbersGame({ contentStr, activityId }: Props) {
             : 0;
 
         const saveProgress = async () => {
-            const result = await saveActivityProgress(
+            await saveActivityProgress(
                 activityId,
                 100, // Round complete = 100% progress
                 "completed",
                 overallAccuracy,
                 settings.category // Pass category for per-category progress tracking
             );
-            if (result?.pointsAwarded && result.pointsAwarded > 0) {
-                setPointsToast({ points: result.pointsAwarded, key: Date.now() });
-            }
         };
 
         void saveProgress();
@@ -518,15 +513,6 @@ export default function NumbersGame({ contentStr, activityId }: Props) {
 
     return (
         <div className="fixed inset-0 bg-[var(--color-bg)] flex flex-col md:static md:max-w-4xl md:mx-auto md:px-3 md:py-4">
-            {/* Points Toast */}
-            {pointsToast && (
-                <PointsToast
-                    key={pointsToast.key}
-                    points={pointsToast.points}
-                    onComplete={() => setPointsToast(null)}
-                />
-            )}
-
             {/* Header */}
             <div className="flex-shrink-0 bg-white border-b-2 md:border md:rounded-xl shadow-sm border-[var(--color-border)] p-4">
                 <div className="flex items-center gap-3 mb-4">

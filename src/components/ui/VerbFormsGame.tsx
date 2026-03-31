@@ -16,7 +16,6 @@ import {
   Loader2
 } from 'lucide-react';
 import { saveActivityProgress } from '@/lib/activityProgress';
-import { PointsToast } from '@/components/ui/PointsToast';
 
 interface VerbData {
   v1: string;
@@ -50,7 +49,6 @@ interface GameState {
     v3?: boolean;
   } | null;
   hiddenFields: (keyof GameState['inputs'])[][];
-  pointsToast: { points: number; key: number } | null;
   irregularOnly: boolean;
   selectedForms: (keyof VerbData)[];
   round: number;
@@ -76,7 +74,6 @@ export default function VerbFormsGame({ contentStr, activityId }: Props) {
     inputs: { v1: '', v1_3rd: '', v1_ing: '', v2: '', v3: '' },
     validation: null,
     hiddenFields: [],
-    pointsToast: null,
     irregularOnly: false,
     selectedForms: [],
     round: 1
@@ -307,12 +304,6 @@ export default function VerbFormsGame({ contentStr, activityId }: Props) {
         state.difficulty
       );
 
-      if (totalPoints > 0) {
-        setState(prev => ({
-          ...prev,
-          pointsToast: { points: totalPoints, key: Date.now() }
-        }));
-      }
     }
   };
 
@@ -504,13 +495,6 @@ export default function VerbFormsGame({ contentStr, activityId }: Props) {
     
     return (
       <div className="max-w-2xl mx-auto p-6">
-        {state.pointsToast && (
-          <PointsToast
-            key={state.pointsToast.key}
-            points={state.pointsToast.points}
-            onComplete={() => setState(prev => ({ ...prev, pointsToast: null }))}
-          />
-        )}
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}

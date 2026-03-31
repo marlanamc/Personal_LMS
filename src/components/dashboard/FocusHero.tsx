@@ -1,8 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { FlameIcon, TrophyIcon } from '@/components/icons/Icons';
-import { DailyFocusTriad } from './DailyFocusTriad';
 import { DailyAnchorsTimeline } from './DailyAnchorsTimeline';
 import { CalendarPanelRestoreButton } from './ContextSidebar';
 import type { CalendarPlannerApi } from '@/components/dashboard/useCalendarPlanner';
@@ -10,9 +7,6 @@ import type { CalendarEvent } from './MiniCalendar';
 
 interface FocusHeroProps {
   userName: string;
-  currentStreak: number;
-  totalPoints: number;
-  hasActivityToday: boolean;
   storageScope: string;
   isCalendarRestoreVisible: boolean;
   onRestoreCalendar: () => void;
@@ -22,19 +16,12 @@ interface FocusHeroProps {
 
 export function FocusHero({
   userName,
-  currentStreak,
-  totalPoints,
-  hasActivityToday,
   storageScope,
   isCalendarRestoreVisible,
   onRestoreCalendar,
   calendarEvents,
   calendarPlanner,
 }: FocusHeroProps) {
-  // Determine which metric to show: streak if at risk, otherwise points
-  const showStreakWarning = currentStreak > 0 && !hasActivityToday;
-  const showStreak = currentStreak > 0;
-  const showPoints = totalPoints > 0;
 
   return (
     <div className="focus-hero-wrapper focus-hero-mobile-plain relative">
@@ -75,33 +62,6 @@ export function FocusHero({
                 </svg>
               </span>
             </h1>
-
-            {/* Streak indicator - more prominent, warmer */}
-            {showStreakWarning ? (
-              <Link
-                href="/dashboard/profile"
-                className="hidden sm:inline-flex group items-center gap-2.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-warning/20 to-warning/10 border border-warning/30 text-warning text-body font-semibold hover:from-warning/25 hover:to-warning/15 transition-all shadow-sm"
-              >
-                <FlameIcon className="w-5 h-5 streak-icon-pulse" />
-                <span>{currentStreak} day streak at risk!</span>
-              </Link>
-            ) : showStreak ? (
-              <Link
-                href="/dashboard/profile"
-                className="sunrise-streak-pill hidden sm:inline-flex group items-center gap-2.5 px-4 py-2.5 rounded-xl bg-bg-elevated/80 border border-border-subtle text-body font-semibold hover:border-accent-teal/40 hover:bg-bg-elevated transition-all shadow-sm"
-              >
-                <FlameIcon className="sunrise-streak-icon w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-                <span className="sunrise-streak-text text-text">{currentStreak} day streak</span>
-              </Link>
-            ) : showPoints ? (
-              <Link
-                href="/dashboard/profile"
-                className="hidden sm:inline-flex group items-center gap-2.5 px-4 py-2.5 rounded-xl bg-bg-elevated/80 border border-secondary/20 text-body font-semibold hover:border-secondary/40 hover:bg-bg-elevated transition-all shadow-sm"
-              >
-                <TrophyIcon className="w-5 h-5 text-secondary group-hover:scale-110 transition-transform" />
-                <span className="text-text">{totalPoints} pts</span>
-              </Link>
-            ) : null}
           </div>
 
           {/* Timeline moved inside hero container */}
@@ -112,8 +72,6 @@ export function FocusHero({
               calendarPlanner={calendarPlanner}
             />
           </div>
-
-          <DailyFocusTriad storageScope={storageScope} />
         </div>
       </div>
     </div>

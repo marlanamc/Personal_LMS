@@ -16,9 +16,6 @@ import type { ChecklistItem } from './checklist-item.types';
 
 interface HomePlanningHubProps {
   userName: string;
-  currentStreak: number;
-  totalPoints: number;
-  hasActivityToday: boolean;
   storageScope: string;
   assignments: ChecklistItem[];
   calendarEvents: CalendarEvent[];
@@ -26,9 +23,6 @@ interface HomePlanningHubProps {
 
 export function HomePlanningHub({
   userName,
-  currentStreak,
-  totalPoints,
-  hasActivityToday,
   storageScope,
   assignments,
   calendarEvents,
@@ -86,9 +80,6 @@ export function HomePlanningHub({
         <section className="animate-fade-in-up relative cosmic-hero-field md:cosmic-hero-field focus-hero-mobile-plain-field">
           <FocusHero
             userName={userName}
-            currentStreak={currentStreak}
-            totalPoints={totalPoints}
-            hasActivityToday={hasActivityToday}
             storageScope={storageScope}
             isCalendarRestoreVisible={isZenMode}
             onRestoreCalendar={toggleZenMode}

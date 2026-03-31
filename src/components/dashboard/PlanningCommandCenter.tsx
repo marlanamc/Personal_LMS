@@ -8,7 +8,6 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  FolderKanban,
   LayoutGrid,
   Sparkles,
 } from 'lucide-react';
@@ -18,7 +17,6 @@ import CalendarPlanner from './CalendarPlanner';
 import { AnchorsTemplateEditor } from './AnchorsTemplateEditor';
 import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import { PlanningHelpDrawer } from './PlanningHelpDrawer';
-import { ProjectPlannerView } from './ProjectPlannerView';
 import type { CalendarEvent } from './MiniCalendar';
 import type { DailyAnchorTemplate } from '@/lib/anchors';
 import { getTodayKey } from '@/lib/unified-scheduler';
@@ -72,13 +70,6 @@ const VIEWS: {
     shortLabel: 'Blocks',
     icon: LayoutGrid,
     description: 'Set up your want/should activity schedule',
-  },
-  {
-    id: 'projects',
-    label: 'Projects',
-    shortLabel: 'Projects',
-    icon: FolderKanban,
-    description: 'Multi-week projects broken into daily tasks',
   },
 ];
 
@@ -336,12 +327,6 @@ function PlanningCommandCenterInner() {
                 initialOpenTool="on-again-off-again"
                 storageScope={storageScope}
               />
-            </div>
-          )}
-
-          {currentView === 'projects' && (
-            <div className="max-w-2xl mx-auto py-6 md:py-8 pb-24 md:pb-12">
-              <ProjectPlannerView storageScope={storageScope} />
             </div>
           )}
         </div>

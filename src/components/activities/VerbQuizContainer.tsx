@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { VerbQuizContent, VerbQuizAnswers, VerbQuizSubmission } from '@/types/verb-quiz';
 import VerbQuiz from './VerbQuiz';
 import VerbQuizResults from './VerbQuizResults';
-import { PointsToast } from "@/components/ui/PointsToast";
 
 interface VerbQuizContainerProps {
   content: VerbQuizContent;
@@ -31,7 +30,6 @@ export default function VerbQuizContainer({
   const [submission, setSubmission] = useState<VerbQuizSubmission | null>(
     existingSubmission?.content ? existingSubmission.content as VerbQuizSubmission : null
   );
-  const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
 
   const isAnswerCorrect = (userAnswer: string, correctAnswer: string) => {
     const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, '');
@@ -128,7 +126,6 @@ export default function VerbQuizContainer({
 
       setSubmission(submissionData);
       if (responseData.points && responseData.points > 0) {
-        setPointsToast({ points: responseData.points, key: Date.now() });
       }
       router.refresh(); // Refresh to update progress badge
     } catch (error) {
@@ -141,20 +138,12 @@ export default function VerbQuizContainer({
 
   const handleRetake = () => {
     setSubmission(null);
-    setPointsToast(null);
     router.refresh();
   };
 
   if (submission) {
     return (
       <>
-        {pointsToast && (
-          <PointsToast
-            key={pointsToast.key}
-            points={pointsToast.points}
-            onComplete={() => setPointsToast(null)}
-          />
-        )}
         <VerbQuizResults
           content={content}
           submission={submission}
@@ -166,13 +155,6 @@ export default function VerbQuizContainer({
 
   return (
     <>
-      {pointsToast && (
-        <PointsToast
-          key={pointsToast.key}
-          points={pointsToast.points}
-          onComplete={() => setPointsToast(null)}
-        />
-      )}
       <VerbQuiz
         content={content}
         activityId={activityId}

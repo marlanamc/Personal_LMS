@@ -4,7 +4,7 @@ import React, { useState, useCallback, useMemo, type RefObject } from 'react';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { stripVocabTypeSuffix, getVocabActivityType, VOCAB_CHIP_CONFIG } from '@/lib/vocab-display';
-import { resolveActivityGameUi, getActivityPoints, type GameUi } from '@/lib/gamification/activity-points';
+import { resolveActivityGameUi, type GameUi } from '@/lib/activity-ui';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
 import {
     SPANISH_GUIDE_IDS,
@@ -1982,7 +1982,7 @@ export const ActivityCategories = React.memo(function ActivityCategories({
                 accentColor={accentColor}
                 hideTypeChip={hideTypeChip}
                 gameUi={gameUi}
-                points={activity.type === 'game' ? getActivityPoints(activity.type, activity) : undefined}
+                points={undefined}
                 tenseTexture={texture}
                 isFeatured={featureState?.isFeatured ?? false}
                 canFeature={canFeatureActivities}

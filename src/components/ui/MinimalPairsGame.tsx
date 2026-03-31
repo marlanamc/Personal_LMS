@@ -17,7 +17,6 @@ import {
   Coins,
 } from 'lucide-react';
 import { saveActivityProgress, fetchActivityProgress, type FetchedActivityProgress } from '@/lib/activityProgress';
-import { PointsToast } from '@/components/ui/PointsToast';
 import {
   type MinimalPairContrastId,
   type MinimalPairDifficulty,
@@ -44,7 +43,6 @@ interface GameState {
   selectedAnswer: MinimalPairSide | null;
   showFeedback: boolean;
   answers: Array<{ question: MinimalPairQuestion; userAnswer: MinimalPairSide; correct: boolean }>;
-  pointsToast: { points: number; key: number } | null;
   audioPlayed: boolean;
   completedContrasts: Set<string>;
 }
@@ -78,7 +76,6 @@ export default function MinimalPairsGame({ contentStr, activityId, assignmentId 
     selectedAnswer: null,
     showFeedback: false,
     answers: [],
-    pointsToast: null,
     audioPlayed: false,
     completedContrasts: new Set(),
   });
@@ -264,10 +261,6 @@ export default function MinimalPairsGame({ contentStr, activityId, assignmentId 
         );
 
         if (result?.pointsAwarded && result.pointsAwarded > 0) {
-          setState((prev) => ({
-            ...prev,
-            pointsToast: { points: result.pointsAwarded!, key: Date.now() },
-          }));
         }
       }
       return;
@@ -429,13 +422,6 @@ export default function MinimalPairsGame({ contentStr, activityId, assignmentId 
 
     return (
       <div className="fixed inset-0 z-50 bg-white overflow-y-auto md:relative md:inset-auto md:z-auto md:bg-transparent md:max-w-2xl md:mx-auto md:p-6">
-        {state.pointsToast && (
-          <PointsToast
-            key={state.pointsToast.key}
-            points={state.pointsToast.points}
-            onComplete={() => setState((prev) => ({ ...prev, pointsToast: null }))}
-          />
-        )}
 
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}

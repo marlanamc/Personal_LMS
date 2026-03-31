@@ -4,9 +4,7 @@ import { Prisma } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api-error';
-import { normalizeProjectPlannerStore } from '@/lib/project-planner';
-
-const SUBJECT_KEY = 'project-planner';
+import { normalizeCrisisMenuStore, SUBJECT_KEY } from '@/lib/crisis-menu';
 
 export async function GET() {
   try {
@@ -28,14 +26,14 @@ export async function GET() {
       },
     });
 
-    const store = normalizeProjectPlannerStore(row?.checklist ?? null);
+    const store = normalizeCrisisMenuStore(row?.checklist ?? null);
 
     return NextResponse.json({
       store,
       updatedAt: row?.updatedAt ?? null,
     });
   } catch (error) {
-    return handleApiError(error, 'api/project-planner:GET');
+    return handleApiError(error, 'api/crisis-menu:GET');
   }
 }
 
@@ -47,7 +45,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = (await req.json()) as { store?: unknown };
-    const store = normalizeProjectPlannerStore(body?.store);
+    const store = normalizeCrisisMenuStore(body?.store);
 
     const payload = store as unknown as Prisma.InputJsonValue;
 
@@ -74,6 +72,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, updatedAt: state.updatedAt });
   } catch (error) {
-    return handleApiError(error, 'api/project-planner:POST');
+    return handleApiError(error, 'api/crisis-menu:POST');
   }
 }

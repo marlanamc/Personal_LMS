@@ -2,9 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { trackLogin } from "@/lib/gamification";
 import { parseCategoryData } from "@/lib/categoryData";
-import { getEffectiveStreak, hasActivityToday } from "@/lib/gamification/streak-utils";
 import { BottomNav } from "@/components/ui";
 import {
   HomeIcon,
@@ -86,29 +84,18 @@ export default async function DashboardPage() {
 
   const userId = session.user.id;
 
-  // Count daily app opens toward streak even when session is still active.
-  await trackLogin(userId);
-
   let currentUser: {
     name: string | null;
-    currentStreak: number;
-    longestStreak: number;
-    points: number;
-    lastActivityDate: Date | null;
   } | null = null;
   let ownedClasses: OwnedClass[] = [];
   let featuredAssignments: ChecklistItem[] = [];
 
   try {
-    // Fetch User data for stats
+    // Fetch User data
     currentUser = await prisma.user.findUnique({
       where: { id: userId },
       select: {
         name: true,
-        currentStreak: true,
-        longestStreak: true,
-        points: true,
-        lastActivityDate: true,
       },
     });
 
@@ -196,17 +183,6 @@ export default async function DashboardPage() {
     console.warn("[Dashboard] Database is unreachable, rendering with empty dashboard data");
   }
 
-  const effectiveCurrentStreak = currentUser
-    ? getEffectiveStreak(
-        currentUser.currentStreak,
-        currentUser.lastActivityDate,
-      )
-    : 0;
-
-  const didActivityToday = currentUser
-    ? hasActivityToday(currentUser.lastActivityDate)
-    : false;
-
   // Consolidate Calendar Events from owned classes
   const calendarEvents: CalendarEvent[] = [
     ...ownedClasses.flatMap((cls) =>
@@ -237,9 +213,6 @@ export default async function DashboardPage() {
       <main className="dashboard-home-main container mx-auto pt-2 md:pt-6 pb-24 md:pb-12 px-3 sm:px-6 lg:px-8 max-w-full lg:max-w-[1600px]">
         <DashboardContent
           userName={currentUser?.name || session.user.name || "there"}
-          currentStreak={effectiveCurrentStreak}
-          totalPoints={currentUser?.points ?? 0}
-          hasActivityToday={didActivityToday}
           storageScope={userId}
           assignments={featuredAssignments}
           calendarEvents={calendarEvents}

@@ -21,7 +21,6 @@ import {
   X
 } from 'lucide-react';
 import { saveActivityProgress } from '@/lib/activityProgress';
-import { PointsToast } from '@/components/ui/PointsToast';
 import {
   EdVerb,
   EdSound,
@@ -47,7 +46,6 @@ interface GameState {
   selectedAnswer: EdSound | 'base' | 'past' | null;
   showFeedback: boolean;
   discoveryPhase: number; // 0-5: no hints, 5-10: pattern hints, 10+: full rules
-  pointsToast: { points: number; key: number } | null;
   // For minimal pairs mode
   minimalPairTarget: 'base' | 'past' | null;
   audioPlayed: boolean;
@@ -81,7 +79,6 @@ export default function EdPronunciationGame({ contentStr, activityId, assignment
     selectedAnswer: null,
     showFeedback: false,
     discoveryPhase: 0,
-    pointsToast: null,
     minimalPairTarget: null,
     audioPlayed: false,
     showInfo: false,
@@ -240,10 +237,6 @@ export default function EdPronunciationGame({ contentStr, activityId, assignment
         );
 
         if (result?.pointsAwarded && result.pointsAwarded > 0) {
-          setState(prev => ({
-            ...prev,
-            pointsToast: { points: result.pointsAwarded!, key: Date.now() }
-          }));
         }
       }
     } else {
@@ -534,13 +527,6 @@ export default function EdPronunciationGame({ contentStr, activityId, assignment
 
     return (
       <div className="fixed inset-0 z-50 bg-white overflow-y-auto md:relative md:inset-auto md:z-auto md:bg-transparent md:max-w-2xl md:mx-auto md:p-6">
-        {state.pointsToast && (
-          <PointsToast
-            key={state.pointsToast.key}
-            points={state.pointsToast.points}
-            onComplete={() => setState(prev => ({ ...prev, pointsToast: null }))}
-          />
-        )}
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}

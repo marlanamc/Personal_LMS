@@ -2,26 +2,13 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { saveActivityProgress } from "@/lib/activityProgress";
-import { RotateCcw, Clock, Zap } from "lucide-react";
+import { RotateCcw, Clock } from "lucide-react";
 import { BackButton } from "@/components/ui/BackButton";
-import { PointsToast } from "@/components/ui/PointsToast";
-import CelebrationAnimation from "@/components/ui/CelebrationAnimation";
 import {
   getVerbsByType,
   checkConjugation,
 } from "@/content/spanish/vocabulary/common-verbs";
 import type { SpanishVerbConjugation } from "@/types/activity";
-import {
-  getComboMultiplier,
-  getComboTierLabel,
-  getComboTierColor,
-  createComboState,
-  incrementCombo,
-  resetCombo,
-  applyComboBonus,
-  type ComboState,
-} from "@/lib/gamification/combo";
-import { POINTS } from "@/lib/gamification/constants";
 
 type Tense = "present" | "preterite";
 type Subject = "yo" | "tu" | "el" | "nosotros" | "ellos";
@@ -78,9 +65,6 @@ export default function VerbConjugationGame({
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
-  const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
-  const [celebration, setCelebration] = useState<"confetti" | "stars" | "sparkles" | null>(null);
-  const [combo, setCombo] = useState<ComboState>(createComboState());
 
   // Timed mode state
   const [timeRemaining, setTimeRemaining] = useState(timeLimit);
@@ -191,26 +175,12 @@ export default function VerbConjugationGame({
     const isCorrect = checkConjugation(correctAnswer, userAnswer);
 
     if (isCorrect) {
-      // Update combo
-      const newCombo = incrementCombo(combo);
-      setCombo(newCombo);
-
-      // Calculate points
-      const basePoints = POINTS.SPANISH_VERB_CORRECT;
-      const pointsWithCombo = applyComboBonus(basePoints, newCombo.currentCombo);
-
-      // Streak bonus
-      let streakBonus = 0;
-      if ((gameState.streak + 1) % 5 === 0) {
-        streakBonus = POINTS.SPANISH_VERB_STREAK_5;
-      }
-
       // Update filled conjugations table
       const conjKey = `${gameState.currentVerb.infinitive}-${gameState.currentTense}-${gameState.currentSubject}`;
 
       setGameState((prev) => ({
         ...prev,
-        score: prev.score + pointsWithCombo + streakBonus,
+        score: prev.score + 1,
         streak: prev.streak + 1,
         maxStreak: Math.max(prev.maxStreak, prev.streak + 1),
         questionCount: prev.questionCount + 1,
@@ -222,15 +192,6 @@ export default function VerbConjugationGame({
 
       setFeedback("correct");
 
-      // Show celebration at milestones
-      if (newCombo.currentCombo === 5) {
-        setCelebration("sparkles");
-      } else if (newCombo.currentCombo === 10) {
-        setCelebration("stars");
-      } else if (newCombo.currentCombo === 20) {
-        setCelebration("confetti");
-      }
-
       // Auto-advance
       setTimeout(() => {
         if (gameState.questionCount + 1 >= questionsPerRound) {
@@ -240,7 +201,6 @@ export default function VerbConjugationGame({
         }
       }, 800);
     } else {
-      setCombo(resetCombo(combo));
       setGameState((prev) => ({
         ...prev,
         incorrect: prev.incorrect + 1,
@@ -274,7 +234,6 @@ export default function VerbConjugationGame({
       currentTense: "present",
       filledConjugations: {},
     });
-    setCombo(createComboState());
     setIsComplete(false);
     setTimeRemaining(timeLimit);
     if (timedMode) {
@@ -288,7 +247,7 @@ export default function VerbConjugationGame({
     if (!isComplete || !activityId) return;
 
     const saveProgress = async () => {
-      const result = await saveActivityProgress(
+      await saveActivityProgress(
         activityId,
         100,
         "completed",
@@ -296,9 +255,6 @@ export default function VerbConjugationGame({
         undefined,
         assignmentId ?? null
       );
-      if (result?.pointsAwarded && result.pointsAwarded > 0) {
-        setPointsToast({ points: result.pointsAwarded, key: Date.now() });
-      }
     };
 
     saveProgress();
@@ -310,27 +266,11 @@ export default function VerbConjugationGame({
       ? Math.round((gameState.questionCount / gameState.totalQuestions) * 100)
       : 0;
 
-  const comboMultiplier = getComboMultiplier(combo.currentCombo);
-  const comboLabel = getComboTierLabel(combo.currentCombo);
-  const comboColor = getComboTierColor(combo.currentCombo);
-
   const currentSubjectInfo = SUBJECTS.find((s) => s.key === gameState.currentSubject);
 
   if (isComplete) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex flex-col">
-        {pointsToast && (
-          <PointsToast
-            key={pointsToast.key}
-            points={pointsToast.points}
-            onComplete={() => setPointsToast(null)}
-          />
-        )}
-
-        {celebration && (
-          <CelebrationAnimation trigger={true} type={celebration} onComplete={() => setCelebration(null)} />
-        )}
-
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-emerald-200 dark:border-emerald-800/60">
             <div className="text-6xl mb-4">🏆</div>
@@ -371,18 +311,6 @@ export default function VerbConjugationGame({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex flex-col">
-      {pointsToast && (
-        <PointsToast
-          key={pointsToast.key}
-          points={pointsToast.points}
-          onComplete={() => setPointsToast(null)}
-        />
-      )}
-
-      {celebration && (
-        <CelebrationAnimation trigger={true} type={celebration} onComplete={() => setCelebration(null)} />
-      )}
-
       {/* Header */}
       <div className="bg-white dark:bg-slate-900/80 border-b-2 border-emerald-200 dark:border-emerald-800/50 px-4 py-3 flex items-center justify-between">
         <BackButton onClick={() => window.history.back()} />
@@ -392,13 +320,6 @@ export default function VerbConjugationGame({
             <div className="flex items-center gap-1 bg-emerald-100 dark:bg-emerald-900/40 px-3 py-1.5 rounded-full border border-emerald-200 dark:border-emerald-800/60">
               <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-300" />
               <span className="font-mono font-bold text-emerald-800 dark:text-emerald-200">{timeRemaining}s</span>
-            </div>
-          )}
-
-          {combo.currentCombo >= 3 && (
-            <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-teal-100 to-cyan-100 ${comboColor}`}>
-              <Zap className="w-4 h-4" />
-              <span className="font-bold">{comboLabel} x{comboMultiplier}</span>
             </div>
           )}
 

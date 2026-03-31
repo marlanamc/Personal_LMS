@@ -2,20 +2,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { trackLogin } from "@/lib/gamification";
-import { getEffectiveStreak } from "@/lib/gamification/streak-utils";
 import { getVocabTypeFromTitle, parseVocabTypeLabel, stripVocabTypeSuffix, VOCAB_CHIP_CONFIG } from "@/lib/vocab-display";
 import { completionKeyFromActivityTitle } from "@/utils/completionKey";
 import { SPANISH_GUIDE_IDS } from "@/content/spanish/registry";
 import { CODING_GUIDE_IDS } from "@/content/coding/registry";
 import Link from "next/link";
 import { BottomNav } from "@/components/ui";
-import { StreakCalendar } from "@/components/ui/StreakCalendar";
 import { ActivityTimeline } from "@/components/ui/ActivityTimeline";
 import ClickableAvatarDisplay from "@/components/ui/ClickableAvatarDisplay";
 import { MiniCertificateCard, EmptyCertificateCard, NeedsImprovementCard } from "@/components/ui/MiniCertificateCard";
 import { qualifiesForMedal } from "@/lib/medal-utils";
-import { Trophy, Flame, BookOpen, Calendar, Award, ChevronRight } from "lucide-react";
+import { BookOpen, Calendar, Award, ChevronRight } from "lucide-react";
 import { HomeIcon, BookOpenIcon as BookIcon, UserIcon } from "@/components/icons/Icons";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { PlanningStats, type WeeklyPlanningData } from "@/components/profile/PlanningStats";
@@ -271,21 +268,10 @@ export default async function ProfilePage() {
         redirect("/login");
     }
 
-    // Count daily app opens toward streak even when session is still active.
-    await trackLogin(userId);
-
     // Get user data with stats
     const user = await prisma.user.findUnique({
         where: { id: userId },
         include: {
-            achievements: {
-                include: {
-                    achievement: true,
-                },
-                orderBy: {
-                    earnedAt: 'desc',
-                },
-            },
             ownedClasses: true,
             _count: {
                 select: {
@@ -310,14 +296,11 @@ export default async function ProfilePage() {
     // Run all independent database queries in parallel to eliminate async waterfall
     const [
         activityProgress,
-        recentPointsLedger,
-        pointsLedgerDates,
         activityProgressDates,
         releasedMiniQuizGuideActivities,
         miniQuizSubmissions,
         anchorsRow,
         ownedClassesForWeek,
-        weekPointsLedger,
     ] = await Promise.all([
         // Get activity progress for category stats
         prisma.activityProgress.findMany({
@@ -325,19 +308,6 @@ export default async function ProfilePage() {
             include: {
                 activity: true,
             },
-        }),
-        // Get points ledger for activity timeline
-        prisma.pointsLedger.findMany({
-            where: { userId },
-            orderBy: { createdAt: 'desc' },
-            take: 15,
-        }),
-        // Get activity dates for streak calendar - PointsLedger (for completed activities)
-        prisma.pointsLedger.findMany({
-            where: { userId },
-            select: { createdAt: true },
-            orderBy: { createdAt: 'desc' },
-            take: 365,
         }),
         // Get activity dates for streak calendar - ActivityProgress updates (for any activity)
         prisma.activityProgress.findMany({
@@ -390,14 +360,6 @@ export default async function ProfilePage() {
                 assignments: { include: { activity: true } },
                 calendarEvents: true,
             },
-        }),
-        prisma.pointsLedger.findMany({
-            where: {
-                userId,
-                points: { gt: 0 },
-                createdAt: { gte: rangeStart },
-            },
-            orderBy: { createdAt: 'asc' },
         }),
     ]);
 
@@ -546,58 +508,14 @@ export default async function ProfilePage() {
             });
         }
     }
-    const weekActivities: WeekSummaryData['activities'] = weekPointsLedger.map((entry) => {
-        const createdAt = new Date(entry.createdAt);
-        const y = createdAt.getFullYear();
-        const m = String(createdAt.getMonth() + 1).padStart(2, '0');
-        const day = String(createdAt.getDate()).padStart(2, '0');
-        const dateKey = `${y}-${m}-${day}`;
-        const reason = entry.reason || 'Activity completed';
-        let title = reason;
-        if (reason.startsWith('{')) {
-            try {
-                const parsed = JSON.parse(reason) as { title?: string; durationMinutes?: number };
-                if (parsed?.title) {
-                    title = parsed.durationMinutes
-                        ? `${parsed.title} (${parsed.durationMinutes}m)`
-                        : parsed.title;
-                }
-            } catch {
-                // Fall through to other parsing
-            }
-        }
-        if (title === reason && reason.includes('|')) {
-            title = reason.split('|')[0]?.trim() || reason;
-        } else if (reason.startsWith('Completed: ')) {
-            title = reason.replace('Completed: ', '');
-        } else if (reason.startsWith('Achievement:')) {
-            title = reason.replace('Achievement: ', '');
-        } else if (reason === 'Streak bonus' || reason === 'Streak + weekly bonus') {
-            title = 'Streak bonus';
-        } else if (parseGrammarExerciseReason(reason)) {
-            const parsed = parseGrammarExerciseReason(reason);
-            title = parsed?.activityName || reason;
-        } else if (reason.startsWith('grammar:')) {
-            title = reason.replace('grammar:', '').replace(/-/g, ' ').split(' ')
-                .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-        }
-        return {
-            id: entry.id,
-            dateKey,
-            title,
-            points: entry.points,
-            completedAt: createdAt,
-        };
-    });
     const weekSummaryData: WeekSummaryData = {
         events: weekEvents,
-        activities: weekActivities,
+        activities: [],
         dayLabels,
     };
 
     // Combine both date sources
     const activityDates = [
-        ...pointsLedgerDates.map(p => p.createdAt),
         ...activityProgressDates.map(p => p.updatedAt),
     ];
 
@@ -644,63 +562,6 @@ export default async function ProfilePage() {
     const numbersProgress = calcCategoryProgress(numbersActivities);
     const otherProgress = calcCategoryProgress(otherActivities);
 
-    // Format timeline activities (exclude login entries with 0 points)
-    // Parse the new reason format: "Activity Title|Activity Type" or legacy "Completed: Title"
-    const timelineActivities = recentPointsLedger
-        .filter(entry => entry.points > 0)
-        .map(entry => {
-            const reason = entry.reason || 'Activity completed';
-            let activityName = reason;
-            let activityType: string | undefined;
-            const grammarExercise = parseGrammarExerciseReason(reason);
-
-            // Check for new format with pipe separator: "Title|Type"
-            if (reason.includes('|')) {
-                const [title, type] = reason.split('|');
-                activityName = title.trim();
-                activityType = type?.trim();
-            } else if (grammarExercise) {
-                activityName = grammarExercise.activityName;
-                activityType = grammarExercise.activityType;
-            } else if (reason.startsWith('Completed: ')) {
-                // Legacy format: strip "Completed: " prefix
-                activityName = reason.replace('Completed: ', '');
-            } else if (reason.startsWith('grammar:')) {
-                // Legacy grammar format: format the slug
-                activityName = reason.replace('grammar:', '').replace(/-/g, ' ')
-                    .split(' ')
-                    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-                    .join(' ');
-                activityType = 'Grammar Guide';
-            } else if (reason === 'Streak bonus' || reason === 'Streak + weekly bonus') {
-                activityType = 'Streak Bonus';
-            } else if (reason.startsWith('Achievement:')) {
-                activityType = 'Achievement';
-                activityName = reason.replace('Achievement: ', '');
-            }
-
-            let vocabType = parseVocabTypeLabel(activityType);
-            if (!vocabType) {
-                const inferredFromTitle = getVocabTypeFromTitle(activityName);
-                if (inferredFromTitle) {
-                    vocabType = inferredFromTitle;
-                    activityName = stripVocabTypeSuffix(activityName);
-                }
-            }
-            if (vocabType && !activityType) {
-                activityType = VOCAB_CHIP_CONFIG[vocabType].label;
-            }
-
-            return {
-                id: entry.id,
-                activityName,
-                points: entry.points,
-                completedAt: entry.createdAt,
-                activityType,
-                vocabType,
-                reason: entry.source !== 'award' && entry.source && !activityType ? entry.source : undefined,
-            };
-        });
 
     const activityById = new Map(
         releasedMiniQuizGuideActivities.map((activity) => [activity.id, activity] as const)
@@ -758,14 +619,11 @@ export default async function ProfilePage() {
     // Quizzes that need improvement (under 70%)
     const needsImprovementQuizzes = allMiniQuizResults.filter(cert => !qualifiesForMedal(cert.score));
 
-    const effectiveCurrentStreak = getEffectiveStreak(user.currentStreak, user.lastActivityDate);
-
     const totalCompleted = vocabProgress.completed + grammarProgress.completed + numbersProgress.completed + otherProgress.completed;
 
     // Encouraging message based on activity
     let welcomeMessage = "Let's learn something new today!";
-    if (effectiveCurrentStreak > 3) welcomeMessage = "You're on fire! Keep it up! 🔥";
-    else if (totalCompleted > 0) welcomeMessage = "Great progress so far!";
+    if (totalCompleted > 0) welcomeMessage = "Great progress so far!";
 
     return (
             <div className="min-h-screen bg-bg-base pb-24">
@@ -795,22 +653,6 @@ export default async function ProfilePage() {
 
                                 {/* Inline stats - visible on larger screens */}
                                 <div className="hidden lg:flex items-center gap-6">
-                                    <div className="flex items-center gap-2 text-primary">
-                                        <Trophy className="w-5 h-5" />
-                                        <div className="text-right">
-                                            <p className="text-xl font-bold leading-tight">{user.points.toLocaleString()}</p>
-                                            <p className="text-xs text-text-muted">Points</p>
-                                        </div>
-                                    </div>
-                                    <div className="w-px h-10 bg-border/60" />
-                                    <div className="flex items-center gap-2 text-primary">
-                                        <Flame className="w-5 h-5" />
-                                        <div className="text-right">
-                                            <p className="text-xl font-bold leading-tight">{effectiveCurrentStreak}</p>
-                                            <p className="text-xs text-text-muted">Day Streak</p>
-                                        </div>
-                                    </div>
-                                    <div className="w-px h-10 bg-border/60" />
                                     <div className="flex items-center gap-2 text-success">
                                         <BookOpen className="w-5 h-5" />
                                         <div className="text-right">
@@ -822,21 +664,7 @@ export default async function ProfilePage() {
                             </div>
 
                             {/* Stats row for mobile/tablet - shown below greeting */}
-                            <div className="lg:hidden grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-border/40">
-                                <div className="flex flex-col items-center text-center">
-                                    <div className="flex items-center gap-1.5 text-primary mb-1">
-                                        <Trophy className="w-4 h-4" />
-                                        <span className="text-lg sm:text-xl font-bold">{user.points.toLocaleString()}</span>
-                                    </div>
-                                    <p className="text-xs text-text-muted">Points</p>
-                                </div>
-                                <div className="flex flex-col items-center text-center border-x border-border/40">
-                                    <div className="flex items-center gap-1.5 text-primary mb-1">
-                                        <Flame className="w-4 h-4" />
-                                        <span className="text-lg sm:text-xl font-bold">{effectiveCurrentStreak}</span>
-                                    </div>
-                                    <p className="text-xs text-text-muted">Day Streak</p>
-                                </div>
+                            <div className="lg:hidden grid grid-cols-2 gap-3 mt-5 pt-5 border-t border-border/40">
                                 <div className="flex flex-col items-center text-center">
                                     <div className="flex items-center gap-1.5 text-success mb-1">
                                         <BookOpen className="w-4 h-4" />
@@ -909,22 +737,6 @@ export default async function ProfilePage() {
 
                                 <div className="space-y-8">
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                        {/* Calendar */}
-                                        <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm">
-                                            <div className="flex items-center gap-3 mb-6">
-                                                <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
-                                                    <Calendar className="w-5 h-5 text-success" />
-                                                </div>
-                                                <div>
-                                                    <h2 className="text-xl font-bold text-text">Consistency</h2>
-                                                    <p className="text-sm text-text-muted">Each dot is a day you learned!</p>
-                                                </div>
-                                            </div>
-                                            <StreakCalendar
-                                                activityDates={activityDates}
-                                                className="w-full"
-                                            />
-                                        </div>
 
                                         {/* Released Quiz Grades */}
                                         <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm">
@@ -1020,58 +832,7 @@ export default async function ProfilePage() {
                                         </div>
                                     </div>
 
-                                    {/* Recent Activity */}
-                                    <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-6 shadow-sm">
-                                        <div className="flex items-center justify-between mb-6">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                                    <Trophy className="w-5 h-5" />
-                                                </div>
-                                                <div>
-                                                    <h2 className="text-xl font-bold text-text">Recent Wins</h2>
-                                                    <p className="text-sm text-text-muted">Latest activities</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <ActivityTimeline activities={timelineActivities} limit={8} />
-                                        {timelineActivities.length === 0 && (
-                                            <div className="text-center py-6">
-                                                <p className="text-text-muted text-sm italic">No recent activity. Do a lesson to see it here!</p>
-                                            </div>
-                                        )}
-                                    </div>
 
-                                    {/* Trophy Case */}
-                                    {user.achievements.length > 0 && (
-                                        <div className="bg-bg-secondary/80 backdrop-blur-md border border-border/60 rounded-2xl p-8 shadow-sm">
-                                            <div className="flex items-center gap-4 mb-6">
-                                                <div className="w-12 h-12 rounded-2xl bg-mineral-amethyst/20 border border-mineral-amethyst/30 flex items-center justify-center text-mineral-amethyst">
-                                                    <Award className="w-6 h-6" />
-                                                </div>
-                                                <div>
-                                                    <h2 className="text-2xl font-bold font-display text-text">Trophy Case</h2>
-                                                    <p className="text-text-muted">Badges you've earned</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                {user.achievements.map((userAchievement) => (
-                                                    <div
-                                                        key={userAchievement.id}
-                                                        className="flex items-center gap-4 p-4 bg-bg-elevated border border-border-subtle rounded-xl hover:shadow-md transition-shadow"
-                                                    >
-                                                        <div className="w-12 h-12 rounded-full bg-bg-secondary/90 shadow-sm flex items-center justify-center text-2xl shrink-0">
-                                                            {userAchievement.achievement.icon}
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="font-bold text-text-dark">{userAchievement.achievement.name}</p>
-                                                            <p className="text-xs text-text-muted mt-0.5 line-clamp-2">{userAchievement.achievement.description}</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         )}

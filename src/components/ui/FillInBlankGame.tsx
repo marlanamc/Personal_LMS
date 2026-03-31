@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { saveActivityProgress } from "@/lib/activityProgress";
 import { BackButton } from "@/components/ui/BackButton";
-import { PointsToast } from "@/components/ui/PointsToast";
 
 interface FillInBlankQuestion {
     id: number;
@@ -28,7 +27,6 @@ export default function FillInBlankGame({ contentStr, activityId, assignmentId, 
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
     const [score, setScore] = useState(0);
     const [showExplanation, setShowExplanation] = useState(false);
-    const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
 
     const currentQuestion = questions[currentIndex];
     const isLastQuestion = currentIndex === questions.length - 1;
@@ -65,9 +63,6 @@ export default function FillInBlankGame({ contentStr, activityId, assignmentId, 
                 undefined,
                 vocabType
             );
-            if (result?.pointsAwarded && result.pointsAwarded > 0) {
-                setPointsToast({ points: result.pointsAwarded, key: Date.now() });
-            }
         };
 
         void saveProgress();
@@ -77,7 +72,7 @@ export default function FillInBlankGame({ contentStr, activityId, assignmentId, 
     useEffect(() => {
         if (isComplete && activityId) {
             const finishQuiz = async () => {
-                const result = await saveActivityProgress(
+                await saveActivityProgress(
                     activityId,
                     100,
                     "completed",
@@ -87,9 +82,6 @@ export default function FillInBlankGame({ contentStr, activityId, assignmentId, 
                     undefined,
                     vocabType
                 );
-                if (result?.pointsAwarded && result.pointsAwarded > 0) {
-                    setPointsToast({ points: result.pointsAwarded, key: Date.now() });
-                }
             };
 
             void finishQuiz();
@@ -127,13 +119,6 @@ export default function FillInBlankGame({ contentStr, activityId, assignmentId, 
     return (
         <div className="fixed inset-0 bg-[var(--color-bg)] flex flex-col md:static md:max-w-4xl md:mx-auto md:px-3 md:py-4">
             {/* Points Toast */}
-            {pointsToast && (
-                <PointsToast
-                    key={pointsToast.key}
-                    points={pointsToast.points}
-                    onComplete={() => setPointsToast(null)}
-                />
-            )}
             {/* Header with Progress */}
             <div className="flex-shrink-0 bg-white border-b-2 md:border md:rounded-xl shadow-sm border-gray-200 p-4 flex items-center gap-3">
                 <BackButton

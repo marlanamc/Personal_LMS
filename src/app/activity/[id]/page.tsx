@@ -11,7 +11,7 @@ import ActivityRenderer from "@/components/ActivityRenderer";
 import { ActivityProgressBadge } from "@/components/ActivityProgressBadge";
 import { CategoryProgressDisplay } from "@/components/CategoryProgressDisplay";
 import { numbersGameCategoryNames } from "@/data/numbersGameCategories";
-import { resolveActivityGameUi } from "@/lib/gamification/activity-points";
+import { resolveActivityGameUi } from "@/lib/activity-ui";
 import { SPANISH_GUIDE_IDS } from "@/content/spanish/registry";
 import { getSafeRedirectUrl } from "@/utils/safe-redirect";
 

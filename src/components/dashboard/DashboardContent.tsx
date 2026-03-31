@@ -6,9 +6,6 @@ import { HomePlanningHub } from './HomePlanningHub';
 
 interface DashboardContentProps {
   userName: string;
-  currentStreak: number;
-  totalPoints: number;
-  hasActivityToday: boolean;
   storageScope: string;
   assignments: ChecklistItem[];
   calendarEvents: CalendarEvent[];
@@ -16,9 +13,6 @@ interface DashboardContentProps {
 
 export function DashboardContent({
   userName,
-  currentStreak,
-  totalPoints,
-  hasActivityToday,
   storageScope,
   assignments,
   calendarEvents,
@@ -26,9 +20,6 @@ export function DashboardContent({
   return (
     <HomePlanningHub
       userName={userName}
-      currentStreak={currentStreak}
-      totalPoints={totalPoints}
-      hasActivityToday={hasActivityToday}
       storageScope={storageScope}
       assignments={assignments}
       calendarEvents={calendarEvents}

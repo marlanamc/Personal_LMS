@@ -1,4 +1,5 @@
-import { POINTS } from "./constants";
+// Activity UI type detection - determines which game renderer to use for activities
+// (Extracted from gamification system - this is UI routing, not gamification)
 
 export type GameUi = "numbers" | "matching" | "fill-in-blank" | "flashcards" | "verb-forms" | "word-list" | "ed-pronunciation" | "minimal-pairs" | "unknown";
 
@@ -55,57 +56,4 @@ function safeJsonParse(text: string) {
   } catch {
     return null;
   }
-}
-
-export function getActivityPoints(activityType: string, activity?: ActivityMeta): number {
-  const type = activityType.toLowerCase();
-
-  if (type === "game") {
-    const gameUi = resolveActivityGameUi(activity);
-
-    switch (gameUi) {
-      case "matching":
-        return POINTS.MATCHING_GAME;
-      case "fill-in-blank":
-        return POINTS.FILL_IN_BLANK;
-      case "flashcards":
-        return POINTS.FLASHCARDS;
-      case "numbers":
-        return POINTS.NUMBERS_GAME_EASY;
-      case "verb-forms":
-        return POINTS.MATCHING_GAME; // Use matching game points for now as it's similar complexity
-      case "ed-pronunciation":
-        return POINTS.ED_PRONUNCIATION;
-      case "minimal-pairs":
-        return POINTS.MINIMAL_PAIRS;
-      default:
-        return POINTS.ACTIVITY_COMPLETION;
-    }
-  } else if (type === "guide") {
-    return POINTS.GRAMMAR_GUIDE;
-  } else if (type === "speaking") {
-    return POINTS.SPEAKING_ACTIVITY;
-  } else if (type === "quiz") {
-    return 0;
-  } else if (type === "vocabulary") {
-    // Vocabulary activities award points per type (handled per-type in progress API)
-    // This is a fallback that shouldn't normally be used
-    return POINTS.ACTIVITY_COMPLETION;
-  }
-
-  return POINTS.ACTIVITY_COMPLETION;
-}
-
-/**
- * Get points for a specific vocabulary type
- * Called when awarding points for individual vocab type completion
- */
-export function getVocabularyTypePoints(vocabType: string): number {
-  const vocabPoints: Record<string, number> = {
-    'word-list': 5,
-    'flashcards': 4,
-    'matching': 7,
-    'fill-blank': 5,
-  };
-  return vocabPoints[vocabType] || 5;
 }

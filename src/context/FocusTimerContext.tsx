@@ -10,7 +10,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useCelebration } from "@/context/CelebrationContext";
 import { type TimeBlockEntry } from "@/lib/time-block-planner";
 
 export type FocusTrack = {
@@ -153,7 +152,6 @@ function applyPersistedState(
 }
 
 export function FocusTimerProvider({ children }: { children: ReactNode }) {
-  const { queueMilestone } = useCelebration();
   const [selectedTrackId, setSelectedTrackId] = useState<string>("none");
   const [selectedMinutes, setSelectedMinutesState] = useState<number>(DEFAULT_MINUTES);
   const [timeLeft, setTimeLeft] = useState<number>(DEFAULT_MINUTES * 60);
@@ -226,21 +224,9 @@ export function FocusTimerProvider({ children }: { children: ReactNode }) {
         }, TRANSITION_DELAY_MS);
       }
 
-      // Show brief celebration for block completion (not full session complete)
-      queueMilestone("daily_challenge", {
-        title: "Block complete!",
-        subtitle: `Starting ${nextBlock?.label || 'next block'} in a moment...`,
-        emoji: "⏱️",
-      });
-    } else {
-      // Final block or single session - show full celebration
-      queueMilestone("daily_challenge", {
-        title: "Session complete!",
-        subtitle: activeSequence ? "All blocks finished! Great focus session." : "Great focus block. Keep your momentum going.",
-        emoji: "🎉",
-      });
+      // Focus session logic continues without gamification celebrations
     }
-  }, [queueMilestone, activeSequence, activeSequenceIndex]);
+  }, [activeSequence, activeSequenceIndex]);
 
   // Initial load: try server first (synced across devices), then localStorage fallback
   useEffect(() => {

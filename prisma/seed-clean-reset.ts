@@ -10,11 +10,8 @@ async function main() {
   await prisma.speakingSubmission.deleteMany({});
   await prisma.submission.deleteMany({});
   await prisma.quizResponse.deleteMany({});
-  await prisma.userAchievement.deleteMany({});
-  await prisma.pointsLedger.deleteMany({});
   await prisma.calendarEvent.deleteMany({});
   await prisma.assignment.deleteMany({});
-  await prisma.achievement.deleteMany({});
   await prisma.activity.deleteMany({});
   await prisma.class.deleteMany({});
   await prisma.user.deleteMany({});

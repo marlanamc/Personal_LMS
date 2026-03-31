@@ -3,7 +3,6 @@
 import { useMemo, useEffect, useState, useRef } from "react";
 import { saveActivityProgress, fetchActivityProgress } from "@/lib/activityProgress";
 import { BackButton } from "@/components/ui/BackButton";
-import { PointsToast } from "@/components/ui/PointsToast";
 
 interface CountableWord {
     id: number;
@@ -243,7 +242,6 @@ function CountableMatchingUI({
         category: "countable" | "uncountable";
         isCorrect: boolean;
     } | null>(null);
-    const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
     const dropZoneFeedbackTimeoutRef = useRef<number | null>(null);
     const explanationAutoDismissTimeoutRef = useRef<number | null>(null);
 
@@ -398,7 +396,6 @@ function CountableMatchingUI({
                 vocabType
             );
             if (result?.pointsAwarded && result.pointsAwarded > 0) {
-                setPointsToast({ points: result.pointsAwarded, key: Date.now() });
             }
         };
 
@@ -653,13 +650,6 @@ function CountableMatchingUI({
     return (
         <div className="fixed inset-0 bg-bg-primary flex flex-col md:static md:max-w-4xl md:mx-auto md:px-3 md:py-4">
             {/* Points Toast */}
-            {pointsToast && (
-                <PointsToast
-                    key={pointsToast.key}
-                    points={pointsToast.points}
-                    onComplete={() => setPointsToast(null)}
-                />
-            )}
 
             {/* Header */}
             <div className="flex-shrink-0 bg-bg-secondary border-b-2 md:border md:rounded-xl shadow-sm border-border p-3 md:p-4">
@@ -968,7 +958,6 @@ function VocabMatchingUI({
                 vocabType
             );
             if (result?.pointsAwarded && result.pointsAwarded > 0) {
-                setPointsToast({ points: result.pointsAwarded, key: Date.now() });
             }
         };
 
@@ -1226,7 +1215,6 @@ function TimeIndicatorSortingUI({
         category: "specified" | "unspecified";
         isCorrect: boolean;
     } | null>(null);
-    const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
     const dropZoneFeedbackTimeoutRef = useRef<number | null>(null);
     const explanationAutoDismissTimeoutRef = useRef<number | null>(null);
 
@@ -1380,7 +1368,6 @@ function TimeIndicatorSortingUI({
                 vocabType
             );
             if (result?.pointsAwarded && result.pointsAwarded > 0) {
-                setPointsToast({ points: result.pointsAwarded, key: Date.now() });
             }
         };
 
@@ -1631,13 +1618,6 @@ function TimeIndicatorSortingUI({
     return (
         <div className="fixed inset-0 bg-bg-primary flex flex-col md:static md:max-w-4xl md:mx-auto md:px-3 md:py-4">
             {/* Points Toast */}
-            {pointsToast && (
-                <PointsToast
-                    key={pointsToast.key}
-                    points={pointsToast.points}
-                    onComplete={() => setPointsToast(null)}
-                />
-            )}
 
             {/* Header */}
             <div className="flex-shrink-0 bg-bg-secondary border-b-2 md:border md:rounded-xl shadow-sm border-border p-3 md:p-4">
@@ -1944,7 +1924,6 @@ function VerbSoundsRightSortingUI({
             ? Math.round((overallCompletedItems / totalItemsAcrossRounds) * 100)
             : 0;
     const completedRoundCategoriesRef = useRef(new Set<number>());
-    const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
     const [isRoundComplete, setIsRoundComplete] = useState(false);
     const [isGameComplete, setIsGameComplete] = useState(false);
     const [isLoadingProgress, setIsLoadingProgress] = useState(true);
@@ -2080,7 +2059,6 @@ function VerbSoundsRightSortingUI({
         const saveRoundProgress = async () => {
             const result = await saveActivityProgress(activityId, 100, roundStatus, undefined, `round-${roundNumber}`, assignmentId ?? null, undefined, vocabType);
             if (result?.pointsAwarded && result.pointsAwarded > 0) {
-                setPointsToast({ points: result.pointsAwarded, key: Date.now() });
             }
         };
         void saveRoundProgress();
@@ -2250,7 +2228,6 @@ function VerbSoundsRightSortingUI({
 
     return (
         <div className="fixed inset-0 bg-bg-primary flex flex-col md:static md:max-w-4xl md:mx-auto md:px-3 md:py-4">
-            {pointsToast && <PointsToast key={pointsToast.key} points={pointsToast.points} onComplete={() => setPointsToast(null)} />}
             <div className="flex-shrink-0 bg-bg-secondary border-b-2 md:border md:rounded-xl shadow-sm border-border p-3 md:p-4">
                 <div className="flex items-start gap-3">
                     <BackButton onClick={() => window.history.back()} className="shrink-0 md:hidden min-w-[44px] min-h-[44px] justify-center touch-manipulation" />

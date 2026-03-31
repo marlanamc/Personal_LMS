@@ -24,8 +24,6 @@ async function main() {
   console.log('  • ActivityProgress (quiz scores, guide progress)');
   console.log('  • Submissions (quiz answers, graded work)');
   console.log('  • SpeakingSubmissions (speaking exercise completions)');
-  console.log('  • PointsLedger (earned points history)');
-  console.log('  • UserAchievements (earned badges)');
   console.log('═══════════════════════════════════════════════════════════\n');
 
   const confirmed = await confirm('Are you sure you want to continue? (y/N): ');
@@ -41,39 +39,20 @@ async function main() {
   const progressCount = await prisma.activityProgress.count();
   const submissionCount = await prisma.submission.count();
   const speakingCount = await prisma.speakingSubmission.count();
-  const pointsCount = await prisma.pointsLedger.count();
-  const achievementCount = await prisma.userAchievement.count();
   const quizResponseCount = await prisma.quizResponse.count();
   const assignmentCount = await prisma.assignment.count();
 
   await prisma.activityProgress.deleteMany({});
   await prisma.submission.deleteMany({});
   await prisma.speakingSubmission.deleteMany({});
-  await prisma.pointsLedger.deleteMany({});
-  await prisma.userAchievement.deleteMany({});
   await prisma.quizResponse.deleteMany({});
   await prisma.assignment.deleteMany({});
 
   console.log(`  ✅ Deleted ${progressCount} ActivityProgress records`);
   console.log(`  ✅ Deleted ${submissionCount} Submission records`);
   console.log(`  ✅ Deleted ${speakingCount} SpeakingSubmission records`);
-  console.log(`  ✅ Deleted ${pointsCount} PointsLedger records`);
-  console.log(`  ✅ Deleted ${achievementCount} UserAchievement records`);
   console.log(`  ✅ Deleted ${quizResponseCount} QuizResponse records`);
   console.log(`  ✅ Deleted ${assignmentCount} Assignment records`);
-
-  // Reset user points and streaks
-  await prisma.user.updateMany({
-    data: {
-      points: 0,
-      currentStreak: 0,
-      longestStreak: 0,
-      weeklyPoints: 0,
-      lastActivityDate: null,
-      lastWeekRank: null,
-    },
-  });
-  console.log('  ✅ Reset all user points and streaks');
 
   // Delete all activities
   const activityCount = await prisma.activity.count();

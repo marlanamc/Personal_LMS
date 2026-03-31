@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
-import { awardPoints, updateStreak, checkAndAwardAchievements } from '@/lib/gamification';
 import { handleApiError } from '@/lib/api-error';
 
 const prisma = new PrismaClient();
@@ -97,32 +96,8 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        // Award participation points - get activity title for better display
-        const activityWithTitle = await prisma.activity.findUnique({
-            where: { id: activityId },
-            select: { title: true },
-        });
-        const activityTitle = activityWithTitle?.title || activityId;
-        const updatedUser = await awardPoints(
-            user.id,
-            participationPoints,
-            `${activityTitle}|Warmup`
-        );
-
-        // Update streak (awards streak bonuses automatically)
-        const streakResult = await updateStreak(user.id, participationPoints);
-
-        // Check for new achievements
-        const newAchievements = await checkAndAwardAchievements(user.id);
-
         return NextResponse.json({
             success: true,
-            pointsAwarded: participationPoints,
-            streakUpdated: streakResult.streakUpdated,
-            streakBonus: streakResult.pointsAwarded,
-            newAchievements: newAchievements.length,
-            totalPoints: updatedUser.points,
-            currentStreak: updatedUser.currentStreak,
         });
     } catch (error) {
         return handleApiError(error, 'api/speaking/complete:POST');

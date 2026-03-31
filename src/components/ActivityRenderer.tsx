@@ -41,7 +41,7 @@ import { isSpeakingActivityContent } from "@/types/activity";
 import type { SpeakingActivityContent } from "@/types/activity";
 import VocabularyRenderer from "./activities/VocabularyRenderer";
 import { saveActivityProgress } from "@/lib/activityProgress";
-import { resolveActivityGameUi } from "@/lib/gamification/activity-points";
+import { resolveActivityGameUi } from "@/lib/activity-ui";
 import SpanishNumbersGame from "./ui/SpanishNumbersGame";
 import VerbConjugationGame from "./ui/VerbConjugationGame";
 import { SPANISH_GUIDE_IDS } from "@/content/spanish/registry";

@@ -3,10 +3,8 @@
 import { SessionProvider } from "next-auth/react";
 import { ReactNode } from "react";
 import { SoundProvider } from "@/context/SoundContext";
-import { CelebrationProvider } from "@/context/CelebrationContext";
 import { FocusTimerProvider } from "@/context/FocusTimerContext";
 import { ThemeProvider } from "@/context/ThemeContext";
-import { MilestoneCelebration } from "@/components/ui/MilestoneCelebration";
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
@@ -17,12 +15,9 @@ export default function Providers({ children }: { children: ReactNode }) {
         refetchOnWindowFocus={true} // Refetch when app comes into focus (important for PWA)
       >
         <SoundProvider>
-          <CelebrationProvider>
-            <FocusTimerProvider>
-              {children}
-              <MilestoneCelebration />
-            </FocusTimerProvider>
-          </CelebrationProvider>
+          <FocusTimerProvider>
+            {children}
+          </FocusTimerProvider>
         </SoundProvider>
       </SessionProvider>
     </ThemeProvider>

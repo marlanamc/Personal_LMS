@@ -10,7 +10,6 @@ import { ProgressBar } from "./ProgressBar";
 import { TableOfContents } from "./TableOfContents";
 import { MiniQuizSection } from "./MiniQuizSection";
 import { RelatedPracticeSection } from "./RelatedPracticeSection";
-import { PointsToast } from "@/components/ui/PointsToast";
 import Link from "next/link";
 import { saveActivityProgress } from "@/lib/activityProgress";
 import {
@@ -67,7 +66,6 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
     const [activitiesHref, setActivitiesHref] = useState<string>("/dashboard/subjects");
     const [guideTitle, setGuideTitle] = useState<string>(() => formatGuideTitle(completionKey));
     const [showPractice, setShowPractice] = useState(true);
-    const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
     const [progressHydrated, setProgressHydrated] = useState(false);
     const quizSavePromiseRef = useRef<Promise<void> | null>(null);
     const persistedProgressRef = useRef(0);
@@ -579,7 +577,6 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
             if (response.ok) {
                 const data = await response.json();
                 if (data.pointsAwarded > 0) {
-                    setPointsToast({ points: data.pointsAwarded, key: Date.now() });
                 }
             }
         } catch {
@@ -717,13 +714,6 @@ export function GrammarReader({ content, onComplete, completionKey, activityId }
             data-subject={practiceSubject}
         >
             {/* Points Toast */}
-            {pointsToast && (
-                <PointsToast
-                    key={pointsToast.key}
-                    points={pointsToast.points}
-                    onComplete={() => setPointsToast(null)}
-                />
-            )}
 
             {/* Main Content Container - Everything in one card */}
             <main className="mx-auto w-full max-w-screen-2xl px-0 py-0 pb-24 sm:px-3 sm:py-3 md:px-4 md:py-4 md:pb-4">

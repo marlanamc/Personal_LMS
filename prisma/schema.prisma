@@ -15,31 +15,20 @@ model User {
   mustChangePassword    Boolean              @default(true)
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
-  points                Int                  @default(0)
-  currentStreak         Int                  @default(0)
-  longestStreak         Int                  @default(0)
-  lastActivityDate      DateTime?
-  weeklyPoints          Int                  @default(0)
-  lastWeekRank          Int?
   avatar                String?
   avatarColor           String?
   activityProgress      ActivityProgress[]
   calendarEventsCreated CalendarEvent[]
   ownedClasses          Class[]              @relation("ClassOwner")
-  dailyChallenges       UserDailyChallenge[]
-  pointsLedger          PointsLedger[]
   quizResponses         QuizResponse[]
   speakingSubmissions   SpeakingSubmission[]
   spotifyConnection     SpotifyConnection?
   submissions           Submission[]
-  achievements          UserAchievement[]
   utilitySubjectStates  UtilitySubjectState[]
 
   healthTrackers        HealthTracker[]
   bpReadings            BloodPressureReading[]
   momentTrackers        MomentTracker[]
-
-  @@index([weeklyPoints])
 }
 
 model Class {
@@ -135,21 +124,6 @@ model SpeakingSubmission {
   @@unique([userId, activityId, assignmentId])
 }
 
-model PointsLedger {
-  id        String   @id @default(cuid())
-  userId    String
-  points    Int
-  reason    String?
-  source    String?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@index([createdAt])
-  @@index([userId])
-  @@index([source])
-  @@index([userId, createdAt])
-}
-
 model Assignment {
   id                  String               @id @default(cuid())
   classId             String
@@ -181,7 +155,6 @@ model Submission {
   score         Int?
   feedback      String?
   status        String      @default("pending")
-  pointsAwarded Int         @default(0)
   completedAt   DateTime?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -193,18 +166,6 @@ model Submission {
   @@index([userId])
   @@index([status])
   @@index([assignmentId])
-}
-
-model Achievement {
-  id               String            @id @default(cuid())
-  name             String
-  description      String
-  icon             String
-  type             String
-  requirement      Int
-  points           Int               @default(0)
-  createdAt        DateTime          @default(now())
-  userAchievements UserAchievement[]
 }
 
 model CalendarEvent {
@@ -220,17 +181,6 @@ model CalendarEvent {
   updatedAt   DateTime  @updatedAt
   class       Class     @relation(fields: [classId], references: [id])
   createdBy   User?     @relation(fields: [createdById], references: [id])
-}
-
-model UserAchievement {
-  id            String      @id @default(cuid())
-  userId        String
-  achievementId String
-  earnedAt      DateTime    @default(now())
-  achievement   Achievement @relation(fields: [achievementId], references: [id])
-  user          User        @relation(fields: [userId], references: [id])
-
-  @@unique([userId, achievementId])
 }
 
 model QuizResponse {
@@ -255,40 +205,6 @@ model QuizResponse {
   @@index([skillTag])
   @@index([userId, activityId])
   @@index([activityId, skillTag])
-}
-
-// ============================================
-// Daily Challenge System
-// ============================================
-
-model DailyChallenge {
-  id          String               @id @default(cuid())
-  date        DateTime             @unique @db.Date
-  type        String // "complete_any", "complete_grammar", "perfect_quiz", "play_games"
-  requirement Int // How many activities/games to complete
-  bonusPoints Int                  @default(15)
-  description String
-  createdAt   DateTime             @default(now())
-  userChallenges UserDailyChallenge[]
-
-  @@index([date])
-}
-
-model UserDailyChallenge {
-  id          String         @id @default(cuid())
-  userId      String
-  challengeId String
-  progress    Int            @default(0)
-  completed   Boolean        @default(false)
-  completedAt DateTime?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  challenge   DailyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, challengeId])
-  @@index([userId])
-  @@index([completed])
 }
 
 model UtilitySubjectState {

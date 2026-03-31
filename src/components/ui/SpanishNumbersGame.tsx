@@ -2,22 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { saveActivityProgress } from "@/lib/activityProgress";
-import { RotateCcw, Clock, Zap } from "lucide-react";
+import { RotateCcw, Clock } from "lucide-react";
 import { BackButton } from "@/components/ui/BackButton";
-import { PointsToast } from "@/components/ui/PointsToast";
-import CelebrationAnimation from "@/components/ui/CelebrationAnimation";
 import { checkSpanishNumber, getSpanishNumber } from "@/content/spanish/vocabulary/numbers-1-100";
-import {
-  getComboMultiplier,
-  getComboTierLabel,
-  getComboTierColor,
-  createComboState,
-  incrementCombo,
-  resetCombo,
-  applyComboBonus,
-  type ComboState,
-} from "@/lib/gamification/combo";
-import { POINTS } from "@/lib/gamification/constants";
 
 interface SpanishNumbersGameProps {
   difficulty: "easy" | "medium" | "hard" | "mixed";
@@ -63,9 +50,6 @@ export default function SpanishNumbersGame({
   const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
-  const [pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
-  const [celebration, setCelebration] = useState<"confetti" | "stars" | "sparkles" | null>(null);
-  const [combo, setCombo] = useState<ComboState>(createComboState());
 
   // Timed mode state
   const [timeRemaining, setTimeRemaining] = useState(timeLimit);
@@ -135,35 +119,15 @@ export default function SpanishNumbersGame({
     const isCorrect = checkSpanishNumber(gameState.currentNumber, userAnswer);
 
     if (isCorrect) {
-      // Update combo
-      const newCombo = incrementCombo(combo);
-      setCombo(newCombo);
-
-      // Calculate points with combo bonus
-      let basePoints: number = POINTS.SPANISH_NUMBERS_EASY;
-      if (difficulty === "medium") basePoints = POINTS.SPANISH_NUMBERS_MEDIUM;
-      if (difficulty === "hard" || difficulty === "mixed") basePoints = POINTS.SPANISH_NUMBERS_HARD;
-
-      const pointsWithCombo = applyComboBonus(basePoints, newCombo.currentCombo);
-
       setGameState((prev) => ({
         ...prev,
-        score: prev.score + pointsWithCombo,
+        score: prev.score + 1,
         streak: prev.streak + 1,
         maxStreak: Math.max(prev.maxStreak, prev.streak + 1),
         questionCount: prev.questionCount + 1,
       }));
 
       setFeedback("correct");
-
-      // Show celebration at milestones
-      if (newCombo.currentCombo === 5) {
-        setCelebration("sparkles");
-      } else if (newCombo.currentCombo === 10) {
-        setCelebration("stars");
-      } else if (newCombo.currentCombo === 20) {
-        setCelebration("confetti");
-      }
 
       // Auto-advance after correct
       setTimeout(() => {
@@ -176,7 +140,6 @@ export default function SpanishNumbersGame({
         }
       }, 800);
     } else {
-      setCombo(resetCombo(combo));
       setGameState((prev) => ({
         ...prev,
         incorrect: prev.incorrect + 1,
@@ -210,7 +173,6 @@ export default function SpanishNumbersGame({
       incorrect: 0,
       totalQuestions: 0,
     });
-    setCombo(createComboState());
     setIsComplete(false);
     setTimeRemaining(timeLimit);
     if (timedMode) {
@@ -229,7 +191,7 @@ export default function SpanishNumbersGame({
         : 0;
 
     const saveProgress = async () => {
-      const result = await saveActivityProgress(
+      await saveActivityProgress(
         activityId,
         100,
         "completed",
@@ -237,9 +199,6 @@ export default function SpanishNumbersGame({
         undefined,
         assignmentId ?? null
       );
-      if (result?.pointsAwarded && result.pointsAwarded > 0) {
-        setPointsToast({ points: result.pointsAwarded, key: Date.now() });
-      }
     };
 
     saveProgress();
@@ -252,27 +211,9 @@ export default function SpanishNumbersGame({
       ? Math.round((gameState.questionCount / gameState.totalQuestions) * 100)
       : 0;
 
-  const comboMultiplier = getComboMultiplier(combo.currentCombo);
-  const comboLabel = getComboTierLabel(combo.currentCombo);
-  const comboColor = getComboTierColor(combo.currentCombo);
-
   if (isComplete) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col">
-        {/* Points Toast */}
-        {pointsToast && (
-          <PointsToast
-            key={pointsToast.key}
-            points={pointsToast.points}
-            onComplete={() => setPointsToast(null)}
-          />
-        )}
-
-        {/* Celebration */}
-        {celebration && (
-          <CelebrationAnimation trigger={true} type={celebration} onComplete={() => setCelebration(null)} />
-        )}
-
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="rounded-3xl shadow-2xl p-8 max-w-md w-full text-center border border-slate-700 bg-slate-900/95">
             <div className="text-6xl mb-4">🎉</div>
@@ -313,20 +254,6 @@ export default function SpanishNumbersGame({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col">
-      {/* Points Toast */}
-      {pointsToast && (
-        <PointsToast
-          key={pointsToast.key}
-          points={pointsToast.points}
-          onComplete={() => setPointsToast(null)}
-        />
-      )}
-
-      {/* Celebration */}
-      {celebration && (
-        <CelebrationAnimation trigger={true} type={celebration} onComplete={() => setCelebration(null)} />
-      )}
-
       {/* Header */}
       <div className="bg-slate-950/95 border-b border-slate-700 px-4 py-3 flex items-center justify-between">
         <BackButton onClick={() => window.history.back()} />
@@ -337,14 +264,6 @@ export default function SpanishNumbersGame({
             <div className="flex items-center gap-1 bg-amber-950/60 border border-amber-700 px-3 py-1.5 rounded-full">
               <Clock className="w-4 h-4 text-amber-300" />
               <span className="font-mono font-bold text-amber-200">{timeRemaining}s</span>
-            </div>
-          )}
-
-          {/* Combo indicator */}
-          {combo.currentCombo >= 3 && (
-            <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full border border-orange-700 bg-gradient-to-r from-orange-950/70 to-red-950/70 ${comboColor}`}>
-              <Zap className="w-4 h-4" />
-              <span className="font-bold">{comboLabel} x{comboMultiplier}</span>
             </div>
           )}
 

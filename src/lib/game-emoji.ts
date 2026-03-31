@@ -1,4 +1,4 @@
-import type { GameUi } from "@/lib/gamification/activity-points";
+import type { GameUi } from "@/lib/activity-ui";
 
 interface GameEmojiInput {
   activityId?: string | null;

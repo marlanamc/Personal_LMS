@@ -15,7 +15,7 @@ import type { CalendarEvent } from '@/components/dashboard/MiniCalendar';
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type PlanningView = 'day' | 'calendar' | 'anchors' | 'time-blocks' | 'projects';
+export type PlanningView = 'day' | 'calendar' | 'anchors' | 'time-blocks';
 
 interface PlanningContextValue {
   // Current selected date (shared across all views)

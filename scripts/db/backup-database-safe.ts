@@ -50,9 +50,6 @@ async function main() {
     activityProgress,
     quizResponses,
     speakingSubmissions,
-    pointsLedger,
-    achievements,
-    userAchievements,
     calendarEvents,
   ] = await Promise.all([
     prisma.user.findMany(),
@@ -63,9 +60,6 @@ async function main() {
     prisma.activityProgress.findMany(),
     prisma.quizResponse.findMany(),
     prisma.speakingSubmission.findMany(),
-    prisma.pointsLedger.findMany(),
-    prisma.achievement.findMany(),
-    prisma.userAchievement.findMany(),
     prisma.calendarEvent.findMany(),
   ]);
 
@@ -85,9 +79,6 @@ async function main() {
       activityProgress,
       quizResponses,
       speakingSubmissions,
-      pointsLedger,
-      achievements,
-      userAchievements,
       calendarEvents,
     },
   };

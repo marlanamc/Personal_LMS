@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { awardPoints, updateStreak, checkAndAwardAchievements, calculateQuizPoints, getActivityPoints } from "@/lib/gamification";
-import { updateChallengeProgress } from "@/lib/daily-challenge";
 import { enforceRateLimit } from "@/lib/rate-limit";
 import { ApiError, handleApiError } from "@/lib/api-error";
 import { logger } from "@/lib/logger";
@@ -174,11 +172,8 @@ export async function POST(request: Request) {
             throw new ApiError(404, "activity_not_found", "Activity not found");
         }
 
-        // Calculate points SERVER-SIDE based on activity type and score
-        // NEVER trust points from client request
-        const calculatedPoints = activity.type.toLowerCase() === 'quiz'
-            ? calculateQuizPoints(score ?? null)
-            : getActivityPoints(activity.type, activity);
+        // Points system removed - keeping calculatedPoints = 0 for backwards compatibility
+        const calculatedPoints = 0;
 
         const assignmentKey =
             typeof assignmentId === "string" && assignmentId.trim() !== "" && assignmentId !== "null"
@@ -224,65 +219,11 @@ export async function POST(request: Request) {
             });
         }
 
-        // Award points (calculated server-side)
-        if (calculatedPoints > 0) {
-            // Include activity type in the reason for better display
-            const activityTypeLabel = activity.type.toLowerCase() === 'quiz' ? 'Quiz' : '';
-            const reason = activityTypeLabel
-                ? `${activity.title || activityId}|${activityTypeLabel}`
-                : `Completed: ${activity.title || activityId}`;
-            await awardPoints(
-                userId,
-                calculatedPoints,
-                reason
-            );
-
-            // Update streak and check for achievements
-            await updateStreak(userId, calculatedPoints);
-            await checkAndAwardAchievements(userId);
-        }
-
-        // Update daily challenge progress
-        let challengeCompleted = false;
-        let challengeBonusPoints = 0;
-        try {
-            const challengeResult = await updateChallengeProgress(
-                userId,
-                activity.type,
-                typeof score === "number" ? score : undefined
-            );
-            challengeCompleted = challengeResult.justCompleted;
-            challengeBonusPoints = challengeResult.bonusPoints;
-        } catch (error) {
-            // Daily challenge table might not exist yet (before migration)
-            logger.warn("api/activity/submit: daily challenge update failed", {
-                error,
-                userId,
-                activityId,
-            });
-        }
-
-        // Detect milestones
-        const milestones: string[] = [];
-
-        // Perfect quiz milestone
-        if (activity.type.toLowerCase() === "quiz" && score === 100) {
-            milestones.push("perfect_quiz");
-        }
-
-        // Daily challenge milestone
-        if (challengeCompleted) {
-            milestones.push("daily_challenge");
-        }
 
         return NextResponse.json({
             ok: true,
             submissionId: submission.id,
             score: submission.score,
-            points: calculatedPoints,
-            challengeCompleted,
-            challengeBonusPoints,
-            milestones,
         });
     } catch (error) {
         return handleApiError(error, "api/activity/submit");
