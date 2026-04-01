@@ -6,7 +6,7 @@ import { CalendarPanel } from './CalendarPanel';
 import { DayPlannerMomentLogPanel } from './DayPlannerMomentLogPanel';
 import { DayPlannerThoughtDownloadPanel } from './DayPlannerThoughtDownloadPanel';
 import { useCalendarPlanner, type CustomTag, type JournalTagMeta } from './useCalendarPlanner';
-import type { CalendarEvent } from './MiniCalendar';
+import type { CalendarEvent } from '@/components/planning/MiniCalendar';
 
 type SidebarTab = 'calendar' | 'moment-log' | 'thought-download';
 

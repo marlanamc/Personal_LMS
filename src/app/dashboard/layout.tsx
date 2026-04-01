@@ -2,8 +2,9 @@ import type { ReactNode } from "react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { BottomNav } from "@/components/ui";
-import { HomeIcon, BookOpenIcon, CalendarIcon, TimerIcon, DayPlannerIcon } from "@/components/icons/Icons";
+import { HomeIcon, BookOpenIcon } from "@/components/icons/Icons";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
+import { Sparkles, Calendar, Timer } from "lucide-react";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
     const session = await getServerSession(authOptions);
@@ -16,10 +17,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             <BottomNav
                 items={[
                     { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
-                    { href: "/dashboard/day-planner", label: "Day", icon: <DayPlannerIcon /> },
-                    { href: "/dashboard/timer", label: "Focus", icon: <TimerIcon /> },
-                    { href: "/dashboard/calendar", label: "Calendar", icon: <CalendarIcon /> },
-                    { href: "/dashboard/subjects", label: "Subjects", icon: <BookOpenIcon /> },
+                    { href: "/dashboard/day-planner", label: "Plan", icon: <Calendar size={20} /> },
+                    { href: "/dashboard/workspace", label: "Think", icon: <Sparkles size={20} /> },
+                    { href: "/dashboard/timer", label: "Focus", icon: <Timer size={20} /> },
+                    { href: "/dashboard/subjects", label: "Learn", icon: <BookOpenIcon /> },
                 ]}
             />
         </div>

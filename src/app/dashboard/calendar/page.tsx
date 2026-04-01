@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { type CalendarEvent } from "@/components/dashboard";
-import CalendarPlanner from "@/components/dashboard/CalendarPlanner";
+import CalendarPlanner from "@/components/planning/CalendarPlanner";
 import { redirect } from "next/navigation";
 
 export default async function CalendarPage() {

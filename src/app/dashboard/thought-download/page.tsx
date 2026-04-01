@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
-import { ThoughtDownloadView } from '@/components/dashboard/ThoughtDownloadView';
+import { ThoughtDownloadView } from '@/components/thinking/ThoughtDownloadView';
 
 export const metadata = {
   title: 'Thought Download | Personal LMS',

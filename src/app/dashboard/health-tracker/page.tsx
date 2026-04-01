@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
-import { HealthTrackerView } from '@/components/dashboard/HealthTrackerView';
+import { HealthTrackerView } from '@/components/focus/HealthTrackerView';
 
 export const metadata = {
   title: 'Health Log | Personal LMS',

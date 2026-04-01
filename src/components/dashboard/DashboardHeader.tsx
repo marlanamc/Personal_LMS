@@ -10,7 +10,7 @@ import {
     useDashboardHeaderEndAccessoryContent,
 } from "./DashboardHeaderCenterContext";
 import { HeaderStatusChips } from "./HeaderStatusChips";
-import { NavigationSidePanel } from "./NavigationSidePanel";
+import { NavigationSidePanel } from "@/components/shared/NavigationSidePanel";
 import { useTimeBlockPlanner } from "./useTimeBlockPlanner";
 
 interface DashboardHeaderProps {

@@ -274,6 +274,69 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Track workspace context for recent changes
+    try {
+      // Find the most recently updated date key
+      const dateKeys = Object.keys(incomingStore).filter(key => /^\d{4}-\d{2}-\d{2}$/.test(key));
+      if (dateKeys.length > 0) {
+        const mostRecentDateKey = dateKeys[0]; // Usually only one date is updated at a time
+        const dayPlan = mergedStore[mostRecentDateKey];
+
+        if (dayPlan) {
+          // Determine which tool was used based on what was updated
+          let lastTool: 'thought-download' | 'moment-log' | null = null;
+          let preview = '';
+
+          if (typeof dayPlan.thoughtDownload === 'string' && dayPlan.thoughtDownload.trim()) {
+            lastTool = 'thought-download';
+            preview = dayPlan.thoughtDownload.slice(0, 100);
+          } else if (dayPlan.interstitialJournalEntries && dayPlan.interstitialJournalEntries.length > 0) {
+            lastTool = 'moment-log';
+            const lastEntry = dayPlan.interstitialJournalEntries[dayPlan.interstitialJournalEntries.length - 1];
+            preview = lastEntry.text.slice(0, 100);
+          }
+
+          if (lastTool) {
+            // Get existing context to preserve recentCaptures
+            const existingContext = await prisma.workspaceContext.findUnique({
+              where: { userId: session.user.id },
+            });
+
+            const existingCaptures = (existingContext?.recentCaptures as any[]) || [];
+
+            // Add new capture to the beginning, limit to 20 most recent
+            const newCapture = {
+              type: lastTool,
+              dateKey: mostRecentDateKey,
+              preview,
+              timestamp: new Date().toISOString(),
+            };
+
+            const updatedCaptures = [newCapture, ...existingCaptures].slice(0, 20);
+
+            await prisma.workspaceContext.upsert({
+              where: { userId: session.user.id },
+              create: {
+                userId: session.user.id,
+                lastTool,
+                lastDateKey: mostRecentDateKey,
+                lastProjectId: null,
+                recentCaptures: updatedCaptures as unknown as Prisma.InputJsonValue,
+              },
+              update: {
+                lastTool,
+                lastDateKey: mostRecentDateKey,
+                recentCaptures: updatedCaptures as unknown as Prisma.InputJsonValue,
+              },
+            });
+          }
+        }
+      }
+    } catch (contextError) {
+      // Don't fail the whole request if context tracking fails
+      console.error('[calendar-planner] Failed to update workspace context:', contextError);
+    }
+
     return NextResponse.json({ ok: true, updatedAt: state.updatedAt });
   } catch (error) {
     return handleApiError(error, 'api/calendar-planner:POST');

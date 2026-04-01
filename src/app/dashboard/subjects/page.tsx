@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { collapseEdPronunciationActivities } from "@/lib/activity-list-dedupe";
-import { ActivityCategoryPicker } from "@/components/dashboard/ActivityCategoryPicker";
+import { ActivityCategoryPicker } from "@/components/learning/ActivityCategoryPicker";
 
 type Props = { searchParams: Promise<{ category?: string; subject?: string; type?: string }> };
 const VOCAB_TYPES = ["word-list", "flashcards", "matching", "fill-blank"] as const;

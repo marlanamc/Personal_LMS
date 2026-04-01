@@ -3,12 +3,6 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { parseCategoryData } from "@/lib/categoryData";
-import { BottomNav } from "@/components/ui";
-import {
-  HomeIcon,
-  BookOpenIcon,
-  TrophyIcon,
-} from "@/components/icons/Icons";
 import {
   CalendarEvent,
   DashboardContent,
@@ -218,22 +212,6 @@ export default async function DashboardPage() {
           calendarEvents={calendarEvents}
         />
       </main>
-
-      <BottomNav
-        items={[
-          { href: "/dashboard", label: "Home", icon: <HomeIcon /> },
-          {
-            href: "/dashboard/subjects",
-            label: "Subjects",
-            icon: <BookOpenIcon />,
-          },
-          {
-            href: "/dashboard/profile",
-            label: "Profile",
-            icon: <TrophyIcon />,
-          },
-        ]}
-      />
     </div>
   );
 }

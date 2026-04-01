@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
-import { InterstitialJournalView } from '@/components/dashboard/InterstitialJournalView';
+import { InterstitialJournalView } from '@/components/thinking/InterstitialJournalView';
 
 export const metadata = {
   title: 'Moment Log | Personal LMS',

@@ -24,7 +24,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { formatTimeLabel, type AnchorIcon, type DailyAnchor } from '@/lib/anchors';
-import type { CalendarEvent } from './MiniCalendar';
+import type { CalendarEvent } from '@/components/planning/MiniCalendar';
 import type { InterstitialJournalEntry } from './useCalendarPlanner';
 import type { PinnedPlannerTask } from './useTodayFlow';
 

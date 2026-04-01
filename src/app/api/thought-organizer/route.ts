@@ -88,6 +88,59 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Track workspace context
+    try {
+      // Find the most recently edited project (if any)
+      const projects = incomingStore.projects || [];
+      const bullets = incomingStore.bullets || [];
+
+      if (projects.length > 0 || bullets.length > 0) {
+        // Find a project with bullets or use the first project
+        const activeProject = projects.find(p => bullets.some(b => b.project === p.id)) || projects[0];
+        const projectBullets = bullets.filter(b => b.project === activeProject?.id);
+
+        const preview = projectBullets.length > 0
+          ? projectBullets[0].text.slice(0, 100)
+          : 'Organizing thoughts...';
+
+        // Get existing context to preserve recentCaptures
+        const existingContext = await prisma.workspaceContext.findUnique({
+          where: { userId: session.user.id },
+        });
+
+        const existingCaptures = (existingContext?.recentCaptures as any[]) || [];
+
+        // Add new capture to the beginning, limit to 20 most recent
+        const newCapture = {
+          type: 'organize',
+          projectId: activeProject?.id,
+          preview,
+          timestamp: new Date().toISOString(),
+        };
+
+        const updatedCaptures = [newCapture, ...existingCaptures].slice(0, 20);
+
+        await prisma.workspaceContext.upsert({
+          where: { userId: session.user.id },
+          create: {
+            userId: session.user.id,
+            lastTool: 'organize',
+            lastDateKey: null,
+            lastProjectId: activeProject?.id || null,
+            recentCaptures: updatedCaptures as unknown as Prisma.InputJsonValue,
+          },
+          update: {
+            lastTool: 'organize',
+            lastProjectId: activeProject?.id || null,
+            recentCaptures: updatedCaptures as unknown as Prisma.InputJsonValue,
+          },
+        });
+      }
+    } catch (contextError) {
+      // Don't fail the whole request if context tracking fails
+      console.error('[thought-organizer] Failed to update workspace context:', contextError);
+    }
+
     return NextResponse.json({ ok: true, updatedAt: state.updatedAt });
   } catch (error) {
     return handleApiError(error, 'api/thought-organizer:POST');

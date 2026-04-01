@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
-import { MealPlannerView } from '@/components/dashboard/MealPlannerView';
+import { MealPlannerView } from '@/components/planning/MealPlannerView';
 
 export const metadata = {
   title: 'Meal Planner | Personal LMS',

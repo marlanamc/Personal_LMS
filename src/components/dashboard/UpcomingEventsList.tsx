@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CalendarDays, Clock3, Settings2, Trash2, Pencil } from "lucide-react";
-import { CalendarEvent, getCalendarMarkerColor } from "./MiniCalendar";
+import { CalendarEvent, getCalendarMarkerColor } from "@/components/planning/MiniCalendar";
 
 interface Props {
     events: CalendarEvent[];

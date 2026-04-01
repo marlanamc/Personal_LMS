@@ -44,7 +44,7 @@ import {
 } from '@/lib/anchors';
 import { getAnchorMobileChipLabels } from '@/lib/anchors-mobile-ui';
 import { getActiveConstraintsForDay, getConstraintDisplayDayPlan } from '@/lib/time-block-planner';
-import { getCalendarMarkerColor, type CalendarEvent } from './MiniCalendar';
+import { getCalendarMarkerColor, type CalendarEvent } from '@/components/planning/MiniCalendar';
 import type { DailyOverviewItem } from '@/types/daily-overview';
 import {
   computeOverviewScheduleStatus,

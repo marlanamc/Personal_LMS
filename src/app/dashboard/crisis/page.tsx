@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
-import { CrisisMenuView } from '@/components/dashboard/CrisisMenuView';
+import { CrisisMenuView } from '@/components/focus/CrisisMenuView';
 
 export const metadata = {
   title: 'Crisis Mode | Personal LMS',

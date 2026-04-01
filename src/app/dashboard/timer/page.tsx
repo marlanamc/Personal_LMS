@@ -1,4 +1,4 @@
-import { FocusTimer } from '@/components/dashboard/FocusTimer';
+import { FocusTimer } from '@/components/focus/FocusTimer';
 
 export const metadata = {
     title: 'Focus Timer | Marlie LMS',

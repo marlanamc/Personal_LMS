@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { Check, ClipboardList } from 'lucide-react';
 import { AnchorTimeWindowCard } from './AnchorTimeWindowCard';
-import type { CalendarEvent } from './MiniCalendar';
+import type { CalendarEvent } from '@/components/planning/MiniCalendar';
 import type { TimeWindow, PinnedPlannerTask } from './useTodayFlow';
 
 interface TodayFlowTimelineProps {

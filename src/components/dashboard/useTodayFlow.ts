@@ -18,7 +18,7 @@ import {
   type InterstitialJournalEntry,
   type PlannerTask,
 } from './useCalendarPlanner';
-import type { CalendarEvent } from './MiniCalendar';
+import type { CalendarEvent } from '@/components/planning/MiniCalendar';
 import { useTimeBlockPlanner } from './useTimeBlockPlanner';
 
 // Extended PlannerTask with optional anchor pinning

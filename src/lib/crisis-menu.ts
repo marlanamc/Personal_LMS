@@ -1,7 +1,7 @@
 // Crisis Mode Menu System
 // Pre-made decision menus for when executive function is offline
 
-export type CrisisMenuTab = 'food' | 'regulation' | 'task' | 'communication';
+export type CrisisMenuTab = 'food' | 'regulation' | 'task' | 'communication' | 'comfort' | 'distraction';
 
 export interface CrisisMenuItem {
   id: string;           // `item-${Date.now()}-${random}`
@@ -15,6 +15,8 @@ export interface CrisisMenuStore {
   regulation: CrisisMenuItem[];
   task: CrisisMenuItem[];
   communication: CrisisMenuItem[];
+  comfort: CrisisMenuItem[];
+  distraction: CrisisMenuItem[];
 }
 
 export const SUBJECT_KEY = 'crisis-menu';
@@ -50,6 +52,12 @@ const DEFAULT_REGULATION_ITEMS: CrisisMenuItem[] = [
     text: 'Fabric Feel - Rub your clothing between your fingers.',
     emoji: '✋',
     notes: 'Tactile grounding',
+  },
+  {
+    id: 'regulation-6',
+    text: 'Splash cold water on your face.',
+    emoji: '🧊',
+    notes: 'Mammalian dive reflex. Resets panic.',
   },
 ];
 
@@ -242,11 +250,79 @@ const DEFAULT_COMMUNICATION_ITEMS: CrisisMenuItem[] = [
   },
 ];
 
+const DEFAULT_COMFORT_ITEMS: CrisisMenuItem[] = [
+  {
+    id: 'comfort-1',
+    text: 'Get under a weighted blanket.',
+    emoji: '🛌',
+    notes: 'Deep pressure therapy to calm the nervous system.',
+  },
+  {
+    id: 'comfort-2',
+    text: 'Put on your coziest socks or hoodie.',
+    emoji: '🧦',
+    notes: 'Change your sensory environment to be softer.',
+  },
+  {
+    id: 'comfort-3',
+    text: 'Turn off the harsh overhead lights.',
+    emoji: '💡',
+    notes: 'Dim the room. Use a lamp or string lights.',
+  },
+  {
+    id: 'comfort-4',
+    text: 'Grab a hot water bottle or heating pad.',
+    emoji: '🔥',
+    notes: 'Warmth provides immediate physical comfort.',
+  },
+  {
+    id: 'comfort-5',
+    text: 'Wrap up like a burrito in a soft blanket.',
+    emoji: '🌯',
+    notes: 'Creates boundary and pressure. Very safe feeling.',
+  },
+];
+
+const DEFAULT_DISTRACTION_ITEMS: CrisisMenuItem[] = [
+  {
+    id: 'distract-1',
+    text: 'Play a mindless puzzle game on your phone.',
+    emoji: '🧩',
+    notes: 'Tetris is clinically proven to reduce trauma processing.',
+  },
+  {
+    id: 'distract-2',
+    text: 'Scroll TikTok/Reels for exactly 15 minutes.',
+    emoji: '📱',
+    notes: 'Set a timer first. Then let yourself check out.',
+  },
+  {
+    id: 'distract-3',
+    text: 'Put on a show you\'ve already seen 10 times.',
+    emoji: '📺',
+    notes: 'No surprises. Pure comfort and predictability.',
+  },
+  {
+    id: 'distract-4',
+    text: 'Watch a completely unhinged YouTube video.',
+    emoji: '🤪',
+    notes: 'Shock your brain with humor or weirdness.',
+  },
+  {
+    id: 'distract-5',
+    text: 'Read a comic or graphic novel.',
+    emoji: '📖',
+    notes: 'Visuals make it easier than a regular book.',
+  },
+];
+
 export const DEFAULT_ITEMS: CrisisMenuStore = {
   food: DEFAULT_FOOD_ITEMS,
   regulation: DEFAULT_REGULATION_ITEMS,
   task: DEFAULT_TASK_ITEMS,
   communication: DEFAULT_COMMUNICATION_ITEMS,
+  comfort: DEFAULT_COMFORT_ITEMS,
+  distraction: DEFAULT_DISTRACTION_ITEMS,
 };
 
 /**
@@ -266,8 +342,8 @@ export function normalizeCrisisMenuStore(raw: unknown): CrisisMenuStore {
 
   const obj = raw as Record<string, unknown>;
 
-  // If object is empty or has no valid arrays, return defaults
-  if (!obj.food && !obj.regulation && !obj.task && !obj.communication) {
+  // If object is completely empty of any valid valid array, return defaults
+  if (!obj.food && !obj.regulation && !obj.task && !obj.communication && !obj.comfort && !obj.distraction) {
     return JSON.parse(JSON.stringify(DEFAULT_ITEMS));
   }
 
@@ -290,6 +366,8 @@ export function normalizeCrisisMenuStore(raw: unknown): CrisisMenuStore {
     regulation: validateMenuArray(obj.regulation, DEFAULT_REGULATION_ITEMS),
     task: validateMenuArray(obj.task, DEFAULT_TASK_ITEMS),
     communication: validateMenuArray(obj.communication, DEFAULT_COMMUNICATION_ITEMS),
+    comfort: validateMenuArray(obj.comfort, DEFAULT_COMFORT_ITEMS),
+    distraction: validateMenuArray(obj.distraction, DEFAULT_DISTRACTION_ITEMS),
   };
 }
 

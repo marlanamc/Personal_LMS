@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { type CalendarEvent } from '@/components/dashboard';
-import { DayPlannerView } from '@/components/dashboard/DayPlannerView';
+import { DayPlannerView } from '@/components/planning/DayPlannerView';
 import { toDateKey } from '@/lib/unified-scheduler';
 
 export const metadata = {
