@@ -9,6 +9,8 @@ import {
   Briefcase,
   Calendar,
   Check,
+  ChevronLeft,
+  ChevronRight,
   Code2,
   Coffee,
   Dumbbell,
@@ -30,17 +32,20 @@ import { EditAnchorsSheet } from '@/components/dashboard/EditAnchorsSheet';
 import { AnchorSkipReasonDialog } from '@/components/dashboard/AnchorSkipReasonDialog';
 import { DailyOverviewList } from '@/components/dashboard/DailyOverviewList';
 import type { CalendarPlannerApi } from '@/components/dashboard/useCalendarPlanner';
-import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
+import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import {
   formatTimeLabel,
   formatTimeRange,
+  getActiveAnchor,
   getRecentSkippedAnchorStreak,
   getSkipReasonLabel,
   getSkipReasonSuggestion,
   isAnchorScheduledForDate,
   parseHHMMToMinutes,
+  toDateKey,
   type AnchorIcon,
   type AnchorId,
+  type AnchorStatus,
   type DailyAnchor,
   type DailyAnchorTemplate,
   type SkipReason,
@@ -52,7 +57,6 @@ import {
   getOvernightMinutesUntil,
   getTimeUntil,
 } from '@/lib/anchors-mobile-ui';
-import { getTodayKey } from '@/lib/unified-scheduler';
 import {
   describeConstraintRule,
   getActiveConstraintsForDay,
@@ -503,8 +507,40 @@ export function DailyAnchorsTimeline({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { getPlan } = calendarPlanner;
-  const { anchors, activeAnchor, toggleAnchor, anchorTemplates, setTodayAnchors, setTodayAnchorStatus, setAnchorTemplates, isLoaded, weeklySkipReasonInsight } =
-    useDailyAnchorsForToday(storageScope);
+  const { getStateForDate, toggleAnchorForDate, setAnchorStatusForDate, setAnchorsForDate, anchorTemplates, setAnchorTemplates, isLoaded, weeklySkipReasonInsight } =
+    useDailyAnchors(storageScope);
+
+  // Date navigation: default to today, allow browsing up to 7 days back
+  const [viewDate, setViewDate] = useState<Date>(() => new Date());
+  const isToday = useMemo(() => {
+    const today = new Date();
+    return toDateKey(viewDate) === toDateKey(today);
+  }, [viewDate]);
+
+  const viewDateState = getStateForDate(viewDate);
+  const anchors = viewDateState.anchors;
+  const anchorsScheduledForView = useMemo(
+    () => anchors.filter((anchor) => isAnchorScheduledForDate(anchor, viewDate)),
+    [anchors, viewDate],
+  );
+  const activeAnchor = useMemo(
+    () => getActiveAnchor(anchorsScheduledForView.length > 0 ? anchorsScheduledForView : anchors, viewDate),
+    [anchorsScheduledForView, anchors, viewDate],
+  );
+
+  const toggleAnchor = useCallback(
+    (anchorId: AnchorId) => toggleAnchorForDate(viewDate, anchorId),
+    [toggleAnchorForDate, viewDate],
+  );
+  const setTodayAnchors = useCallback(
+    (nextAnchors: DailyAnchor[]) => setAnchorsForDate(viewDate, nextAnchors),
+    [setAnchorsForDate, viewDate],
+  );
+  const setTodayAnchorStatus = useCallback(
+    (anchorId: AnchorId, status: AnchorStatus, skipReason?: SkipReason) =>
+      setAnchorStatusForDate(viewDate, anchorId, status, skipReason),
+    [setAnchorStatusForDate, viewDate],
+  );
 
   const [hoveredAnchor, setHoveredAnchor] = useState<AnchorId | null>(null);
   const [draggingAnchor, setDraggingAnchor] = useState<AnchorId | null>(null);
@@ -515,30 +551,27 @@ export function DailyAnchorsTimeline({
   const [skipReasonAnchor, setSkipReasonAnchor] = useState<{ id: AnchorId; label: string } | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
 
-  const todaysAnchors = useMemo(() => {
-    const today = new Date();
-    return anchors.filter((anchor) => isAnchorScheduledForDate(anchor, today));
-  }, [anchors]);
+  const todaysAnchors = anchorsScheduledForView;
 
-  const todayKey = getTodayKey();
-  const todayPlan = getPlan(todayKey);
+  const viewDateKey = useMemo(() => toDateKey(viewDate), [viewDate]);
+  const todayPlan = getPlan(viewDateKey);
 
   const { plannerStore, plannerDefaults, isLoaded: isPlannerLoaded } = useTimeBlockPlanner();
-  const currentPlan = plannerStore[todayKey];
+  const currentPlan = plannerStore[viewDateKey];
   const activeConstraintsForRiver = useMemo(() => {
     if (!isPlannerLoaded) return [];
-    const constraintPlan = getConstraintDisplayDayPlan(todayKey, currentPlan);
+    const constraintPlan = getConstraintDisplayDayPlan(viewDateKey, currentPlan);
     return getActiveConstraintsForDay(constraintPlan, plannerDefaults);
-  }, [currentPlan, plannerDefaults, isPlannerLoaded, todayKey]);
+  }, [currentPlan, plannerDefaults, isPlannerLoaded, viewDateKey]);
 
   const todayCalendarEventsForRiver = useMemo(
     () =>
       calendarEvents.filter((event) => {
         const eventDate = new Date(event.date);
         const eventKey = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, '0')}-${String(eventDate.getDate()).padStart(2, '0')}`;
-        return eventKey === todayKey;
+        return eventKey === viewDateKey;
       }),
-    [calendarEvents, todayKey],
+    [calendarEvents, viewDateKey],
   );
 
   /** Matches DailyOverviewList: anchors (done) + events/boundaries (acknowledged). */
@@ -590,9 +623,10 @@ export function DailyAnchorsTimeline({
   }, [nowMinutes]);
 
   const showNowMarker = useMemo(() => {
+    if (!isToday) return false;
     if (nowMinutes === null) return false;
     return nowMinutes >= TIMELINE_START_HOUR * 60 && nowMinutes < TIMELINE_END_HOUR * 60;
-  }, [nowMinutes]);
+  }, [isToday, nowMinutes]);
 
   const recentSkippedStreak = useMemo(
     () => getRecentSkippedAnchorStreak(sortedAnchors, nowMinutes),
@@ -611,6 +645,7 @@ export function DailyAnchorsTimeline({
   }, []);
 
   const handleDragStart = useCallback((anchorId: AnchorId, e: React.MouseEvent | React.TouchEvent) => {
+    if (!isToday) return; // no drag-retime on past days
     e.preventDefault();
     setHoveredAnchor(null);
 
@@ -756,7 +791,7 @@ export function DailyAnchorsTimeline({
         <div className="relative p-0 lg:p-5 z-10">
           {/* Desktop header - side by side (mobile/tablet use card list) */}
           <div className="hidden lg:flex items-center justify-between gap-3 mb-6">
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
               <h2 className="text-card font-display text-text tracking-wide truncate">Daily Overview</h2>
               <span
                 className={`
@@ -766,6 +801,49 @@ export function DailyAnchorsTimeline({
               >
                 {overviewCompletedCount}/{overviewTotalCount}
               </span>
+              {/* Date navigation */}
+              <div className="flex items-center gap-0.5 ml-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const prev = new Date(viewDate);
+                    prev.setDate(prev.getDate() - 1);
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                    if (prev >= sevenDaysAgo) setViewDate(prev);
+                  }}
+                  className="flex h-6 w-6 items-center justify-center rounded-md text-text-muted/50 transition-colors hover:bg-bg-surface/80 hover:text-text-muted disabled:opacity-30"
+                  aria-label="Previous day"
+                  disabled={(() => {
+                    const limit = new Date();
+                    limit.setDate(limit.getDate() - 7);
+                    const prev = new Date(viewDate);
+                    prev.setDate(prev.getDate() - 1);
+                    return prev < limit;
+                  })()}
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                {!isToday && (
+                  <span className="px-1.5 text-[11px] font-medium text-text-muted/70 tabular-nums">
+                    {viewDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isToday) return;
+                    const next = new Date(viewDate);
+                    next.setDate(next.getDate() + 1);
+                    setViewDate(next);
+                  }}
+                  disabled={isToday}
+                  className="flex h-6 w-6 items-center justify-center rounded-md text-text-muted/50 transition-colors hover:bg-bg-surface/80 hover:text-text-muted disabled:opacity-30 disabled:cursor-default"
+                  aria-label="Next day"
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
             </div>
 
             <div className="relative w-9 h-9 shrink-0">
