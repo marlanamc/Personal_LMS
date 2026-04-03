@@ -115,6 +115,9 @@ const VALID_ICONS = new Set<AnchorIcon>([
   'users',
   'pen-tool',
   'zap',
+  'brush',
+  'shirt',
+  'washing-machine',
 ]);
 
 const VALID_COLORS = new Set<AnchorColor>(['peach', 'sky', 'mint', 'periwinkle', 'lavender', 'rose']);
