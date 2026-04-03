@@ -55,12 +55,7 @@ const LANE_COLORS: Record<ThoughtLane, {
   },
 };
 
-const LANE_LABELS: Record<ThoughtLane, string> = {
-  now: 'Now',
-  next: 'Next',
-  later: 'Later',
-  done: 'Done',
-};
+
 
 export function OrganizableBullet({
   bullet,
@@ -96,40 +91,13 @@ export function OrganizableBullet({
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <div
-        className={`group relative rounded-xl border overflow-hidden ${
-          laneConfig
-            ? `${laneConfig.bg} ${laneConfig.border}`
-            : 'border-border-subtle bg-bg-surface'
-        } transition-all duration-200 hover:scale-[1.01] ${
+        className={`group relative rounded-xl overflow-hidden transition-all duration-200 hover:bg-bg-surface hover:scale-[1.01] ${
           isDragging
-            ? 'opacity-50'
-            : ''
+            ? 'opacity-50 ring-2 ring-primary/20 bg-bg-surface'
+            : 'bg-bg-surface/50 border border-border-subtle/40 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-border-subtle/80 hover:shadow-sm'
         }`}
-        style={{
-          boxShadow: isDragging
-            ? 'var(--shadow-organize-card-hover)'
-            : 'var(--shadow-organize-card)',
-        }}
-        onMouseEnter={(e) => {
-          if (!isDragging) {
-            e.currentTarget.style.boxShadow = 'var(--shadow-organize-card-hover)';
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!isDragging) {
-            e.currentTarget.style.boxShadow = 'var(--shadow-organize-card)';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }
-        }}
       >
-        {/* Left Accent Bar */}
-        {laneConfig && (
-          <div
-            className={`absolute left-0 top-0 bottom-0 w-1 ${laneConfig.accentBar}`}
-            aria-hidden="true"
-          />
-        )}
+
 
         <div className="flex items-start gap-3 sm:gap-3 p-4 sm:p-3">
           {selectable && onToggleSelect ? (
@@ -148,14 +116,16 @@ export function OrganizableBullet({
             </button>
           ) : null}
 
-          {/* Drag Handle - Larger on mobile for easier grabbing */}
-          <button
-            {...listeners}
-            className="mt-0.5 cursor-grab touch-none text-text-muted/40 transition-all hover:text-text-muted hover:scale-110 active:cursor-grabbing p-2 sm:p-1.5 -ml-2 sm:-ml-1.5"
-            aria-label="Drag to reorder"
-          >
-            <GripVertical className="h-6 w-6 sm:h-5 sm:w-5" />
-          </button>
+          {/* Drag Handle - Hidden until hover on desktop */}
+          <div className="opacity-40 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+            <button
+              {...listeners}
+              className="mt-0.5 cursor-grab touch-none text-text-muted/60 transition-all hover:text-text-muted hover:scale-110 active:cursor-grabbing p-2 sm:p-1.5 -ml-2 sm:-ml-1.5"
+              aria-label="Drag to reorder"
+            >
+              <GripVertical className="h-5 w-5 sm:h-4 sm:w-4" />
+            </button>
+          </div>
 
           {/* Content */}
           <div className="flex-1">
@@ -188,11 +158,7 @@ export function OrganizableBullet({
                           {bullet.projectMeta.label}
                         </span>
                       )}
-                      {bullet.lane && (
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${laneConfig?.badge} transition-all hover:scale-105`}>
-                          {LANE_LABELS[bullet.lane]}
-                        </span>
-                      )}
+
                       {bullet.source && (
                         <span className="inline-flex items-center rounded-full bg-bg-elevated/90 border border-border-subtle/60 px-2.5 py-1 text-[10px] font-medium text-text-muted/80 transition-all hover:scale-105 hover:border-border-subtle">
                           from{' '}
@@ -221,7 +187,7 @@ export function OrganizableBullet({
             )}
 
             {!isEditable ? (
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="absolute right-3 bottom-1.5 opacity-0 group-hover:opacity-100 sm:group-hover:flex items-center gap-1 transition-opacity hidden">
                 {bullet.project ? (
                   <button
                     type="button"
@@ -230,14 +196,14 @@ export function OrganizableBullet({
                         lane: isDone ? 'next' : 'done',
                       })
                     }
-                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                    className={`p-1.5 rounded-full transition-colors ${
                       isDone
-                        ? 'border border-border-subtle/70 bg-bg-surface/80 text-text-muted hover:bg-bg-elevated hover:text-text'
-                        : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                        ? 'text-text-muted hover:bg-bg-elevated hover:text-text'
+                        : 'text-text-muted hover:text-emerald-600 hover:bg-emerald-500/10'
                     }`}
+                    aria-label={isDone ? 'Reopen' : 'Done'}
                   >
                     {isDone ? <RotateCcw className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
-                    {isDone ? 'Reopen' : 'Done'}
                   </button>
                 ) : null}
 
@@ -245,10 +211,10 @@ export function OrganizableBullet({
                   <button
                     type="button"
                     onClick={onDelete}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-error/25 bg-error/6 px-3 py-1.5 text-[11px] font-semibold text-error/85 transition-colors hover:bg-error/10 hover:text-error"
+                    className="p-1.5 rounded-full text-text-muted transition-colors hover:bg-error/10 hover:text-error"
+                    aria-label="Delete"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                    Delete
                   </button>
                 ) : null}
               </div>

@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, ChevronLeft, ChevronRight, Eye, EyeOff, MoreHorizontal, Plus, Trash2, Undo2, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, Eye, EyeOff, MoreHorizontal, Plus, Trash2, Undo2, X } from 'lucide-react';
 import {
   closestCenter,
   DndContext,
@@ -37,42 +37,30 @@ interface ThoughtOrganizeModeProps {
   onClose?: () => void;
   isInline?: boolean;
   standalone?: boolean;
+  hideHeader?: boolean;
+  showDone?: boolean;
+  onAddProject?: () => void;
 }
 
 const LANE_CONFIG: Record<ThoughtLane, {
   label: string;
-  hint: string;
   dotClass: string;
-  borderClass: string;
-  surfaceClass: string;
 }> = {
   now: {
     label: 'Now',
-    hint: 'Needs your attention first',
     dotClass: 'bg-primary',
-    borderClass: 'border-primary/25',
-    surfaceClass: 'bg-primary/[0.06]',
   },
   next: {
     label: 'Next',
-    hint: 'Important, but not first',
     dotClass: 'bg-accent-teal',
-    borderClass: 'border-accent-teal/25',
-    surfaceClass: 'bg-accent-teal/[0.06]',
   },
   later: {
     label: 'Later',
-    hint: 'Keep it visible without pressure',
     dotClass: 'bg-accent-mint',
-    borderClass: 'border-accent-mint/25',
-    surfaceClass: 'bg-accent-mint/[0.06]',
   },
   done: {
     label: 'Done',
-    hint: 'Completed and out of the way',
     dotClass: 'bg-emerald-600',
-    borderClass: 'border-emerald-500/25',
-    surfaceClass: 'bg-emerald-500/[0.06]',
   },
 };
 
@@ -205,22 +193,14 @@ function DroppableLane({
 
       <div
         ref={setNodeRef}
-        className={`min-h-[11rem] rounded-[1.1rem] border p-3 sm:p-2.5 transition-all duration-200 ${config.borderClass} ${config.surfaceClass} ${
-          isOver ? 'ring-2 ring-primary/40 border-primary/40 bg-primary/8 shadow-[0_0_20px_rgba(212,138,166,0.2)] scale-[1.01]' : ''
+        className={`min-h-[11rem] py-2 transition-all duration-200 border-t border-border-subtle/30 ${
+          isOver ? 'rounded-xl bg-bg-surface/50 scale-[1.01]' : ''
         }`}
       >
         <SortableContext items={bulletIds} strategy={verticalListSortingStrategy}>
           <div className="space-y-2">
             {bullets.length === 0 ? (
-              <div className="flex min-h-[9rem] items-center justify-center rounded-[1rem] border border-dashed border-white/20 px-4 py-6 text-center">
-                <div>
-                  <p className="text-sm sm:text-xs font-semibold sm:font-medium text-text-muted">{config.hint}</p>
-                  <p className="mt-1.5 text-xs sm:text-[11px] text-text-muted/70">
-                    <span className="lg:hidden">Drag bullets here</span>
-                    <span className="hidden lg:inline">Drop a thought here</span>
-                  </p>
-                </div>
-              </div>
+              <div className="min-h-[4rem]" />
             ) : (
               bullets.map((bullet) => (
                 <OrganizableBullet
@@ -276,22 +256,18 @@ function DroppableInbox({
         initial={{ opacity: 0, x: -24 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="w-full lg:w-[5.5rem] shrink-0 rounded-[1.35rem] border border-border-subtle/60 bg-bg-surface/40 p-2.5"
-        style={{ boxShadow: 'var(--shadow-organize-card)' }}
+        className="w-full lg:w-[4rem] shrink-0 p-2 rounded-[1.5rem] bg-bg-surface/30 border border-border-subtle/30"
       >
         <button
           type="button"
           onClick={onToggle}
-          className="flex w-full flex-row lg:flex-col items-center justify-between lg:justify-center gap-3 lg:gap-3 rounded-[1rem] border border-dashed border-border-subtle/70 bg-bg-base/20 px-4 lg:px-2 py-3 lg:py-4 text-center transition-all hover:bg-bg-surface/40 hover:border-primary/30 touch-manipulation min-h-[44px] lg:min-h-0"
+          className="flex w-full flex-row lg:flex-col items-center justify-between lg:justify-center gap-2 lg:gap-3 px-2 py-3 lg:py-4 text-center transition-all hover:opacity-70 min-h-[44px] lg:min-h-0"
           aria-label="Show inbox"
         >
-          <div className="flex items-center gap-2 lg:flex-col lg:gap-3">
-            <span className="rounded-full bg-bg-elevated/90 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-text-muted transition-colors hover:text-text">
-              {bullets.length}
-            </span>
-            <span className="text-sm lg:text-xs font-semibold uppercase tracking-[0.22em] text-text">Inbox</span>
+          <div className="flex items-center gap-2 lg:flex-col lg:gap-2">
+            <span className="text-xs font-semibold text-text-muted">{bullets.length}</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-text-muted" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>Inbox</span>
           </div>
-          <ChevronRight className="h-5 w-5 lg:h-4 lg:w-4 text-text-muted transition-transform group-hover:translate-x-0.5" />
         </button>
       </motion.div>
     );
@@ -302,8 +278,7 @@ function DroppableInbox({
       initial={{ opacity: 0, x: -24 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="w-full lg:w-[15rem] shrink-0 rounded-[1.35rem] border border-border-subtle/60 bg-bg-surface/40 p-3"
-      style={{ boxShadow: 'var(--shadow-organize-card)' }}
+      className="w-full lg:w-[15.5rem] shrink-0 p-3 rounded-[1.5rem] bg-bg-surface/30 border border-border-subtle/30"
     >
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
@@ -324,20 +299,17 @@ function DroppableInbox({
 
       {selectedIds.length > 0 ? (
         <div className="mb-3 rounded-[1rem] border border-primary/20 bg-primary/[0.06] p-3">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-text-muted">
+          <div className="flex items-center gap-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-text-muted">
               {selectedIds.length} selected
             </p>
             <button
               type="button"
               onClick={onClearSelection}
-              className="text-xs font-semibold text-text-muted hover:text-text"
+              className="text-[10px] font-semibold text-text-muted hover:text-text"
             >
               Clear
             </button>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <p className="text-xs text-text-muted">Pick a project, then send the selected bullets directly into a lane.</p>
           </div>
           {existingProjects.length > 0 ? (
             <div className="mt-2 flex items-center gap-2">
@@ -404,19 +376,14 @@ function DroppableInbox({
 
       <div
         ref={setNodeRef}
-        className={`min-h-[32rem] rounded-[1rem] border border-dashed border-border-subtle/70 bg-bg-base/20 p-2 transition-all ${
-          isOver ? 'ring-2 ring-primary/30 bg-bg-elevated/60' : ''
+        className={`min-h-[32rem] p-1 transition-all ${
+          isOver ? 'ring-2 ring-primary/30 rounded-xl bg-bg-elevated/60' : ''
         }`}
       >
         <SortableContext items={bulletIds} strategy={verticalListSortingStrategy}>
           <div className="space-y-2">
             {bullets.length === 0 ? (
-              <div className="flex min-h-[28rem] items-center justify-center px-4 text-center">
-                <div>
-                  <p className="text-sm font-medium text-text-muted">Inbox is clear</p>
-                  <p className="mt-1 text-xs text-text-muted/70">New capture bullets will land here first</p>
-                </div>
-              </div>
+              <div className="min-h-[28rem]" />
             ) : (
               bullets.map((bullet) => (
                 <OrganizableBullet
@@ -439,7 +406,11 @@ function DroppableInbox({
   );
 }
 
-export function ThoughtOrganizeMode({
+export interface ThoughtOrganizeModeActions {
+  openCreateProject: () => void;
+}
+
+export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, ThoughtOrganizeModeProps>(({
   dateKey,
   markdown,
   organization,
@@ -447,9 +418,22 @@ export function ThoughtOrganizeMode({
   onClose,
   isInline = false,
   standalone = false,
-}: ThoughtOrganizeModeProps) {
+  hideHeader = false,
+  showDone: showDoneProp,
+  onAddProject,
+}, ref) => {
   const [mounted, setMounted] = useState(false);
   const [activeBullet, setActiveBullet] = useState<ThoughtBullet | null>(null);
+  const [showDoneInternal, setShowDoneInternal] = useState(false);
+  const showDoneLanes = showDoneProp !== undefined ? showDoneProp : showDoneInternal;
+  const setShowDoneLanes = (val: boolean | ((p: boolean) => boolean)) => {
+    if (typeof val === 'function') {
+      setShowDoneInternal((p) => val(p));
+    } else {
+      setShowDoneInternal(val);
+    }
+  };
+
   const [localOrg, setLocalOrg] = useState<ThoughtOrganization>(() =>
     standalone && organization
       ? organization
@@ -462,7 +446,7 @@ export function ThoughtOrganizeMode({
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectColor, setNewProjectColor] = useState<ProjectColor>('lavender');
   const [inboxCollapsed, setInboxCollapsed] = useState(true);
-  const [showDoneLanes, setShowDoneLanes] = useState(false);
+
   const [collapsedDoneProjects, setCollapsedDoneProjects] = useState<Record<string, boolean>>({});
   const [selectedInboxIds, setSelectedInboxIds] = useState<string[]>([]);
   const [projectMenuId, setProjectMenuId] = useState<string | null>(null);
@@ -474,12 +458,10 @@ export function ThoughtOrganizeMode({
 
   useEffect(() => {
     if (standalone) {
-      // In standalone mode, use organization directly without reconciliation
       if (organization) {
         setLocalOrg(organization);
       }
     } else {
-      // In per-day mode, reconcile bullets from markdown
       setLocalOrg(reconcileBullets(markdown ?? '', organization));
     }
   }, [markdown, organization, dateKey, standalone]);
@@ -538,6 +520,10 @@ export function ThoughtOrganizeMode({
     setShowProjectModal(true);
     setProjectMenuId(null);
   };
+
+  useImperativeHandle(ref, () => ({
+    openCreateProject,
+  }));
 
   const openEditProject = (project: ProjectMeta) => {
     setEditingProjectId(project.id);
@@ -820,34 +806,28 @@ export function ThoughtOrganizeMode({
 
   const contentBody = (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border-subtle/60 bg-bg-surface/55 px-4 py-3 sm:py-4 backdrop-blur-xl sm:px-6">
-        <div className="flex-1 min-w-0">
-          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.22em] text-text-muted">Organize</p>
-          <h2 className="mt-1 text-sm sm:text-base font-semibold text-text">
-            <span className="lg:hidden">Tap bullets to edit • Drag to organize</span>
-            <span className="hidden lg:inline">Drag thoughts from Inbox into a project</span>
-          </h2>
+      {!hideHeader && (
+        <div className="flex flex-wrap items-center justify-end gap-3 px-4 py-3 sm:py-4 sm:px-6">
+  
+          <button
+            type="button"
+            onClick={onAddProject || openCreateProject}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:text-text touch-manipulation"
+          >
+            <Plus className="h-4 w-4" />
+            <span>New project</span>
+          </button>
+  
+          <button
+            type="button"
+            onClick={() => setShowDoneLanes((value) => !value)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:text-text"
+          >
+            {showDoneLanes ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showDoneLanes ? 'Hide done' : 'Show done'}
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={openCreateProject}
-          className="inline-flex items-center gap-2 rounded-full border border-border-subtle/80 bg-bg-elevated/70 px-4 py-2.5 sm:px-3 sm:py-2 text-sm sm:text-xs font-semibold text-text transition-colors hover:bg-bg-elevated touch-manipulation min-h-[44px] sm:min-h-0"
-        >
-          <Plus className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
-          <span className="hidden sm:inline">New project</span>
-          <span className="sm:hidden">New</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setShowDoneLanes((value) => !value)}
-          className="inline-flex items-center gap-2 rounded-full border border-border-subtle/80 bg-bg-elevated/70 px-4 py-2.5 text-sm sm:text-xs font-semibold text-text transition-colors hover:bg-bg-elevated"
-        >
-          {showDoneLanes ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          {showDoneLanes ? 'Hide done' : 'Show done'}
-        </button>
-      </div>
+      )}
 
       {undoState ? (
         <div className="border-b border-border-subtle/50 bg-bg-elevated/45 px-4 py-2.5 sm:px-6">
@@ -887,13 +867,9 @@ export function ThoughtOrganizeMode({
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-text-muted">
-                    {editingProjectId ? 'Edit Project' : 'New Project'}
-                  </p>
-                  <h3 id="thought-project-modal-title" className="mt-1 text-lg font-semibold text-text">
+                  <h3 id="thought-project-modal-title" className="text-lg font-semibold text-text">
                     {editingProjectId ? 'Update project' : 'Add a project column'}
                   </h3>
-                  <p className="mt-1 text-sm text-text-muted">Give it a name and color so it reads quickly while you drag.</p>
                 </div>
                 <button
                   type="button"
@@ -993,25 +969,24 @@ export function ThoughtOrganizeMode({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-20 flex items-center justify-center bg-black/25 p-4 backdrop-blur-[2px]"
+            className="absolute inset-0 z-20 flex items-center justify-center bg-black/5 p-4 backdrop-blur-[1px]"
             onClick={() => setMergeProjectId(null)}
           >
             <motion.div
-              initial={{ opacity: 0, y: 12, scale: 0.96 }}
+              initial={{ opacity: 0, y: 8, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 12, scale: 0.96 }}
-              transition={{ duration: 0.18 }}
-              className="w-full max-w-md rounded-[1.75rem] border border-border-subtle/70 bg-bg-elevated/95 p-5 shadow-2xl backdrop-blur-xl"
+              exit={{ opacity: 0, y: 8, scale: 0.98 }}
+              transition={{ duration: 0.15 }}
+              className="w-full max-w-md rounded-2xl border border-border-subtle/70 bg-bg-surface/95 p-5 shadow-2xl backdrop-blur-xl"
               onClick={(event) => event.stopPropagation()}
             >
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-text-muted">Merge Project</p>
-              <h3 className="mt-1 text-lg font-semibold text-text">Move everything into another project</h3>
-              <p className="mt-1 text-sm text-text-muted">Bullets from this project will be reassigned and the source project will be removed.</p>
+              <h3 className="text-sm font-semibold text-text">Merge Project</h3>
+              <p className="mt-1 text-xs text-text-muted">Move all bullets into another project.</p>
 
               <select
                 value={mergeTargetId}
                 onChange={(event) => setMergeTargetId(event.target.value)}
-                className="mt-4 w-full rounded-2xl border border-border-subtle bg-bg-surface px-4 py-3 text-sm text-text"
+                className="mt-4 w-full rounded-xl border border-border-subtle bg-bg-base px-3 py-2 text-sm text-text focus:outline-none focus:border-primary"
               >
                 <option value="">Choose target project</option>
                 {localOrg.projects
@@ -1080,18 +1055,9 @@ export function ThoughtOrganizeMode({
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + index * 0.1, duration: 0.4, ease: 'easeOut' }}
-                  className="w-full lg:w-[19.5rem] shrink-0 rounded-[1.35rem] border border-border-subtle/60 bg-bg-surface/40 p-3 transition-all duration-200 hover:bg-bg-surface/50"
-                  style={{ boxShadow: 'var(--shadow-organize-card)' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = 'var(--shadow-organize-card-hover)';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = 'var(--shadow-organize-card)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
+                  className="w-full lg:w-[19.5rem] shrink-0 p-3 rounded-[1.5rem] bg-bg-surface/30 border border-border-subtle/30 transition-all duration-200"
                 >
-                  <div className="relative mb-3 flex items-start justify-between gap-3 border-b border-border-subtle/30 pb-3">
+                  <div className="relative mb-3 flex items-start justify-between gap-3 pb-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span className={`moment-tag-pill moment-tag-pill-selected-${column.projectMeta?.color ?? 'lavender'} transition-transform hover:scale-105`}>
@@ -1206,14 +1172,7 @@ export function ThoughtOrganizeMode({
                 </motion.div>
               ))}
 
-              {projectColumns.length === 0 && localOrg.projects.length === 0 ? (
-                <div className="flex w-[19.5rem] shrink-0 items-center justify-center rounded-[1.35rem] border border-dashed border-border-subtle/80 bg-bg-surface/25 p-6 text-center">
-                  <div>
-                    <p className="text-sm font-medium text-text">No projects yet</p>
-                    <p className="mt-1 text-xs text-text-muted">Create a project, then drag thoughts out of Inbox.</p>
-                  </div>
-                </div>
-              ) : null}
+              {projectColumns.length === 0 && localOrg.projects.length === 0 ? null : null}
             </div>
           )}
 
@@ -1275,4 +1234,6 @@ export function ThoughtOrganizeMode({
   );
 
   return createPortal(content, document.body);
-}
+});
+
+ThoughtOrganizeMode.displayName = 'ThoughtOrganizeMode';
