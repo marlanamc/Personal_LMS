@@ -232,7 +232,9 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
 
   const handleSendText = () => {
     if (!focusItem) return;
-    const text = encodeURIComponent(focusItem.text);
+    // Remove surrounding quotes if they exist, to make the message feel more natural in SMS
+    const cleanedText = focusItem.text.replace(/^["'](.*)["']$/, '$1');
+    const text = encodeURIComponent(cleanedText);
     // Simple sms intent. Depending on OS works differently, but generally reliable.
     window.location.href = `sms:?&body=${text}`;
   };

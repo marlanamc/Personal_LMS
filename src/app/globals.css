@@ -5582,6 +5582,49 @@ kbd {
   box-shadow: none !important;
 }
 
+.mdxeditor-theme-custom table {
+  width: auto;
+  max-width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.mdxeditor-theme-custom th,
+.mdxeditor-theme-custom td {
+  vertical-align: top;
+  padding: 0.75rem;
+  min-width: 4.5rem;
+  max-width: 14rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.mdxeditor-theme-custom thead th {
+  background: color-mix(in srgb, var(--color-accent-sakura) 14%, white);
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.mdxeditor-theme-custom tbody tr:first-child td {
+  border-top-width: 2px;
+}
+
+.mdxeditor-theme-custom th:first-child,
+.mdxeditor-theme-custom td:first-child {
+  background: color-mix(in srgb, var(--color-accent-teal) 12%, white);
+  font-weight: 600;
+}
+
+.mdxeditor-theme-custom table [data-lexical-editor] {
+  min-height: 1.5rem !important;
+}
+
+.mdxeditor-theme-custom table .prose,
+.mdxeditor-theme-custom table p {
+  margin: 0 !important;
+}
+
 .mdxeditor-theme-custom [data-lexical-editor]:focus,
 .mdxeditor-theme-custom [data-lexical-editor]:focus-visible {
   outline: none !important;

@@ -98,25 +98,47 @@ export function HomePlanningHub({
               title="Planning"
               icon={Calendar}
               href="/dashboard/day-planner"
+              primaryLabel="Open day planner"
               color="blue"
+              shortcuts={[
+                { label: 'Calendar', href: '/dashboard/calendar' },
+                { label: 'Anchors', href: '/dashboard/anchors' },
+                { label: 'Meals', href: '/dashboard/meal-planner' },
+              ]}
             />
             <AreaCard
               title="Thinking"
               icon={Sparkles}
               href="/dashboard/workspace"
+              primaryLabel="Open workspace"
               color="purple"
+              shortcuts={[
+                { label: 'Thought Download', href: '/dashboard/thought-download' },
+                { label: 'Organize', href: '/dashboard/organize' },
+                { label: 'Moment Log', href: '/dashboard/interstitial-journalling' },
+              ]}
             />
             <AreaCard
               title="Focus"
               icon={Timer}
               href="/dashboard/timer"
+              primaryLabel="Start focus timer"
               color="orange"
+              shortcuts={[
+                { label: 'Crisis Mode', href: '/dashboard/crisis' },
+                { label: 'Health Log', href: '/dashboard/health-tracker' },
+              ]}
             />
             <AreaCard
               title="Learning"
               icon={BookOpen}
               href="/dashboard/subjects"
+              primaryLabel="Open subjects"
               color="green"
+              shortcuts={[
+                { label: 'Spanish', href: '/dashboard/spanish-course-map' },
+                { label: 'Coding', href: '/dashboard/coding-course-map' },
+              ]}
             />
           </div>
         </section>

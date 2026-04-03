@@ -33,6 +33,8 @@ import {
 import {
   ANCHOR_COLOR_OPTIONS,
   buildUniformWeeklySchedule,
+  formatTimeLabel,
+  formatTimeRange,
   getAnchorColorPalette,
   sanitizeAnchorId,
   type AnchorColor,
@@ -136,7 +138,9 @@ function scheduleSummary(schedule: WeeklyAnchorSchedule): string {
         (schedule[day]?.endTime ?? undefined) === (first?.endTime ?? undefined),
     );
     if (allSame && first) {
-      return first.endTime ? `Every day · ${first.scheduledTime}-${first.endTime}` : `Every day · ${first.scheduledTime}`;
+      return first.endTime
+        ? `Every day · ${formatTimeRange(first.scheduledTime, first.endTime, true)}`
+        : `Every day · ${formatTimeLabel(first.scheduledTime)}`;
     }
     return 'Every day · custom times';
   }

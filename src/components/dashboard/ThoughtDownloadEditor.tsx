@@ -10,11 +10,13 @@ import {
   markdownShortcutPlugin,
   toolbarPlugin,
   diffSourcePlugin,
+  tablePlugin,
   DiffSourceToggleWrapper,
   UndoRedo,
   BoldItalicUnderlineToggles,
   ListsToggle,
   BlockTypeSelect,
+  InsertTable,
   MDXEditorMethods,
 } from '@mdxeditor/editor';
 import '@mdxeditor/editor/style.css';
@@ -45,6 +47,7 @@ const ThoughtDownloadEditor = forwardRef<MDXEditorMethods, ThoughtDownloadEditor
             listsPlugin(),
             quotePlugin(),
             thematicBreakPlugin(),
+            tablePlugin(),
             markdownShortcutPlugin(),
             diffSourcePlugin({ viewMode: 'rich-text' }),
             toolbarPlugin({
@@ -53,6 +56,7 @@ const ThoughtDownloadEditor = forwardRef<MDXEditorMethods, ThoughtDownloadEditor
                   <UndoRedo />
                   <BoldItalicUnderlineToggles />
                   <ListsToggle options={['bullet', 'number', 'check']} />
+                  <InsertTable />
                   <BlockTypeSelect />
                 </DiffSourceToggleWrapper>
               ),
