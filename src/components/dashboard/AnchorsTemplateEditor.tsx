@@ -373,19 +373,9 @@ export function AnchorsTemplateEditor({
       </div>
 
       <div className="p-5 lg:p-7">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-text-muted">
-            Set different times per day and add a why-note to each anchor.
-          </p>
-          <button
-            type="button"
-            onClick={addAnchor}
-            className="inline-flex items-center gap-2 rounded-lg border border-border-subtle/80 bg-bg-elevated/60 px-4 py-2 text-sm font-semibold text-text transition-colors hover:border-border-subtle hover:bg-bg-elevated"
-          >
-            <Plus size={15} />
-            Add anchor
-          </button>
-        </div>
+        <p className="mb-5 text-sm text-text-muted">
+          Set different times per day and add a why-note to each anchor.
+        </p>
 
         {draftTemplates.length === 0 ? (
           <div className="rounded-[1.75rem] border border-dashed border-border-subtle/60 bg-bg-elevated/25 px-6 py-12 text-center">
@@ -675,6 +665,15 @@ export function AnchorsTemplateEditor({
             })}
           </Reorder.Group>
         )}
+
+        <button
+          type="button"
+          onClick={addAnchor}
+          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-border-subtle/80 bg-bg-elevated/60 px-4 py-2 text-sm font-semibold text-text transition-colors hover:border-border-subtle hover:bg-bg-elevated"
+        >
+          <Plus size={15} />
+          Add anchor
+        </button>
 
         {!isEmbedded ? (
           <div className="mt-6 flex justify-end border-t border-border-subtle/40 pt-5">
