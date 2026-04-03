@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical } from 'lucide-react';
+import { Check, GripVertical, RotateCcw, Trash2 } from 'lucide-react';
 import type { ThoughtBullet, ThoughtLane } from '@/lib/thought-organization';
 import { BulletInlineEditor } from './BulletInlineEditor';
 
@@ -11,7 +11,11 @@ interface OrganizableBulletProps {
   bullet: ThoughtBullet;
   existingProjects: import('@/lib/thought-organization').ProjectMeta[];
   onUpdate: (updates: Partial<ThoughtBullet>) => void;
+  onDelete?: () => void;
   interactionMode?: 'editable' | 'drag-only';
+  selectable?: boolean;
+  selected?: boolean;
+  onToggleSelect?: () => void;
 }
 
 const LANE_COLORS: Record<ThoughtLane, {
@@ -42,19 +46,31 @@ const LANE_COLORS: Record<ThoughtLane, {
     badge: 'bg-accent-mint/12 text-accent-mint',
     accentBar: 'bg-gradient-to-b from-accent-mint/80 via-accent-mint to-accent-mint/60',
   },
+  done: {
+    dot: 'bg-emerald-600',
+    bg: 'bg-emerald-500/6',
+    border: 'border-emerald-500/20',
+    badge: 'bg-emerald-500/12 text-emerald-700',
+    accentBar: 'bg-gradient-to-b from-emerald-500/80 via-emerald-600 to-emerald-700/70',
+  },
 };
 
 const LANE_LABELS: Record<ThoughtLane, string> = {
   now: 'Now',
   next: 'Next',
   later: 'Later',
+  done: 'Done',
 };
 
 export function OrganizableBullet({
   bullet,
   existingProjects,
   onUpdate,
+  onDelete,
   interactionMode = 'editable',
+  selectable = false,
+  selected = false,
+  onToggleSelect,
 }: OrganizableBulletProps) {
   const [isEditing, setIsEditing] = useState(false);
   const isEditable = interactionMode === 'editable';
@@ -75,6 +91,7 @@ export function OrganizableBullet({
   };
 
   const laneConfig = bullet.lane ? LANE_COLORS[bullet.lane] : null;
+  const isDone = bullet.lane === 'done';
 
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
@@ -115,6 +132,22 @@ export function OrganizableBullet({
         )}
 
         <div className="flex items-start gap-3 sm:gap-3 p-4 sm:p-3">
+          {selectable && onToggleSelect ? (
+            <button
+              type="button"
+              onClick={onToggleSelect}
+              className={`mt-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-colors ${
+                selected
+                  ? 'border-primary bg-primary text-white'
+                  : 'border-border-subtle/70 bg-bg-surface/90 text-text-muted hover:border-primary/40 hover:text-text'
+              }`}
+              aria-pressed={selected}
+              aria-label={selected ? 'Deselect bullet' : 'Select bullet'}
+            >
+              {selected ? <Check className="h-3.5 w-3.5" /> : null}
+            </button>
+          ) : null}
+
           {/* Drag Handle - Larger on mobile for easier grabbing */}
           <button
             {...listeners}
@@ -186,6 +219,40 @@ export function OrganizableBullet({
                 />
               </div>
             )}
+
+            {!isEditable ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {bullet.project ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUpdate({
+                        lane: isDone ? 'next' : 'done',
+                      })
+                    }
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                      isDone
+                        ? 'border border-border-subtle/70 bg-bg-surface/80 text-text-muted hover:bg-bg-elevated hover:text-text'
+                        : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                    }`}
+                  >
+                    {isDone ? <RotateCcw className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
+                    {isDone ? 'Reopen' : 'Done'}
+                  </button>
+                ) : null}
+
+                {onDelete ? (
+                  <button
+                    type="button"
+                    onClick={onDelete}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-error/25 bg-error/6 px-3 py-1.5 text-[11px] font-semibold text-error/85 transition-colors hover:bg-error/10 hover:text-error"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

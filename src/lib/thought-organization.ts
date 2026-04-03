@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid';
 
 // Types
 export type Priority = 'high' | 'medium' | 'low';
-export type ThoughtLane = 'now' | 'next' | 'later';
+export type ThoughtLane = 'now' | 'next' | 'later' | 'done';
 
 export type ProjectColor = 'peach' | 'sky' | 'mint' | 'periwinkle' | 'lavender' | 'rose' | 'coral' | 'sage' | 'blush' | 'slate';
 
@@ -44,7 +44,7 @@ export interface ParsedBullet {
   markerType: 'unordered' | 'ordered';
 }
 
-export const THOUGHT_LANES: ThoughtLane[] = ['now', 'next', 'later'];
+export const THOUGHT_LANES: ThoughtLane[] = ['now', 'next', 'later', 'done'];
 
 export function priorityToLane(priority?: Priority): ThoughtLane | undefined {
   if (priority === 'high') return 'now';
@@ -262,7 +262,7 @@ export function normalizeOrganization(
       priority: ['high', 'medium', 'low'].includes(b.priority || '')
         ? (b.priority as Priority)
         : undefined,
-      lane: ['now', 'next', 'later'].includes((b.lane || ''))
+      lane: ['now', 'next', 'later', 'done'].includes((b.lane || ''))
         ? (b.lane as ThoughtLane)
         : undefined,
       project: b.project && b.project.length <= 50 ? b.project.trim() : undefined,
@@ -382,6 +382,7 @@ export function groupByProjectLane(
       now: [],
       next: [],
       later: [],
+      done: [],
     },
   });
 
@@ -395,6 +396,7 @@ export function groupByProjectLane(
         now: [],
         next: [],
         later: [],
+        done: [],
       },
     });
   });
@@ -414,6 +416,7 @@ export function groupByProjectLane(
         now: [],
         next: [],
         later: [],
+        done: [],
       },
     };
 
@@ -438,6 +441,7 @@ export function groupByProjectLane(
         now: sortBullets([...group.lanes.now]),
         next: sortBullets([...group.lanes.next]),
         later: sortBullets([...group.lanes.later]),
+        done: sortBullets([...group.lanes.done]),
       },
     }));
 

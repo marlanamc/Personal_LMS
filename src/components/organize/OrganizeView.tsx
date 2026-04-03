@@ -98,7 +98,7 @@ export function OrganizeView() {
               <h2 className="text-2xl font-display font-bold text-text mb-3">Welcome to Organize!</h2>
               <p className="text-base text-text-muted/90 mb-8 leading-relaxed">
                 This is your cross-day project workspace. Organize thoughts from any day into projects
-                with Now/Next/Later priorities.
+                with Now, Next, Later, and Done lanes.
               </p>
               <div className="flex items-center justify-center gap-3">
                 <button

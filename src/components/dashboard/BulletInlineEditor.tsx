@@ -21,6 +21,7 @@ const LANE_BUTTONS = [
   { value: 'now' as ThoughtLane, label: 'Now', color: 'bg-primary text-white hover:bg-primary/90' },
   { value: 'next' as ThoughtLane, label: 'Next', color: 'bg-accent-teal text-white hover:bg-accent-teal/90' },
   { value: 'later' as ThoughtLane, label: 'Later', color: 'bg-accent-mint text-white hover:bg-accent-mint/90' },
+  { value: 'done' as ThoughtLane, label: 'Done', color: 'bg-emerald-600 text-white hover:bg-emerald-700' },
 ];
 
 const COLOR_OPTIONS: ProjectColor[] = ['peach', 'coral', 'sky', 'mint', 'sage', 'periwinkle', 'lavender', 'blush', 'rose', 'slate'];

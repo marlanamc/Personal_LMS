@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Eye, EyeOff, MoreHorizontal, Plus, Trash2, Undo2, X } from 'lucide-react';
 import {
   closestCenter,
   DndContext,
@@ -26,6 +26,8 @@ import {
   type ThoughtOrganization,
 } from '@/lib/thought-organization';
 import { OrganizableBullet } from './OrganizableBullet';
+
+const ACTIVE_LANES: ThoughtLane[] = ['now', 'next', 'later'];
 
 interface ThoughtOrganizeModeProps {
   dateKey?: string;
@@ -65,6 +67,13 @@ const LANE_CONFIG: Record<ThoughtLane, {
     borderClass: 'border-accent-mint/25',
     surfaceClass: 'bg-accent-mint/[0.06]',
   },
+  done: {
+    label: 'Done',
+    hint: 'Completed and out of the way',
+    dotClass: 'bg-emerald-600',
+    borderClass: 'border-emerald-500/25',
+    surfaceClass: 'bg-emerald-500/[0.06]',
+  },
 };
 
 const PROJECT_COLORS: ProjectColor[] = ['lavender', 'mint', 'sky', 'peach', 'rose', 'sage', 'periwinkle', 'coral', 'blush', 'slate'];
@@ -82,7 +91,7 @@ function parseDropId(id: string): { isInbox: boolean; projectId?: string; lane?:
     return { isInbox: true };
   }
 
-  const match = /^lane:(.+):(now|next|later)$/.exec(id);
+  const match = /^lane:(.+):(now|next|later|done)$/.exec(id);
   if (!match) return null;
 
   return {
@@ -146,16 +155,43 @@ function DroppableLane({
   bullets,
   existingProjects,
   onUpdateBullet,
+  onDeleteBullet,
+  collapsed = false,
+  onToggleCollapsed,
 }: {
   id: string;
   lane: ThoughtLane;
   bullets: ThoughtBullet[];
   existingProjects: ProjectMeta[];
   onUpdateBullet: (bulletId: string, updates: Partial<ThoughtBullet>) => void;
+  onDeleteBullet: (bulletId: string) => void;
+  collapsed?: boolean;
+  onToggleCollapsed?: () => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   const config = LANE_CONFIG[lane];
   const bulletIds = bullets.map((bullet) => bullet.id);
+
+  if (lane === 'done' && collapsed) {
+    return (
+      <div className="rounded-[1rem] border border-emerald-500/20 bg-emerald-500/[0.05] px-3 py-2">
+        <button
+          type="button"
+          onClick={onToggleCollapsed}
+          className="flex w-full items-center justify-between gap-3 text-left"
+        >
+          <div>
+            <p className="text-sm font-semibold text-text">Done</p>
+            <p className="text-xs text-text-muted">{bullets.length} completed</p>
+          </div>
+          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-bg-surface/80 px-2.5 py-1 text-[11px] font-semibold text-text-muted">
+            Show
+            <ChevronDown className="h-3.5 w-3.5" />
+          </span>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[13rem]">
@@ -192,6 +228,7 @@ function DroppableLane({
                   bullet={bullet}
                   existingProjects={existingProjects}
                   onUpdate={(updates) => onUpdateBullet(bullet.id, updates)}
+                  onDelete={() => onDeleteBullet(bullet.id)}
                   interactionMode="drag-only"
                 />
               ))
@@ -207,18 +244,31 @@ function DroppableInbox({
   bullets,
   existingProjects,
   onUpdateBullet,
+  onDeleteBullet,
+  selectedIds,
+  onToggleSelected,
+  onClearSelection,
+  onBatchUpdate,
+  onBatchDelete,
   collapsed,
   onToggle,
 }: {
   bullets: ThoughtBullet[];
   existingProjects: ProjectMeta[];
   onUpdateBullet: (bulletId: string, updates: Partial<ThoughtBullet>) => void;
+  onDeleteBullet: (bulletId: string) => void;
+  selectedIds: string[];
+  onToggleSelected: (bulletId: string) => void;
+  onClearSelection: () => void;
+  onBatchUpdate: (updates: Partial<ThoughtBullet>) => void;
+  onBatchDelete: () => void;
   collapsed: boolean;
   onToggle: () => void;
 }) {
   const id = inboxDropId();
   const { setNodeRef, isOver } = useDroppable({ id });
   const bulletIds = bullets.map((bullet) => bullet.id);
+  const [targetProjectId, setTargetProjectId] = useState('');
 
   if (collapsed) {
     return (
@@ -272,6 +322,86 @@ function DroppableInbox({
         </button>
       </div>
 
+      {selectedIds.length > 0 ? (
+        <div className="mb-3 rounded-[1rem] border border-primary/20 bg-primary/[0.06] p-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-text-muted">
+              {selectedIds.length} selected
+            </p>
+            <button
+              type="button"
+              onClick={onClearSelection}
+              className="text-xs font-semibold text-text-muted hover:text-text"
+            >
+              Clear
+            </button>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <p className="text-xs text-text-muted">Pick a project, then send the selected bullets directly into a lane.</p>
+          </div>
+          {existingProjects.length > 0 ? (
+            <div className="mt-2 flex items-center gap-2">
+              <select
+                value={targetProjectId}
+                onChange={(event) => setTargetProjectId(event.target.value)}
+                className="min-w-0 flex-1 rounded-xl border border-border-subtle/70 bg-bg-surface/85 px-3 py-2 text-xs text-text"
+              >
+                <option value="">Send to project…</option>
+                {existingProjects.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.label}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                disabled={!targetProjectId}
+                onClick={() => {
+                  const targetProject = existingProjects.find((project) => project.id === targetProjectId);
+                  if (!targetProject) return;
+                  onBatchUpdate({ project: targetProject.id, projectMeta: targetProject, lane: 'next' });
+                  setTargetProjectId('');
+                }}
+                className="rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Send to Next
+              </button>
+            </div>
+          ) : null}
+          {targetProjectId ? (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {([...ACTIVE_LANES, 'done'] as ThoughtLane[]).map((lane) => (
+                <button
+                  key={lane}
+                  type="button"
+                  onClick={() => {
+                    const targetProject = existingProjects.find((project) => project.id === targetProjectId);
+                    if (!targetProject) return;
+                    onBatchUpdate({ project: targetProject.id, projectMeta: targetProject, lane });
+                    setTargetProjectId('');
+                  }}
+                  className={`rounded-full px-3 py-1.5 text-[11px] font-semibold ${
+                    lane === 'done'
+                      ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                      : 'border border-border-subtle/70 bg-bg-surface/85 text-text hover:bg-bg-elevated'
+                  }`}
+                >
+                  Send to {LANE_CONFIG[lane].label}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          <button
+            type="button"
+            onClick={onBatchDelete}
+            className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-error/20 bg-error/6 px-3 py-1.5 text-[11px] font-semibold text-error/85 hover:bg-error/10"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Delete selected
+          </button>
+        </div>
+      ) : null}
+
       <div
         ref={setNodeRef}
         className={`min-h-[32rem] rounded-[1rem] border border-dashed border-border-subtle/70 bg-bg-base/20 p-2 transition-all ${
@@ -294,7 +424,11 @@ function DroppableInbox({
                   bullet={bullet}
                   existingProjects={existingProjects}
                   onUpdate={(updates) => onUpdateBullet(bullet.id, updates)}
+                  onDelete={() => onDeleteBullet(bullet.id)}
                   interactionMode="drag-only"
+                  selectable={true}
+                  selected={selectedIds.includes(bullet.id)}
+                  onToggleSelect={() => onToggleSelected(bullet.id)}
                 />
               ))
             )}
@@ -322,9 +456,17 @@ export function ThoughtOrganizeMode({
       : reconcileBullets(markdown ?? '', organization)
   );
   const [showProjectModal, setShowProjectModal] = useState(false);
+  const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+  const [mergeProjectId, setMergeProjectId] = useState<string | null>(null);
+  const [mergeTargetId, setMergeTargetId] = useState('');
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectColor, setNewProjectColor] = useState<ProjectColor>('lavender');
   const [inboxCollapsed, setInboxCollapsed] = useState(true);
+  const [showDoneLanes, setShowDoneLanes] = useState(false);
+  const [collapsedDoneProjects, setCollapsedDoneProjects] = useState<Record<string, boolean>>({});
+  const [selectedInboxIds, setSelectedInboxIds] = useState<string[]>([]);
+  const [projectMenuId, setProjectMenuId] = useState<string | null>(null);
+  const [undoState, setUndoState] = useState<{ organization: ThoughtOrganization; message: string } | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -360,6 +502,11 @@ export function ThoughtOrganizeMode({
     }
   }, [projectColumns.length]);
 
+  useEffect(() => {
+    const inboxIds = new Set((inbox?.bullets ?? []).map((bullet) => bullet.id));
+    setSelectedInboxIds((current) => current.filter((id) => inboxIds.has(id)));
+  }, [inbox]);
+
   const updateProjectsFromBullets = (bullets: ThoughtBullet[], existingProjects: ProjectMeta[]) => {
     const deduped = deduplicateProjects(bullets);
     const preservedEmptyProjects = existingProjects.filter(
@@ -384,13 +531,56 @@ export function ThoughtOrganizeMode({
     });
   };
 
+  const openCreateProject = () => {
+    setEditingProjectId(null);
+    setNewProjectName('');
+    setNewProjectColor('lavender');
+    setShowProjectModal(true);
+    setProjectMenuId(null);
+  };
+
+  const openEditProject = (project: ProjectMeta) => {
+    setEditingProjectId(project.id);
+    setNewProjectName(project.label);
+    setNewProjectColor(project.color);
+    setShowProjectModal(true);
+    setProjectMenuId(null);
+  };
+
   const handleSubmitProject = () => {
     const label = newProjectName.trim();
     if (!label) return;
-    handleCreateProject(label, newProjectColor);
+    if (!editingProjectId) {
+      handleCreateProject(label, newProjectColor);
+    } else {
+      setLocalOrg((prev) => {
+        const projects = prev.projects.map((project) =>
+          project.id === editingProjectId ? { ...project, label: label.slice(0, 50), color: newProjectColor } : project
+        );
+        const updatedMeta = projects.find((project) => project.id === editingProjectId);
+        const bullets = prev.bullets.map((bullet) =>
+          bullet.project === editingProjectId && updatedMeta
+            ? { ...bullet, projectMeta: updatedMeta }
+            : bullet
+        );
+
+        return { bullets, projects };
+      });
+    }
     setNewProjectName('');
     setNewProjectColor('lavender');
+    setEditingProjectId(null);
     setShowProjectModal(false);
+  };
+
+  const pushUndoState = (organization: ThoughtOrganization, message: string) => {
+    setUndoState({
+      organization: {
+        bullets: organization.bullets.map((bullet) => ({ ...bullet })),
+        projects: organization.projects.map((project) => ({ ...project })),
+      },
+      message,
+    });
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -514,6 +704,120 @@ export function ThoughtOrganizeMode({
     });
   };
 
+  const handleDeleteBullet = (bulletId: string) => {
+    setLocalOrg((prev) => {
+      pushUndoState(prev, 'Bullet deleted');
+      const bullets = prev.bullets.filter((bullet) => bullet.id !== bulletId);
+
+      return {
+        bullets,
+        projects: updateProjectsFromBullets(bullets, prev.projects),
+      };
+    });
+  };
+
+  const handleBatchUpdateInbox = (updates: Partial<ThoughtBullet>) => {
+    if (selectedInboxIds.length === 0) return;
+
+    setLocalOrg((prev) => {
+      const bullets = prev.bullets.map((bullet) =>
+        selectedInboxIds.includes(bullet.id) ? normalizeBulletUpdate(bullet, updates, prev.projects) : bullet
+      );
+
+      return {
+        bullets,
+        projects: updateProjectsFromBullets(bullets, prev.projects),
+      };
+    });
+
+    setSelectedInboxIds([]);
+  };
+
+  const handleBatchDeleteInbox = () => {
+    if (selectedInboxIds.length === 0) return;
+
+    setLocalOrg((prev) => {
+      pushUndoState(prev, `${selectedInboxIds.length} bullets deleted`);
+      const bullets = prev.bullets.filter((bullet) => !selectedInboxIds.includes(bullet.id));
+
+      return {
+        bullets,
+        projects: updateProjectsFromBullets(bullets, prev.projects),
+      };
+    });
+
+    setSelectedInboxIds([]);
+  };
+
+  const handleDeleteProject = (projectId: string) => {
+    setLocalOrg((prev) => {
+      pushUndoState(prev, 'Project removed and bullets returned to Inbox');
+
+      const bullets = prev.bullets.map((bullet) =>
+        bullet.project === projectId
+          ? {
+              ...bullet,
+              project: undefined,
+              projectMeta: undefined,
+              lane: undefined,
+              priority: undefined,
+            }
+          : bullet
+      );
+
+      return {
+        bullets,
+        projects: prev.projects.filter((project) => project.id !== projectId),
+      };
+    });
+
+    setProjectMenuId(null);
+  };
+
+  const handleStartMergeProject = (projectId: string) => {
+    const fallbackTarget = localOrg.projects.find((project) => project.id !== projectId)?.id ?? '';
+    setMergeProjectId(projectId);
+    setMergeTargetId(fallbackTarget);
+    setProjectMenuId(null);
+  };
+
+  const handleConfirmMergeProject = () => {
+    if (!mergeProjectId || !mergeTargetId || mergeProjectId === mergeTargetId) return;
+
+    setLocalOrg((prev) => {
+      const targetProject = prev.projects.find((project) => project.id === mergeTargetId);
+      if (!targetProject) return prev;
+
+      pushUndoState(prev, 'Projects merged');
+
+      const bullets = prev.bullets.map((bullet) =>
+        bullet.project === mergeProjectId
+          ? {
+              ...bullet,
+              project: targetProject.id,
+              projectMeta: targetProject,
+              lane: bullet.lane ?? 'next',
+              priority: laneToPriority(bullet.lane ?? 'next'),
+            }
+          : bullet
+      );
+
+      return {
+        bullets,
+        projects: prev.projects.filter((project) => project.id !== mergeProjectId),
+      };
+    });
+
+    setMergeProjectId(null);
+    setMergeTargetId('');
+  };
+
+  const handleUndoDelete = () => {
+    if (!undoState) return;
+    setLocalOrg(undoState.organization);
+    setUndoState(null);
+  };
+
   const contentBody = (
     <div className="flex h-full flex-col overflow-hidden">
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border-subtle/60 bg-bg-surface/55 px-4 py-3 sm:py-4 backdrop-blur-xl sm:px-6">
@@ -527,14 +831,39 @@ export function ThoughtOrganizeMode({
 
         <button
           type="button"
-          onClick={() => setShowProjectModal(true)}
+          onClick={openCreateProject}
           className="inline-flex items-center gap-2 rounded-full border border-border-subtle/80 bg-bg-elevated/70 px-4 py-2.5 sm:px-3 sm:py-2 text-sm sm:text-xs font-semibold text-text transition-colors hover:bg-bg-elevated touch-manipulation min-h-[44px] sm:min-h-0"
         >
           <Plus className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           <span className="hidden sm:inline">New project</span>
           <span className="sm:hidden">New</span>
         </button>
+
+        <button
+          type="button"
+          onClick={() => setShowDoneLanes((value) => !value)}
+          className="inline-flex items-center gap-2 rounded-full border border-border-subtle/80 bg-bg-elevated/70 px-4 py-2.5 text-sm sm:text-xs font-semibold text-text transition-colors hover:bg-bg-elevated"
+        >
+          {showDoneLanes ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          {showDoneLanes ? 'Hide done' : 'Show done'}
+        </button>
       </div>
+
+      {undoState ? (
+        <div className="border-b border-border-subtle/50 bg-bg-elevated/45 px-4 py-2.5 sm:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1rem] border border-border-subtle/60 bg-bg-surface/70 px-3 py-2">
+            <p className="text-sm text-text-muted">{undoState.message}</p>
+            <button
+              type="button"
+              onClick={handleUndoDelete}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle/70 bg-bg-elevated px-3 py-1.5 text-xs font-semibold text-text hover:bg-bg-surface"
+            >
+              <Undo2 className="h-3.5 w-3.5" />
+              Undo
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <AnimatePresence>
         {showProjectModal ? (
@@ -558,8 +887,12 @@ export function ThoughtOrganizeMode({
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-text-muted">New Project</p>
-                  <h3 id="thought-project-modal-title" className="mt-1 text-lg font-semibold text-text">Add a project column</h3>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-text-muted">
+                    {editingProjectId ? 'Edit Project' : 'New Project'}
+                  </p>
+                  <h3 id="thought-project-modal-title" className="mt-1 text-lg font-semibold text-text">
+                    {editingProjectId ? 'Update project' : 'Add a project column'}
+                  </h3>
                   <p className="mt-1 text-sm text-text-muted">Give it a name and color so it reads quickly while you drag.</p>
                 </div>
                 <button
@@ -645,9 +978,67 @@ export function ThoughtOrganizeMode({
                     disabled={!newProjectName.trim()}
                     className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Add project
+                    {editingProjectId ? 'Save changes' : 'Add project'}
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {mergeProjectId ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-20 flex items-center justify-center bg-black/25 p-4 backdrop-blur-[2px]"
+            onClick={() => setMergeProjectId(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 12, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.96 }}
+              transition={{ duration: 0.18 }}
+              className="w-full max-w-md rounded-[1.75rem] border border-border-subtle/70 bg-bg-elevated/95 p-5 shadow-2xl backdrop-blur-xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-text-muted">Merge Project</p>
+              <h3 className="mt-1 text-lg font-semibold text-text">Move everything into another project</h3>
+              <p className="mt-1 text-sm text-text-muted">Bullets from this project will be reassigned and the source project will be removed.</p>
+
+              <select
+                value={mergeTargetId}
+                onChange={(event) => setMergeTargetId(event.target.value)}
+                className="mt-4 w-full rounded-2xl border border-border-subtle bg-bg-surface px-4 py-3 text-sm text-text"
+              >
+                <option value="">Choose target project</option>
+                {localOrg.projects
+                  .filter((project) => project.id !== mergeProjectId)
+                  .map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.label}
+                    </option>
+                  ))}
+              </select>
+
+              <div className="mt-5 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMergeProjectId(null)}
+                  className="rounded-full border border-border-subtle/70 px-4 py-2 text-sm font-medium text-text-muted hover:bg-bg-surface hover:text-text"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={!mergeTargetId}
+                  onClick={handleConfirmMergeProject}
+                  className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Merge project
+                </button>
               </div>
             </motion.div>
           </motion.div>
@@ -669,6 +1060,16 @@ export function ThoughtOrganizeMode({
                 bullets={inbox?.bullets || []}
                 existingProjects={localOrg.projects}
                 onUpdateBullet={handleUpdateBullet}
+                onDeleteBullet={handleDeleteBullet}
+                selectedIds={selectedInboxIds}
+                onToggleSelected={(bulletId) =>
+                  setSelectedInboxIds((current) =>
+                    current.includes(bulletId) ? current.filter((id) => id !== bulletId) : [...current, bulletId]
+                  )
+                }
+                onClearSelection={() => setSelectedInboxIds([])}
+                onBatchUpdate={handleBatchUpdateInbox}
+                onBatchDelete={handleBatchDeleteInbox}
                 collapsed={inboxCollapsed}
                 onToggle={() => setInboxCollapsed((value) => !value)}
               />
@@ -690,21 +1091,89 @@ export function ThoughtOrganizeMode({
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
-                  <div className="mb-3 flex items-start justify-between gap-3 border-b border-border-subtle/30 pb-3">
+                  <div className="relative mb-3 flex items-start justify-between gap-3 border-b border-border-subtle/30 pb-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span className={`moment-tag-pill moment-tag-pill-selected-${column.projectMeta?.color ?? 'lavender'} transition-transform hover:scale-105`}>
                           {column.projectMeta?.label || 'Project'}
                         </span>
+                        {column.lanes.done.length > 0 ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setCollapsedDoneProjects((current) => ({
+                                ...current,
+                                [column.projectId]: !(current[column.projectId] ?? true),
+                              }))
+                            }
+                            className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/[0.08] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700"
+                          >
+                            {column.lanes.done.length} done
+                            <ChevronDown
+                              className={`h-3.5 w-3.5 transition-transform ${
+                                (collapsedDoneProjects[column.projectId] ?? true) ? '' : 'rotate-180'
+                              }`}
+                            />
+                          </button>
+                        ) : null}
                       </div>
                     </div>
-                    <span className="rounded-full bg-bg-elevated/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-text-muted/80 transition-all hover:bg-bg-elevated hover:text-text-muted">
-                      {THOUGHT_LANES.reduce((sum, lane) => sum + column.lanes[lane].length, 0)}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-bg-elevated/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-text-muted/80 transition-all hover:bg-bg-elevated hover:text-text-muted">
+                        {ACTIVE_LANES.reduce((sum, lane) => sum + column.lanes[lane].length, 0) + column.lanes.done.length}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setProjectMenuId((current) => (current === column.projectId ? null : column.projectId))}
+                        className="rounded-full border border-border-subtle/70 p-1.5 text-text-muted hover:bg-bg-elevated hover:text-text"
+                        aria-label={`Project actions for ${column.projectMeta?.label ?? 'project'}`}
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    {projectMenuId === column.projectId ? (
+                      <div className="absolute right-0 top-11 z-20 w-52 rounded-[1rem] border border-border-subtle/70 bg-bg-elevated/95 p-2 shadow-2xl backdrop-blur-xl">
+                        <button
+                          type="button"
+                          onClick={() => column.projectMeta && openEditProject(column.projectMeta)}
+                          className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
+                        >
+                          Rename or recolor
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleStartMergeProject(column.projectId)}
+                          disabled={localOrg.projects.length < 2}
+                          className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Merge into…
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCollapsedDoneProjects((current) => ({
+                              ...current,
+                              [column.projectId]: !(current[column.projectId] ?? true),
+                            }))
+                          }
+                          className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
+                        >
+                          {(collapsedDoneProjects[column.projectId] ?? true) ? 'Expand done lane' : 'Collapse done lane'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProject(column.projectId)}
+                          className="block w-full rounded-lg px-3 py-2 text-left text-sm text-error hover:bg-error/8"
+                        >
+                          Remove project
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="space-y-3">
-                    {THOUGHT_LANES.map((lane) => (
+                    {ACTIVE_LANES.map((lane) => (
                       <DroppableLane
                         key={lane}
                         id={laneDropId(column.projectId, lane)}
@@ -712,8 +1181,27 @@ export function ThoughtOrganizeMode({
                         bullets={column.lanes[lane]}
                         existingProjects={localOrg.projects}
                         onUpdateBullet={handleUpdateBullet}
+                        onDeleteBullet={handleDeleteBullet}
                       />
                     ))}
+
+                    {showDoneLanes ? (
+                      <DroppableLane
+                        id={laneDropId(column.projectId, 'done')}
+                        lane="done"
+                        bullets={column.lanes.done}
+                        existingProjects={localOrg.projects}
+                        onUpdateBullet={handleUpdateBullet}
+                        onDeleteBullet={handleDeleteBullet}
+                        collapsed={collapsedDoneProjects[column.projectId] ?? true}
+                        onToggleCollapsed={() =>
+                          setCollapsedDoneProjects((current) => ({
+                            ...current,
+                            [column.projectId]: !(current[column.projectId] ?? true),
+                          }))
+                        }
+                      />
+                    ) : null}
                   </div>
                 </motion.div>
               ))}
