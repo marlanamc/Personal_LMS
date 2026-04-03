@@ -182,8 +182,8 @@ function DroppableLane({
   }
 
   return (
-    <div className="min-h-[13rem]">
-      <div className="mb-2 flex items-center justify-between gap-2 px-1">
+    <div>
+      <div className="mb-1.5 flex items-center justify-between gap-2 px-1">
         <div className="flex items-center gap-2">
           <span className={`h-3 w-3 sm:h-2.5 sm:w-2.5 rounded-full ${config.dotClass}`} />
           <span className="text-sm sm:text-xs font-bold sm:font-semibold uppercase tracking-[0.16em] sm:tracking-[0.18em] text-text">{config.label}</span>
@@ -193,12 +193,12 @@ function DroppableLane({
 
       <div
         ref={setNodeRef}
-        className={`min-h-[11rem] py-2 transition-all duration-200 border-t border-border-subtle/30 ${
+        className={`py-1.5 transition-all duration-200 border-t border-border-subtle/30 ${bullets.length === 0 ? 'min-h-[5.5rem]' : ''} ${
           isOver ? 'rounded-xl bg-bg-surface/50 scale-[1.01]' : ''
         }`}
       >
         <SortableContext items={bulletIds} strategy={verticalListSortingStrategy}>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {bullets.length === 0 ? (
               <div className="min-h-[4rem]" />
             ) : (
@@ -256,7 +256,7 @@ function DroppableInbox({
         initial={{ opacity: 0, x: -24 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="w-full lg:w-[4rem] shrink-0 p-2 rounded-[1.5rem] bg-bg-surface/30 border border-border-subtle/30"
+        className="w-full lg:w-[4rem] shrink-0 p-2 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30"
       >
         <button
           type="button"
@@ -278,7 +278,7 @@ function DroppableInbox({
       initial={{ opacity: 0, x: -24 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="w-full lg:w-[15.5rem] shrink-0 p-3 rounded-[1.5rem] bg-bg-surface/30 border border-border-subtle/30"
+      className="w-full lg:w-[14.5rem] shrink-0 p-3 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30"
     >
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
@@ -376,14 +376,12 @@ function DroppableInbox({
 
       <div
         ref={setNodeRef}
-        className={`min-h-[32rem] p-1 transition-all ${
-          isOver ? 'ring-2 ring-primary/30 rounded-xl bg-bg-elevated/60' : ''
-        }`}
+        className={`min-h-[22rem] p-1 transition-all ${isOver ? 'ring-2 ring-primary/30 rounded-xl bg-bg-elevated/60' : ''}`}
       >
         <SortableContext items={bulletIds} strategy={verticalListSortingStrategy}>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {bullets.length === 0 ? (
-              <div className="min-h-[28rem]" />
+              <div className="min-h-[16rem]" />
             ) : (
               bullets.map((bullet) => (
                 <OrganizableBullet
@@ -1030,7 +1028,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
               </div>
             </div>
           ) : (
-            <div className="flex flex-col lg:flex-row min-h-full gap-3 pb-2">
+            <div className="flex flex-col lg:flex-row min-h-full gap-3.5 pb-2">
               <DroppableInbox
                 bullets={inbox?.bullets || []}
                 existingProjects={localOrg.projects}
@@ -1055,11 +1053,11 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + index * 0.1, duration: 0.4, ease: 'easeOut' }}
-                  className="w-full lg:w-[19.5rem] shrink-0 p-3 rounded-[1.5rem] bg-bg-surface/30 border border-border-subtle/30 transition-all duration-200"
+                  className="w-full lg:w-[18rem] shrink-0 p-3.5 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30 transition-all duration-200"
                 >
-                  <div className="relative mb-3 flex items-start justify-between gap-3 pb-3">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
+                  <div className="relative mb-2.5 flex items-start justify-between gap-3 border-b border-border-subtle/25 pb-2.5">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span className={`moment-tag-pill moment-tag-pill-selected-${column.projectMeta?.color ?? 'lavender'} transition-transform hover:scale-105`}>
                           {column.projectMeta?.label || 'Project'}
                         </span>
@@ -1074,7 +1072,10 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                             }
                             className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/[0.08] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700"
                           >
-                            {column.lanes.done.length} done
+                            <span className="rounded-full bg-white/65 px-1.5 py-0.5 text-[9px] font-bold leading-none text-emerald-700">
+                              {column.lanes.done.length}
+                            </span>
+                            Done
                             <ChevronDown
                               className={`h-3.5 w-3.5 transition-transform ${
                                 (collapsedDoneProjects[column.projectId] ?? true) ? '' : 'rotate-180'
@@ -1084,14 +1085,14 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                         ) : null}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-bg-elevated/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-text-muted/80 transition-all hover:bg-bg-elevated hover:text-text-muted">
+                    <div className="flex items-center gap-2 self-start">
+                      <span className="inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-bg-elevated/95 px-3 text-[11px] font-semibold text-text-muted shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
                         {ACTIVE_LANES.reduce((sum, lane) => sum + column.lanes[lane].length, 0) + column.lanes.done.length}
                       </span>
                       <button
                         type="button"
                         onClick={() => setProjectMenuId((current) => (current === column.projectId ? null : column.projectId))}
-                        className="rounded-full border border-border-subtle/70 p-1.5 text-text-muted hover:bg-bg-elevated hover:text-text"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border-subtle/70 bg-bg-surface/75 text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
                         aria-label={`Project actions for ${column.projectMeta?.label ?? 'project'}`}
                       >
                         <MoreHorizontal className="h-4 w-4" />
@@ -1138,7 +1139,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                     ) : null}
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {ACTIVE_LANES.map((lane) => (
                       <DroppableLane
                         key={lane}

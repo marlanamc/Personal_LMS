@@ -91,7 +91,7 @@ export function OrganizableBullet({
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <div
-        className={`group relative rounded-xl overflow-hidden transition-all duration-200 hover:bg-bg-surface hover:scale-[1.01] ${
+        className={`group relative rounded-[1.1rem] overflow-hidden transition-all duration-200 hover:bg-bg-surface hover:scale-[1.01] ${
           isDragging
             ? 'opacity-50 ring-2 ring-primary/20 bg-bg-surface'
             : 'bg-bg-surface/50 border border-border-subtle/40 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-border-subtle/80 hover:shadow-sm'
@@ -99,7 +99,7 @@ export function OrganizableBullet({
       >
 
 
-        <div className="flex items-start gap-3 sm:gap-3 p-4 sm:p-3">
+        <div className="relative flex items-start gap-2 p-3.5 sm:p-3">
           {selectable && onToggleSelect ? (
             <button
               type="button"
@@ -117,7 +117,7 @@ export function OrganizableBullet({
           ) : null}
 
           {/* Drag Handle - Hidden until hover on desktop */}
-          <div className="opacity-40 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+          <div className="absolute left-2.5 top-3.5 opacity-40 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
             <button
               {...listeners}
               className="mt-0.5 cursor-grab touch-none text-text-muted/60 transition-all hover:text-text-muted hover:scale-110 active:cursor-grabbing p-2 sm:p-1.5 -ml-2 sm:-ml-1.5"
@@ -128,7 +128,7 @@ export function OrganizableBullet({
           </div>
 
           {/* Content */}
-          <div className="flex-1">
+          <div className={`flex-1 ${selectable && onToggleSelect ? '' : 'pl-6 sm:pl-5'}`}>
             <div
               className={`w-full text-left ${isEditable ? 'group/button transition-all hover:opacity-80' : ''}`}
               onClick={isEditable ? () => setIsEditing(!isEditing) : undefined}
@@ -141,13 +141,13 @@ export function OrganizableBullet({
                 }
               } : undefined}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-2">
                 {laneConfig && (
                   <div className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${laneConfig.dot}`} />
                 )}
 
                 <div className="flex-1">
-                  <p className={`text-sm sm:text-sm text-text leading-relaxed ${isEditable ? 'group-hover/button:text-primary transition-colors' : ''}`}>
+                  <p className={`text-[0.95rem] sm:text-sm text-text leading-[1.55] ${isEditable ? 'group-hover/button:text-primary transition-colors' : ''}`}>
                     {bullet.text}
                   </p>
 
