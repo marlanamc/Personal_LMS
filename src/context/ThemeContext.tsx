@@ -56,25 +56,29 @@ function isValidThemePreference(
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [preference, setPreference] = useState<ThemePreference>(() => {
-    if (typeof window === "undefined") return "auto";
+  /**
+   * SSR + first client render must match to avoid hydration errors in theme-tinted UI
+   * (e.g. inline styles keyed on `resolvedTheme`). Preferences and clock-based auto
+   * theme are applied after mount via effects.
+   */
+  const [preference, setPreference] = useState<ThemePreference>("auto");
+  const [isSystemDarkNow, setIsSystemDarkNow] = useState<boolean>(false);
+  /** When preference is "auto": true = 6am–6pm (light), false = 6pm–6am (dark) */
+  const [isDayWindow, setIsDayWindow] = useState<boolean>(true);
+  const hasAppliedInitialThemeRef = useRef(false);
 
+  useEffect(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
-      return isValidThemePreference(stored) ? stored : "auto";
+      if (isValidThemePreference(stored)) {
+        setPreference(stored);
+      }
     } catch {
-      return "auto";
+      // Ignore storage failures; keep default "auto".
     }
-  });
-  const [isSystemDarkNow, setIsSystemDarkNow] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
-  /** When preference is "auto": true = 6am–6pm (light), false = 6pm–6am (dark) */
-  const [isDayWindow, setIsDayWindow] = useState<boolean>(() =>
-    typeof window === "undefined" ? true : getIsDayWindow()
-  );
-  const hasAppliedInitialThemeRef = useRef(false);
+    setIsDayWindow(getIsDayWindow());
+    setIsSystemDarkNow(window.matchMedia("(prefers-color-scheme: dark)").matches);
+  }, []);
 
   const resolvedTheme: ResolvedTheme = useMemo(() => {
     if (preference === "light") return "light";

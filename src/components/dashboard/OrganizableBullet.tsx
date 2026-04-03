@@ -94,7 +94,7 @@ export function OrganizableBullet({
         className={`group relative rounded-[1.1rem] overflow-hidden transition-all duration-200 hover:bg-bg-surface hover:scale-[1.01] ${
           isDragging
             ? 'opacity-50 ring-2 ring-primary/20 bg-bg-surface'
-            : 'bg-bg-surface/50 border border-border-subtle/40 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-border-subtle/80 hover:shadow-sm'
+            : 'bg-bg-surface/25 border border-border-subtle/20 hover:bg-bg-surface/60 hover:border-border-subtle/50'
         }`}
       >
 

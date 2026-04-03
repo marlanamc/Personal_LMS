@@ -185,15 +185,15 @@ function DroppableLane({
     <div>
       <div className="mb-1.5 flex items-center justify-between gap-2 px-1">
         <div className="flex items-center gap-2">
-          <span className={`h-3 w-3 sm:h-2.5 sm:w-2.5 rounded-full ${config.dotClass}`} />
-          <span className="text-sm sm:text-xs font-bold sm:font-semibold uppercase tracking-[0.16em] sm:tracking-[0.18em] text-text">{config.label}</span>
+          <span className={`h-2 w-2 rounded-full ${config.dotClass}`} />
+          <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-text-muted">{config.label}</span>
         </div>
-        <span className="text-xs sm:text-[10px] font-medium text-text-muted">{bullets.length}</span>
+        <span className="text-[10px] font-medium text-text-muted/50 tabular-nums">{bullets.length}</span>
       </div>
 
       <div
         ref={setNodeRef}
-        className={`py-1.5 transition-all duration-200 border-t border-border-subtle/30 ${bullets.length === 0 ? 'min-h-[5.5rem]' : ''} ${
+        className={`py-1.5 transition-all duration-200 ${bullets.length === 0 ? 'min-h-[5.5rem]' : ''} ${
           isOver ? 'rounded-xl bg-bg-surface/50 scale-[1.01]' : ''
         }`}
       >
@@ -1053,46 +1053,22 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + index * 0.1, duration: 0.4, ease: 'easeOut' }}
-                  className="w-full lg:w-[18rem] shrink-0 p-3.5 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30 transition-all duration-200"
+                  className="w-full lg:w-[18rem] shrink-0 px-3 pt-1 pb-4 lg:border-r lg:border-border-subtle/20 transition-all duration-200"
                 >
-                  <div className="relative mb-2.5 flex items-start justify-between gap-3 border-b border-border-subtle/25 pb-2.5">
+                  <div className="relative mb-2.5 flex items-center justify-between gap-3 border-b border-border-subtle/25 pb-2.5">
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className={`moment-tag-pill moment-tag-pill-selected-${column.projectMeta?.color ?? 'lavender'} transition-transform hover:scale-105`}>
-                          {column.projectMeta?.label || 'Project'}
-                        </span>
-                        {column.lanes.done.length > 0 ? (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setCollapsedDoneProjects((current) => ({
-                                ...current,
-                                [column.projectId]: !(current[column.projectId] ?? true),
-                              }))
-                            }
-                            className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/[0.08] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-700"
-                          >
-                            <span className="rounded-full bg-white/65 px-1.5 py-0.5 text-[9px] font-bold leading-none text-emerald-700">
-                              {column.lanes.done.length}
-                            </span>
-                            Done
-                            <ChevronDown
-                              className={`h-3.5 w-3.5 transition-transform ${
-                                (collapsedDoneProjects[column.projectId] ?? true) ? '' : 'rotate-180'
-                              }`}
-                            />
-                          </button>
-                        ) : null}
-                      </div>
+                      <span className={`moment-tag-pill moment-tag-pill-selected-${column.projectMeta?.color ?? 'lavender'} transition-transform hover:scale-105`}>
+                        {column.projectMeta?.label || 'Project'}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2 self-start">
-                      <span className="inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-bg-elevated/95 px-3 text-[11px] font-semibold text-text-muted shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[11px] font-medium text-text-muted/60 tabular-nums">
                         {ACTIVE_LANES.reduce((sum, lane) => sum + column.lanes[lane].length, 0) + column.lanes.done.length}
                       </span>
                       <button
                         type="button"
                         onClick={() => setProjectMenuId((current) => (current === column.projectId ? null : column.projectId))}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border-subtle/70 bg-bg-surface/75 text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-text-muted/50 transition-colors hover:bg-bg-elevated hover:text-text"
                         aria-label={`Project actions for ${column.projectMeta?.label ?? 'project'}`}
                       >
                         <MoreHorizontal className="h-4 w-4" />

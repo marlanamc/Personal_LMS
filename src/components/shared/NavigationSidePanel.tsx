@@ -3,8 +3,25 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { X, BookOpen, Timer, User, Code, Calendar, Pencil, LayoutList, Moon, BookOpenText, UtensilsCrossed, Activity, ListTree, Shield, Sparkles, CalendarDays, Anchor, FileText, FolderKanban, MessageSquare, AlertCircle, Heart, Globe, Home } from 'lucide-react';
-import { SpanishSubjectIcon } from '@/components/icons/SpanishSubjectIcon';
+import {
+  AlertCircle,
+  Anchor,
+  BookOpen,
+  CalendarDays,
+  Code,
+  FileText,
+  FolderKanban,
+  Globe,
+  Heart,
+  Home,
+  LayoutList,
+  MessageSquare,
+  Sparkles,
+  Timer,
+  User,
+  UtensilsCrossed,
+  X,
+} from 'lucide-react';
 
 interface NavigationSidePanelProps {
   isOpen: boolean;
