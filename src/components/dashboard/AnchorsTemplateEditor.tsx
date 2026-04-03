@@ -7,6 +7,7 @@ import { InfoTooltip } from '@/components/ui/InfoTooltip';
 import {
   BookOpen,
   Briefcase,
+  Brush,
   Calendar,
   Check,
   ChevronDown,
@@ -22,12 +23,14 @@ import {
   Music,
   PenTool,
   Plus,
+  Shirt,
   Sparkles,
   Sunrise,
   Target,
   Trash2,
   Users,
   Utensils,
+  WashingMachine,
   Zap,
 } from 'lucide-react';
 import {
@@ -77,6 +80,9 @@ const ICON_OPTIONS: Array<{ value: AnchorIcon; label: string; tone: string }> = 
   { value: 'users', label: 'Social', tone: 'from-teal-400 to-emerald-500' },
   { value: 'pen-tool', label: 'Write', tone: 'from-blue-400 to-sky-500' },
   { value: 'zap', label: 'Energy', tone: 'from-yellow-400 to-amber-500' },
+  { value: 'brush', label: 'Clean', tone: 'from-cyan-400 to-sky-500' },
+  { value: 'shirt', label: 'Laundry', tone: 'from-violet-400 to-purple-500' },
+  { value: 'washing-machine', label: 'Wash', tone: 'from-blue-400 to-indigo-500' },
 ];
 
 const iconByName: Record<AnchorIcon, typeof Sunrise> = {
@@ -96,6 +102,9 @@ const iconByName: Record<AnchorIcon, typeof Sunrise> = {
   users: Users,
   'pen-tool': PenTool,
   zap: Zap,
+  brush: Brush,
+  shirt: Shirt,
+  'washing-machine': WashingMachine,
 };
 
 interface AnchorsTemplateEditorProps {

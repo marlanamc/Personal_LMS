@@ -16,7 +16,10 @@ export type AnchorIcon =
   | 'music'
   | 'users'
   | 'pen-tool'
-  | 'zap';
+  | 'zap'
+  | 'brush'
+  | 'shirt'
+  | 'washing-machine';
 
 export type AnchorColor = 'peach' | 'sky' | 'mint' | 'periwinkle' | 'lavender' | 'rose';
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;

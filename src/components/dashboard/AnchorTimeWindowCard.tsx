@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import {
   BookOpen,
   Briefcase,
+  Brush,
   Calendar,
   Check,
   ChevronDown,
@@ -17,10 +18,12 @@ import {
   Music,
   PenTool,
   Plus,
+  Shirt,
   Sunrise,
   Target,
   Users,
   Utensils,
+  WashingMachine,
   Zap,
 } from 'lucide-react';
 import { formatTimeLabel, type AnchorIcon, type DailyAnchor } from '@/lib/anchors';
@@ -58,6 +61,9 @@ const iconByName: Record<AnchorIcon, typeof Sunrise> = {
   users: Users,
   'pen-tool': PenTool,
   zap: Zap,
+  brush: Brush,
+  shirt: Shirt,
+  'washing-machine': WashingMachine,
 };
 
 function getAnchorGradient(icon: AnchorIcon): string {

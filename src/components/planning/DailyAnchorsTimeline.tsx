@@ -7,6 +7,7 @@ import {
   AlarmClock,
   BookOpen,
   Briefcase,
+  Brush,
   Calendar,
   Check,
   ChevronLeft,
@@ -22,10 +23,12 @@ import {
   Music,
   PenTool,
   PhoneOff,
+  Shirt,
   Sunrise,
   Target,
   Users,
   Utensils,
+  WashingMachine,
   Zap,
 } from 'lucide-react';
 import { EditAnchorsSheet } from '@/components/dashboard/EditAnchorsSheet';
@@ -92,6 +95,9 @@ const iconByName: Record<AnchorIcon, typeof Sunrise> = {
   users: Users,
   'pen-tool': PenTool,
   zap: Zap,
+  brush: Brush,
+  shirt: Shirt,
+  'washing-machine': WashingMachine,
 };
 
 function gradientByIcon(icon: AnchorIcon): string {
