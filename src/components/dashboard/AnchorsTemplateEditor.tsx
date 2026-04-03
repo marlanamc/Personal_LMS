@@ -327,46 +327,44 @@ export function AnchorsTemplateEditor({
 
   const surfaceClassName = isEmbedded
     ? 'rounded-[2rem] border border-border-subtle/60 bg-bg-base/95 shadow-2xl'
-    : 'rounded-[2rem] border border-border-subtle/60 bg-gradient-to-b from-bg-surface/95 to-bg-base/98 shadow-2xl';
+    : 'rounded-[2rem] border border-border-subtle bg-bg-surface shadow-xl';
 
   return (
     <div className={`${surfaceClassName} overflow-hidden`}>
-      <div className="border-b border-border-subtle/50 bg-gradient-to-r from-primary/5 via-accent-teal/5 to-accent/5 px-5 py-5 lg:px-7">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20">
-                <Sparkles size={22} className="text-primary" />
-              </div>
-              <div className="flex items-center">
-                <h1 className="text-2xl font-bold tracking-tight text-text">Daily Anchors</h1>
-                <InfoTooltip content="Shape your week, not just one default day. Give each anchor a reason it matters and set different times across the week." />
-              </div>
+      {/* Header */}
+      <div className="border-b border-border-subtle bg-bg-elevated/60 px-5 py-4 lg:px-7 lg:py-5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+              <Sparkles size={18} className="text-primary" />
+            </div>
+            <div className="flex items-center gap-1">
+              <h1 className="text-xl font-bold tracking-tight text-text">Anchors</h1>
+              <InfoTooltip content="Shape your week, not just one default day. Give each anchor a reason it matters and set different times across the week." />
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {backHref ? (
-              <Link
-                href={backHref}
-                className="inline-flex h-11 items-center rounded-xl border border-border-subtle/60 px-4 text-sm font-semibold text-text-muted transition-colors hover:text-text"
-              >
-                Back
-              </Link>
-            ) : null}
+          <div className="flex items-center gap-2">
             {onCancel ? (
               <button
                 type="button"
                 onClick={onCancel}
-                className="inline-flex h-11 items-center rounded-xl border border-border-subtle/60 px-4 text-sm font-semibold text-text-muted transition-colors hover:text-text"
+                className="inline-flex h-9 items-center rounded-lg border border-border-subtle/80 bg-bg-surface px-4 text-sm font-medium text-text-muted transition-colors hover:border-border-subtle hover:text-text"
               >
                 Cancel
               </button>
+            ) : backHref ? (
+              <Link
+                href={backHref}
+                className="inline-flex h-9 items-center rounded-lg border border-border-subtle/80 bg-bg-surface px-4 text-sm font-medium text-text-muted transition-colors hover:border-border-subtle hover:text-text"
+              >
+                Back
+              </Link>
             ) : null}
             <button
               type="button"
               onClick={handleSave}
-              className="inline-flex h-11 items-center rounded-xl px-5 text-sm font-semibold text-white shadow-lg shadow-primary/20 sakura-action"
+              className="inline-flex h-9 items-center rounded-lg px-5 text-sm font-semibold text-white shadow-sm shadow-primary/20 sakura-action"
             >
               {saveLabel}
             </button>
@@ -375,18 +373,18 @@ export function AnchorsTemplateEditor({
       </div>
 
       <div className="p-5 lg:p-7">
-        <div className="mb-5 flex flex-wrap items-center gap-3">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-text-muted">
+            Set different times per day and add a why-note to each anchor.
+          </p>
           <button
             type="button"
             onClick={addAnchor}
-            className="inline-flex items-center gap-2 rounded-2xl border-2 border-dashed border-border-subtle/60 bg-bg-elevated/30 px-4 py-3 text-sm font-semibold text-text transition-colors hover:border-accent-teal/40 hover:bg-bg-elevated/50"
+            className="inline-flex items-center gap-2 rounded-lg border border-border-subtle/80 bg-bg-elevated/60 px-4 py-2 text-sm font-semibold text-text transition-colors hover:border-border-subtle hover:bg-bg-elevated"
           >
-            <Plus size={16} />
+            <Plus size={15} />
             Add anchor
           </button>
-          <p className="text-sm text-text-muted">
-            Weekend gym at 10, weekday gym at 7, and a short why-note all live here.
-          </p>
         </div>
 
         {draftTemplates.length === 0 ? (
@@ -405,48 +403,48 @@ export function AnchorsTemplateEditor({
 
               return (
                 <Reorder.Item key={template.id} value={template} className="list-none">
-                  <div className={`overflow-hidden rounded-[1.75rem] border transition-all duration-200 ${
-                    isExpanded 
-                      ? 'border-border-subtle/80 bg-gradient-to-br from-bg-surface to-bg-elevated/40 shadow-xl shadow-black/5' 
-                      : 'border-border-subtle/50 bg-bg-surface hover:border-border-subtle hover:bg-bg-surface shadow-sm'
+                  <div className={`overflow-hidden rounded-2xl border transition-all duration-200 ${
+                    isExpanded
+                      ? 'border-border-subtle bg-bg-surface shadow-md'
+                      : 'border-border-subtle/60 bg-bg-surface hover:border-border-subtle shadow-sm'
                   }`}>
+                    {/* Color accent strip */}
+                    <div className="h-1 w-full" style={{ background: iconGradient }} />
+
                     {/* Header (Always Visible) */}
-                    <div 
-                      className="group flex cursor-pointer flex-wrap items-center gap-4 px-4 py-4 lg:px-5"
+                    <div
+                      className="group flex cursor-pointer items-center gap-3 px-4 py-3.5 lg:px-5"
                       onClick={() => toggleExpand(template.id)}
                     >
                       <button
                         type="button"
-                        className="rounded-xl p-2 text-text-muted/40 transition-colors hover:bg-bg-elevated/60 hover:text-text-muted"
+                        className="shrink-0 p-1.5 text-text-muted/30 transition-colors hover:text-text-muted/60"
                         aria-label="Drag anchor"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <GripVertical size={18} />
+                        <GripVertical size={16} />
                       </button>
 
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-md transition-transform group-hover:scale-105" style={{ background: iconGradient }}>
-                        <Icon size={20} strokeWidth={1.8} />
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm" style={{ background: iconGradient }}>
+                        <Icon size={18} strokeWidth={1.8} />
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-3">
-                          <h3 className="text-base font-semibold text-text">{template.label}</h3>
+                        <div className="flex items-baseline gap-2">
+                          <h3 className="text-sm font-semibold text-text">{template.label}</h3>
                           {template.importanceNote && !isExpanded && (
-                            <span className="hidden truncate text-sm text-text-muted/60 sm:inline-block max-w-[200px]">
+                            <span className="hidden truncate text-xs text-text-muted/55 sm:inline-block max-w-[220px]">
                               — {template.importanceNote}
                             </span>
                           )}
                         </div>
-                        <p className="mt-0.5 text-sm text-text-muted/80">{summary}</p>
+                        <p className="mt-0.5 text-xs font-medium text-text-muted/70">{summary}</p>
                       </div>
 
-                      <div className="flex shrink-0 items-center gap-2">
-                        <button
-                          type="button"
-                          className="flex h-9 w-9 items-center justify-center rounded-full bg-bg-elevated/50 text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
-                        >
-                          {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                        </button>
+                      <div className="shrink-0">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-md text-text-muted/50 transition-colors hover:bg-bg-elevated hover:text-text-muted">
+                          {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                        </span>
                       </div>
                     </div>
 
@@ -459,7 +457,7 @@ export function AnchorsTemplateEditor({
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.2, ease: "easeInOut" }}
                         >
-                          <div className="border-t border-border-subtle/40 bg-bg-surface/30 px-4 py-5 lg:px-6 lg:py-6">
+                          <div className="border-t border-border-subtle/50 bg-bg-elevated/20 px-4 py-5 lg:px-6 lg:py-6">
                             <div className="space-y-8">
                               {/* Basic Info */}
                               <div className="grid gap-5 md:grid-cols-2">
@@ -679,11 +677,11 @@ export function AnchorsTemplateEditor({
         )}
 
         {!isEmbedded ? (
-          <div className="mt-6 flex justify-end">
+          <div className="mt-6 flex justify-end border-t border-border-subtle/40 pt-5">
             <button
               type="button"
               onClick={handleSave}
-              className="inline-flex h-11 items-center rounded-xl px-5 text-sm font-semibold text-white shadow-lg shadow-primary/20 sakura-action"
+              className="inline-flex h-9 items-center rounded-lg px-5 text-sm font-semibold text-white shadow-sm shadow-primary/20 sakura-action"
             >
               {saveLabel}
             </button>

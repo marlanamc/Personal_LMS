@@ -30,7 +30,7 @@ const quickLinks: NavLink[] = [
   { href: '/dashboard/day-planner', label: 'Day Planner', icon: LayoutList },
   { href: '/dashboard/calendar', label: 'Monthly Calendar', icon: CalendarDays },
   { href: '/dashboard/meal-planner', label: 'Meal Planner', icon: UtensilsCrossed },
-  { href: '/dashboard/anchors', label: 'Edit Anchors', icon: Anchor },
+  { href: '/dashboard/anchors', label: 'Anchors', icon: Anchor },
 
   // Thinking section
   { label: 'THINKING', isHeader: true },
