@@ -21,10 +21,11 @@ function getLegacyStorageKey(storageScope: string): string {
   return `meal-planner:${storageScope}`;
 }
 
-async function persistToServer(store: MealPlannerStore): Promise<void> {
+async function persistToServer(store: MealPlannerStore, keepalive = false): Promise<void> {
   const res = await fetch('/api/meal-planner', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    keepalive,
     body: JSON.stringify({ store }),
   });
   if (!res.ok) throw new Error('Failed to save meal planner');
@@ -41,6 +42,8 @@ export function useMealPlanner(storageScope: string) {
   const readyToPersistRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isSyncingRef = useRef(false);
+  const latestStoreRef = useRef(store);
+  const hasPendingChangesRef = useRef(false);
 
   const storageKey = useMemo(() => getLegacyStorageKey(storageScope), [storageScope]);
 
@@ -48,8 +51,18 @@ export function useMealPlanner(storageScope: string) {
     isSavingRef.current = isSaving;
   }, [isSaving]);
 
+  useEffect(() => {
+    latestStoreRef.current = store;
+  }, [store]);
+
   const loadFromServer = useCallback(
     async (isInitial = false) => {
+      if (
+        !isInitial &&
+        (isSyncingRef.current || isSavingRef.current || saveTimerRef.current !== null || hasPendingChangesRef.current)
+      ) {
+        return;
+      }
       if (isSyncingRef.current || isSavingRef.current) return;
       isSyncingRef.current = true;
 
@@ -90,7 +103,12 @@ export function useMealPlanner(storageScope: string) {
         if (isInitial && typeof window !== 'undefined') {
           const legacyRaw = window.localStorage.getItem(storageKey);
           const legacyStore = normalizeMealPlannerStore(legacyRaw ? JSON.parse(legacyRaw) : null);
+          const legacyHas =
+            legacyStore.groceryList.length > 0 ||
+            Object.keys(legacyStore.mealPlans).length > 0 ||
+            legacyStore.recentItems.length > 0;
           setStore(legacyStore);
+          hasPendingChangesRef.current = legacyHas;
           setSaveError('Sync is temporarily unavailable. Local changes will retry.');
         }
       } finally {
@@ -133,17 +151,24 @@ export function useMealPlanner(storageScope: string) {
   }, [loadFromServer]);
 
   useEffect(() => {
-    if (!readyToPersistRef.current || !isLoaded) return;
+    if (typeof window === 'undefined' || !isLoaded) return;
+    window.localStorage.setItem(storageKey, JSON.stringify(store));
+  }, [isLoaded, storageKey, store]);
+
+  useEffect(() => {
+    if (!readyToPersistRef.current || !isLoaded || !hasPendingChangesRef.current) return;
 
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current);
     }
 
     saveTimerRef.current = setTimeout(async () => {
+      saveTimerRef.current = null;
       setIsSaving(true);
       setSaveError(null);
       try {
-        await persistToServer(store);
+        await persistToServer(latestStoreRef.current);
+        hasPendingChangesRef.current = false;
         setLastSyncedAt(new Date());
       } catch (error) {
         console.error('[MealPlanner] Failed to save to server', error);
@@ -161,9 +186,49 @@ export function useMealPlanner(storageScope: string) {
     };
   }, [isLoaded, store]);
 
+  useEffect(() => {
+    const flushPendingSave = () => {
+      if (!readyToPersistRef.current || !hasPendingChangesRef.current) return;
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = null;
+      }
+      void persistToServer(latestStoreRef.current, true)
+        .then(() => {
+          hasPendingChangesRef.current = false;
+        })
+        .catch((error) => {
+          console.error('[MealPlanner] Failed flushing pending save', error);
+        });
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        flushPendingSave();
+      }
+    };
+
+    window.addEventListener('pagehide', flushPendingSave);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('pagehide', flushPendingSave);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      flushPendingSave();
+    };
+  }, []);
+
+  const setPlannerStore = useCallback(
+    (value: MealPlannerStore | ((prev: MealPlannerStore) => MealPlannerStore)) => {
+      hasPendingChangesRef.current = true;
+      setStore((prev) => (typeof value === 'function' ? (value as (prev: MealPlannerStore) => MealPlannerStore)(prev) : value));
+    },
+    [],
+  );
+
   return {
     plannerStore: store,
-    setPlannerStore: setStore,
+    setPlannerStore,
     isLoaded,
     isSaving,
     saveError,
