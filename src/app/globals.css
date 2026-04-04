@@ -2239,6 +2239,13 @@ kbd {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
+  /* Framer Motion catch-all for reduced motion */
+  [data-framer-portal-id],
+  [data-projection-id] {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* ========== Print Styles ========== */

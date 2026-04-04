@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import {
   Check,
   ChevronDown,
@@ -567,6 +568,7 @@ function MealEditSheet({
   onSave: (selected: Record<MealCategoryId, string[]>, notes: string) => void;
   onClear: () => void;
 }) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [selectedItems, setSelectedItems] = useState<Record<MealCategoryId, string[]>>(createEmptySelectedMealItems);
   const [addingCategory, setAddingCategory] = useState<MealCategoryId | null>(null);
   const [draftByCategory, setDraftByCategory] = useState<Record<MealCategoryId, string>>(createEmptyDraftByCategory);
@@ -660,8 +662,8 @@ function MealEditSheet({
         {/* Meal Preview */}
         {mealPreview && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}
+            animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
             className="mb-6 rounded-xl border border-border-subtle/40 bg-bg-elevated/50 p-4"
           >
             <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-2">Your Meal</p>
@@ -820,6 +822,7 @@ export interface MealPlannerViewProps {
 type PlannerTab = 'grocery' | 'meals';
 
 export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { plannerStore, setPlannerStore, isLoaded, isSaving, saveError } = useMealPlanner(storageScope);
   const [tab, setTab] = useState<PlannerTab>('grocery');
   const [captureDraft, setCaptureDraft] = useState('');
@@ -1117,10 +1120,10 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
         {tab === 'grocery' && (
           <motion.div
             key="grocery"
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
-            transition={{ duration: 0.15 }}
+            initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
+            animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -5 }}
+            transition={prefersReducedMotion ? { duration: 0.01 } : { duration: 0.15 }}
             className="space-y-3 md:space-y-4"
           >
             {/* Quick capture — grocery tab; sticky on small screens */}
@@ -1290,10 +1293,10 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
         {tab === 'meals' && (
           <motion.div
             key="meals"
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
-            transition={{ duration: 0.15 }}
+            initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
+            animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -5 }}
+            transition={prefersReducedMotion ? { duration: 0.01 } : { duration: 0.15 }}
             className="space-y-2.5"
           >
             <section className="space-y-3">
@@ -1341,10 +1344,10 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
                 <AnimatePresence initial={false}>
                   {showMealSettings ? (
                     <motion.div
-                      initial={{ opacity: 0, height: 0, y: -4 }}
-                      animate={{ opacity: 1, height: 'auto', y: 0 }}
-                      exit={{ opacity: 0, height: 0, y: -4 }}
-                      transition={{ duration: 0.18 }}
+                      initial={prefersReducedMotion ? { opacity: 0, height: 0 } : { opacity: 0, height: 0, y: -4 }}
+                      animate={prefersReducedMotion ? { opacity: 1, height: 'auto' } : { opacity: 1, height: 'auto', y: 0 }}
+                      exit={prefersReducedMotion ? { opacity: 0, height: 0 } : { opacity: 0, height: 0, y: -4 }}
+                      transition={prefersReducedMotion ? { duration: 0.01 } : { duration: 0.18 }}
                       className="overflow-hidden"
                     >
                       <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-border-subtle/35 pt-3 md:gap-4">

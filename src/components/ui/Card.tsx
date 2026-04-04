@@ -26,7 +26,7 @@ export const Card: React.FC<CardProps> & {
     }[glow] : '';
 
   // Hover effects
-  const hoverClass = hover ? `${glowClass} hover:-translate-y-1 cursor-pointer` : glowClass;
+  const hoverClass = hover ? `${glowClass} motion-safe:hover:-translate-y-1 cursor-pointer` : glowClass;
 
   if (onClick) {
     return (

@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { ChevronDown, ChevronLeft, Eye, EyeOff, MoreHorizontal, Plus, Trash2, Undo2, X } from 'lucide-react';
 import {
   closestCenter,
@@ -76,6 +77,7 @@ function NowSpotlight({
   onDeleteBullet,
   showExpanded,
   onToggleExpanded,
+  prefersReducedMotion,
 }: {
   bullets: ThoughtBullet[];
   projects: ProjectMeta[];
@@ -83,6 +85,7 @@ function NowSpotlight({
   onDeleteBullet: (bulletId: string) => void;
   showExpanded: boolean;
   onToggleExpanded: () => void;
+  prefersReducedMotion: boolean;
 }) {
   const nowBullets = bullets.filter((b) => b.lane === 'now' && b.project);
   const displayBullets = showExpanded ? nowBullets : nowBullets.slice(0, NOW_SOFT_LIMIT);
@@ -317,6 +320,7 @@ function DroppableInbox({
   quickAddText,
   onQuickAddChange,
   onQuickAdd,
+  prefersReducedMotion,
 }: {
   bullets: ThoughtBullet[];
   existingProjects: ProjectMeta[];
@@ -332,6 +336,7 @@ function DroppableInbox({
   quickAddText?: string;
   onQuickAddChange?: (text: string) => void;
   onQuickAdd?: (text: string) => void;
+  prefersReducedMotion: boolean;
 }) {
   const id = inboxDropId();
   const { setNodeRef, isOver } = useDroppable({ id });
@@ -344,9 +349,9 @@ function DroppableInbox({
       <>
         {/* Desktop collapsed sidebar */}
         <motion.div
-          initial={{ opacity: 0, x: -24 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
+          initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -24 }}
+          animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
+          transition={prefersReducedMotion ? { duration: 0.01 } : { duration: 0.2, ease: 'easeOut' }}
           className="hidden lg:block w-[4rem] shrink-0 p-2 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30"
         >
           <button
@@ -382,9 +387,9 @@ function DroppableInbox({
     <>
       {/* Desktop sidebar view */}
       <motion.div
-        initial={{ opacity: 0, x: -24 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
+        initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -24 }}
+        animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
+        transition={prefersReducedMotion ? { duration: 0.01 } : { duration: 0.2, ease: 'easeOut' }}
         className="hidden lg:block w-[14.5rem] shrink-0 p-3 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30"
       >
         <div className="mb-3 flex items-center justify-between gap-2">
@@ -530,10 +535,10 @@ function DroppableInbox({
       {/* Mobile bottom sheet */}
       <AnimatePresence>
         <motion.div
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          initial={prefersReducedMotion ? { opacity: 0 } : { y: '100%' }}
+          animate={prefersReducedMotion ? { opacity: 1 } : { y: 0 }}
+          exit={prefersReducedMotion ? { opacity: 0 } : { y: '100%' }}
+          transition={prefersReducedMotion ? { duration: 0.01 } : { type: 'spring', damping: 25, stiffness: 300 }}
           className="lg:hidden fixed inset-x-0 bottom-0 z-50 max-h-[75vh] overflow-hidden rounded-t-[1.5rem] border-t border-border-subtle bg-bg-surface shadow-xl"
         >
           {/* Handle bar */}
@@ -623,6 +628,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   showDone: showDoneProp,
   onAddProject,
 }, ref) => {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [mounted, setMounted] = useState(false);
   const [activeBullet, setActiveBullet] = useState<ThoughtBullet | null>(null);
   const [showDoneInternal, setShowDoneInternal] = useState(false);
@@ -1115,10 +1121,10 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
             onClick={() => setShowProjectModal(false)}
           >
             <motion.div
-              initial={{ opacity: 0, y: 12, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 12, scale: 0.96 }}
-              transition={{ duration: 0.18 }}
+              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.96 }}
+              animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.96 }}
+              transition={prefersReducedMotion ? { duration: 0.01 } : { duration: 0.18 }}
               className="w-full max-w-md rounded-[1.75rem] border border-border-subtle/70 bg-bg-elevated/95 p-5 shadow-2xl backdrop-blur-xl"
               onClick={(event) => event.stopPropagation()}
               role="dialog"
@@ -1233,10 +1239,10 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
             onClick={() => setMergeProjectId(null)}
           >
             <motion.div
-              initial={{ opacity: 0, y: 8, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.98 }}
-              transition={{ duration: 0.15 }}
+              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
+              animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.98 }}
+              transition={prefersReducedMotion ? { duration: 0.01 } : { duration: 0.15 }}
               className="w-full max-w-md rounded-2xl border border-border-subtle/70 bg-bg-surface/95 p-5 shadow-2xl backdrop-blur-xl"
               onClick={(event) => event.stopPropagation()}
             >
@@ -1300,6 +1306,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                   onDeleteBullet={handleDeleteBullet}
                   showExpanded={nowSpotlightExpanded}
                   onToggleExpanded={() => setNowSpotlightExpanded((v) => !v)}
+                  prefersReducedMotion={prefersReducedMotion}
                 />
               )}
 
@@ -1323,6 +1330,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                   quickAddText={quickAddText}
                   onQuickAddChange={setQuickAddText}
                   onQuickAdd={handleQuickAdd}
+                  prefersReducedMotion={prefersReducedMotion}
                 />
 
               {projectColumns.map((column) => (
@@ -1465,10 +1473,10 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
         onClick={onClose}
       >
         <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.95 }}
+          animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+          exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 20, scale: 0.95 }}
+          transition={prefersReducedMotion ? { duration: 0.01 } : { type: 'spring', damping: 25, stiffness: 300 }}
           className="relative mx-2 mt-4 h-[calc(100vh-2rem)] w-full max-w-6xl overflow-hidden rounded-[2rem] border border-border-subtle/60 bg-bg-surface/85 shadow-2xl backdrop-blur-xl sm:mx-4 sm:mt-12 sm:h-[calc(100vh-6rem)]"
           onClick={(e) => e.stopPropagation()}
         >

@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { 
   Trophy, 
   RotateCcw, 
@@ -62,6 +63,7 @@ interface Props {
 const DEFAULT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSnWBs92Jmx16VHpbXQECyZ5gK6G-oHSQpsGNB569Hh5PPTGgx4_6U-27ScOmJMdl2XRNifF_FClBqC/pub?output=csv";
 
 export default function VerbFormsGame({ contentStr, activityId }: Props) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [state, setState] = useState<GameState>({
     verbs: [],
     currentIndex: 0,
@@ -311,9 +313,9 @@ export default function VerbFormsGame({ contentStr, activityId }: Props) {
   if (state.phase === 'settings') {
     return (
       <div className="w-full max-w-4xl mx-auto p-0 md:p-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <motion.div
+          initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
+          animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
           className="bg-white rounded-none md:rounded-3xl shadow-xl overflow-hidden border-x-0 md:border border-sage/20 min-h-screen md:min-h-0"
         >
           <div className="bg-terracotta p-8 text-white text-center pb-12">
@@ -495,9 +497,9 @@ export default function VerbFormsGame({ contentStr, activityId }: Props) {
     
     return (
       <div className="max-w-2xl mx-auto p-6">
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
+        <motion.div
+          initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0.9, opacity: 0 }}
+          animate={prefersReducedMotion ? { opacity: 1 } : { scale: 1, opacity: 1 }}
           className="bg-white rounded-3xl shadow-2xl overflow-hidden text-center border border-sage/20"
         >
           <div className="bg-secondary p-10 text-white">
@@ -725,11 +727,12 @@ function InputCard({
   delay: number;
   onEnter?: () => void;
 }) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
+      initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 20 }}
+      animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={prefersReducedMotion ? { delay } : { delay }}
       className={`relative p-6 rounded-3xl overflow-hidden flex flex-col items-center justify-center min-h-[200px] text-center shadow-sm border border-neutral-200/50 ${colorClass}`}
     >
       <div className="flex flex-col items-center gap-1 mb-6">
@@ -769,9 +772,9 @@ function InputCard({
 
       <AnimatePresence>
         {showValidation && !isValid && (
-          <motion.div 
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
+          <motion.div
+            initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 5 }}
+            animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
             className="mt-4 bg-white/90 px-4 py-2 rounded-lg text-xs font-black text-rose-700 border border-rose-100 shadow-sm"
           >
             {correctValue}

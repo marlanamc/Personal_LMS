@@ -42,7 +42,7 @@ interface SoundContextType {
 const SoundContext = createContext<SoundContextType | null>(null);
 
 export function SoundProvider({ children }: { children: ReactNode }) {
-  const [enabled, setEnabled] = useState(true);
+  const [enabled, setEnabled] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const [useSynth, _setUseSynth] = useState(false);
   const audioCache = useRef<Map<SoundType, HTMLAudioElement>>(new Map());

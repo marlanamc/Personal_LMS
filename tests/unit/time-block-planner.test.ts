@@ -9,6 +9,7 @@ import {
   getConstraintDisplayDayPlan,
   normalizeTimeBlockPlannerStore,
   roundToNextTimeIncrement,
+  type PlannerConstraintDay,
 } from "@/lib/time-block-planner";
 import { constraintsToTimelineItems } from "@/lib/unified-scheduler";
 
@@ -452,21 +453,21 @@ describe("time block planner helpers", () => {
             kind: "cutoff",
             target: { kind: "should" },
             time: "18:00",
-            daysOfWeek: [1, 2, 3, 4, 5],
+            daysOfWeek: [1, 2, 3, 4, 5] as PlannerConstraintDay[],
           },
           {
             id: "mon-wed",
             kind: "deadline",
             target: { kind: "want" },
             time: "10:00",
-            daysOfWeek: [3, 1],
+            daysOfWeek: [3, 1] as PlannerConstraintDay[],
           },
           {
             id: "weekend",
             kind: "cutoff",
             target: { kind: "want" },
             time: "22:00",
-            daysOfWeek: [0, 6],
+            daysOfWeek: [0, 6] as PlannerConstraintDay[],
           },
         ],
       },
@@ -488,7 +489,7 @@ describe("time block planner helpers", () => {
           time: "18:00",
           enabled: true,
           displayText: "No more Focus after 6 PM",
-          daysOfWeek: [1, 2, 3, 4, 5],
+          daysOfWeek: [1, 2, 3, 4, 5] as PlannerConstraintDay[],
         },
       ],
     };
@@ -513,7 +514,7 @@ describe("time block planner helpers", () => {
           time: "18:00",
           enabled: true,
           displayText: "No more Focus after 6 PM",
-          daysOfWeek: [1, 2, 3, 4, 5],
+          daysOfWeek: [1, 2, 3, 4, 5] as PlannerConstraintDay[],
         },
         {
           id: "weekend",
@@ -522,7 +523,7 @@ describe("time block planner helpers", () => {
           time: "22:00",
           enabled: true,
           displayText: "No more Energy after 10 PM",
-          daysOfWeek: [0, 6],
+          daysOfWeek: [0, 6] as PlannerConstraintDay[],
         },
       ],
     };
