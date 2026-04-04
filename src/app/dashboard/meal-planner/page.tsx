@@ -21,7 +21,7 @@ export default async function MealPlannerPage() {
   }
 
   return (
-    <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 md:py-8 pb-24 md:pb-12">
+    <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-2.5 pb-24 sm:pt-6 md:pt-8 md:pb-12">
       <MealPlannerView storageScope={userId} />
     </main>
   );
