@@ -157,6 +157,17 @@ function createEmptySelectedMealItems(): Record<MealCategoryId, string[]> {
   };
 }
 
+function createEmptyDraftByCategory(): Record<MealCategoryId, string> {
+  return {
+    protein: '',
+    base: '',
+    veg: '',
+    fresh: '',
+    sauce: '',
+    dairy: '',
+  };
+}
+
 function appendUnique(items: string[], item: string): string[] {
   const normalized = normalizeMealItemText(item);
   if (!normalized) return items;
@@ -558,13 +569,13 @@ function MealEditSheet({
 }) {
   const [selectedItems, setSelectedItems] = useState<Record<MealCategoryId, string[]>>(createEmptySelectedMealItems);
   const [addingCategory, setAddingCategory] = useState<MealCategoryId | null>(null);
-  const [draftByCategory, setDraftByCategory] = useState<Record<MealCategoryId, string>>(createEmptySelectedMealItems);
+  const [draftByCategory, setDraftByCategory] = useState<Record<MealCategoryId, string>>(createEmptyDraftByCategory);
   const [notes, setNotes] = useState(initialNotes);
 
   useEffect(() => {
     if (open) {
       setNotes(initialNotes);
-      setDraftByCategory(createEmptySelectedMealItems());
+      setDraftByCategory(createEmptyDraftByCategory());
       setAddingCategory(null);
       const nextSelected = createEmptySelectedMealItems();
       for (const item of initialText.split(',').map((s) => normalizeMealItemText(s)).filter(Boolean)) {

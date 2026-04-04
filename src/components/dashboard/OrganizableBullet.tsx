@@ -1,11 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Check, GripVertical, RotateCcw, Trash2 } from 'lucide-react';
 import type { ThoughtBullet, ThoughtLane } from '@/lib/thought-organization';
 import { BulletInlineEditor } from './BulletInlineEditor';
+
+// Animated checkmark SVG component
+function AnimatedCheckmark({ className }: { className?: string }) {
+  return (
+    <svg className={`organize-checkmark ${className ?? ''}`} viewBox="0 0 20 20" fill="none">
+      <circle className="organize-checkmark-circle" cx="10" cy="10" r="10" />
+      <path
+        className="organize-checkmark-check"
+        d="M6 10.5L8.5 13L14 7"
+      />
+    </svg>
+  );
+}
+
+// Trigger haptic feedback on mobile
+function triggerHaptic() {
+  if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    navigator.vibrate(10);
+  }
+}
 
 interface OrganizableBulletProps {
   bullet: ThoughtBullet;
@@ -16,6 +36,8 @@ interface OrganizableBulletProps {
   selectable?: boolean;
   selected?: boolean;
   onToggleSelect?: () => void;
+  showProjectPill?: boolean;
+  inSpotlight?: boolean;
 }
 
 const LANE_COLORS: Record<ThoughtLane, {
@@ -24,6 +46,7 @@ const LANE_COLORS: Record<ThoughtLane, {
   border: string;
   badge: string;
   accentBar: string;
+  glow: string;
 }> = {
   now: {
     dot: 'bg-primary',
@@ -31,6 +54,7 @@ const LANE_COLORS: Record<ThoughtLane, {
     border: 'border-primary/20',
     badge: 'bg-primary/12 text-primary',
     accentBar: 'bg-gradient-to-b from-primary/80 via-primary to-primary/60',
+    glow: 'shadow-[0_0_8px_rgba(212,138,166,0.4)]',
   },
   next: {
     dot: 'bg-accent-teal',
@@ -38,13 +62,15 @@ const LANE_COLORS: Record<ThoughtLane, {
     border: 'border-accent-teal/20',
     badge: 'bg-accent-teal/12 text-accent-teal',
     accentBar: 'bg-gradient-to-b from-accent-teal/80 via-accent-teal to-accent-teal/60',
+    glow: '',
   },
   later: {
     dot: 'bg-accent-mint',
     bg: 'bg-accent-mint/5',
     border: 'border-accent-mint/20',
     badge: 'bg-accent-mint/12 text-accent-mint',
-    accentBar: 'bg-gradient-to-b from-accent-mint/80 via-accent-mint to-accent-mint/60',
+    accentBar: 'bg-gradient-to-b from-accent-mint/70 via-accent-mint/60 to-accent-mint/50',
+    glow: '',
   },
   done: {
     dot: 'bg-emerald-600',
@@ -52,6 +78,7 @@ const LANE_COLORS: Record<ThoughtLane, {
     border: 'border-emerald-500/20',
     badge: 'bg-emerald-500/12 text-emerald-700',
     accentBar: 'bg-gradient-to-b from-emerald-500/80 via-emerald-600 to-emerald-700/70',
+    glow: '',
   },
 };
 
@@ -66,6 +93,8 @@ export function OrganizableBullet({
   selectable = false,
   selected = false,
   onToggleSelect,
+  showProjectPill = false,
+  inSpotlight = false,
 }: OrganizableBulletProps) {
   const [isEditing, setIsEditing] = useState(false);
   const isEditable = interactionMode === 'editable';
@@ -91,15 +120,23 @@ export function OrganizableBullet({
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <div
-        className={`group relative rounded-[1.1rem] overflow-hidden transition-all duration-200 hover:bg-bg-surface hover:scale-[1.01] ${
+        className={`organize-card group relative rounded-[1.1rem] overflow-hidden transition-[box-shadow,border-color] duration-150 ${
           isDragging
             ? 'opacity-50 ring-2 ring-primary/20 bg-bg-surface'
             : 'bg-bg-surface/25 border border-border-subtle/20 hover:bg-bg-surface/60 hover:border-border-subtle/50'
-        }`}
+        } ${inSpotlight ? 'bg-bg-surface/40' : ''}`}
       >
+        {/* Accent Bar - replaces dot indicator */}
+        {laneConfig && (
+          <div
+            className={`organize-card-accent absolute left-0 top-0 bottom-0 w-1 ${laneConfig.accentBar} ${laneConfig.glow}`}
+            data-lane={bullet.lane}
+          />
+        )}
 
 
-        <div className="relative flex items-start gap-2 p-3.5 sm:p-3">
+        {/* Card content with left padding for accent bar */}
+        <div className={`relative flex items-start gap-2 p-3.5 sm:p-3 ${laneConfig ? 'pl-4' : ''}`}>
           {selectable && onToggleSelect ? (
             <button
               type="button"
@@ -117,10 +154,10 @@ export function OrganizableBullet({
           ) : null}
 
           {/* Drag Handle - Hidden until hover on desktop */}
-          <div className="absolute left-2.5 top-3.5 opacity-40 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+          <div className={`absolute ${laneConfig ? 'left-3.5' : 'left-2.5'} top-3.5 opacity-40 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity`}>
             <button
               {...listeners}
-              className="mt-0.5 cursor-grab touch-none text-text-muted/60 transition-all hover:text-text-muted hover:scale-110 active:cursor-grabbing p-2 sm:p-1.5 -ml-2 sm:-ml-1.5"
+              className="mt-0.5 cursor-grab touch-none text-text-muted/60 transition-colors hover:text-text-muted active:cursor-grabbing p-2 sm:p-1.5 -ml-2 sm:-ml-1.5"
               aria-label="Drag to reorder"
             >
               <GripVertical className="h-5 w-5 sm:h-4 sm:w-4" />
@@ -130,7 +167,7 @@ export function OrganizableBullet({
           {/* Content */}
           <div className={`flex-1 ${selectable && onToggleSelect ? '' : 'pl-6 sm:pl-5'}`}>
             <div
-              className={`w-full text-left ${isEditable ? 'group/button transition-all hover:opacity-80' : ''}`}
+              className={`w-full text-left ${isEditable ? 'group/button transition-colors hover:opacity-80' : ''}`}
               onClick={isEditable ? () => setIsEditing(!isEditing) : undefined}
               role={isEditable ? 'button' : undefined}
               tabIndex={isEditable ? 0 : undefined}
@@ -142,25 +179,24 @@ export function OrganizableBullet({
               } : undefined}
             >
               <div className="flex items-start gap-2">
-                {laneConfig && (
-                  <div className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${laneConfig.dot}`} />
-                )}
+                {/* No dot here anymore - accent bar replaces it */}
 
                 <div className="flex-1">
-                  <p className={`text-[0.95rem] sm:text-sm text-text leading-[1.55] ${isEditable ? 'group-hover/button:text-primary transition-colors' : ''}`}>
+                  <p className={`text-[0.95rem] sm:text-sm text-text leading-[1.55] ${isEditable ? 'group-hover/button:text-primary transition-colors' : ''} ${isDone ? 'line-through opacity-60' : ''}`}>
                     {bullet.text}
                   </p>
 
-                  {isEditable && (bullet.projectMeta || bullet.lane || bullet.source) && (
+                  {/* Show project pill in spotlight view or when editable */}
+                  {(showProjectPill || isEditable) && (bullet.projectMeta || bullet.source) && (
                     <div className="mt-2.5 flex flex-wrap items-center gap-2">
                       {bullet.projectMeta && (
-                        <span className={`inline-block moment-tag-pill moment-tag-pill-selected-${bullet.projectMeta.color} transition-all hover:scale-105`}>
+                        <span className={`inline-block moment-tag-pill moment-tag-pill-selected-${bullet.projectMeta.color}`}>
                           {bullet.projectMeta.label}
                         </span>
                       )}
 
                       {bullet.source && (
-                        <span className="inline-flex items-center rounded-full bg-bg-elevated/90 border border-border-subtle/60 px-2.5 py-1 text-[10px] font-medium text-text-muted/80 transition-all hover:scale-105 hover:border-border-subtle">
+                        <span className="inline-flex items-center rounded-full bg-bg-elevated/90 border border-border-subtle/60 px-2.5 py-1 text-[10px] font-medium text-text-muted/80">
                           from{' '}
                           {new Date(bullet.source.dateKey + 'T12:00:00').toLocaleDateString(undefined, {
                             month: 'short',
@@ -191,11 +227,14 @@ export function OrganizableBullet({
                 {bullet.project ? (
                   <button
                     type="button"
-                    onClick={() =>
+                    onClick={() => {
+                      if (!isDone) {
+                        triggerHaptic();
+                      }
                       onUpdate({
                         lane: isDone ? 'next' : 'done',
-                      })
-                    }
+                      });
+                    }}
                     className={`p-1.5 rounded-full transition-colors ${
                       isDone
                         ? 'text-text-muted hover:bg-bg-elevated hover:text-text'
@@ -203,7 +242,11 @@ export function OrganizableBullet({
                     }`}
                     aria-label={isDone ? 'Reopen' : 'Done'}
                   >
-                    {isDone ? <RotateCcw className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
+                    {isDone ? (
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    ) : (
+                      <AnimatedCheckmark className="h-4 w-4" />
+                    )}
                   </button>
                 ) : null}
 

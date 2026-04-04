@@ -6649,3 +6649,341 @@ kbd {
 .animate-organize-scale-in {
   animation: organize-scale-in 0.3s ease-out forwards;
 }
+
+/* ========== Organize Board Redesign - AuDHD Friendly ========== */
+
+/* Reduced motion support - critical for AuDHD users */
+@media (prefers-reduced-motion: reduce) {
+  .organize-board *,
+  .organize-board *::before,
+  .organize-board *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* NOW Spotlight Zone - warm, inviting, clear priority */
+.now-spotlight {
+  position: relative;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent-sakura) 6%, var(--color-bg-surface)) 0%,
+    var(--color-bg-surface) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--color-accent-sakura) 15%, transparent);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 0 40px color-mix(in srgb, var(--color-accent-sakura) 8%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  padding: 1.25rem;
+}
+
+:where(:root[data-theme="light"], :root.light) .now-spotlight {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent-sakura) 10%, var(--color-bg-surface)) 0%,
+    var(--color-bg-surface) 100%
+  );
+  box-shadow:
+    0 0 30px color-mix(in srgb, var(--color-accent-sakura) 12%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.now-spotlight-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.now-spotlight-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-accent-sakura);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent-sakura) 50%, transparent);
+}
+
+.now-spotlight-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted);
+}
+
+.now-spotlight-count {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+
+.now-spotlight-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .now-spotlight-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+.now-spotlight-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 5rem;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px dashed color-mix(in srgb, var(--color-accent-sakura) 25%, transparent);
+  background: color-mix(in srgb, var(--color-accent-sakura) 3%, transparent);
+}
+
+.now-spotlight-empty p {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Card Accent Bar - replaces dots for clearer visual hierarchy */
+.organize-card-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 4px 0 0 4px;
+  flex-shrink: 0;
+}
+
+.organize-card-accent[data-lane="now"] {
+  background: var(--color-accent-sakura);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent-sakura) 40%, transparent);
+}
+
+.organize-card-accent[data-lane="next"] {
+  background: var(--color-accent-teal);
+}
+
+.organize-card-accent[data-lane="later"] {
+  background: var(--color-accent-mint);
+  opacity: 0.7;
+}
+
+.organize-card-accent[data-lane="done"] {
+  background: var(--color-success);
+}
+
+/* Card hover states - NO scale transform (predictable bounds for AuDHD) */
+.organize-card {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: box-shadow 150ms ease, border-color 150ms ease;
+}
+
+.organize-card:hover {
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 0 0 1px color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+
+.organize-card:focus-within {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-bg-base),
+    0 0 0 4px color-mix(in srgb, var(--color-primary) 50%, transparent);
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-card:hover {
+  box-shadow:
+    0 4px 16px rgba(158, 132, 112, 0.12),
+    0 0 0 1px color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+/* Quick-add input in Inbox */
+.organize-quick-add {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.organize-quick-add-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-surface);
+  font-size: 0.875rem;
+  color: var(--color-text);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.organize-quick-add-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.organize-quick-add-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+}
+
+/* "Too Many NOW" Warning */
+.now-warning {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, var(--color-warning) 10%, var(--color-bg-surface));
+  border: 1px solid color-mix(in srgb, var(--color-warning) 25%, transparent);
+}
+
+.now-warning-text {
+  flex: 1;
+  min-width: 200px;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.now-warning-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text);
+  transition: background 150ms ease;
+}
+
+.now-warning-button:hover {
+  background: var(--color-bg-surface);
+}
+
+/* Checkmark completion animation */
+@keyframes organize-checkmark-draw {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.organize-checkmark {
+  width: 20px;
+  height: 20px;
+}
+
+.organize-checkmark-circle {
+  fill: var(--color-success);
+  transform-origin: center;
+  animation: organize-checkmark-pop 0.3s ease-out;
+}
+
+.organize-checkmark-check {
+  stroke: white;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: organize-checkmark-draw 0.25s ease-out 0.1s forwards;
+}
+
+@keyframes organize-checkmark-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Undo bar with countdown */
+.organize-undo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.organize-undo-countdown {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.organize-undo-countdown-ring {
+  width: 20px;
+  height: 20px;
+}
+
+.organize-undo-countdown-bg {
+  fill: none;
+  stroke: var(--color-border-subtle);
+  stroke-width: 2;
+}
+
+.organize-undo-countdown-progress {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 1s linear;
+}
+
+/* Increased spacing for breathing room */
+.organize-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+/* Mobile bottom sheet trigger */
+.organize-inbox-sheet-trigger {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + 1rem);
+  left: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-radius: 1.25rem;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+}
+
+@media (min-width: 1024px) {
+  .organize-inbox-sheet-trigger {
+    display: none;
+  }
+}

@@ -13,6 +13,7 @@ import {
   useDroppable,
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { nanoid } from 'nanoid';
 import {
   deduplicateProjects,
   groupByProjectLane,
@@ -28,6 +29,7 @@ import {
 import { OrganizableBullet } from './OrganizableBullet';
 
 const ACTIVE_LANES: ThoughtLane[] = ['now', 'next', 'later'];
+const NOW_SOFT_LIMIT = 5;
 
 interface ThoughtOrganizeModeProps {
   dateKey?: string;
@@ -65,6 +67,86 @@ const LANE_CONFIG: Record<ThoughtLane, {
 };
 
 const PROJECT_COLORS: ProjectColor[] = ['lavender', 'mint', 'sky', 'peach', 'rose', 'sage', 'periwinkle', 'coral', 'blush', 'slate'];
+
+// NOW Spotlight - collects all NOW items across projects for hero display
+function NowSpotlight({
+  bullets,
+  projects,
+  onUpdateBullet,
+  onDeleteBullet,
+  showExpanded,
+  onToggleExpanded,
+}: {
+  bullets: ThoughtBullet[];
+  projects: ProjectMeta[];
+  onUpdateBullet: (bulletId: string, updates: Partial<ThoughtBullet>) => void;
+  onDeleteBullet: (bulletId: string) => void;
+  showExpanded: boolean;
+  onToggleExpanded: () => void;
+}) {
+  const nowBullets = bullets.filter((b) => b.lane === 'now' && b.project);
+  const displayBullets = showExpanded ? nowBullets : nowBullets.slice(0, NOW_SOFT_LIMIT);
+  const hiddenCount = nowBullets.length - NOW_SOFT_LIMIT;
+  const hasOverflow = nowBullets.length > NOW_SOFT_LIMIT;
+
+  if (nowBullets.length === 0) {
+    return (
+      <div className="now-spotlight mb-5">
+        <div className="now-spotlight-header">
+          <span className="now-spotlight-dot" />
+          <span className="now-spotlight-label">Now</span>
+        </div>
+        <div className="now-spotlight-empty">
+          <p>Drag a task here to mark it as your current focus</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="now-spotlight mb-5">
+      <div className="now-spotlight-header">
+        <span className="now-spotlight-dot" />
+        <span className="now-spotlight-label">Now</span>
+        <span className="now-spotlight-count">{nowBullets.length}</span>
+      </div>
+
+      {/* Too Many NOW Warning */}
+      {hasOverflow && !showExpanded && (
+        <div className="now-warning mb-3">
+          <p className="now-warning-text">
+            You have {nowBullets.length} tasks marked NOW. That&apos;s a lot to hold! Consider moving some to NEXT.
+          </p>
+        </div>
+      )}
+
+      <div className="now-spotlight-grid">
+        {displayBullets.map((bullet) => (
+          <OrganizableBullet
+            key={bullet.id}
+            bullet={bullet}
+            existingProjects={projects}
+            onUpdate={(updates) => onUpdateBullet(bullet.id, updates)}
+            onDelete={() => onDeleteBullet(bullet.id)}
+            interactionMode="drag-only"
+            showProjectPill
+            inSpotlight
+          />
+        ))}
+      </div>
+
+      {hasOverflow && (
+        <button
+          type="button"
+          onClick={onToggleExpanded}
+          className="mt-3 w-full rounded-xl border border-border-subtle/50 bg-bg-surface/50 px-4 py-2.5 text-xs font-medium text-text-muted transition-colors hover:bg-bg-surface hover:text-text"
+        >
+          {showExpanded ? 'Show less' : `Show ${hiddenCount} more`}
+        </button>
+      )}
+    </div>
+  );
+}
 
 function laneDropId(projectId: string, lane: ThoughtLane) {
   return `lane:${projectId}:${lane}`;
@@ -193,12 +275,12 @@ function DroppableLane({
 
       <div
         ref={setNodeRef}
-        className={`py-1.5 transition-all duration-200 ${bullets.length === 0 ? 'min-h-[5.5rem]' : ''} ${
-          isOver ? 'rounded-xl bg-bg-surface/50 scale-[1.01]' : ''
+        className={`py-1.5 transition-colors duration-150 ${bullets.length === 0 ? 'min-h-[5.5rem]' : ''} ${
+          isOver ? 'rounded-xl bg-bg-surface/50 ring-2 ring-primary/20' : ''
         }`}
       >
         <SortableContext items={bulletIds} strategy={verticalListSortingStrategy}>
-          <div className="space-y-2.5">
+          <div className="organize-cards-stack">
             {bullets.length === 0 ? (
               <div className="min-h-[4rem]" />
             ) : (
@@ -232,6 +314,9 @@ function DroppableInbox({
   onBatchDelete,
   collapsed,
   onToggle,
+  quickAddText,
+  onQuickAddChange,
+  onQuickAdd,
 }: {
   bullets: ThoughtBullet[];
   existingProjects: ProjectMeta[];
@@ -244,163 +329,281 @@ function DroppableInbox({
   onBatchDelete: () => void;
   collapsed: boolean;
   onToggle: () => void;
+  quickAddText?: string;
+  onQuickAddChange?: (text: string) => void;
+  onQuickAdd?: (text: string) => void;
 }) {
   const id = inboxDropId();
   const { setNodeRef, isOver } = useDroppable({ id });
   const bulletIds = bullets.map((bullet) => bullet.id);
   const [targetProjectId, setTargetProjectId] = useState('');
 
+  // On mobile, show bottom sheet trigger; on desktop, show collapsed sidebar
   if (collapsed) {
     return (
-      <motion.div
-        initial={{ opacity: 0, x: -24 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="w-full lg:w-[4rem] shrink-0 p-2 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30"
-      >
+      <>
+        {/* Desktop collapsed sidebar */}
+        <motion.div
+          initial={{ opacity: 0, x: -24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="hidden lg:block w-[4rem] shrink-0 p-2 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30"
+        >
+          <button
+            type="button"
+            onClick={onToggle}
+            className="flex w-full flex-col items-center justify-center gap-3 px-2 py-4 text-center transition-opacity hover:opacity-70"
+            aria-label="Show inbox"
+          >
+            <span className="text-xs font-semibold text-text-muted">{bullets.length}</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-text-muted" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>Inbox</span>
+          </button>
+        </motion.div>
+
+        {/* Mobile bottom sheet trigger */}
         <button
           type="button"
           onClick={onToggle}
-          className="flex w-full flex-row lg:flex-col items-center justify-between lg:justify-center gap-2 lg:gap-3 px-2 py-3 lg:py-4 text-center transition-all hover:opacity-70 min-h-[44px] lg:min-h-0"
-          aria-label="Show inbox"
+          className="organize-inbox-sheet-trigger lg:hidden"
         >
-          <div className="flex items-center gap-2 lg:flex-col lg:gap-2">
-            <span className="text-xs font-semibold text-text-muted">{bullets.length}</span>
-            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-text-muted" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>Inbox</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-text">Inbox</span>
+            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-bold text-primary">
+              {bullets.length}
+            </span>
           </div>
+          <ChevronDown className="h-5 w-5 text-text-muted rotate-180" />
         </button>
-      </motion.div>
+      </>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -24 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="w-full lg:w-[14.5rem] shrink-0 p-3 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30"
-    >
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <p className="text-base sm:text-sm font-bold sm:font-semibold text-text">Inbox</p>
-          <span className="rounded-full bg-bg-elevated/90 px-2.5 py-1 text-xs sm:text-[10px] font-bold sm:font-semibold uppercase tracking-[0.14em] sm:tracking-[0.18em] text-text-muted">
-            {bullets.length}
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={onToggle}
-          className="rounded-full border border-border-subtle/70 p-2 sm:p-1.5 text-text-muted transition-all hover:bg-bg-surface hover:text-text hover:scale-110 touch-manipulation"
-          aria-label="Hide inbox"
-        >
-          <ChevronLeft className="h-5 w-5 sm:h-4 sm:w-4" />
-        </button>
-      </div>
-
-      {selectedIds.length > 0 ? (
-        <div className="mb-3 rounded-[1rem] border border-primary/20 bg-primary/[0.06] p-3">
-          <div className="flex items-center gap-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-text-muted">
-              {selectedIds.length} selected
-            </p>
-            <button
-              type="button"
-              onClick={onClearSelection}
-              className="text-[10px] font-semibold text-text-muted hover:text-text"
-            >
-              Clear
-            </button>
+    <>
+      {/* Desktop sidebar view */}
+      <motion.div
+        initial={{ opacity: 0, x: -24 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+        className="hidden lg:block w-[14.5rem] shrink-0 p-3 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30"
+      >
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-text">Inbox</p>
+            <span className="rounded-full bg-bg-elevated/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-text-muted">
+              {bullets.length}
+            </span>
           </div>
-          {existingProjects.length > 0 ? (
-            <div className="mt-2 flex items-center gap-2">
-              <select
-                value={targetProjectId}
-                onChange={(event) => setTargetProjectId(event.target.value)}
-                className="min-w-0 flex-1 rounded-xl border border-border-subtle/70 bg-bg-surface/85 px-3 py-2 text-xs text-text"
-              >
-                <option value="">Send to project…</option>
-                {existingProjects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.label}
-                  </option>
-                ))}
-              </select>
+          <button
+            type="button"
+            onClick={onToggle}
+            className="rounded-full border border-border-subtle/70 p-1.5 text-text-muted transition-colors hover:bg-bg-surface hover:text-text touch-manipulation"
+            aria-label="Hide inbox"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Quick-add input - always visible for instant capture */}
+        {onQuickAdd && onQuickAddChange && (
+          <div className="organize-quick-add mb-3">
+            <input
+              type="text"
+              value={quickAddText ?? ''}
+              onChange={(e) => onQuickAddChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && quickAddText?.trim()) {
+                  onQuickAdd(quickAddText);
+                }
+              }}
+              placeholder="What's on your mind?"
+              className="organize-quick-add-input w-full"
+            />
+          </div>
+        )}
+
+        {selectedIds.length > 0 ? (
+          <div className="mb-3 rounded-[1rem] border border-primary/20 bg-primary/[0.06] p-3">
+            <div className="flex items-center gap-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-text-muted">
+                {selectedIds.length} selected
+              </p>
               <button
                 type="button"
-                disabled={!targetProjectId}
-                onClick={() => {
-                  const targetProject = existingProjects.find((project) => project.id === targetProjectId);
-                  if (!targetProject) return;
-                  onBatchUpdate({ project: targetProject.id, projectMeta: targetProject, lane: 'next' });
-                  setTargetProjectId('');
-                }}
-                className="rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={onClearSelection}
+                className="text-[10px] font-semibold text-text-muted hover:text-text"
               >
-                Send to Next
+                Clear
               </button>
             </div>
-          ) : null}
-          {targetProjectId ? (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {([...ACTIVE_LANES, 'done'] as ThoughtLane[]).map((lane) => (
+            {existingProjects.length > 0 ? (
+              <div className="mt-2 flex items-center gap-2">
+                <select
+                  value={targetProjectId}
+                  onChange={(event) => setTargetProjectId(event.target.value)}
+                  className="min-w-0 flex-1 rounded-xl border border-border-subtle/70 bg-bg-surface/85 px-3 py-2 text-xs text-text"
+                >
+                  <option value="">Send to project…</option>
+                  {existingProjects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.label}
+                    </option>
+                  ))}
+                </select>
                 <button
-                  key={lane}
                   type="button"
+                  disabled={!targetProjectId}
                   onClick={() => {
                     const targetProject = existingProjects.find((project) => project.id === targetProjectId);
                     if (!targetProject) return;
-                    onBatchUpdate({ project: targetProject.id, projectMeta: targetProject, lane });
+                    onBatchUpdate({ project: targetProject.id, projectMeta: targetProject, lane: 'next' });
                     setTargetProjectId('');
                   }}
-                  className={`rounded-full px-3 py-1.5 text-[11px] font-semibold ${
-                    lane === 'done'
-                      ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                      : 'border border-border-subtle/70 bg-bg-surface/85 text-text hover:bg-bg-elevated'
-                  }`}
+                  className="rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Send to {LANE_CONFIG[lane].label}
+                  Send to Next
                 </button>
-              ))}
-            </div>
-          ) : null}
-          <button
-            type="button"
-            onClick={onBatchDelete}
-            className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-error/20 bg-error/6 px-3 py-1.5 text-[11px] font-semibold text-error/85 hover:bg-error/10"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            Delete selected
-          </button>
-        </div>
-      ) : null}
-
-      <div
-        ref={setNodeRef}
-        className={`min-h-[22rem] p-1 transition-all ${isOver ? 'ring-2 ring-primary/30 rounded-xl bg-bg-elevated/60' : ''}`}
-      >
-        <SortableContext items={bulletIds} strategy={verticalListSortingStrategy}>
-          <div className="space-y-2.5">
-            {bullets.length === 0 ? (
-              <div className="min-h-[16rem]" />
-            ) : (
-              bullets.map((bullet) => (
-                <OrganizableBullet
-                  key={bullet.id}
-                  bullet={bullet}
-                  existingProjects={existingProjects}
-                  onUpdate={(updates) => onUpdateBullet(bullet.id, updates)}
-                  onDelete={() => onDeleteBullet(bullet.id)}
-                  interactionMode="drag-only"
-                  selectable={true}
-                  selected={selectedIds.includes(bullet.id)}
-                  onToggleSelect={() => onToggleSelected(bullet.id)}
-                />
-              ))
-            )}
+              </div>
+            ) : null}
+            {targetProjectId ? (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {([...ACTIVE_LANES, 'done'] as ThoughtLane[]).map((lane) => (
+                  <button
+                    key={lane}
+                    type="button"
+                    onClick={() => {
+                      const targetProject = existingProjects.find((project) => project.id === targetProjectId);
+                      if (!targetProject) return;
+                      onBatchUpdate({ project: targetProject.id, projectMeta: targetProject, lane });
+                      setTargetProjectId('');
+                    }}
+                    className={`rounded-full px-3 py-1.5 text-[11px] font-semibold ${
+                      lane === 'done'
+                        ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                        : 'border border-border-subtle/70 bg-bg-surface/85 text-text hover:bg-bg-elevated'
+                    }`}
+                  >
+                    Send to {LANE_CONFIG[lane].label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            <button
+              type="button"
+              onClick={onBatchDelete}
+              className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-error/20 bg-error/6 px-3 py-1.5 text-[11px] font-semibold text-error/85 hover:bg-error/10"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete selected
+            </button>
           </div>
-        </SortableContext>
-      </div>
-    </motion.div>
+        ) : null}
+
+        <div
+          ref={setNodeRef}
+          className={`min-h-[22rem] p-1 transition-colors duration-150 ${isOver ? 'ring-2 ring-primary/30 rounded-xl bg-bg-elevated/60' : ''}`}
+        >
+          <SortableContext items={bulletIds} strategy={verticalListSortingStrategy}>
+            <div className="organize-cards-stack">
+              {bullets.length === 0 ? (
+                <div className="min-h-[16rem]" />
+              ) : (
+                bullets.map((bullet) => (
+                  <OrganizableBullet
+                    key={bullet.id}
+                    bullet={bullet}
+                    existingProjects={existingProjects}
+                    onUpdate={(updates) => onUpdateBullet(bullet.id, updates)}
+                    onDelete={() => onDeleteBullet(bullet.id)}
+                    interactionMode="drag-only"
+                    selectable={true}
+                    selected={selectedIds.includes(bullet.id)}
+                    onToggleSelect={() => onToggleSelected(bullet.id)}
+                  />
+                ))
+              )}
+            </div>
+          </SortableContext>
+        </div>
+      </motion.div>
+
+      {/* Mobile bottom sheet */}
+      <AnimatePresence>
+        <motion.div
+          initial={{ y: '100%' }}
+          animate={{ y: 0 }}
+          exit={{ y: '100%' }}
+          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+          className="lg:hidden fixed inset-x-0 bottom-0 z-50 max-h-[75vh] overflow-hidden rounded-t-[1.5rem] border-t border-border-subtle bg-bg-surface shadow-xl"
+        >
+          {/* Handle bar */}
+          <div className="flex justify-center py-2">
+            <div className="h-1 w-10 rounded-full bg-border-subtle" />
+          </div>
+
+          {/* Header */}
+          <div className="flex items-center justify-between gap-3 px-4 pb-3">
+            <div className="flex items-center gap-2">
+              <p className="text-base font-bold text-text">Inbox</p>
+              <span className="rounded-full bg-bg-elevated px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-text-muted">
+                {bullets.length}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={onToggle}
+              className="rounded-full border border-border-subtle/70 p-2 text-text-muted transition-colors hover:bg-bg-elevated hover:text-text"
+              aria-label="Close inbox"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Quick-add on mobile */}
+          {onQuickAdd && onQuickAddChange && (
+            <div className="px-4 pb-3">
+              <input
+                type="text"
+                value={quickAddText ?? ''}
+                onChange={(e) => onQuickAddChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && quickAddText?.trim()) {
+                    onQuickAdd(quickAddText);
+                  }
+                }}
+                placeholder="What's on your mind?"
+                className="organize-quick-add-input w-full"
+              />
+            </div>
+          )}
+
+          {/* Scrollable content */}
+          <div className="overflow-auto px-4 pb-8" style={{ maxHeight: 'calc(75vh - 120px)' }}>
+            <div className="organize-cards-stack">
+              {bullets.length === 0 ? (
+                <div className="py-8 text-center text-sm text-text-muted">
+                  Inbox is empty
+                </div>
+              ) : (
+                bullets.map((bullet) => (
+                  <OrganizableBullet
+                    key={bullet.id}
+                    bullet={bullet}
+                    existingProjects={existingProjects}
+                    onUpdate={(updates) => onUpdateBullet(bullet.id, updates)}
+                    onDelete={() => onDeleteBullet(bullet.id)}
+                    interactionMode="drag-only"
+                    selectable={true}
+                    selected={selectedIds.includes(bullet.id)}
+                    onToggleSelect={() => onToggleSelected(bullet.id)}
+                  />
+                ))
+              )}
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -449,6 +652,9 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const [selectedInboxIds, setSelectedInboxIds] = useState<string[]>([]);
   const [projectMenuId, setProjectMenuId] = useState<string | null>(null);
   const [undoState, setUndoState] = useState<{ organization: ThoughtOrganization; message: string } | null>(null);
+  const [undoCountdown, setUndoCountdown] = useState<number>(0);
+  const [nowSpotlightExpanded, setNowSpotlightExpanded] = useState(false);
+  const [quickAddText, setQuickAddText] = useState('');
 
   useEffect(() => {
     setMounted(true);
@@ -565,7 +771,25 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       },
       message,
     });
+    setUndoCountdown(10);
   };
+
+  // Undo countdown timer (10 seconds)
+  useEffect(() => {
+    if (!undoState || undoCountdown <= 0) return;
+
+    const timer = setInterval(() => {
+      setUndoCountdown((prev) => {
+        if (prev <= 1) {
+          setUndoState(null);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [undoState, undoCountdown]);
 
   const handleDragStart = (event: DragStartEvent) => {
     const bullet = localOrg.bullets.find((item) => item.id === event.active.id);
@@ -800,6 +1024,27 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
     if (!undoState) return;
     setLocalOrg(undoState.organization);
     setUndoState(null);
+    setUndoCountdown(0);
+  };
+
+  // Quick-add to inbox
+  const handleQuickAdd = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+
+    const newBullet: ThoughtBullet = {
+      id: nanoid(),
+      text: trimmed,
+      lineNumber: 0,
+      displayOrder: (inbox?.bullets.length ?? 0),
+    };
+
+    setLocalOrg((prev) => ({
+      ...prev,
+      bullets: [...prev.bullets, newBullet],
+    }));
+
+    setQuickAddText('');
   };
 
   const contentBody = (
@@ -829,12 +1074,29 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
 
       {undoState ? (
         <div className="border-b border-border-subtle/50 bg-bg-elevated/45 px-4 py-2.5 sm:px-6">
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1rem] border border-border-subtle/60 bg-bg-surface/70 px-3 py-2">
-            <p className="text-sm text-text-muted">{undoState.message}</p>
+          <div className="organize-undo-bar flex flex-wrap items-center justify-between gap-3 rounded-[1rem] border border-border-subtle/60 bg-bg-surface/70 px-3 py-2">
+            <div className="flex items-center gap-3">
+              {/* Countdown ring */}
+              <div className="organize-undo-countdown">
+                <svg className="organize-undo-countdown-ring" viewBox="0 0 24 24">
+                  <circle className="organize-undo-countdown-bg" cx="12" cy="12" r="10" />
+                  <circle
+                    className="organize-undo-countdown-progress"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    strokeDasharray={62.83}
+                    strokeDashoffset={62.83 * (1 - undoCountdown / 10)}
+                  />
+                </svg>
+                <span>{undoCountdown}s</span>
+              </div>
+              <p className="text-sm text-text-muted">{undoState.message}</p>
+            </div>
             <button
               type="button"
               onClick={handleUndoDelete}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle/70 bg-bg-elevated px-3 py-1.5 text-xs font-semibold text-text hover:bg-bg-surface"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle/70 bg-bg-elevated px-4 py-2 text-xs font-semibold text-text hover:bg-bg-surface"
             >
               <Undo2 className="h-3.5 w-3.5" />
               Undo
@@ -1018,46 +1280,62 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
         ) : null}
       </AnimatePresence>
 
-      <div className="flex-1 overflow-auto px-4 py-4 sm:px-6 sm:py-5">
+      <div className="organize-board flex-1 overflow-auto px-4 py-4 sm:px-6 sm:py-5">
         <DndContext collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          {localOrg.bullets.length === 0 ? (
+          {localOrg.bullets.length === 0 && localOrg.projects.length === 0 ? (
             <div className="flex h-64 items-center justify-center rounded-[1.75rem] border border-dashed border-border-subtle bg-bg-surface/40">
               <div className="text-center">
-                <p className="text-sm font-medium text-text-muted">No bullets found</p>
-                <p className="mt-1 text-xs text-text-muted/70">Add some list items in capture mode to organize them</p>
+                <p className="text-sm font-medium text-text-muted">No tasks yet</p>
+                <p className="mt-1 text-xs text-text-muted/70">Create a project or add tasks below to get started</p>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col lg:flex-row min-h-full gap-3.5 pb-2">
-              <DroppableInbox
-                bullets={inbox?.bullets || []}
-                existingProjects={localOrg.projects}
-                onUpdateBullet={handleUpdateBullet}
-                onDeleteBullet={handleDeleteBullet}
-                selectedIds={selectedInboxIds}
-                onToggleSelected={(bulletId) =>
-                  setSelectedInboxIds((current) =>
-                    current.includes(bulletId) ? current.filter((id) => id !== bulletId) : [...current, bulletId]
-                  )
-                }
-                onClearSelection={() => setSelectedInboxIds([])}
-                onBatchUpdate={handleBatchUpdateInbox}
-                onBatchDelete={handleBatchDeleteInbox}
-                collapsed={inboxCollapsed}
-                onToggle={() => setInboxCollapsed((value) => !value)}
-              />
+            <>
+              {/* NOW Spotlight - hero section for current focus */}
+              {localOrg.projects.length > 0 && (
+                <NowSpotlight
+                  bullets={localOrg.bullets}
+                  projects={localOrg.projects}
+                  onUpdateBullet={handleUpdateBullet}
+                  onDeleteBullet={handleDeleteBullet}
+                  showExpanded={nowSpotlightExpanded}
+                  onToggleExpanded={() => setNowSpotlightExpanded((v) => !v)}
+                />
+              )}
 
-              {projectColumns.map((column, index) => (
+              <div className="flex flex-col lg:flex-row min-h-full gap-4 pb-2">
+                <DroppableInbox
+                  bullets={inbox?.bullets || []}
+                  existingProjects={localOrg.projects}
+                  onUpdateBullet={handleUpdateBullet}
+                  onDeleteBullet={handleDeleteBullet}
+                  selectedIds={selectedInboxIds}
+                  onToggleSelected={(bulletId) =>
+                    setSelectedInboxIds((current) =>
+                      current.includes(bulletId) ? current.filter((id) => id !== bulletId) : [...current, bulletId]
+                    )
+                  }
+                  onClearSelection={() => setSelectedInboxIds([])}
+                  onBatchUpdate={handleBatchUpdateInbox}
+                  onBatchDelete={handleBatchDeleteInbox}
+                  collapsed={inboxCollapsed}
+                  onToggle={() => setInboxCollapsed((value) => !value)}
+                  quickAddText={quickAddText}
+                  onQuickAddChange={setQuickAddText}
+                  onQuickAdd={handleQuickAdd}
+                />
+
+              {projectColumns.map((column) => (
                 <motion.div
                   key={column.projectId}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + index * 0.1, duration: 0.4, ease: 'easeOut' }}
-                  className="w-full lg:w-[18rem] shrink-0 px-3 pt-1 pb-4 lg:border-r lg:border-border-subtle/20 transition-all duration-200"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                  className="w-full lg:w-[18rem] shrink-0 px-3 pt-1 pb-4 lg:border-r lg:border-border-subtle/20"
                 >
                   <div className="relative mb-2.5 flex items-center justify-between gap-3 border-b border-border-subtle/25 pb-2.5">
                     <div className="min-w-0 flex-1">
-                      <span className={`moment-tag-pill moment-tag-pill-selected-${column.projectMeta?.color ?? 'lavender'} transition-transform hover:scale-105`}>
+                      <span className={`moment-tag-pill moment-tag-pill-selected-${column.projectMeta?.color ?? 'lavender'}`}>
                         {column.projectMeta?.label || 'Project'}
                       </span>
                     </div>
@@ -1150,7 +1428,8 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
               ))}
 
               {projectColumns.length === 0 && localOrg.projects.length === 0 ? null : null}
-            </div>
+              </div>
+            </>
           )}
 
           <DragOverlay>
