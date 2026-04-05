@@ -120,7 +120,7 @@ export const CATEGORY_LABELS: Record<SkincareCategoryId, string> = {
   sunscreen: 'Sunscreen',
 };
 
-// Color system (following meal planner pattern with Tailwind colors)
+// Color system - soft tones matching site palette
 export type CategoryColorScheme = {
   bg: string;
   text: string;
@@ -130,46 +130,53 @@ export type CategoryColorScheme = {
 
 export const SKINCARE_CATEGORY_COLORS: Record<SkincareCategoryId, CategoryColorScheme> = {
   cleanser: {
-    bg: 'bg-blue-100/50',
-    text: 'text-blue-700 font-semibold',
-    border: 'border-blue-300/50',
-    dot: 'bg-blue-500',
+    // Rose - dusty pink
+    bg: 'bg-rose-100/40',
+    text: 'text-rose-700/90 font-medium',
+    border: 'border-rose-200/50',
+    dot: 'bg-rose-400',
   },
   toner: {
-    bg: 'bg-purple-100/50',
-    text: 'text-purple-700 font-semibold',
-    border: 'border-purple-300/50',
-    dot: 'bg-purple-500',
+    // Sky - soft blue
+    bg: 'bg-sky-100/40',
+    text: 'text-sky-700/90 font-medium',
+    border: 'border-sky-200/50',
+    dot: 'bg-sky-400',
   },
   serums: {
-    bg: 'bg-pink-100/50',
-    text: 'text-pink-700 font-semibold',
-    border: 'border-pink-300/50',
-    dot: 'bg-pink-500',
+    // Peach - warm soft orange
+    bg: 'bg-orange-100/40',
+    text: 'text-orange-600/90 font-medium',
+    border: 'border-orange-200/50',
+    dot: 'bg-orange-300',
   },
   actives: {
-    bg: 'bg-orange-100/50',
-    text: 'text-orange-700 font-semibold',
-    border: 'border-orange-300/50',
-    dot: 'bg-orange-500',
+    // Mint - soft green
+    bg: 'bg-emerald-100/40',
+    text: 'text-emerald-700/90 font-medium',
+    border: 'border-emerald-200/50',
+    dot: 'bg-emerald-400',
   },
   extras: {
-    bg: 'bg-teal-100/50',
-    text: 'text-teal-700 font-semibold',
-    border: 'border-teal-300/50',
-    dot: 'bg-teal-500',
+    // Lavender - soft purple
+    bg: 'bg-violet-100/40',
+    text: 'text-violet-700/90 font-medium',
+    border: 'border-violet-200/50',
+    dot: 'bg-violet-400',
   },
   moisturizer: {
-    bg: 'bg-green-100/50',
-    text: 'text-green-700 font-semibold',
-    border: 'border-green-300/50',
-    dot: 'bg-green-500',
+    // Periwinkle - blue-violet
+    bg: 'bg-indigo-100/40',
+    text: 'text-indigo-600/90 font-medium',
+    border: 'border-indigo-200/50',
+    dot: 'bg-indigo-400',
   },
   sunscreen: {
-    bg: 'bg-yellow-100/50',
-    text: 'text-yellow-700 font-semibold',
-    border: 'border-yellow-300/50',
-    dot: 'bg-yellow-500',
+    // Dusty mauve - rose/periwinkle blend
+    bg: 'bg-fuchsia-100/40',
+    text: 'text-fuchsia-700/90 font-medium',
+    border: 'border-fuchsia-200/50',
+    dot: 'bg-fuchsia-400',
   },
 };
 

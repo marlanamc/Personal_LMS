@@ -137,18 +137,17 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
           <ChevronRight className="w-3.5 h-3.5 text-pink-500/50 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
 
-        {/* Content - Show meal names on desktop */}
+        {/* Content - Show full meal names */}
         {hasMeals ? (
           <div className="space-y-0.5">
             {MEAL_SLOT_KEYS.filter((key) => todayMeals?.[key]?.text).map((slotKey) => {
               const Icon = MEAL_ICONS[slotKey];
               const meal = todayMeals![slotKey]!;
-              const firstItem = meal.text.split(',')[0].trim();
               return (
-                <div key={slotKey} className="flex items-center gap-1.5">
-                  <Icon className="w-3 h-3 text-pink-500/70 dark:text-pink-400/70 shrink-0" />
-                  <span className="text-[11px] text-pink-900 dark:text-pink-100 truncate">
-                    {firstItem}
+                <div key={slotKey} className="flex items-start gap-1.5">
+                  <Icon className="w-3 h-3 text-pink-500/70 dark:text-pink-400/70 shrink-0 mt-0.5" />
+                  <span className="text-[11px] text-pink-900 dark:text-pink-100">
+                    {meal.text}
                   </span>
                 </div>
               );
@@ -183,24 +182,22 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
           <ChevronRight className="w-3.5 h-3.5 text-sky-500/50 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
 
-        {/* Content - Show skincare item names on desktop */}
+        {/* Content - Show all skincare item names */}
         {hasSkincare ? (
           <div className="space-y-1">
             {todaySkincare.am.length > 0 && (
               <div className="flex items-start gap-1.5">
                 <Sun className="w-3 h-3 text-amber-500 shrink-0 mt-0.5" />
-                <span className="text-[11px] text-sky-900 dark:text-sky-100 line-clamp-1">
-                  {todaySkincare.am.slice(0, 3).map(item => item.name).join(' · ')}
-                  {todaySkincare.am.length > 3 && ` +${todaySkincare.am.length - 3}`}
+                <span className="text-[11px] text-sky-900 dark:text-sky-100">
+                  {todaySkincare.am.map(item => item.name).join(' · ')}
                 </span>
               </div>
             )}
             {todaySkincare.pm.length > 0 && (
               <div className="flex items-start gap-1.5">
                 <MoonStar className="w-3 h-3 text-indigo-400 shrink-0 mt-0.5" />
-                <span className="text-[11px] text-sky-900 dark:text-sky-100 line-clamp-1">
-                  {todaySkincare.pm.slice(0, 3).map(item => item.name).join(' · ')}
-                  {todaySkincare.pm.length > 3 && ` +${todaySkincare.pm.length - 3}`}
+                <span className="text-[11px] text-sky-900 dark:text-sky-100">
+                  {todaySkincare.pm.map(item => item.name).join(' · ')}
                 </span>
               </div>
             )}

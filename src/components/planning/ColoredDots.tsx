@@ -32,7 +32,7 @@ export function ColoredDots({ items, maxVisible = 8, size = 'md', className = ''
   }
 
   return (
-    <div className={`flex flex-wrap items-center gap-1.5 ${className}`}>
+    <div className={`flex flex-col items-start gap-0.5 ${className}`}>
       {visibleItems.map((item, idx) => {
         const colors = SKINCARE_CATEGORY_COLORS[item.category];
         return (
@@ -49,7 +49,7 @@ export function ColoredDots({ items, maxVisible = 8, size = 'md', className = ''
         );
       })}
       {hasMore && (
-        <span className="text-xs text-gray-500 ml-0.5" title={`+${sortedItems.length - maxVisible} more items`}>
+        <span className="text-xs text-gray-500" title={`+${sortedItems.length - maxVisible} more items`}>
           +{sortedItems.length - maxVisible}
         </span>
       )}
