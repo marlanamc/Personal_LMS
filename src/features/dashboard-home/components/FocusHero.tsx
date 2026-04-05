@@ -15,13 +15,21 @@ interface FocusHeroProps {
 }
 
 export function FocusHero({
-  userName,
+  userName: _userName,
   storageScope,
   isCalendarRestoreVisible,
   onRestoreCalendar,
   calendarEvents,
   calendarPlanner,
 }: FocusHeroProps) {
+  // Format today's date for display
+  const today = new Date();
+  const dateLabel = new Intl.DateTimeFormat('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(today);
 
   return (
     <div className="focus-hero-wrapper focus-hero-mobile-plain relative">
@@ -42,12 +50,11 @@ export function FocusHero({
         <div aria-hidden className="hidden sm:block absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-gradient-to-tr from-secondary/15 to-transparent blur-xl" />
 
         <div className="relative px-0 py-0 sm:px-7 sm:py-8">
-          {/* Welcome Banner - pr-12 leaves room for calendar restore button */}
+          {/* Date Banner - pr-12 leaves room for calendar restore button */}
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-7 pr-0 sm:pr-12">
             <h1 className="hidden sm:block text-page-title font-display leading-tight mb-1">
-              Welcome back,{' '}
-              <span className="handwritten text-primary relative">
-                {userName}
+              <span className="text-text relative">
+                {dateLabel}
                 {/* Hand-drawn underline effect */}
                 <svg
                   className="absolute -bottom-1 left-0 w-full h-2 text-primary/40"

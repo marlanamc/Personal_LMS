@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Calendar, Sparkles, Timer, BookOpen } from 'lucide-react';
 import { ContextSidebar } from '@/components/shared/ContextSidebar';
 import { FocusHero } from './FocusHero';
-import { TodayMenu } from './TodayMenu';
+import { TodayRibbon } from './TodayRibbon';
 import { AreaCard } from './AreaCard';
 import { MobileCommandHeader } from '@/features/dashboard-home';
 import { useZenMode } from '@/features/planning/hooks/useZenMode';
@@ -60,6 +60,11 @@ export function HomePlanningHub({
           />
         </section>
 
+        {/* Today's Ribbon - Quick glance at NOW/Skincare/Meals */}
+        <section className="animate-fade-in-up">
+          <TodayRibbon storageScope={storageScope} />
+        </section>
+
         {/* Four-Area Navigation */}
         <section className="animate-fade-in-up">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -111,11 +116,6 @@ export function HomePlanningHub({
               ]}
             />
           </div>
-        </section>
-
-        {/* Today's Menu - Meals & Now Items */}
-        <section className="animate-fade-in-up">
-          <TodayMenu storageScope={storageScope} />
         </section>
 
         {/* Bottom spacing for mobile nav */}
