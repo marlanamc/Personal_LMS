@@ -23,7 +23,7 @@ interface HomePlanningHubProps {
 export function HomePlanningHub({
   userName,
   storageScope,
-  assignments,
+  assignments: _assignments,
   calendarEvents,
 }: HomePlanningHubProps) {
   const { isZenMode, toggleZenMode } = useZenMode();
@@ -73,6 +73,7 @@ export function HomePlanningHub({
                 { label: 'Calendar', href: '/dashboard/calendar' },
                 { label: 'Anchors', href: '/dashboard/anchors' },
                 { label: 'Meals', href: '/dashboard/meal-planner' },
+                { label: 'Skincare', href: '/dashboard/skincare-planner' },
               ]}
             />
             <AreaCard

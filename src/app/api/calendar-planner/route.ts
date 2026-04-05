@@ -41,6 +41,11 @@ type DayPlan = {
   thoughtDownload?: string;
   thoughtOrganization?: ThoughtOrganization;
   interstitialJournalEntries?: InterstitialJournalEntry[];
+  acknowledgements?: {
+    boundaries: string[];
+    events: string[];
+    sessions: string[];
+  };
 };
 
 type PlannerStore = Record<string, DayPlan> & {
@@ -97,13 +102,23 @@ function normalizeCustomTag(raw: unknown): CustomTag | null {
 }
 
 function normalizeDayPlan(raw: unknown): DayPlan {
-  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '', thoughtOrganization: undefined, interstitialJournalEntries: [] };
+  if (!raw || typeof raw !== 'object') {
+    return {
+      notes: '',
+      tasks: [],
+      thoughtDownload: '',
+      thoughtOrganization: undefined,
+      interstitialJournalEntries: [],
+      acknowledgements: { boundaries: [], events: [], sessions: [] },
+    };
+  }
   const candidate = raw as {
     notes?: unknown;
     tasks?: unknown;
     thoughtDownload?: unknown;
     thoughtOrganization?: unknown;
     interstitialJournalEntries?: unknown;
+    acknowledgements?: unknown;
   };
   const notes = typeof candidate.notes === 'string' ? candidate.notes : '';
   const tasks = Array.isArray(candidate.tasks)
@@ -116,7 +131,18 @@ function normalizeDayPlan(raw: unknown): DayPlan {
         .map(normalizeInterstitialJournalEntry)
         .filter((entry): entry is InterstitialJournalEntry => entry !== null)
     : [];
-  return { notes, tasks, thoughtDownload, thoughtOrganization, interstitialJournalEntries };
+  const rawAck =
+    candidate.acknowledgements &&
+    typeof candidate.acknowledgements === 'object' &&
+    !Array.isArray(candidate.acknowledgements)
+      ? (candidate.acknowledgements as { boundaries?: unknown; events?: unknown; sessions?: unknown })
+      : null;
+  const acknowledgements = {
+    boundaries: Array.isArray(rawAck?.boundaries) ? rawAck.boundaries.filter((id): id is string => typeof id === 'string') : [],
+    events: Array.isArray(rawAck?.events) ? rawAck.events.filter((id): id is string => typeof id === 'string') : [],
+    sessions: Array.isArray(rawAck?.sessions) ? rawAck.sessions.filter((id): id is string => typeof id === 'string') : [],
+  };
+  return { notes, tasks, thoughtDownload, thoughtOrganization, interstitialJournalEntries, acknowledgements };
 }
 
 function normalizePlannerStore(raw: unknown): PlannerStore {
@@ -135,7 +161,11 @@ function normalizePlannerStore(raw: unknown): PlannerStore {
     const hasThoughtDownload = typeof plan.thoughtDownload === 'string' && plan.thoughtDownload.trim() !== '';
     const hasThoughtOrganization = plan.thoughtOrganization && plan.thoughtOrganization.bullets.length > 0;
     const hasInterstitialJournalEntries = (plan.interstitialJournalEntries?.length ?? 0) > 0;
-    if (plan.notes || plan.tasks.length > 0 || hasThoughtDownload || hasThoughtOrganization || hasInterstitialJournalEntries) {
+    const hasAcknowledgements =
+      (plan.acknowledgements?.boundaries.length ?? 0) > 0 ||
+      (plan.acknowledgements?.events.length ?? 0) > 0 ||
+      (plan.acknowledgements?.sessions.length ?? 0) > 0;
+    if (plan.notes || plan.tasks.length > 0 || hasThoughtDownload || hasThoughtOrganization || hasInterstitialJournalEntries || hasAcknowledgements) {
       store[key] = plan;
     }
   }
@@ -147,7 +177,11 @@ function isPlanEmpty(plan: DayPlan): boolean {
     typeof plan.thoughtDownload === 'string' && plan.thoughtDownload.trim() !== '';
   const hasThoughtOrganization = plan.thoughtOrganization && plan.thoughtOrganization.bullets.length > 0;
   const hasInterstitialJournalEntries = (plan.interstitialJournalEntries?.length ?? 0) > 0;
-  return !plan.notes && plan.tasks.length === 0 && !hasThoughtDownload && !hasThoughtOrganization && !hasInterstitialJournalEntries;
+  const hasAcknowledgements =
+    (plan.acknowledgements?.boundaries.length ?? 0) > 0 ||
+    (plan.acknowledgements?.events.length ?? 0) > 0 ||
+    (plan.acknowledgements?.sessions.length ?? 0) > 0;
+  return !plan.notes && plan.tasks.length === 0 && !hasThoughtDownload && !hasThoughtOrganization && !hasInterstitialJournalEntries && !hasAcknowledgements;
 }
 
 export async function GET() {
@@ -225,8 +259,21 @@ export async function POST(req: NextRequest) {
 
       if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
       
-      const existingPlan = mergedStore[key] || { notes: '', tasks: [], thoughtDownload: '', thoughtOrganization: undefined, interstitialJournalEntries: [] };
+      const existingPlan = mergedStore[key] || {
+        notes: '',
+        tasks: [],
+        thoughtDownload: '',
+        thoughtOrganization: undefined,
+        interstitialJournalEntries: [],
+        acknowledgements: { boundaries: [], events: [], sessions: [] },
+      };
       const rawIncoming = value as Record<string, unknown>;
+      const rawAck =
+        rawIncoming.acknowledgements &&
+        typeof rawIncoming.acknowledgements === 'object' &&
+        !Array.isArray(rawIncoming.acknowledgements)
+          ? (rawIncoming.acknowledgements as { boundaries?: unknown; events?: unknown; sessions?: unknown })
+          : null;
 
       // Merge only if the field is present in the incoming data
       const newPlan: DayPlan = {
@@ -245,6 +292,19 @@ export async function POST(req: NextRequest) {
               .map(normalizeInterstitialJournalEntry)
               .filter((entry): entry is InterstitialJournalEntry => entry !== null)
           : existingPlan.interstitialJournalEntries,
+        acknowledgements: rawIncoming.acknowledgements !== undefined
+          ? {
+              boundaries: Array.isArray(rawAck?.boundaries)
+                ? rawAck.boundaries.filter((id): id is string => typeof id === 'string')
+                : [],
+              events: Array.isArray(rawAck?.events)
+                ? rawAck.events.filter((id): id is string => typeof id === 'string')
+                : [],
+              sessions: Array.isArray(rawAck?.sessions)
+                ? rawAck.sessions.filter((id): id is string => typeof id === 'string')
+                : [],
+            }
+          : existingPlan.acknowledgements,
       };
 
       if (isPlanEmpty(newPlan)) {

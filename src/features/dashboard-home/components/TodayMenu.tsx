@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { useMealPlanner } from '@/components/dashboard/useMealPlanner';
+import { useSkincarePlanner } from '@/components/dashboard/useSkincarePlanner';
 import { useThoughtOrganizer } from '@/components/organize/useThoughtOrganizer';
 import { getMealsForDate, MEAL_SLOT_KEYS, type MealSlotKey } from '@/lib/meal-planner';
+import { getTodayItems, SKINCARE_SLOT_KEYS, type SkincareSlotKey } from '@/lib/skincare-planner';
 import { getTodayKey } from '@/lib/unified-scheduler';
 import {
   UtensilsCrossed,
@@ -14,6 +16,8 @@ import {
   Zap,
   ChevronRight,
   Sparkles,
+  Droplets,
+  MoonStar,
 } from 'lucide-react';
 
 interface TodayMenuProps {
@@ -34,23 +38,36 @@ const MEAL_LABELS: Record<MealSlotKey, string> = {
   snack: 'Snack',
 };
 
+const SKINCARE_ICONS: Record<SkincareSlotKey, typeof Sun> = {
+  am: Sun,
+  pm: MoonStar,
+};
+
+const SKINCARE_LABELS: Record<SkincareSlotKey, string> = {
+  am: 'AM',
+  pm: 'PM',
+};
+
 export function TodayMenu({ storageScope }: TodayMenuProps) {
   const { plannerStore, isLoaded: mealsLoaded } = useMealPlanner(storageScope);
+  const { plannerStore: skincareStore, isLoaded: skincareLoaded } = useSkincarePlanner(storageScope);
   const { organization, isLoaded: organizeLoaded } = useThoughtOrganizer();
 
   const todayKey = getTodayKey();
   const todayMeals = getMealsForDate(plannerStore.mealPlans, todayKey);
+  const todaySkincare = getTodayItems(skincareStore);
 
   // Get "Now" items (high priority / immediate tasks)
   const nowItems = organization.bullets.filter((b) => b.lane === 'now');
 
   // Check if we have any content to show
   const hasMeals = todayMeals && MEAL_SLOT_KEYS.some((key) => todayMeals[key]?.text);
+  const hasSkincare = todaySkincare.am.length > 0 || todaySkincare.pm.length > 0;
   const hasNowItems = nowItems.length > 0;
-  const hasContent = hasMeals || hasNowItems;
+  const hasContent = hasMeals || hasSkincare || hasNowItems;
 
   // Loading state
-  if (!mealsLoaded || !organizeLoaded) {
+  if (!mealsLoaded || !skincareLoaded || !organizeLoaded) {
     return (
       <div className="rounded-2xl border border-border-subtle bg-bg-surface/50 p-6 animate-pulse">
         <div className="flex items-center gap-3 mb-4">
@@ -81,7 +98,7 @@ export function TodayMenu({ storageScope }: TodayMenuProps) {
           </div>
 
           <p className="text-sm text-text-muted mb-4 leading-relaxed">
-            Plan your meals or add tasks to your "Now" lane to see them here.
+            Plan your meals, skincare routine, or add tasks to your "Now" lane to see them here.
           </p>
 
           <div className="flex flex-wrap gap-2">
@@ -91,6 +108,13 @@ export function TodayMenu({ storageScope }: TodayMenuProps) {
             >
               <UtensilsCrossed className="w-3.5 h-3.5" />
               Plan meals
+            </Link>
+            <Link
+              href="/dashboard/skincare-planner"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-bg-elevated border border-border-subtle text-text-muted hover:text-text hover:border-primary/30 transition-colors"
+            >
+              <Droplets className="w-3.5 h-3.5" />
+              Plan skincare
             </Link>
             <Link
               href="/dashboard/organize"
@@ -123,7 +147,7 @@ export function TodayMenu({ storageScope }: TodayMenuProps) {
                 Today's Menu
               </h3>
               <p className="text-xs text-text-muted mt-0.5">
-                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })} · meals, skincare, and now
               </p>
             </div>
           </div>
@@ -191,6 +215,53 @@ export function TodayMenu({ storageScope }: TodayMenuProps) {
                     +{nowItems.length - 3} more items
                   </Link>
                 )}
+              </div>
+            </section>
+          )}
+
+          {hasSkincare && (
+            <section>
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-2">
+                  <Droplets className="w-4 h-4 text-sky-500" />
+                  <span className="text-xs font-bold uppercase tracking-wide text-sky-600 dark:text-sky-400">
+                    Skincare
+                  </span>
+                </div>
+                <Link
+                  href="/dashboard/skincare-planner"
+                  className="text-xs font-medium text-text-muted hover:text-primary transition-colors flex items-center gap-0.5"
+                >
+                  Edit plan
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {SKINCARE_SLOT_KEYS.map((slotKey) => {
+                  const items = todaySkincare[slotKey];
+                  if (items.length === 0) return null;
+
+                  const Icon = SKINCARE_ICONS[slotKey];
+
+                  return (
+                    <div
+                      key={slotKey}
+                      className="group p-3 rounded-xl bg-sky-50/60 dark:bg-sky-950/20 border border-sky-200/50 dark:border-sky-900/40 hover:border-sky-300/60 dark:hover:border-sky-800/60 transition-colors"
+                    >
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <Icon className="w-3.5 h-3.5 text-sky-500" />
+                        <span className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+                          {SKINCARE_LABELS[slotKey]}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium text-text leading-snug">
+                        {items.slice(0, 3).map(item => item.name).join(' · ')}
+                        {items.length > 3 && ` +${items.length - 3}`}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </section>
           )}
@@ -265,6 +336,15 @@ export function TodayMenu({ storageScope }: TodayMenuProps) {
             >
               <UtensilsCrossed className="w-3.5 h-3.5" />
               Plan meals
+            </Link>
+          )}
+          {!hasSkincare && (
+            <Link
+              href="/dashboard/skincare-planner"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-sky-100/80 text-sky-700 hover:bg-sky-100 dark:bg-sky-900/30 dark:text-sky-300 dark:hover:bg-sky-900/50 transition-colors"
+            >
+              <Droplets className="w-3.5 h-3.5" />
+              Plan skincare
             </Link>
           )}
           {!hasNowItems && (
