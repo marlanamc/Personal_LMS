@@ -67,15 +67,15 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3">
-      {/* NOW Segment - Stronger amber background */}
+      {/* NOW Segment - Soft violet/lavender for calm focus */}
       <Link
         href="/dashboard/organize"
         className={`
           group relative flex flex-col p-3 rounded-xl border transition-all
-          bg-amber-100/70 dark:bg-amber-900/30
-          border-amber-300/60 dark:border-amber-700/50
-          hover:border-amber-400/70 dark:hover:border-amber-600/60
-          hover:bg-amber-100/90 dark:hover:bg-amber-900/40
+          bg-violet-50/80 dark:bg-violet-950/25
+          border-violet-200/60 dark:border-violet-800/40
+          hover:border-violet-300/70 dark:hover:border-violet-700/50
+          hover:bg-violet-100/70 dark:hover:bg-violet-950/35
           shadow-sm
           ${!hasNowItems ? 'opacity-60' : ''}
         `}
@@ -83,12 +83,12 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
         {/* Header row */}
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-1.5">
-            <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <span className="text-[11px] font-bold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+            <Zap className="w-4 h-4 text-violet-500 dark:text-violet-400" />
+            <span className="text-[11px] font-bold uppercase tracking-wide text-violet-600 dark:text-violet-300">
               Now
             </span>
           </div>
-          <ChevronRight className="w-3.5 h-3.5 text-amber-500/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <ChevronRight className="w-3.5 h-3.5 text-violet-400/50 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
 
         {/* Content - Show all NOW items on desktop */}
@@ -96,20 +96,20 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
           <div className="space-y-0.5">
             {nowItems.slice(0, 3).map((item, idx) => (
               <div key={item.id || idx} className="flex items-center gap-1.5">
-                <Zap className="w-3 h-3 text-amber-500/70 dark:text-amber-400/70 shrink-0" />
-                <span className="text-[11px] text-amber-900 dark:text-amber-100 truncate">
+                <Zap className="w-3 h-3 text-violet-400/70 dark:text-violet-400/60 shrink-0" />
+                <span className="text-[11px] text-violet-900 dark:text-violet-100 truncate">
                   {item.text}
                 </span>
               </div>
             ))}
             {nowItems.length > 3 && (
-              <span className="text-[10px] text-amber-600 dark:text-amber-400 pl-4">
+              <span className="text-[10px] text-violet-500 dark:text-violet-400 pl-4">
                 +{nowItems.length - 3} more
               </span>
             )}
           </div>
         ) : (
-          <span className="text-[10px] text-amber-600/70 dark:text-amber-400/70 italic">No tasks</span>
+          <span className="text-[10px] text-violet-500/70 dark:text-violet-400/70 italic">No tasks</span>
         )}
       </Link>
 
