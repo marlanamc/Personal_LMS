@@ -12,6 +12,7 @@ import {
   FileText,
   FolderKanban,
   Globe,
+  Headphones,
   Heart,
   Home,
   LayoutList,
@@ -50,6 +51,7 @@ const quickLinks: NavLink[] = [
   { href: '/dashboard/calendar', label: 'Monthly Calendar', icon: CalendarDays },
   { href: '/dashboard/meal-planner', label: 'Meal Planner', icon: UtensilsCrossed },
   { href: '/dashboard/skincare-planner', label: 'Skincare Planner', icon: Sparkle },
+  { href: '/dashboard/media-hub', label: 'Media Hub', icon: Headphones },
   { href: '/dashboard/anchors', label: 'Anchors', icon: Anchor },
 
   // Thinking section

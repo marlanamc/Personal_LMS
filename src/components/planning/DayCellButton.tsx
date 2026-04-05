@@ -19,7 +19,7 @@ export function DayCellButton({ items, day, slot, isToday = false, onClick }: Da
     <button
       onClick={onClick}
       className={`
-        relative w-full min-h-[60px] p-2
+        relative w-full min-h-[60px] p-2 text-left align-top
         rounded-lg border-2 transition-all
         hover:border-primary/50 hover:bg-primary/5
         focus:outline-none focus:ring-2 focus:ring-primary/50
