@@ -14,28 +14,40 @@ interface AreaCardProps {
 
 const colorStyles = {
   blue: {
-    gradient: 'from-blue-500/10 to-blue-600/10 hover:from-blue-500/20 hover:to-blue-600/20',
-    iconColor: 'text-blue-600',
-    button: 'bg-blue-100/80 border border-blue-200 text-blue-900 hover:bg-blue-200/80 hover:border-blue-300',
-    chip: 'border-blue-200/80 bg-white/70 text-blue-900 hover:border-blue-300 hover:bg-white',
+    gradient:
+      'from-blue-500/10 to-blue-600/10 hover:from-blue-500/20 hover:to-blue-600/20 dark:from-blue-500/15 dark:to-blue-600/20 dark:hover:from-blue-500/25 dark:hover:to-blue-600/30',
+    iconColor: 'text-blue-600 dark:text-blue-400',
+    button:
+      'bg-blue-100/90 border border-blue-300/45 text-blue-950 shadow-sm hover:shadow-md hover:bg-blue-200/85 hover:border-blue-400/50 dark:bg-blue-950/75 dark:border-blue-400/35 dark:text-blue-50 dark:shadow-none dark:ring-1 dark:ring-inset dark:ring-white/[0.07] dark:hover:bg-blue-900/80 dark:hover:border-blue-300/45 dark:hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
+    chip:
+      'border-blue-200/80 bg-white/70 text-blue-900 hover:border-blue-300 hover:bg-white dark:border-blue-500/40 dark:bg-blue-950/60 dark:text-blue-100 dark:hover:border-blue-400/55 dark:hover:bg-blue-900/50',
   },
   purple: {
-    gradient: 'from-purple-500/10 to-purple-600/10 hover:from-purple-500/20 hover:to-purple-600/20',
-    iconColor: 'text-purple-600',
-    button: 'bg-purple-100/80 border border-purple-200 text-purple-900 hover:bg-purple-200/80 hover:border-purple-300',
-    chip: 'border-purple-200/80 bg-white/70 text-purple-900 hover:border-purple-300 hover:bg-white',
+    gradient:
+      'from-purple-500/10 to-purple-600/10 hover:from-purple-500/20 hover:to-purple-600/20 dark:from-purple-500/15 dark:to-purple-600/20 dark:hover:from-purple-500/25 dark:hover:to-purple-600/30',
+    iconColor: 'text-purple-600 dark:text-purple-400',
+    button:
+      'bg-purple-100/90 border border-purple-300/45 text-purple-950 shadow-sm hover:shadow-md hover:bg-purple-200/85 hover:border-purple-400/50 dark:bg-purple-950/75 dark:border-purple-400/35 dark:text-purple-50 dark:shadow-none dark:ring-1 dark:ring-inset dark:ring-white/[0.07] dark:hover:bg-purple-900/80 dark:hover:border-purple-300/45 dark:hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
+    chip:
+      'border-purple-200/80 bg-white/70 text-purple-900 hover:border-purple-300 hover:bg-white dark:border-purple-500/40 dark:bg-purple-950/60 dark:text-purple-100 dark:hover:border-purple-400/55 dark:hover:bg-purple-900/50',
   },
   orange: {
-    gradient: 'from-orange-500/10 to-orange-600/10 hover:from-orange-500/20 hover:to-orange-600/20',
-    iconColor: 'text-orange-600',
-    button: 'bg-orange-100/80 border border-orange-200 text-orange-900 hover:bg-orange-200/80 hover:border-orange-300',
-    chip: 'border-orange-200/80 bg-white/70 text-orange-900 hover:border-orange-300 hover:bg-white',
+    gradient:
+      'from-orange-500/10 to-orange-600/10 hover:from-orange-500/20 hover:to-orange-600/20 dark:from-orange-500/15 dark:to-orange-600/20 dark:hover:from-orange-500/25 dark:hover:to-orange-600/30',
+    iconColor: 'text-orange-600 dark:text-orange-400',
+    button:
+      'bg-orange-100/90 border border-orange-300/45 text-orange-950 shadow-sm hover:shadow-md hover:bg-orange-200/85 hover:border-orange-400/50 dark:bg-orange-950/75 dark:border-orange-400/35 dark:text-orange-50 dark:shadow-none dark:ring-1 dark:ring-inset dark:ring-white/[0.07] dark:hover:bg-orange-900/80 dark:hover:border-orange-300/45 dark:hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
+    chip:
+      'border-orange-200/80 bg-white/70 text-orange-900 hover:border-orange-300 hover:bg-white dark:border-orange-500/40 dark:bg-orange-950/60 dark:text-orange-100 dark:hover:border-orange-400/55 dark:hover:bg-orange-900/50',
   },
   green: {
-    gradient: 'from-green-500/10 to-green-600/10 hover:from-green-500/20 hover:to-green-600/20',
-    iconColor: 'text-green-600',
-    button: 'bg-green-100/80 border border-green-200 text-green-900 hover:bg-green-200/80 hover:border-green-300',
-    chip: 'border-green-200/80 bg-white/70 text-green-900 hover:border-green-300 hover:bg-white',
+    gradient:
+      'from-green-500/10 to-green-600/10 hover:from-green-500/20 hover:to-green-600/20 dark:from-green-500/15 dark:to-green-600/20 dark:hover:from-green-500/25 dark:hover:to-green-600/30',
+    iconColor: 'text-green-600 dark:text-green-400',
+    button:
+      'bg-green-100/90 border border-green-300/45 text-green-950 shadow-sm hover:shadow-md hover:bg-green-200/85 hover:border-green-400/50 dark:bg-green-950/75 dark:border-green-400/35 dark:text-green-50 dark:shadow-none dark:ring-1 dark:ring-inset dark:ring-white/[0.07] dark:hover:bg-green-900/80 dark:hover:border-green-300/45 dark:hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]',
+    chip:
+      'border-green-200/80 bg-white/70 text-green-900 hover:border-green-300 hover:bg-white dark:border-green-500/40 dark:bg-green-950/60 dark:text-green-100 dark:hover:border-green-400/55 dark:hover:bg-green-900/50',
   },
 };
 
@@ -54,7 +66,9 @@ export function AreaCard({
       className={`group rounded-xl border border-transparent bg-gradient-to-br p-6 transition-all duration-200 hover:border-primary/20 ${styles.gradient}`}
     >
       <div className="flex flex-col gap-4">
-        <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-white/80 ${styles.iconColor} transition-transform group-hover:scale-110`}>
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-lg bg-white/80 dark:bg-bg-elevated/70 dark:border dark:border-border-subtle/40 ${styles.iconColor} transition-transform group-hover:scale-110`}
+        >
           <Icon className="w-6 h-6" />
         </div>
 
@@ -62,10 +76,10 @@ export function AreaCard({
 
         <Link
           href={href}
-          className={`inline-flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${styles.button}`}
+          className={`group/cta inline-flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.99] ${styles.button}`}
         >
-          <span>{primaryLabel ?? `Open ${title}`}</span>
-          <ArrowRight className="h-4 w-4" />
+          <span className="min-w-0 pr-2">{primaryLabel ?? `Open ${title}`}</span>
+          <ArrowRight className="h-4 w-4 shrink-0 opacity-75 transition-all duration-200 group-hover/cta:translate-x-0.5 group-hover/cta:opacity-100" />
         </Link>
 
         {shortcuts.length > 0 && (

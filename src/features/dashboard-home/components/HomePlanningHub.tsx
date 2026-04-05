@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Calendar, Sparkles, Timer, BookOpen } from 'lucide-react';
 import { ContextSidebar } from '@/components/shared/ContextSidebar';
 import { FocusHero } from './FocusHero';
-import { TodaysAssignments } from '@/components/learning/TodaysAssignments';
+import { TodayMenu } from './TodayMenu';
 import { AreaCard } from './AreaCard';
 import { MobileCommandHeader } from '@/features/dashboard-home';
 import { useZenMode } from '@/features/planning/hooks/useZenMode';
@@ -112,13 +112,10 @@ export function HomePlanningHub({
           </div>
         </section>
 
-        {/* Today's Assignments */}
-        {assignments.length > 0 && (
-          <section className="animate-fade-in-up">
-            <h2 className="text-lg font-semibold mb-4 px-1">Today's Assignments</h2>
-            <TodaysAssignments initialAssignments={assignments} variant="cards" />
-          </section>
-        )}
+        {/* Today's Menu - Meals & Now Items */}
+        <section className="animate-fade-in-up">
+          <TodayMenu storageScope={storageScope} />
+        </section>
 
         {/* Bottom spacing for mobile nav */}
         <div className="h-24 md:hidden" aria-hidden />
