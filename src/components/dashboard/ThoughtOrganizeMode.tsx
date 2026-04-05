@@ -11,7 +11,11 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  PointerSensor,
+  TouchSensor,
   useDroppable,
+  useSensor,
+  useSensors,
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { nanoid } from 'nanoid';
@@ -631,6 +635,20 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const prefersReducedMotion = usePrefersReducedMotion();
   const [mounted, setMounted] = useState(false);
   const [activeBullet, setActiveBullet] = useState<ThoughtBullet | null>(null);
+
+  // Configure drag sensors with activation constraints to prevent accidental drags
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 8, // Require 8px movement before drag starts
+    },
+  });
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 200, // 200ms hold before drag starts on touch
+      tolerance: 5,
+    },
+  });
+  const sensors = useSensors(pointerSensor, touchSensor);
   const [showDoneInternal, setShowDoneInternal] = useState(false);
   const showDoneLanes = showDoneProp !== undefined ? showDoneProp : showDoneInternal;
   const setShowDoneLanes = (val: boolean | ((p: boolean) => boolean)) => {
@@ -1287,7 +1305,12 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       </AnimatePresence>
 
       <div className="organize-board flex-1 overflow-auto px-4 py-4 sm:px-6 sm:py-5">
-        <DndContext collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
           {localOrg.bullets.length === 0 && localOrg.projects.length === 0 ? (
             <div className="flex h-64 items-center justify-center rounded-[1.75rem] border border-dashed border-border-subtle bg-bg-surface/40">
               <div className="text-center">
@@ -1440,7 +1463,12 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
             </>
           )}
 
-          <DragOverlay>
+          <DragOverlay
+            dropAnimation={{
+              duration: 200,
+              easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+            }}
+          >
             {activeBullet ? (
               <div
                 className="max-w-[22rem] rounded-xl border border-primary/40 bg-bg-elevated/95 px-4 py-3 backdrop-blur-lg ring-2 ring-primary/20 cursor-grabbing"
