@@ -824,7 +824,7 @@ type PlannerTab = 'grocery' | 'meals';
 export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const { plannerStore, setPlannerStore, isLoaded, isSaving, saveError } = useMealPlanner(storageScope);
-  const [tab, setTab] = useState<PlannerTab>('grocery');
+  const [tab, setTab] = useState<PlannerTab>('meals');
   const [captureDraft, setCaptureDraft] = useState('');
   const [captureGlow, setCaptureGlow] = useState(false);
   const [collapsedCat, setCollapsedCat] = useState<Partial<Record<GroceryCategory, boolean>>>({});
@@ -1092,18 +1092,6 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
       <div className="flex rounded-xl border border-border-subtle/50 bg-bg-elevated/35 p-1 backdrop-blur-sm">
         <button
           type="button"
-          onClick={() => setTab('grocery')}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition ${
-            tab === 'grocery'
-              ? 'bg-bg-surface/90 text-accent-mint shadow-sm'
-              : 'text-text-muted hover:text-text-secondary'
-          }`}
-        >
-          <ShoppingBasket className="h-4 w-4" />
-          Groceries
-        </button>
-        <button
-          type="button"
           onClick={() => setTab('meals')}
           className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition ${
             tab === 'meals'
@@ -1113,6 +1101,18 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
         >
           <UtensilsCrossed className="h-4 w-4" />
           Meal plan
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('grocery')}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition ${
+            tab === 'grocery'
+              ? 'bg-bg-surface/90 text-accent-mint shadow-sm'
+              : 'text-text-muted hover:text-text-secondary'
+          }`}
+        >
+          <ShoppingBasket className="h-4 w-4" />
+          Groceries
         </button>
       </div>
 
