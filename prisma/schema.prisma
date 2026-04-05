@@ -30,6 +30,7 @@ model User {
   bpReadings            BloodPressureReading[]
   momentTrackers        MomentTracker[]
   workspaceContext      WorkspaceContext?
+  threads               Thread[]
 }
 
 model Class {
@@ -82,6 +83,7 @@ model Activity {
   quizResponses       QuizResponse[]
   speakingSubmissions SpeakingSubmission[]
   submissions         Submission[]
+  threadActivities    ThreadActivity[]
 
   @@index([isReleased])
   @@index([type, category, isReleased])
@@ -305,4 +307,54 @@ model WorkspaceContext {
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// ============================================
+// Threads - Weaving Loom for Managing Attention
+// ============================================
+
+model Thread {
+  id               String           @id @default(cuid())
+  userId           String
+  title            String           // max 100 chars
+  description      String?          // optional, max 280 chars
+  emoji            String?          // optional emoji identifier
+  color            String           @default("sakura") // sakura|mint|amethyst|teal|rose|slate
+  status           String           @default("active") // active|resting|archived
+  order            Int              @default(0)
+  anchorX          Float            @default(0.5) // 0-1 position on loom bar (deprecated - kept for backward compatibility)
+  isCore           Boolean          @default(false) // core threads are foundational, others weave around them
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  lastFocused      DateTime?        // when moved to active
+  lastRested       DateTime?        // when moved to resting
+
+  // NEW: Gamification fields
+  focusStreak      Int              @default(0) // Days of consecutive activity
+  lastActivityDate DateTime?        // Last date an activity was completed
+  xp               Int              @default(0) // Thread experience points
+
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activities       ThreadActivity[]
+
+  @@index([userId, status])
+  @@index([userId, order])
+}
+
+// ============================================
+// Thread Activity Linking - Connects threads to learning activities
+// ============================================
+
+model ThreadActivity {
+  id         String   @id @default(cuid())
+  threadId   String
+  activityId String
+  createdAt  DateTime @default(now())
+
+  thread     Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@unique([threadId, activityId])
+  @@index([threadId])
+  @@index([activityId])
 }
