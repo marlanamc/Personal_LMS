@@ -93,14 +93,17 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
 
         {/* Content - Show all NOW items on desktop */}
         {hasNowItems ? (
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             {nowItems.slice(0, 3).map((item, idx) => (
-              <p key={item.id || idx} className="text-xs text-amber-900 dark:text-amber-100 line-clamp-1">
-                {item.text}
-              </p>
+              <div key={item.id || idx} className="flex items-center gap-1.5">
+                <Zap className="w-3 h-3 text-amber-500/70 dark:text-amber-400/70 shrink-0" />
+                <span className="text-[11px] text-amber-900 dark:text-amber-100 truncate">
+                  {item.text}
+                </span>
+              </div>
             ))}
             {nowItems.length > 3 && (
-              <span className="text-[10px] text-amber-600 dark:text-amber-400">
+              <span className="text-[10px] text-amber-600 dark:text-amber-400 pl-4">
                 +{nowItems.length - 3} more
               </span>
             )}
