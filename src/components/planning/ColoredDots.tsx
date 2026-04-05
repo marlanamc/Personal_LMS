@@ -20,27 +20,32 @@ export function ColoredDots({ items, maxVisible = 8, size = 'md', className = ''
   const hasMore = sortedItems.length > maxVisible;
 
   const sizeClasses = {
-    sm: 'w-2 h-2',
-    md: 'w-3 h-3',
-    lg: 'w-4 h-4',
+    sm: { dot: 'w-2 h-2', text: 'text-xs' },
+    md: { dot: 'w-2.5 h-2.5', text: 'text-sm' },
+    lg: { dot: 'w-3 h-3', text: 'text-base' },
   };
 
-  const dotSize = sizeClasses[size];
+  const sizes = sizeClasses[size];
 
   if (visibleItems.length === 0) {
     return null;
   }
 
   return (
-    <div className={`flex flex-wrap items-center gap-1 ${className}`}>
+    <div className={`flex flex-wrap items-center gap-1.5 ${className}`}>
       {visibleItems.map((item, idx) => {
         const colors = SKINCARE_CATEGORY_COLORS[item.category];
         return (
           <div
             key={`${item.id}-${idx}`}
-            className={`${dotSize} rounded-full ${colors.dot}`}
+            className="flex items-center gap-1.5"
             title={`${item.name} (${item.category})`}
-          />
+          >
+            <div className={`${sizes.dot} rounded-full ${colors.dot} flex-shrink-0`} />
+            <span className={`${sizes.text} ${colors.text} leading-tight`}>
+              {item.name}
+            </span>
+          </div>
         );
       })}
       {hasMore && (
