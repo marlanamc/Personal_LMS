@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
 import { BackButton } from "@/components/ui/BackButton";
-import { FeatureToggleButton } from "@/components/dashboard";
+import { FeatureToggleButton } from "@/components/dashboard/FeatureToggleButton";
 import { ClassAnnouncementEditor } from "@/components/dashboard/ClassAnnouncementEditor";
 
 interface Props {

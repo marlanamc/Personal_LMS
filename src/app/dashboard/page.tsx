@@ -1,73 +1,13 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { parseCategoryData } from "@/lib/categoryData";
+import type { CalendarEvent } from "@/features/planning/types";
 import {
-  CalendarEvent,
-  DashboardContent,
-} from "@/components/dashboard";
-import type { ChecklistItem } from "@/components/dashboard/checklist-item.types";
-import { getChecklistAnchorId } from "@/lib/anchors";
-
-type OwnedClass = {
-  id: string;
-  name: string;
-  announcement: string | null;
-  assignments: {
-    id: string;
-    title: string | null;
-    activityId: string;
-    classId: string;
-    activity: {
-      id: string;
-      title: string;
-      description: string | null;
-      type: string;
-      content: string | null;
-    };
-    isFeatured: boolean;
-    dueDate: Date | null;
-    createdAt: Date;
-    updatedAt: Date;
-  }[];
-  calendarEvents: {
-    id: string;
-    title: string;
-    date: Date;
-    endDate: Date | null;
-    type: string;
-  }[];
-};
-
-const NEW_RELEASE_WINDOW_MS = 24 * 60 * 60 * 1000;
-
-function isPrismaConnectivityError(error: unknown): boolean {
-  if (!error || typeof error !== "object") return false;
-  const maybeError = error as { code?: string; message?: string };
-  return (
-    maybeError.code === "P1001" ||
-    maybeError.code === "P1017" ||
-    (typeof maybeError.message === "string" && maybeError.message.includes("Can't reach database server"))
-  );
-}
-
-function isWithinNewReleaseWindow(date: Date | null | undefined): boolean {
-  if (!date) return false;
-  const ageMs = Date.now() - date.getTime();
-  return ageMs >= 0 && ageMs <= NEW_RELEASE_WINDOW_MS;
-}
-
-function filterReleasedActivities(assignment: { activity: { type: string; content: string | null } }) {
-  if (assignment.activity.type !== "speaking") return true;
-  if (!assignment.activity.content) return false;
-  try {
-    const content = JSON.parse(assignment.activity.content);
-    return content.released === true;
-  } catch {
-    return false;
-  }
-}
+  isPrismaConnectivityError,
+  loadDashboardHomeData,
+} from "@/features/dashboard-home/server/load-dashboard-home-data";
+import { DashboardContent } from "@/features/dashboard-home";
+import type { ChecklistItem } from "@/types/checklist-item";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -78,129 +18,22 @@ export default async function DashboardPage() {
 
   const userId = session.user.id;
 
-  let currentUser: {
-    name: string | null;
-  } | null = null;
-  let ownedClasses: OwnedClass[] = [];
+  let currentUser: { name: string | null } | null = null;
   let featuredAssignments: ChecklistItem[] = [];
+  let calendarEvents: CalendarEvent[] = [];
 
   try {
-    // Fetch User data
-    currentUser = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        name: true,
-      },
-    });
-
-    // Fetch owned classes
-    ownedClasses = await prisma.class.findMany({
-      where: { ownerId: userId },
-      include: {
-        assignments: { include: { activity: true } },
-        calendarEvents: true,
-      },
-    });
-
-    const featuredAssignmentsRaw = await prisma.assignment.findMany({
-      where: {
-        classId: { in: ownedClasses.map((c) => c.id) },
-        isFeatured: true,
-        activity: { id: { not: "" } },
-      },
-      include: {
-        activity: true,
-        submissions: {
-          where: { userId },
-          select: { id: true, status: true, completedAt: true, score: true },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    const featuredActivityIds = Array.from(
-      new Set(featuredAssignmentsRaw.map((a) => a.activityId)),
-    );
-    const featuredProgressRows =
-      featuredActivityIds.length === 0
-        ? []
-        : await prisma.activityProgress.findMany({
-            where: { userId, activityId: { in: featuredActivityIds } },
-            select: {
-              activityId: true,
-              progress: true,
-              status: true,
-              categoryData: true,
-              updatedAt: true,
-            },
-            orderBy: { updatedAt: "desc" },
-          });
-
-    const featuredProgressMap = featuredProgressRows.reduce(
-      (
-        map: Map<
-          string,
-          { progress: number; status: string; categoryData: ReturnType<typeof parseCategoryData> }
-        >,
-        row,
-      ) => {
-        if (!map.has(row.activityId)) {
-          map.set(row.activityId, {
-            progress: row.progress ?? 0,
-            status: row.status ?? "in_progress",
-            categoryData: parseCategoryData(row.categoryData),
-          });
-        }
-        return map;
-      },
-      new Map(),
-    );
-
-    featuredAssignments = featuredAssignmentsRaw
-      .filter(filterReleasedActivities)
-      .map((a) => {
-        const p = featuredProgressMap.get(a.activityId);
-        return {
-          ...a,
-          featuredAt: a.updatedAt ?? a.createdAt,
-          isNewRelease: isWithinNewReleaseWindow(a.updatedAt ?? a.createdAt),
-          progress: p?.progress ?? 0,
-          progressStatus: p?.status ?? "in_progress",
-          categoryData: p?.categoryData ?? null,
-          anchorId: getChecklistAnchorId(a.id, a.activityId),
-        };
-      });
+    ({
+      currentUser,
+      featuredAssignments,
+      calendarEvents,
+    } = await loadDashboardHomeData(userId));
   } catch (error) {
     if (!isPrismaConnectivityError(error)) {
       throw error;
     }
     console.warn("[Dashboard] Database is unreachable, rendering with empty dashboard data");
   }
-
-  // Consolidate Calendar Events from owned classes
-  const calendarEvents: CalendarEvent[] = [
-    ...ownedClasses.flatMap((cls) =>
-      cls.assignments
-        .filter(filterReleasedActivities)
-        .filter((a) => a.dueDate)
-        .map((a) => ({
-          date: a.dueDate as Date,
-          type: (a.title || a.activity.title || "").toLowerCase().includes("quiz")
-            ? ("quiz" as const)
-            : ("due" as const),
-          title: `${a.title || a.activity.title || "Assignment"}`,
-        })),
-    ),
-    ...ownedClasses.flatMap((cls) =>
-      cls.calendarEvents.map((ev) => ({
-        id: ev.id,
-        date: ev.date,
-        endDate: ev.endDate || null,
-        type: (ev.type as CalendarEvent["type"]) || "holiday",
-        title: `${ev.title}`,
-      })),
-    ),
-  ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
     <div className="dashboard-home-shell min-h-screen bg-bg-base light-ambient-surface overflow-x-clip">

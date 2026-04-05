@@ -12,7 +12,7 @@ import {
   Sparkles,
   Target,
 } from 'lucide-react';
-import type { ChecklistItem } from '@/components/dashboard/checklist-item.types';
+import type { ChecklistItem } from '@/types/checklist-item';
 
 interface LmsCompactStripProps {
   assignments: ChecklistItem[];

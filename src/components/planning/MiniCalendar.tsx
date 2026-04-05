@@ -3,16 +3,8 @@
 
 import React, { useState } from 'react';
 import { CalendarIcon } from 'lucide-react';
+import type { CalendarEvent } from '@/features/planning/types';
 import { getMiniCalendarDayPresentation } from '@/lib/mini-calendar';
-
-export type CalendarEvent = {
-    id?: string;
-    date: Date | string;
-    endDate?: Date | string | null;
-    type?: 'due' | 'holiday' | 'event' | 'reminder' | 'quiz' | 'appointment' | 'workout';
-    title?: string | null;
-    description?: string | null;
-};
 
 interface MiniCalendarProps {
     events?: CalendarEvent[];

@@ -12,12 +12,11 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { PlanningProvider, usePlanning, type PlanningView } from '@/context/PlanningContext';
+import { AnchorsTemplateEditor } from '@/features/planning';
 import { DayPlannerView } from '@/components/planning/DayPlannerView';
 import CalendarPlanner from '@/components/planning/CalendarPlanner';
-import { AnchorsTemplateEditor } from './AnchorsTemplateEditor';
 import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
-import { PlanningHelpDrawer } from './PlanningHelpDrawer';
-import type { CalendarEvent } from '@/components/planning/MiniCalendar';
+import type { CalendarEvent } from '@/features/planning/types';
 import type { DailyAnchorTemplate } from '@/lib/anchors';
 import { getTodayKey } from '@/lib/unified-scheduler';
 
@@ -104,10 +103,7 @@ function PlanningCommandCenterInner() {
   const searchParams = useSearchParams();
   const {
     selectedDateKey,
-    setSelectedDateKey,
     goToToday,
-    goToPreviousDay,
-    goToNextDay,
     currentView,
     setCurrentView,
     calendarEvents,

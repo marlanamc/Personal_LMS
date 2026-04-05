@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useMemo, useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight, CalendarDays, Check, ChevronRight, Circle, FileText, Play, Pause, Plus, Settings2, Sparkles, TimerReset, Wand2, Heart, Target, X } from 'lucide-react';
-import { type CalendarEvent, getCalendarMarkerColor } from '@/components/planning/MiniCalendar';
-import { useTimeBlockPlanner } from './useTimeBlockPlanner';
+import { getCalendarMarkerColor } from '@/components/planning/MiniCalendar';
+import type { CalendarEvent } from '@/features/planning/types';
+import { useTimeBlockPlanner } from '@/features/planning/hooks/useTimeBlockPlanner';
 import { useFocusTimer } from '@/context/FocusTimerContext';
 import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
 import { parseHHMMToMinutes } from '@/lib/anchors';

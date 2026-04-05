@@ -2,8 +2,8 @@
 
 import { DailyAnchorsTimeline } from '@/components/planning/DailyAnchorsTimeline';
 import { CalendarPanelRestoreButton } from '@/components/shared/ContextSidebar';
-import type { CalendarPlannerApi } from '@/components/dashboard/useCalendarPlanner';
-import type { CalendarEvent } from '@/components/planning/MiniCalendar';
+import type { CalendarPlannerApi } from '@/features/planning/hooks/useCalendarPlanner';
+import type { CalendarEvent } from '@/features/planning/types';
 
 interface FocusHeroProps {
   userName: string;

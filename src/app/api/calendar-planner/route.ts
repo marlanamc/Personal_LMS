@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api-error';
 import { normalizeOrganization, type ThoughtOrganization } from '@/lib/thought-organization';
+import type { RecentCapture } from '@/types/workspace';
 
 const SUBJECT_KEY = 'calendar-planner';
 
@@ -302,7 +303,7 @@ export async function POST(req: NextRequest) {
               where: { userId: session.user.id },
             });
 
-            const existingCaptures = (existingContext?.recentCaptures as any[]) || [];
+            const existingCaptures = (existingContext?.recentCaptures as RecentCapture[] | null) || [];
 
             // Add new capture to the beginning, limit to 20 most recent
             const newCapture = {

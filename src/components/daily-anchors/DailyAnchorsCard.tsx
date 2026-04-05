@@ -2,7 +2,7 @@
 
 import { BookOpen, BriefcaseBusiness, Calendar, Check, Code2, Coffee, Dumbbell, Flower2, Heart, Moon, Sunrise, Target } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import type { ChecklistItem } from '@/components/dashboard/checklist-item.types';
+import type { ChecklistItem } from '@/types/checklist-item';
 import {
   formatIsoTimeLabel,
   getAnchorColorPalette,

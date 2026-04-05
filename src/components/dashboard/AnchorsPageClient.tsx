@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { AnchorsTemplateEditor } from './AnchorsTemplateEditor';
+import { AnchorsTemplateEditor } from '@/features/planning';
 import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import type { DailyAnchorTemplate } from '@/lib/anchors';
 

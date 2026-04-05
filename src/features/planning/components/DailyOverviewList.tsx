@@ -32,8 +32,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
-import { useTimeBlockPlanner } from './useTimeBlockPlanner';
-import type { CalendarPlannerApi } from '@/components/dashboard/useCalendarPlanner';
+import { useTimeBlockPlanner } from '@/features/planning/hooks/useTimeBlockPlanner';
+import type { CalendarPlannerApi } from '@/features/planning/hooks/useCalendarPlanner';
 import { getTodayKey } from '@/lib/unified-scheduler';
 import {
   getAnchorColorPalette,
@@ -47,7 +47,8 @@ import {
 } from '@/lib/anchors';
 import { getAnchorMobileChipLabels } from '@/lib/anchors-mobile-ui';
 import { getActiveConstraintsForDay, getConstraintDisplayDayPlan } from '@/lib/time-block-planner';
-import { getCalendarMarkerColor, type CalendarEvent } from '@/components/planning/MiniCalendar';
+import { getCalendarMarkerColor } from '@/components/planning/MiniCalendar';
+import type { CalendarEvent } from '@/features/planning/types';
 import type { DailyOverviewItem } from '@/types/daily-overview';
 import {
   computeOverviewScheduleStatus,

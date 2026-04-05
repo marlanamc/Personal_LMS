@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Heart, Plus, Target, TimerReset, Wand2, X } from 'lucide-react';
-import { useTimeBlockPlanner } from './useTimeBlockPlanner';
+import { useTimeBlockPlanner } from '@/features/planning/hooks/useTimeBlockPlanner';
 import {
   buildTimeBlockPlan,
   createEqualQuadrants,

@@ -7,7 +7,7 @@ import { Moon } from 'lucide-react';
 import type { MDXEditorMethods } from '@mdxeditor/editor';
 
 const ThoughtDownloadEditor = dynamic(
-  () => import('./ThoughtDownloadEditor'),
+  () => import('@/components/dashboard/ThoughtDownloadEditor'),
   { ssr: false, loading: () => <div className="h-full w-full" aria-hidden /> }
 );
 
@@ -56,7 +56,7 @@ export function DayPlannerThoughtDownloadPanel({
         <ThoughtDownloadEditor
           ref={editorRef}
           markdown={draft}
-          onChange={(nextValue) => {
+          onChange={(nextValue: string) => {
             setDraft(nextValue);
             onChange(nextValue);
           }}

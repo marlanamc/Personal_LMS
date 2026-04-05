@@ -8,7 +8,7 @@ import { stripVocabTypeSuffix, getVocabActivityType, VOCAB_CHIP_CONFIG } from '@
 import { parseCategoryData } from '@/lib/categoryData';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
 import { SpanishSubjectIcon } from '@/components/icons/SpanishSubjectIcon';
-import type { ChecklistItem, VocabCategoryData } from './checklist-item.types';
+import type { ChecklistItem, VocabCategoryData } from '@/types/checklist-item';
 
 interface FlatChecklistProps {
   assignments: ChecklistItem[];

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CheckCircle2, X, ExternalLink } from 'lucide-react';
 
@@ -21,6 +21,14 @@ export function BreadcrumbToast({ message, actions = [], duration = 15000, onDis
   const [isVisible, setIsVisible] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
 
+  const handleDismiss = useCallback(() => {
+    setIsExiting(true);
+    setTimeout(() => {
+      setIsVisible(false);
+      onDismiss?.();
+    }, 200);
+  }, [onDismiss]);
+
   useEffect(() => {
     if (duration > 0) {
       const timer = setTimeout(() => {
@@ -29,15 +37,7 @@ export function BreadcrumbToast({ message, actions = [], duration = 15000, onDis
 
       return () => clearTimeout(timer);
     }
-  }, [duration]);
-
-  const handleDismiss = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      setIsVisible(false);
-      onDismiss?.();
-    }, 200);
-  };
+  }, [duration, handleDismiss]);
 
   if (!isVisible) return null;
 

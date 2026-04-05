@@ -17,9 +17,9 @@ import {
   type CalendarPlannerApi,
   type InterstitialJournalEntry,
   type PlannerTask,
-} from './useCalendarPlanner';
-import type { CalendarEvent } from '@/components/planning/MiniCalendar';
-import { useTimeBlockPlanner } from './useTimeBlockPlanner';
+} from '@/features/planning/hooks/useCalendarPlanner';
+import type { CalendarEvent } from '@/features/planning/types';
+import { useTimeBlockPlanner } from '@/features/planning/hooks/useTimeBlockPlanner';
 
 // Extended PlannerTask with optional anchor pinning
 export interface PinnedPlannerTask extends PlannerTask {

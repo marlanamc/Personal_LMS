@@ -6,7 +6,7 @@ import { stripVocabTypeSuffix, getVocabActivityType, VOCAB_CHIP_CONFIG } from '@
 import { parseCategoryData } from '@/lib/categoryData';
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
 import { SpanishSubjectIcon } from '@/components/icons/SpanishSubjectIcon';
-import type { ChecklistItem, VocabCategoryData } from '@/components/dashboard/checklist-item.types';
+import type { ChecklistItem, VocabCategoryData } from '@/types/checklist-item';
 import { Anchor, PenLine, Gamepad2, BookOpen, ClipboardList, Code2, HeartPulse, Briefcase, BookText } from 'lucide-react';
 
 interface Props {

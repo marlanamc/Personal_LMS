@@ -32,9 +32,9 @@ import {
   Zap,
 } from 'lucide-react';
 import { EditAnchorsSheet } from '@/components/dashboard/EditAnchorsSheet';
-import { AnchorSkipReasonDialog } from '@/components/dashboard/AnchorSkipReasonDialog';
-import { DailyOverviewList } from '@/components/dashboard/DailyOverviewList';
-import type { CalendarPlannerApi } from '@/components/dashboard/useCalendarPlanner';
+import { AnchorSkipReasonDialog } from '@/features/planning/components/AnchorSkipReasonDialog';
+import { DailyOverviewList } from '@/features/planning/components/DailyOverviewList';
+import type { CalendarPlannerApi } from '@/features/planning/hooks/useCalendarPlanner';
 import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import {
   formatTimeLabel,
@@ -67,13 +67,14 @@ import {
   type PlannerConstraintRule,
   type PlannerConstraintRuleKind,
 } from '@/lib/time-block-planner';
-import { useTimeBlockPlanner } from '@/components/dashboard/useTimeBlockPlanner';
+import { useTimeBlockPlanner } from '@/features/planning/hooks/useTimeBlockPlanner';
+import type { CalendarEvent } from '@/features/planning/types';
 import { getCalendarMarkerColor } from '@/components/planning/MiniCalendar';
-import { getBoundaryKindAccent } from '@/components/dashboard/daily-overview-styles';
+import { getBoundaryKindAccent } from '@/features/planning/components/daily-overview-styles';
 
 interface DailyAnchorsTimelineProps {
   storageScope: string;
-  calendarEvents: import('./MiniCalendar').CalendarEvent[];
+  calendarEvents: CalendarEvent[];
   calendarPlanner: CalendarPlannerApi;
 }
 
@@ -235,7 +236,7 @@ function DesktopPlannerRiverOverlays({
   nowMinutes,
 }: {
   constraints: PlannerConstraintRule[];
-  todayCalendarEvents: import('./MiniCalendar').CalendarEvent[];
+  todayCalendarEvents: CalendarEvent[];
   nowMinutes: number | null;
 }) {
   return (
@@ -666,7 +667,7 @@ export function DailyAnchorsTimeline({
     }
 
     setDraggingAnchor(anchorId);
-  }, [anchors]);
+  }, [anchors, isToday]);
 
   const handleDragMove = useCallback(
     (e: MouseEvent | TouchEvent) => {

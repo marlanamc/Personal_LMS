@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { toDateKey, getTodayKey } from '@/lib/unified-scheduler';
-import type { CalendarEvent } from '@/components/planning/MiniCalendar';
+import type { CalendarEvent } from '@/features/planning/types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types

@@ -5,8 +5,8 @@ import { BookOpenText, CalendarDays, Moon } from 'lucide-react';
 import { CalendarPanel } from './CalendarPanel';
 import { DayPlannerMomentLogPanel } from './DayPlannerMomentLogPanel';
 import { DayPlannerThoughtDownloadPanel } from './DayPlannerThoughtDownloadPanel';
-import { useCalendarPlanner, type CustomTag, type JournalTagMeta } from './useCalendarPlanner';
-import type { CalendarEvent } from '@/components/planning/MiniCalendar';
+import { useCalendarPlanner, type CustomTag, type JournalTagMeta } from '@/features/planning/hooks/useCalendarPlanner';
+import type { CalendarEvent } from '@/features/planning/types';
 
 type SidebarTab = 'calendar' | 'moment-log' | 'thought-download';
 
@@ -62,7 +62,10 @@ export function DayPlannerSidebarWorkspace({
   } = useCalendarPlanner(storageScope);
 
   const plan = getPlan(dateKey);
-  const entries = plan.interstitialJournalEntries ?? [];
+  const entries = useMemo(
+    () => plan.interstitialJournalEntries ?? [],
+    [plan.interstitialJournalEntries],
+  );
   const thoughtDownload = plan.thoughtDownload ?? '';
   const customTags = useMemo(() => {
     const storedTags = (plannerStore as { _customTags?: CustomTag[] })._customTags;

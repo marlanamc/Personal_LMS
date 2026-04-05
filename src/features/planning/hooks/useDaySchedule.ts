@@ -3,8 +3,8 @@
 import { useMemo } from 'react';
 import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import { isAnchorScheduledForDate } from '@/lib/anchors';
-import { useCalendarPlanner } from '@/components/dashboard/useCalendarPlanner';
-import { useTimeBlockPlanner } from '@/components/dashboard/useTimeBlockPlanner';
+import { useCalendarPlanner } from '@/features/planning/hooks/useCalendarPlanner';
+import { useTimeBlockPlanner } from '@/features/planning/hooks/useTimeBlockPlanner';
 import { getConstraintDisplayDayPlan } from '@/lib/time-block-planner';
 import {
   anchorsToTimelineItems,

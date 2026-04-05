@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { CalendarIcon, BookOpenIcon, PanelRightClose } from 'lucide-react';
-import { MiniCalendar, type CalendarEvent } from '@/components/planning/MiniCalendar';
+import { MiniCalendar } from '@/components/planning/MiniCalendar';
+import type { CalendarEvent } from '@/features/planning/types';
 import UpcomingEventsList from './UpcomingEventsList';
 import { cn } from '@/lib/utils';
 

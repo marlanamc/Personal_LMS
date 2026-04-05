@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("DailyAnchorsTimeline desktop skip action", () => {
-  const filePath = resolve(process.cwd(), "src/components/dashboard/DailyAnchorsTimeline.tsx");
+  const filePath = resolve(process.cwd(), "src/components/planning/DailyAnchorsTimeline.tsx");
   const source = readFileSync(filePath, "utf8");
 
   it("uses context menu and prevents bubbling before updating skip status", () => {

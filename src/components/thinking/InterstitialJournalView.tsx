@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { ArrowLeft, ArrowRight, Clock3, Lightbulb, Plus, SlidersHorizontal, Sparkles, Tag, Trash2, X } from 'lucide-react';
 import { InfoTooltip } from '@/components/ui/InfoTooltip';
-import { useCalendarPlanner, type CustomTag, type JournalTagMeta } from '@/components/dashboard/useCalendarPlanner';
+import { useCalendarPlanner, type CustomTag, type JournalTagMeta } from '@/features/planning/hooks/useCalendarPlanner';
 import { getNextDateKey, getPreviousDateKey, getTodayKey, isToday } from '@/lib/unified-scheduler';
 
 interface InterstitialJournalViewProps {

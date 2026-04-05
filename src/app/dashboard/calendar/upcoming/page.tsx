@@ -1,11 +1,10 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { type CalendarEvent } from "@/components/dashboard";
 import { redirect } from "next/navigation";
-import UpcomingEventsList from "@/components/dashboard/UpcomingEventsList";
+import UpcomingEventsList from "@/features/planning/components/UpcomingEventsList";
 import { ArrowLeft, CalendarDays } from "lucide-react";
 import Link from "next/link";
+import { loadUpcomingCalendarEvents } from "@/features/planning/server/calendar-events";
 
 export default async function UpcomingEventsPage() {
     const session = await getServerSession(authOptions);
@@ -19,52 +18,7 @@ export default async function UpcomingEventsPage() {
         redirect("/dashboard");
     }
 
-    const ownedClasses = await prisma.class.findMany({
-        where: { ownerId: userId },
-        include: {
-            assignments: {
-                include: { activity: true },
-            },
-            calendarEvents: true,
-        },
-        orderBy: { createdAt: "desc" },
-    });
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const allAssignments = ownedClasses.flatMap((classItem) => classItem.assignments);
-    const calendarEvents: CalendarEvent[] = [
-        ...allAssignments
-            .filter((assignment) => assignment.dueDate)
-            .map((assignment) => ({
-                date: assignment.dueDate as Date,
-                endDate: null,
-                type: (assignment.title || assignment.activity.title || "").toLowerCase().includes("quiz")
-                    ? ("quiz" as const)
-                    : ("due" as const),
-                title: `${assignment.title || assignment.activity.title || "Assignment"}`,
-            })),
-        ...ownedClasses.flatMap((classItem) =>
-            classItem.calendarEvents.map((eventItem) => ({
-                id: eventItem.id,
-                date: eventItem.date,
-                endDate: eventItem.endDate || null,
-                type: (eventItem.type as CalendarEvent["type"]) || "holiday",
-                title: `${eventItem.title}`,
-                description: eventItem.description,
-            }))
-        ),
-    ]
-    .filter(event => {
-        const eventDate = new Date(event.date);
-        eventDate.setHours(0, 0, 0, 0);
-        const eventEnd = event.endDate ? new Date(event.endDate) : eventDate;
-        eventEnd.setHours(0, 0, 0, 0);
-        // Keep events that are today or in the future
-        return eventEnd >= today;
-    })
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const calendarEvents = await loadUpcomingCalendarEvents(userId);
 
     return (
         <div className="min-h-screen bg-bg-base light-ambient-surface">

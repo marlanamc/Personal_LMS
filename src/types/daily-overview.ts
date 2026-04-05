@@ -1,5 +1,5 @@
 import type { DailyAnchor } from '@/lib/anchors';
-import type { CalendarEvent } from '@/components/planning/MiniCalendar';
+import type { CalendarEvent } from '@/features/planning/types';
 import type {
   PlannerConstraintRule,
   PlannerConstraintRuleKind,

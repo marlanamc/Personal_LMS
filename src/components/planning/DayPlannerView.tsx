@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { motion, useSpring, useTransform } from 'framer-motion';
 import {
   ArrowLeft,
   ArrowRight,
@@ -17,12 +16,12 @@ import {
   StretchHorizontal,
   Wand2,
 } from 'lucide-react';
-import { type CalendarEvent } from '@/components/planning/MiniCalendar';
+import type { CalendarEvent } from '@/features/planning/types';
 import { DayTimeline } from '@/components/scheduler';
-import { DaySectionsBoard } from '@/components/dashboard/DaySectionsBoard';
-import { DayPlannerSidebarWorkspace } from '@/components/dashboard/DayPlannerSidebarWorkspace';
+import { DaySectionsBoard } from '@/features/planning';
+import { DayPlannerSidebarWorkspace } from '@/features/planning/components/DayPlannerSidebarWorkspace';
 import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
-import { useTimeBlockPlanner } from '@/components/dashboard/useTimeBlockPlanner';
+import { useTimeBlockPlanner } from '@/features/planning/hooks/useTimeBlockPlanner';
 import {
   anchorsToTimelineItems,
   combineAndSortItems,
@@ -41,13 +40,13 @@ import {
 } from '@/lib/unified-scheduler';
 import { isAnchorScheduledForDate } from '@/lib/anchors';
 import { getCalendarMarkerColor } from '@/components/planning/MiniCalendar';
-import { PlanningHelpDrawer } from '@/components/dashboard/PlanningHelpDrawer';
+import { PlanningHelpDrawer } from '@/features/planning/components/PlanningHelpDrawer';
 import { getConstraintDisplayDayPlan } from '@/lib/time-block-planner';
 import {
   useDashboardHeaderCenterSetter,
   useDashboardHeaderEndAccessorySetter,
 } from '@/components/dashboard/DashboardHeaderCenterContext';
-import { DayPlannerHeaderDateNav } from '@/components/dashboard/DayPlannerHeaderDateNav';
+import { DayPlannerHeaderDateNav } from '@/features/planning';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -87,23 +86,10 @@ export function DayPlannerView({
   const [showEarlierHours, setShowEarlierHours] = useState(false);
   const planningHelpTriggerRef = useRef<HTMLElement | null>(null);
   const nowIndicatorRef = useRef<HTMLDivElement | null>(null);
-
-  // Pull-to-reveal earlier hours (mobile)
-  const [pullDistance, setPullDistance] = useState(0);
-  const [isPulling, setIsPulling] = useState(false);
-  const pullStartY = useRef<number | null>(null);
-  const pullLock = useRef<'none' | 'pull' | 'scroll'>('none');
-  const hapticTriggered = useRef(false);
-  const timelineSectionRef = useRef<HTMLElement>(null);
-  const [hasUsedPullGesture, setHasUsedPullGesture] = useState(() => {
+  const [hasUsedPullGesture] = useState(() => {
     if (typeof window === 'undefined') return false;
     return localStorage.getItem('hasUsedTimelinePull') === 'true';
   });
-
-  // Spring animation for pull distance
-  const springPull = useSpring(0, { stiffness: 300, damping: 25 });
-  const pullIndicatorY = useTransform(springPull, [0, 80], [0, 24]);
-  const pullIndicatorOpacity = useTransform(springPull, [0, 40, 80], [hasUsedPullGesture ? 0.3 : 0.6, 0.8, 1]);
 
   // Data hooks
   const { getStateForDate } = useDailyAnchors(storageScope);
@@ -294,93 +280,6 @@ export function DayPlannerView({
     goToNextDay,
     applyDateKey,
   ]);
-
-  // Pull-to-reveal gesture handlers (mobile only)
-  const canPullToReveal = isMobile && isSelectedToday && condensedStartHour > 6 && !showEarlierHours;
-
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      if (!canPullToReveal || e.touches.length !== 1) return;
-
-      // Check if we're at scroll top (allow small threshold for bounce)
-      const scrollContainer = document.scrollingElement || document.documentElement;
-      if (scrollContainer.scrollTop > 8) return;
-
-      pullStartY.current = e.touches[0].clientY;
-      pullLock.current = 'none';
-      hapticTriggered.current = false;
-    },
-    [canPullToReveal],
-  );
-
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent) => {
-      if (!canPullToReveal || pullStartY.current === null) return;
-
-      const currentY = e.touches[0].clientY;
-      const dy = currentY - pullStartY.current;
-
-      // Lock to scroll if pulling up or already locked to scroll
-      if (pullLock.current === 'scroll') return;
-      if (dy < -5 && pullLock.current === 'none') {
-        pullLock.current = 'scroll';
-        return;
-      }
-
-      // Lock to pull if pulling down
-      if (dy > 10 && pullLock.current === 'none') {
-        pullLock.current = 'pull';
-      }
-
-      if (pullLock.current === 'pull') {
-        e.preventDefault();
-        setIsPulling(true);
-
-        // Rubber-band easing: pull distance diminishes as you pull further
-        const maxPull = 120;
-        const rawPull = Math.min(Math.max(dy, 0), maxPull);
-        const easedPull = rawPull * (1 - rawPull / (maxPull * 2));
-
-        setPullDistance(easedPull);
-        springPull.set(easedPull);
-
-        // Haptic feedback at threshold
-        if (easedPull >= 80 && !hapticTriggered.current) {
-          hapticTriggered.current = true;
-          if (typeof navigator !== 'undefined' && navigator.vibrate) {
-            navigator.vibrate(12);
-          }
-        }
-      }
-    },
-    [canPullToReveal, springPull],
-  );
-
-  const handleTouchEnd = useCallback(() => {
-    if (!canPullToReveal || pullStartY.current === null) return;
-
-    const wasAtThreshold = pullDistance >= 80;
-
-    if (wasAtThreshold && pullLock.current === 'pull') {
-      // Reveal earlier hours
-      setShowEarlierHours(true);
-      setHasUsedPullGesture(true);
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('hasUsedTimelinePull', 'true');
-      }
-    }
-
-    // Reset pull state
-    setPullDistance(0);
-    setIsPulling(false);
-    springPull.set(0);
-    pullStartY.current = null;
-    pullLock.current = 'none';
-    hapticTriggered.current = false;
-  }, [canPullToReveal, pullDistance, springPull]);
-
-  // Calculate pull progress (0-1) for passing to DayTimeline
-  const pullProgress = Math.min(pullDistance / 80, 1);
 
   const openPlanningHelp = (trigger: HTMLElement | null) => {
     planningHelpTriggerRef.current = trigger;

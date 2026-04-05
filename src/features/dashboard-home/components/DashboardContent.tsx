@@ -1,7 +1,7 @@
 'use client';
 
-import type { ChecklistItem } from '@/components/dashboard/checklist-item.types';
-import type { CalendarEvent } from '@/components/planning/MiniCalendar';
+import type { CalendarEvent } from '@/features/planning/types';
+import type { ChecklistItem } from '@/types/checklist-item';
 import { HomePlanningHub } from './HomePlanningHub';
 
 interface DashboardContentProps {

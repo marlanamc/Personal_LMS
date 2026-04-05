@@ -7,7 +7,7 @@ import {
   timeBlockPlannerGetSnapshot,
   timeBlockPlannerSetPlan,
   timeBlockPlannerSubscribe,
-} from "@/components/dashboard/timeBlockPlannerClientStore";
+} from "@/features/planning/state/timeBlockPlannerClientStore";
 
 describe("timeBlockPlannerClientStore", () => {
   beforeEach(() => {

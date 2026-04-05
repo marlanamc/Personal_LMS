@@ -1,8 +1,8 @@
 'use client';
 
 import { Calendar } from 'lucide-react';
-import { CalendarPanel } from '@/components/dashboard/CalendarPanel';
-import type { CalendarEvent } from '@/components/planning/MiniCalendar';
+import { CalendarPanel } from '@/features/planning/components/CalendarPanel';
+import type { CalendarEvent } from '@/features/planning/types';
 
 interface ContextSidebarProps {
   calendarEvents: CalendarEvent[];

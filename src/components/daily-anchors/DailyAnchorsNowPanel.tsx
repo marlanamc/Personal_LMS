@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { AnchorIcon, BookOpen, Briefcase, Calendar, Code2, Coffee, Dumbbell, Flower2, Heart, Moon, Play, Sunrise, Target, Timer } from 'lucide-react';
-import type { ChecklistItem } from '@/components/dashboard/checklist-item.types';
+import type { ChecklistItem } from '@/types/checklist-item';
 import { formatTimeLabel } from '@/lib/anchors';
 import { useDailyAnchorsForToday } from './useDailyAnchors';
 

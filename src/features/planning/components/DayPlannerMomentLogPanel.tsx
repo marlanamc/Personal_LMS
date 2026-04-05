@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpenText, Plus, Trash2, X } from 'lucide-react';
-import type { CustomTag, InterstitialJournalEntry, JournalTagMeta } from './useCalendarPlanner';
+import type { CustomTag, InterstitialJournalEntry, JournalTagMeta } from '@/features/planning/hooks/useCalendarPlanner';
 
 interface DayPlannerMomentLogPanelProps {
   dateKey: string;

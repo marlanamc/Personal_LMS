@@ -1,20 +1,17 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Calendar, Sparkles, Timer, BookOpen } from 'lucide-react';
 import { ContextSidebar } from '@/components/shared/ContextSidebar';
 import { FocusHero } from './FocusHero';
 import { TodaysAssignments } from '@/components/learning/TodaysAssignments';
-import { AreaCard } from '@/components/home/AreaCard';
-import { useZenMode } from '@/components/dashboard/useZenMode';
-import { useTodayFlow } from '@/components/dashboard/useTodayFlow';
-import { MobileCommandHeader } from '@/components/dashboard/MobileCommandHeader';
-import { isAnchorScheduledForDate, parseHHMMToMinutes } from '@/lib/anchors';
-import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
-import { useCalendarPlanner } from '@/components/dashboard/useCalendarPlanner';
-import type { CalendarEvent } from '@/components/planning/MiniCalendar';
-import type { ChecklistItem } from '@/components/dashboard/checklist-item.types';
+import { AreaCard } from './AreaCard';
+import { MobileCommandHeader } from '@/features/dashboard-home';
+import { useZenMode } from '@/features/planning/hooks/useZenMode';
+import { useTodayFlow } from '@/features/planning/hooks/useTodayFlow';
+import { useCalendarPlanner } from '@/features/planning/hooks/useCalendarPlanner';
+import type { CalendarEvent } from '@/features/planning/types';
+import type { ChecklistItem } from '@/types/checklist-item';
 
 interface HomePlanningHubProps {
   userName: string;
@@ -30,39 +27,11 @@ export function HomePlanningHub({
   calendarEvents,
 }: HomePlanningHubProps) {
   const { isZenMode, toggleZenMode } = useZenMode();
-  const [isLmsExpanded, setIsLmsExpanded] = useState(false);
-
-  // Get anchors for passing to CaptureDock
-  const { anchors } = useDailyAnchorsForToday(storageScope);
   const calendarPlanner = useCalendarPlanner(storageScope);
-  const today = useMemo(() => new Date(), []);
-  const todayAnchors = useMemo(
-    () =>
-      anchors
-        .filter((anchor) => isAnchorScheduledForDate(anchor, today))
-        .sort(
-          (a, b) =>
-            parseHHMMToMinutes(a.scheduledTime) - parseHHMMToMinutes(b.scheduledTime)
-        ),
-    [anchors, today]
-  );
 
-  // Use the unified Today Flow hook
   const {
-    thoughtDownload,
-    isLoaded,
-    isSaving,
-    saveError,
-    lastSyncedAt,
     todaySummary,
-    updateThoughtDownload,
-    addTask,
-    addMomentEntry,
   } = useTodayFlow(storageScope, calendarEvents, calendarPlanner);
-
-  const lastSyncedLabel = lastSyncedAt
-    ? lastSyncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-    : null;
 
   return (
     <div

@@ -1,227 +1,97 @@
-# Marlie LMS
+# Personal LMS
 
-A personal learning management system with class management, assignments, submissions, and gamification.
+Personal learning system built on Next.js, Prisma, and React. The app combines assignment tracking, planning tools, workspace/thought organization, course-map content, and personal support tools inside a single dashboard-first product.
 
-## Features
+## Stack
 
-Single-user personal learning platform. You have full edit power.
-
-- **Class Management**: Create and manage classes (legacy from ESOL LMS; personal LMS uses one owner)
-- **Activity Library**: Browse and organize activities (grammar, vocabulary, speaking, coding guides, games)
-- **Assignment System**: Assign activities to classes with due dates
-- **Activity Completion**: Complete activities and track your own submissions
-- **Gamification**: Earn points, build streaks, and unlock achievements
-- **Weekly Leaderboard**: Track your rank and progress
+- Next.js App Router
+- React 19
+- TypeScript
+- Prisma
+- Vitest
+- Playwright
+- Tailwind CSS 4
 
 ## Getting Started
 
-### Prerequisites
-- Node.js 18+ 
-- npm, yarn, pnpm, or bun
+1. Install dependencies:
 
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd Personal_LMS
-```
-
-2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Set up the database:
+2. Set up environment variables and database access.
+
+3. Apply migrations and seed base data:
+
 ```bash
-npx prisma migrate dev
+npx prisma migrate deploy
 npm run db:seed
 ```
 
-4. Run the development server:
+4. Start the app:
+
 ```bash
 npm run dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+## Architecture
 
-### Default Account
+The repo is organized around ownership boundaries:
 
-After seeding, log in with:
+- `src/app`: route entrypoints, server data loading, page composition, API routes
+- `src/features`: feature-owned hooks, server helpers, state modules, and feature-local types
+- `src/components/ui`: reusable presentation primitives
+- `src/components/*`: existing feature UI that has not yet moved into `src/features`
+- `src/lib`: shared infrastructure and pure cross-feature utilities
+- `src/types`: shared domain contracts
+- `src/content`: authored learning content and static registries
 
-- Username: `marlie`
-- Password: `password123`
+Current first-class feature boundaries introduced in the cleanup pass:
 
-## Project Structure
+- `src/features/planning`: shared planning types, calendar-event loaders, planning hooks, and planner client state
+- `src/features/dashboard-home`: dashboard-home server orchestration and view-model assembly
 
-```
-├── src/
-│   ├── app/
-│   │   ├── dashboard/         # Dashboard pages
-│   │   │   └── leaderboard/   # Weekly leaderboard page
-│   │   ├── activity/          # Activity viewing pages
-│   │   └── api/               # API routes
-│   │       └── gamification/  # Points, streaks, achievements
-│   ├── components/
-│   │   ├── ui/                # Reusable UI components (Button, Card, Badge, etc.)
-│   │   └── icons/             # SVG icon components
-│   └── lib/
-│       ├── auth.ts            # NextAuth configuration
-│       ├── prisma.ts          # Prisma client
-│       └── gamification.ts    # Points, streaks, achievements logic
-├── prisma/
-│   ├── schema.prisma          # Database schema (includes gamification)
-│   ├── seed.js                # Database seed script
-│   └── seed-achievements.ts   # Achievement seed script
-└── public/
-    └── manifest.json          # PWA manifest for mobile
-```
+## Placement Rules
 
-## Database Schema
+When adding code, use these defaults:
 
-### Core Models
-- **User**: Single user with authentication + gamification fields (points, streaks)
-- **Class**: Classes owned by the user
-- **ClassEnrollment**: Class enrollments (legacy from ESOL LMS)
-- **Activity**: Activities (quizzes, games, guides, and learning modules)
-- **Assignment**: Activities assigned to classes with due dates
-- **Submission**: Activity submissions with scores and points awarded
+- Put route-only orchestration in `src/app`.
+- Put business logic or feature-specific data shaping in `src/features/<domain>`.
+- Put shared contracts in `src/types` only when multiple features need them.
+- Keep `src/lib` free of component imports.
+- Keep `src/context` free of component imports.
+- Use `src/components/ui` only for generic UI primitives, not feature behavior.
 
-### Gamification Models
-- **Achievement**: Unlockable badges and milestones
-- **UserAchievement**: Tracks which achievements each user has earned
+Guardrail:
 
-## Deployment
+- ESLint blocks imports from `@/components/*` inside `src/lib`, `src/types`, and `src/context`.
 
-### Updating Content
+## Important Paths
 
-When you add new activities or content, the PWA caches updates. The app checks for updates every 5 minutes, but you must increment the cache version:
+- `src/app/dashboard`: dashboard pages and route shells
+- `src/features/planning`: planning data contracts, server loaders, and client planner state
+- `src/features/dashboard-home`: dashboard-home server loaders and mappers
+- `src/components/planning`: current planning UI
+- `src/components/dashboard`: current dashboard UI
+- `prisma/schema.prisma`: database schema
+- `tests/unit`: unit coverage
+- `tests/integration`: integration checks
+- `tests/e2e`: browser coverage
 
-1. Open `public/sw.js`
-2. Update the `CACHE_VERSION` constant:
-```javascript
-const CACHE_VERSION = '2024-12-18-v1'; // Change date or increment version
-```
-3. Commit and deploy
+## Commands
 
-You will see an "Update Available" notification within 5 minutes of opening the app. After 2 dismissals, a full-screen modal prompts an update.
-
-### Environment Variables
-
-Copy `.env.example` to `.env` and configure:
-- `POSTGRES_URL` - Database connection string
-- `NEXTAUTH_SECRET` - Auth secret (generate with `openssl rand -base64 32`)
-- `CRON_SECRET` - Secret for weekly points reset cron job
-
-## Development
-
-### Database Migrations
 ```bash
-npx prisma migrate dev --name migration_name
+npm run dev
+npm run build
+npm run typecheck
+npm run lint
+npm run test:unit
+npm run test:integration
+npm run test:e2e
 ```
 
-### Database Seed
-```bash
-npm run db:seed
-```
+## Notes
 
-### Spanish Content Authoring
-
-Use the Spanish content system guide for a clear add-content workflow:
-
-- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/SPANISH_CONTENT_SYSTEM.md`
-- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/CODING_CONTENT_SYSTEM.md`
-- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/CONTENT_CATEGORY_PLAYBOOK.md`
-- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/GUIDE_CREATION_README.md` (required mini quiz standards for grammar and coding guides)
-- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/planning/seed.md` (seed/runbook notes)
-
-### Prisma Studio (Database GUI)
-```bash
-npx prisma studio
-```
-
-## Tech Stack
-
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript
-- **Database**: SQLite (via Prisma)
-- **Authentication**: NextAuth.js
-- **Styling**: Tailwind CSS 4 + Custom Design System
-- **ORM**: Prisma
-- **Fonts**: Fraunces (display), DM Sans (body), Caveat (handwritten)
-
-## Design System
-
-The app uses a **Warm Educational** color palette:
-- **Primary (Terracotta)**: `#d97757` - Buttons, links, highlights
-- **Secondary (Sage Green)**: `#7ba884` - Success states, growth indicators
-- **Accent (Sunny Yellow)**: `#f4d35e` - Achievements, highlights
-- **Background**: `#fef9f3` - Warm cream
-- **Text**: `#2b3a4a` - Dark blue-gray
-
-All colors are defined in `/src/app/globals.css` as CSS variables for consistency.
-
-## Gamification System
-
-The app includes a comprehensive gamification system:
-
-### Points
-You earn points for:
-- Completing activities: **5-10 points**
-- Quiz completion: **10 points**
-- Perfect quiz score (100%): **+20 bonus points**
-- Daily streak: **5 points**
-- Weekly streak (7 days): **25 bonus points**
-
-### Streaks
-- Build streaks by completing activities on consecutive days
-- Streaks reset if a day is missed
-- Bonus points awarded for maintaining streaks
-
-### Achievements
-14 unlockable achievements across 4 categories:
-- **Activity Milestones**: First Steps, Getting Started, Dedicated Learner, Activity Master
-- **Streak Achievements**: Day One, Week Warrior, Two Week Champion, Month Master
-- **Quiz Perfection**: Perfect Start, Quiz Ace, Perfectionist
-- **Point Milestones**: Point Collector, Point Hoarder, Point Legend
-
-### Weekly Leaderboard
-- Shows top performers by weekly points
-- Resets every week
-- Displays rank changes from previous week
-- See "You're up 3 spots!" type rank messages
-
-## Workspace Organization
-
-To keep the root directory clean and focused, project documents are grouped as follows:
-
-- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/setup/` - deployment and Vercel setup docs
-- `/Users/marlanacreed/Downloads/Projects/Personal_LMS/docs/planning/` - active planning notes
-
-## Completed Features
-
-- [x] User authentication (single-user)
-- [x] Class management with join codes
-- [x] Activity library (quizzes, guides, games, and modules)
-- [x] Assignment system with due dates
-- [x] Submissions and grading
-- [x] **Gamification system** (points, streaks, achievements)
-- [x] **Weekly leaderboard** with rank tracking
-- [x] **Mobile-first responsive design**
-- [x] PWA support (installable on mobile)
-
-## Future Enhancements
-
-- [ ] **Auto-grading quiz system** with immediate feedback
-- [ ] **Flashcard system** with images, audio, and study modes
-- [ ] **Live polling** for classroom interaction
-- [ ] **Progress analytics** (completion rates, areas of struggle)
-- [ ] Activity creation/editing interface
-- [ ] Advanced activity renderers
-- [ ] File uploads for assignments
-- [ ] Class announcements and messaging
-- [ ] Dark mode toggle
-
-## License
-
-Free for educational use.
+- `graveyard/` is intentional archival code and rationale, not active runtime code.
+- `docs/` holds setup and planning material that should not live at the repo root.

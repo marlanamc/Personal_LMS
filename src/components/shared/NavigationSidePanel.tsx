@@ -21,6 +21,7 @@ import {
   User,
   UtensilsCrossed,
   X,
+  type LucideIcon,
 } from 'lucide-react';
 
 interface NavigationSidePanelProps {
@@ -31,7 +32,7 @@ interface NavigationSidePanelProps {
 interface NavLink {
   href?: string;
   label: string;
-  icon?: any;
+  icon?: LucideIcon;
   color?: string;
   isHeader?: boolean;
   isFeatured?: boolean;
@@ -116,15 +117,6 @@ export function NavigationSidePanel({ isOpen, onClose }: NavigationSidePanelProp
     return pathname === hrefPath || pathname.startsWith(`${hrefPath}/`);
   };
 
-  const isSubjectActive = (href: string): boolean => {
-    const [hrefPath, hrefQuery = ''] = href.split('?');
-    if (pathname !== hrefPath) return false;
-    const targetParams = new URLSearchParams(hrefQuery);
-    const targetSubject = targetParams.get('subject');
-    if (!targetSubject) return false;
-    return searchParams.get('subject') === targetSubject;
-  };
-
   return (
     <>
       {/* Backdrop */}
@@ -194,6 +186,8 @@ export function NavigationSidePanel({ isOpen, onClose }: NavigationSidePanelProp
 
                   // Render featured item
                   if (link.isFeatured && link.href) {
+                    const Icon = link.icon;
+                    if (!Icon) return null;
                     return (
                       <Link
                         key={`${link.href}-${link.label}`}
@@ -207,7 +201,7 @@ export function NavigationSidePanel({ isOpen, onClose }: NavigationSidePanelProp
                         tabIndex={isOpen ? 0 : -1}
                         aria-current={isPathActive(link.href) ? 'page' : undefined}
                       >
-                        <link.icon
+                        <Icon
                           size={18}
                           className={`transition-colors ${
                             link.color
@@ -224,6 +218,8 @@ export function NavigationSidePanel({ isOpen, onClose }: NavigationSidePanelProp
 
                   // Render regular link
                   if (link.href) {
+                    const Icon = link.icon;
+                    if (!Icon) return null;
                     return (
                       <Link
                         key={`${link.href}-${link.label}`}
@@ -237,7 +233,7 @@ export function NavigationSidePanel({ isOpen, onClose }: NavigationSidePanelProp
                         tabIndex={isOpen ? 0 : -1}
                         aria-current={isPathActive(link.href) ? 'page' : undefined}
                       >
-                        <link.icon
+                        <Icon
                           size={18}
                           className={`transition-colors ${
                             link.color

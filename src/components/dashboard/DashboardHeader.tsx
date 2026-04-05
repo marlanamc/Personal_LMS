@@ -11,7 +11,7 @@ import {
 } from "./DashboardHeaderCenterContext";
 import { HeaderStatusChips } from "./HeaderStatusChips";
 import { NavigationSidePanel } from "@/components/shared/NavigationSidePanel";
-import { useTimeBlockPlanner } from "./useTimeBlockPlanner";
+import { useTimeBlockPlanner } from "@/features/planning/hooks/useTimeBlockPlanner";
 
 interface DashboardHeaderProps {
     userName?: string;

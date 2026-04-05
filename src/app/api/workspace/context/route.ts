@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import type { WorkspaceContext, RecentCapture } from "@/types/workspace";
+import type { RecentCapture, WorkspaceToolType } from "@/types/workspace";
 
 // GET: Fetch user's workspace context
-export async function GET(request: NextRequest) {
+export async function GET() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -65,7 +66,12 @@ export async function POST(request: NextRequest) {
     const { lastTool, lastDateKey, lastProjectId, newCapture } = body;
 
     // Build the data object
-    const updateData: any = {
+    const updateData: {
+      lastTool: WorkspaceToolType | null;
+      lastDateKey: string | null;
+      lastProjectId: string | null;
+      recentCaptures?: Prisma.InputJsonValue;
+    } = {
       lastTool,
       lastDateKey: lastDateKey || null,
       lastProjectId: lastProjectId || null,
@@ -82,7 +88,7 @@ export async function POST(request: NextRequest) {
 
       // Add new capture to the beginning, limit to 20 most recent
       const updatedCaptures = [newCapture, ...existingCaptures].slice(0, 20);
-      updateData.recentCaptures = updatedCaptures;
+      updateData.recentCaptures = updatedCaptures as unknown as Prisma.InputJsonValue;
     }
 
     const context = await prisma.workspaceContext.upsert({

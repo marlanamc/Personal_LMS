@@ -1,8 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { type CalendarEvent } from "@/components/dashboard";
 import CalendarPlanner from "@/components/planning/CalendarPlanner";
+import { loadCalendarEvents } from "@/features/planning/server/calendar-events";
 import { redirect } from "next/navigation";
 
 export default async function CalendarPage() {
@@ -17,40 +16,7 @@ export default async function CalendarPage() {
         redirect("/dashboard");
     }
 
-    const ownedClasses = await prisma.class.findMany({
-        where: { ownerId: userId },
-        include: {
-            assignments: {
-                include: { activity: true },
-            },
-            calendarEvents: true,
-        },
-        orderBy: { createdAt: "desc" },
-    });
-
-    const allAssignments = ownedClasses.flatMap((classItem) => classItem.assignments);
-    const calendarEvents: CalendarEvent[] = [
-        ...allAssignments
-            .filter((assignment) => assignment.dueDate)
-            .map((assignment) => ({
-                date: assignment.dueDate as Date,
-                endDate: null,
-                type: (assignment.title || assignment.activity.title || "").toLowerCase().includes("quiz")
-                    ? ("quiz" as const)
-                    : ("due" as const),
-                title: `${assignment.title || assignment.activity.title || "Assignment"}`,
-            })),
-        ...ownedClasses.flatMap((classItem) =>
-            classItem.calendarEvents.map((eventItem) => ({
-                id: eventItem.id,
-                date: eventItem.date,
-                endDate: eventItem.endDate || null,
-                type: (eventItem.type as CalendarEvent["type"]) || "holiday",
-                title: `${eventItem.title}`,
-                description: eventItem.description,
-            }))
-        ),
-    ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const calendarEvents = await loadCalendarEvents(userId);
 
     return (
         <div className="min-h-screen bg-bg-base light-ambient-surface">

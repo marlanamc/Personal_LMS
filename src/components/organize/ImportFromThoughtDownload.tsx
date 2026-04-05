@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Download, AlertCircle } from 'lucide-react';
-import { useCalendarPlanner } from '@/components/dashboard/useCalendarPlanner';
+import { useCalendarPlanner } from '@/features/planning/hooks/useCalendarPlanner';
 import { getTodayKey } from '@/lib/unified-scheduler';
 import type { ThoughtBullet } from '@/lib/thought-organization';
 import { extractBullets, isDuplicateBullet } from '@/lib/thought-organization';

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDown, ArrowUp, ChevronDown, LocateFixed, RefreshCw, RotateCcw, Save, X } from 'lucide-react';
-import { useTimeBlockPlanner } from './useTimeBlockPlanner';
+import { useTimeBlockPlanner } from '@/features/planning/hooks/useTimeBlockPlanner';
 import {
   buildTimeBlockPlan,
   createEmptyTimeBlockDayPlan,

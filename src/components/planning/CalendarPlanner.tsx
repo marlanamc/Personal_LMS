@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { type CalendarEvent } from "./MiniCalendar";
-import { CalendarPanel } from "@/components/dashboard/CalendarPanel";
+import type { CalendarEvent } from "@/features/planning/types";
+import { CalendarPanel } from "@/features/planning/components/CalendarPanel";
 import { DailyAnchorsDateSummary } from "@/components/daily-anchors";
 import { PlusCircle, StickyNote, CheckCircle2, ListTodo, CalendarDays, Clock3, Play, Wand2 } from "lucide-react";
-import { useCalendarPlanner } from "@/components/dashboard/useCalendarPlanner";
-import { useTimeBlockPlanner } from "@/components/dashboard/useTimeBlockPlanner";
+import { useCalendarPlanner } from "@/features/planning/hooks/useCalendarPlanner";
+import { useTimeBlockPlanner } from "@/features/planning/hooks/useTimeBlockPlanner";
 
 interface CalendarPlannerProps {
   events: CalendarEvent[];

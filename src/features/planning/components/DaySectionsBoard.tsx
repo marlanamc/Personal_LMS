@@ -6,8 +6,6 @@ import {
   Ban,
   CalendarDays,
   Check,
-  Circle,
-  FileText,
   Flag,
   Heart,
   Play,

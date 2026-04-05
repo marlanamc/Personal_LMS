@@ -10,7 +10,7 @@ import {
   timeBlockPlannerSetDefaults,
   timeBlockPlannerSetPlan,
   timeBlockPlannerSubscribe,
-} from "./timeBlockPlannerClientStore";
+} from "../state/timeBlockPlannerClientStore";
 
 export function useTimeBlockPlanner() {
   const snapshot = useSyncExternalStore(

@@ -9,7 +9,7 @@ const ThoughtDownloadEditor = dynamic(
   { ssr: false, loading: () => <div className="p-4 text-text-muted text-sm">Loading editor...</div> }
 );
 import type { MDXEditorMethods } from '@mdxeditor/editor';
-import { useCalendarPlanner } from '@/components/dashboard/useCalendarPlanner';
+import { useCalendarPlanner } from '@/features/planning/hooks/useCalendarPlanner';
 import { getNextDateKey, getPreviousDateKey, getTodayKey, isToday } from '@/lib/unified-scheduler';
 
 interface ThoughtDownloadViewProps {

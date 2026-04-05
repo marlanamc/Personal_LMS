@@ -4,7 +4,8 @@ import { Prisma } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api-error';
-import { normalizeOrganization, type ThoughtOrganizerStore } from '@/lib/thought-organization';
+import { normalizeOrganization, type ThoughtOrganization, type ThoughtOrganizerStore } from '@/lib/thought-organization';
+import type { RecentCapture } from '@/types/workspace';
 
 const SUBJECT_KEY = 'thought-organizer';
 
@@ -17,7 +18,7 @@ function normalizeOrganizerStore(raw: unknown): ThoughtOrganizerStore {
   const normalized = normalizeOrganization({
     bullets: Array.isArray(candidate.bullets) ? candidate.bullets : [],
     projects: Array.isArray(candidate.projects) ? candidate.projects : [],
-  } as any);
+  } as ThoughtOrganization);
 
   return {
     bullets: normalized?.bullets || [],
@@ -108,7 +109,7 @@ export async function POST(req: NextRequest) {
           where: { userId: session.user.id },
         });
 
-        const existingCaptures = (existingContext?.recentCaptures as any[]) || [];
+        const existingCaptures = (existingContext?.recentCaptures as RecentCapture[] | null) || [];
 
         // Add new capture to the beginning, limit to 20 most recent
         const newCapture = {

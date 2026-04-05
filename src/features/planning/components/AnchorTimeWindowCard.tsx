@@ -27,9 +27,9 @@ import {
   Zap,
 } from 'lucide-react';
 import { formatTimeLabel, type AnchorIcon, type DailyAnchor } from '@/lib/anchors';
-import type { CalendarEvent } from '@/components/planning/MiniCalendar';
-import type { InterstitialJournalEntry } from './useCalendarPlanner';
-import type { PinnedPlannerTask } from './useTodayFlow';
+import type { CalendarEvent } from '@/features/planning/types';
+import type { InterstitialJournalEntry } from '@/features/planning/hooks/useCalendarPlanner';
+import type { PinnedPlannerTask } from '@/features/planning/hooks/useTodayFlow';
 
 interface AnchorTimeWindowCardProps {
   anchor: DailyAnchor;
@@ -113,7 +113,7 @@ export function AnchorTimeWindowCard({
   isDone,
   onToggleTask,
   onAddTask,
-  onAddMoment,
+  onAddMoment: _onAddMoment,
 }: AnchorTimeWindowCardProps) {
   // Completed anchors start collapsed, others start expanded
   const [isExpanded, setIsExpanded] = useState(!isDone);

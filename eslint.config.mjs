@@ -15,6 +15,22 @@ const eslintConfig = defineConfig([
       "react-hooks/preserve-manual-memoization": "off",
     },
   },
+  {
+    files: ["src/lib/**/*.{ts,tsx}", "src/types/**/*.{ts,tsx}", "src/context/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/components/*", "@/components/**"],
+              message: "Shared domain and context modules must not import from component modules.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
@@ -28,6 +44,7 @@ const eslintConfig = defineConfig([
     "prisma/migrations/**",
     "public/assets/**",
     "_legacy/**",
+    "graveyard/**",
   ]),
 ]);
 
