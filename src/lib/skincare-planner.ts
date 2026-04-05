@@ -131,52 +131,52 @@ export type CategoryColorScheme = {
 export const SKINCARE_CATEGORY_COLORS: Record<SkincareCategoryId, CategoryColorScheme> = {
   cleanser: {
     // Rose - dusty pink
-    bg: 'bg-rose-100/40',
-    text: 'text-rose-700/90 font-medium',
-    border: 'border-rose-200/50',
-    dot: 'bg-rose-400',
+    bg: 'bg-rose-100/40 dark:bg-rose-400/12',
+    text: 'text-rose-700/90 dark:text-rose-300 font-medium',
+    border: 'border-rose-200/50 dark:border-rose-300/25',
+    dot: 'bg-rose-400 dark:bg-rose-300',
   },
   toner: {
     // Sky - soft blue
-    bg: 'bg-sky-100/40',
-    text: 'text-sky-700/90 font-medium',
-    border: 'border-sky-200/50',
-    dot: 'bg-sky-400',
+    bg: 'bg-sky-100/40 dark:bg-sky-400/12',
+    text: 'text-sky-700/90 dark:text-sky-300 font-medium',
+    border: 'border-sky-200/50 dark:border-sky-300/25',
+    dot: 'bg-sky-400 dark:bg-sky-300',
   },
   serums: {
     // Peach - warm soft orange
-    bg: 'bg-orange-100/40',
-    text: 'text-orange-600/90 font-medium',
-    border: 'border-orange-200/50',
-    dot: 'bg-orange-300',
+    bg: 'bg-orange-100/40 dark:bg-orange-400/12',
+    text: 'text-orange-600/90 dark:text-orange-300 font-medium',
+    border: 'border-orange-200/50 dark:border-orange-300/25',
+    dot: 'bg-orange-300 dark:bg-orange-300',
   },
   actives: {
     // Mint - soft green
-    bg: 'bg-emerald-100/40',
-    text: 'text-emerald-700/90 font-medium',
-    border: 'border-emerald-200/50',
-    dot: 'bg-emerald-400',
+    bg: 'bg-emerald-100/40 dark:bg-emerald-400/12',
+    text: 'text-emerald-700/90 dark:text-emerald-300 font-medium',
+    border: 'border-emerald-200/50 dark:border-emerald-300/25',
+    dot: 'bg-emerald-400 dark:bg-emerald-300',
   },
   extras: {
     // Lavender - soft purple
-    bg: 'bg-violet-100/40',
-    text: 'text-violet-700/90 font-medium',
-    border: 'border-violet-200/50',
-    dot: 'bg-violet-400',
+    bg: 'bg-violet-100/40 dark:bg-violet-400/12',
+    text: 'text-violet-700/90 dark:text-violet-300 font-medium',
+    border: 'border-violet-200/50 dark:border-violet-300/25',
+    dot: 'bg-violet-400 dark:bg-violet-300',
   },
   moisturizer: {
     // Periwinkle - blue-violet
-    bg: 'bg-indigo-100/40',
-    text: 'text-indigo-600/90 font-medium',
-    border: 'border-indigo-200/50',
-    dot: 'bg-indigo-400',
+    bg: 'bg-indigo-100/40 dark:bg-indigo-400/12',
+    text: 'text-indigo-600/90 dark:text-indigo-300 font-medium',
+    border: 'border-indigo-200/50 dark:border-indigo-300/25',
+    dot: 'bg-indigo-400 dark:bg-indigo-300',
   },
   sunscreen: {
     // Dusty mauve - rose/periwinkle blend
-    bg: 'bg-fuchsia-100/40',
-    text: 'text-fuchsia-700/90 font-medium',
-    border: 'border-fuchsia-200/50',
-    dot: 'bg-fuchsia-400',
+    bg: 'bg-fuchsia-100/40 dark:bg-fuchsia-400/12',
+    text: 'text-fuchsia-700/90 dark:text-fuchsia-300 font-medium',
+    border: 'border-fuchsia-200/50 dark:border-fuchsia-300/25',
+    dot: 'bg-fuchsia-400 dark:bg-fuchsia-300',
   },
 };
 
