@@ -1,6 +1,14 @@
 'use client';
 
-import { useState, useRef, useCallback, useMemo, useEffect, type ReactNode } from 'react';
+import {
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+  useEffect,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -63,9 +71,11 @@ import {
 import {
   describeConstraintRule,
   getActiveConstraintsForDay,
+  getActiveTimeBlockStatus,
   getConstraintDisplayDayPlan,
   type PlannerConstraintRule,
   type PlannerConstraintRuleKind,
+  type TimeBlockKind,
 } from '@/lib/time-block-planner';
 import { useTimeBlockPlanner } from '@/features/planning/hooks/useTimeBlockPlanner';
 import type { CalendarEvent } from '@/features/planning/types';
@@ -122,6 +132,30 @@ function getTimePosition(timeStr: string): number {
   const startMinutes = TIMELINE_START_HOUR * 60;
   const position = ((minutes - startMinutes) / TIMELINE_TOTAL_MINUTES) * 100;
   return Math.max(2, Math.min(98, position));
+}
+
+function minutesToHHMM(totalMinutes: number): string {
+  const clamped = Math.max(0, Math.min(24 * 60 - 1, Math.round(totalMinutes)));
+  const h = Math.floor(clamped / 60);
+  const m = clamped % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+/** Filled “chips” distinct from the track gradient: solid-tinted body + rim + depth. */
+function oaoaRhythmSegmentStyle(kind: TimeBlockKind, isActive: boolean): CSSProperties {
+  const accent = kind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)';
+  return {
+    background: `linear-gradient(180deg,
+      color-mix(in srgb, ${accent} 68%, var(--color-bg-elevated)) 0%,
+      color-mix(in srgb, ${accent} 42%, var(--color-bg-elevated)) 100%)`,
+    borderColor: `color-mix(in srgb, ${accent} 82%, var(--color-border-subtle))`,
+    boxShadow: isActive
+      ? `0 0 0 2px color-mix(in srgb, ${accent} 50%, transparent),
+         0 4px 18px color-mix(in srgb, ${accent} 42%, transparent),
+         inset 0 1px 0 rgba(255, 255, 255, 0.55)`
+      : `0 2px 8px rgba(15, 23, 42, 0.16),
+         inset 0 1px 0 rgba(255, 255, 255, 0.45)`,
+  };
 }
 
 /** 0–100: elapsed share of the visible day window (6:00–24:00); aligns track fill with the “now” line. */
@@ -640,6 +674,67 @@ export function DailyAnchorsTimeline({
     [sortedAnchors, nowMinutes],
   );
 
+  /** On Again / Off Again: horizontal bands + alternating gap ticks (desktop river). */
+  const desktopOnAgainRhythm = useMemo(() => {
+    if (!isPlannerLoaded) {
+      return {
+        segments: [] as Array<{
+          id: string;
+          kind: TimeBlockKind;
+          label: string;
+          left: number;
+          width: number;
+          isActive: boolean;
+        }>,
+        gapMarkers: [] as Array<{ id: string; left: number; prevKind: TimeBlockKind }>,
+      };
+    }
+    const blocks = currentPlan?.blocks ?? [];
+    const active =
+      isToday && nowMinutes !== null ? getActiveTimeBlockStatus(viewDateKey, blocks, nowMinutes) : null;
+
+    const segments: Array<{
+      id: string;
+      kind: TimeBlockKind;
+      label: string;
+      left: number;
+      width: number;
+      isActive: boolean;
+    }> = [];
+
+    for (const block of blocks) {
+      if (block.endMinuteOfDay <= block.startMinuteOfDay) continue;
+      const left = getTimePosition(minutesToHHMM(block.startMinuteOfDay));
+      const right = getTimePosition(minutesToHHMM(block.endMinuteOfDay));
+      const width = Math.max(right - left, 0.2);
+      if (width <= 0) continue;
+      segments.push({
+        id: block.id,
+        kind: block.kind,
+        label: block.label,
+        left,
+        width,
+        isActive: active?.block.id === block.id,
+      });
+    }
+
+    const gapMarkers: Array<{ id: string; left: number; prevKind: TimeBlockKind }> = [];
+    for (let i = 0; i < blocks.length - 1; i += 1) {
+      if (blocks[i].kind === blocks[i + 1].kind) continue;
+      const gapStart = blocks[i].endMinuteOfDay;
+      const gapEnd = blocks[i + 1].startMinuteOfDay;
+      if (gapEnd <= gapStart) continue;
+      const mid = (gapStart + gapEnd) / 2;
+      gapMarkers.push({
+        id: `oaoa-gap-${blocks[i].id}-${blocks[i + 1].id}`,
+        left: getTimePosition(minutesToHHMM(mid)),
+        prevKind: blocks[i].kind,
+      });
+    }
+
+    return { segments, gapMarkers };
+  }, [currentPlan, isPlannerLoaded, isToday, nowMinutes, viewDateKey]);
+
   useEffect(() => {
     const updateCurrentTime = () => {
       const now = new Date();
@@ -930,6 +1025,47 @@ export function DailyAnchorsTimeline({
                 animate={{ width: `${dayProgressPercent}%` }}
                 transition={{ duration: 0.45, ease: 'easeOut' }}
               />
+
+              {isPlannerLoaded && desktopOnAgainRhythm.segments.length > 0 && (
+                <div
+                  className="pointer-events-none absolute inset-0 z-[10] overflow-visible"
+                  aria-hidden
+                >
+                  {desktopOnAgainRhythm.segments.map((seg) => (
+                    <div
+                      key={`oaoa-seg-${seg.id}`}
+                      title={seg.label}
+                      className={`absolute top-1/2 h-3 -translate-y-1/2 rounded-full border-2 ${
+                        seg.isActive ? 'z-[1] scale-[1.03]' : 'z-0'
+                      }`}
+                      style={{
+                        ...oaoaRhythmSegmentStyle(seg.kind, seg.isActive),
+                        left: `${seg.left}%`,
+                        width: `${Math.max(seg.width, 0.35)}%`,
+                        minWidth: seg.isActive ? 12 : 8,
+                      }}
+                    />
+                  ))}
+                  {desktopOnAgainRhythm.gapMarkers.map((gap) => {
+                    const c = gap.prevKind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)';
+                    return (
+                      <div
+                        key={gap.id}
+                        className="absolute top-1/2 z-[2] flex h-11 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+                        style={{ left: `${gap.left}%` }}
+                      >
+                        <div
+                          className="h-full w-[5px] rounded-full border-2 border-bg-elevated/90"
+                          style={{
+                            background: `linear-gradient(180deg, transparent 0%, ${c} 22%, ${c} 78%, transparent 100%)`,
+                            boxShadow: `0 0 14px color-mix(in srgb, ${c} 55%, transparent), inset 0 0 0 1px color-mix(in srgb, ${c} 40%, transparent)`,
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
               <DesktopPlannerRiverOverlays
                 constraints={activeConstraintsForRiver}
