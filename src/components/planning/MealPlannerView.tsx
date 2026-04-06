@@ -509,6 +509,12 @@ const MEAL_CATEGORIES: MealCategory[] = [
     addLabel: 'Add protein',
   },
   {
+    id: 'sauce',
+    label: 'Sauce',
+    dotClassName: 'bg-amber-500',
+    addLabel: 'Add sauce',
+  },
+  {
     id: 'base',
     label: 'Base',
     dotClassName: 'bg-accent-amethyst',
@@ -525,12 +531,6 @@ const MEAL_CATEGORIES: MealCategory[] = [
     label: 'Fresh',
     dotClassName: 'bg-accent-teal',
     addLabel: 'Add fresh item',
-  },
-  {
-    id: 'sauce',
-    label: 'Sauce',
-    dotClassName: 'bg-amber-500',
-    addLabel: 'Add sauce',
   },
   {
     id: 'dairy',

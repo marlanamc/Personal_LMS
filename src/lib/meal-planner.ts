@@ -46,7 +46,7 @@ export type MealPlannerStore = {
 export const MEAL_SLOT_KEYS: MealSlotKey[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 export const MEAL_PLAN_LENGTH_OPTIONS: MealPlanLength[] = [3, 5, 7];
 export const MEAL_PLAN_START_DAY_OPTIONS: MealPlanStartDay[] = [0, 1, 2, 3, 4, 5, 6];
-export const MEAL_CATEGORY_IDS: MealCategoryId[] = ['protein', 'base', 'veg', 'fresh', 'sauce', 'dairy'];
+export const MEAL_CATEGORY_IDS: MealCategoryId[] = ['protein', 'sauce', 'base', 'veg', 'fresh', 'dairy'];
 
 export const GROCERY_CATEGORY_ORDER: GroceryCategory[] = [
   'produce',
