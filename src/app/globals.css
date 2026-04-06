@@ -6742,26 +6742,25 @@ kbd {
   min-height: 100%;
   border-radius: 2rem;
   padding: 1.5rem 1.25rem;
-  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 75%, rgba(255, 255, 255, 0.03));
-  /* Softer, more integrated background */
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 55%, rgba(255, 255, 255, 0.04));
+  /* Single soft tint — avoids a second “floating card” on top of the page */
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-bg-elevated) 12%) 0%,
-      color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-bg-base) 6%) 50%,
-      color-mix(in srgb, var(--color-bg-base) 96%, transparent) 100%
+      color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-bg-elevated) 6%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 97%, var(--color-bg-base) 3%) 50%,
+      color-mix(in srgb, var(--color-bg-base) 98%, transparent) 100%
     );
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.015),
-    0 20px 48px rgba(15, 20, 35, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 4px 20px rgba(15, 20, 35, 0.06);
 }
 
 /* Mobile: remove nested container styling for full-screen feel */
 @media (max-width: 640px) {
   .organize-workspace {
     border-radius: 0;
-    padding: 1rem 0.75rem;
+    padding: 0.75rem 0.5rem 1rem;
     border-left: none;
     border-right: none;
     box-shadow: none;
@@ -6995,6 +6994,15 @@ kbd {
   align-items: stretch;
 }
 
+/* Desktop: hairline between “Current” and “Up next” (inner panels are flat) */
+@media (min-width: 641px) {
+  .now-spotlight-flow:has(.now-spotlight-stage-current):has(.now-spotlight-stage-secondary) .now-spotlight-stage-secondary {
+    border-left: 1px solid color-mix(in srgb, var(--color-border-subtle) 72%, rgba(255, 255, 255, 0.06));
+    padding-left: 1.25rem;
+    margin-left: -0.125rem;
+  }
+}
+
 .now-spotlight-stage {
   display: flex;
   flex-direction: column;
@@ -7041,87 +7049,20 @@ kbd {
   -webkit-text-fill-color: transparent;
 }
 
-.now-spotlight-current {
-  position: relative;
-  border-radius: 1.35rem;
-  padding: 0.65rem;
-  background:
-    radial-gradient(
-      ellipse 115% 90% at 50% 0%,
-      color-mix(in srgb, var(--color-accent-sakura) 26%, transparent) 0%,
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-bg-elevated) 88%, var(--color-accent-sakura) 12%) 0%,
-      color-mix(in srgb, var(--color-bg-surface) 96%, transparent) 100%
-    );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 38%, rgba(255, 255, 255, 0.06)),
-    0 14px 40px rgba(212, 138, 166, 0.2),
-    0 8px 24px rgba(14, 19, 31, 0.12);
-}
-
-:where(:root[data-theme="light"], :root.light) .now-spotlight-current {
-  background:
-    radial-gradient(
-      ellipse 115% 90% at 50% 0%,
-      color-mix(in srgb, var(--color-accent-sakura) 20%, transparent) 0%,
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-bg-elevated) 94%, white 6%) 0%,
-      color-mix(in srgb, var(--color-bg-surface) 98%, transparent) 100%
-    );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 28%, rgba(255, 255, 255, 0.5)),
-    0 16px 36px rgba(170, 136, 116, 0.18),
-    0 8px 20px rgba(212, 138, 166, 0.14);
-}
-
-/* “Up next” — same frame rhythm as current, lighter lift (balanced pair) */
+/* Task tiles sit on .now-spotlight — no third nested “frame” */
+.now-spotlight-current,
 .now-spotlight-next {
   position: relative;
-  border-radius: 1.35rem;
-  padding: 0.65rem;
-  background:
-    radial-gradient(
-      ellipse 115% 90% at 50% 0%,
-      color-mix(in srgb, var(--color-accent-teal) 18%, transparent) 0%,
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-bg-elevated) 92%, var(--color-accent-teal) 8%) 0%,
-      color-mix(in srgb, var(--color-bg-surface) 97%, transparent) 100%
-    );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 0 1px color-mix(in srgb, var(--color-accent-teal) 26%, rgba(255, 255, 255, 0.04)),
-    0 10px 28px rgba(14, 19, 31, 0.1),
-    0 4px 14px color-mix(in srgb, var(--color-accent-teal) 12%, transparent);
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
+:where(:root[data-theme="light"], :root.light) .now-spotlight-current,
 :where(:root[data-theme="light"], :root.light) .now-spotlight-next {
-  background:
-    radial-gradient(
-      ellipse 115% 90% at 50% 0%,
-      color-mix(in srgb, var(--color-accent-teal) 14%, transparent) 0%,
-      transparent 62%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-bg-elevated) 96%, white 4%) 0%,
-      color-mix(in srgb, var(--color-bg-surface) 99%, transparent) 100%
-    );
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.72),
-    0 0 0 1px color-mix(in srgb, var(--color-accent-teal) 22%, rgba(255, 255, 255, 0.4)),
-    0 12px 28px rgba(170, 136, 116, 0.12),
-    0 4px 12px color-mix(in srgb, var(--color-accent-teal) 10%, transparent);
+  background: transparent;
+  box-shadow: none;
 }
 
 .now-spotlight-stage-header {
@@ -7161,15 +7102,6 @@ kbd {
   .now-spotlight-stage-secondary {
     order: 2;
   }
-}
-
-.now-spotlight-next .organize-card {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-bg-surface) 92%, var(--color-accent-teal) 8%) 0%,
-      color-mix(in srgb, var(--color-bg-surface) 98%, transparent) 100%
-    );
 }
 
 .now-spotlight-overflow {
@@ -7429,6 +7361,53 @@ kbd {
     0 10px 24px rgba(158, 132, 112, 0.12),
     0 4px 12px color-mix(in srgb, var(--color-accent-teal) 8%, transparent),
     0 0 0 1px color-mix(in srgb, var(--color-accent-teal) 20%, rgba(255, 255, 255, 0.35));
+}
+
+/* NOW hero: one raised surface — flatter tiles than lane cards */
+.now-spotlight .organize-card.organize-card-spotlight {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.now-spotlight .organize-card-spotlight-primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 22%, rgba(255, 255, 255, 0.08)),
+    0 6px 18px rgba(14, 19, 31, 0.08),
+    0 2px 8px rgba(212, 138, 166, 0.1);
+}
+
+.now-spotlight .organize-card-spotlight-secondary {
+  opacity: 1;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-teal) 18%, rgba(255, 255, 255, 0.06)),
+    0 4px 14px rgba(14, 19, 31, 0.06),
+    0 2px 6px color-mix(in srgb, var(--color-accent-teal) 8%, transparent);
+}
+
+:where(:root[data-theme="light"], :root.light) .now-spotlight .organize-card-spotlight-primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 20%, rgba(255, 255, 255, 0.35)),
+    0 6px 20px rgba(170, 136, 116, 0.12),
+    0 2px 8px rgba(212, 138, 166, 0.1);
+}
+
+:where(:root[data-theme="light"], :root.light) .now-spotlight .organize-card-spotlight-secondary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-teal) 16%, rgba(255, 255, 255, 0.28)),
+    0 4px 14px rgba(158, 132, 112, 0.08),
+    0 2px 6px color-mix(in srgb, var(--color-accent-teal) 6%, transparent);
+}
+
+.now-spotlight .organize-card:hover {
+  transform: translateY(-0.5px);
+}
+
+.now-spotlight .organize-card-title {
+  font-size: 0.98rem;
 }
 
 .organize-card-title {
