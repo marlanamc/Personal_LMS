@@ -603,26 +603,6 @@ export function ActivityCategoryPicker({
                             </div>
                         </section>
                     )}
-
-                    <section className="rounded-[1.75rem] border border-border-subtle/70 bg-bg-surface/70 px-5 py-5 shadow-sm">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-text-muted">
-                                    Personal Workspace
-                                </p>
-                                <h3 className="mt-1 text-lg font-display font-bold text-text">Notes, captures, and gentle re-entry</h3>
-                                <p className="mt-1 text-sm text-text-muted">
-                                    Thought Download, Organize, and future workspace pages live together here instead of pretending to be subjects.
-                                </p>
-                            </div>
-                            <Link
-                                href="/dashboard/workspace"
-                                className="inline-flex shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/15"
-                            >
-                                Open Workspace
-                            </Link>
-                        </div>
-                    </section>
                 </div>
             </div>
         );
