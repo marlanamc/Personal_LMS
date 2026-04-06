@@ -44,10 +44,24 @@ export type SkincareCatalogItem = {
 
 export type SkincareItemCatalog = Record<SkincareCategoryId, SkincareCatalogItem[]>;
 
+/** Wishlist vs active shopping list (like groceries on the meal planner). */
+export type SkincareShopListKind = 'wishlist' | 'to_buy';
+
+export type SkincareShopItem = {
+  id: string;
+  text: string;
+  checked: boolean;
+  kind: SkincareShopListKind;
+  category?: SkincareCategoryId;
+  price?: string;
+  addedAt: string;
+};
+
 export type SkincarePlannerStore = {
   version: 2;
   items: SkincareItem[];
   itemCatalog: SkincareItemCatalog;
+  shopList: SkincareShopItem[];
 };
 
 // ===== LEGACY MODEL (V1) FOR MIGRATION =====
@@ -109,6 +123,14 @@ export const DAY_SHORT_LABELS: Record<DayOfWeek, string> = {
   6: 'Sat',
 };
 
+/** Section order on the shop tab: shopping list first, then wishlist. */
+export const SKINCARE_SHOP_LIST_KIND_ORDER: readonly SkincareShopListKind[] = ['to_buy', 'wishlist'] as const;
+
+export const SKINCARE_SHOP_KIND_LABELS: Record<SkincareShopListKind, string> = {
+  to_buy: 'To Buy',
+  wishlist: 'Wishlist',
+};
+
 // Category display labels
 export const CATEGORY_LABELS: Record<SkincareCategoryId, string> = {
   cleanser: 'Cleanser',
@@ -120,7 +142,8 @@ export const CATEGORY_LABELS: Record<SkincareCategoryId, string> = {
   sunscreen: 'Sunscreen',
 };
 
-// Color system - soft tones matching site palette
+// Color system — same hue families as before, mixed with site tokens so labels read as tinted body text
+// (not full-saturation Tailwind rainbow). Dots stay slightly richer than text for scanability.
 export type CategoryColorScheme = {
   bg: string;
   text: string;
@@ -130,53 +153,47 @@ export type CategoryColorScheme = {
 
 export const SKINCARE_CATEGORY_COLORS: Record<SkincareCategoryId, CategoryColorScheme> = {
   cleanser: {
-    // Rose - dusty pink
-    bg: 'bg-rose-100/40 dark:bg-rose-400/12',
-    text: 'text-rose-700/90 dark:text-rose-300 font-medium',
-    border: 'border-rose-200/50 dark:border-rose-300/25',
-    dot: 'bg-rose-400 dark:bg-rose-300',
+    bg: 'bg-[color-mix(in_srgb,var(--color-accent-sakura-soft)_75%,var(--color-bg-elevated))]',
+    text: 'text-[color-mix(in_srgb,var(--color-accent-sakura)_34%,var(--color-text-primary)_66%)]',
+    border: 'border-[color-mix(in_srgb,var(--color-accent-sakura)_20%,var(--color-border-subtle))]',
+    dot: 'bg-[color-mix(in_srgb,var(--color-accent-sakura)_52%,var(--color-text-muted)_48%)] ring-1 ring-[color-mix(in_srgb,var(--color-accent-sakura)_28%,transparent)]',
   },
   toner: {
-    // Sky - soft blue
-    bg: 'bg-sky-100/40 dark:bg-sky-400/12',
-    text: 'text-sky-700/90 dark:text-sky-300 font-medium',
-    border: 'border-sky-200/50 dark:border-sky-300/25',
-    dot: 'bg-sky-400 dark:bg-sky-300',
+    bg: 'bg-[color-mix(in_srgb,var(--color-accent-teal)_10%,var(--color-bg-elevated))]',
+    text: 'text-[color-mix(in_srgb,var(--color-accent-teal)_36%,var(--color-text-primary)_64%)]',
+    border: 'border-[color-mix(in_srgb,var(--color-accent-teal)_22%,var(--color-border-subtle))]',
+    dot: 'bg-[color-mix(in_srgb,var(--color-accent-teal)_48%,var(--color-text-muted)_52%)] ring-1 ring-[color-mix(in_srgb,var(--color-accent-teal)_26%,transparent)]',
   },
   serums: {
-    // Peach - warm soft orange
-    bg: 'bg-orange-100/40 dark:bg-orange-400/12',
-    text: 'text-orange-600/90 dark:text-orange-300 font-medium',
-    border: 'border-orange-200/50 dark:border-orange-300/25',
-    dot: 'bg-orange-300 dark:bg-orange-300',
+    // Terracotta orange (primary-dark) — warmer than cleanser sakura, distinct from sunscreen’s primary-light
+    bg: 'bg-[color-mix(in_srgb,var(--color-primary-dark)_13%,var(--color-bg-elevated))]',
+    text: 'text-[color-mix(in_srgb,var(--color-primary-dark)_40%,var(--color-text-primary)_60%)]',
+    border: 'border-[color-mix(in_srgb,var(--color-primary-dark)_24%,var(--color-border-subtle))]',
+    dot: 'bg-[color-mix(in_srgb,var(--color-primary-dark)_52%,var(--color-text-muted)_48%)] ring-1 ring-[color-mix(in_srgb,var(--color-primary-dark)_28%,transparent)]',
   },
   actives: {
-    // Mint - soft green
-    bg: 'bg-emerald-100/40 dark:bg-emerald-400/12',
-    text: 'text-emerald-700/90 dark:text-emerald-300 font-medium',
-    border: 'border-emerald-200/50 dark:border-emerald-300/25',
-    dot: 'bg-emerald-400 dark:bg-emerald-300',
+    bg: 'bg-[color-mix(in_srgb,var(--color-accent-mint)_12%,var(--color-bg-elevated))]',
+    text: 'text-[color-mix(in_srgb,var(--color-accent-mint)_36%,var(--color-text-primary)_64%)]',
+    border: 'border-[color-mix(in_srgb,var(--color-accent-mint)_22%,var(--color-border-subtle))]',
+    dot: 'bg-[color-mix(in_srgb,var(--color-accent-mint)_48%,var(--color-text-muted)_52%)] ring-1 ring-[color-mix(in_srgb,var(--color-accent-mint)_26%,transparent)]',
   },
   extras: {
-    // Lavender - soft purple
-    bg: 'bg-violet-100/40 dark:bg-violet-400/12',
-    text: 'text-violet-700/90 dark:text-violet-300 font-medium',
-    border: 'border-violet-200/50 dark:border-violet-300/25',
-    dot: 'bg-violet-400 dark:bg-violet-300',
+    bg: 'bg-[color-mix(in_srgb,var(--color-accent-amethyst)_11%,var(--color-bg-elevated))]',
+    text: 'text-[color-mix(in_srgb,var(--color-accent-amethyst)_36%,var(--color-text-primary)_64%)]',
+    border: 'border-[color-mix(in_srgb,var(--color-accent-amethyst)_22%,var(--color-border-subtle))]',
+    dot: 'bg-[color-mix(in_srgb,var(--color-accent-amethyst)_48%,var(--color-text-muted)_52%)] ring-1 ring-[color-mix(in_srgb,var(--color-accent-amethyst)_26%,transparent)]',
   },
   moisturizer: {
-    // Periwinkle - blue-violet
-    bg: 'bg-indigo-100/40 dark:bg-indigo-400/12',
-    text: 'text-indigo-600/90 dark:text-indigo-300 font-medium',
-    border: 'border-indigo-200/50 dark:border-indigo-300/25',
-    dot: 'bg-indigo-400 dark:bg-indigo-300',
+    bg: 'bg-[color-mix(in_srgb,var(--color-accent-light)_11%,var(--color-bg-elevated))]',
+    text: 'text-[color-mix(in_srgb,var(--color-accent-light)_34%,var(--color-text-primary)_66%)]',
+    border: 'border-[color-mix(in_srgb,var(--color-accent-light)_22%,var(--color-border-subtle))]',
+    dot: 'bg-[color-mix(in_srgb,var(--color-accent-light)_46%,var(--color-text-muted)_54%)] ring-1 ring-[color-mix(in_srgb,var(--color-accent-light)_26%,transparent)]',
   },
   sunscreen: {
-    // Dusty mauve - rose/periwinkle blend
-    bg: 'bg-fuchsia-100/40 dark:bg-fuchsia-400/12',
-    text: 'text-fuchsia-700/90 dark:text-fuchsia-300 font-medium',
-    border: 'border-fuchsia-200/50 dark:border-fuchsia-300/25',
-    dot: 'bg-fuchsia-400 dark:bg-fuchsia-300',
+    bg: 'bg-[color-mix(in_srgb,var(--color-primary-light)_14%,var(--color-bg-elevated))]',
+    text: 'text-[color-mix(in_srgb,var(--color-primary-light)_35%,var(--color-text-primary)_65%)]',
+    border: 'border-[color-mix(in_srgb,var(--color-primary-light)_22%,var(--color-border-subtle))]',
+    dot: 'bg-[color-mix(in_srgb,var(--color-primary-light)_46%,var(--color-text-muted)_54%)] ring-1 ring-[color-mix(in_srgb,var(--color-primary-light)_26%,transparent)]',
   },
 };
 
@@ -199,7 +216,44 @@ export function createEmptyStore(): SkincarePlannerStore {
     version: 2,
     items: [],
     itemCatalog: createEmptyItemCatalog(),
+    shopList: [],
   };
+}
+
+function normalizeSkincareShopItem(raw: unknown): SkincareShopItem | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const o = raw as Record<string, unknown>;
+  const id = typeof o.id === 'string' ? o.id : '';
+  const text = typeof o.text === 'string' ? normalizeItemText(o.text) : '';
+  if (!id || !text) return null;
+  const kindRaw = o.kind;
+  /** Everything except `wishlist` (incl. legacy `low`) maps to `to_buy`. */
+  const kind: SkincareShopListKind = kindRaw === 'wishlist' ? 'wishlist' : 'to_buy';
+  const category =
+    typeof o.category === 'string' && SKINCARE_CATEGORY_IDS.includes(o.category as SkincareCategoryId)
+      ? (o.category as SkincareCategoryId)
+      : undefined;
+  const addedAt = typeof o.addedAt === 'string' && o.addedAt.trim() ? o.addedAt : new Date().toISOString();
+  return {
+    id,
+    text,
+    checked: o.checked === true,
+    kind,
+    category,
+    addedAt,
+  };
+}
+
+/** Sort for display within a single shop section. */
+export function sortSkincareShopItems(items: SkincareShopItem[]): SkincareShopItem[] {
+  const catRank = (c: SkincareCategoryId | undefined) =>
+    c === undefined ? 999 : SKINCARE_CATEGORY_ORDER.indexOf(c);
+  return [...items].sort((a, b) => {
+    if (a.checked !== b.checked) return a.checked ? 1 : -1;
+    const rc = catRank(a.category) - catRank(b.category);
+    if (rc !== 0) return rc;
+    return a.text.localeCompare(b.text);
+  });
 }
 
 export const EMPTY_SKINCARE_PLANNER_STORE: SkincarePlannerStore = createEmptyStore();
@@ -373,11 +427,14 @@ export function normalizeSkincarePlannerStore(raw: unknown): SkincarePlannerStor
   if (version === 2) {
     const items = Array.isArray(o.items) ? o.items : [];
     const normalizedItems = items.map(normalizeSkincareItem).filter((item): item is SkincareItem => item !== null);
+    const shopRaw = Array.isArray(o.shopList) ? o.shopList : [];
+    const shopList = shopRaw.map(normalizeSkincareShopItem).filter((item): item is SkincareShopItem => item !== null);
 
     return {
       version: 2,
       items: normalizedItems,
       itemCatalog: normalizeItemCatalog(o.itemCatalog),
+      shopList,
     };
   }
 
@@ -475,6 +532,7 @@ export function migrateLegacyStoreToV2(legacy: LegacySkincarePlannerStore): Skin
     version: 2,
     items,
     itemCatalog: legacy.itemCatalog ? normalizeItemCatalog(legacy.itemCatalog) : createEmptyItemCatalog(),
+    shopList: [],
   };
 }
 
