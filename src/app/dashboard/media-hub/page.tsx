@@ -21,7 +21,7 @@ export default async function MediaHubPage() {
   }
 
   return (
-    <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-2.5 pb-24 sm:pt-6 md:pt-8 md:pb-12">
+    <main className="mx-auto max-w-6xl px-4 sm:px-6 pt-2.5 pb-24 sm:pt-6 md:pt-8 md:pb-12">
       <MediaHubView storageScope={userId} />
     </main>
   );

@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { StableDialog } from '@/components/ui/StableDialog';
 import { Button } from '@/components/ui/Button';
 import { BookOpen, Headphones, X, Tv, Popcorn, FileText, Music, Zap, Coffee, Sofa } from 'lucide-react';
-import { MEDIA_TYPE_CONFIG, ENERGY_LEVEL_CONFIG, PLATFORM_OPTIONS, type MediaType, type EnergyLevel } from '@/lib/media-hub';
+import { MEDIA_TYPE_CONFIG, ENERGY_LEVEL_CONFIG, PLATFORM_OPTIONS, type MediaType, type EnergyLevel, type MediaItem, type MediaStatus } from '@/lib/media-hub';
 
-interface AddMediaDialogProps {
+interface EditMediaDialogProps {
+  initialItem: MediaItem;
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (title: string, type: MediaType, extras?: { notes?: string; energyLevel?: EnergyLevel; coverEmoji?: string; coverUrl?: string; platform?: string; link?: string; author?: string }) => void;
-  defaultStatus?: 'active' | 'on-deck';
+  onSave: (id: string, updates: Partial<Omit<MediaItem, 'id' | 'addedAt'>>) => void;
 }
 
 const TYPE_ICONS: Record<MediaType, typeof BookOpen> = {
@@ -37,64 +37,79 @@ const ENERGY_ICONS: Record<EnergyLevel, typeof Zap> = {
   low: Sofa,
 };
 
-export function AddMediaDialog({ isOpen, onClose, onAdd, defaultStatus = 'on-deck' }: AddMediaDialogProps) {
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [type, setType] = useState<MediaType>('book');
-  const [notes, setNotes] = useState('');
-  const [energyLevel, setEnergyLevel] = useState<EnergyLevel | ''>('');
-  const [coverEmoji, setCoverEmoji] = useState('');
-  const [coverUrl, setCoverUrl] = useState('');
-  const [platform, setPlatform] = useState('');
-  const [link, setLink] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
+const STATUS_OPTIONS: { value: MediaStatus; label: string }[] = [
+  { value: 'active', label: 'In Progress' },
+  { value: 'on-deck', label: 'On Deck' },
+  { value: 'finished', label: 'Finished' },
+];
 
+export function EditMediaDialog({ initialItem, isOpen, onClose, onSave }: EditMediaDialogProps) {
+  const [title, setTitle] = useState(initialItem.title);
+  const [author, setAuthor] = useState(initialItem.author || '');
+  const [type, setType] = useState<MediaType>(initialItem.type);
+  const [status, setStatus] = useState<MediaStatus>(initialItem.status || 'on-deck');
+  const [notes, setNotes] = useState(initialItem.notes || '');
+  const [energyLevel, setEnergyLevel] = useState<EnergyLevel | ''>(initialItem.energyLevel || '');
+  const [coverEmoji, setCoverEmoji] = useState(initialItem.coverEmoji || '');
+  const [coverUrl, setCoverUrl] = useState(initialItem.coverUrl || '');
+  const [platform, setPlatform] = useState(initialItem.platform || '');
+  const [link, setLink] = useState(initialItem.link || '');
+
+  // Reset form when opened with a new item
   useEffect(() => {
-    if (!isOpen) {
-      setTitle('');
-      setAuthor('');
-      setType('book');
-      setNotes('');
-      setEnergyLevel('');
-      setCoverEmoji('');
-      setCoverUrl('');
-      setPlatform('');
-      setLink('');
+    if (isOpen) {
+      setTitle(initialItem.title);
+      setAuthor(initialItem.author || '');
+      setType(initialItem.type);
+      setStatus(initialItem.status || 'on-deck');
+      setNotes(initialItem.notes || '');
+      setEnergyLevel(initialItem.energyLevel || '');
+      setCoverEmoji(initialItem.coverEmoji || '');
+      setCoverUrl(initialItem.coverUrl || '');
+      setPlatform(initialItem.platform || '');
+      setLink(initialItem.link || '');
     }
-  }, [isOpen]);
+  }, [isOpen, initialItem]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedTitle = title.trim();
     if (!trimmedTitle) return;
-    onAdd(trimmedTitle, type, {
+    
+    onSave(initialItem.id, {
+      title: trimmedTitle,
+      author: author.trim() || undefined,
+      type,
+      status,
       notes: notes.trim() || undefined,
       energyLevel: energyLevel || undefined,
       coverEmoji: coverEmoji.trim() || undefined,
       coverUrl: coverUrl.trim() || undefined,
       platform: platform.trim() || undefined,
       link: link.trim() || undefined,
-      author: author.trim() || undefined,
     });
     onClose();
   };
 
-  const statusLabel = defaultStatus === 'active' ? 'In Progress' : 'On Deck';
-  const allTypes: MediaType[] = ['book', 'audiobook', 'video', 'show', 'article', 'music'];
+  const allTypes = Object.keys(MEDIA_TYPE_CONFIG) as MediaType[];
 
   return (
     <StableDialog
       isOpen={isOpen}
       onClose={onClose}
-      labelledBy="add-media-title"
-      initialFocusRef={inputRef}
+      labelledBy="edit-media-title"
     >
       <div className="p-5 border-b border-white/10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-secondary" />
-            <h2 id="add-media-title" className="font-display text-lg text-text-primary">
-              Add to {statusLabel}
+            <div className={`p-1.5 rounded-lg bg-${TYPE_ACCENT[type]}/20 text-${TYPE_ACCENT[type]}`}>
+              {(() => {
+                const Icon = TYPE_ICONS[type];
+                return <Icon className="h-4 w-4" />;
+              })()}
+            </div>
+            <h2 id="edit-media-title" className="font-display text-lg text-text-primary">
+              Edit Media
             </h2>
           </div>
           <button
@@ -110,27 +125,26 @@ export function AddMediaDialog({ isOpen, onClose, onAdd, defaultStatus = 'on-dec
       <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
         {/* Title */}
         <div>
-          <label htmlFor="media-title" className="block text-sm font-medium text-text-secondary mb-2">
+          <label htmlFor="edit-media-title-input" className="block text-sm font-medium text-text-secondary mb-2">
             Title
           </label>
           <input
-            ref={inputRef}
-            id="media-title"
+            id="edit-media-title-input"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g., Atomic Habits"
             className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-white/10 text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/30 transition-colors"
             autoComplete="off"
+            required
           />
         </div>
 
         <div>
-          <label htmlFor="media-author" className="block text-sm font-medium text-text-secondary mb-2">
+          <label htmlFor="edit-media-author" className="block text-sm font-medium text-text-secondary mb-2">
             Author / creator <span className="text-text-muted">(optional)</span>
           </label>
           <input
-            id="media-author"
+            id="edit-media-author"
             type="text"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
@@ -138,6 +152,29 @@ export function AddMediaDialog({ isOpen, onClose, onAdd, defaultStatus = 'on-dec
             className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-white/10 text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/30 transition-colors"
             autoComplete="off"
           />
+        </div>
+
+        {/* Status */}
+        <div>
+          <label className="block text-sm font-medium text-text-secondary mb-2">
+            Status
+          </label>
+          <div className="flex gap-2">
+            {STATUS_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setStatus(opt.value)}
+                className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                  status === opt.value
+                    ? 'border-primary/50 bg-primary/10 text-primary'
+                    : 'border-white/10 bg-bg-elevated text-text-muted hover:border-white/20 hover:text-text-secondary'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Type selector - grid */}
@@ -198,11 +235,11 @@ export function AddMediaDialog({ isOpen, onClose, onAdd, defaultStatus = 'on-dec
         <div className="grid grid-cols-2 gap-4">
           {/* Cover Emoji */}
           <div>
-            <label htmlFor="media-emoji" className="block text-sm font-medium text-text-secondary mb-2">
+            <label htmlFor="edit-media-emoji" className="block text-sm font-medium text-text-secondary mb-2">
               Cover Emoji <span className="text-text-muted">(optional)</span>
             </label>
             <input
-              id="media-emoji"
+              id="edit-media-emoji"
               type="text"
               value={coverEmoji}
               onChange={(e) => setCoverEmoji(e.target.value)}
@@ -214,11 +251,11 @@ export function AddMediaDialog({ isOpen, onClose, onAdd, defaultStatus = 'on-dec
 
           {/* Cover Image URL */}
           <div>
-            <label htmlFor="media-cover-url" className="block text-sm font-medium text-text-secondary mb-2">
+            <label htmlFor="edit-media-cover-url" className="block text-sm font-medium text-text-secondary mb-2">
               Image URL <span className="text-text-muted">(optional)</span>
             </label>
             <input
-              id="media-cover-url"
+              id="edit-media-cover-url"
               type="url"
               value={coverUrl}
               onChange={(e) => setCoverUrl(e.target.value)}
@@ -230,11 +267,11 @@ export function AddMediaDialog({ isOpen, onClose, onAdd, defaultStatus = 'on-dec
 
         {/* Link / URL */}
         <div>
-          <label htmlFor="media-link" className="block text-sm font-medium text-text-secondary mb-2">
+          <label htmlFor="edit-media-link" className="block text-sm font-medium text-text-secondary mb-2">
             Direct Link <span className="text-text-muted">(optional)</span>
           </label>
           <input
-            id="media-link"
+            id="edit-media-link"
             type="url"
             value={link}
             onChange={(e) => setLink(e.target.value)}
@@ -246,7 +283,7 @@ export function AddMediaDialog({ isOpen, onClose, onAdd, defaultStatus = 'on-dec
         {/* Energy Level */}
         <div>
           <label className="block text-sm font-medium text-text-secondary mb-3">
-            Energy level <span className="text-text-muted">(optional — for smart shuffle)</span>
+            Energy level <span className="text-text-muted">(optional)</span>
           </label>
           <div className="flex gap-2">
             {(Object.entries(ENERGY_LEVEL_CONFIG) as [EnergyLevel, typeof ENERGY_LEVEL_CONFIG.low][]).map(
@@ -276,18 +313,18 @@ export function AddMediaDialog({ isOpen, onClose, onAdd, defaultStatus = 'on-dec
           </div>
         </div>
 
-        {/* Summary / Notes */}
+        {/* Notes / Summary */}
         <div>
-          <label htmlFor="media-notes" className="block text-sm font-medium text-text-secondary mb-2">
-            Summary/Notes <span className="text-text-muted">(optional — why this? where am I?)</span>
+          <label htmlFor="edit-media-notes" className="block text-sm font-medium text-text-secondary mb-2">
+            Summary/Notes <span className="text-text-muted">(optional)</span>
           </label>
           <textarea
-            id="media-notes"
+            id="edit-media-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="e.g., 'Recommended by Sarah, about habit loops'"
             className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-white/10 text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/30 transition-colors resize-none h-20"
             maxLength={300}
+            placeholder="A brief summary or quick thoughts..."
           />
         </div>
 
@@ -296,7 +333,7 @@ export function AddMediaDialog({ isOpen, onClose, onAdd, defaultStatus = 'on-dec
             Cancel
           </Button>
           <Button type="submit" variant="primary" disabled={!title.trim()} className="flex-1">
-            Add {MEDIA_TYPE_CONFIG[type].label}
+            Save Changes
           </Button>
         </div>
       </form>

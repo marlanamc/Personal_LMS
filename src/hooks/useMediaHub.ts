@@ -9,6 +9,8 @@ import {
   type MediaItem,
   type MediaType,
   type MediaStatus,
+  type EnergyLevel,
+  type MediaThought,
 } from '@/lib/media-hub';
 
 function getStorageKey(storageScope: string): string {
@@ -217,12 +219,14 @@ export function useMediaHub(storageScope: string) {
 
   // Convenience actions
   const addPodcast = useCallback(
-    (name: string, category?: string) => {
+    (name: string, category?: string, link?: string, coverUrl?: string) => {
       const podcast: Podcast = {
         id: generateId(),
         name: name.trim(),
         category: category?.trim() || undefined,
         addedAt: new Date().toISOString(),
+        link: link?.trim() || undefined,
+        coverUrl: coverUrl?.trim() || undefined,
       };
       setMediaHubStore((prev) => ({
         ...prev,
@@ -243,7 +247,17 @@ export function useMediaHub(storageScope: string) {
   );
 
   const addMediaItem = useCallback(
-    (title: string, type: MediaType, status: MediaStatus = 'on-deck') => {
+    (
+      title: string,
+      type: MediaType,
+      status: MediaStatus = 'on-deck',
+      extras?: {
+        notes?: string;
+        energyLevel?: EnergyLevel;
+        coverEmoji?: string;
+        author?: string;
+      },
+    ) => {
       const now = new Date().toISOString();
       const item: MediaItem = {
         id: generateId(),
@@ -252,10 +266,41 @@ export function useMediaHub(storageScope: string) {
         status,
         lastTouchedAt: now,
         addedAt: now,
+        notes: extras?.notes?.trim() || undefined,
+        energyLevel: extras?.energyLevel,
+        coverEmoji: extras?.coverEmoji?.trim() || undefined,
+        author: extras?.author?.trim() || undefined,
       };
       setMediaHubStore((prev) => ({
         ...prev,
         mediaItems: [...prev.mediaItems, item],
+      }));
+    },
+    [setMediaHubStore],
+  );
+
+  const updateMediaItem = useCallback(
+    (id: string, updates: Partial<Omit<MediaItem, 'id' | 'addedAt'>>) => {
+      setMediaHubStore((prev) => ({
+        ...prev,
+        mediaItems: prev.mediaItems.map((m) => {
+          if (m.id !== id) return m;
+          
+          const updatedItem = { ...m, ...updates };
+          
+          // Handle specific status-change logic if status was updated
+          if (updates.status && updates.status !== m.status) {
+            const now = new Date().toISOString();
+            updatedItem.lastTouchedAt = now;
+            if (updates.status === 'finished') {
+              updatedItem.finishedAt = updatedItem.finishedAt || now;
+            } else {
+              updatedItem.finishedAt = undefined;
+            }
+          }
+          
+          return updatedItem;
+        }),
       }));
     },
     [setMediaHubStore],
@@ -318,6 +363,47 @@ export function useMediaHub(storageScope: string) {
     [setMediaHubStore],
   );
 
+  const addThought = useCallback(
+    (mediaId: string, content: string, progressMarker?: string) => {
+      const thought: MediaThought = {
+        id: generateId(),
+        content: content.trim(),
+        createdAt: new Date().toISOString(),
+        progressMarker: progressMarker?.trim() || undefined,
+      };
+      setMediaHubStore((prev) => ({
+        ...prev,
+        mediaItems: prev.mediaItems.map((m) =>
+          m.id === mediaId
+            ? {
+                ...m,
+                thoughts: [...(m.thoughts || []), thought],
+                lastTouchedAt: new Date().toISOString(),
+              }
+            : m,
+        ),
+      }));
+    },
+    [setMediaHubStore],
+  );
+
+  const removeThought = useCallback(
+    (mediaId: string, thoughtId: string) => {
+      setMediaHubStore((prev) => ({
+        ...prev,
+        mediaItems: prev.mediaItems.map((m) =>
+          m.id === mediaId
+            ? {
+                ...m,
+                thoughts: (m.thoughts || []).filter((t) => t.id !== thoughtId),
+              }
+            : m,
+        ),
+      }));
+    },
+    [setMediaHubStore],
+  );
+
   return {
     store,
     setStore: setMediaHubStore,
@@ -333,12 +419,15 @@ export function useMediaHub(storageScope: string) {
 
     // Media item actions
     addMediaItem,
+    updateMediaItem,
     updateMediaStatus,
     removeMediaItem,
     moveToActive,
     markAsFinished,
     touchMediaItem,
+    addThought,
+    removeThought,
   };
 }
 
-export type { MediaHubStore, Podcast, MediaItem, MediaType, MediaStatus } from '@/lib/media-hub';
+export type { MediaHubStore, Podcast, MediaItem, MediaType, MediaStatus, EnergyLevel, MediaThought } from '@/lib/media-hub';

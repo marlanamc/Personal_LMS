@@ -53,6 +53,7 @@ const CATEGORY_LABEL: Record<GroceryCategory, string> = {
   meat: 'Meat & fish',
   pantry: 'Pantry',
   frozen: 'Frozen',
+  cleaning: 'Cleaning',
   other: 'Other',
 };
 
@@ -99,15 +100,77 @@ function pushRecentGrocery(recent: string[], text: string): string[] {
   return [t, ...next].slice(0, 40);
 }
 
-function formatWindowRangeLabel(windowStartKey: WeekKey, planLength: MealPlanLength): string {
+/** Full month names; same calendar month omits the repeated month (e.g. April 4 – 8). Year is split for badge styling when the window is within one year. */
+function getMealWindowRangeParts(windowStartKey: WeekKey, planLength: MealPlanLength): {
+  range: string;
+  year?: string;
+} {
   const start = dateKeyToDate(windowStartKey);
   const end = dateKeyToDate(addDaysToDateKey(windowStartKey, planLength - 1));
-  const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-  const yOpts: Intl.DateTimeFormatOptions = { ...opts, year: 'numeric' };
   const sameYear = start.getFullYear() === end.getFullYear();
-  const a = start.toLocaleDateString(undefined, sameYear ? opts : yOpts);
-  const b = end.toLocaleDateString(undefined, yOpts);
-  return `${a} – ${b}`;
+  const sameMonth = sameYear && start.getMonth() === end.getMonth();
+
+  const monthLongDay: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric' };
+  const monthLongDayYear: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric', year: 'numeric' };
+
+  if (!sameYear) {
+    const a = start.toLocaleDateString(undefined, monthLongDayYear);
+    const b = end.toLocaleDateString(undefined, monthLongDayYear);
+    return { range: `${a} – ${b}` };
+  }
+
+  if (sameMonth) {
+    const monthName = start.toLocaleDateString(undefined, { month: 'long' });
+    const d1 = start.getDate();
+    const d2 = end.getDate();
+    if (d1 === d2) {
+      return {
+        range: `${monthName} ${d1}`,
+        year: String(end.getFullYear()),
+      };
+    }
+    return {
+      range: `${monthName} ${d1} – ${d2}`,
+      year: String(end.getFullYear()),
+    };
+  }
+
+  const a = start.toLocaleDateString(undefined, monthLongDay);
+  const b = end.toLocaleDateString(undefined, monthLongDay);
+  return {
+    range: `${a} – ${b}`,
+    year: String(end.getFullYear()),
+  };
+}
+
+function formatWindowRangeLabel(windowStartKey: WeekKey, planLength: MealPlanLength): string {
+  const { range, year } = getMealWindowRangeParts(windowStartKey, planLength);
+  return year ? `${range}, ${year}` : range;
+}
+
+function MealPlanWindowRangeBadge({
+  windowKey,
+  planLength,
+}: {
+  windowKey: WeekKey;
+  planLength: MealPlanLength;
+}) {
+  const { range, year } = getMealWindowRangeParts(windowKey, planLength);
+  return (
+    <p
+      className="inline-flex max-w-full flex-wrap items-baseline justify-center gap-x-2 gap-y-0.5 rounded-2xl border border-primary/18 bg-gradient-to-br from-bg-elevated/95 via-bg-surface/90 to-primary/[0.06] px-3.5 py-2 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-sm sm:px-4 sm:py-2.5"
+      title={formatWindowRangeLabel(windowKey, planLength)}
+    >
+      <span className="font-display text-[0.8125rem] font-semibold leading-snug tracking-tight text-text sm:text-sm md:text-[0.9375rem]">
+        {range}
+      </span>
+      {year ? (
+        <span className="text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-text-muted tabular-nums sm:text-[0.6875rem]">
+          {year}
+        </span>
+      ) : null}
+    </p>
+  );
 }
 
 function triggerHaptic() {
@@ -868,6 +931,7 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
   const { plannerStore, setPlannerStore, isLoaded, isSaving, saveError } = useMealPlanner(storageScope);
   const [tab, setTab] = useState<PlannerTab>('meals');
   const [captureDraft, setCaptureDraft] = useState('');
+  const [captureCategory, setCaptureCategory] = useState<GroceryCategory | ''>('');
   const [captureGlow, setCaptureGlow] = useState(false);
   const [collapsedCat, setCollapsedCat] = useState<Partial<Record<GroceryCategory, boolean>>>({});
   const [mealEdit, setMealEdit] = useState<{
@@ -928,7 +992,7 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
       id: newId('g'),
       text,
       checked: false,
-      category: 'other',
+      category: captureCategory || 'other',
       addedAt: new Date().toISOString(),
     };
     setPlannerStore((prev) => ({
@@ -940,7 +1004,7 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
     triggerHaptic();
     setCaptureGlow(true);
     window.setTimeout(() => setCaptureGlow(false), 550);
-  }, [captureDraft, setPlannerStore]);
+  }, [captureDraft, captureCategory, setPlannerStore]);
 
   const toggleGrocery = useCallback(
     (id: string) => {
@@ -958,16 +1022,6 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
       setPlannerStore((prev) => ({
         ...prev,
         groceryList: prev.groceryList.filter((g) => g.id !== id),
-      }));
-    },
-    [setPlannerStore],
-  );
-
-  const setItemCategory = useCallback(
-    (id: string, category: GroceryCategory) => {
-      setPlannerStore((prev) => ({
-        ...prev,
-        groceryList: prev.groceryList.map((g) => (g.id === id ? { ...g, category } : g)),
       }));
     },
     [setPlannerStore],
@@ -1107,6 +1161,44 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
     [setPlannerStore, windowKey],
   );
 
+  const copyFromPreviousWindow = useCallback(() => {
+    const prevWindowKey = addDaysToDateKey(windowKey, -planLength);
+    const prevWindowDates = getMealPlanDateKeys(prevWindowKey, planLength);
+    const sourceMeals = prevWindowDates.map(dk => getMealsForDate(plannerStore.mealPlans, dk));
+
+    if (sourceMeals.every(day => !day || Object.keys(day).length === 0)) {
+      return;
+    }
+
+    setPlannerStore(prev => {
+      let nextMealPlans = { ...prev.mealPlans };
+      
+      windowDates.forEach((targetDk, i) => {
+        const sourceDay = sourceMeals[i];
+        if (sourceDay) {
+          const newDay: DayMeals = {};
+          for (const slotKey of MEAL_SLOT_KEYS) {
+            if (sourceDay[slotKey]) {
+              newDay[slotKey] = {
+                ...sourceDay[slotKey]!,
+                id: newId('m')
+              };
+            }
+          }
+          nextMealPlans = upsertMealsForDate(nextMealPlans, windowKey, targetDk, newDay);
+        }
+      });
+
+      return {
+        ...prev,
+        mealPlans: nextMealPlans
+      };
+    });
+    
+    triggerHaptic();
+    setShowMealSettings(false);
+  }, [plannerStore.mealPlans, windowKey, planLength, windowDates, setPlannerStore]);
+
   const datalistId = 'meal-planner-recent-groceries';
 
   return (
@@ -1171,7 +1263,7 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
             {/* Quick capture — grocery tab; sticky on small screens */}
             <div className="sticky top-0 z-sticky -mx-1 px-1 pt-1 pb-2 bg-gradient-to-b from-bg-base via-bg-base/95 to-transparent md:static md:bg-transparent md:p-0">
               <div
-                className={`flex items-stretch gap-2 rounded-2xl border bg-bg-surface/80 p-2 backdrop-blur-sm transition-shadow duration-300 ${
+                className={`flex flex-wrap items-center gap-2 rounded-2xl border bg-bg-surface/80 p-2 backdrop-blur-sm transition-shadow duration-300 ${
               captureGlow
                 ? 'border-accent-mint/50 shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-accent-mint)_35%,transparent)]'
                 : 'border-border-subtle/50'
@@ -1180,32 +1272,42 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-mint/15 text-accent-mint">
               <Plus className="h-6 w-6" aria-hidden />
             </div>
-            <div className="flex min-w-0 flex-1 flex-col justify-center">
-              <label htmlFor="grocery-quick-capture" className="sr-only">
-                Add grocery item
-              </label>
-              <input
-                id="grocery-quick-capture"
-                name="grocery-quick-capture"
-                list={suggestedGroceries.length ? datalistId : undefined}
-                value={captureDraft}
-                onChange={(e) => setCaptureDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addGroceryFromCapture();
-                  }
-                }}
-                placeholder="Add grocery item…"
-                className="h-12 w-full rounded-xl border border-border-subtle/50 bg-bg-elevated/60 px-3 text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-mint/35 transition"
-                autoComplete="off"
-              />
-              <span className="mt-0.5 hidden text-[11px] text-text-muted sm:block">Enter to add</span>
-            </div>
+            <label htmlFor="grocery-quick-capture" className="sr-only">
+              Add grocery item
+            </label>
+            <input
+              id="grocery-quick-capture"
+              name="grocery-quick-capture"
+              list={suggestedGroceries.length ? datalistId : undefined}
+              value={captureDraft}
+              onChange={(e) => setCaptureDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addGroceryFromCapture();
+                }
+              }}
+              placeholder="Add grocery item…"
+              className="h-12 min-w-0 flex-1 basis-[min(100%,10rem)] rounded-xl border border-border-subtle/50 bg-bg-elevated/60 px-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-mint/35 transition sm:basis-[12rem]"
+              autoComplete="off"
+            />
+            <select
+              aria-label="Category for new grocery item"
+              value={captureCategory}
+              onChange={(e) => setCaptureCategory(e.target.value as GroceryCategory | '')}
+              className="h-12 max-w-[7.5rem] shrink-0 rounded-xl border border-border-subtle/50 bg-bg-elevated/60 py-1.5 pl-2 pr-1 text-[11px] text-text-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-mint/35 sm:max-w-[9rem] sm:text-xs"
+            >
+              <option value="">Category…</option>
+              {GROCERY_CATEGORY_ORDER.map((c) => (
+                <option key={c} value={c}>
+                  {CATEGORY_LABEL[c]}
+                </option>
+              ))}
+            </select>
             <button
               type="button"
               onClick={() => addGroceryFromCapture()}
-              className="shrink-0 self-center rounded-xl bg-accent-mint/15 px-4 py-3 text-sm font-semibold text-accent-mint transition hover:bg-accent-mint/25"
+              className="h-12 shrink-0 rounded-xl bg-accent-mint/15 px-4 text-sm font-semibold leading-none text-accent-mint transition hover:bg-accent-mint/25"
             >
               Add
             </button>
@@ -1295,19 +1397,6 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
                                 >
                                   {item.text}
                                 </span>
-                                <select
-                                  aria-label={`Category for ${item.text}`}
-                                  value={effectiveCategory(item)}
-                                  onChange={(e) => setItemCategory(item.id, e.target.value as GroceryCategory)}
-                                  className="max-w-[7.5rem] shrink-0 rounded-lg border border-border-subtle/50 bg-bg-elevated/60 py-1.5 pl-2 pr-1 text-[11px] text-text-secondary"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  {GROCERY_CATEGORY_ORDER.map((c) => (
-                                    <option key={c} value={c}>
-                                      {CATEGORY_LABEL[c]}
-                                    </option>
-                                  ))}
-                                </select>
                                 <button
                                   type="button"
                                   onClick={() => removeGrocery(item.id)}
@@ -1353,8 +1442,8 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
                     <ChevronLeft className="h-4 w-4 md:h-4.5 md:w-4.5" />
                   </button>
 
-                  <div className="min-w-0 flex-1">
-                    <p className="text-center text-xs md:text-sm font-semibold text-text-primary">{formatWindowRangeLabel(windowKey, planLength)}</p>
+                  <div className="min-w-0 flex-1 flex justify-center px-1">
+                    <MealPlanWindowRangeBadge windowKey={windowKey} planLength={planLength} />
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -1422,6 +1511,16 @@ export function MealPlannerView({ storageScope }: MealPlannerViewProps) {
                             ))}
                           </select>
                         </label>
+
+                        <div className="md:ml-auto w-full md:w-auto border-t md:border-t-0 md:border-l border-border-subtle/35 pt-3 md:pt-0 md:pl-4">
+                          <button
+                            type="button"
+                            onClick={copyFromPreviousWindow}
+                            className="w-full md:w-auto rounded-lg border border-border-subtle/50 bg-bg-elevated/60 px-3 py-1.5 text-xs md:text-sm font-medium text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-colors shadow-sm"
+                          >
+                            Copy from previous window
+                          </button>
+                        </div>
                       </div>
                     </motion.div>
                   ) : null}

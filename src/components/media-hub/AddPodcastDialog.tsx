@@ -9,18 +9,22 @@ import { DEFAULT_PODCAST_CATEGORIES } from '@/lib/media-hub';
 interface AddPodcastDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (name: string, category?: string) => void;
+  onAdd: (name: string, category?: string, link?: string, coverUrl?: string) => void;
 }
 
 export function AddPodcastDialog({ isOpen, onClose, onAdd }: AddPodcastDialogProps) {
   const [name, setName] = useState('');
   const [category, setCategory] = useState('');
+  const [link, setLink] = useState('');
+  const [coverUrl, setCoverUrl] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isOpen) {
       setName('');
       setCategory('');
+      setLink('');
+      setCoverUrl('');
     }
   }, [isOpen]);
 
@@ -28,7 +32,7 @@ export function AddPodcastDialog({ isOpen, onClose, onAdd }: AddPodcastDialogPro
     e.preventDefault();
     const trimmedName = name.trim();
     if (!trimmedName) return;
-    onAdd(trimmedName, category.trim() || undefined);
+    onAdd(trimmedName, category.trim() || undefined, link.trim() || undefined, coverUrl.trim() || undefined);
     onClose();
   };
 
@@ -71,6 +75,34 @@ export function AddPodcastDialog({ isOpen, onClose, onAdd }: AddPodcastDialogPro
             placeholder="e.g., The Daily"
             className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-white/10 text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/30 transition-colors"
             autoComplete="off"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="podcast-link" className="block text-sm font-medium text-text-secondary mb-2">
+            Direct Link <span className="text-text-muted">(optional)</span>
+          </label>
+          <input
+            id="podcast-link"
+            type="url"
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+            placeholder="Link to Spotify, Apple Podcasts, etc."
+            className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-white/10 text-text-primary placeholder-text-muted text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/30 transition-colors"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="podcast-cover-url" className="block text-sm font-medium text-text-secondary mb-2">
+            Artwork image URL <span className="text-text-muted">(optional)</span>
+          </label>
+          <input
+            id="podcast-cover-url"
+            type="url"
+            value={coverUrl}
+            onChange={(e) => setCoverUrl(e.target.value)}
+            placeholder="https://…"
+            className="w-full px-4 py-3 rounded-xl bg-bg-elevated border border-white/10 text-text-primary placeholder-text-muted text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/30 transition-colors"
           />
         </div>
 

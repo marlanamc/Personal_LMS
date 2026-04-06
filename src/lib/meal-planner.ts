@@ -1,6 +1,6 @@
 import { dateKeyToDate, toDateKey, type DateKey } from '@/lib/unified-scheduler';
 
-export type GroceryCategory = 'produce' | 'dairy' | 'meat' | 'pantry' | 'frozen' | 'other';
+export type GroceryCategory = 'produce' | 'dairy' | 'meat' | 'pantry' | 'frozen' | 'cleaning' | 'other';
 
 export type GroceryItem = {
   id: string;
@@ -54,6 +54,7 @@ export const GROCERY_CATEGORY_ORDER: GroceryCategory[] = [
   'meat',
   'pantry',
   'frozen',
+  'cleaning',
   'other',
 ];
 
