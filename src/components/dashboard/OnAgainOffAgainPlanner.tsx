@@ -905,6 +905,53 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
 
               {/* Timeline track with blocks */}
               <div className="flex-1 relative min-w-0" style={{ height: timelineHeight + timelinePadding * 2 }}>
+                {/* Rhythm pattern indicator - vertical bar on right showing alternating pattern */}
+                {blocks.length >= 2 && (() => {
+                  // Check if we have any alternating blocks
+                  const hasAlternatingPattern = blocks.some((block, idx) => {
+                    const nextBlock = blocks[idx + 1];
+                    return nextBlock && block.kind !== nextBlock.kind;
+                  });
+
+                  if (!hasAlternatingPattern) return null;
+
+                  return (
+                    <div
+                      className="absolute top-0 right-0 w-2 pointer-events-none z-[2]"
+                      style={{
+                        height: timelineHeight + timelinePadding * 2,
+                      }}
+                    >
+                      {/* Show a segment for each block in alternating colors */}
+                      {blocks.map((block, idx) => {
+                        const segmentTop = blockTop(block.startMinuteOfDay);
+                        const segmentHeight = blockHeightPx(block.durationMinutes);
+                        const isAlternating =
+                          (idx > 0 && blocks[idx - 1].kind !== block.kind) ||
+                          (idx < blocks.length - 1 && blocks[idx + 1].kind !== block.kind);
+
+                        if (!isAlternating) return null;
+
+                        return (
+                          <div
+                            key={`rhythm-bar-${block.id}`}
+                            className="absolute right-0 w-full rounded-l-sm"
+                            style={{
+                              top: segmentTop + 2,
+                              height: Math.max(segmentHeight - 4, 24),
+                              background:
+                                block.kind === 'want'
+                                  ? 'var(--color-accent-teal)'
+                                  : 'var(--color-accent-sakura)',
+                              opacity: 0.6,
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
                 {/* Hour grid lines */}
                 {timeLabels.map(({ minute }) => (
                   <div
@@ -914,6 +961,64 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
                   />
                 ))}
 
+                {/* Rhythm indicators - show alternating pattern between blocks */}
+                {blocks.length > 1 && blocks.map((block, idx) => {
+                  if (idx === blocks.length - 1) return null; // Skip last block (no next block to connect to)
+                  const nextBlock = blocks[idx + 1];
+                  const isAlternating = block.kind !== nextBlock.kind;
+                  if (!isAlternating) return null; // Only show rhythm indicators when alternating
+
+                  const gapStart = block.endMinuteOfDay;
+                  const gapEnd = nextBlock.startMinuteOfDay;
+                  const gapMinutes = gapEnd - gapStart;
+
+                  // Show rhythm indicator even for small gaps
+                  const rhythmTop = blockTop(gapStart);
+                  const rhythmHeight = Math.max(8, gapMinutes * pxPerMinute);
+
+                  return (
+                    <div
+                      key={`rhythm-${block.id}-${nextBlock.id}`}
+                      className="absolute left-1/2 -translate-x-1/2 z-[5] pointer-events-none"
+                      style={{
+                        top: rhythmTop - 4,
+                        height: rhythmHeight + 8,
+                        width: '20px',
+                      }}
+                    >
+                      {/* Visible connector showing transition */}
+                      <div className="w-full h-full relative flex items-center justify-center">
+                        {/* Vertical dashed line */}
+                        <div
+                          className="w-[3px] h-full rounded-full"
+                          style={{
+                            background: `repeating-linear-gradient(
+                              to bottom,
+                              ${block.kind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)'} 0px,
+                              ${block.kind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)'} 4px,
+                              transparent 4px,
+                              transparent 8px,
+                              ${nextBlock.kind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)'} 8px,
+                              ${nextBlock.kind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)'} 12px,
+                              transparent 12px,
+                              transparent 16px
+                            )`,
+                            opacity: 0.5,
+                          }}
+                        />
+                        {/* Center dot */}
+                        <div
+                          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full border-2 border-bg-elevated"
+                          style={{
+                            background: 'var(--color-text-muted)',
+                            boxShadow: '0 0 8px rgba(0,0,0,0.15)',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+
                 {/* Planned blocks and scheduled events */}
                 {[
                   ...timedEvents
@@ -922,7 +1027,7 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
                   ...blocks.map((b) => ({ ...b, isBlock: true })),
                 ]
                   .sort((a, b) => a.startMinuteOfDay - b.startMinuteOfDay)
-                  .map((item) => {
+                  .map((item, itemIndex, allItems) => {
                     const start = Math.max(item.startMinuteOfDay, formStartMinutes);
                     const end = Math.min(
                       item.isBlock
@@ -936,6 +1041,13 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
 
                     if (item.isBlock) {
                       const block = item as typeof blocks[number];
+                      const blockIdx = blocks.findIndex((b) => b.id === block.id);
+                      const prevBlock = blockIdx > 0 ? blocks[blockIdx - 1] : null;
+                      const nextBlock = blockIdx < blocks.length - 1 ? blocks[blockIdx + 1] : null;
+                      const isPartOfAlternatingSequence =
+                        (prevBlock && prevBlock.kind !== block.kind) ||
+                        (nextBlock && nextBlock.kind !== block.kind);
+
                       const status = getBlockStatus(block);
                       const style = timelineCardStyle(block.kind);
                       const hasOverlap = timedEvents.some(
@@ -973,9 +1085,44 @@ export function OnAgainOffAgainPlanner({ events, storageScope }: OnAgainOffAgain
                             } : {}),
                           }}
                         >
-                          <div
-                            className={`absolute left-0 top-0 bottom-0 w-1 sm:w-1 rounded-l-lg ${block.kind === 'want' ? 'bg-accent-teal/60' : 'bg-accent-sakura/60'}`}
-                          />
+                          {/* Left accent bar with rhythm indicator */}
+                          <div className="absolute left-0 top-0 bottom-0 w-1 sm:w-1 rounded-l-lg overflow-hidden">
+                            <div
+                              className={`absolute inset-0 ${block.kind === 'want' ? 'bg-accent-teal/60' : 'bg-accent-sakura/60'}`}
+                            />
+                            {isPartOfAlternatingSequence && (
+                              <>
+                                {/* Top gradient fade showing connection to previous block */}
+                                {prevBlock && prevBlock.kind !== block.kind && (
+                                  <div
+                                    className="absolute top-0 left-0 right-0 h-2"
+                                    style={{
+                                      background: `linear-gradient(to bottom, ${
+                                        prevBlock.kind === 'want'
+                                          ? 'var(--color-accent-teal)'
+                                          : 'var(--color-accent-sakura)'
+                                      }, transparent)`,
+                                      opacity: 0.4,
+                                    }}
+                                  />
+                                )}
+                                {/* Bottom gradient fade showing connection to next block */}
+                                {nextBlock && nextBlock.kind !== block.kind && (
+                                  <div
+                                    className="absolute bottom-0 left-0 right-0 h-2"
+                                    style={{
+                                      background: `linear-gradient(to top, ${
+                                        nextBlock.kind === 'want'
+                                          ? 'var(--color-accent-teal)'
+                                          : 'var(--color-accent-sakura)'
+                                      }, transparent)`,
+                                      opacity: 0.4,
+                                    }}
+                                  />
+                                )}
+                              </>
+                            )}
+                          </div>
                           <div className="pl-1 sm:pl-2.5 flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 overflow-hidden">
                             {/* Top row: status icon, kind icon, title, actions */}
                             <div className="flex items-center gap-2 min-w-0">
