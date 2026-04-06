@@ -8,6 +8,9 @@ export type OverviewScheduleStatus = 'current' | 'up-next';
 const UP_NEXT_WINDOW_MINUTES = 30;
 
 function isComplete(item: DailyOverviewItem): boolean {
+  if (item.type === 'oaoa-plan') {
+    return false;
+  }
   if (item.type === 'anchor') {
     const a = item.sourceData as DailyAnchor;
     return item.isDone || a.status === 'skipped' || a.status === 'done';
@@ -36,6 +39,10 @@ function getRangeWindow(item: DailyOverviewItem): { start: number; end: number }
 
 function nowInsideActiveRange(now: number, item: DailyOverviewItem): boolean {
   if (isComplete(item)) return false;
+  const ranges = item.activeMinuteRanges;
+  if (ranges?.length) {
+    return ranges.some((r) => now >= r.start && now < r.end);
+  }
   const w = getRangeWindow(item);
   if (!w) return false;
   return now >= w.start && now < w.end;

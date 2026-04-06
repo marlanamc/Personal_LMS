@@ -6,7 +6,7 @@ import type {
   TimeBlockEntry,
 } from '@/lib/time-block-planner';
 
-export type DailyOverviewItemType = 'anchor' | 'event' | 'boundary' | 'session';
+export type DailyOverviewItemType = 'anchor' | 'event' | 'boundary' | 'session' | 'oaoa-plan';
 
 export interface DailyOverviewItem {
   id: string;
@@ -19,6 +19,10 @@ export interface DailyOverviewItem {
   icon: string; // Icon identifier for rendering
   color?: string;
   description?: string; // Optional secondary text
+  /** When set, `current` if `now` falls in any range (e.g. On Again / Off Again blocks). */
+  activeMinuteRanges?: { start: number; end: number }[];
+  /** When `type === 'oaoa-plan'`, shown as a compact chip. */
+  oaoaBlockCount?: number;
   /** Set when type is `event` — for calendar marker styling */
   eventType?: CalendarEvent['type'];
   /** Set when type is `boundary` — for rail accent */

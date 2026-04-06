@@ -375,6 +375,18 @@ interface MobileAnchorsTimelineStripProps {
   activeAnchor: DailyAnchor;
   toggleAnchor: (id: AnchorId) => void;
   onToggleSkip: (id: AnchorId, isSkipped: boolean) => void;
+  isPlannerLoaded: boolean;
+  onAgainRhythm: {
+    segments: Array<{
+      id: string;
+      kind: TimeBlockKind;
+      label: string;
+      left: number;
+      width: number;
+      isActive: boolean;
+    }>;
+    gapMarkers: Array<{ id: string; left: number; prevKind: TimeBlockKind }>;
+  };
 }
 
 /** Compact timeline for viewports below lg: hour axis + track + anchor markers above the daily list. */
@@ -387,8 +399,10 @@ function MobileAnchorsTimelineStrip({
   activeAnchor,
   toggleAnchor,
   onToggleSkip,
+  isPlannerLoaded,
+  onAgainRhythm,
 }: MobileAnchorsTimelineStripProps) {
-  if (sortedAnchors.length === 0) {
+  if (sortedAnchors.length === 0 && onAgainRhythm.segments.length === 0) {
     return null;
   }
 
@@ -414,6 +428,44 @@ function MobileAnchorsTimelineStrip({
           animate={{ width: `${timeFillPercent}%` }}
           transition={{ duration: 0.45, ease: 'easeOut' }}
         />
+
+        {isPlannerLoaded && onAgainRhythm.segments.length > 0 && (
+          <div className="pointer-events-none absolute inset-0 z-[10] overflow-visible" aria-hidden>
+            {onAgainRhythm.segments.map((seg) => (
+              <div
+                key={`oaoa-seg-mobile-${seg.id}`}
+                title={seg.label}
+                className={`absolute top-1/2 h-2.5 -translate-y-1/2 rounded-full border-2 ${
+                  seg.isActive ? 'z-[1] scale-[1.03]' : 'z-0'
+                }`}
+                style={{
+                  ...oaoaRhythmSegmentStyle(seg.kind, seg.isActive),
+                  left: `${seg.left}%`,
+                  width: `${Math.max(seg.width, 0.35)}%`,
+                  minWidth: seg.isActive ? 10 : 7,
+                }}
+              />
+            ))}
+            {onAgainRhythm.gapMarkers.map((gap) => {
+              const c = gap.prevKind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)';
+              return (
+                <div
+                  key={`${gap.id}-mobile`}
+                  className="absolute top-1/2 z-[2] flex h-10 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+                  style={{ left: `${gap.left}%` }}
+                >
+                  <div
+                    className="h-full w-[4px] rounded-full border-2 border-bg-elevated/90"
+                    style={{
+                      background: `linear-gradient(180deg, transparent 0%, ${c} 22%, ${c} 78%, transparent 100%)`,
+                      boxShadow: `0 0 12px color-mix(in srgb, ${c} 55%, transparent), inset 0 0 0 1px color-mix(in srgb, ${c} 40%, transparent)`,
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {sortedAnchors.map((anchor) => {
           const Icon = iconByName[anchor.icon] || Moon;
@@ -674,8 +726,8 @@ export function DailyAnchorsTimeline({
     [sortedAnchors, nowMinutes],
   );
 
-  /** On Again / Off Again: horizontal bands + alternating gap ticks (desktop river). */
-  const desktopOnAgainRhythm = useMemo(() => {
+  /** On Again / Off Again: horizontal bands + alternating gap ticks (desktop + mobile river). */
+  const onAgainRhythm = useMemo(() => {
     if (!isPlannerLoaded) {
       return {
         segments: [] as Array<{
@@ -1026,12 +1078,12 @@ export function DailyAnchorsTimeline({
                 transition={{ duration: 0.45, ease: 'easeOut' }}
               />
 
-              {isPlannerLoaded && desktopOnAgainRhythm.segments.length > 0 && (
+              {isPlannerLoaded && onAgainRhythm.segments.length > 0 && (
                 <div
                   className="pointer-events-none absolute inset-0 z-[10] overflow-visible"
                   aria-hidden
                 >
-                  {desktopOnAgainRhythm.segments.map((seg) => (
+                  {onAgainRhythm.segments.map((seg) => (
                     <div
                       key={`oaoa-seg-${seg.id}`}
                       title={seg.label}
@@ -1046,7 +1098,7 @@ export function DailyAnchorsTimeline({
                       }}
                     />
                   ))}
-                  {desktopOnAgainRhythm.gapMarkers.map((gap) => {
+                  {onAgainRhythm.gapMarkers.map((gap) => {
                     const c = gap.prevKind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)';
                     return (
                       <div
@@ -1410,6 +1462,8 @@ export function DailyAnchorsTimeline({
               activeAnchor={activeAnchor}
               toggleAnchor={toggleAnchor}
               onToggleSkip={handleToggleSkipToday}
+              isPlannerLoaded={isPlannerLoaded}
+              onAgainRhythm={onAgainRhythm}
             />
             <DailyOverviewList
               storageScope={storageScope}

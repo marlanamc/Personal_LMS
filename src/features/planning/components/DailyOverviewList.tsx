@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState, useEffect, useCallback, type Dispatch, type SetStateAction } from 'react';
 import {
   Anchor as AnchorTypeIcon,
@@ -622,6 +623,82 @@ function SessionPlaceholderRow({
   );
 }
 
+function minutesFromMidnightToHHMM(m: number): string {
+  const clamped = Math.max(0, Math.min(24 * 60 - 1, Math.round(m)));
+  const h = Math.floor(clamped / 60);
+  const min = clamped % 60;
+  return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+}
+
+function OnAgainPlanOverviewRow({
+  item,
+  scheduleStatus,
+}: {
+  item: DailyOverviewItem;
+  scheduleStatus: OverviewScheduleStatus | null | undefined;
+}) {
+  const boundaryAccent = getBoundaryKindAccent('cutoff');
+
+  return (
+    <Link
+      href="/dashboard/day-planner"
+      className={cn(
+        'group flex w-full items-start px-5 pl-4 text-left transition-colors',
+        'gap-2 bg-bg-base/25 py-2.5 max-lg:py-2 lg:gap-2.5 lg:py-3 hover:bg-bg-elevated/40',
+        boundaryKindRailClass('cutoff'),
+      )}
+      style={
+        scheduleStatus === 'current'
+          ? getOverviewCurrentRowHighlightStyle(boundaryAccent)
+          : undefined
+      }
+      aria-label={`${item.label}, ${item.time}`}
+    >
+      <div
+        className={cn(
+          'flex shrink-0 items-center justify-center rounded-2xl border-2 border-dashed border-border-subtle/90 bg-bg-surface/40 text-text-muted',
+          'h-10 w-10 lg:h-12 lg:w-12',
+          overviewOrbDepthDashedClass,
+        )}
+      >
+        <Timer className="h-4 w-4 lg:h-[18px] lg:w-[18px]" strokeWidth={1.5} aria-hidden />
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <p className="min-w-0 flex-1 leading-snug text-[0.9375rem] font-medium text-text">{item.label}</p>
+          <OverviewRowStatusBadge
+            status={scheduleStatus}
+            currentAccent={scheduleStatus === 'current' ? boundaryAccent : undefined}
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span
+            style={getBoundaryOverviewTimeChipStyles('cutoff', false)}
+            className={overviewTimeChipStaticClass}
+          >
+            {item.time}
+          </span>
+          <OverviewMetaSeparator />
+          <OverviewKindMeta
+            label="Plan"
+            icon={Clock}
+            title="On Again / Off Again — open day planner to edit"
+          />
+          {item.oaoaBlockCount != null && item.oaoaBlockCount > 0 ? (
+            <>
+              <OverviewMetaSeparator />
+              <span className="rounded-full border border-border-subtle/55 bg-bg-elevated/70 px-2 py-px text-[9px] font-semibold uppercase tracking-[0.08em] text-text-muted tabular-nums">
+                {item.oaoaBlockCount} {item.oaoaBlockCount === 1 ? 'block' : 'blocks'}
+              </span>
+            </>
+          ) : null}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 export function DailyOverviewList({
   storageScope,
   calendarEvents,
@@ -800,8 +877,32 @@ export function DailyOverviewList({
       });
     }
 
+    if (isPlannerLoaded && currentPlan?.blocks?.length) {
+      const blocks = currentPlan.blocks;
+      const first = blocks[0];
+      const last = blocks[blocks.length - 1];
+      const time = formatTimeRange(
+        minutesFromMidnightToHHMM(first.startMinuteOfDay),
+        minutesFromMidnightToHHMM(last.endMinuteOfDay),
+        true,
+      );
+      items.push({
+        id: 'overview-oaoa-plan',
+        type: 'oaoa-plan',
+        label: 'On Again / Off Again',
+        time,
+        scheduledMinutes: first.startMinuteOfDay,
+        isDone: false,
+        isAcknowledged: false,
+        icon: 'layers',
+        activeMinuteRanges: blocks.map((b) => ({ start: b.startMinuteOfDay, end: b.endMinuteOfDay })),
+        oaoaBlockCount: blocks.length,
+        sourceData: first,
+      });
+    }
+
     return items.sort((a, b) => a.scheduledMinutes - b.scheduledMinutes);
-  }, [todayAnchors, calendarEvents, activeConstraints, todayKey, todayPlan.acknowledgements]);
+  }, [todayAnchors, calendarEvents, activeConstraints, todayKey, todayPlan.acknowledgements, currentPlan, isPlannerLoaded]);
 
   const scheduleStatusById = useMemo(
     () =>
@@ -883,6 +984,11 @@ export function DailyOverviewList({
                 <EventOverviewRow
                   item={item}
                   onAcknowledge={() => handleAcknowledge(item.id, item.type)}
+                  scheduleStatus={scheduleStatusById.get(item.id)}
+                />
+              ) : item.type === 'oaoa-plan' ? (
+                <OnAgainPlanOverviewRow
+                  item={item}
                   scheduleStatus={scheduleStatusById.get(item.id)}
                 />
               ) : item.type === 'boundary' ? (

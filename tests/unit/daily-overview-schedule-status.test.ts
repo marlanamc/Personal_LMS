@@ -60,4 +60,25 @@ describe('computeOverviewScheduleStatus', () => {
     const map = computeOverviewScheduleStatus(parseHHMMToMinutes('18:00'), items);
     expect(map.size).toBe(0);
   });
+
+  it('marks Current when now is inside any activeMinuteRanges (OAOA multi-block)', () => {
+    const oaoaItem = {
+      id: 'overview-oaoa-plan',
+      type: 'oaoa-plan' as const,
+      label: 'On Again / Off Again',
+      time: '9:00 AM – 5:00 PM',
+      scheduledMinutes: 9 * 60,
+      isDone: false,
+      isAcknowledged: false,
+      icon: 'layers',
+      activeMinuteRanges: [
+        { start: 9 * 60, end: 10 * 60 },
+        { start: 13 * 60, end: 14 * 60 },
+      ],
+      sourceData: anchorItem('x', '09:00', undefined).sourceData,
+    } satisfies DailyOverviewItem;
+
+    const map = computeOverviewScheduleStatus(13 * 60 + 20, [oaoaItem]);
+    expect(map.get('overview-oaoa-plan')).toBe('current');
+  });
 });
