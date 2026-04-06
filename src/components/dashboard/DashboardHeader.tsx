@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BookOpenIcon } from "@/components/icons/Icons";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
 import { useFocusTimer } from "@/context/FocusTimerContext";
+import { useSound } from "@/context/SoundContext";
 import { getActiveTimeBlockStatus, toDateKey } from "@/lib/time-block-planner";
 import {
     useDashboardHeaderCenterContent,
@@ -21,7 +22,10 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) {
     const [isNavOpen, setIsNavOpen] = useState(false);
     const { isActive, formattedTime, activeSessionLabel } = useFocusTimer();
-    const { plannerStore } = useTimeBlockPlanner();
+    const { playSound } = useSound();
+    const { plannerStore, isLoaded: isTimeBlockPlannerLoaded } = useTimeBlockPlanner();
+    const plannerSyncedForBlockSoundRef = useRef(false);
+    const prevOnAgainBlockIdRef = useRef<string | null>(null);
     const displayTitle = title;
     const headerCenter = useDashboardHeaderCenterContent();
     const headerEndAccessory = useDashboardHeaderEndAccessoryContent();
@@ -34,8 +38,18 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
 
         const update = () => setNowMs(Date.now());
         update();
-        const intervalId = window.setInterval(update, 30000);
-        return () => window.clearInterval(intervalId);
+        const msUntilNextMinute = 60_000 - (Date.now() % 60_000);
+        let intervalId: number | undefined;
+        const timeoutId = window.setTimeout(() => {
+            update();
+            intervalId = window.setInterval(update, 60_000);
+        }, msUntilNextMinute);
+        return () => {
+            window.clearTimeout(timeoutId);
+            if (intervalId !== undefined) {
+                window.clearInterval(intervalId);
+            }
+        };
     }, []);
 
     const today = useMemo(() => new Date(nowMs), [nowMs]);
@@ -46,6 +60,22 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
         () => getActiveTimeBlockStatus(todayDateKey, todayBlocks, nowMinuteOfDay),
         [todayBlocks, todayDateKey, nowMinuteOfDay],
     );
+
+    useEffect(() => {
+        const id = activeTimeBlockStatus?.block.id ?? null;
+        if (!plannerSyncedForBlockSoundRef.current) {
+            if (!isTimeBlockPlannerLoaded) {
+                return;
+            }
+            plannerSyncedForBlockSoundRef.current = true;
+            prevOnAgainBlockIdRef.current = id;
+            return;
+        }
+        if (id !== null && id !== prevOnAgainBlockIdRef.current) {
+            playSound("timeBlock", 0.38);
+        }
+        prevOnAgainBlockIdRef.current = id;
+    }, [activeTimeBlockStatus?.block.id, isTimeBlockPlannerLoaded, playSound]);
 
     const brandBlock = (
         <>

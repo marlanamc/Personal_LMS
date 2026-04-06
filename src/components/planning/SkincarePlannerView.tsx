@@ -1,22 +1,26 @@
 'use client';
 
 import { useState } from 'react';
-import { Settings } from 'lucide-react';
+import { LayoutGrid, Settings, ShoppingBag } from 'lucide-react';
 import { useSkincarePlanner } from '@/components/dashboard/useSkincarePlanner';
 import SaveStatus from '@/components/ui/SaveStatus';
 import { WeekViewTable } from './WeekViewTable';
 import { WeekViewCards } from './WeekViewCards';
 import { ItemEditSheet } from './ItemEditSheet';
 import { ItemManagementSheet } from './ItemManagementSheet';
+import { SkincareShopPanel } from './SkincareShopPanel';
 import type { DayOfWeek, SkincareSlotKey } from '@/lib/skincare-planner';
 
 export interface SkincarePlannerViewProps {
   storageScope: string;
 }
 
+type PlannerTab = 'routine' | 'shop';
+
 export function SkincarePlannerView({ storageScope }: SkincarePlannerViewProps) {
   const { plannerStore, setPlannerStore, isLoaded, isSaving, saveError, lastSyncedAt } = useSkincarePlanner(storageScope);
 
+  const [tab, setTab] = useState<PlannerTab>('routine');
   const [editingCell, setEditingCell] = useState<{ day: DayOfWeek; slot: SkincareSlotKey } | null>(null);
   const [isManagementOpen, setIsManagementOpen] = useState(false);
 
@@ -52,13 +56,10 @@ export function SkincarePlannerView({ storageScope }: SkincarePlannerViewProps) 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Skincare Planner</h2>
-          <p className="text-sm text-gray-500 mt-1">Plan your skincare routine for the week</p>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-2xl font-bold text-gray-900">Skincare Planner</h2>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <SaveStatus isSaving={isSaving} error={saveError} lastSaved={lastSyncedAt} />
 
           <button
@@ -71,38 +72,67 @@ export function SkincarePlannerView({ storageScope }: SkincarePlannerViewProps) 
         </div>
       </div>
 
-      {/* Empty state */}
-      {!hasItems && (
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-8 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-white rounded-full flex items-center justify-center shadow-sm">
-            <span className="text-3xl">🧴</span>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No skincare items yet</h3>
-          <p className="text-gray-600 mb-4 max-w-md mx-auto">
-            Get started by adding your skincare products and setting up your weekly routine.
-          </p>
-          <button
-            onClick={handleOpenManagement}
-            className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
-          >
-            Add Your First Item
-          </button>
-        </div>
+      <div className="flex rounded-xl border border-border-subtle/50 bg-bg-elevated/35 p-1 backdrop-blur-sm">
+        <button
+          type="button"
+          onClick={() => setTab('routine')}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition ${
+            tab === 'routine' ? 'bg-bg-surface/90 text-primary shadow-sm' : 'text-text-muted hover:text-text-secondary'
+          }`}
+        >
+          <LayoutGrid className="h-4 w-4" />
+          Weekly routine
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('shop')}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition ${
+            tab === 'shop' ? 'bg-bg-surface/90 text-primary shadow-sm' : 'text-text-muted hover:text-text-secondary'
+          }`}
+        >
+          <ShoppingBag className="h-4 w-4" />
+          Shop list
+        </button>
+      </div>
+
+      {tab === 'routine' && (
+        <>
+          {/* Empty state */}
+          {!hasItems && (
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-8 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-white rounded-full flex items-center justify-center shadow-sm">
+                <span className="text-3xl">🧴</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No skincare items yet</h3>
+              <p className="text-gray-600 mb-4 max-w-md mx-auto">
+                Get started by adding your skincare products and setting up your weekly routine.
+              </p>
+              <button
+                onClick={handleOpenManagement}
+                className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+              >
+                Add Your First Item
+              </button>
+            </div>
+          )}
+
+          {/* Week view - Desktop */}
+          {hasItems && (
+            <div className="hidden md:block">
+              <WeekViewTable items={plannerStore.items} onCellClick={handleCellClick} />
+            </div>
+          )}
+
+          {/* Week view - Mobile */}
+          {hasItems && (
+            <div className="block md:hidden">
+              <WeekViewCards items={plannerStore.items} onCellClick={handleCellClick} />
+            </div>
+          )}
+        </>
       )}
 
-      {/* Week view - Desktop */}
-      {hasItems && (
-        <div className="hidden md:block">
-          <WeekViewTable items={plannerStore.items} onCellClick={handleCellClick} />
-        </div>
-      )}
-
-      {/* Week view - Mobile */}
-      {hasItems && (
-        <div className="block md:hidden">
-          <WeekViewCards items={plannerStore.items} onCellClick={handleCellClick} />
-        </div>
-      )}
+      {tab === 'shop' && <SkincareShopPanel store={plannerStore} onUpdate={setPlannerStore} />}
 
       {/* Quick edit sheet */}
       {editingCell && (

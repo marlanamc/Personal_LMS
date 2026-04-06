@@ -1390,7 +1390,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
         ) : null}
       </AnimatePresence>
 
-      <div className="organize-board flex-1 overflow-auto px-4 py-4 sm:px-6 sm:py-5">
+      <div className="organize-board flex-1 overflow-auto px-0 sm:px-4 py-2 sm:py-4 md:px-6 md:py-5">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

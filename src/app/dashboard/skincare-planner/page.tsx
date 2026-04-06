@@ -5,7 +5,7 @@ import { SkincarePlannerView } from '@/components/planning/SkincarePlannerView';
 
 export const metadata = {
   title: 'Skincare Planner | Personal LMS',
-  description: 'Plan morning and night skincare routines across the week.',
+  description: 'Weekly AM/PM skincare grid, plus a to-buy list and wishlist.',
 };
 
 export default async function SkincarePlannerPage() {

@@ -38,11 +38,11 @@ export function ColoredDots({ items, maxVisible = 8, size = 'md', className = ''
         return (
           <div
             key={`${item.id}-${idx}`}
-            className="flex w-full items-start gap-1.5 text-left"
+            className="flex w-full items-center gap-1.5 text-left"
             title={`${item.name} (${item.category})`}
           >
-            <div className={`${sizes.dot} rounded-full ${colors.dot} flex-shrink-0`} />
-            <span className={`${sizes.text} ${colors.text} block text-left leading-tight`}>
+            <span className={`${sizes.dot} inline-block shrink-0 rounded-full ${colors.dot}`} aria-hidden />
+            <span className={`${sizes.text} ${colors.text} min-w-0 flex-1 text-left leading-snug`}>
               {item.name}
             </span>
           </div>

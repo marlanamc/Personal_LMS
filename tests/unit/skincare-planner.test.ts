@@ -223,6 +223,7 @@ describe('skincare planner v2 (item-centric)', () => {
         moisturizer: [],
         sunscreen: [],
       },
+      shopList: [],
     };
 
     const normalized = normalizeSkincarePlannerStore(store);
@@ -241,6 +242,7 @@ describe('skincare planner v2 (item-centric)', () => {
         createNewItem('Retinol', 'actives', createUniformSchedule(false, true)),
       ],
       itemCatalog: EMPTY_SKINCARE_PLANNER_STORE.itemCatalog,
+      shopList: [],
     };
 
     const today = getTodayItems(store);

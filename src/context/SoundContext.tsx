@@ -18,7 +18,8 @@ export type SoundType =
   | "challenge"
   | "correct"
   | "wrong"
-  | "levelUp";
+  | "levelUp"
+  | "timeBlock";
 
 const SOUND_FILES: Record<SoundType, string> = {
   points: "/sounds/points-earn.mp3",
@@ -28,6 +29,7 @@ const SOUND_FILES: Record<SoundType, string> = {
   correct: "/sounds/correct-answer.mp3",
   wrong: "/sounds/wrong-answer.mp3",
   levelUp: "/sounds/level-up.mp3",
+  timeBlock: "/sounds/time-block-start.mp3",
 };
 
 const STORAGE_KEY = "lms-sound-enabled";

@@ -74,7 +74,10 @@ export function useSkincarePlanner(storageScope: string) {
         const serverStore = normalizeSkincarePlannerStore(payload.store);
 
         // Check if server has data (V2 format)
-        const hasData = serverStore.items.length > 0 || Object.values(serverStore.itemCatalog).some((items) => items.length > 0);
+        const hasData =
+          serverStore.items.length > 0 ||
+          serverStore.shopList.length > 0 ||
+          Object.values(serverStore.itemCatalog).some((items) => items.length > 0);
 
         if (hasData) {
           setStore(serverStore);
@@ -82,7 +85,10 @@ export function useSkincarePlanner(storageScope: string) {
           // Try loading from localStorage (may have V1 or V2 data)
           const legacyRaw = window.localStorage.getItem(storageKey);
           const legacyStore = normalizeSkincarePlannerStore(legacyRaw ? JSON.parse(legacyRaw) : null);
-          const legacyHas = legacyStore.items.length > 0 || Object.values(legacyStore.itemCatalog).some((items) => items.length > 0);
+          const legacyHas =
+            legacyStore.items.length > 0 ||
+            legacyStore.shopList.length > 0 ||
+            Object.values(legacyStore.itemCatalog).some((items) => items.length > 0);
 
           if (legacyHas) {
             setStore(legacyStore);
@@ -98,7 +104,10 @@ export function useSkincarePlanner(storageScope: string) {
         if (isInitial && typeof window !== 'undefined') {
           const legacyRaw = window.localStorage.getItem(storageKey);
           const legacyStore = normalizeSkincarePlannerStore(legacyRaw ? JSON.parse(legacyRaw) : null);
-          const legacyHas = legacyStore.items.length > 0 || Object.values(legacyStore.itemCatalog).some((items) => items.length > 0);
+          const legacyHas =
+            legacyStore.items.length > 0 ||
+            legacyStore.shopList.length > 0 ||
+            Object.values(legacyStore.itemCatalog).some((items) => items.length > 0);
           setStore(legacyStore);
           hasPendingChangesRef.current = legacyHas;
           setSaveError('Sync is temporarily unavailable. Local changes will retry.');

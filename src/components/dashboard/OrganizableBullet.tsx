@@ -160,19 +160,22 @@ export function OrganizableBullet({
             </button>
           ) : null}
 
-          {/* Drag Handle - Hidden until hover on desktop */}
-          <div className={`organize-card-grip absolute ${laneConfig ? 'left-3.5' : 'left-2.5'} top-3.5 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity`}>
+          {/* Drag Handle - Hidden until hover on desktop; compact circle so it doesn’t overlap title text */}
+          <div
+            className={`organize-card-grip absolute ${laneConfig ? 'left-3' : 'left-2'} top-[0.9rem] opacity-70 sm:top-3 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity`}
+          >
             <button
               {...listeners}
-              className="mt-0.5 cursor-grab touch-none text-text-muted/70 transition-colors hover:text-text active:cursor-grabbing p-2 sm:p-1.5 -ml-2 sm:-ml-1.5"
+              type="button"
+              className="inline-flex h-7 w-7 cursor-grab touch-none items-center justify-center rounded-full text-text-muted/70 transition-colors hover:text-text active:cursor-grabbing sm:h-6 sm:w-6"
               aria-label="Drag to reorder"
             >
-              <GripVertical className="h-5 w-5 sm:h-4 sm:w-4" />
+              <GripVertical className="h-3.5 w-3.5 shrink-0 sm:h-3 sm:w-3" aria-hidden />
             </button>
           </div>
 
-          {/* Content */}
-          <div className={`flex-1 ${selectable && onToggleSelect ? '' : 'pl-6 sm:pl-5'}`}>
+          {/* Content — reserve space for absolutely positioned grip + gap */}
+          <div className={`flex-1 min-w-0 ${selectable && onToggleSelect ? '' : 'pl-12 sm:pl-11'}`}>
             <div
               className={`w-full text-left ${isEditable ? 'group/button transition-colors hover:opacity-80' : ''}`}
               onClick={isEditable ? () => setIsEditing(!isEditing) : undefined}

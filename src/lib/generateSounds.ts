@@ -65,6 +65,12 @@ export const SOUND_CONFIGS: Record<string, SoundConfig[]> = {
     { frequency: 784, duration: 0.15, type: "sine", volume: 0.35, ramp: "none" },
     { frequency: 988, duration: 0.25, type: "sine", volume: 0.4, ramp: "down" },
   ],
+
+  /** On Again / Off Again: new scheduled block started */
+  timeBlock: [
+    { frequency: 523, duration: 0.09, type: "sine", volume: 0.22, ramp: "down" },
+    { frequency: 698, duration: 0.12, type: "sine", volume: 0.28, ramp: "down" },
+  ],
 };
 
 let audioContext: AudioContext | null = null;

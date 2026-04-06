@@ -63,7 +63,7 @@ export function OrganizeView() {
   return (
     <div className="mx-auto max-w-7xl flex flex-col min-h-screen">
       {/* Header */}
-      <div className="organize-page-header flex items-center justify-between px-6 pt-4 pb-0">
+      <div className="organize-page-header flex items-center justify-between px-3 sm:px-6 pt-3 sm:pt-4 pb-0">
         <h1 className="text-xl font-display font-semibold text-text tracking-tight">Organize</h1>
 
         <div className="organize-toolbar flex items-center gap-1 sm:gap-3">
@@ -73,7 +73,7 @@ export function OrganizeView() {
             className="organize-toolbar-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:text-text"
           >
             <Plus className="h-4 w-4" />
-            <span>New project</span>
+            <span className="hidden sm:inline">New project</span>
           </button>
 
           <button
@@ -82,7 +82,7 @@ export function OrganizeView() {
             className="organize-toolbar-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:text-text"
           >
             {showDone ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            <span>{showDone ? 'Hide done' : 'Show done'}</span>
+            <span className="hidden sm:inline">{showDone ? 'Hide done' : 'Show done'}</span>
           </button>
 
           <button
@@ -91,13 +91,13 @@ export function OrganizeView() {
             className="organize-toolbar-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:text-text"
           >
             <Download className="h-4 w-4" />
-            <span>Import</span>
+            <span className="hidden sm:inline">Import</span>
           </button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 px-6 pb-6 overflow-hidden">
+      <div className="flex-1 px-0 sm:px-6 pb-0 sm:pb-6 overflow-hidden">
         <ThoughtOrganizeMode
           ref={organizerRef}
           organization={organization}
