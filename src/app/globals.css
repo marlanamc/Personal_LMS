@@ -125,6 +125,28 @@
   --blur-glass-md: 12px;
   --blur-glass-lg: 16px;
 
+  /* Project Color Washes (for color-tinted backgrounds) */
+  --project-lavender-wash: hsla(270, 25%, 68%, 0.06);
+  --project-lavender-border: hsla(270, 25%, 68%, 0.25);
+  --project-mint-wash: hsla(162, 38%, 60%, 0.06);
+  --project-mint-border: hsla(162, 38%, 60%, 0.25);
+  --project-sky-wash: hsla(205, 60%, 75%, 0.06);
+  --project-sky-border: hsla(205, 60%, 75%, 0.25);
+  --project-peach-wash: hsla(24, 45%, 73%, 0.06);
+  --project-peach-border: hsla(24, 45%, 73%, 0.25);
+  --project-rose-wash: hsla(343, 32%, 67%, 0.06);
+  --project-rose-border: hsla(343, 32%, 67%, 0.25);
+  --project-sage-wash: hsla(167, 35%, 66%, 0.06);
+  --project-sage-border: hsla(167, 35%, 66%, 0.25);
+  --project-periwinkle-wash: hsla(235, 38%, 72%, 0.06);
+  --project-periwinkle-border: hsla(235, 38%, 72%, 0.25);
+  --project-coral-wash: hsla(12, 48%, 74%, 0.06);
+  --project-coral-border: hsla(12, 48%, 74%, 0.25);
+  --project-blush-wash: hsla(330, 28%, 74%, 0.06);
+  --project-blush-border: hsla(330, 28%, 74%, 0.25);
+  --project-slate-wash: hsla(220, 18%, 70%, 0.06);
+  --project-slate-border: hsla(220, 18%, 70%, 0.25);
+
   /* Z-Index Layers */
   --z-fixed: 100;
 
@@ -6633,6 +6655,18 @@ kbd {
   }
 }
 
+@keyframes organize-gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 @keyframes organize-scale-in {
   from {
     opacity: 0;
@@ -6659,6 +6693,28 @@ kbd {
 
 /* ========== Organize Board Redesign - AuDHD Friendly ========== */
 
+.organize-page-header {
+  position: relative;
+  z-index: 1;
+}
+
+.organize-toolbar {
+  gap: 0.5rem;
+}
+
+.organize-toolbar-button {
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-bg-surface) 36%, transparent);
+}
+
+.organize-toolbar-button:hover,
+.organize-toolbar-button:focus-visible {
+  background: color-mix(in srgb, var(--color-bg-surface) 76%, transparent);
+  border-color: color-mix(in srgb, var(--color-border-subtle) 82%, transparent);
+  outline: none;
+}
+
 /* Reduced motion support - critical for AuDHD users */
 @media (prefers-reduced-motion: reduce) {
   .organize-board *,
@@ -6668,109 +6724,507 @@ kbd {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
+  /* Disable gradient flow and shimmer animations */
+  .now-spotlight::before,
+  .now-spotlight::after,
+  .organize-project-column::after {
+    animation: none !important;
+  }
 }
 
-/* NOW Spotlight Zone - warm, inviting, clear priority */
+.organize-board {
+  position: relative;
+}
+
+.organize-workspace {
+  position: relative;
+  min-height: 100%;
+  border-radius: 2rem;
+  padding: 1.5rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 75%, rgba(255, 255, 255, 0.03));
+  /* Softer, more integrated background */
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-bg-elevated) 12%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-bg-base) 6%) 50%,
+      color-mix(in srgb, var(--color-bg-base) 96%, transparent) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.015),
+    0 20px 48px rgba(15, 20, 35, 0.18);
+}
+
+.organize-workspace::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top center, color-mix(in srgb, var(--color-accent-sakura) 6%, transparent) 0%, transparent 40%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.02) 100%);
+  z-index: 0;
+}
+
+.organize-columns {
+  position: relative;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+/* NOW Spotlight Zone - DRAMATIC & BOLD liquid glass effect */
 .now-spotlight {
   position: relative;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--color-accent-sakura) 6%, var(--color-bg-surface)) 0%,
-    var(--color-bg-surface) 100%
-  );
-  border: 1px solid color-mix(in srgb, var(--color-accent-sakura) 15%, transparent);
-  border-radius: 1.25rem;
+  isolation: isolate;
+  overflow: hidden;
+  max-width: 62rem;
+  margin: 0 auto;
+  /* Liquid glass background with enhanced sakura tint */
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-accent-sakura) 14%, var(--color-bg-elevated)) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 92%, rgba(212, 138, 166, 0.06)) 30%,
+      color-mix(in srgb, var(--color-bg-surface) 97%, transparent) 100%
+    );
+  /* Dramatic glass effect */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  /* Enhanced border with softer integration */
+  border: 1px solid color-mix(in srgb, var(--color-accent-sakura) 28%, rgba(255, 255, 255, 0.15));
+  border-radius: 1.75rem;
+  /* Multi-layer shadows for dramatic elevation but softer */
   box-shadow:
-    0 0 40px color-mix(in srgb, var(--color-accent-sakura) 8%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  padding: 1.25rem;
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 -24px 40px rgba(0, 0, 0, 0.06),
+    0 16px 48px rgba(0, 0, 0, 0.20),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 8px 28px rgba(212, 138, 166, 0.12);
+  padding: 1.5rem 1.65rem;
+}
+
+/* Animated gradient border - sakura to warm yellow flow */
+.now-spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    hsl(343, 48%, 64%) 0%,
+    hsl(343, 52%, 68%) 25%,
+    hsl(25, 68%, 66%) 50%,
+    hsl(42, 78%, 70%) 75%,
+    hsl(343, 48%, 64%) 100%
+  );
+  background-size: 200% 100%;
+  animation: organize-gradient-flow 5s ease-in-out infinite;
+  opacity: 0.85;
+  border-radius: 1.75rem 1.75rem 0 0;
+}
+
+/* Shimmer overlay effect */
+.now-spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      110deg,
+      transparent 0%,
+      transparent 40%,
+      rgba(255, 255, 255, 0.06) 50%,
+      transparent 60%,
+      transparent 100%
+    ),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--color-accent-sakura) 14%, transparent) 0%, transparent 28%);
+  background-size: 200% 100%, 100% 100%;
+  animation: organize-shimmer 8s linear infinite;
+  z-index: 1;
 }
 
 :where(:root[data-theme="light"], :root.light) .now-spotlight {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--color-accent-sakura) 10%, var(--color-bg-surface)) 0%,
-    var(--color-bg-surface) 100%
-  );
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-accent-sakura) 18%, var(--color-bg-elevated)) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 90%, white 10%) 26%,
+      color-mix(in srgb, var(--color-bg-surface) 97%, white 3%) 100%
+    );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-shadow:
-    0 0 30px color-mix(in srgb, var(--color-accent-sakura) 12%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -18px 32px rgba(184, 145, 121, 0.08),
+    0 20px 48px rgba(167, 131, 109, 0.22),
+    0 8px 24px rgba(212, 138, 166, 0.12);
 }
 
 .now-spotlight-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.now-spotlight-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.now-spotlight-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
 }
 
 .now-spotlight-dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: var(--color-accent-sakura);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent-sakura) 50%, transparent);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--color-accent-sakura) 18%, transparent),
+    0 0 14px color-mix(in srgb, var(--color-accent-sakura) 34%, transparent);
 }
 
 .now-spotlight-label {
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--color-text-muted);
+  letter-spacing: 0.24em;
+  background: linear-gradient(
+    135deg,
+    hsl(343, 55%, 62%) 0%,
+    hsl(343, 55%, 70%) 50%,
+    hsl(25, 65%, 65%) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 1px 2px rgba(212, 138, 166, 0.15);
+}
+
+.now-spotlight-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.01em;
 }
 
 .now-spotlight-count {
   margin-left: auto;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  opacity: 0.6;
+  min-width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--color-text) 80%, var(--color-accent-sakura));
+  background: color-mix(in srgb, var(--color-accent-sakura) 14%, var(--color-bg-elevated));
+  border: 1px solid color-mix(in srgb, var(--color-accent-sakura) 26%, transparent);
   font-variant-numeric: tabular-nums;
 }
 
 .now-spotlight-grid {
   display: grid;
+  gap: 0.85rem;
+  max-width: 100%;
+}
+.now-spotlight-grid > * {
+  width: 100%;
+}
+
+.now-spotlight-flow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+
+/* Equal columns when both current + next — avoids one wide / one narrow */
+.now-spotlight-flow:has(.now-spotlight-stage-current):has(.now-spotlight-stage-secondary) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.now-spotlight-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.now-spotlight-stage-secondary {
+  padding-top: 0;
+  gap: 0.65rem;
+}
+
+/* Same label energy as current, stepped down (teal/slate — “next”, not hero) */
+.now-spotlight-stage-secondary .now-spotlight-stage-label {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-accent-teal) 88%, var(--color-text-secondary) 12%) 0%,
+    color-mix(in srgb, var(--color-accent-sakura) 55%, var(--color-text-secondary) 45%) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.now-spotlight-stage-current {
+  gap: 0.65rem;
+}
+
+/* “Current task” label matches NOW hero energy */
+.now-spotlight-stage-current .now-spotlight-stage-label {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  background: linear-gradient(
+    135deg,
+    hsl(343, 55%, 62%) 0%,
+    hsl(343, 55%, 70%) 45%,
+    hsl(25, 65%, 62%) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.now-spotlight-current {
+  position: relative;
+  border-radius: 1.35rem;
+  padding: 0.65rem;
+  background:
+    radial-gradient(
+      ellipse 115% 90% at 50% 0%,
+      color-mix(in srgb, var(--color-accent-sakura) 26%, transparent) 0%,
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-elevated) 88%, var(--color-accent-sakura) 12%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 96%, transparent) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 38%, rgba(255, 255, 255, 0.06)),
+    0 14px 40px rgba(212, 138, 166, 0.2),
+    0 8px 24px rgba(14, 19, 31, 0.12);
+}
+
+:where(:root[data-theme="light"], :root.light) .now-spotlight-current {
+  background:
+    radial-gradient(
+      ellipse 115% 90% at 50% 0%,
+      color-mix(in srgb, var(--color-accent-sakura) 20%, transparent) 0%,
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-elevated) 94%, white 6%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 98%, transparent) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 28%, rgba(255, 255, 255, 0.5)),
+    0 16px 36px rgba(170, 136, 116, 0.18),
+    0 8px 20px rgba(212, 138, 166, 0.14);
+}
+
+/* “Up next” — same frame rhythm as current, lighter lift (balanced pair) */
+.now-spotlight-next {
+  position: relative;
+  border-radius: 1.35rem;
+  padding: 0.65rem;
+  background:
+    radial-gradient(
+      ellipse 115% 90% at 50% 0%,
+      color-mix(in srgb, var(--color-accent-teal) 18%, transparent) 0%,
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-elevated) 92%, var(--color-accent-teal) 8%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 97%, transparent) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-teal) 26%, rgba(255, 255, 255, 0.04)),
+    0 10px 28px rgba(14, 19, 31, 0.1),
+    0 4px 14px color-mix(in srgb, var(--color-accent-teal) 12%, transparent);
+}
+
+:where(:root[data-theme="light"], :root.light) .now-spotlight-next {
+  background:
+    radial-gradient(
+      ellipse 115% 90% at 50% 0%,
+      color-mix(in srgb, var(--color-accent-teal) 14%, transparent) 0%,
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-elevated) 96%, white 4%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 99%, transparent) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-teal) 22%, rgba(255, 255, 255, 0.4)),
+    0 12px 28px rgba(170, 136, 116, 0.12),
+    0 4px 12px color-mix(in srgb, var(--color-accent-teal) 10%, transparent);
+}
+
+.now-spotlight-stage-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
   gap: 0.75rem;
 }
 
-@media (min-width: 640px) {
-  .now-spotlight-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+.now-spotlight-stage-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text-secondary) 70%, var(--color-accent-sakura));
+}
+
+/* When there's only one NOW item, center it nicely */
+.now-spotlight-flow:has(.now-spotlight-stage:only-child) {
+  grid-template-columns: 1fr;
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 768px) {
+  .now-spotlight-flow {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
+}
+
+.now-spotlight-next .organize-card {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 92%, var(--color-accent-teal) 8%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 98%, transparent) 100%
+    );
+}
+
+.now-spotlight-overflow {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 78%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 68%, transparent);
+  margin-top: 0.25rem;
+}
+
+.now-spotlight-overflow-text {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.now-spotlight-overflow-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-accent-sakura);
+}
+
+.now-spotlight-expanded-list {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  gap: 0.65rem;
+  margin-top: 0.25rem;
+}
+
+.now-spotlight-expanded-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.95rem;
+  background: color-mix(in srgb, var(--color-bg-surface) 58%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 65%, transparent);
+}
+
+.now-spotlight-expanded-project {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.now-spotlight-expanded-text {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
 }
 
 .now-spotlight-empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 5rem;
-  padding: 1.5rem;
+  min-height: 6.25rem;
+  padding: 1.6rem;
   border-radius: 1rem;
-  border: 1px dashed color-mix(in srgb, var(--color-accent-sakura) 25%, transparent);
-  background: color-mix(in srgb, var(--color-accent-sakura) 3%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--color-accent-sakura) 38%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-accent-sakura) 6%, transparent) 0%,
+      color-mix(in srgb, var(--color-bg-elevated) 45%, transparent) 100%
+    );
 }
 
 .now-spotlight-empty p {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
-/* Card Accent Bar - replaces dots for clearer visual hierarchy */
+/* Card Accent Bar - tactile rail */
 .organize-card-accent {
   position: absolute;
   left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  border-radius: 4px 0 0 4px;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 5px;
+  border-radius: 999px;
   flex-shrink: 0;
 }
 
 .organize-card-accent[data-lane="now"] {
   background: var(--color-accent-sakura);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent-sakura) 40%, transparent);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 0 10px color-mix(in srgb, var(--color-accent-sakura) 24%, transparent);
 }
 
 .organize-card-accent[data-lane="next"] {
@@ -6779,25 +7233,81 @@ kbd {
 
 .organize-card-accent[data-lane="later"] {
   background: var(--color-accent-mint);
-  opacity: 0.7;
+  opacity: 0.78;
 }
 
 .organize-card-accent[data-lane="done"] {
   background: var(--color-success);
 }
 
-/* Card hover states - NO scale transform (predictable bounds for AuDHD) */
+/* Project color accent bars - override lane colors when project is assigned */
+.organize-card-accent[data-project-color="lavender"] {
+  background: linear-gradient(to bottom, #b8a5c8, #a895b8);
+}
+
+.organize-card-accent[data-project-color="mint"] {
+  background: linear-gradient(to bottom, #7dbba3, #6dab93);
+}
+
+.organize-card-accent[data-project-color="sky"] {
+  background: linear-gradient(to bottom, #9dc5e8, #8db5d8);
+}
+
+.organize-card-accent[data-project-color="peach"] {
+  background: linear-gradient(to bottom, #e0b89a, #d0a88a);
+}
+
+.organize-card-accent[data-project-color="rose"] {
+  background: linear-gradient(to bottom, #c9a0ab, #b9909b);
+}
+
+.organize-card-accent[data-project-color="sage"] {
+  background: linear-gradient(to bottom, #8bc4b8, #7bb4a8);
+}
+
+.organize-card-accent[data-project-color="periwinkle"] {
+  background: linear-gradient(to bottom, #9ba3d4, #8b93c4);
+}
+
+.organize-card-accent[data-project-color="coral"] {
+  background: linear-gradient(to bottom, #e8b4a8, #d8a498);
+}
+
+.organize-card-accent[data-project-color="blush"] {
+  background: linear-gradient(to bottom, #d4b8c4, #c4a8b4);
+}
+
+.organize-card-accent[data-project-color="slate"] {
+  background: linear-gradient(to bottom, #a4b0c4, #94a0b4);
+}
+
 .organize-card {
   position: relative;
-  border-radius: 1rem;
+  border-radius: 1.15rem;
   overflow: hidden;
-  transition: box-shadow 150ms ease, border-color 150ms ease;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 90%, rgba(255, 255, 255, 0.06)) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 100%, var(--color-bg-elevated) 0%) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.015),
+    var(--shadow-organize-card);
+  transition:
+    box-shadow 200ms ease-out,
+    border-color 200ms ease-out,
+    background-color 200ms ease-out,
+    transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .organize-card:hover {
+  transform: translateY(-1px);
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.1),
-    0 0 0 1px color-mix(in srgb, var(--color-primary) 20%, transparent);
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 32px rgba(8, 12, 22, 0.28),
+    0 0 0 1px color-mix(in srgb, var(--color-primary) 16%, rgba(255, 255, 255, 0.05));
 }
 
 .organize-card:focus-within {
@@ -6807,10 +7317,523 @@ kbd {
     0 0 0 4px color-mix(in srgb, var(--color-primary) 50%, transparent);
 }
 
+:where(:root[data-theme="light"], :root.light) .organize-card {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 68%, white 32%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-bg-elevated) 6%) 100%
+    );
+}
+
 :where(:root[data-theme="light"], :root.light) .organize-card:hover {
   box-shadow:
-    0 4px 16px rgba(158, 132, 112, 0.12),
-    0 0 0 1px color-mix(in srgb, var(--color-primary) 25%, transparent);
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 10px 24px rgba(158, 132, 112, 0.16),
+    0 0 0 1px color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+
+.organize-card-selected {
+  border-color: color-mix(in srgb, var(--color-primary) 28%, var(--color-border-subtle));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px color-mix(in srgb, var(--color-primary) 18%, transparent),
+    0 12px 24px rgba(14, 19, 31, 0.2);
+}
+
+.organize-card-spotlight {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 86%, var(--color-accent-sakura) 14%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 97%, rgba(212, 138, 166, 0.03)) 100%
+    );
+  /* Subtle glass effect for spotlight cards */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.organize-card-spotlight-primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 24px 52px rgba(16, 22, 34, 0.3),
+    0 12px 36px rgba(212, 138, 166, 0.22),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 34%, rgba(255, 255, 255, 0.08));
+}
+
+.organize-card-spotlight-secondary {
+  opacity: 0.98;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 12px 28px rgba(14, 19, 31, 0.12),
+    0 5px 14px color-mix(in srgb, var(--color-accent-teal) 10%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-teal) 24%, rgba(255, 255, 255, 0.05));
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-card-spotlight-primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    0 20px 44px rgba(170, 136, 116, 0.22),
+    0 10px 28px rgba(212, 138, 166, 0.18),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 26%, rgba(255, 255, 255, 0.45));
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-card-spotlight-secondary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 10px 24px rgba(158, 132, 112, 0.12),
+    0 4px 12px color-mix(in srgb, var(--color-accent-teal) 8%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-accent-teal) 20%, rgba(255, 255, 255, 0.35));
+}
+
+.organize-card-title {
+  text-wrap: pretty;
+}
+
+.organize-card-meta {
+  opacity: 0.82;
+}
+
+.organize-card-meta .moment-tag-pill {
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  padding: 0.24rem 0.62rem;
+}
+
+.organize-card-grip button {
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-bg-elevated) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 72%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.organize-card-grip button:hover {
+  background: color-mix(in srgb, var(--color-bg-elevated) 82%, transparent);
+}
+
+.organize-lane-heading {
+  min-height: 1.25rem;
+}
+
+.organize-lane-heading-mark {
+  width: 0.56rem;
+  height: 0.56rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.organize-lane-heading[data-lane="now"] .organize-lane-heading-mark {
+  background: var(--color-accent-sakura);
+}
+
+.organize-lane-heading[data-lane="next"] .organize-lane-heading-mark {
+  background: var(--color-accent-teal);
+}
+
+.organize-lane-heading[data-lane="later"] .organize-lane-heading-mark {
+  background: var(--color-accent-mint);
+}
+
+.organize-lane-heading[data-lane="done"] .organize-lane-heading-mark {
+  background: var(--color-success);
+}
+
+.organize-lane-heading-label {
+  letter-spacing: 0.18em;
+  font-weight: 700;
+}
+
+.organize-lane-heading-count {
+  opacity: 0.78;
+}
+
+.organize-lane-dropzone {
+  position: relative;
+  border-radius: 1rem;
+  border: 1px solid transparent;
+}
+
+.organize-lane-dropzone-active {
+  border-color: color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+.organize-project-column {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.35rem;
+  /* Liquid glass effect */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  /* Hover elevation transition */
+  transition:
+    transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 300ms ease-out,
+    background-color 200ms ease-out;
+}
+
+.organize-project-column::before {
+  content: "";
+  position: absolute;
+  inset: 0 0.1rem 0 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 52%, rgba(255, 255, 255, 0.06)) 0%,
+      color-mix(in srgb, var(--color-bg-elevated) 32%, transparent) 100%
+    );
+  opacity: 0.78;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Shimmer overlay on hover */
+.organize-project-column::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease-out;
+  z-index: 2;
+}
+
+.organize-project-column:hover::after {
+  animation: organize-shimmer 8s linear infinite;
+  opacity: 1;
+}
+
+/* Hover elevation effect */
+.organize-project-column:hover {
+  transform: scale(1.02) translateY(-2px);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-project-column::before {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.52) 0%,
+      rgba(236, 221, 211, 0.46) 100%
+    );
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-project-column:hover {
+  box-shadow:
+    0 16px 40px rgba(167, 131, 109, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+/* Project Color-Tinted Backgrounds */
+.organize-project-column[data-project-color="lavender"] {
+  background-color: var(--project-lavender-wash);
+  border: 1px solid var(--project-lavender-border);
+}
+
+.organize-project-column[data-project-color="mint"] {
+  background-color: var(--project-mint-wash);
+  border: 1px solid var(--project-mint-border);
+}
+
+.organize-project-column[data-project-color="sky"] {
+  background-color: var(--project-sky-wash);
+  border: 1px solid var(--project-sky-border);
+}
+
+.organize-project-column[data-project-color="peach"] {
+  background-color: var(--project-peach-wash);
+  border: 1px solid var(--project-peach-border);
+}
+
+.organize-project-column[data-project-color="rose"] {
+  background-color: var(--project-rose-wash);
+  border: 1px solid var(--project-rose-border);
+}
+
+.organize-project-column[data-project-color="sage"] {
+  background-color: var(--project-sage-wash);
+  border: 1px solid var(--project-sage-border);
+}
+
+.organize-project-column[data-project-color="periwinkle"] {
+  background-color: var(--project-periwinkle-wash);
+  border: 1px solid var(--project-periwinkle-border);
+}
+
+.organize-project-column[data-project-color="coral"] {
+  background-color: var(--project-coral-wash);
+  border: 1px solid var(--project-coral-border);
+}
+
+.organize-project-column[data-project-color="blush"] {
+  background-color: var(--project-blush-wash);
+  border: 1px solid var(--project-blush-border);
+}
+
+.organize-project-column[data-project-color="slate"] {
+  background-color: var(--project-slate-wash);
+  border: 1px solid var(--project-slate-border);
+}
+
+.organize-project-column-header,
+.organize-project-column-body {
+  position: relative;
+  z-index: 1;
+}
+
+.organize-project-focus-summary {
+  padding: 0.85rem 0.95rem 0.9rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent-sakura) 18%, var(--color-border-subtle));
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-accent-sakura) 7%, var(--color-bg-elevated)) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 96%, var(--color-bg-elevated) 4%) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 8px 18px rgba(12, 18, 28, 0.08);
+}
+
+.organize-project-focus-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.organize-project-focus-summary-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--color-text-muted);
+}
+
+.organize-project-focus-summary-label-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.organize-project-focus-summary-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--color-accent-sakura);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent-sakura) 14%, transparent);
+}
+
+.organize-project-focus-summary-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text-secondary) 74%, var(--color-accent-sakura));
+}
+
+.organize-project-focus-summary-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.organize-project-focus-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.7rem;
+}
+
+.organize-project-focus-summary-item {
+  padding-left: 0.8rem;
+  position: relative;
+}
+
+.organize-project-focus-summary-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  width: 0.32rem;
+  height: 0.32rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent-sakura) 72%, var(--color-text-muted));
+}
+
+.organize-project-focus-summary-text {
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--color-text-secondary);
+}
+
+.organize-project-focus-summary-note {
+  margin: 0.7rem 0 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.organize-lower-workspace-shell {
+  margin-top: 2rem;
+  position: relative;
+  max-width: 62rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Visual connector between NOW spotlight and lower workspace */
+.organize-lower-workspace-shell::before {
+  content: "";
+  position: absolute;
+  top: -1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30%;
+  max-width: 8rem;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--color-accent-sakura) 15%, var(--color-border-subtle)) 50%,
+    transparent 100%
+  );
+  opacity: 0.4;
+  border-radius: 1px;
+}
+
+.organize-lower-workspace-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1.35rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 70%, rgba(255, 255, 255, 0.04));
+  /* Softer, more integrated appearance */
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 85%, var(--color-bg-elevated) 15%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 95%, var(--color-bg-base) 5%) 100%
+    );
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.04),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.015),
+    0 6px 16px rgba(10, 16, 28, 0.08);
+  text-align: left;
+  transition: all 200ms ease-out;
+}
+
+.organize-lower-workspace-toggle:hover {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-bg-elevated) 12%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 96%, var(--color-bg-elevated) 4%) 100%
+    );
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.03),
+    0 8px 20px rgba(10, 16, 28, 0.12);
+  border-color: color-mix(in srgb, var(--color-border-subtle) 80%, rgba(255, 255, 255, 0.06));
+}
+
+.organize-lower-workspace-toggle-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.organize-lower-workspace-toggle-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.organize-lower-workspace-toggle-meta {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-lower-workspace-toggle {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 10px 20px rgba(170, 136, 116, 0.1);
+}
+
+.organize-project-column-header .moment-tag-pill,
+.now-spotlight .moment-tag-pill {
+  border-width: 1px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 6px 14px rgba(20, 24, 36, 0.08);
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-project-focus-summary {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-accent-sakura) 10%, white) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 92%, var(--color-bg-elevated) 8%) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 8px 18px rgba(170, 136, 116, 0.1);
+}
+
+.organize-inbox-shell,
+.organize-inbox-rail,
+.organize-inbox-sheet,
+.organize-inbox-sheet-trigger {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-elevated) 88%, rgba(255, 255, 255, 0.02)) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-bg-elevated) 6%) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 12px 28px rgba(10, 16, 28, 0.16);
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-inbox-shell,
+:where(:root[data-theme="light"], :root.light) .organize-inbox-rail,
+:where(:root[data-theme="light"], :root.light) .organize-inbox-sheet,
+:where(:root[data-theme="light"], :root.light) .organize-inbox-sheet-trigger {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 74%, white 26%) 0%,
+      color-mix(in srgb, var(--color-bg-elevated) 84%, var(--color-bg-surface) 16%) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    0 12px 24px rgba(168, 132, 111, 0.14);
+}
+
+.organize-inbox-dropzone {
+  border-radius: 1rem;
 }
 
 /* Quick-add input in Inbox */
@@ -6824,8 +7847,8 @@ kbd {
   flex: 1;
   padding: 0.75rem 1rem;
   border-radius: 0.875rem;
-  border: 1px solid var(--color-border-subtle);
-  background: var(--color-bg-surface);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 84%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 90%, var(--color-bg-elevated) 10%);
   font-size: 0.875rem;
   color: var(--color-text);
   transition: border-color 150ms ease, box-shadow 150ms ease;
@@ -6851,8 +7874,13 @@ kbd {
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
   border-radius: 0.875rem;
-  background: color-mix(in srgb, var(--color-warning) 10%, var(--color-bg-surface));
-  border: 1px solid color-mix(in srgb, var(--color-warning) 25%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-warning) 12%, var(--color-bg-elevated)) 0%,
+      color-mix(in srgb, var(--color-warning) 7%, var(--color-bg-surface)) 100%
+    );
+  border: 1px solid color-mix(in srgb, var(--color-warning) 28%, transparent);
 }
 
 .now-warning-text {
@@ -6861,6 +7889,7 @@ kbd {
   font-size: 0.8125rem;
   color: var(--color-text-secondary);
   margin: 0;
+  font-weight: 500;
 }
 
 .now-warning-button {
@@ -6965,14 +7994,30 @@ kbd {
   transition: stroke-dashoffset 1s linear;
 }
 
-/* Increased spacing for breathing room */
 .organize-cards-stack {
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
 }
 
-/* Mobile bottom sheet trigger */
+.organize-empty-state {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 92%, transparent) 0%,
+      color-mix(in srgb, var(--color-bg-elevated) 56%, transparent) 100%
+    );
+}
+
+.organize-drag-overlay {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-elevated) 94%, rgba(255, 255, 255, 0.05)) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 100%, transparent) 100%
+    );
+}
+
 .organize-inbox-sheet-trigger {
   position: fixed;
   bottom: calc(var(--bottom-nav-height) + 1rem);
@@ -6983,10 +8028,23 @@ kbd {
   justify-content: space-between;
   padding: 1rem 1.25rem;
   border-radius: 1.25rem;
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border-subtle);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 84%, transparent);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
   z-index: 50;
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-workspace {
+  border-color: color-mix(in srgb, var(--color-border-subtle) 92%, white 8%);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 72%, white 28%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-bg-elevated) 12%) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 24px 44px rgba(172, 134, 112, 0.16);
 }
 
 @media (min-width: 1024px) {

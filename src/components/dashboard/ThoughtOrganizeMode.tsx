@@ -34,6 +34,7 @@ import {
 import { OrganizableBullet } from './OrganizableBullet';
 
 const ACTIVE_LANES: ThoughtLane[] = ['now', 'next', 'later'];
+const QUEUED_LANES: ThoughtLane[] = ['next', 'later'];
 const NOW_SOFT_LIMIT = 5;
 
 interface ThoughtOrganizeModeProps {
@@ -92,9 +93,11 @@ function NowSpotlight({
   prefersReducedMotion: boolean;
 }) {
   const nowBullets = bullets.filter((b) => b.lane === 'now' && b.project);
-  const displayBullets = showExpanded ? nowBullets : nowBullets.slice(0, NOW_SOFT_LIMIT);
-  const hiddenCount = nowBullets.length - NOW_SOFT_LIMIT;
-  const hasOverflow = nowBullets.length > NOW_SOFT_LIMIT;
+  const displayBullets = showExpanded ? nowBullets : nowBullets.slice(0, 2);
+  const hiddenCount = nowBullets.length - 2;
+  const hasOverflow = nowBullets.length > 2;
+  const currentBullet = displayBullets[0];
+  const nextBullet = displayBullets[1];
 
   if (nowBullets.length === 0) {
     return (
@@ -113,44 +116,112 @@ function NowSpotlight({
   return (
     <div className="now-spotlight mb-5">
       <div className="now-spotlight-header">
-        <span className="now-spotlight-dot" />
-        <span className="now-spotlight-label">Now</span>
+        <div className="now-spotlight-heading">
+          <span className="now-spotlight-dot" />
+          <div className="now-spotlight-title-wrap">
+            <span className="now-spotlight-label">Now</span>
+            <p className="now-spotlight-subtitle">
+              {displayBullets.length > 0 ? `Start here${nowBullets.length > 1 ? ` • 1 of ${nowBullets.length}` : ''}` : 'Start here'}
+            </p>
+          </div>
+        </div>
         <span className="now-spotlight-count">{nowBullets.length}</span>
       </div>
 
-      {/* Too Many NOW Warning */}
-      {hasOverflow && !showExpanded && (
-        <div className="now-warning mb-3">
-          <p className="now-warning-text">
-            You have {nowBullets.length} tasks marked NOW. That&apos;s a lot to hold! Consider moving some to NEXT.
-          </p>
-        </div>
-      )}
+      <div className="now-spotlight-flow">
+        {currentBullet ? (
+          <div className="now-spotlight-stage now-spotlight-stage-current">
+            <div className="now-spotlight-stage-header">
+              <span className="now-spotlight-stage-label">Current task</span>
+            </div>
+            <div className="now-spotlight-current">
+              <OrganizableBullet
+                key={currentBullet.id}
+                bullet={currentBullet}
+                existingProjects={projects}
+                onUpdate={(updates) => onUpdateBullet(currentBullet.id, updates)}
+                onDelete={() => onDeleteBullet(currentBullet.id)}
+                interactionMode="drag-only"
+                showProjectPill
+                inSpotlight
+                spotlightPriority="primary"
+              />
+            </div>
+          </div>
+        ) : null}
 
-      <div className="now-spotlight-grid">
-        {displayBullets.map((bullet) => (
-          <OrganizableBullet
-            key={bullet.id}
-            bullet={bullet}
-            existingProjects={projects}
-            onUpdate={(updates) => onUpdateBullet(bullet.id, updates)}
-            onDelete={() => onDeleteBullet(bullet.id)}
-            interactionMode="drag-only"
-            showProjectPill
-            inSpotlight
-          />
+        {nextBullet ? (
+          <div className="now-spotlight-stage now-spotlight-stage-secondary">
+            <div className="now-spotlight-stage-header">
+              <span className="now-spotlight-stage-label">Up next</span>
+            </div>
+            <div className="now-spotlight-next">
+              <OrganizableBullet
+                key={nextBullet.id}
+                bullet={nextBullet}
+                existingProjects={projects}
+                onUpdate={(updates) => onUpdateBullet(nextBullet.id, updates)}
+                onDelete={() => onDeleteBullet(nextBullet.id)}
+                interactionMode="drag-only"
+                showProjectPill
+                inSpotlight
+                spotlightPriority="secondary"
+              />
+            </div>
+          </div>
+        ) : null}
+
+        {hasOverflow ? (
+          <div className="now-spotlight-overflow">
+            <span className="now-spotlight-overflow-text">{hiddenCount} more in NOW</span>
+            <button
+              type="button"
+              onClick={onToggleExpanded}
+              className="now-spotlight-overflow-button"
+            >
+              {showExpanded ? 'Collapse list' : 'Review active set'}
+            </button>
+          </div>
+        ) : null}
+
+        {showExpanded && nowBullets.length > 2 ? (
+          <div className="now-spotlight-expanded-list">
+            {nowBullets.slice(2).map((bullet) => (
+              <div key={bullet.id} className="now-spotlight-expanded-item">
+                <span className="now-spotlight-expanded-project">{bullet.projectMeta?.label ?? 'Project'}</span>
+                <span className="now-spotlight-expanded-text">{bullet.text}</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function ProjectNowSummary({
+  bullets,
+}: {
+  bullets: ThoughtBullet[];
+}) {
+  if (bullets.length === 0) return null;
+
+  return (
+    <div className="organize-project-focus-summary">
+      <div className="organize-project-focus-summary-header">
+        <div className="organize-project-focus-summary-label-wrap">
+          <span className="organize-project-focus-summary-dot" />
+          <span className="organize-project-focus-summary-label">In Focus</span>
+        </div>
+        <span className="organize-project-focus-summary-count">{bullets.length}</span>
+      </div>
+      <div className="organize-project-focus-summary-list">
+        {bullets.map((bullet) => (
+          <div key={bullet.id} className="organize-project-focus-summary-item">
+            <span className="organize-project-focus-summary-text">{bullet.text}</span>
+          </div>
         ))}
       </div>
-
-      {hasOverflow && (
-        <button
-          type="button"
-          onClick={onToggleExpanded}
-          className="mt-3 w-full rounded-xl border border-border-subtle/50 bg-bg-surface/50 px-4 py-2.5 text-xs font-medium text-text-muted transition-colors hover:bg-bg-surface hover:text-text"
-        >
-          {showExpanded ? 'Show less' : `Show ${hiddenCount} more`}
-        </button>
-      )}
     </div>
   );
 }
@@ -273,18 +344,19 @@ function DroppableLane({
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between gap-2 px-1">
-        <div className="flex items-center gap-2">
-          <span className={`h-2 w-2 rounded-full ${config.dotClass}`} />
-          <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-text-muted">{config.label}</span>
+        <div className="organize-lane-heading flex items-center gap-2" data-lane={lane}>
+          <span className="organize-lane-heading-mark" />
+          <span className="organize-lane-heading-label text-[10px] font-medium uppercase tracking-[0.12em] text-text-muted">{config.label}</span>
         </div>
-        <span className="text-[10px] font-medium text-text-muted/50 tabular-nums">{bullets.length}</span>
+        <span className="organize-lane-heading-count text-[10px] font-medium text-text-muted/50 tabular-nums">{bullets.length}</span>
       </div>
 
       <div
         ref={setNodeRef}
-        className={`py-1.5 transition-colors duration-150 ${bullets.length === 0 ? 'min-h-[5.5rem]' : ''} ${
-          isOver ? 'rounded-xl bg-bg-surface/50 ring-2 ring-primary/20' : ''
+        className={`organize-lane-dropzone py-1.5 transition-colors duration-150 ${bullets.length === 0 ? 'min-h-[5.5rem]' : ''} ${
+          isOver ? 'organize-lane-dropzone-active rounded-xl bg-bg-surface/50 ring-2 ring-primary/20' : ''
         }`}
+        data-lane={lane}
       >
         <SortableContext items={bulletIds} strategy={verticalListSortingStrategy}>
           <div className="organize-cards-stack">
@@ -356,7 +428,7 @@ function DroppableInbox({
           initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -24 }}
           animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
           transition={prefersReducedMotion ? { duration: 0.01 } : { duration: 0.2, ease: 'easeOut' }}
-          className="hidden lg:block w-[4rem] shrink-0 p-2 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30"
+          className="organize-inbox-rail hidden lg:block w-[4rem] shrink-0 p-2 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30"
         >
           <button
             type="button"
@@ -394,7 +466,7 @@ function DroppableInbox({
         initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -24 }}
         animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
         transition={prefersReducedMotion ? { duration: 0.01 } : { duration: 0.2, ease: 'easeOut' }}
-        className="hidden lg:block w-[14.5rem] shrink-0 p-3 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30"
+        className="organize-inbox-shell hidden lg:block w-[14.5rem] shrink-0 p-3 rounded-[1.3rem] bg-bg-surface/30 border border-border-subtle/30"
       >
         <div className="mb-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -510,7 +582,7 @@ function DroppableInbox({
 
         <div
           ref={setNodeRef}
-          className={`min-h-[22rem] p-1 transition-colors duration-150 ${isOver ? 'ring-2 ring-primary/30 rounded-xl bg-bg-elevated/60' : ''}`}
+          className={`organize-inbox-dropzone min-h-[22rem] p-1 transition-colors duration-150 ${isOver ? 'ring-2 ring-primary/30 rounded-xl bg-bg-elevated/60' : ''}`}
         >
           <SortableContext items={bulletIds} strategy={verticalListSortingStrategy}>
             <div className="organize-cards-stack">
@@ -543,7 +615,7 @@ function DroppableInbox({
           animate={prefersReducedMotion ? { opacity: 1 } : { y: 0 }}
           exit={prefersReducedMotion ? { opacity: 0 } : { y: '100%' }}
           transition={prefersReducedMotion ? { duration: 0.01 } : { type: 'spring', damping: 25, stiffness: 300 }}
-          className="lg:hidden fixed inset-x-0 bottom-0 z-50 max-h-[75vh] overflow-hidden rounded-t-[1.5rem] border-t border-border-subtle bg-bg-surface shadow-xl"
+          className="organize-inbox-sheet lg:hidden fixed inset-x-0 bottom-0 z-50 max-h-[75vh] overflow-hidden rounded-t-[1.5rem] border-t border-border-subtle bg-bg-surface shadow-xl"
         >
           {/* Handle bar */}
           <div className="flex justify-center py-2">
@@ -673,6 +745,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const [inboxCollapsed, setInboxCollapsed] = useState(true);
 
   const [collapsedDoneProjects, setCollapsedDoneProjects] = useState<Record<string, boolean>>({});
+  const [bottomWorkspaceCollapsed, setBottomWorkspaceCollapsed] = useState(true);
   const [selectedInboxIds, setSelectedInboxIds] = useState<string[]>([]);
   const [projectMenuId, setProjectMenuId] = useState<string | null>(null);
   const [undoState, setUndoState] = useState<{ organization: ThoughtOrganization; message: string } | null>(null);
@@ -711,6 +784,8 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       setInboxCollapsed(false);
     }
   }, [projectColumns.length]);
+
+  const hasLowerWorkspace = (inbox?.bullets.length ?? 0) > 0 || projectColumns.length > 0;
 
   useEffect(() => {
     const inboxIds = new Set((inbox?.bullets ?? []).map((bullet) => bullet.id));
@@ -834,7 +909,18 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
 
       const overBullet = prev.bullets.find((bullet) => bullet.id === overId);
       const sourceContainerId = getBulletContainerId(activeBullet);
-      const targetInfo = overBullet ? parseDropId(getBulletContainerId(overBullet)) : parseDropId(overId);
+      const derivedTargetInfo = overBullet ? parseDropId(getBulletContainerId(overBullet)) : parseDropId(overId);
+      const targetInfo =
+        overBullet &&
+        overBullet.lane === 'now' &&
+        activeBullet.project &&
+        activeBullet.project !== overBullet.project
+          ? {
+              isInbox: false,
+              projectId: activeBullet.project,
+              lane: 'now' as ThoughtLane,
+            }
+          : derivedTargetInfo;
 
       if (!targetInfo) return prev;
 
@@ -1311,157 +1397,183 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          {localOrg.bullets.length === 0 && localOrg.projects.length === 0 ? (
-            <div className="flex h-64 items-center justify-center rounded-[1.75rem] border border-dashed border-border-subtle bg-bg-surface/40">
-              <div className="text-center">
-                <p className="text-sm font-medium text-text-muted">No tasks yet</p>
-                <p className="mt-1 text-xs text-text-muted/70">Create a project or add tasks below to get started</p>
+          <div className="organize-workspace">
+            {localOrg.bullets.length === 0 && localOrg.projects.length === 0 ? (
+              <div className="organize-empty-state flex h-64 items-center justify-center rounded-[1.75rem] border border-dashed border-border-subtle bg-bg-surface/40">
+                <div className="text-center">
+                  <p className="text-sm font-medium text-text-muted">No tasks yet</p>
+                  <p className="mt-1 text-xs text-text-muted/70">Create a project or add tasks below to get started</p>
+                </div>
               </div>
-            </div>
-          ) : (
-            <>
-              {/* NOW Spotlight - hero section for current focus */}
-              {localOrg.projects.length > 0 && (
-                <NowSpotlight
-                  bullets={localOrg.bullets}
-                  projects={localOrg.projects}
-                  onUpdateBullet={handleUpdateBullet}
-                  onDeleteBullet={handleDeleteBullet}
-                  showExpanded={nowSpotlightExpanded}
-                  onToggleExpanded={() => setNowSpotlightExpanded((v) => !v)}
-                  prefersReducedMotion={prefersReducedMotion}
-                />
-              )}
+            ) : (
+              <>
+                {/* NOW Spotlight - hero section for current focus */}
+                {localOrg.projects.length > 0 && (
+                  <NowSpotlight
+                    bullets={localOrg.bullets}
+                    projects={localOrg.projects}
+                    onUpdateBullet={handleUpdateBullet}
+                    onDeleteBullet={handleDeleteBullet}
+                    showExpanded={nowSpotlightExpanded}
+                    onToggleExpanded={() => setNowSpotlightExpanded((v) => !v)}
+                    prefersReducedMotion={prefersReducedMotion}
+                  />
+                )}
 
-              <div className="flex flex-col lg:flex-row min-h-full gap-4 pb-2">
-                <DroppableInbox
-                  bullets={inbox?.bullets || []}
-                  existingProjects={localOrg.projects}
-                  onUpdateBullet={handleUpdateBullet}
-                  onDeleteBullet={handleDeleteBullet}
-                  selectedIds={selectedInboxIds}
-                  onToggleSelected={(bulletId) =>
-                    setSelectedInboxIds((current) =>
-                      current.includes(bulletId) ? current.filter((id) => id !== bulletId) : [...current, bulletId]
-                    )
-                  }
-                  onClearSelection={() => setSelectedInboxIds([])}
-                  onBatchUpdate={handleBatchUpdateInbox}
-                  onBatchDelete={handleBatchDeleteInbox}
-                  collapsed={inboxCollapsed}
-                  onToggle={() => setInboxCollapsed((value) => !value)}
-                  quickAddText={quickAddText}
-                  onQuickAddChange={setQuickAddText}
-                  onQuickAdd={handleQuickAdd}
-                  prefersReducedMotion={prefersReducedMotion}
-                />
-
-              {projectColumns.map((column) => (
-                <motion.div
-                  key={column.projectId}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="w-full lg:w-[18rem] shrink-0 px-3 pt-1 pb-4 lg:border-r lg:border-border-subtle/20"
-                >
-                  <div className="relative mb-2.5 flex items-center justify-between gap-3 border-b border-border-subtle/25 pb-2.5">
-                    <div className="min-w-0 flex-1">
-                      <span className={`moment-tag-pill moment-tag-pill-selected-${column.projectMeta?.color ?? 'lavender'}`}>
-                        {column.projectMeta?.label || 'Project'}
+                {hasLowerWorkspace ? (
+                  <div className="organize-lower-workspace-shell">
+                    <button
+                      type="button"
+                      onClick={() => setBottomWorkspaceCollapsed((value) => !value)}
+                      className="organize-lower-workspace-toggle"
+                      aria-expanded={!bottomWorkspaceCollapsed}
+                    >
+                      <span className="organize-lower-workspace-toggle-copy">
+                        <span className="organize-lower-workspace-toggle-label">
+                          {bottomWorkspaceCollapsed ? 'Open inbox and projects' : 'Hide inbox and projects'}
+                        </span>
+                        <span className="organize-lower-workspace-toggle-meta">
+                          {projectColumns.length} projects, {(inbox?.bullets.length ?? 0)} inbox
+                        </span>
                       </span>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-[11px] font-medium text-text-muted/60 tabular-nums">
-                        {ACTIVE_LANES.reduce((sum, lane) => sum + column.lanes[lane].length, 0) + column.lanes.done.length}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setProjectMenuId((current) => (current === column.projectId ? null : column.projectId))}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-text-muted/50 transition-colors hover:bg-bg-elevated hover:text-text"
-                        aria-label={`Project actions for ${column.projectMeta?.label ?? 'project'}`}
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </button>
-                    </div>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${bottomWorkspaceCollapsed ? '' : 'rotate-180'}`} />
+                    </button>
 
-                    {projectMenuId === column.projectId ? (
-                      <div className="absolute right-0 top-11 z-20 w-52 rounded-[1rem] border border-border-subtle/70 bg-bg-elevated/95 p-2 shadow-2xl backdrop-blur-xl">
-                        <button
-                          type="button"
-                          onClick={() => column.projectMeta && openEditProject(column.projectMeta)}
-                          className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
-                        >
-                          Rename or recolor
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleStartMergeProject(column.projectId)}
-                          disabled={localOrg.projects.length < 2}
-                          className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          Merge into…
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCollapsedDoneProjects((current) => ({
-                              ...current,
-                              [column.projectId]: !(current[column.projectId] ?? true),
-                            }))
+                    {!bottomWorkspaceCollapsed ? (
+                      <div className="organize-columns flex flex-col lg:flex-row min-h-full gap-4 pb-2">
+                        <DroppableInbox
+                          bullets={inbox?.bullets || []}
+                          existingProjects={localOrg.projects}
+                          onUpdateBullet={handleUpdateBullet}
+                          onDeleteBullet={handleDeleteBullet}
+                          selectedIds={selectedInboxIds}
+                          onToggleSelected={(bulletId) =>
+                            setSelectedInboxIds((current) =>
+                              current.includes(bulletId) ? current.filter((id) => id !== bulletId) : [...current, bulletId]
+                            )
                           }
-                          className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
-                        >
-                          {(collapsedDoneProjects[column.projectId] ?? true) ? 'Expand done lane' : 'Collapse done lane'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteProject(column.projectId)}
-                          className="block w-full rounded-lg px-3 py-2 text-left text-sm text-error hover:bg-error/8"
-                        >
-                          Remove project
-                        </button>
+                          onClearSelection={() => setSelectedInboxIds([])}
+                          onBatchUpdate={handleBatchUpdateInbox}
+                          onBatchDelete={handleBatchDeleteInbox}
+                          collapsed={inboxCollapsed}
+                          onToggle={() => setInboxCollapsed((value) => !value)}
+                          quickAddText={quickAddText}
+                          onQuickAddChange={setQuickAddText}
+                          onQuickAdd={handleQuickAdd}
+                          prefersReducedMotion={prefersReducedMotion}
+                        />
+
+                        {projectColumns.map((column) => (
+                          <motion.div
+                            key={column.projectId}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
+                            className="organize-project-column w-full lg:w-[18rem] shrink-0 px-3 pt-1 pb-4 lg:border-r lg:border-border-subtle/20"
+                            data-project-color={column.projectMeta?.color ?? 'lavender'}
+                          >
+                            <div className="organize-project-column-header relative mb-2.5 flex items-center justify-between gap-3 border-b border-border-subtle/25 pb-2.5">
+                              <div className="min-w-0 flex-1">
+                                <span className={`moment-tag-pill moment-tag-pill-selected-${column.projectMeta?.color ?? 'lavender'}`}>
+                                  {column.projectMeta?.label || 'Project'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className="text-[11px] font-medium text-text-muted/60 tabular-nums">
+                                  {QUEUED_LANES.reduce((sum, lane) => sum + column.lanes[lane].length, 0) + column.lanes.done.length}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => setProjectMenuId((current) => (current === column.projectId ? null : column.projectId))}
+                                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-text-muted/50 transition-colors hover:bg-bg-elevated hover:text-text"
+                                  aria-label={`Project actions for ${column.projectMeta?.label ?? 'project'}`}
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </button>
+                              </div>
+
+                              {projectMenuId === column.projectId ? (
+                                <div className="absolute right-0 top-11 z-20 w-52 rounded-[1rem] border border-border-subtle/70 bg-bg-elevated/95 p-2 shadow-2xl backdrop-blur-xl">
+                                  <button
+                                    type="button"
+                                    onClick={() => column.projectMeta && openEditProject(column.projectMeta)}
+                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
+                                  >
+                                    Rename or recolor
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleStartMergeProject(column.projectId)}
+                                    disabled={localOrg.projects.length < 2}
+                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-50"
+                                  >
+                                    Merge into…
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setCollapsedDoneProjects((current) => ({
+                                        ...current,
+                                        [column.projectId]: !(current[column.projectId] ?? true),
+                                      }))
+                                    }
+                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
+                                  >
+                                    {(collapsedDoneProjects[column.projectId] ?? true) ? 'Expand done lane' : 'Collapse done lane'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteProject(column.projectId)}
+                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-error hover:bg-error/8"
+                                  >
+                                    Remove project
+                                  </button>
+                                </div>
+                              ) : null}
+                            </div>
+
+                            <div className="organize-project-column-body space-y-2.5">
+                              <ProjectNowSummary bullets={column.lanes.now} />
+
+                              {QUEUED_LANES.map((lane) => (
+                                <DroppableLane
+                                  key={lane}
+                                  id={laneDropId(column.projectId, lane)}
+                                  lane={lane}
+                                  bullets={column.lanes[lane]}
+                                  existingProjects={localOrg.projects}
+                                  onUpdateBullet={handleUpdateBullet}
+                                  onDeleteBullet={handleDeleteBullet}
+                                />
+                              ))}
+
+                              {showDoneLanes ? (
+                                <DroppableLane
+                                  id={laneDropId(column.projectId, 'done')}
+                                  lane="done"
+                                  bullets={column.lanes.done}
+                                  existingProjects={localOrg.projects}
+                                  onUpdateBullet={handleUpdateBullet}
+                                  onDeleteBullet={handleDeleteBullet}
+                                  collapsed={collapsedDoneProjects[column.projectId] ?? true}
+                                  onToggleCollapsed={() =>
+                                    setCollapsedDoneProjects((current) => ({
+                                      ...current,
+                                      [column.projectId]: !(current[column.projectId] ?? true),
+                                    }))
+                                  }
+                                />
+                              ) : null}
+                            </div>
+                          </motion.div>
+                        ))}
                       </div>
                     ) : null}
                   </div>
-
-                  <div className="space-y-2.5">
-                    {ACTIVE_LANES.map((lane) => (
-                      <DroppableLane
-                        key={lane}
-                        id={laneDropId(column.projectId, lane)}
-                        lane={lane}
-                        bullets={column.lanes[lane]}
-                        existingProjects={localOrg.projects}
-                        onUpdateBullet={handleUpdateBullet}
-                        onDeleteBullet={handleDeleteBullet}
-                      />
-                    ))}
-
-                    {showDoneLanes ? (
-                      <DroppableLane
-                        id={laneDropId(column.projectId, 'done')}
-                        lane="done"
-                        bullets={column.lanes.done}
-                        existingProjects={localOrg.projects}
-                        onUpdateBullet={handleUpdateBullet}
-                        onDeleteBullet={handleDeleteBullet}
-                        collapsed={collapsedDoneProjects[column.projectId] ?? true}
-                        onToggleCollapsed={() =>
-                          setCollapsedDoneProjects((current) => ({
-                            ...current,
-                            [column.projectId]: !(current[column.projectId] ?? true),
-                          }))
-                        }
-                      />
-                    ) : null}
-                  </div>
-                </motion.div>
-              ))}
-
-              {projectColumns.length === 0 && localOrg.projects.length === 0 ? null : null}
-              </div>
-            </>
-          )}
+                ) : null}
+              </>
+            )}
+          </div>
 
           <DragOverlay
             dropAnimation={{
@@ -1471,7 +1583,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
           >
             {activeBullet ? (
               <div
-                className="max-w-[22rem] rounded-xl border border-primary/40 bg-bg-elevated/95 px-4 py-3 backdrop-blur-lg ring-2 ring-primary/20 cursor-grabbing"
+                className="organize-drag-overlay max-w-[22rem] rounded-xl border border-primary/40 bg-bg-elevated/95 px-4 py-3 backdrop-blur-lg ring-2 ring-primary/20 cursor-grabbing"
                 style={{
                   boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1), var(--glow-primary)',
                 }}

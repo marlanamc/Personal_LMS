@@ -38,6 +38,7 @@ interface OrganizableBulletProps {
   onToggleSelect?: () => void;
   showProjectPill?: boolean;
   inSpotlight?: boolean;
+  spotlightPriority?: 'primary' | 'secondary';
 }
 
 const LANE_COLORS: Record<ThoughtLane, {
@@ -84,6 +85,7 @@ const LANE_COLORS: Record<ThoughtLane, {
 
 
 
+
 export function OrganizableBullet({
   bullet,
   existingProjects,
@@ -95,6 +97,7 @@ export function OrganizableBullet({
   onToggleSelect,
   showProjectPill = false,
   inSpotlight = false,
+  spotlightPriority = 'secondary',
 }: OrganizableBulletProps) {
   const [isEditing, setIsEditing] = useState(false);
   const isEditable = interactionMode === 'editable';
@@ -120,17 +123,21 @@ export function OrganizableBullet({
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <div
-        className={`organize-card group relative rounded-[1.1rem] overflow-hidden transition-[box-shadow,border-color] duration-150 ${
+        className={`organize-card group relative rounded-[1.1rem] overflow-hidden transition-[box-shadow,border-color,background-color] duration-150 ${
           isDragging
             ? 'opacity-50 ring-2 ring-primary/20 bg-bg-surface'
             : 'bg-bg-surface/25 border border-border-subtle/20 hover:bg-bg-surface/60 hover:border-border-subtle/50'
-        } ${inSpotlight ? 'bg-bg-surface/40' : ''}`}
+        } ${inSpotlight ? 'organize-card-spotlight bg-bg-surface/40' : ''} ${selected ? 'organize-card-selected' : ''} ${
+          inSpotlight ? `organize-card-spotlight-${spotlightPriority}` : ''
+        }`}
+        data-lane={bullet.lane ?? 'inbox'}
       >
-        {/* Accent Bar - replaces dot indicator */}
-        {laneConfig && (
+        {/* Accent Bar - uses project color if available, otherwise lane color */}
+        {(laneConfig || bullet.projectMeta?.color) && (
           <div
-            className={`organize-card-accent absolute left-0 top-0 bottom-0 w-1 ${laneConfig.accentBar} ${laneConfig.glow}`}
+            className="organize-card-accent"
             data-lane={bullet.lane}
+            data-project-color={bullet.projectMeta?.color}
           />
         )}
 
@@ -154,10 +161,10 @@ export function OrganizableBullet({
           ) : null}
 
           {/* Drag Handle - Hidden until hover on desktop */}
-          <div className={`absolute ${laneConfig ? 'left-3.5' : 'left-2.5'} top-3.5 opacity-40 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity`}>
+          <div className={`organize-card-grip absolute ${laneConfig ? 'left-3.5' : 'left-2.5'} top-3.5 opacity-70 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity`}>
             <button
               {...listeners}
-              className="mt-0.5 cursor-grab touch-none text-text-muted/60 transition-colors hover:text-text-muted active:cursor-grabbing p-2 sm:p-1.5 -ml-2 sm:-ml-1.5"
+              className="mt-0.5 cursor-grab touch-none text-text-muted/70 transition-colors hover:text-text active:cursor-grabbing p-2 sm:p-1.5 -ml-2 sm:-ml-1.5"
               aria-label="Drag to reorder"
             >
               <GripVertical className="h-5 w-5 sm:h-4 sm:w-4" />
@@ -182,13 +189,13 @@ export function OrganizableBullet({
                 {/* No dot here anymore - accent bar replaces it */}
 
                 <div className="flex-1">
-                  <p className={`text-[0.95rem] sm:text-sm text-text leading-[1.55] ${isEditable ? 'group-hover/button:text-primary transition-colors' : ''} ${isDone ? 'line-through opacity-60' : ''}`}>
+                  <p className={`organize-card-title text-[1rem] sm:text-[0.98rem] text-text leading-[1.35] font-medium tracking-[-0.01em] ${isEditable ? 'group-hover/button:text-primary transition-colors' : ''} ${isDone ? 'line-through opacity-60' : ''}`}>
                     {bullet.text}
                   </p>
 
                   {/* Show project pill in spotlight view or when editable */}
                   {(showProjectPill || isEditable) && (bullet.projectMeta || bullet.source) && (
-                    <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                    <div className="organize-card-meta mt-2.5 flex flex-wrap items-center gap-2">
                       {bullet.projectMeta && (
                         <span className={`inline-block moment-tag-pill moment-tag-pill-selected-${bullet.projectMeta.color}`}>
                           {bullet.projectMeta.label}
