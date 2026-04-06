@@ -156,55 +156,6 @@ export function DayTimeline({
             />
           ))}
 
-        {/* Rhythm pattern indicator - vertical bar on right showing alternating pattern */}
-        {blocks.length >= 2 && (() => {
-          // Check if we have any alternating blocks
-          const hasAlternatingPattern = blocks.some((block, idx) => {
-            const nextBlock = blocks[idx + 1];
-            return nextBlock && block.blockKind !== nextBlock.blockKind;
-          });
-
-          if (!hasAlternatingPattern) return null;
-
-          return (
-            <div
-              className="absolute top-0 right-0 w-2 pointer-events-none z-[2]"
-              style={{
-                height: timelineHeight + timelinePadding * 2,
-              }}
-            >
-              {/* Show a segment for each block in alternating colors */}
-              {blocks.map((block, idx) => {
-                const isAlternating =
-                  (idx > 0 && blocks[idx - 1].blockKind !== block.blockKind) ||
-                  (idx < blocks.length - 1 && blocks[idx + 1].blockKind !== block.blockKind);
-
-                if (!isAlternating) return null;
-
-                const startMin = Math.max(block.startMinute, config.startHour * 60);
-                const endMin = Math.min(block.endMinute ?? block.startMinute + 30, config.endHour * 60);
-                const duration = endMin - startMin;
-
-                return (
-                  <div
-                    key={`rhythm-bar-${block.id}`}
-                    className="absolute right-0 w-full rounded-l-sm"
-                    style={{
-                      top: getTop(startMin) + 2,
-                      height: Math.max(getHeight(duration) - 4, 24),
-                      background:
-                        block.blockKind === 'want'
-                          ? 'var(--color-accent-teal)'
-                          : 'var(--color-accent-sakura)',
-                      opacity: 0.65,
-                    }}
-                  />
-                );
-              })}
-            </div>
-          );
-        })()}
-
         {/* Quadrant bands */}
         {quadrants
           .filter((item) => {
@@ -287,67 +238,6 @@ export function DayTimeline({
               />
             );
           })}
-
-        {/* Rhythm indicators - show alternating pattern between time blocks */}
-        {blocks.length > 1 && blocks.map((block, idx) => {
-          if (idx === blocks.length - 1) return null; // Skip last block
-          const nextBlock = blocks[idx + 1];
-
-          // Only show rhythm indicator when blocks alternate between want/should
-          const isAlternating = block.blockKind !== nextBlock.blockKind;
-          if (!isAlternating) return null;
-
-          const gapStart = block.endMinute ?? block.startMinute + 30;
-          const gapEnd = nextBlock.startMinute;
-          const gapMinutes = gapEnd - gapStart;
-
-          // Show rhythm indicator even for small gaps
-          const rhythmTop = getTop(gapStart);
-          const rhythmHeight = Math.max(8, getHeight(gapMinutes));
-
-          return (
-            <div
-              key={`rhythm-${block.id}-${nextBlock.id}`}
-              className="absolute left-1/2 -translate-x-1/2 z-[5] pointer-events-none"
-              style={{
-                top: rhythmTop - 4,
-                height: rhythmHeight + 8,
-                width: '20px',
-              }}
-            >
-              {/* Visible connector showing transition */}
-              <div className="w-full h-full relative flex items-center justify-center">
-                {/* Vertical dashed line */}
-                <div
-                  className="w-[3px] h-full rounded-full"
-                  style={{
-                    background: `repeating-linear-gradient(
-                      to bottom,
-                      ${block.blockKind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)'} 0px,
-                      ${block.blockKind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)'} 4px,
-                      transparent 4px,
-                      transparent 8px,
-                      ${nextBlock.blockKind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)'} 8px,
-                      ${nextBlock.blockKind === 'want' ? 'var(--color-accent-teal)' : 'var(--color-accent-sakura)'} 12px,
-                      transparent 12px,
-                      transparent 16px
-                    )`,
-                    opacity: 0.6,
-                  }}
-                />
-                {/* Center dot */}
-                <div
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full border-2"
-                  style={{
-                    background: 'var(--color-text-muted)',
-                    borderColor: 'var(--color-bg-elevated)',
-                    boxShadow: '0 0 10px rgba(0,0,0,0.2)',
-                  }}
-                />
-              </div>
-            </div>
-          );
-        })}
 
         {/* Time blocks layer */}
         {blocks
