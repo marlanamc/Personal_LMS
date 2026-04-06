@@ -233,6 +233,9 @@ function normalizeSkincareShopItem(raw: unknown): SkincareShopItem | null {
     typeof o.category === 'string' && SKINCARE_CATEGORY_IDS.includes(o.category as SkincareCategoryId)
       ? (o.category as SkincareCategoryId)
       : undefined;
+  const priceRaw = o.price;
+  const price =
+    typeof priceRaw === 'string' && priceRaw.trim() ? priceRaw.trim() : undefined;
   const addedAt = typeof o.addedAt === 'string' && o.addedAt.trim() ? o.addedAt : new Date().toISOString();
   return {
     id,
@@ -240,6 +243,7 @@ function normalizeSkincareShopItem(raw: unknown): SkincareShopItem | null {
     checked: o.checked === true,
     kind,
     category,
+    price,
     addedAt,
   };
 }

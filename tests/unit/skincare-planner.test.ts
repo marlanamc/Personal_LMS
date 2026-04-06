@@ -233,6 +233,29 @@ describe('skincare planner v2 (item-centric)', () => {
     expect(normalized.items[0].weeklySchedule[0]?.am).toBe(true);
   });
 
+  it('preserves shop list item price through normalization', () => {
+    const store: SkincarePlannerStore = {
+      version: 2,
+      items: [],
+      itemCatalog: EMPTY_SKINCARE_PLANNER_STORE.itemCatalog,
+      shopList: [
+        {
+          id: 'shop-1',
+          text: 'Sunscreen',
+          checked: false,
+          kind: 'to_buy',
+          category: 'sunscreen',
+          price: '24.99',
+          addedAt: '2026-04-06T12:00:00.000Z',
+        },
+      ],
+    };
+
+    const normalized = normalizeSkincarePlannerStore(store);
+    expect(normalized.shopList).toHaveLength(1);
+    expect(normalized.shopList[0].price).toBe('24.99');
+  });
+
   it('getTodayItems returns items for current day', () => {
     const store: SkincarePlannerStore = {
       version: 2,
