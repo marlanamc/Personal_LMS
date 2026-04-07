@@ -2,14 +2,17 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
-import { Headphones, Plus, X, Shuffle } from 'lucide-react';
+import { Headphones, Plus, X, Shuffle, MessageSquareQuote } from 'lucide-react';
 import type { Podcast } from '@/lib/media-hub';
 import { AddPodcastDialog } from './AddPodcastDialog';
+import { ThoughtDownloadDrawer } from './ThoughtDownloadDrawer';
 
 interface GoToPodcastsSectionProps {
   podcasts: Podcast[];
   onAddPodcast: (name: string, category?: string, link?: string, coverUrl?: string) => void;
   onRemovePodcast: (id: string) => void;
+  onAddPodcastThought: (podcastId: string, content: string, progress?: string) => void;
+  onRemovePodcastThought: (podcastId: string, thoughtId: string) => void;
 }
 
 const CATEGORY_COLORS: Record<string, { bg: string; text: string; glow: 'pink' | 'mint' | 'lavender' | 'aqua' }> = {
@@ -58,10 +61,19 @@ function PodcastArtwork({
   );
 }
 
-export function GoToPodcastsSection({ podcasts, onAddPodcast, onRemovePodcast }: GoToPodcastsSectionProps) {
+export function GoToPodcastsSection({
+  podcasts,
+  onAddPodcast,
+  onRemovePodcast,
+  onAddPodcastThought,
+  onRemovePodcastThought,
+}: GoToPodcastsSectionProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [shufflePick, setShufflePick] = useState<Podcast | null>(null);
+  const [journalingId, setJournalingId] = useState<string | null>(null);
+
+  const journalingPodcast = podcasts.find((podcast) => podcast.id === journalingId) ?? null;
 
   const handleRemove = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -132,6 +144,7 @@ export function GoToPodcastsSection({ podcasts, onAddPodcast, onRemovePodcast }:
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
         {podcasts.map((podcast) => {
           const style = getCategoryStyle(podcast.category);
+          const thoughtCount = podcast.thoughts?.length ?? 0;
           const Content = (
             <>
               <button
@@ -152,6 +165,24 @@ export function GoToPodcastsSection({ podcasts, onAddPodcast, onRemovePodcast }:
                   {podcast.category}
                 </span>
               )}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setJournalingId(podcast.id);
+                }}
+                className="mt-3 relative z-10 flex items-center justify-between w-full rounded-lg bg-white/5 hover:bg-primary/10 hover:text-primary transition-all border border-transparent hover:border-primary/20 px-2.5 py-2 text-text-muted"
+                aria-label={`Open notes for ${podcast.name}`}
+              >
+                <span className="flex items-center gap-2 min-w-0">
+                  <MessageSquareQuote className="h-3.5 w-3.5 shrink-0" />
+                  <span className="text-[11px] font-bold uppercase tracking-wide truncate">Notes</span>
+                </span>
+                <span className="text-[10px] font-bold bg-white/5 px-1.5 py-0.5 rounded-md">
+                  {thoughtCount}
+                </span>
+              </button>
             </>
           );
 
@@ -201,6 +232,16 @@ export function GoToPodcastsSection({ podcasts, onAddPodcast, onRemovePodcast }:
         onClose={() => setIsAddDialogOpen(false)}
         onAdd={onAddPodcast}
       />
+
+      {journalingPodcast && (
+        <ThoughtDownloadDrawer
+          item={journalingPodcast}
+          isOpen={true}
+          onClose={() => setJournalingId(null)}
+          onAddThought={onAddPodcastThought}
+          onRemoveThought={onRemovePodcastThought}
+        />
+      )}
     </section>
   );
 }

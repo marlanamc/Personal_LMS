@@ -22,6 +22,8 @@ export function MediaHubView({ storageScope }: MediaHubViewProps) {
     saveError,
     addPodcast,
     removePodcast,
+    addPodcastThought,
+    removePodcastThought,
     addMediaItem,
     updateMediaItem,
     moveToActive,
@@ -106,6 +108,8 @@ export function MediaHubView({ storageScope }: MediaHubViewProps) {
               podcasts={store.podcasts}
               onAddPodcast={addPodcast}
               onRemovePodcast={removePodcast}
+              onAddPodcastThought={addPodcastThought}
+              onRemovePodcastThought={removePodcastThought}
             />
           </div>
 

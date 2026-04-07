@@ -4,15 +4,21 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Send, BookOpen, Trash2, Clock, MessageSquareQuote } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { MEDIA_TYPE_CONFIG, type MediaItem } from '@/lib/media-hub';
+import { MEDIA_TYPE_CONFIG, type MediaItem, type MediaThought, type Podcast } from '@/lib/media-hub';
 import { formatThoughtDate } from '@/lib/media-hub';
 
+type ThoughtDrawerItem = MediaItem | Podcast;
+
 interface ThoughtDownloadDrawerProps {
-  item: MediaItem;
+  item: ThoughtDrawerItem;
   isOpen: boolean;
   onClose: () => void;
-  onAddThought: (mediaId: string, content: string, progress?: string) => void;
-  onRemoveThought: (mediaId: string, thoughtId: string) => void;
+  onAddThought: (id: string, content: string, progress?: string) => void;
+  onRemoveThought: (id: string, thoughtId: string) => void;
+}
+
+function isMediaItem(item: ThoughtDrawerItem): item is MediaItem {
+  return 'type' in item;
 }
 
 export function ThoughtDownloadDrawer({
@@ -59,7 +65,7 @@ export function ThoughtDownloadDrawer({
     }
   };
 
-  const typeConfig = MEDIA_TYPE_CONFIG[item.type];
+  const typeConfig = isMediaItem(item) ? MEDIA_TYPE_CONFIG[item.type] : null;
   const sortedThoughts = [...(item.thoughts || [])].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
@@ -82,14 +88,14 @@ export function ThoughtDownloadDrawer({
               {item.coverUrl ? (
                 <img src={item.coverUrl} alt="" className="w-full h-full object-cover" />
               ) : (
-                item.coverEmoji || typeConfig.emoji
+                (isMediaItem(item) ? item.coverEmoji : undefined) || typeConfig?.emoji || '🎙️'
               )}
             </div>
             <div className="min-w-0">
               <h3 className="font-display text-sm text-text-primary truncate leading-tight">
-                {item.title}
+                {isMediaItem(item) ? item.title : item.name}
               </h3>
-              {item.author?.trim() && (
+              {isMediaItem(item) && item.author?.trim() && (
                 <p className="text-xs text-text-muted truncate mt-0.5">{item.author.trim()}</p>
               )}
               <p className="text-[10px] font-bold text-success uppercase tracking-widest mt-0.5">
@@ -116,10 +122,12 @@ export function ThoughtDownloadDrawer({
                 <MessageSquareQuote className="h-8 w-8" />
               </div>
               <p className="text-sm font-medium">No thoughts logged yet.</p>
-              <p className="text-xs mt-1">Start your download below – it stays with this book forever.</p>
+              <p className="text-xs mt-1">
+                Start your download below{isMediaItem(item) ? ' – it stays with this book forever.' : '.'}
+              </p>
             </div>
           ) : (
-            sortedThoughts.map((thought, idx) => (
+            sortedThoughts.map((thought: MediaThought, idx) => (
               <div key={thought.id} className="group flex flex-col gap-2 relative">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-[10px] font-bold text-text-muted uppercase tracking-wider">
@@ -189,7 +197,7 @@ export function ThoughtDownloadDrawer({
                 type="text"
                 value={progress}
                 onChange={(e) => setProgress(e.target.value)}
-                placeholder="Chapter / Page (optional)"
+                placeholder={isMediaItem(item) ? 'Chapter / Page (optional)' : 'Episode / Timestamp (optional)'}
                 className="flex-1 bg-transparent border-none text-[10px] font-bold text-text-muted uppercase tracking-widest placeholder-text-muted/40 focus:outline-none"
               />
             </div>

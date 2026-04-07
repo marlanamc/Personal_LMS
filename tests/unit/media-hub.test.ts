@@ -66,6 +66,36 @@ describe('normalizeMediaHubStore', () => {
     expect(store.podcasts[0]?.coverUrl).toBe('https://cdn.example.com/radiolab.png');
   });
 
+  it('keeps podcast thoughts when present', () => {
+    const store = normalizeMediaHubStore({
+      podcasts: [
+        {
+          id: 'pod-2',
+          name: 'AuDHD Sparks',
+          addedAt: '2026-04-01T00:00:00.000Z',
+          thoughts: [
+            {
+              id: 'thought-1',
+              content: 'Helpful episode about routines.',
+              createdAt: '2026-04-07T10:00:00.000Z',
+              progressMarker: 'Ep 12',
+            },
+          ],
+        },
+      ],
+      mediaItems: [],
+    });
+
+    expect(store.podcasts[0]?.thoughts).toEqual([
+      {
+        id: 'thought-1',
+        content: 'Helpful episode about routines.',
+        createdAt: '2026-04-07T10:00:00.000Z',
+        progressMarker: 'Ep 12',
+      },
+    ]);
+  });
+
   it('discards invalid podcast records with no usable name', () => {
     const store = normalizeMediaHubStore({
       podcasts: [

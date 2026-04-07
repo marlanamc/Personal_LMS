@@ -10,6 +10,7 @@ export interface Podcast {
   link?: string;
   /** Cover / artwork image URL */
   coverUrl?: string;
+  thoughts?: MediaThought[];
 }
 
 export interface MediaThought {
@@ -137,7 +138,10 @@ function normalizePodcast(raw: unknown): Podcast | null {
     normalizeOptionalString(o.cover) ??
     normalizeOptionalString(o.coverImage) ??
     normalizeOptionalString(o.cover_image);
-  return { id, name, category, addedAt, link, coverUrl };
+  const thoughts = Array.isArray(o.thoughts)
+    ? o.thoughts.map(normalizeMediaThought).filter((t): t is MediaThought => t !== null)
+    : undefined;
+  return { id, name, category, addedAt, link, coverUrl, thoughts };
 }
 
 function normalizeMediaThought(raw: unknown): MediaThought | null {

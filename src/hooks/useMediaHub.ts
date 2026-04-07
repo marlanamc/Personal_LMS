@@ -338,6 +338,46 @@ export function useMediaHub(storageScope: string) {
     [setMediaHubStore],
   );
 
+  const addPodcastThought = useCallback(
+    (podcastId: string, content: string, progressMarker?: string) => {
+      const thought: MediaThought = {
+        id: generateId(),
+        content: content.trim(),
+        createdAt: new Date().toISOString(),
+        progressMarker: progressMarker?.trim() || undefined,
+      };
+      setMediaHubStore((prev) => ({
+        ...prev,
+        podcasts: prev.podcasts.map((podcast) =>
+          podcast.id === podcastId
+            ? {
+                ...podcast,
+                thoughts: [...(podcast.thoughts || []), thought],
+              }
+            : podcast,
+        ),
+      }));
+    },
+    [setMediaHubStore],
+  );
+
+  const removePodcastThought = useCallback(
+    (podcastId: string, thoughtId: string) => {
+      setMediaHubStore((prev) => ({
+        ...prev,
+        podcasts: prev.podcasts.map((podcast) =>
+          podcast.id === podcastId
+            ? {
+                ...podcast,
+                thoughts: (podcast.thoughts || []).filter((thought) => thought.id !== thoughtId),
+              }
+            : podcast,
+        ),
+      }));
+    },
+    [setMediaHubStore],
+  );
+
   const addMediaItem = useCallback(
     (
       title: string,
@@ -491,6 +531,8 @@ export function useMediaHub(storageScope: string) {
     // Podcast actions
     addPodcast,
     removePodcast,
+    addPodcastThought,
+    removePodcastThought,
 
     // Media item actions
     addMediaItem,
