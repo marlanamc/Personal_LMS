@@ -7007,6 +7007,18 @@ kbd {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
+  border-radius: 1rem;
+  transition:
+    background-color 160ms ease-out,
+    box-shadow 160ms ease-out,
+    border-color 160ms ease-out;
+}
+
+.now-spotlight-stage-drop-active {
+  background: color-mix(in srgb, var(--color-bg-surface) 58%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 26%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--color-primary) 12%, transparent);
 }
 
 .now-spotlight-stage-secondary {
@@ -7078,6 +7090,29 @@ kbd {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--color-text-secondary) 70%, var(--color-accent-sakura));
+}
+
+.now-spotlight-drop-placeholder {
+  min-height: 6.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  border: 1px dashed color-mix(in srgb, var(--color-border-subtle) 75%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 56%, transparent) 0%,
+      color-mix(in srgb, var(--color-bg-elevated) 38%, transparent) 100%
+    );
+  text-align: center;
+}
+
+.now-spotlight-drop-placeholder span {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-text-secondary);
 }
 
 /* When there's only one NOW item, center it nicely */
@@ -7852,6 +7887,71 @@ kbd {
   flex-direction: column;
   gap: 0.15rem;
   min-width: 0;
+}
+
+.organize-project-focus-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.organize-project-focus-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.1rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 78%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 72%, transparent);
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    background-color 160ms ease-out,
+    border-color 160ms ease-out,
+    color 160ms ease-out,
+    transform 160ms ease-out,
+    box-shadow 160ms ease-out;
+}
+
+.organize-project-focus-chip:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--color-bg-elevated) 82%, transparent);
+}
+
+.organize-project-focus-chip-active {
+  border-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 16%, var(--color-bg-surface));
+  color: var(--color-text);
+  box-shadow: 0 8px 18px rgba(10, 16, 28, 0.08);
+}
+
+.organize-project-focus-chip-lavender { border-color: var(--project-lavender-border); }
+.organize-project-focus-chip-mint { border-color: var(--project-mint-border); }
+.organize-project-focus-chip-sky { border-color: var(--project-sky-border); }
+.organize-project-focus-chip-peach { border-color: var(--project-peach-border); }
+.organize-project-focus-chip-rose { border-color: var(--project-rose-border); }
+.organize-project-focus-chip-sage { border-color: var(--project-sage-border); }
+.organize-project-focus-chip-periwinkle { border-color: var(--project-periwinkle-border); }
+.organize-project-focus-chip-coral { border-color: var(--project-coral-border); }
+.organize-project-focus-chip-blush { border-color: var(--project-blush-border); }
+.organize-project-focus-chip-slate { border-color: var(--project-slate-border); }
+
+.organize-project-focus-note {
+  padding: 0.75rem 0.9rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 72%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 78%, transparent) 0%,
+      color-mix(in srgb, var(--color-bg-elevated) 48%, transparent) 100%
+    );
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
 }
 
 .organize-lower-workspace-toggle-label {

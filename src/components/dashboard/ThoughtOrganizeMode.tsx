@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useState, type CSSProperties } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -76,6 +76,48 @@ const LANE_CONFIG: Record<ThoughtLane, {
 
 const PROJECT_COLORS: ProjectColor[] = ['lavender', 'mint', 'sky', 'peach', 'rose', 'sage', 'periwinkle', 'coral', 'blush', 'slate'];
 
+function spotlightDropId(slot: 'current' | 'next') {
+  return `spotlight:${slot}`;
+}
+
+function parseSpotlightDropId(id: string): 'current' | 'next' | null {
+  const match = /^spotlight:(current|next)$/.exec(id);
+  return match ? (match[1] as 'current' | 'next') : null;
+}
+
+function SpotlightDropSlot({
+  id,
+  label,
+  hint,
+  children,
+}: {
+  id: string;
+  label: string;
+  hint: string;
+  children?: ReactNode;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`now-spotlight-stage ${isOver ? 'now-spotlight-stage-drop-active' : ''}`}
+      data-drop-slot={id}
+    >
+      <div className="now-spotlight-stage-header">
+        <span className="now-spotlight-stage-label">{label}</span>
+      </div>
+      {children ? (
+        children
+      ) : (
+        <div className="now-spotlight-drop-placeholder">
+          <span>{hint}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // NOW Spotlight - collects all NOW items across projects for hero display
 function NowSpotlight({
   bullets,
@@ -85,6 +127,7 @@ function NowSpotlight({
   showExpanded,
   onToggleExpanded,
   prefersReducedMotion,
+  focusedProjectId,
 }: {
   bullets: ThoughtBullet[];
   projects: ProjectMeta[];
@@ -93,13 +136,19 @@ function NowSpotlight({
   showExpanded: boolean;
   onToggleExpanded: () => void;
   prefersReducedMotion: boolean;
+  focusedProjectId?: string | null;
 }) {
-  const nowBullets = bullets.filter((b) => b.lane === 'now' && b.project);
+  const nowBullets = [...bullets]
+    .filter((b) => b.lane === 'now' && b.project && (!focusedProjectId || b.project === focusedProjectId))
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
   const displayBullets = showExpanded ? nowBullets : nowBullets.slice(0, 2);
   const hiddenCount = nowBullets.length - 2;
   const hasOverflow = nowBullets.length > 2;
   const currentBullet = displayBullets[0];
   const nextBullet = displayBullets[1];
+  const focusedProject = focusedProjectId
+    ? projects.find((project) => project.id === focusedProjectId) ?? null
+    : null;
 
   if (nowBullets.length === 0) {
     return (
@@ -108,8 +157,17 @@ function NowSpotlight({
           <span className="now-spotlight-dot" />
           <span className="now-spotlight-label">Now</span>
         </div>
-        <div className="now-spotlight-empty">
-          <p>Drag a task here to mark it as your current focus</p>
+        <div className="now-spotlight-flow">
+          <SpotlightDropSlot
+            id={spotlightDropId('current')}
+            label="Current task"
+            hint="Drag a project task here to set your current focus"
+          />
+          <SpotlightDropSlot
+            id={spotlightDropId('next')}
+            label="Up next"
+            hint="Drop here to line up the next task after current"
+          />
         </div>
       </div>
     );
@@ -123,7 +181,11 @@ function NowSpotlight({
           <div className="now-spotlight-title-wrap">
             <span className="now-spotlight-label">Now</span>
             <p className="now-spotlight-subtitle">
-              {displayBullets.length > 0 ? `Start here${nowBullets.length > 1 ? ` • 1 of ${nowBullets.length}` : ''}` : 'Start here'}
+              {focusedProject
+                ? `${focusedProject.label}${nowBullets.length > 0 ? ` • ${nowBullets.length} in focus` : ' • no NOW tasks yet'}`
+                : displayBullets.length > 0
+                  ? `Start here${nowBullets.length > 1 ? ` • 1 of ${nowBullets.length}` : ''}`
+                  : 'Start here'}
             </p>
           </div>
         </div>
@@ -131,47 +193,53 @@ function NowSpotlight({
       </div>
 
       <div className="now-spotlight-flow">
-        {currentBullet ? (
-          <div className="now-spotlight-stage now-spotlight-stage-current">
-            <div className="now-spotlight-stage-header">
-              <span className="now-spotlight-stage-label">Current task</span>
-            </div>
+        <div className="now-spotlight-stage-current">
+          <SpotlightDropSlot
+            id={spotlightDropId('current')}
+            label="Current task"
+            hint="Drop here to make this your current task"
+          >
             <div className="now-spotlight-current">
-              <OrganizableBullet
-                key={currentBullet.id}
-                bullet={currentBullet}
-                existingProjects={projects}
-                onUpdate={(updates) => onUpdateBullet(currentBullet.id, updates)}
-                onDelete={() => onDeleteBullet(currentBullet.id)}
-                interactionMode="drag-only"
-                showProjectPill
-                inSpotlight
-                spotlightPriority="primary"
-              />
+              {currentBullet ? (
+                <OrganizableBullet
+                  key={currentBullet.id}
+                  bullet={currentBullet}
+                  existingProjects={projects}
+                  onUpdate={(updates) => onUpdateBullet(currentBullet.id, updates)}
+                  onDelete={() => onDeleteBullet(currentBullet.id)}
+                  interactionMode="drag-only"
+                  showProjectPill
+                  inSpotlight
+                  spotlightPriority="primary"
+                />
+              ) : null}
             </div>
-          </div>
-        ) : null}
+          </SpotlightDropSlot>
+        </div>
 
-        {nextBullet ? (
-          <div className="now-spotlight-stage now-spotlight-stage-secondary">
-            <div className="now-spotlight-stage-header">
-              <span className="now-spotlight-stage-label">Up next</span>
-            </div>
+        <div className="now-spotlight-stage-secondary">
+          <SpotlightDropSlot
+            id={spotlightDropId('next')}
+            label="Up next"
+            hint="Drop here to make this the next task after current"
+          >
             <div className="now-spotlight-next">
-              <OrganizableBullet
-                key={nextBullet.id}
-                bullet={nextBullet}
-                existingProjects={projects}
-                onUpdate={(updates) => onUpdateBullet(nextBullet.id, updates)}
-                onDelete={() => onDeleteBullet(nextBullet.id)}
-                interactionMode="drag-only"
-                showProjectPill
-                inSpotlight
-                spotlightPriority="secondary"
-              />
+              {nextBullet ? (
+                <OrganizableBullet
+                  key={nextBullet.id}
+                  bullet={nextBullet}
+                  existingProjects={projects}
+                  onUpdate={(updates) => onUpdateBullet(nextBullet.id, updates)}
+                  onDelete={() => onDeleteBullet(nextBullet.id)}
+                  interactionMode="drag-only"
+                  showProjectPill
+                  inSpotlight
+                  spotlightPriority="secondary"
+                />
+              ) : null}
             </div>
-          </div>
-        ) : null}
+          </SpotlightDropSlot>
+        </div>
 
         {hasOverflow ? (
           <div className="now-spotlight-overflow">
@@ -757,6 +825,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const [undoCountdown, setUndoCountdown] = useState<number>(0);
   const [nowSpotlightExpanded, setNowSpotlightExpanded] = useState(false);
   const [quickAddText, setQuickAddText] = useState('');
+  const [focusedProjectId, setFocusedProjectId] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -765,6 +834,12 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const collisionDetection = (args: Parameters<typeof closestCenter>[0]) => {
     const pointerCollisions = pointerWithin(args);
     if (pointerCollisions.length > 0) {
+      const spotlightCollisions = pointerCollisions.filter(
+        ({ id }) => typeof id === 'string' && id.startsWith('spotlight:')
+      );
+      if (spotlightCollisions.length > 0) {
+        return spotlightCollisions;
+      }
       return pointerCollisions;
     }
 
@@ -810,6 +885,12 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
     const inboxIds = new Set((inbox?.bullets ?? []).map((bullet) => bullet.id));
     setSelectedInboxIds((current) => current.filter((id) => inboxIds.has(id)));
   }, [inbox]);
+
+  useEffect(() => {
+    if (focusedProjectId && !localOrg.projects.some((project) => project.id === focusedProjectId)) {
+      setFocusedProjectId(null);
+    }
+  }, [focusedProjectId, localOrg.projects]);
 
   const updateProjectsFromBullets = (bullets: ThoughtBullet[], existingProjects: ProjectMeta[]) => {
     const deduped = deduplicateProjects(bullets);
@@ -959,6 +1040,53 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       const overId = String(over.id);
       const activeBullet = prev.bullets.find((bullet) => bullet.id === activeId);
       if (!activeBullet) return prev;
+      const spotlightTarget = parseSpotlightDropId(overId);
+
+      if (spotlightTarget) {
+        if (!activeBullet.project) return prev;
+
+        const movedBullet = {
+          ...activeBullet,
+          projectMeta: prev.projects.find((project) => project.id === activeBullet.project) ?? activeBullet.projectMeta,
+          lane: 'now' as ThoughtLane,
+          priority: laneToPriority('now'),
+        };
+
+        const nowQueue = prev.bullets
+          .filter((bullet) => bullet.id !== activeId && bullet.project && bullet.lane === 'now')
+          .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+
+        const insertionIndex = spotlightTarget === 'current' ? 0 : Math.min(1, nowQueue.length);
+        nowQueue.splice(insertionIndex, 0, movedBullet);
+
+        const nowOrder = new Map<string, number>();
+        nowQueue.forEach((bullet, index) => {
+          nowOrder.set(bullet.id, index);
+        });
+
+        const bullets = prev.bullets.map((bullet) => {
+          if (bullet.id === activeId) {
+            return {
+              ...movedBullet,
+              displayOrder: nowOrder.get(activeId) ?? 0,
+            };
+          }
+
+          if (nowOrder.has(bullet.id)) {
+            return {
+              ...bullet,
+              displayOrder: nowOrder.get(bullet.id) ?? bullet.displayOrder,
+            };
+          }
+
+          return bullet;
+        });
+
+        return {
+          bullets,
+          projects: updateProjectsFromBullets(bullets, prev.projects),
+        };
+      }
 
       const overBullet = prev.bullets.find((bullet) => bullet.id === overId);
       const sourceContainerId = getBulletContainerId(activeBullet);
@@ -1209,6 +1337,11 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
 
     setQuickAddText('');
   };
+
+  const visibleProjectColumns = focusedProjectId
+    ? projectColumns.filter((column) => column.projectId === focusedProjectId)
+    : projectColumns;
+  const hiddenProjectCount = projectColumns.length - visibleProjectColumns.length;
 
   const contentBody = (
     <div className="flex h-full flex-col overflow-hidden">
@@ -1473,6 +1606,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                     showExpanded={nowSpotlightExpanded}
                     onToggleExpanded={() => setNowSpotlightExpanded((v) => !v)}
                     prefersReducedMotion={prefersReducedMotion}
+                    focusedProjectId={focusedProjectId}
                   />
                 )}
 
@@ -1489,14 +1623,47 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                           {bottomWorkspaceCollapsed ? 'Open inbox and projects' : 'Hide inbox and projects'}
                         </span>
                         <span className="organize-lower-workspace-toggle-meta">
-                          {projectColumns.length} projects, {(inbox?.bullets.length ?? 0)} inbox
+                          {focusedProjectId
+                            ? `${visibleProjectColumns[0]?.projectMeta?.label ?? '1 project'} in focus, ${(inbox?.bullets.length ?? 0)} inbox`
+                            : `${projectColumns.length} projects, ${(inbox?.bullets.length ?? 0)} inbox`}
                         </span>
                       </span>
                       <ChevronDown className={`h-4 w-4 transition-transform ${bottomWorkspaceCollapsed ? '' : 'rotate-180'}`} />
                     </button>
 
                     {!bottomWorkspaceCollapsed ? (
-                      <div className="organize-columns flex flex-col lg:flex-row min-h-full gap-4 pb-2">
+                      <div className="space-y-3">
+                        {projectColumns.length > 0 ? (
+                          <div className="organize-project-focus-bar">
+                            <button
+                              type="button"
+                              onClick={() => setFocusedProjectId(null)}
+                              className={`organize-project-focus-chip ${focusedProjectId === null ? 'organize-project-focus-chip-active' : ''}`}
+                            >
+                              All projects
+                            </button>
+                            {localOrg.projects.map((project) => (
+                              <button
+                                key={project.id}
+                                type="button"
+                                onClick={() => setFocusedProjectId(project.id)}
+                                className={`organize-project-focus-chip organize-project-focus-chip-${project.color} ${
+                                  focusedProjectId === project.id ? 'organize-project-focus-chip-active' : ''
+                                }`}
+                              >
+                                {project.label}
+                              </button>
+                            ))}
+                          </div>
+                        ) : null}
+
+                        {focusedProjectId && hiddenProjectCount > 0 ? (
+                          <div className="organize-project-focus-note">
+                            Showing 1 project. {hiddenProjectCount} other {hiddenProjectCount === 1 ? 'project is' : 'projects are'} hidden until you switch back to All projects.
+                          </div>
+                        ) : null}
+
+                        <div className="organize-columns flex flex-col lg:flex-row min-h-full gap-4 pb-2">
                         <DroppableInbox
                           bullets={inbox?.bullets || []}
                           existingProjects={localOrg.projects}
@@ -1519,7 +1686,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                           prefersReducedMotion={prefersReducedMotion}
                         />
 
-                        {projectColumns.map((column) => (
+                        {visibleProjectColumns.map((column) => (
                           <motion.div
                             key={column.projectId}
                             initial={{ opacity: 0 }}
@@ -1623,6 +1790,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                             </div>
                           </motion.div>
                         ))}
+                        </div>
                       </div>
                     ) : null}
                   </div>
