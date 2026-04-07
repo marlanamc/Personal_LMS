@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -778,7 +778,6 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const [mounted, setMounted] = useState(false);
   const [activeBullet, setActiveBullet] = useState<ThoughtBullet | null>(null);
   const [dragOverlayWidth, setDragOverlayWidth] = useState<number | null>(null);
-  const [dragOverlayOffset, setDragOverlayOffset] = useState({ x: 18, y: 14 });
   const [isKeyboardDragging, setIsKeyboardDragging] = useState(false);
 
   // Configure drag sensors with activation constraints to prevent accidental drags
@@ -1014,22 +1013,12 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
     setDragOverlayWidth(initialRect?.width ?? null);
     setIsKeyboardDragging(pointerX === undefined || pointerY === undefined);
 
-    if (initialRect && typeof pointerX === 'number' && typeof pointerY === 'number') {
-      setDragOverlayOffset({
-        x: Math.max(12, Math.min(initialRect.width - 16, pointerX - initialRect.left + 12)),
-        y: Math.max(12, Math.min(initialRect.height - 12, pointerY - initialRect.top + 10)),
-      });
-    } else {
-      setDragOverlayOffset({ x: 18, y: 14 });
-    }
-
     setActiveBullet(bullet || null);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveBullet(null);
     setDragOverlayWidth(null);
-    setDragOverlayOffset({ x: 18, y: 14 });
     setIsKeyboardDragging(false);
 
     const { active, over } = event;
@@ -1802,15 +1791,6 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
           {mounted
             ? createPortal(
                 <DragOverlay
-                  style={
-                    isKeyboardDragging
-                      ? undefined
-                      : {
-                          '--drag-overlay-offset-x': `${dragOverlayOffset.x}px`,
-                          '--drag-overlay-offset-y': `${dragOverlayOffset.y}px`,
-                        } as CSSProperties
-                  }
-                  className={isKeyboardDragging ? undefined : 'organize-drag-overlay-shell'}
                   dropAnimation={{
                     duration: 200,
                     easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',

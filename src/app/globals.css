@@ -8205,17 +8205,7 @@ kbd {
 .organize-drag-overlay {
   width: min(26rem, calc(100vw - 2rem));
   max-width: min(26rem, calc(100vw - 2rem));
-  transform: translate3d(
-    calc(-1 * var(--drag-overlay-offset-x, 18px)),
-    calc(-1 * var(--drag-overlay-offset-y, 14px)),
-    0
-  );
   touch-action: none;
-  will-change: transform;
-}
-
-.organize-drag-overlay-shell {
-  transform-origin: top left;
 }
 
 .organize-inbox-sheet-trigger {
