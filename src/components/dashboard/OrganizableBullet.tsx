@@ -39,6 +39,7 @@ interface OrganizableBulletProps {
   showProjectPill?: boolean;
   inSpotlight?: boolean;
   spotlightPriority?: 'primary' | 'secondary';
+  dragOverlay?: boolean;
 }
 
 const LANE_COLORS: Record<ThoughtLane, {
@@ -98,6 +99,7 @@ export function OrganizableBullet({
   showProjectPill = false,
   inSpotlight = false,
   spotlightPriority = 'secondary',
+  dragOverlay = false,
 }: OrganizableBulletProps) {
   const [isEditing, setIsEditing] = useState(false);
   const isEditable = interactionMode === 'editable';
@@ -111,22 +113,31 @@ export function OrganizableBullet({
     isDragging,
   } = useSortable({ id: bullet.id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
+  const style = dragOverlay
+    ? undefined
+    : {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.35 : 1,
+      };
 
   const laneConfig = bullet.lane ? LANE_COLORS[bullet.lane] : null;
   const isDone = bullet.lane === 'done';
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
+    <div
+      ref={dragOverlay ? undefined : setNodeRef}
+      style={style}
+      {...(dragOverlay ? {} : attributes)}
+      data-drag-overlay={dragOverlay ? 'true' : 'false'}
+    >
       <div
-        className={`organize-card group relative rounded-[1.1rem] overflow-hidden transition-[box-shadow,border-color,background-color] duration-150 ${
-          isDragging
-            ? 'opacity-50 ring-2 ring-primary/20 bg-bg-surface'
-            : 'bg-bg-surface/25 border border-border-subtle/20 hover:bg-bg-surface/60 hover:border-border-subtle/50'
+        className={`organize-card group relative rounded-[1.1rem] overflow-hidden transition-[box-shadow,border-color,background-color,opacity] duration-150 ${
+          dragOverlay
+            ? 'border border-primary/35 bg-bg-elevated/95 ring-2 ring-primary/18 shadow-[0_18px_40px_rgba(10,16,28,0.26)]'
+            : isDragging
+              ? 'ring-2 ring-primary/20 bg-bg-surface'
+              : 'bg-bg-surface/25 border border-border-subtle/20 hover:bg-bg-surface/60 hover:border-border-subtle/50'
         } ${inSpotlight ? 'organize-card-spotlight bg-bg-surface/40' : ''} ${selected ? 'organize-card-selected' : ''} ${
           inSpotlight ? `organize-card-spotlight-${spotlightPriority}` : ''
         }`}
@@ -165,10 +176,13 @@ export function OrganizableBullet({
             className={`organize-card-grip absolute ${laneConfig ? 'left-3' : 'left-2'} top-[0.9rem] opacity-70 sm:top-3 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity`}
           >
             <button
-              {...listeners}
+              {...(dragOverlay ? {} : listeners)}
               type="button"
-              className="inline-flex h-7 w-7 cursor-grab touch-none items-center justify-center rounded-full text-text-muted/70 transition-colors hover:text-text active:cursor-grabbing sm:h-6 sm:w-6"
+              className={`inline-flex h-7 w-7 touch-none items-center justify-center rounded-full text-text-muted/70 transition-colors hover:text-text sm:h-6 sm:w-6 ${
+                dragOverlay ? 'cursor-grabbing' : 'cursor-grab active:cursor-grabbing'
+              }`}
               aria-label="Drag to reorder"
+              tabIndex={dragOverlay ? -1 : undefined}
             >
               <GripVertical className="h-3.5 w-3.5 shrink-0 sm:h-3 sm:w-3" aria-hidden />
             </button>

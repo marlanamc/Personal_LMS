@@ -7480,10 +7480,13 @@ kbd {
   position: relative;
   border-radius: 1rem;
   border: 1px solid transparent;
+  margin-inline: -0.35rem;
+  padding: 0.4rem 0.35rem;
 }
 
 .organize-lane-dropzone-active {
   border-color: color-mix(in srgb, var(--color-primary) 18%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 72%, transparent);
 }
 
 .organize-project-column {
@@ -7568,6 +7571,20 @@ kbd {
     0 16px 48px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.organize-board[data-dragging="true"] .organize-project-column {
+  transition:
+    box-shadow 160ms ease-out,
+    background-color 160ms ease-out,
+    border-color 160ms ease-out;
+}
+
+.organize-board[data-dragging="true"] .organize-project-column:hover {
+  transform: none;
+  box-shadow:
+    0 8px 24px rgba(10, 16, 28, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-project-column::before {
@@ -7908,6 +7925,8 @@ kbd {
 
 .organize-inbox-dropzone {
   border-radius: 1rem;
+  margin-inline: -0.35rem;
+  padding-inline: 0.35rem;
 }
 
 /* Quick-add input in Inbox */
@@ -8084,12 +8103,19 @@ kbd {
 }
 
 .organize-drag-overlay {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-bg-elevated) 94%, rgba(255, 255, 255, 0.05)) 0%,
-      color-mix(in srgb, var(--color-bg-surface) 100%, transparent) 100%
-    );
+  width: min(26rem, calc(100vw - 2rem));
+  max-width: min(26rem, calc(100vw - 2rem));
+  transform: translate3d(
+    calc(-1 * var(--drag-overlay-offset-x, 18px)),
+    calc(-1 * var(--drag-overlay-offset-y, 14px)),
+    0
+  );
+  touch-action: none;
+  will-change: transform;
+}
+
+.organize-drag-overlay-shell {
+  transform-origin: top left;
 }
 
 .organize-inbox-sheet-trigger {
@@ -9139,4 +9165,3 @@ kbd {
     display: none;
   }
 }
-

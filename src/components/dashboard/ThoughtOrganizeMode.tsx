@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -13,6 +13,8 @@ import {
   DragStartEvent,
   PointerSensor,
   TouchSensor,
+  pointerWithin,
+  rectIntersection,
   useDroppable,
   useSensor,
   useSensors,
@@ -707,6 +709,9 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const prefersReducedMotion = usePrefersReducedMotion();
   const [mounted, setMounted] = useState(false);
   const [activeBullet, setActiveBullet] = useState<ThoughtBullet | null>(null);
+  const [dragOverlayWidth, setDragOverlayWidth] = useState<number | null>(null);
+  const [dragOverlayOffset, setDragOverlayOffset] = useState({ x: 18, y: 14 });
+  const [isKeyboardDragging, setIsKeyboardDragging] = useState(false);
 
   // Configure drag sensors with activation constraints to prevent accidental drags
   const pointerSensor = useSensor(PointerSensor, {
@@ -756,6 +761,20 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const collisionDetection = (args: Parameters<typeof closestCenter>[0]) => {
+    const pointerCollisions = pointerWithin(args);
+    if (pointerCollisions.length > 0) {
+      return pointerCollisions;
+    }
+
+    const intersecting = rectIntersection(args);
+    if (intersecting.length > 0) {
+      return intersecting;
+    }
+
+    return closestCenter(args);
+  };
 
   useEffect(() => {
     if (standalone) {
@@ -892,11 +911,45 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
 
   const handleDragStart = (event: DragStartEvent) => {
     const bullet = localOrg.bullets.find((item) => item.id === event.active.id);
+    const initialRect = event.active.rect.current.initial;
+    const activatorEvent = event.activatorEvent;
+    const touchEvent =
+      activatorEvent && 'touches' in activatorEvent
+        ? (activatorEvent as TouchEvent)
+        : null;
+    const pointerX =
+      activatorEvent && 'clientX' in activatorEvent
+        ? activatorEvent.clientX
+        : touchEvent
+          ? touchEvent.touches[0]?.clientX
+          : undefined;
+    const pointerY =
+      activatorEvent && 'clientY' in activatorEvent
+        ? activatorEvent.clientY
+        : touchEvent
+          ? touchEvent.touches[0]?.clientY
+          : undefined;
+
+    setDragOverlayWidth(initialRect?.width ?? null);
+    setIsKeyboardDragging(pointerX === undefined || pointerY === undefined);
+
+    if (initialRect && typeof pointerX === 'number' && typeof pointerY === 'number') {
+      setDragOverlayOffset({
+        x: Math.max(12, Math.min(initialRect.width - 16, pointerX - initialRect.left + 12)),
+        y: Math.max(12, Math.min(initialRect.height - 12, pointerY - initialRect.top + 10)),
+      });
+    } else {
+      setDragOverlayOffset({ x: 18, y: 14 });
+    }
+
     setActiveBullet(bullet || null);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveBullet(null);
+    setDragOverlayWidth(null);
+    setDragOverlayOffset({ x: 18, y: 14 });
+    setIsKeyboardDragging(false);
 
     const { active, over } = event;
     if (!over) return;
@@ -1390,10 +1443,13 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
         ) : null}
       </AnimatePresence>
 
-      <div className="organize-board flex-1 overflow-auto px-0 sm:px-4 py-2 sm:py-4 md:px-6 md:py-5">
+      <div
+        className="organize-board flex-1 overflow-auto px-0 sm:px-4 py-2 sm:py-4 md:px-6 md:py-5"
+        data-dragging={activeBullet ? 'true' : 'false'}
+      >
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCenter}
+          collisionDetection={collisionDetection}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
@@ -1469,7 +1525,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.2, ease: 'easeOut' }}
-                            className="organize-project-column w-full lg:w-[18rem] shrink-0 px-3 pt-1 pb-4 lg:border-r lg:border-border-subtle/20"
+                            className="organize-project-column w-full lg:w-[19.5rem] shrink-0 px-3 pt-1 pb-4 lg:border-r lg:border-border-subtle/20"
                             data-project-color={column.projectMeta?.color ?? 'lavender'}
                           >
                             <div className="organize-project-column-header relative mb-2.5 flex items-center justify-between gap-3 border-b border-border-subtle/25 pb-2.5">
@@ -1575,23 +1631,42 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
             )}
           </div>
 
-          <DragOverlay
-            dropAnimation={{
-              duration: 200,
-              easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
-            }}
-          >
-            {activeBullet ? (
-              <div
-                className="organize-drag-overlay max-w-[22rem] rounded-xl border border-primary/40 bg-bg-elevated/95 px-4 py-3 backdrop-blur-lg ring-2 ring-primary/20 cursor-grabbing"
-                style={{
-                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1), var(--glow-primary)',
-                }}
-              >
-                <div className="text-sm font-medium text-text">{activeBullet.text}</div>
-              </div>
-            ) : null}
-          </DragOverlay>
+          {mounted
+            ? createPortal(
+                <DragOverlay
+                  style={
+                    isKeyboardDragging
+                      ? undefined
+                      : {
+                          '--drag-overlay-offset-x': `${dragOverlayOffset.x}px`,
+                          '--drag-overlay-offset-y': `${dragOverlayOffset.y}px`,
+                        } as CSSProperties
+                  }
+                  className={isKeyboardDragging ? undefined : 'organize-drag-overlay-shell'}
+                  dropAnimation={{
+                    duration: 200,
+                    easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+                  }}
+                >
+                  {activeBullet ? (
+                    <div
+                      className="organize-drag-overlay cursor-grabbing"
+                      style={dragOverlayWidth ? { width: `${dragOverlayWidth}px`, maxWidth: `${dragOverlayWidth}px` } : undefined}
+                    >
+                      <OrganizableBullet
+                        bullet={activeBullet}
+                        existingProjects={localOrg.projects}
+                        onUpdate={() => undefined}
+                        interactionMode="drag-only"
+                        showProjectPill
+                        dragOverlay
+                      />
+                    </div>
+                  ) : null}
+                </DragOverlay>,
+                document.body
+              )
+            : null}
         </DndContext>
       </div>
     </div>
