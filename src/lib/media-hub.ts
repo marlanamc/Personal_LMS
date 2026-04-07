@@ -79,6 +79,8 @@ export const ENERGY_LEVEL_CONFIG: Record<EnergyLevel, { label: string; emoji: st
   high: { label: 'High energy', emoji: '⚡', description: 'Fully locked in — active learning' },
 };
 
+const LEGACY_MIGRATION_DATE = '1970-01-01T00:00:00.000Z';
+
 const MEDIA_TYPES = new Set<MediaType>(['book', 'audiobook', 'video', 'show', 'article', 'music']);
 const MEDIA_STATUSES = new Set<MediaStatus>(['active', 'on-deck', 'finished']);
 const ENERGY_LEVELS = new Set<EnergyLevel>(['low', 'medium', 'high']);
@@ -104,16 +106,37 @@ function normalizeEnergyLevel(raw: unknown): EnergyLevel | undefined {
   return undefined;
 }
 
+function normalizeOptionalString(raw: unknown): string | undefined {
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : undefined;
+}
+
+function createStableLegacyPodcastId(name: string, link?: string): string {
+  const source = `${name.toLowerCase()}|${link?.toLowerCase() ?? ''}`;
+  let hash = 0;
+  for (let i = 0; i < source.length; i += 1) {
+    hash = (hash * 31 + source.charCodeAt(i)) >>> 0;
+  }
+  return `legacy-podcast-${hash.toString(36)}`;
+}
+
 function normalizePodcast(raw: unknown): Podcast | null {
   if (!raw || typeof raw !== 'object') return null;
   const o = raw as Record<string, unknown>;
-  const id = typeof o.id === 'string' ? o.id : '';
-  const name = typeof o.name === 'string' ? o.name.trim() : '';
-  if (!id || !name) return null;
-  const category = typeof o.category === 'string' && o.category.trim() ? o.category.trim() : undefined;
-  const addedAt = typeof o.addedAt === 'string' ? o.addedAt : new Date().toISOString();
-  const link = typeof o.link === 'string' && o.link.trim() ? o.link.trim() : undefined;
-  const coverUrl = typeof o.coverUrl === 'string' && o.coverUrl.trim() ? o.coverUrl.trim() : undefined;
+  const name = normalizeOptionalString(o.name);
+  if (!name) return null;
+  const link = normalizeOptionalString(o.link) ?? normalizeOptionalString(o.url) ?? normalizeOptionalString(o.href);
+  const id = normalizeOptionalString(o.id) ?? createStableLegacyPodcastId(name, link);
+  const category = normalizeOptionalString(o.category) ?? normalizeOptionalString(o.genre);
+  const addedAt = normalizeOptionalString(o.addedAt) ?? LEGACY_MIGRATION_DATE;
+  const coverUrl =
+    normalizeOptionalString(o.coverUrl) ??
+    normalizeOptionalString(o.imageUrl) ??
+    normalizeOptionalString(o.artworkUrl) ??
+    normalizeOptionalString(o.image) ??
+    normalizeOptionalString(o.artwork) ??
+    normalizeOptionalString(o.cover) ??
+    normalizeOptionalString(o.coverImage) ??
+    normalizeOptionalString(o.cover_image);
   return { id, name, category, addedAt, link, coverUrl };
 }
 
@@ -135,18 +158,18 @@ function normalizeMediaItem(raw: unknown): MediaItem | null {
   const id = typeof o.id === 'string' ? o.id : '';
   const title = typeof o.title === 'string' ? o.title.trim() : '';
   if (!id || !title) return null;
-  const author = typeof o.author === 'string' && o.author.trim() ? o.author.trim() : undefined;
+  const author = normalizeOptionalString(o.author);
   const type = normalizeMediaType(o.type);
   const status = normalizeMediaStatus(o.status);
   const lastTouchedAt = typeof o.lastTouchedAt === 'string' ? o.lastTouchedAt : new Date().toISOString();
   const addedAt = typeof o.addedAt === 'string' ? o.addedAt : new Date().toISOString();
-  const finishedAt = typeof o.finishedAt === 'string' && o.finishedAt.trim() ? o.finishedAt : undefined;
-  const notes = typeof o.notes === 'string' && o.notes.trim() ? o.notes.trim() : undefined;
+  const finishedAt = normalizeOptionalString(o.finishedAt);
+  const notes = normalizeOptionalString(o.notes);
   const energyLevel = normalizeEnergyLevel(o.energyLevel);
-  const coverEmoji = typeof o.coverEmoji === 'string' && o.coverEmoji.trim() ? o.coverEmoji.trim() : undefined;
-  const coverUrl = typeof o.coverUrl === 'string' && o.coverUrl.trim() ? o.coverUrl.trim() : undefined;
-  const platform = typeof o.platform === 'string' && o.platform.trim() ? o.platform.trim() : undefined;
-  const link = typeof o.link === 'string' && o.link.trim() ? o.link.trim() : undefined;
+  const coverEmoji = normalizeOptionalString(o.coverEmoji);
+  const coverUrl = normalizeOptionalString(o.coverUrl);
+  const platform = normalizeOptionalString(o.platform);
+  const link = normalizeOptionalString(o.link);
   
   const thoughts = Array.isArray(o.thoughts)
     ? o.thoughts.map(normalizeMediaThought).filter((t): t is MediaThought => t !== null)

@@ -20,7 +20,20 @@ interface CurrentlyReadingSectionProps {
   onMarkFinished: (id: string) => void;
   onRemove: (id: string) => void;
   onTouch: (id: string) => void;
-  onAddItem: (title: string, type: MediaType, status?: 'active' | 'on-deck' | 'finished', extras?: { notes?: string; energyLevel?: EnergyLevel; coverEmoji?: string; author?: string }) => void;
+  onAddItem: (
+    title: string,
+    type: MediaType,
+    status?: 'active' | 'on-deck' | 'finished',
+    extras?: {
+      notes?: string;
+      energyLevel?: EnergyLevel;
+      coverEmoji?: string;
+      coverUrl?: string;
+      platform?: string;
+      link?: string;
+      author?: string;
+    },
+  ) => void;
   onUpdateMediaItem: (id: string, updates: Partial<Omit<MediaItem, 'id' | 'addedAt'>>) => void;
   onAddThought: (mediaId: string, content: string, progress?: string) => void;
   onRemoveThought: (mediaId: string, thoughtId: string) => void;
@@ -62,7 +75,19 @@ export function CurrentlyReadingSection({
 
   const journalingItem = items.find((i) => i.id === journalingId);
 
-  const handleAddItem = (title: string, type: MediaType, extras?: { notes?: string; energyLevel?: EnergyLevel; coverEmoji?: string; author?: string }) => {
+  const handleAddItem = (
+    title: string,
+    type: MediaType,
+    extras?: {
+      notes?: string;
+      energyLevel?: EnergyLevel;
+      coverEmoji?: string;
+      coverUrl?: string;
+      platform?: string;
+      link?: string;
+      author?: string;
+    },
+  ) => {
     onAddItem(title, type, 'active', extras);
     setIsAddDialogOpen(false);
   };

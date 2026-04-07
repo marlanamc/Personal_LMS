@@ -31,6 +31,101 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+function normalizeStoredString(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+export function shouldPersistMediaHubMigration(rawStore: unknown, normalizedStore: MediaHubStore): boolean {
+  if (!rawStore || typeof rawStore !== 'object' || Array.isArray(rawStore)) return false;
+
+  const rawPodcasts = Array.isArray((rawStore as { podcasts?: unknown }).podcasts)
+    ? ((rawStore as { podcasts?: unknown }).podcasts as unknown[])
+    : [];
+
+  if (rawPodcasts.length !== normalizedStore.podcasts.length) {
+    return true;
+  }
+
+  return rawPodcasts.some((rawPodcast, index) => {
+    if (!rawPodcast || typeof rawPodcast !== 'object' || Array.isArray(rawPodcast)) {
+      return true;
+    }
+
+    const podcast = normalizedStore.podcasts[index];
+    const raw = rawPodcast as Record<string, unknown>;
+
+    const rawName = normalizeStoredString(raw.name);
+    const rawId = normalizeStoredString(raw.id);
+    const rawAddedAt = normalizeStoredString(raw.addedAt);
+    const rawCategory = normalizeStoredString(raw.category) ?? normalizeStoredString(raw.genre);
+    const rawLink = normalizeStoredString(raw.link) ?? normalizeStoredString(raw.url) ?? normalizeStoredString(raw.href);
+    const rawCoverUrl =
+      normalizeStoredString(raw.coverUrl) ??
+      normalizeStoredString(raw.imageUrl) ??
+      normalizeStoredString(raw.artworkUrl) ??
+      normalizeStoredString(raw.image) ??
+      normalizeStoredString(raw.artwork) ??
+      normalizeStoredString(raw.cover) ??
+      normalizeStoredString(raw.coverImage) ??
+      normalizeStoredString(raw.cover_image);
+
+    return (
+      !podcast ||
+      rawName !== podcast.name ||
+      rawId !== podcast.id ||
+      rawAddedAt !== podcast.addedAt ||
+      rawCategory !== podcast.category ||
+      rawLink !== podcast.link ||
+      rawCoverUrl !== podcast.coverUrl
+    );
+  });
+}
+
+type AddMediaExtras = {
+  notes?: string;
+  energyLevel?: EnergyLevel;
+  coverEmoji?: string;
+  coverUrl?: string;
+  platform?: string;
+  link?: string;
+  author?: string;
+};
+
+export function createPodcastRecord(name: string, category?: string, link?: string, coverUrl?: string): Podcast {
+  return {
+    id: generateId(),
+    name: name.trim(),
+    category: category?.trim() || undefined,
+    addedAt: new Date().toISOString(),
+    link: link?.trim() || undefined,
+    coverUrl: coverUrl?.trim() || undefined,
+  };
+}
+
+export function createMediaItemRecord(
+  title: string,
+  type: MediaType,
+  status: MediaStatus = 'on-deck',
+  extras?: AddMediaExtras,
+): MediaItem {
+  const now = new Date().toISOString();
+  return {
+    id: generateId(),
+    title: title.trim(),
+    type,
+    status,
+    lastTouchedAt: now,
+    addedAt: now,
+    notes: extras?.notes?.trim() || undefined,
+    energyLevel: extras?.energyLevel,
+    coverEmoji: extras?.coverEmoji?.trim() || undefined,
+    coverUrl: extras?.coverUrl?.trim() || undefined,
+    platform: extras?.platform?.trim() || undefined,
+    link: extras?.link?.trim() || undefined,
+    author: extras?.author?.trim() || undefined,
+  };
+}
+
 export function useMediaHub(storageScope: string) {
   const [store, setStore] = useState<MediaHubStore>(EMPTY_MEDIA_HUB_STORE);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -74,11 +169,15 @@ export function useMediaHub(storageScope: string) {
 
         const payload = (await response.json()) as { store?: unknown; updatedAt?: string | null };
         const serverStore = normalizeMediaHubStore(payload.store);
+        const shouldPersistMigration = shouldPersistMediaHubMigration(payload.store, serverStore);
 
         const hasData = serverStore.podcasts.length > 0 || serverStore.mediaItems.length > 0;
 
         if (hasData) {
           setStore(serverStore);
+          if (shouldPersistMigration) {
+            await persistToServer(serverStore);
+          }
         } else if (isInitial && typeof window !== 'undefined') {
           const legacyRaw = window.localStorage.getItem(storageKey);
           const legacyStore = normalizeMediaHubStore(legacyRaw ? JSON.parse(legacyRaw) : null);
@@ -220,14 +319,7 @@ export function useMediaHub(storageScope: string) {
   // Convenience actions
   const addPodcast = useCallback(
     (name: string, category?: string, link?: string, coverUrl?: string) => {
-      const podcast: Podcast = {
-        id: generateId(),
-        name: name.trim(),
-        category: category?.trim() || undefined,
-        addedAt: new Date().toISOString(),
-        link: link?.trim() || undefined,
-        coverUrl: coverUrl?.trim() || undefined,
-      };
+      const podcast = createPodcastRecord(name, category, link, coverUrl);
       setMediaHubStore((prev) => ({
         ...prev,
         podcasts: [...prev.podcasts, podcast],
@@ -251,26 +343,9 @@ export function useMediaHub(storageScope: string) {
       title: string,
       type: MediaType,
       status: MediaStatus = 'on-deck',
-      extras?: {
-        notes?: string;
-        energyLevel?: EnergyLevel;
-        coverEmoji?: string;
-        author?: string;
-      },
+      extras?: AddMediaExtras,
     ) => {
-      const now = new Date().toISOString();
-      const item: MediaItem = {
-        id: generateId(),
-        title: title.trim(),
-        type,
-        status,
-        lastTouchedAt: now,
-        addedAt: now,
-        notes: extras?.notes?.trim() || undefined,
-        energyLevel: extras?.energyLevel,
-        coverEmoji: extras?.coverEmoji?.trim() || undefined,
-        author: extras?.author?.trim() || undefined,
-      };
+      const item = createMediaItemRecord(title, type, status, extras);
       setMediaHubStore((prev) => ({
         ...prev,
         mediaItems: [...prev.mediaItems, item],
