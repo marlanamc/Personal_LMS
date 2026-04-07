@@ -14,7 +14,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
         // Allow Vercel Analytics + Vercel Preview Feedback script injection
         "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com https://vercel.live https://*.vercel.live",
         "style-src 'self' 'unsafe-inline'", // Required for Next.js styled-jsx and CSS modules
-        "img-src 'self' data: blob: https://*.media-amazon.com https://images-na.ssl-images-amazon.com https://i.gr-assets.com https://*.googleusercontent.com", // Allow data URIs and common media domains for covers
+        "img-src 'self' data: blob: https://*.media-amazon.com https://images-na.ssl-images-amazon.com https://i.gr-assets.com https://*.googleusercontent.com https://*.mzstatic.com", // Allow data URIs and common media domains for covers
         "font-src 'self' data:", // Allow data URIs for fonts
         "connect-src 'self' https://docs.google.com https://*.google.com https://*.googleusercontent.com https://vercel.live https://*.vercel.live", // Allow preview feedback network calls
         "frame-src 'self' https://open.spotify.com", // Allow Spotify embeds
