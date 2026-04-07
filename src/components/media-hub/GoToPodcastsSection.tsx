@@ -32,7 +32,7 @@ function getCategoryStyle(category?: string) {
 function PodcastArtwork({
   url,
   iconClassName,
-  imgClassName = 'h-11 w-11',
+  imgClassName = 'h-14 w-14',
 }: {
   url?: string;
   iconClassName: string;
@@ -113,7 +113,7 @@ export function GoToPodcastsSection({ podcasts, onAddPodcast, onRemovePodcast }:
             <PodcastArtwork
               url={shufflePick.coverUrl}
               iconClassName="text-text-muted"
-              imgClassName="h-10 w-10"
+              imgClassName="h-12 w-12"
             />
             <div className="min-w-0 flex-1">
               <p className="text-xs text-text-muted font-medium uppercase tracking-wider">Listen to</p>
