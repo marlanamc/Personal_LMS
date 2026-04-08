@@ -268,6 +268,7 @@ export function useTodayFlow(
       boundaries: [] as string[],
       events: [] as string[],
       sessions: [] as string[],
+      plans: [] as string[],
     };
     const { percent: completionPercent, completed: completedOverviewItems, total: totalOverviewItems } =
       computeDailyOverviewProgress({

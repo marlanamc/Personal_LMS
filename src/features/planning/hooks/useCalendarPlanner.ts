@@ -40,6 +40,7 @@ export type DayPlan = {
     boundaries: string[]; // Array of constraint IDs
     events: string[]; // Array of event IDs
     sessions: string[]; // Array of session IDs
+    plans: string[]; // Array of overview plan IDs
   };
 };
 
@@ -47,7 +48,7 @@ export type PlannerStore = Record<string, DayPlan> & {
   _customTags?: CustomTag[];
 };
 
-const EMPTY_DAY_PLAN: DayPlan = { notes: '', tasks: [], thoughtDownload: '', thoughtOrganization: undefined, interstitialJournalEntries: [], acknowledgements: { boundaries: [], events: [], sessions: [] } };
+const EMPTY_DAY_PLAN: DayPlan = { notes: '', tasks: [], thoughtDownload: '', thoughtOrganization: undefined, interstitialJournalEntries: [], acknowledgements: { boundaries: [], events: [], sessions: [], plans: [] } };
 
 function normalizePlannerTask(raw: unknown): PlannerTask | null {
   if (!raw || typeof raw !== 'object') return null;
@@ -99,7 +100,7 @@ function normalizeCustomTag(raw: unknown): CustomTag | null {
 }
 
 function normalizeDayPlan(raw: unknown): DayPlan {
-  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '', thoughtOrganization: undefined, interstitialJournalEntries: [], acknowledgements: { boundaries: [], events: [], sessions: [] } };
+  if (!raw || typeof raw !== 'object') return { notes: '', tasks: [], thoughtDownload: '', thoughtOrganization: undefined, interstitialJournalEntries: [], acknowledgements: { boundaries: [], events: [], sessions: [], plans: [] } };
   const candidate = raw as {
     notes?: unknown;
     tasks?: unknown;
@@ -122,12 +123,13 @@ function normalizeDayPlan(raw: unknown): DayPlan {
 
   // Normalize acknowledgements
   const rawAck = candidate.acknowledgements && typeof candidate.acknowledgements === 'object' && !Array.isArray(candidate.acknowledgements)
-    ? candidate.acknowledgements as { boundaries?: unknown; events?: unknown; sessions?: unknown }
+    ? candidate.acknowledgements as { boundaries?: unknown; events?: unknown; sessions?: unknown; plans?: unknown }
     : null;
   const acknowledgements = {
     boundaries: Array.isArray(rawAck?.boundaries) ? rawAck.boundaries.filter((id): id is string => typeof id === 'string') : [],
     events: Array.isArray(rawAck?.events) ? rawAck.events.filter((id): id is string => typeof id === 'string') : [],
     sessions: Array.isArray(rawAck?.sessions) ? rawAck.sessions.filter((id): id is string => typeof id === 'string') : [],
+    plans: Array.isArray(rawAck?.plans) ? rawAck.plans.filter((id): id is string => typeof id === 'string') : [],
   };
 
   return { notes, tasks, thoughtDownload, thoughtOrganization, interstitialJournalEntries, acknowledgements };

@@ -1,6 +1,4 @@
 'use client';
-
-import Link from 'next/link';
 import { useMemo, useState, useEffect, useCallback, type Dispatch, type SetStateAction } from 'react';
 import {
   Anchor as AnchorTypeIcon,
@@ -393,6 +391,8 @@ function EventOverviewRow({
 }) {
   const marker = getCalendarMarkerColor(item.eventType);
   const win = item.isAcknowledged;
+  const detailText = item.description?.trim();
+  const showDetail = !!detailText && detailText.toLowerCase() !== 'event';
 
   return (
     <button
@@ -457,8 +457,8 @@ function EventOverviewRow({
           <OverviewMetaSeparator />
           <OverviewKindMeta label="Calendar" icon={Calendar} muted={win} />
         </div>
-        {item.description ? (
-          <p className={cn('mt-0.5 text-text-muted', win ? 'text-xs opacity-90' : 'text-sm')}>{item.description}</p>
+        {showDetail ? (
+          <p className={cn('mt-0.5 text-text-muted', win ? 'text-xs opacity-90' : 'text-sm')}>{detailText}</p>
         ) : null}
       </div>
     </button>
@@ -632,41 +632,61 @@ function minutesFromMidnightToHHMM(m: number): string {
 
 function OnAgainPlanOverviewRow({
   item,
+  onAcknowledge,
   scheduleStatus,
 }: {
   item: DailyOverviewItem;
+  onAcknowledge: () => void;
   scheduleStatus: OverviewScheduleStatus | null | undefined;
 }) {
   const boundaryAccent = getBoundaryKindAccent('cutoff');
+  const win = item.isAcknowledged;
 
   return (
-    <Link
-      href="/dashboard/day-planner"
+    <button
+      type="button"
+      onClick={onAcknowledge}
       className={cn(
         'group flex w-full items-start px-5 pl-4 text-left transition-colors',
-        'gap-2 bg-bg-base/25 py-2.5 max-lg:py-2 lg:gap-2.5 lg:py-3 hover:bg-bg-elevated/40',
+        win
+          ? 'gap-2 bg-bg-surface/40 py-2 max-lg:py-1.5 lg:py-2 hover:bg-bg-elevated/30'
+          : 'gap-2 bg-bg-base/25 py-2.5 max-lg:py-2 lg:gap-2.5 lg:py-3 hover:bg-bg-elevated/40',
         boundaryKindRailClass('cutoff'),
       )}
       style={
-        scheduleStatus === 'current'
+        scheduleStatus === 'current' && !win
           ? getOverviewCurrentRowHighlightStyle(boundaryAccent)
           : undefined
       }
-      aria-label={`${item.label}, ${item.time}`}
+      aria-label={`${item.label}, ${item.time}${win ? ', acknowledged' : ''}`}
     >
       <div
         className={cn(
           'flex shrink-0 items-center justify-center rounded-2xl border-2 border-dashed border-border-subtle/90 bg-bg-surface/40 text-text-muted',
-          'h-10 w-10 lg:h-12 lg:w-12',
+          win ? 'h-9 w-9 lg:h-10 lg:w-10' : 'h-10 w-10 lg:h-12 lg:w-12',
+          item.isAcknowledged ? 'border-secondary/40 bg-secondary/10' : 'text-text-muted',
           overviewOrbDepthDashedClass,
         )}
       >
-        <Timer className="h-4 w-4 lg:h-[18px] lg:w-[18px]" strokeWidth={1.5} aria-hidden />
+        {item.isAcknowledged ? (
+          <svg className="h-4 w-4 text-secondary lg:h-4 lg:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+          </svg>
+        ) : (
+          <Timer className="h-4 w-4 lg:h-[18px] lg:w-[18px]" strokeWidth={1.5} aria-hidden />
+        )}
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex min-w-0 items-start justify-between gap-2">
-          <p className="min-w-0 flex-1 leading-snug text-[0.9375rem] font-medium text-text">{item.label}</p>
+          <p
+            className={cn(
+              'min-w-0 flex-1 leading-snug',
+              win ? 'text-[0.9375rem] font-medium text-text/88' : 'text-[0.9375rem] font-medium text-text',
+            )}
+          >
+            {item.label}
+          </p>
           <OverviewRowStatusBadge
             status={scheduleStatus}
             currentAccent={scheduleStatus === 'current' ? boundaryAccent : undefined}
@@ -674,7 +694,7 @@ function OnAgainPlanOverviewRow({
         </div>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span
-            style={getBoundaryOverviewTimeChipStyles('cutoff', false)}
+            style={getBoundaryOverviewTimeChipStyles('cutoff', win)}
             className={overviewTimeChipStaticClass}
           >
             {item.time}
@@ -695,7 +715,7 @@ function OnAgainPlanOverviewRow({
           ) : null}
         </div>
       </div>
-    </Link>
+    </button>
   );
 }
 
@@ -804,7 +824,7 @@ export function DailyOverviewList({
 
   const overviewItems = useMemo(() => {
     const items: DailyOverviewItem[] = [];
-    const acknowledgements = todayPlan.acknowledgements || { boundaries: [], events: [], sessions: [] };
+    const acknowledgements = todayPlan.acknowledgements || { boundaries: [], events: [], sessions: [], plans: [] };
 
     for (const anchor of todayAnchors) {
       items.push({
@@ -893,7 +913,7 @@ export function DailyOverviewList({
         time,
         scheduledMinutes: first.startMinuteOfDay,
         isDone: false,
-        isAcknowledged: false,
+        isAcknowledged: acknowledgements.plans.includes('overview-oaoa-plan'),
         icon: 'layers',
         activeMinuteRanges: blocks.map((b) => ({ start: b.startMinuteOfDay, end: b.endMinuteOfDay })),
         oaoaBlockCount: blocks.length,
@@ -913,7 +933,7 @@ export function DailyOverviewList({
   );
 
   const handleAcknowledge = (itemId: string, itemType: DailyOverviewItem['type']) => {
-    const current = todayPlan.acknowledgements || { boundaries: [], events: [], sessions: [] };
+    const current = todayPlan.acknowledgements || { boundaries: [], events: [], sessions: [], plans: [] };
 
     if (itemType === 'boundary') {
       const isAcknowledged = current.boundaries.includes(itemId);
@@ -938,6 +958,14 @@ export function DailyOverviewList({
         sessions: isAcknowledged
           ? current.sessions.filter((id) => id !== itemId)
           : [...current.sessions, itemId],
+      });
+    } else if (itemType === 'oaoa-plan') {
+      const isAcknowledged = current.plans.includes(itemId);
+      updatePlanField(todayKey, 'acknowledgements', {
+        ...current,
+        plans: isAcknowledged
+          ? current.plans.filter((id) => id !== itemId)
+          : [...current.plans, itemId],
       });
     }
   };
@@ -989,6 +1017,7 @@ export function DailyOverviewList({
               ) : item.type === 'oaoa-plan' ? (
                 <OnAgainPlanOverviewRow
                   item={item}
+                  onAcknowledge={() => handleAcknowledge(item.id, item.type)}
                   scheduleStatus={scheduleStatusById.get(item.id)}
                 />
               ) : item.type === 'boundary' ? (

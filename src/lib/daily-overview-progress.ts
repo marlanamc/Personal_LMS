@@ -6,6 +6,7 @@ export interface DailyOverviewAcknowledgements {
   boundaries: string[];
   events: string[];
   sessions: string[];
+  plans: string[];
 }
 
 export interface ComputeDailyOverviewProgressArgs {
@@ -19,6 +20,8 @@ export interface ComputeDailyOverviewProgressArgs {
    * (Today’s list may omit this until session rows are rendered.)
    */
   sessionOverviewEntries?: { id: string }[];
+  /** When the overview lists plan rows such as On Again / Off Again, pass the same ids so progress matches the list. */
+  planOverviewEntries?: { id: string }[];
 }
 
 /**
@@ -37,6 +40,7 @@ export function computeDailyOverviewProgress(args: ComputeDailyOverviewProgressA
     activeConstraints,
     acknowledgements,
     sessionOverviewEntries,
+    planOverviewEntries,
   } = args;
 
   let completed = 0;
@@ -68,6 +72,13 @@ export function computeDailyOverviewProgress(args: ComputeDailyOverviewProgressA
     for (const row of sessionOverviewEntries) {
       total += 1;
       if (acknowledgements.sessions.includes(row.id)) completed += 1;
+    }
+  }
+
+  if (planOverviewEntries?.length) {
+    for (const row of planOverviewEntries) {
+      total += 1;
+      if (acknowledgements.plans.includes(row.id)) completed += 1;
     }
   }
 

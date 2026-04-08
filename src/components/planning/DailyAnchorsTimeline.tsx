@@ -319,11 +319,11 @@ function DesktopPlannerRiverOverlays({
         return (
           <div
             key={`river-cal-${key}`}
-            className="absolute top-1/2 z-[12] flex min-h-10 min-w-10 -translate-x-1/2 -translate-y-1/2 cursor-default items-center justify-center"
+            className="absolute top-1/2 z-[12] flex min-h-12 min-w-12 -translate-x-1/2 -translate-y-1/2 cursor-default items-center justify-center"
             style={{ left: `${left}%` }}
           >
             <RiverOverlayHoverCard title={subtitle} timeLabel={timeLine} inLabel={inLine}>
-              <Calendar className="h-3.5 w-3.5 opacity-80" strokeWidth={2} style={{ color: marker }} aria-hidden />
+              <Calendar className="h-5 w-5 opacity-90" strokeWidth={2.15} style={{ color: marker }} aria-hidden />
             </RiverOverlayHoverCard>
           </div>
         );
@@ -669,7 +669,12 @@ export function DailyAnchorsTimeline({
 
   /** Matches DailyOverviewList: anchors (done) + events/boundaries (acknowledged). */
   const overviewProgress = useMemo(() => {
-    const ack = todayPlan?.acknowledgements ?? { boundaries: [], events: [], sessions: [] };
+    const ack = todayPlan?.acknowledgements ?? {
+      boundaries: [] as string[],
+      events: [] as string[],
+      sessions: [] as string[],
+      plans: [] as string[],
+    };
     let completed = 0;
     let total = 0;
     for (const a of todaysAnchors) {
