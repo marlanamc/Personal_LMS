@@ -549,7 +549,7 @@ function MobileAnchorsTimelineStrip({
                   onToggleSkip(anchor.id, isSkipped);
                 }}
                 className={`
-                  daily-anchors-dot relative flex h-9 w-9 items-center justify-center rounded-xl border-2 shadow-md
+                  daily-anchors-dot relative flex h-8 w-8 items-center justify-center rounded-[0.95rem] border-2 shadow-md
                   transition-all duration-300 overflow-hidden
                   ${
                     isDone
