@@ -368,6 +368,7 @@ function getRiverFlowGradient(icon: AnchorIcon): { from: string; to: string; glo
 interface MobileAnchorsTimelineStripProps {
   hourMarkers: { hour: number; label: string }[];
   sortedAnchors: DailyAnchor[];
+  todayCalendarEvents: CalendarEvent[];
   /** Elapsed time through the day window (matches “now” marker). */
   timeFillPercent: number;
   showNowMarker: boolean;
@@ -393,6 +394,7 @@ interface MobileAnchorsTimelineStripProps {
 function MobileAnchorsTimelineStrip({
   hourMarkers,
   sortedAnchors,
+  todayCalendarEvents,
   timeFillPercent,
   showNowMarker,
   isLoaded,
@@ -466,6 +468,29 @@ function MobileAnchorsTimelineStrip({
             })}
           </div>
         )}
+
+        {todayCalendarEvents.map((event) => {
+          const eventDate = new Date(event.date);
+          const displayTime = `${String(eventDate.getHours()).padStart(2, '0')}:${String(eventDate.getMinutes()).padStart(2, '0')}`;
+          const position = getTimePosition(displayTime);
+          const marker = getCalendarMarkerColor(event.type);
+          const eventLabel = event.title?.trim() || 'Calendar';
+          return (
+            <div
+              key={event.id ?? `mobile-cal-${event.date}`}
+              className="pointer-events-none absolute top-1/2 z-[14] -translate-x-1/2 -translate-y-1/2"
+              style={{ left: `${position}%` }}
+              aria-hidden
+            >
+              <div
+                className="flex h-6 w-6 items-center justify-center rounded-full border border-border-subtle/60 bg-bg-elevated/85 shadow-sm backdrop-blur-sm"
+                title={`${eventLabel}, ${formatTimeLabel(displayTime)}`}
+              >
+                <Calendar className="h-3.5 w-3.5 opacity-90" strokeWidth={2} style={{ color: marker }} />
+              </div>
+            </div>
+          );
+        })}
 
         {sortedAnchors.map((anchor) => {
           const Icon = iconByName[anchor.icon] || Moon;
@@ -1461,6 +1486,7 @@ export function DailyAnchorsTimeline({
             <MobileAnchorsTimelineStrip
               hourMarkers={hourMarkers}
               sortedAnchors={sortedAnchors}
+              todayCalendarEvents={todayCalendarEventsForRiver}
               timeFillPercent={dayProgressPercent}
               showNowMarker={showNowMarker}
               isLoaded={isLoaded}
