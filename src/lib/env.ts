@@ -42,6 +42,22 @@ const envVars: EnvVar[] = [
     validate: (value) => value.length >= 32,
   },
   {
+    key: 'WEB_PUSH_VAPID_PUBLIC_KEY',
+    required: false,
+    description: 'VAPID public key for Web Push subscriptions',
+  },
+  {
+    key: 'WEB_PUSH_VAPID_PRIVATE_KEY',
+    required: false,
+    description: 'VAPID private key for Web Push delivery',
+  },
+  {
+    key: 'WEB_PUSH_SUBJECT',
+    required: false,
+    description: 'Contact URI for VAPID metadata (typically mailto:you@example.com)',
+    validate: (value) => value.startsWith('mailto:') || value.startsWith('https://') || value.startsWith('http://'),
+  },
+  {
     key: 'UPSTASH_REDIS_REST_URL',
     required: false,
     description: 'Upstash Redis REST URL for API rate limiting',
@@ -125,6 +141,14 @@ export function validateEnv(): void {
   if (hasUpstashUrl !== hasUpstashToken) {
     errors.push(
       `❌ Incomplete Upstash configuration\n   Set both UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN, or leave both unset`
+    );
+  }
+
+  const hasWebPushPublic = Boolean(process.env.WEB_PUSH_VAPID_PUBLIC_KEY);
+  const hasWebPushPrivate = Boolean(process.env.WEB_PUSH_VAPID_PRIVATE_KEY);
+  if (hasWebPushPublic !== hasWebPushPrivate) {
+    errors.push(
+      `❌ Incomplete Web Push configuration\n   Set both WEB_PUSH_VAPID_PUBLIC_KEY and WEB_PUSH_VAPID_PRIVATE_KEY, or leave both unset`
     );
   }
 

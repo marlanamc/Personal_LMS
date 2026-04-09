@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { BookOpenIcon } from "@/components/icons/Icons";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
 import { useFocusTimer } from "@/context/FocusTimerContext";
@@ -13,6 +14,7 @@ import {
 import { HeaderStatusChips } from "./HeaderStatusChips";
 import { NavigationSidePanel } from "@/components/shared/NavigationSidePanel";
 import { useTimeBlockPlanner } from "@/features/planning/hooks/useTimeBlockPlanner";
+import { Bell } from "lucide-react";
 
 interface DashboardHeaderProps {
     userName?: string;
@@ -116,6 +118,14 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
                 }}
             />
             {headerEndAccessory}
+            <Link
+                href="/dashboard/notifications"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border-subtle/75 bg-bg-surface/75 text-text-muted transition-[transform,color,border-color,background-color] hover:border-primary/35 hover:bg-primary/8 hover:text-primary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base sm:h-9 sm:w-9"
+                aria-label="Open notification settings"
+                title="Notifications"
+            >
+                <Bell className="h-[18px] w-[18px]" />
+            </Link>
             <UserProfileDropdown userName={userName} />
         </div>
     );
