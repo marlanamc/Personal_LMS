@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import {
   AlertCircle,
   Anchor,
+  Bell,
   BookOpen,
   CalendarDays,
   Code,
@@ -49,6 +50,7 @@ const quickLinks: NavLink[] = [
   { label: 'PLANNING', isHeader: true },
   { href: '/dashboard/day-planner', label: 'Day Planner', icon: LayoutList },
   { href: '/dashboard/calendar', label: 'Monthly Calendar', icon: CalendarDays },
+  { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },
   { href: '/dashboard/meal-planner', label: 'Meal Planner', icon: UtensilsCrossed },
   { href: '/dashboard/skincare-planner', label: 'Skincare Planner', icon: Sparkle },
   { href: '/dashboard/media-hub', label: 'Media Hub', icon: Headphones },
