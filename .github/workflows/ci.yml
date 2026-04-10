@@ -13,6 +13,9 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       STORAGE_POSTGRES_URL: ${{ secrets.STORAGE_POSTGRES_URL }}
       STORAGE_PRISMA_DATABASE_URL: ${{ secrets.STORAGE_PRISMA_DATABASE_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      STORAGE_NEXTAUTH_SECRET: ${{ secrets.STORAGE_NEXTAUTH_SECRET }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,6 +48,13 @@ jobs:
             exit 1
           fi
 
+      - name: Check auth env for build
+        run: |
+          if [ -z "${NEXTAUTH_SECRET}${AUTH_SECRET}${STORAGE_NEXTAUTH_SECRET}" ]; then
+            echo "Missing auth secret for CI build. Set one of NEXTAUTH_SECRET, AUTH_SECRET, or STORAGE_NEXTAUTH_SECRET in GitHub Actions secrets." >&2
+            exit 1
+          fi
+
       - name: Build
         run: npm run build
 
@@ -56,6 +66,9 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       STORAGE_POSTGRES_URL: ${{ secrets.STORAGE_POSTGRES_URL }}
       STORAGE_PRISMA_DATABASE_URL: ${{ secrets.STORAGE_PRISMA_DATABASE_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      STORAGE_NEXTAUTH_SECRET: ${{ secrets.STORAGE_NEXTAUTH_SECRET }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
