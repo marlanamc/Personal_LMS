@@ -1,7 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { formatDistanceToNow } from 'date-fns';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { ThreadProgressBar } from './ThreadProgressBar';
 import { ThreadBadge } from './ThreadBadge';
@@ -30,13 +30,23 @@ export function ThreadCard({
   const suggestions = getThreadSuggestions(thread, allThreads);
   const streakBadge = getStreakBadgeInfo(thread.focusStreak);
   const colorHex = THREAD_COLORS[thread.color].hex;
+  const [daysActive, setDaysActive] = useState(0);
 
-  // Calculate days active
-  const daysActive = thread.lastFocused
-    ? Math.floor(
+  useEffect(() => {
+    if (!thread.lastFocused) {
+      setDaysActive(0);
+      return;
+    }
+
+    const updateDaysActive = () => {
+      const elapsedDays = Math.floor(
         (Date.now() - new Date(thread.lastFocused).getTime()) / (1000 * 60 * 60 * 24)
-      )
-    : 0;
+      );
+      setDaysActive(Math.max(0, elapsedDays));
+    };
+
+    updateDaysActive();
+  }, [thread.lastFocused]);
 
   return (
     <motion.div
