@@ -120,6 +120,20 @@
   --glow-teal: 0 0 24px rgba(79, 140, 158, 0.4);
   --glow-mint: 0 0 24px rgba(120, 191, 165, 0.4);
 
+  /* Glow Shadows for Tailwind utilities (used by Button, Card) */
+  --shadow-glow-pink: 0 0 16px rgba(212, 138, 166, 0.35);
+  --shadow-glow-pink-lg: 0 0 28px rgba(212, 138, 166, 0.5);
+  --shadow-glow-mint: 0 0 16px rgba(120, 191, 165, 0.35);
+  --shadow-glow-mint-lg: 0 0 28px rgba(120, 191, 165, 0.5);
+  --shadow-glow-lavender: 0 0 16px rgba(160, 137, 199, 0.35);
+  --shadow-glow-lavender-lg: 0 0 28px rgba(160, 137, 199, 0.5);
+
+  /* Elevation System (multi-layer shadows for depth) */
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
+  --elevation-2: 0 2px 4px rgba(0, 0, 0, 0.3), 0 6px 16px rgba(0, 0, 0, 0.2);
+  --elevation-3: 0 4px 8px rgba(0, 0, 0, 0.35), 0 12px 28px rgba(0, 0, 0, 0.25), 0 24px 48px rgba(0, 0, 0, 0.15);
+  --elevation-pressed: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+
   /* Backdrop Blur Values */
   --blur-glass-sm: 8px;
   --blur-glass-md: 12px;
@@ -6785,7 +6799,8 @@ kbd {
 
 .organize-columns {
   position: relative;
-  width: max-content;
+  display: flex;
+  gap: 0;
   min-width: 100%;
   margin: 0;
   align-items: flex-start;
@@ -6794,12 +6809,27 @@ kbd {
   scrollbar-width: thin;
 }
 
-/* Mobile: remove max-width and auto margins to use full width */
+/* Mobile: stack columns vertically */
 @media (max-width: 640px) {
   .organize-columns {
-    width: 100%;
+    flex-direction: column;
+    gap: 1rem;
     margin: 0;
     overflow-x: visible;
+  }
+}
+
+/* Project columns within the organize-columns flex container */
+.organize-columns .organize-project-column {
+  flex: 1 1 16rem;
+  min-width: 16rem;
+  max-width: 20rem;
+}
+
+@media (max-width: 640px) {
+  .organize-columns .organize-project-column {
+    flex: 1 1 auto;
+    max-width: none;
   }
 }
 
@@ -7352,6 +7382,25 @@ kbd {
     0 0 0 1px color-mix(in srgb, var(--color-primary) 22%, transparent);
 }
 
+/* Disable transform transition during drag for immediate response */
+.organize-card[data-dragging="true"],
+[data-dnd-dragging="true"] .organize-card {
+  transition:
+    box-shadow 100ms ease-out,
+    border-color 100ms ease-out,
+    background-color 100ms ease-out;
+  /* NO transform transition - let dnd-kit control directly */
+  will-change: transform;
+  /* GPU acceleration for smooth dragging */
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Disable hover effects during drag to reduce paint operations */
+[data-dnd-dragging="true"] .organize-card:hover {
+  transform: none;
+}
+
 .organize-card-selected {
   border-color: color-mix(in srgb, var(--color-primary) 28%, var(--color-border-subtle));
   box-shadow:
@@ -7524,11 +7573,18 @@ kbd {
   border: 1px solid transparent;
   margin-inline: -0.35rem;
   padding: 0.4rem 0.35rem;
+  /* Performance: isolate layout recalculations during drag */
+  contain: layout style;
 }
 
 .organize-lane-dropzone-active {
   border-color: color-mix(in srgb, var(--color-primary) 18%, transparent);
   background: color-mix(in srgb, var(--color-bg-surface) 72%, transparent);
+}
+
+/* Performance: faster transitions during active drag */
+[data-dnd-dragging="true"] .organize-lane-dropzone {
+  transition: background-color 80ms ease-out, border-color 80ms ease-out;
 }
 
 .organize-project-column {
@@ -8220,6 +8276,9 @@ kbd {
   width: min(26rem, calc(100vw - 2rem));
   max-width: min(26rem, calc(100vw - 2rem));
   touch-action: none;
+  /* GPU acceleration for smooth dragging */
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .organize-project-overlay {
