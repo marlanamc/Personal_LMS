@@ -6785,14 +6785,21 @@ kbd {
 
 .organize-columns {
   position: relative;
-  max-width: 72rem;
-  margin: 0 auto;
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  align-items: flex-start;
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: thin;
 }
 
 /* Mobile: remove max-width and auto margins to use full width */
 @media (max-width: 640px) {
   .organize-columns {
+    width: 100%;
     margin: 0;
+    overflow-x: visible;
   }
 }
 
@@ -7538,6 +7545,13 @@ kbd {
     background-color 200ms ease-out;
 }
 
+.organize-project-column[data-project-dragging="true"] {
+  z-index: 10;
+  box-shadow:
+    0 18px 40px rgba(10, 16, 28, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
 /* Mobile: flatten project columns and remove fancy effects */
 @media (max-width: 640px) {
   .organize-project-column {
@@ -8206,6 +8220,40 @@ kbd {
   width: min(26rem, calc(100vw - 2rem));
   max-width: min(26rem, calc(100vw - 2rem));
   touch-action: none;
+}
+
+.organize-project-overlay {
+  width: 19.5rem;
+  min-height: 5rem;
+  border-radius: 1.35rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 82%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 92%, var(--color-bg-elevated) 8%) 0%,
+      color-mix(in srgb, var(--color-bg-elevated) 86%, transparent) 100%
+    );
+  box-shadow:
+    0 20px 42px rgba(10, 16, 28, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  padding: 1rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.organize-project-overlay-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 75%, transparent);
+  background: color-mix(in srgb, var(--color-bg-elevated) 88%, transparent);
+  color: var(--color-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .organize-inbox-sheet-trigger {

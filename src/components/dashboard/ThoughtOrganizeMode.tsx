@@ -4,13 +4,14 @@ import { forwardRef, useEffect, useImperativeHandle, useMemo, useState, type Rea
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import { ChevronDown, ChevronLeft, Eye, EyeOff, MoreHorizontal, Plus, Trash2, Undo2, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, Eye, EyeOff, GripVertical, MoreHorizontal, Plus, Trash2, Undo2, X } from 'lucide-react';
 import {
   closestCenter,
   DndContext,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  type Modifier,
   PointerSensor,
   TouchSensor,
   pointerWithin,
@@ -19,7 +20,9 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { SortableContext, arrayMove, rectSortingStrategy, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { nanoid } from 'nanoid';
 import {
   deduplicateProjects,
@@ -298,6 +301,15 @@ function ProjectNowSummary({
 
 function laneDropId(projectId: string, lane: ThoughtLane) {
   return `lane:${projectId}:${lane}`;
+}
+
+function projectColumnId(projectId: string) {
+  return `project:${projectId}`;
+}
+
+function parseProjectColumnId(id: string): string | null {
+  const match = /^project:(.+)$/.exec(id);
+  return match ? match[1] : null;
 }
 
 function inboxDropId() {
@@ -762,6 +774,92 @@ export interface ThoughtOrganizeModeActions {
   openCreateProject: () => void;
 }
 
+function SortableProjectColumn({
+  projectId,
+  color,
+  totalCount,
+  label,
+  isMenuOpen,
+  onToggleMenu,
+  menu,
+  children,
+}: {
+  projectId: string;
+  color: ProjectColor;
+  totalCount: number;
+  label: string;
+  isMenuOpen: boolean;
+  onToggleMenu: () => void;
+  menu: ReactNode;
+  children: ReactNode;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: projectColumnId(projectId),
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.7 : 1,
+  };
+
+  return (
+    <motion.div
+      ref={setNodeRef}
+      style={style}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      className="organize-project-column w-full min-w-0 lg:w-[19.5rem] lg:min-w-[19.5rem] shrink-0 px-3 pt-1 pb-4 lg:border-r lg:border-border-subtle/20"
+      data-project-color={color}
+      data-project-dragging={isDragging ? 'true' : 'false'}
+    >
+      <div className="organize-project-column-header relative mb-2.5 flex items-center justify-between gap-3 border-b border-border-subtle/25 pb-2.5">
+        <div className="min-w-0 flex-1">
+          <span className={`moment-tag-pill moment-tag-pill-selected-${color}`}>
+            {label}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-[11px] font-medium text-text-muted/60 tabular-nums">
+            {totalCount}
+          </span>
+          <button
+            type="button"
+            {...attributes}
+            {...listeners}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-text-muted/55 transition-colors hover:bg-bg-elevated hover:text-text cursor-grab active:cursor-grabbing touch-none"
+            aria-label={`Drag to reorder ${label}`}
+          >
+            <GripVertical className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={onToggleMenu}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-text-muted/50 transition-colors hover:bg-bg-elevated hover:text-text"
+            aria-label={`Project actions for ${label}`}
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+        </div>
+
+        {isMenuOpen ? menu : null}
+      </div>
+
+      <div className="organize-project-column-body space-y-2.5">
+        {children}
+      </div>
+    </motion.div>
+  );
+}
+
 export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, ThoughtOrganizeModeProps>(({
   dateKey,
   markdown,
@@ -777,7 +875,9 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const prefersReducedMotion = usePrefersReducedMotion();
   const [mounted, setMounted] = useState(false);
   const [activeBullet, setActiveBullet] = useState<ThoughtBullet | null>(null);
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [dragOverlayWidth, setDragOverlayWidth] = useState<number | null>(null);
+  const [dragPointerOffset, setDragPointerOffset] = useState<{ x: number; y: number } | null>(null);
   const [isKeyboardDragging, setIsKeyboardDragging] = useState(false);
 
   // Configure drag sensors with activation constraints to prevent accidental drags
@@ -831,6 +931,10 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   }, []);
 
   const collisionDetection = (args: Parameters<typeof closestCenter>[0]) => {
+    if (activeProjectId) {
+      return closestCenter(args);
+    }
+
     const pointerCollisions = pointerWithin(args);
     if (pointerCollisions.length > 0) {
       const spotlightCollisions = pointerCollisions.filter(
@@ -899,6 +1003,20 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
 
     return [...deduped, ...preservedEmptyProjects];
   };
+
+  const dragOverlayModifiers = useMemo<Modifier[]>(() => {
+    if (!dragPointerOffset || isKeyboardDragging || activeProjectId) {
+      return [];
+    }
+
+    return [
+      ({ transform }) => ({
+        ...transform,
+        x: transform.x - dragPointerOffset.x,
+        y: transform.y - dragPointerOffset.y,
+      }),
+    ];
+  }, [activeProjectId, dragPointerOffset, isKeyboardDragging]);
 
   const handleCreateProject = (label: string, color: ProjectColor) => {
     setLocalOrg((prev) => {
@@ -990,7 +1108,8 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   }, [undoState, undoCountdown]);
 
   const handleDragStart = (event: DragStartEvent) => {
-    const bullet = localOrg.bullets.find((item) => item.id === event.active.id);
+    const activeId = String(event.active.id);
+    const projectId = parseProjectColumnId(activeId);
     const initialRect = event.active.rect.current.initial;
     const activatorEvent = event.activatorEvent;
     const touchEvent =
@@ -1010,19 +1129,63 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
           ? touchEvent.touches[0]?.clientY
           : undefined;
 
-    setDragOverlayWidth(initialRect?.width ?? null);
-    setIsKeyboardDragging(pointerX === undefined || pointerY === undefined);
+    if (projectId) {
+      setActiveProjectId(projectId);
+      setActiveBullet(null);
+      setDragOverlayWidth(initialRect?.width ?? null);
+      setDragPointerOffset(null);
+      setIsKeyboardDragging(pointerX === undefined || pointerY === undefined);
+      return;
+    }
 
+    const bullet = localOrg.bullets.find((item) => item.id === activeId);
+
+    setDragOverlayWidth(initialRect?.width ?? null);
+    setDragPointerOffset(
+      initialRect && typeof pointerX === 'number' && typeof pointerY === 'number'
+        ? {
+            x: pointerX - initialRect.left,
+            y: pointerY - initialRect.top,
+          }
+        : null
+    );
+    setIsKeyboardDragging(pointerX === undefined || pointerY === undefined);
     setActiveBullet(bullet || null);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveBullet(null);
+    setActiveProjectId(null);
     setDragOverlayWidth(null);
+    setDragPointerOffset(null);
     setIsKeyboardDragging(false);
 
     const { active, over } = event;
     if (!over) return;
+
+    const activeProject = parseProjectColumnId(String(active.id));
+    const overProject = parseProjectColumnId(String(over.id));
+
+    if (activeProject && overProject && activeProject !== overProject) {
+      setLocalOrg((prev) => {
+        const activeIndex = prev.projects.findIndex((project) => project.id === activeProject);
+        const overIndex = prev.projects.findIndex((project) => project.id === overProject);
+
+        if (activeIndex === -1 || overIndex === -1) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          projects: arrayMove(prev.projects, activeIndex, overIndex),
+        };
+      });
+      return;
+    }
+
+    if (activeProject) {
+      return;
+    }
 
     setLocalOrg((prev) => {
       const activeId = String(active.id);
@@ -1652,7 +1815,11 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                           </div>
                         ) : null}
 
-                        <div className="organize-columns flex flex-col lg:flex-row min-h-full gap-4 pb-2">
+                        <SortableContext
+                          items={visibleProjectColumns.map((column) => projectColumnId(column.projectId))}
+                          strategy={rectSortingStrategy}
+                        >
+                        <div className="organize-columns flex min-h-full flex-col gap-4 pb-2 lg:flex-row lg:items-start">
                         <DroppableInbox
                           bullets={inbox?.bullets || []}
                           existingProjects={localOrg.projects}
@@ -1676,76 +1843,54 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                         />
 
                         {visibleProjectColumns.map((column) => (
-                          <motion.div
+                          <SortableProjectColumn
                             key={column.projectId}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.2, ease: 'easeOut' }}
-                            className="organize-project-column w-full lg:w-[19.5rem] shrink-0 px-3 pt-1 pb-4 lg:border-r lg:border-border-subtle/20"
-                            data-project-color={column.projectMeta?.color ?? 'lavender'}
-                          >
-                            <div className="organize-project-column-header relative mb-2.5 flex items-center justify-between gap-3 border-b border-border-subtle/25 pb-2.5">
-                              <div className="min-w-0 flex-1">
-                                <span className={`moment-tag-pill moment-tag-pill-selected-${column.projectMeta?.color ?? 'lavender'}`}>
-                                  {column.projectMeta?.label || 'Project'}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <span className="text-[11px] font-medium text-text-muted/60 tabular-nums">
-                                  {QUEUED_LANES.reduce((sum, lane) => sum + column.lanes[lane].length, 0) + column.lanes.done.length}
-                                </span>
+                            projectId={column.projectId}
+                            color={column.projectMeta?.color ?? 'lavender'}
+                            totalCount={QUEUED_LANES.reduce((sum, lane) => sum + column.lanes[lane].length, 0) + column.lanes.done.length}
+                            label={column.projectMeta?.label || 'Project'}
+                            isMenuOpen={projectMenuId === column.projectId}
+                            onToggleMenu={() => setProjectMenuId((current) => (current === column.projectId ? null : column.projectId))}
+                            menu={
+                              <div className="absolute right-0 top-11 z-20 w-52 rounded-[1rem] border border-border-subtle/70 bg-bg-elevated/95 p-2 shadow-2xl backdrop-blur-xl">
                                 <button
                                   type="button"
-                                  onClick={() => setProjectMenuId((current) => (current === column.projectId ? null : column.projectId))}
-                                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-text-muted/50 transition-colors hover:bg-bg-elevated hover:text-text"
-                                  aria-label={`Project actions for ${column.projectMeta?.label ?? 'project'}`}
+                                  onClick={() => column.projectMeta && openEditProject(column.projectMeta)}
+                                  className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
                                 >
-                                  <MoreHorizontal className="h-4 w-4" />
+                                  Rename or recolor
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleStartMergeProject(column.projectId)}
+                                  disabled={localOrg.projects.length < 2}
+                                  className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  Merge into…
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setCollapsedDoneProjects((current) => ({
+                                      ...current,
+                                      [column.projectId]: !(current[column.projectId] ?? true),
+                                    }))
+                                  }
+                                  className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
+                                >
+                                  {(collapsedDoneProjects[column.projectId] ?? true) ? 'Expand done lane' : 'Collapse done lane'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteProject(column.projectId)}
+                                  className="block w-full rounded-lg px-3 py-2 text-left text-sm text-error hover:bg-error/8"
+                                >
+                                  Remove project
                                 </button>
                               </div>
-
-                              {projectMenuId === column.projectId ? (
-                                <div className="absolute right-0 top-11 z-20 w-52 rounded-[1rem] border border-border-subtle/70 bg-bg-elevated/95 p-2 shadow-2xl backdrop-blur-xl">
-                                  <button
-                                    type="button"
-                                    onClick={() => column.projectMeta && openEditProject(column.projectMeta)}
-                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
-                                  >
-                                    Rename or recolor
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleStartMergeProject(column.projectId)}
-                                    disabled={localOrg.projects.length < 2}
-                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-50"
-                                  >
-                                    Merge into…
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setCollapsedDoneProjects((current) => ({
-                                        ...current,
-                                        [column.projectId]: !(current[column.projectId] ?? true),
-                                      }))
-                                    }
-                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
-                                  >
-                                    {(collapsedDoneProjects[column.projectId] ?? true) ? 'Expand done lane' : 'Collapse done lane'}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteProject(column.projectId)}
-                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-error hover:bg-error/8"
-                                  >
-                                    Remove project
-                                  </button>
-                                </div>
-                              ) : null}
-                            </div>
-
-                            <div className="organize-project-column-body space-y-2.5">
-                              <ProjectNowSummary bullets={column.lanes.now} />
+                            }
+                          >
+                            <ProjectNowSummary bullets={column.lanes.now} />
 
                               {QUEUED_LANES.map((lane) => (
                                 <DroppableLane
@@ -1776,10 +1921,10 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                                   }
                                 />
                               ) : null}
-                            </div>
-                          </motion.div>
+                          </SortableProjectColumn>
                         ))}
                         </div>
+                        </SortableContext>
                       </div>
                     ) : null}
                   </div>
@@ -1791,11 +1936,23 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
           {mounted
             ? createPortal(
                 <DragOverlay
+                  adjustScale={false}
+                  modifiers={dragOverlayModifiers}
                   dropAnimation={{
                     duration: 200,
                     easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
                   }}
                 >
+                  {activeProjectId ? (
+                    <div
+                      className="organize-project-overlay"
+                      style={dragOverlayWidth ? { width: `${dragOverlayWidth}px`, maxWidth: `${dragOverlayWidth}px` } : undefined}
+                    >
+                      <div className="organize-project-overlay-pill">
+                        {localOrg.projects.find((project) => project.id === activeProjectId)?.label ?? 'Project'}
+                      </div>
+                    </div>
+                  ) : null}
                   {activeBullet ? (
                     <div
                       className="organize-drag-overlay cursor-grabbing"

@@ -372,6 +372,7 @@ export function groupByProjectLane(
 ): ProjectLaneGroup[] {
   const normalizedBullets = bullets.map(normalizeBulletMetadata);
   const projectMap = new Map<string, ProjectLaneGroup>();
+  const projectOrder = new Map(projects.map((project, index) => [project.id, index]));
 
   projectMap.set('inbox', {
     projectId: 'inbox',
@@ -448,6 +449,17 @@ export function groupByProjectLane(
   return columns.sort((a, b) => {
     if (a.isInbox) return -1;
     if (b.isInbox) return 1;
+
+    const aOrder = a.projectId ? projectOrder.get(a.projectId) : undefined;
+    const bOrder = b.projectId ? projectOrder.get(b.projectId) : undefined;
+
+    if (aOrder !== undefined && bOrder !== undefined) {
+      return aOrder - bOrder;
+    }
+
+    if (aOrder !== undefined) return -1;
+    if (bOrder !== undefined) return 1;
+
     return (a.projectMeta?.label || '').localeCompare(b.projectMeta?.label || '');
   });
 }

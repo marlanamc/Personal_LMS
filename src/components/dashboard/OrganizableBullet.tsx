@@ -103,6 +103,7 @@ export function OrganizableBullet({
 }: OrganizableBulletProps) {
   const [isEditing, setIsEditing] = useState(false);
   const isEditable = interactionMode === 'editable';
+  const sortableId = dragOverlay ? `overlay-${bullet.id}` : bullet.id;
 
   const {
     attributes,
@@ -111,7 +112,10 @@ export function OrganizableBullet({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: bullet.id });
+  } = useSortable({
+    id: sortableId,
+    disabled: dragOverlay,
+  });
 
   const style = dragOverlay
     ? undefined
