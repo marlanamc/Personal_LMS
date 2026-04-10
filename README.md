@@ -95,3 +95,5 @@ npm run test:e2e
 
 - `graveyard/` is intentional archival code and rationale, not active runtime code.
 - `docs/` holds setup and planning material that should not live at the repo root.
+
+<!-- vercel-trigger: Fri Apr 10 16:31:40 EDT 2026 -->
