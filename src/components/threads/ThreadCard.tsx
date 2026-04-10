@@ -33,14 +33,16 @@ export function ThreadCard({
   const [daysActive, setDaysActive] = useState(0);
 
   useEffect(() => {
-    if (!thread.lastFocused) {
+    const { lastFocused } = thread;
+
+    if (!lastFocused) {
       setDaysActive(0);
       return;
     }
 
     const updateDaysActive = () => {
       const elapsedDays = Math.floor(
-        (Date.now() - new Date(thread.lastFocused).getTime()) / (1000 * 60 * 60 * 24)
+        (Date.now() - new Date(lastFocused).getTime()) / (1000 * 60 * 60 * 24)
       );
       setDaysActive(Math.max(0, elapsedDays));
     };
