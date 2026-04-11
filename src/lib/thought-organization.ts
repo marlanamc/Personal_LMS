@@ -210,19 +210,18 @@ export function mergeProjects(
   bulletProjects: ProjectMeta[],
   existingProjects: ProjectMeta[] = []
 ): ProjectMeta[] {
-  const merged = new Map<string, ProjectMeta>();
+  // Preserve the order from existingProjects (user's custom order)
+  // Only add bullet-derived projects that aren't already in existingProjects
+  const existingIds = new Set(existingProjects.map(p => p.id));
+  const merged: ProjectMeta[] = [...existingProjects];
 
   bulletProjects.forEach((project) => {
-    merged.set(project.id, project);
-  });
-
-  existingProjects.forEach((project) => {
-    if (!merged.has(project.id)) {
-      merged.set(project.id, project);
+    if (!existingIds.has(project.id)) {
+      merged.push(project);
     }
   });
 
-  return Array.from(merged.values());
+  return merged;
 }
 
 /**

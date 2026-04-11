@@ -121,7 +121,8 @@ export function OrganizableBullet({
     ? undefined
     : {
         transform: CSS.Transform.toString(transform),
-        transition,
+        // Disable transition during drag for immediate response
+        transition: isDragging ? 'none' : transition,
         opacity: isDragging ? 0.35 : 1,
       };
 

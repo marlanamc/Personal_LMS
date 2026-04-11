@@ -93,18 +93,22 @@ function SpotlightDropSlot({
   label,
   hint,
   children,
+  dragType,
 }: {
   id: string;
   label: string;
   hint: string;
   children?: ReactNode;
+  dragType?: 'project' | 'bullet' | null;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
+  // Only show drop highlight for bullet drags, not project drags
+  const showDropHighlight = isOver && dragType === 'bullet';
 
   return (
     <div
       ref={setNodeRef}
-      className={`now-spotlight-stage ${isOver ? 'now-spotlight-stage-drop-active' : ''}`}
+      className={`now-spotlight-stage ${showDropHighlight ? 'now-spotlight-stage-drop-active' : ''}`}
       data-drop-slot={id}
     >
       <div className="now-spotlight-stage-header">
@@ -131,6 +135,7 @@ function NowSpotlight({
   onToggleExpanded,
   prefersReducedMotion,
   focusedProjectId,
+  dragType,
 }: {
   bullets: ThoughtBullet[];
   projects: ProjectMeta[];
@@ -140,6 +145,7 @@ function NowSpotlight({
   onToggleExpanded: () => void;
   prefersReducedMotion: boolean;
   focusedProjectId?: string | null;
+  dragType?: 'project' | 'bullet' | null;
 }) {
   const nowBullets = [...bullets]
     .filter((b) => b.lane === 'now' && b.project && (!focusedProjectId || b.project === focusedProjectId))
@@ -165,11 +171,13 @@ function NowSpotlight({
             id={spotlightDropId('current')}
             label="Current task"
             hint="Drag a project task here to set your current focus"
+            dragType={dragType}
           />
           <SpotlightDropSlot
             id={spotlightDropId('next')}
             label="Up next"
             hint="Drop here to line up the next task after current"
+            dragType={dragType}
           />
         </div>
       </div>
@@ -201,6 +209,7 @@ function NowSpotlight({
             id={spotlightDropId('current')}
             label="Current task"
             hint="Drop here to make this your current task"
+            dragType={dragType}
           >
             <div className="now-spotlight-current">
               {currentBullet ? (
@@ -225,6 +234,7 @@ function NowSpotlight({
             id={spotlightDropId('next')}
             label="Up next"
             hint="Drop here to make this the next task after current"
+            dragType={dragType}
           >
             <div className="now-spotlight-next">
               {nextBullet ? (
@@ -388,6 +398,7 @@ function DroppableLane({
   onDeleteBullet,
   collapsed = false,
   onToggleCollapsed,
+  dragType,
 }: {
   id: string;
   lane: ThoughtLane;
@@ -397,10 +408,13 @@ function DroppableLane({
   onDeleteBullet: (bulletId: string) => void;
   collapsed?: boolean;
   onToggleCollapsed?: () => void;
+  dragType?: 'project' | 'bullet' | null;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   const config = LANE_CONFIG[lane];
   const bulletIds = bullets.map((bullet) => bullet.id);
+  // Only show drop highlight for bullet drags, not project drags
+  const showDropHighlight = isOver && dragType === 'bullet';
 
   if (lane === 'done' && collapsed) {
     return (
@@ -436,7 +450,7 @@ function DroppableLane({
       <div
         ref={setNodeRef}
         className={`organize-lane-dropzone py-1.5 transition-colors duration-150 ${bullets.length === 0 ? 'min-h-[5.5rem]' : ''} ${
-          isOver ? 'organize-lane-dropzone-active rounded-xl bg-bg-surface/50 ring-2 ring-primary/20' : ''
+          showDropHighlight ? 'organize-lane-dropzone-active rounded-xl bg-bg-surface/50 ring-2 ring-primary/20' : ''
         }`}
         data-lane={lane}
       >
@@ -479,6 +493,7 @@ function DroppableInbox({
   onQuickAddChange,
   onQuickAdd,
   prefersReducedMotion,
+  dragType,
 }: {
   bullets: ThoughtBullet[];
   existingProjects: ProjectMeta[];
@@ -495,11 +510,14 @@ function DroppableInbox({
   onQuickAddChange?: (text: string) => void;
   onQuickAdd?: (text: string) => void;
   prefersReducedMotion: boolean;
+  dragType?: 'project' | 'bullet' | null;
 }) {
   const id = inboxDropId();
   const { setNodeRef, isOver } = useDroppable({ id });
   const bulletIds = bullets.map((bullet) => bullet.id);
   const [targetProjectId, setTargetProjectId] = useState('');
+  // Only show drop highlight for bullet drags, not project drags
+  const showDropHighlight = isOver && dragType === 'bullet';
 
   // On mobile, show bottom sheet trigger; on desktop, show collapsed sidebar
   if (collapsed) {
@@ -664,7 +682,7 @@ function DroppableInbox({
 
         <div
           ref={setNodeRef}
-          className={`organize-inbox-dropzone min-h-[22rem] p-1 transition-colors duration-150 ${isOver ? 'ring-2 ring-primary/30 rounded-xl bg-bg-elevated/60' : ''}`}
+          className={`organize-inbox-dropzone min-h-[22rem] p-1 transition-colors duration-150 ${showDropHighlight ? 'ring-2 ring-primary/30 rounded-xl bg-bg-elevated/60' : ''}`}
         >
           <SortableContext items={bulletIds} strategy={verticalListSortingStrategy}>
             <div className="organize-cards-stack">
@@ -806,18 +824,18 @@ function SortableProjectColumn({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    // Only apply dnd-kit transition when NOT dragging to avoid conflicts
+    transition: isDragging ? 'none' : transition,
     opacity: isDragging ? 0.7 : 1,
   };
 
   return (
-    <motion.div
+    <div
       ref={setNodeRef}
       style={style}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
-      className="organize-project-column w-full min-w-0 lg:w-[19.5rem] lg:min-w-[19.5rem] shrink-0 px-3 pt-1 pb-4 lg:border-r lg:border-border-subtle/20"
+      className={`organize-project-column w-full min-w-0 px-3 pt-1 pb-4 lg:border-r lg:border-border-subtle/20 ${
+        !isDragging ? 'animate-fade-in' : ''
+      }`}
       data-project-color={color}
       data-project-dragging={isDragging ? 'true' : 'false'}
     >
@@ -856,7 +874,7 @@ function SortableProjectColumn({
       <div className="organize-project-column-body space-y-2.5">
         {children}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -876,6 +894,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const [mounted, setMounted] = useState(false);
   const [activeBullet, setActiveBullet] = useState<ThoughtBullet | null>(null);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+  const [dragType, setDragType] = useState<'project' | 'bullet' | null>(null);
   const [dragOverlayWidth, setDragOverlayWidth] = useState<number | null>(null);
   const [dragPointerOffset, setDragPointerOffset] = useState<{ x: number; y: number } | null>(null);
   const [isKeyboardDragging, setIsKeyboardDragging] = useState(false);
@@ -888,8 +907,8 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   });
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
-      delay: 200, // 200ms hold before drag starts on touch
-      tolerance: 5,
+      delay: 150, // Faster activation for snappier feel
+      tolerance: 8, // Slightly higher to prevent accidental drags during scroll
     },
   });
   const sensors = useSensors(pointerSensor, touchSensor);
@@ -932,7 +951,14 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
 
   const collisionDetection = (args: Parameters<typeof closestCenter>[0]) => {
     if (activeProjectId) {
-      return closestCenter(args);
+      // When dragging a project, only allow dropping on other project columns
+      const projectContainers = args.droppableContainers.filter(
+        (container) => typeof container.id === 'string' && container.id.startsWith('project:')
+      );
+      return closestCenter({
+        ...args,
+        droppableContainers: projectContainers,
+      });
     }
 
     const pointerCollisions = pointerWithin(args);
@@ -1132,6 +1158,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
     if (projectId) {
       setActiveProjectId(projectId);
       setActiveBullet(null);
+      setDragType('project');
       setDragOverlayWidth(initialRect?.width ?? null);
       setDragPointerOffset(null);
       setIsKeyboardDragging(pointerX === undefined || pointerY === undefined);
@@ -1140,6 +1167,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
 
     const bullet = localOrg.bullets.find((item) => item.id === activeId);
 
+    setDragType('bullet');
     setDragOverlayWidth(initialRect?.width ?? null);
     setDragPointerOffset(
       initialRect && typeof pointerX === 'number' && typeof pointerY === 'number'
@@ -1156,6 +1184,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveBullet(null);
     setActiveProjectId(null);
+    setDragType(null);
     setDragOverlayWidth(null);
     setDragPointerOffset(null);
     setIsKeyboardDragging(false);
@@ -1730,7 +1759,8 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
 
       <div
         className="organize-board flex-1 overflow-auto px-0 sm:px-4 py-2 sm:py-4 md:px-6 md:py-5"
-        data-dragging={activeBullet ? 'true' : 'false'}
+        data-dragging={(activeBullet || activeProjectId) ? 'true' : 'false'}
+        data-dnd-dragging={(activeBullet || activeProjectId) ? 'true' : 'false'}
       >
         <DndContext
           sensors={sensors}
@@ -1759,6 +1789,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                     onToggleExpanded={() => setNowSpotlightExpanded((v) => !v)}
                     prefersReducedMotion={prefersReducedMotion}
                     focusedProjectId={focusedProjectId}
+                    dragType={dragType}
                   />
                 )}
 
@@ -1819,7 +1850,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                           items={visibleProjectColumns.map((column) => projectColumnId(column.projectId))}
                           strategy={rectSortingStrategy}
                         >
-                        <div className="organize-columns flex min-h-full flex-col gap-4 pb-2 lg:flex-row lg:items-start">
+                        <div className="organize-columns min-h-full gap-4 pb-2">
                         <DroppableInbox
                           bullets={inbox?.bullets || []}
                           existingProjects={localOrg.projects}
@@ -1840,6 +1871,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                           onQuickAddChange={setQuickAddText}
                           onQuickAdd={handleQuickAdd}
                           prefersReducedMotion={prefersReducedMotion}
+                          dragType={dragType}
                         />
 
                         {visibleProjectColumns.map((column) => (
@@ -1901,6 +1933,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                                   existingProjects={localOrg.projects}
                                   onUpdateBullet={handleUpdateBullet}
                                   onDeleteBullet={handleDeleteBullet}
+                                  dragType={dragType}
                                 />
                               ))}
 
@@ -1919,6 +1952,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                                       [column.projectId]: !(current[column.projectId] ?? true),
                                     }))
                                   }
+                                  dragType={dragType}
                                 />
                               ) : null}
                           </SortableProjectColumn>
@@ -1939,8 +1973,8 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                   adjustScale={false}
                   modifiers={dragOverlayModifiers}
                   dropAnimation={{
-                    duration: 200,
-                    easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+                    duration: 180,
+                    easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)', // Smooth ease-out, no overshoot
                   }}
                 >
                   {activeProjectId ? (

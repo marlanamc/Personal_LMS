@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { useMealPlanner } from '@/components/dashboard/useMealPlanner';
 import { useSkincarePlanner } from '@/components/dashboard/useSkincarePlanner';
+import { useCleaningPlanner } from '@/components/dashboard/useCleaningPlanner';
 import { useThoughtOrganizer } from '@/components/organize/useThoughtOrganizer';
 import { getMealsForDate, MEAL_SLOT_KEYS, type MealSlotKey } from '@/lib/meal-planner';
 import { getTodayItems } from '@/lib/skincare-planner';
+import { getCleaningTaskStatus } from '@/lib/cleaning-planner';
 import { getTodayKey } from '@/lib/unified-scheduler';
 import {
   Zap,
@@ -16,6 +18,7 @@ import {
   ChevronRight,
   Droplets,
   UtensilsCrossed,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -30,21 +33,22 @@ const MEAL_ICONS: Record<MealSlotKey, LucideIcon> = {
   snack: Coffee,
 };
 
-const MEAL_LABELS: Record<MealSlotKey, string> = {
-  breakfast: 'Breakfast',
-  lunch: 'Lunch',
-  dinner: 'Dinner',
-  snack: 'Snack',
-};
-
 export function TodayRibbon({ storageScope }: TodayRibbonProps) {
   const { plannerStore, isLoaded: mealsLoaded } = useMealPlanner(storageScope);
   const { plannerStore: skincareStore, isLoaded: skincareLoaded } = useSkincarePlanner(storageScope);
+  const { plannerStore: cleaningStore, isLoaded: cleaningLoaded } = useCleaningPlanner(storageScope);
   const { organization, isLoaded: organizeLoaded } = useThoughtOrganizer();
 
   const todayKey = getTodayKey();
   const todayMeals = getMealsForDate(plannerStore.mealPlans, todayKey);
   const todaySkincare = getTodayItems(skincareStore);
+
+  // Get cleaning tasks due or overdue today
+  const dueCleaning = cleaningStore.tasks.filter((task) => {
+    const status = getCleaningTaskStatus(task);
+    return status === 'due' || status === 'overdue';
+  });
+  const overdueCleaning = dueCleaning.filter((task) => getCleaningTaskStatus(task) === 'overdue');
 
   // Get "Now" items (high priority / immediate tasks)
   const nowItems = organization.bullets.filter((b) => b.lane === 'now');
@@ -52,13 +56,14 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
   // Check if we have any content to show
   const hasMeals = todayMeals && MEAL_SLOT_KEYS.some((key) => todayMeals[key]?.text);
   const hasSkincare = todaySkincare.am.length > 0 || todaySkincare.pm.length > 0;
+  const hasCleaning = dueCleaning.length > 0;
   const hasNowItems = nowItems.length > 0;
 
   // Loading state
-  if (!mealsLoaded || !skincareLoaded || !organizeLoaded) {
+  if (!mealsLoaded || !skincareLoaded || !cleaningLoaded || !organizeLoaded) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3">
-        {[1, 2, 3].map((i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
+        {[1, 2, 3, 4].map((i) => (
           <div key={i} className="h-20 rounded-xl bg-bg-surface/50 animate-pulse skeleton" />
         ))}
       </div>
@@ -66,7 +71,7 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
       {/* NOW Segment - Soft violet/lavender for calm focus */}
       <Link
         href="/dashboard/organize"
@@ -204,6 +209,70 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
           </div>
         ) : (
           <span className="text-[10px] text-sky-600/70 dark:text-sky-400/70 italic">Not planned</span>
+        )}
+      </Link>
+
+      {/* CLEANING Segment - Fresh teal/emerald for cleaning */}
+      <Link
+        href="/dashboard/cleaning-planner"
+        className={`
+          group relative flex flex-col p-3 rounded-xl border transition-all
+          bg-emerald-50/80 dark:bg-emerald-950/25
+          border-emerald-200/60 dark:border-emerald-800/40
+          hover:border-emerald-300/70 dark:hover:border-emerald-700/50
+          hover:bg-emerald-100/70 dark:hover:bg-emerald-950/35
+          shadow-sm
+          ${!hasCleaning ? 'opacity-60' : ''}
+        `}
+      >
+        {/* Header row */}
+        <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span className="text-[11px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              Cleaning
+            </span>
+            {overdueCleaning.length > 0 && (
+              <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300">
+                {overdueCleaning.length} overdue
+              </span>
+            )}
+          </div>
+          <ChevronRight className="w-3.5 h-3.5 text-emerald-500/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+        </div>
+
+        {/* Content - Show due cleaning tasks */}
+        {hasCleaning ? (
+          <div className="space-y-0.5">
+            {dueCleaning.slice(0, 3).map((task) => {
+              const isOverdue = getCleaningTaskStatus(task) === 'overdue';
+              return (
+                <div key={task.id} className="flex items-center gap-1.5">
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                      isOverdue ? 'bg-rose-400' : 'bg-emerald-400/70'
+                    }`}
+                  />
+                  <span
+                    className={`text-[11px] truncate ${
+                      isOverdue
+                        ? 'text-rose-700 dark:text-rose-300'
+                        : 'text-emerald-900 dark:text-emerald-100'
+                    }`}
+                  >
+                    {task.title}
+                  </span>
+                </div>
+              );
+            })}
+            {dueCleaning.length > 3 && (
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 pl-3">
+                +{dueCleaning.length - 3} more
+              </span>
+            )}
+          </div>
+        ) : (
+          <span className="text-[10px] text-emerald-600/70 dark:text-emerald-400/70 italic">All caught up!</span>
         )}
       </Link>
     </div>

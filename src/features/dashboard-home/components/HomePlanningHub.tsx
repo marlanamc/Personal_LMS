@@ -79,6 +79,7 @@ export function HomePlanningHub({
                 { label: 'Anchors', href: '/dashboard/anchors' },
                 { label: 'Meals', href: '/dashboard/meal-planner' },
                 { label: 'Skincare', href: '/dashboard/skincare-planner' },
+                { label: 'Cleaning', href: '/dashboard/cleaning-planner' },
               ]}
             />
             <AreaCard
