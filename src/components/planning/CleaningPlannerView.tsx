@@ -1,16 +1,17 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { CalendarDays, LayoutGrid, List, Plus, Filter, ChevronDown, AlertCircle, Clock, Calendar } from 'lucide-react';
+import { useMemo, useState, useCallback } from 'react';
+import { CalendarDays, LayoutGrid, List, Plus, AlertCircle, Clock, Calendar, Target } from 'lucide-react';
 import SaveStatus from '@/components/ui/SaveStatus';
 import { useCleaningPlanner } from '@/components/dashboard/useCleaningPlanner';
 import { CleaningWeekView } from './CleaningWeekView';
 import { CleaningMonthView } from './CleaningMonthView';
 import { CleaningListView } from './CleaningListView';
+import { CleaningFocusMode } from './CleaningFocusMode';
 import { CleaningTaskEditSheet } from './CleaningTaskEditSheet';
+import { CleaningCelebration } from './CleaningCelebration';
 import {
   completeCleaningTask,
-  getAvailableCleaningZones,
   getCleaningTaskStatus,
   sortCleaningTasks,
   upsertCleaningTask,
@@ -24,17 +25,11 @@ export interface CleaningPlannerViewProps {
   storageScope: string;
 }
 
-type PlannerTab = 'week' | 'month' | 'list';
+type PlannerTab = 'focus' | 'week' | 'month' | 'list';
 type FilterKey = 'all' | 'due' | 'overdue' | 'upcoming';
 
-const FILTER_OPTIONS: Array<{ value: FilterKey; label: string; shortLabel: string }> = [
-  { value: 'all', label: 'All tasks', shortLabel: 'All' },
-  { value: 'due', label: 'Due today', shortLabel: 'Due' },
-  { value: 'overdue', label: 'Overdue', shortLabel: 'Late' },
-  { value: 'upcoming', label: 'Upcoming', shortLabel: 'Soon' },
-];
-
 const TAB_OPTIONS: Array<{ key: PlannerTab; label: string; shortLabel: string; icon: typeof LayoutGrid }> = [
+  { key: 'focus', label: 'Focus', shortLabel: 'Focus', icon: Target },
   { key: 'week', label: 'This Week', shortLabel: 'Week', icon: LayoutGrid },
   { key: 'month', label: 'Calendar', shortLabel: 'Month', icon: CalendarDays },
   { key: 'list', label: 'All Tasks', shortLabel: 'List', icon: List },
@@ -56,15 +51,14 @@ function matchesFilter(task: CleaningTask, filter: FilterKey, now: Date): boolea
 export function CleaningPlannerView({ storageScope }: CleaningPlannerViewProps) {
   const { plannerStore, setPlannerStore, isLoaded, isSaving, saveError, lastSyncedAt } = useCleaningPlanner(storageScope);
 
-  const [tab, setTab] = useState<PlannerTab>('week');
+  const [tab, setTab] = useState<PlannerTab>('focus');
   const [filter, setFilter] = useState<FilterKey>('all');
-  const [selectedZoneId, setSelectedZoneId] = useState<string>('all');
   const [viewDate, setViewDate] = useState(() => startOfDay(new Date()));
   const [editingTask, setEditingTask] = useState<CleaningTask | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
-  const now = useMemo(() => new Date(), [plannerStore.tasks, filter, selectedZoneId]);
-  const zones = useMemo(() => getAvailableCleaningZones(plannerStore), [plannerStore]);
+  const now = useMemo(() => new Date(), [plannerStore.tasks, filter]);
   const tasks = useMemo(() => sortCleaningTasks(plannerStore.tasks, now), [plannerStore.tasks, now]);
 
   // Calculate summary stats
@@ -83,19 +77,30 @@ export function CleaningPlannerView({ storageScope }: CleaningPlannerViewProps) 
 
   // Filter tasks
   const filteredTasks = useMemo(
-    () =>
-      tasks.filter((task) => {
-        if (!matchesFilter(task, filter, now)) return false;
-        if (selectedZoneId !== 'all' && task.zoneId !== selectedZoneId) return false;
-        return true;
-      }),
-    [filter, now, selectedZoneId, tasks],
+    () => tasks.filter((task) => matchesFilter(task, filter, now)),
+    [filter, now, tasks],
   );
 
-  const handleComplete = (task: CleaningTask) => {
+  const handleComplete = useCallback((task: CleaningTask) => {
     triggerHaptic('medium');
     setPlannerStore((prev) => upsertCleaningTask(prev, completeCleaningTask(task)));
-  };
+    setShowCelebration(true);
+  }, [setPlannerStore]);
+
+  const handleCelebrationComplete = useCallback(() => {
+    setShowCelebration(false);
+  }, []);
+
+  const handleFocusSkip = useCallback(() => {
+    // In focus mode, skipping just moves to the next task visually
+    // We don't change anything, just let the user see the next one
+    // For now, we can switch to week view to see all tasks
+    setTab('week');
+  }, []);
+
+  const handleUpdateTask = useCallback((task: CleaningTask) => {
+    setPlannerStore((prev) => upsertCleaningTask(prev, task));
+  }, [setPlannerStore]);
 
   const handleEdit = (taskId: string) => {
     const task = plannerStore.tasks.find((t) => t.id === taskId);
@@ -130,110 +135,91 @@ export function CleaningPlannerView({ storageScope }: CleaningPlannerViewProps) 
   const hasTasks = plannerStore.tasks.length > 0;
 
   return (
-    <div className="space-y-3 md:space-y-5">
-      {/* Compact header with title + add button */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-text-primary md:text-2xl">Cleaning</h1>
+    <div className="space-y-2 md:space-y-3">
+      {/* Condensed header: title, stats, zone filter, add button - all in one row on desktop */}
+      <div className="flex flex-wrap items-center gap-2 md:gap-3">
+        {/* Title + save status */}
+        <div className="flex items-center gap-2 mr-auto">
+          <h1 className="text-lg font-bold text-text-primary md:text-xl">Cleaning</h1>
           <SaveStatus isSaving={isSaving} error={saveError} lastSaved={lastSyncedAt} />
         </div>
+
+        {/* Compact stats pills - inline */}
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setFilter(filter === 'due' ? 'all' : 'due')}
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition ${
+              filter === 'due'
+                ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/30'
+                : 'bg-bg-elevated/60 text-text-muted hover:bg-bg-elevated'
+            }`}
+          >
+            <Clock className="h-3 w-3" />
+            <span className="font-semibold">{summary.due}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter(filter === 'overdue' ? 'all' : 'overdue')}
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition ${
+              filter === 'overdue'
+                ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 ring-1 ring-rose-500/30'
+                : summary.overdue > 0
+                  ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                  : 'bg-bg-elevated/60 text-text-muted hover:bg-bg-elevated'
+            }`}
+          >
+            <AlertCircle className="h-3 w-3" />
+            <span className="font-semibold">{summary.overdue}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter(filter === 'upcoming' ? 'all' : 'upcoming')}
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium transition ${
+              filter === 'upcoming'
+                ? 'bg-sky-500/15 text-sky-700 dark:text-sky-300 ring-1 ring-sky-500/30'
+                : 'bg-bg-elevated/60 text-text-muted hover:bg-bg-elevated'
+            }`}
+          >
+            <Calendar className="h-3 w-3" />
+            <span className="font-semibold">{summary.upcoming}</span>
+          </button>
+          {filter !== 'all' && (
+            <button
+              type="button"
+              onClick={() => setFilter('all')}
+              className="text-xs text-primary hover:text-primary/80 font-medium px-1"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        {/* Add button */}
         <button
           type="button"
           onClick={() => setIsCreating(true)}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 active:scale-[0.98] shadow-md shadow-primary/20"
+          className="inline-flex items-center justify-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary/90 active:scale-[0.98] shadow-sm shadow-primary/20"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Add</span>
         </button>
       </div>
 
-      {/* Compact summary row - horizontal on mobile */}
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
-        <button
-          type="button"
-          onClick={() => setFilter(filter === 'due' ? 'all' : 'due')}
-          className={`flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium whitespace-nowrap transition-all ${
-            filter === 'due'
-              ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/30'
-              : 'bg-bg-elevated/60 text-text-muted hover:bg-bg-elevated'
-          }`}
-        >
-          <Clock className="h-3.5 w-3.5" />
-          <span className="font-semibold">{summary.due}</span>
-          <span className="text-xs opacity-80">due</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setFilter(filter === 'overdue' ? 'all' : 'overdue')}
-          className={`flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium whitespace-nowrap transition-all ${
-            filter === 'overdue'
-              ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 ring-1 ring-rose-500/30'
-              : summary.overdue > 0
-                ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
-                : 'bg-bg-elevated/60 text-text-muted hover:bg-bg-elevated'
-          }`}
-        >
-          <AlertCircle className="h-3.5 w-3.5" />
-          <span className="font-semibold">{summary.overdue}</span>
-          <span className="text-xs opacity-80">late</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setFilter(filter === 'upcoming' ? 'all' : 'upcoming')}
-          className={`flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium whitespace-nowrap transition-all ${
-            filter === 'upcoming'
-              ? 'bg-sky-500/15 text-sky-700 dark:text-sky-300 ring-1 ring-sky-500/30'
-              : 'bg-bg-elevated/60 text-text-muted hover:bg-bg-elevated'
-          }`}
-        >
-          <Calendar className="h-3.5 w-3.5" />
-          <span className="font-semibold">{summary.upcoming}</span>
-          <span className="text-xs opacity-80">soon</span>
-        </button>
-        {filter !== 'all' && (
-          <button
-            type="button"
-            onClick={() => setFilter('all')}
-            className="flex items-center gap-1 rounded-full px-3 py-2 text-sm font-medium text-primary bg-primary/10 whitespace-nowrap"
-          >
-            Clear
-          </button>
-        )}
-      </div>
-
-      {/* Zone filter - compact dropdown */}
-      {zones.length > 1 && (
-        <div className="flex items-center gap-2">
-          <Filter className="h-3.5 w-3.5 text-text-muted" />
-          <select
-            value={selectedZoneId}
-            onChange={(e) => setSelectedZoneId(e.target.value)}
-            className="rounded-lg border border-border-subtle/60 bg-bg-surface/80 px-2.5 py-1.5 text-sm text-text-primary outline-none transition focus:border-primary/50 appearance-none pr-7 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.25rem_center] bg-no-repeat"
-          >
-            <option value="all">All zones</option>
-            {zones.map((zone) => (
-              <option key={zone.id} value={zone.id}>
-                {zone.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* Tab bar - more compact */}
-      <div className="flex rounded-xl border border-border-subtle/40 bg-bg-elevated/30 p-0.5">
+      {/* Tab bar - compact */}
+      <div className="flex rounded-lg border border-border-subtle/40 bg-bg-elevated/30 p-0.5">
         {TAB_OPTIONS.map(({ key, label, shortLabel, icon: Icon }) => (
           <button
             key={key}
             type="button"
             onClick={() => setTab(key)}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition ${
+            className={`flex flex-1 items-center justify-center gap-1 rounded-md py-1.5 text-xs font-medium transition ${
               tab === key
                 ? 'bg-bg-surface text-primary shadow-sm'
                 : 'text-text-muted hover:text-text-secondary'
             }`}
           >
-            <Icon className="h-4 w-4" />
+            <Icon className="h-3.5 w-3.5" />
             <span className="sm:hidden">{shortLabel}</span>
             <span className="hidden sm:inline">{label}</span>
           </button>
@@ -262,6 +248,19 @@ export function CleaningPlannerView({ storageScope }: CleaningPlannerViewProps) 
         </div>
       ) : (
         <>
+          {/* Focus view - single task at a time */}
+          {tab === 'focus' && (
+            <CleaningFocusMode
+              store={plannerStore}
+              tasks={tasks}
+              now={now}
+              onComplete={handleComplete}
+              onSkip={handleFocusSkip}
+              onEdit={handleEdit}
+              onUpdateTask={handleUpdateTask}
+            />
+          )}
+
           {/* Week view */}
           {tab === 'week' && (
             <CleaningWeekView
@@ -309,6 +308,12 @@ export function CleaningPlannerView({ storageScope }: CleaningPlannerViewProps) 
         onSave={handleSave}
         onDelete={editingTask ? handleDelete : undefined}
         onClose={handleCloseSheet}
+      />
+
+      {/* Celebration overlay */}
+      <CleaningCelebration
+        isVisible={showCelebration}
+        onComplete={handleCelebrationComplete}
       />
     </div>
   );

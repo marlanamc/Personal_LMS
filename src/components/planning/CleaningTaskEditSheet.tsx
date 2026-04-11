@@ -1,21 +1,32 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Trash2, X } from 'lucide-react';
+import { Trash2, X, Clock, Calendar, Zap, Plus, GripVertical, Check } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptic';
 import {
   CLEANING_CADENCE_LABELS,
   CLEANING_TASK_TYPE_LABELS,
   createCleaningTask,
+  createSubtask,
   ensureCleaningZone,
   getAvailableCleaningZones,
   getZoneColors,
   type CleaningCadence,
   type CleaningCadencePreset,
   type CleaningPlannerStore,
+  type CleaningSubtask,
   type CleaningTask,
   type CleaningTaskType,
 } from '@/lib/cleaning-planner';
+
+type LastCompletedOption = 'never' | 'today' | 'yesterday' | 'custom';
+type StartDateOption = 'now' | 'custom';
+
+type SubtaskDraft = {
+  id: string;
+  title: string;
+  completed: boolean;
+};
 
 type TaskDraft = {
   title: string;
@@ -25,7 +36,43 @@ type TaskDraft = {
   cadenceKind: CleaningCadencePreset | 'custom';
   customEveryNDays: number;
   notes: string;
+  // New ADHD-friendly fields
+  lastCompletedOption: LastCompletedOption;
+  lastCompletedDate: string; // ISO date string for custom
+  startDateOption: StartDateOption;
+  startDate: string; // ISO date string for custom
+  estimatedMinutes: number | null;
+  subtasks: SubtaskDraft[];
+  newSubtaskTitle: string;
 };
+
+const TIME_ESTIMATE_OPTIONS = [
+  { value: 5, label: '5 min', icon: true },
+  { value: 15, label: '15 min', icon: true },
+  { value: 30, label: '30 min', icon: false },
+  { value: 60, label: '1 hour', icon: false },
+] as const;
+
+function formatDateForInput(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
+function getDateFromOption(option: LastCompletedOption, customDate: string): string | undefined {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  switch (option) {
+    case 'never':
+      return undefined;
+    case 'today':
+      return today.toISOString();
+    case 'yesterday':
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      return yesterday.toISOString();
+    case 'custom':
+      return customDate ? new Date(customDate).toISOString() : undefined;
+  }
+}
 
 type CleaningTaskEditSheetProps = {
   isOpen: boolean;
@@ -49,6 +96,41 @@ const CADENCE_OPTIONS: Array<{ value: CleaningCadencePreset | 'custom'; label: s
 function createDraft(task: CleaningTask | null, store: CleaningPlannerStore): TaskDraft {
   const zoneOptions = getAvailableCleaningZones(store);
   const zoneExists = task ? zoneOptions.some((zone) => zone.id === task.zoneId) : false;
+  const today = formatDateForInput(new Date());
+
+  // Determine lastCompletedOption from existing task
+  let lastCompletedOption: LastCompletedOption = 'never';
+  let lastCompletedDate = today;
+  if (task?.lastCompletedAt) {
+    const completedDate = new Date(task.lastCompletedAt);
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
+    const yesterdayDate = new Date(todayDate);
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+
+    if (completedDate.toDateString() === todayDate.toDateString()) {
+      lastCompletedOption = 'today';
+    } else if (completedDate.toDateString() === yesterdayDate.toDateString()) {
+      lastCompletedOption = 'yesterday';
+    } else {
+      lastCompletedOption = 'custom';
+      lastCompletedDate = formatDateForInput(completedDate);
+    }
+  }
+
+  // Determine startDateOption from existing task
+  let startDateOption: StartDateOption = 'now';
+  let startDate = today;
+  if (task?.startDate) {
+    const start = new Date(task.startDate);
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0);
+    if (start.getTime() > todayDate.getTime()) {
+      startDateOption = 'custom';
+      startDate = formatDateForInput(start);
+    }
+  }
+
   return {
     title: task?.title ?? '',
     zoneMode: task ? (zoneExists ? task.zoneId : 'custom') : zoneOptions[0]?.id ?? 'kitchen',
@@ -57,6 +139,13 @@ function createDraft(task: CleaningTask | null, store: CleaningPlannerStore): Ta
     cadenceKind: task?.cadence.kind ?? 'weekly',
     customEveryNDays: task?.cadence.kind === 'custom' ? task.cadence.everyNDays : 30,
     notes: task?.notes ?? '',
+    lastCompletedOption,
+    lastCompletedDate,
+    startDateOption,
+    startDate,
+    estimatedMinutes: task?.estimatedMinutes ?? null,
+    subtasks: task?.subtasks?.map((s) => ({ ...s })) ?? [],
+    newSubtaskTitle: '',
   };
 }
 
@@ -113,6 +202,15 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
     }
 
     const cadence = getCadenceFromDraft(draft);
+    const lastCompletedAt = getDateFromOption(draft.lastCompletedOption, draft.lastCompletedDate);
+    const startDate = draft.startDateOption === 'custom' && draft.startDate
+      ? new Date(draft.startDate).toISOString()
+      : undefined;
+
+    // Filter out empty subtasks and map to proper format
+    const subtasks = draft.subtasks
+      .filter((s) => s.title.trim().length > 0)
+      .map((s) => ({ id: s.id, title: s.title.trim(), completed: s.completed }));
 
     const savedTask = task
       ? {
@@ -122,6 +220,10 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
           taskType: draft.taskType,
           cadence,
           notes: draft.notes.trim() ? draft.notes.trim() : undefined,
+          lastCompletedAt: lastCompletedAt ?? task.lastCompletedAt,
+          startDate,
+          estimatedMinutes: draft.estimatedMinutes ?? undefined,
+          subtasks: subtasks.length > 0 ? subtasks : undefined,
           updatedAt: new Date().toISOString(),
         }
       : createCleaningTask({
@@ -130,6 +232,10 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
           taskType: draft.taskType,
           cadence,
           notes: draft.notes.trim() ? draft.notes.trim() : undefined,
+          lastCompletedAt,
+          startDate,
+          estimatedMinutes: draft.estimatedMinutes ?? undefined,
+          subtasks: subtasks.map((s) => s.title),
         });
 
     onSave(savedTask, nextStore);
@@ -278,6 +384,246 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
             </label>
           )}
 
+          {/* Time estimate - ADHD friendly */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-text-muted" />
+              <span className="text-sm font-medium text-text-primary">How long does this take?</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {TIME_ESTIMATE_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setDraft((prev) => ({
+                    ...prev,
+                    estimatedMinutes: prev.estimatedMinutes === option.value ? null : option.value
+                  }))}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition ${
+                    draft.estimatedMinutes === option.value
+                      ? 'bg-primary/15 text-primary ring-1 ring-primary/30'
+                      : 'bg-bg-elevated border border-border-subtle text-text-muted hover:text-text-secondary'
+                  }`}
+                >
+                  {option.icon && <Zap className="h-3.5 w-3.5" />}
+                  {option.label}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setDraft((prev) => ({ ...prev, estimatedMinutes: null }))}
+                className={`rounded-full px-3 py-2 text-sm font-medium transition ${
+                  draft.estimatedMinutes === null
+                    ? 'bg-bg-elevated/80 text-text-secondary ring-1 ring-border-subtle'
+                    : 'text-text-muted hover:text-text-secondary'
+                }`}
+              >
+                Skip
+              </button>
+            </div>
+            <p className="text-xs text-text-muted">Quick tasks show up first in Focus Mode</p>
+          </div>
+
+          {/* When did you last do this? - for new tasks or editing */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-text-muted" />
+              <span className="text-sm font-medium text-text-primary">When did you last do this?</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(['never', 'today', 'yesterday', 'custom'] as const).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setDraft((prev) => ({ ...prev, lastCompletedOption: option }))}
+                  className={`rounded-full px-3 py-2 text-sm font-medium transition ${
+                    draft.lastCompletedOption === option
+                      ? 'bg-accent-mint/15 text-accent-mint ring-1 ring-accent-mint/30'
+                      : 'bg-bg-elevated border border-border-subtle text-text-muted hover:text-text-secondary'
+                  }`}
+                >
+                  {option === 'never' && 'Never done'}
+                  {option === 'today' && 'Today'}
+                  {option === 'yesterday' && 'Yesterday'}
+                  {option === 'custom' && 'Pick date'}
+                </button>
+              ))}
+            </div>
+            {draft.lastCompletedOption === 'custom' && (
+              <input
+                type="date"
+                value={draft.lastCompletedDate}
+                max={formatDateForInput(new Date())}
+                onChange={(e) => setDraft((prev) => ({ ...prev, lastCompletedDate: e.target.value }))}
+                className="w-full rounded-2xl border border-border-subtle bg-bg-elevated px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
+              />
+            )}
+            <p className="text-xs text-text-muted">
+              {draft.lastCompletedOption === 'never'
+                ? "Task will be due immediately (or when it starts)"
+                : "Next due date calculated from this"}
+            </p>
+          </div>
+
+          {/* Start date - for deferring tasks */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-text-muted" />
+              <span className="text-sm font-medium text-text-primary">When should this start?</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setDraft((prev) => ({ ...prev, startDateOption: 'now' }))}
+                className={`rounded-full px-3 py-2 text-sm font-medium transition ${
+                  draft.startDateOption === 'now'
+                    ? 'bg-accent-mint/15 text-accent-mint ring-1 ring-accent-mint/30'
+                    : 'bg-bg-elevated border border-border-subtle text-text-muted hover:text-text-secondary'
+                }`}
+              >
+                Start now
+              </button>
+              <button
+                type="button"
+                onClick={() => setDraft((prev) => ({ ...prev, startDateOption: 'custom' }))}
+                className={`rounded-full px-3 py-2 text-sm font-medium transition ${
+                  draft.startDateOption === 'custom'
+                    ? 'bg-accent-amethyst/15 text-accent-amethyst ring-1 ring-accent-amethyst/30'
+                    : 'bg-bg-elevated border border-border-subtle text-text-muted hover:text-text-secondary'
+                }`}
+              >
+                Start later
+              </button>
+            </div>
+            {draft.startDateOption === 'custom' && (
+              <input
+                type="date"
+                value={draft.startDate}
+                min={formatDateForInput(new Date())}
+                onChange={(e) => setDraft((prev) => ({ ...prev, startDate: e.target.value }))}
+                className="w-full rounded-2xl border border-border-subtle bg-bg-elevated px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
+              />
+            )}
+            <p className="text-xs text-text-muted">
+              {draft.startDateOption === 'custom'
+                ? "Task won't appear in due lists until this date"
+                : "Task is active immediately"}
+            </p>
+          </div>
+
+          {/* Subtasks / Steps - for breaking down deep cleans */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-text-primary">Break it down (optional)</span>
+              {draft.subtasks.length > 0 && (
+                <span className="text-xs text-text-muted">
+                  {draft.subtasks.filter((s) => s.completed).length}/{draft.subtasks.length} done
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-text-muted">
+              Add steps to make big tasks feel manageable
+            </p>
+
+            {/* Existing subtasks */}
+            {draft.subtasks.length > 0 && (
+              <div className="space-y-1.5 mt-2">
+                {draft.subtasks.map((subtask, index) => (
+                  <div
+                    key={subtask.id}
+                    className="flex items-center gap-2 rounded-xl border border-border-subtle/60 bg-bg-elevated/50 px-3 py-2"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDraft((prev) => ({
+                          ...prev,
+                          subtasks: prev.subtasks.map((s, i) =>
+                            i === index ? { ...s, completed: !s.completed } : s
+                          ),
+                        }));
+                      }}
+                      className={`shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition ${
+                        subtask.completed
+                          ? 'bg-accent-mint border-accent-mint text-white'
+                          : 'border-border-subtle hover:border-primary/50'
+                      }`}
+                    >
+                      {subtask.completed && <Check className="w-3 h-3" strokeWidth={3} />}
+                    </button>
+                    <input
+                      type="text"
+                      value={subtask.title}
+                      onChange={(e) => {
+                        setDraft((prev) => ({
+                          ...prev,
+                          subtasks: prev.subtasks.map((s, i) =>
+                            i === index ? { ...s, title: e.target.value } : s
+                          ),
+                        }));
+                      }}
+                      className={`flex-1 bg-transparent text-sm outline-none ${
+                        subtask.completed ? 'text-text-muted line-through' : 'text-text-primary'
+                      }`}
+                      placeholder="Step description..."
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDraft((prev) => ({
+                          ...prev,
+                          subtasks: prev.subtasks.filter((_, i) => i !== index),
+                        }));
+                      }}
+                      className="shrink-0 p-1 text-text-muted hover:text-error transition"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add new subtask */}
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={draft.newSubtaskTitle}
+                onChange={(e) => setDraft((prev) => ({ ...prev, newSubtaskTitle: e.target.value }))}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && draft.newSubtaskTitle.trim()) {
+                    e.preventDefault();
+                    const newSubtask = createSubtask(draft.newSubtaskTitle);
+                    setDraft((prev) => ({
+                      ...prev,
+                      subtasks: [...prev.subtasks, newSubtask],
+                      newSubtaskTitle: '',
+                    }));
+                  }
+                }}
+                placeholder="Add a step..."
+                className="flex-1 rounded-xl border border-dashed border-border-subtle bg-bg-elevated/30 px-3 py-2 text-sm text-text-primary outline-none transition focus:border-primary/50"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (draft.newSubtaskTitle.trim()) {
+                    const newSubtask = createSubtask(draft.newSubtaskTitle);
+                    setDraft((prev) => ({
+                      ...prev,
+                      subtasks: [...prev.subtasks, newSubtask],
+                      newSubtaskTitle: '',
+                    }));
+                  }
+                }}
+                disabled={!draft.newSubtaskTitle.trim()}
+                className="shrink-0 p-2 rounded-lg bg-primary/10 text-primary disabled:opacity-40 disabled:cursor-not-allowed transition hover:bg-primary/20"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
           {/* Notes */}
           <label className="block space-y-2">
             <span className="text-sm font-medium text-text-primary">Notes</span>
@@ -285,7 +631,7 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
               value={draft.notes}
               onChange={(e) => setDraft((prev) => ({ ...prev, notes: e.target.value }))}
               placeholder="Use the stainless spray after wiping."
-              rows={4}
+              rows={3}
               className="w-full rounded-2xl border border-border-subtle bg-bg-elevated px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50 resize-none"
             />
           </label>

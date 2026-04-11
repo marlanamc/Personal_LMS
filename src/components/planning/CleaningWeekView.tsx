@@ -142,7 +142,7 @@ export function CleaningWeekView({
       </div>
 
       {/* Desktop: 7-column grid */}
-      <div className="hidden md:grid md:grid-cols-7 gap-2">
+      <div className="hidden md:grid md:grid-cols-7 gap-1.5">
         {weekDays.map((day) => {
           const dayTasks = getDayTasks(tasks, day, now);
           const isToday = isSameDay(day, now);
@@ -151,7 +151,7 @@ export function CleaningWeekView({
           return (
             <div
               key={toDateKey(day)}
-              className={`rounded-xl border p-2 min-h-[160px] transition ${
+              className={`rounded-xl border p-1.5 min-h-[140px] transition ${
                 isToday
                   ? 'border-primary/40 bg-primary/5 shadow-sm'
                   : hasOverdue
@@ -160,17 +160,17 @@ export function CleaningWeekView({
               }`}
             >
               {/* Compact day header */}
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5">
-                  <span className={`text-xs font-medium uppercase ${isToday ? 'text-primary' : 'text-text-muted'}`}>
+              <div className="flex items-center justify-between mb-1.5 px-0.5">
+                <div className="flex items-baseline gap-1">
+                  <span className={`text-[10px] font-medium uppercase tracking-wide ${isToday ? 'text-primary' : 'text-text-muted'}`}>
                     {formatDayLabel(day)}
                   </span>
-                  <span className={`text-sm font-semibold ${isToday ? 'text-primary' : 'text-text-primary'}`}>
+                  <span className={`text-sm font-bold ${isToday ? 'text-primary' : 'text-text-primary'}`}>
                     {day.getDate()}
                   </span>
                 </div>
                 {dayTasks.length > 0 && (
-                  <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+                  <span className={`text-[9px] font-semibold w-4 h-4 flex items-center justify-center rounded-full ${
                     hasOverdue
                       ? 'bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300'
                       : 'bg-bg-elevated text-text-muted'
@@ -181,10 +181,10 @@ export function CleaningWeekView({
               </div>
 
               {/* Task list */}
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 {dayTasks.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-border-subtle/50 bg-bg-elevated/20 py-3 text-center">
-                    <span className="text-xs text-text-muted/60">Clear</span>
+                  <div className="rounded-md border border-dashed border-border-subtle/40 bg-bg-elevated/10 py-2 text-center">
+                    <span className="text-[10px] text-text-muted/50">—</span>
                   </div>
                 ) : (
                   dayTasks.map((task) => (

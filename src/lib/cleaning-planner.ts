@@ -17,6 +17,12 @@ export type CleaningZone = {
   label: string;
 };
 
+export type CleaningSubtask = {
+  id: string;
+  title: string;
+  completed: boolean;
+};
+
 export type CleaningTask = {
   id: string;
   title: string;
@@ -25,6 +31,9 @@ export type CleaningTask = {
   cadence: CleaningCadence;
   notes?: string;
   lastCompletedAt?: string;
+  startDate?: string;        // ISO date - task not due until this date
+  estimatedMinutes?: number; // 5, 10, 15, 30, 60, etc.
+  subtasks?: CleaningSubtask[]; // Break down big tasks into steps
   createdAt: string;
   updatedAt: string;
 };
@@ -35,7 +44,7 @@ export type CleaningPlannerStore = {
   zones: CleaningZone[];
 };
 
-export type CleaningTaskStatus = 'due' | 'overdue' | 'upcoming' | 'future';
+export type CleaningTaskStatus = 'not-started' | 'due' | 'overdue' | 'upcoming' | 'future';
 
 export const DEFAULT_CLEANING_ZONES: readonly CleaningZone[] = [
   { id: 'kitchen', label: 'Kitchen' },
@@ -151,6 +160,18 @@ function normalizeZone(raw: unknown): CleaningZone | null {
   return { id, label };
 }
 
+function normalizeSubtask(raw: unknown): CleaningSubtask | null {
+  if (!isPlainObject(raw)) return null;
+  const id = typeof raw.id === 'string' ? raw.id.trim() : '';
+  const title = typeof raw.title === 'string' ? normalizeText(raw.title) : '';
+  if (!id || !title) return null;
+  return {
+    id,
+    title,
+    completed: raw.completed === true,
+  };
+}
+
 function normalizeTask(raw: unknown): CleaningTask | null {
   if (!isPlainObject(raw)) return null;
   const id = typeof raw.id === 'string' ? raw.id.trim() : '';
@@ -162,6 +183,12 @@ function normalizeTask(raw: unknown): CleaningTask | null {
   if (!id || !title || !zoneId) return null;
   const createdAt = normalizeDateString(raw.createdAt) ?? new Date().toISOString();
   const updatedAt = normalizeDateString(raw.updatedAt) ?? createdAt;
+  const estimatedMinutes = typeof raw.estimatedMinutes === 'number' && Number.isFinite(raw.estimatedMinutes) && raw.estimatedMinutes > 0
+    ? Math.floor(raw.estimatedMinutes)
+    : undefined;
+  const subtasks = Array.isArray(raw.subtasks)
+    ? raw.subtasks.map(normalizeSubtask).filter((s): s is CleaningSubtask => s !== null)
+    : undefined;
   return {
     id,
     title,
@@ -170,6 +197,9 @@ function normalizeTask(raw: unknown): CleaningTask | null {
     cadence: normalizeCadence(raw.cadence),
     notes: typeof raw.notes === 'string' && normalizeText(raw.notes) ? normalizeText(raw.notes) : undefined,
     lastCompletedAt: normalizeDateString(raw.lastCompletedAt),
+    startDate: normalizeDateString(raw.startDate),
+    estimatedMinutes,
+    subtasks: subtasks && subtasks.length > 0 ? subtasks : undefined,
     createdAt,
     updatedAt,
   };
@@ -241,6 +271,26 @@ export function formatCleaningCadence(cadence: CleaningCadence): string {
   return cadence.kind === 'custom' ? `Every ${cadence.everyNDays} days` : CLEANING_CADENCE_LABELS[cadence.kind];
 }
 
+export function formatEstimatedTime(minutes: number | undefined): string | null {
+  if (!minutes) return null;
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const remainingMins = minutes % 60;
+  if (remainingMins === 0) return hours === 1 ? '1 hour' : `${hours} hours`;
+  return `${hours}h ${remainingMins}m`;
+}
+
+/** Human-friendly status labels (softer language for ADHD) */
+export function getStatusLabel(status: CleaningTaskStatus): string {
+  switch (status) {
+    case 'not-started': return 'Starts later';
+    case 'overdue': return 'Ready'; // Softer than "Overdue"
+    case 'due': return 'Today';
+    case 'upcoming': return 'Coming up';
+    case 'future': return 'Scheduled';
+  }
+}
+
 export function getNextDueDate(task: CleaningTask): Date | null {
   if (!task.lastCompletedAt) return null;
   const completedAt = new Date(task.lastCompletedAt);
@@ -265,10 +315,19 @@ export function getNextDueDate(task: CleaningTask): Date | null {
 }
 
 export function getCleaningTaskStatus(task: CleaningTask, now = new Date(), upcomingWindowDays = 7): CleaningTaskStatus {
-  const nextDueDate = getNextDueDate(task);
-  if (!nextDueDate) return 'due';
-
   const today = startOfDay(now);
+
+  // Check if task hasn't started yet (startDate is in the future)
+  if (task.startDate) {
+    const start = startOfDay(new Date(task.startDate));
+    if (!Number.isNaN(start.getTime()) && start.getTime() > today.getTime()) {
+      return 'not-started';
+    }
+  }
+
+  const nextDueDate = getNextDueDate(task);
+  if (!nextDueDate) return 'due'; // Never completed = due now (if past start date)
+
   const due = startOfDay(nextDueDate);
   if (due.getTime() < today.getTime()) return 'overdue';
   if (due.getTime() === today.getTime()) return 'due';
@@ -302,6 +361,7 @@ export function sortCleaningTasks(tasks: CleaningTask[], now = new Date()): Clea
     due: 1,
     upcoming: 2,
     future: 3,
+    'not-started': 4,
   };
   return [...tasks].sort((a, b) => {
     const zoneRank = getZoneRank(a.zoneId) - getZoneRank(b.zoneId);
@@ -315,6 +375,30 @@ export function sortCleaningTasks(tasks: CleaningTask[], now = new Date()): Clea
   });
 }
 
+/** Sort tasks for focus mode: overdue first, then due, prioritize shorter time estimates */
+export function sortTasksForFocus(tasks: CleaningTask[], now = new Date()): CleaningTask[] {
+  return [...tasks]
+    .filter((task) => {
+      const status = getCleaningTaskStatus(task, now);
+      return status === 'overdue' || status === 'due';
+    })
+    .sort((a, b) => {
+      const statusA = getCleaningTaskStatus(a, now);
+      const statusB = getCleaningTaskStatus(b, now);
+      // Overdue before due
+      if (statusA === 'overdue' && statusB !== 'overdue') return -1;
+      if (statusB === 'overdue' && statusA !== 'overdue') return 1;
+      // Shorter time estimates first (no estimate = treat as medium ~20 min)
+      const timeA = a.estimatedMinutes ?? 20;
+      const timeB = b.estimatedMinutes ?? 20;
+      if (timeA !== timeB) return timeA - timeB;
+      // Then by due date
+      const aDue = getNextDueDate(a)?.getTime() ?? Number.NEGATIVE_INFINITY;
+      const bDue = getNextDueDate(b)?.getTime() ?? Number.NEGATIVE_INFINITY;
+      return aDue - bDue;
+    });
+}
+
 export function createCleaningTask(input: {
   title: string;
   zoneId: string;
@@ -322,9 +406,20 @@ export function createCleaningTask(input: {
   cadence: CleaningCadence;
   notes?: string;
   lastCompletedAt?: string;
+  startDate?: string;
+  estimatedMinutes?: number;
+  subtasks?: string[]; // Just titles, we'll generate IDs
 }): CleaningTask {
   const now = new Date().toISOString();
   const title = normalizeText(input.title);
+  const subtasks = input.subtasks
+    ?.map((s) => normalizeText(s))
+    .filter((s) => s.length > 0)
+    .map((s, i) => ({
+      id: `step-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`,
+      title: s,
+      completed: false,
+    }));
   return {
     id: `clean-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     title,
@@ -335,8 +430,65 @@ export function createCleaningTask(input: {
       : { kind: input.cadence.kind },
     notes: input.notes && normalizeText(input.notes) ? normalizeText(input.notes) : undefined,
     lastCompletedAt: normalizeDateString(input.lastCompletedAt),
+    startDate: normalizeDateString(input.startDate),
+    estimatedMinutes: input.estimatedMinutes && input.estimatedMinutes > 0 ? Math.floor(input.estimatedMinutes) : undefined,
+    subtasks: subtasks && subtasks.length > 0 ? subtasks : undefined,
     createdAt: now,
     updatedAt: now,
+  };
+}
+
+/** Create a new subtask */
+export function createSubtask(title: string): CleaningSubtask {
+  return {
+    id: `step-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    title: normalizeText(title),
+    completed: false,
+  };
+}
+
+/** Toggle a subtask's completion status */
+export function toggleSubtask(task: CleaningTask, subtaskId: string): CleaningTask {
+  if (!task.subtasks) return task;
+  return {
+    ...task,
+    subtasks: task.subtasks.map((s) =>
+      s.id === subtaskId ? { ...s, completed: !s.completed } : s
+    ),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+/** Add a subtask to a task */
+export function addSubtask(task: CleaningTask, title: string): CleaningTask {
+  const subtask = createSubtask(title);
+  return {
+    ...task,
+    subtasks: [...(task.subtasks ?? []), subtask],
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+/** Remove a subtask from a task */
+export function removeSubtask(task: CleaningTask, subtaskId: string): CleaningTask {
+  if (!task.subtasks) return task;
+  const remaining = task.subtasks.filter((s) => s.id !== subtaskId);
+  return {
+    ...task,
+    subtasks: remaining.length > 0 ? remaining : undefined,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+/** Get subtask completion progress */
+export function getSubtaskProgress(task: CleaningTask): { completed: number; total: number; percent: number } | null {
+  if (!task.subtasks || task.subtasks.length === 0) return null;
+  const completed = task.subtasks.filter((s) => s.completed).length;
+  const total = task.subtasks.length;
+  return {
+    completed,
+    total,
+    percent: Math.round((completed / total) * 100),
   };
 }
 
@@ -466,6 +618,11 @@ export const CLEANING_ZONE_COLORS: Record<string, ZoneColorScheme> = {
  * Status colors for task urgency badges using color-mix() for softer appearance.
  */
 export const CLEANING_STATUS_COLORS: Record<CleaningTaskStatus, StatusColorScheme> = {
+  'not-started': {
+    bg: 'bg-[color-mix(in_srgb,var(--color-accent-amethyst)_10%,var(--color-bg-elevated))]',
+    text: 'text-[color-mix(in_srgb,var(--color-accent-amethyst)_40%,var(--color-text-muted)_60%)]',
+    border: 'border-[color-mix(in_srgb,var(--color-accent-amethyst)_15%,var(--color-border-subtle))]',
+  },
   overdue: {
     bg: 'bg-[color-mix(in_srgb,var(--color-error)_14%,var(--color-bg-elevated))]',
     text: 'text-[color-mix(in_srgb,var(--color-error)_55%,var(--color-text-primary)_45%)]',
