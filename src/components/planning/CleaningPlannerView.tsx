@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { CalendarDays, LayoutGrid, List, Plus, AlertCircle, Clock, Calendar, Target } from 'lucide-react';
 import SaveStatus from '@/components/ui/SaveStatus';
 import { useCleaningPlanner } from '@/components/dashboard/useCleaningPlanner';
@@ -14,6 +14,7 @@ import {
   completeCleaningTask,
   getCleaningTaskStatus,
   sortCleaningTasks,
+  sortTasksForFocus,
   upsertCleaningTask,
   deleteCleaningTask,
   type CleaningPlannerStore,
@@ -57,6 +58,7 @@ export function CleaningPlannerView({ storageScope }: CleaningPlannerViewProps) 
   const [editingTask, setEditingTask] = useState<CleaningTask | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [skippedFocusTaskIds, setSkippedFocusTaskIds] = useState<string[]>([]);
 
   const now = useMemo(() => new Date(), [plannerStore.tasks, filter]);
   const tasks = useMemo(() => sortCleaningTasks(plannerStore.tasks, now), [plannerStore.tasks, now]);
@@ -81,8 +83,23 @@ export function CleaningPlannerView({ storageScope }: CleaningPlannerViewProps) 
     [filter, now, tasks],
   );
 
+  const availableFocusTasks = useMemo(
+    () => sortTasksForFocus(tasks, now),
+    [tasks, now],
+  );
+
+  const focusTasks = useMemo(
+    () => availableFocusTasks.filter((task) => !skippedFocusTaskIds.includes(task.id)),
+    [availableFocusTasks, skippedFocusTaskIds],
+  );
+
+  useEffect(() => {
+    setSkippedFocusTaskIds((prev) => prev.filter((taskId) => availableFocusTasks.some((task) => task.id === taskId)));
+  }, [availableFocusTasks]);
+
   const handleComplete = useCallback((task: CleaningTask) => {
     triggerHaptic('medium');
+    setSkippedFocusTaskIds((prev) => prev.filter((taskId) => taskId !== task.id));
     setPlannerStore((prev) => upsertCleaningTask(prev, completeCleaningTask(task)));
     setShowCelebration(true);
   }, [setPlannerStore]);
@@ -91,12 +108,19 @@ export function CleaningPlannerView({ storageScope }: CleaningPlannerViewProps) 
     setShowCelebration(false);
   }, []);
 
-  const handleFocusSkip = useCallback(() => {
-    // In focus mode, skipping just moves to the next task visually
-    // We don't change anything, just let the user see the next one
-    // For now, we can switch to week view to see all tasks
+  const handleFocusSkip = useCallback((task: CleaningTask) => {
+    const remainingTasks = availableFocusTasks.filter(
+      (candidate) => candidate.id !== task.id && !skippedFocusTaskIds.includes(candidate.id),
+    );
+
+    if (remainingTasks.length > 0) {
+      setSkippedFocusTaskIds((prev) => [...prev, task.id]);
+      return;
+    }
+
+    setSkippedFocusTaskIds([]);
     setTab('week');
-  }, []);
+  }, [availableFocusTasks, skippedFocusTaskIds]);
 
   const handleUpdateTask = useCallback((task: CleaningTask) => {
     setPlannerStore((prev) => upsertCleaningTask(prev, task));
@@ -252,7 +276,7 @@ export function CleaningPlannerView({ storageScope }: CleaningPlannerViewProps) 
           {tab === 'focus' && (
             <CleaningFocusMode
               store={plannerStore}
-              tasks={tasks}
+              tasks={focusTasks}
               now={now}
               onComplete={handleComplete}
               onSkip={handleFocusSkip}

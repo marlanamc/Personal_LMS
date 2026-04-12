@@ -20,7 +20,7 @@ type CleaningFocusModeProps = {
   tasks: CleaningTask[];
   now: Date;
   onComplete: (task: CleaningTask) => void;
-  onSkip: () => void;
+  onSkip: (task: CleaningTask) => void;
   onEdit: (taskId: string) => void;
   onUpdateTask?: (task: CleaningTask) => void; // For updating subtasks
 };
@@ -213,7 +213,7 @@ export function CleaningFocusMode({
         <div className="border-t border-border-subtle/40 px-6 py-4 flex items-center justify-between">
           <button
             type="button"
-            onClick={onSkip}
+            onClick={() => onSkip(currentTask)}
             className="text-sm text-text-muted hover:text-text-secondary transition"
           >
             Skip for now
