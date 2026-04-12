@@ -287,7 +287,7 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
         </div>
 
         {/* Form Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+        <div className="flex-1 overflow-y-auto p-6 pb-32 space-y-5 sm:pb-6">
           {/* Task name */}
           <label className="block space-y-2">
             <span className="text-sm font-medium text-text-primary">Task name</span>
@@ -641,8 +641,9 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
         </div>
 
         {/* Footer */}
-        <div className="border-t border-border-subtle/60 px-6 py-5 flex items-center justify-between bg-bg-elevated/50">
-          <div className="flex items-center gap-4">
+        <div className="sticky bottom-0 border-t border-border-subtle/60 bg-gradient-to-t from-bg-surface via-bg-surface/95 to-bg-surface/85 px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-6 sm:py-5 sm:pb-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
             {isEditing && onDelete && (
               <button
                 type="button"
@@ -659,21 +660,22 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-full border border-border-subtle px-4 py-2 text-sm font-medium text-text-muted transition hover:text-text-primary hover:bg-bg-elevated"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 active:scale-[0.98]"
-            >
-              {isEditing ? 'Save changes' : 'Add task'}
-            </button>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-full border border-border-subtle px-4 py-3 text-sm font-medium text-text-muted transition hover:text-text-primary hover:bg-bg-elevated sm:py-2"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 active:scale-[0.98] sm:py-2"
+              >
+                {isEditing ? 'Save changes' : 'Add task'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
