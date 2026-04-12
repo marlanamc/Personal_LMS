@@ -10,6 +10,7 @@ import {
   createSubtask,
   ensureCleaningZone,
   getAvailableCleaningZones,
+  parseCleaningStartDate,
   getZoneColors,
   type CleaningCadence,
   type CleaningCadencePreset,
@@ -51,6 +52,8 @@ const TIME_ESTIMATE_OPTIONS = [
   { value: 15, label: '15 min', icon: true },
   { value: 30, label: '30 min', icon: false },
   { value: 60, label: '1 hour', icon: false },
+  { value: 90, label: '90 min', icon: false },
+  { value: 120, label: '2 hours', icon: false },
 ] as const;
 
 function formatDateForInput(date: Date): string {
@@ -122,10 +125,10 @@ function createDraft(task: CleaningTask | null, store: CleaningPlannerStore): Ta
   let startDateOption: StartDateOption = 'now';
   let startDate = today;
   if (task?.startDate) {
-    const start = new Date(task.startDate);
+    const start = parseCleaningStartDate(task.startDate);
     const todayDate = new Date();
     todayDate.setHours(0, 0, 0, 0);
-    if (start.getTime() > todayDate.getTime()) {
+    if (start && start.getTime() > todayDate.getTime()) {
       startDateOption = 'custom';
       startDate = formatDateForInput(start);
     }
@@ -204,7 +207,7 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
     const cadence = getCadenceFromDraft(draft);
     const lastCompletedAt = getDateFromOption(draft.lastCompletedOption, draft.lastCompletedDate);
     const startDate = draft.startDateOption === 'custom' && draft.startDate
-      ? new Date(draft.startDate).toISOString()
+      ? draft.startDate
       : undefined;
 
     // Filter out empty subtasks and map to proper format

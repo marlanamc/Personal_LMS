@@ -7,6 +7,7 @@ import {
   formatEstimatedTime,
   getCleaningTaskStatus,
   getNextDueDate,
+  parseCleaningStartDate,
   getStatusColors,
   getStatusLabel,
   getSubtaskProgress,
@@ -63,7 +64,7 @@ export function CleaningTaskCard({ task, zone, now, compact = false, onComplete,
   const timeEstimate = formatEstimatedTime(task.estimatedMinutes);
   const isQuickTask = task.estimatedMinutes && task.estimatedMinutes <= 15;
   const isNotStarted = status === 'not-started';
-  const startDate = task.startDate ? new Date(task.startDate) : null;
+  const startDate = parseCleaningStartDate(task.startDate);
   const subtaskProgress = getSubtaskProgress(task);
 
   // Compact card for week view - optimized for mobile with better space usage

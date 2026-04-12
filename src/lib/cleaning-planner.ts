@@ -95,10 +95,27 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
+function normalizeDateOnlyString(value: unknown): string | undefined {
+  if (typeof value !== 'string' || !value.trim()) return undefined;
+  const trimmed = value.trim();
+  const datePartMatch = trimmed.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (datePartMatch) return datePartMatch[1];
+  const date = new Date(trimmed);
+  if (Number.isNaN(date.getTime())) return undefined;
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+}
+
 function normalizeDateString(value: unknown): string | undefined {
   if (typeof value !== 'string' || !value.trim()) return undefined;
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
+export function parseCleaningStartDate(value: string | undefined): Date | null {
+  const datePart = normalizeDateOnlyString(value);
+  if (!datePart) return null;
+  const date = new Date(`${datePart}T12:00:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 function startOfDay(date: Date): Date {
@@ -197,7 +214,7 @@ function normalizeTask(raw: unknown): CleaningTask | null {
     cadence: normalizeCadence(raw.cadence),
     notes: typeof raw.notes === 'string' && normalizeText(raw.notes) ? normalizeText(raw.notes) : undefined,
     lastCompletedAt: normalizeDateString(raw.lastCompletedAt),
-    startDate: normalizeDateString(raw.startDate),
+    startDate: normalizeDateOnlyString(raw.startDate),
     estimatedMinutes,
     subtasks: subtasks && subtasks.length > 0 ? subtasks : undefined,
     createdAt,
@@ -318,11 +335,8 @@ export function getScheduledCleaningTaskDate(task: CleaningTask, now = new Date(
   const fallbackDate = startOfDay(now);
   const nextDueDate = getNextDueDate(task);
   const dueDate = nextDueDate ? startOfDay(nextDueDate) : null;
-  const startDate = task.startDate ? startOfDay(new Date(task.startDate)) : null;
-
-  if (startDate && Number.isNaN(startDate.getTime())) {
-    return dueDate ?? fallbackDate;
-  }
+  const parsedStartDate = parseCleaningStartDate(task.startDate);
+  const startDate = parsedStartDate ? startOfDay(parsedStartDate) : null;
 
   if (startDate && dueDate) {
     return startDate.getTime() > dueDate.getTime() ? startDate : dueDate;
@@ -336,8 +350,9 @@ export function getCleaningTaskStatus(task: CleaningTask, now = new Date(), upco
 
   // Check if task hasn't started yet (startDate is in the future)
   if (task.startDate) {
-    const start = startOfDay(new Date(task.startDate));
-    if (!Number.isNaN(start.getTime()) && start.getTime() > today.getTime()) {
+    const parsedStartDate = parseCleaningStartDate(task.startDate);
+    const start = parsedStartDate ? startOfDay(parsedStartDate) : null;
+    if (start && start.getTime() > today.getTime()) {
       return 'not-started';
     }
   }
@@ -447,7 +462,7 @@ export function createCleaningTask(input: {
       : { kind: input.cadence.kind },
     notes: input.notes && normalizeText(input.notes) ? normalizeText(input.notes) : undefined,
     lastCompletedAt: normalizeDateString(input.lastCompletedAt),
-    startDate: normalizeDateString(input.startDate),
+    startDate: normalizeDateOnlyString(input.startDate),
     estimatedMinutes: input.estimatedMinutes && input.estimatedMinutes > 0 ? Math.floor(input.estimatedMinutes) : undefined,
     subtasks: subtasks && subtasks.length > 0 ? subtasks : undefined,
     createdAt: now,
