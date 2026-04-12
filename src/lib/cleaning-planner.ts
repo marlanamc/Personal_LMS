@@ -314,6 +314,23 @@ export function getNextDueDate(task: CleaningTask): Date | null {
   }
 }
 
+export function getScheduledCleaningTaskDate(task: CleaningTask, now = new Date()): Date {
+  const fallbackDate = startOfDay(now);
+  const nextDueDate = getNextDueDate(task);
+  const dueDate = nextDueDate ? startOfDay(nextDueDate) : null;
+  const startDate = task.startDate ? startOfDay(new Date(task.startDate)) : null;
+
+  if (startDate && Number.isNaN(startDate.getTime())) {
+    return dueDate ?? fallbackDate;
+  }
+
+  if (startDate && dueDate) {
+    return startDate.getTime() > dueDate.getTime() ? startDate : dueDate;
+  }
+
+  return startDate ?? dueDate ?? fallbackDate;
+}
+
 export function getCleaningTaskStatus(task: CleaningTask, now = new Date(), upcomingWindowDays = 7): CleaningTaskStatus {
   const today = startOfDay(now);
 
@@ -658,4 +675,3 @@ export function getZoneColors(zoneId: string): ZoneColorScheme {
 export function getStatusColors(status: CleaningTaskStatus): StatusColorScheme {
   return CLEANING_STATUS_COLORS[status];
 }
-
