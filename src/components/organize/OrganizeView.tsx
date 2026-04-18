@@ -70,28 +70,28 @@ export function OrganizeView() {
           <button
             type="button"
             onClick={() => organizerRef.current?.openCreateProject()}
-            className="organize-toolbar-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:text-text"
+            className="organize-toolbar-button inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] sm:text-xs font-medium text-text-muted transition-colors hover:text-text touch-manipulation"
           >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">New project</span>
+            <Plus className="h-4 w-4 shrink-0" />
+            <span className="max-w-[5.5rem] truncate sm:max-w-none">New project</span>
           </button>
 
           <button
             type="button"
             onClick={() => setShowDone((v: boolean) => !v)}
-            className="organize-toolbar-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:text-text"
+            className="organize-toolbar-button inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] sm:text-xs font-medium text-text-muted transition-colors hover:text-text touch-manipulation"
           >
-            {showDone ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            <span className="hidden sm:inline">{showDone ? 'Hide done' : 'Show done'}</span>
+            {showDone ? <EyeOff className="h-4 w-4 shrink-0" /> : <Eye className="h-4 w-4 shrink-0" />}
+            <span className="max-w-[4.5rem] truncate sm:max-w-none">{showDone ? 'Hide done' : 'Show done'}</span>
           </button>
 
           <button
             type="button"
             onClick={() => setShowImportModal(true)}
-            className="organize-toolbar-button inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:text-text"
+            className="organize-toolbar-button inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] sm:text-xs font-medium text-text-muted transition-colors hover:text-text touch-manipulation"
           >
-            <Download className="h-4 w-4" />
-            <span className="hidden sm:inline">Import</span>
+            <Download className="h-4 w-4 shrink-0" />
+            <span className="max-w-[3.5rem] truncate sm:max-w-none">Import</span>
           </button>
         </div>
       </div>
@@ -109,9 +109,9 @@ export function OrganizeView() {
         />
       </div>
 
-      {/* Status Bar - Floating Minimal */}
-      <div className="fixed bottom-6 right-6 z-10 pointer-events-none">
-        <div className="min-h-[1.25rem] text-[10px] font-medium text-text-muted/60 flex items-center gap-2 bg-bg-base/40 backdrop-blur-sm px-2 py-1 rounded-full">
+      {/* Status — above home-indicator / thumb zone on phones */}
+      <div className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] right-4 z-10 pointer-events-none sm:bottom-6 sm:right-6">
+        <div className="min-h-[1.25rem] text-[10px] font-medium text-text-muted/60 flex items-center gap-2 bg-bg-base/40 backdrop-blur-sm px-2 py-1 rounded-full max-w-[14rem]">
           {saveError ? (
             <span className="text-error">{saveError}</span>
           ) : isSaving ? (

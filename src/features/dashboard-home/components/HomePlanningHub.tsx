@@ -77,6 +77,7 @@ export function HomePlanningHub({
               shortcuts={[
                 { label: 'Calendar', href: '/dashboard/calendar' },
                 { label: 'Anchors', href: '/dashboard/anchors' },
+                { label: 'Quarterly', href: '/dashboard/quarterly-planner' },
                 { label: 'Meals', href: '/dashboard/meal-planner' },
                 { label: 'Skincare', href: '/dashboard/skincare-planner' },
                 { label: 'Cleaning', href: '/dashboard/cleaning-planner' },

@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   groupByProjectLane,
+  insertIntoGlobalNowQueueAt,
+  moveGlobalNowBulletByDelta,
   normalizeOrganization,
   priorityToLane,
+  type ThoughtBullet,
   type ThoughtOrganization,
 } from '@/lib/thought-organization';
 
@@ -87,6 +90,68 @@ describe('thought organization', () => {
 
     expect(normalized?.projects).toEqual([
       { id: 'empty', label: 'Empty Project', color: 'rose' },
+    ]);
+  });
+
+  it('inserts into the global NOW queue at an arbitrary index', () => {
+    const projects = [{ id: 'p1', label: 'P1', color: 'lavender' as const }];
+    const bullets: ThoughtBullet[] = [
+      {
+        id: 'a',
+        text: 'First',
+        lineNumber: 1,
+        project: 'p1',
+        projectMeta: projects[0],
+        lane: 'now',
+        priority: 'high',
+        displayOrder: 0,
+      },
+      {
+        id: 'b',
+        text: 'Second',
+        lineNumber: 2,
+        project: 'p1',
+        projectMeta: projects[0],
+        lane: 'now',
+        priority: 'high',
+        displayOrder: 1,
+      },
+      {
+        id: 'c',
+        text: 'Next lane',
+        lineNumber: 3,
+        project: 'p1',
+        projectMeta: projects[0],
+        lane: 'next',
+        priority: 'medium',
+        displayOrder: 0,
+      },
+    ];
+
+    const next = insertIntoGlobalNowQueueAt(bullets, 'c', 1, projects);
+    expect(next).not.toBeNull();
+    const nowOrdered = next!.filter((x) => x.lane === 'now').sort((x, y) => x.displayOrder - y.displayOrder);
+    expect(nowOrdered.map((x) => x.id)).toEqual(['a', 'c', 'b']);
+  });
+
+  it('moves a NOW bullet up or down in the global queue', () => {
+    const projects = [{ id: 'p1', label: 'P1', color: 'mint' as const }];
+    const bullets: ThoughtBullet[] = ['x', 'y', 'z'].map((id, i) => ({
+      id,
+      text: id,
+      lineNumber: i,
+      project: 'p1',
+      projectMeta: projects[0],
+      lane: 'now' as const,
+      priority: 'high' as const,
+      displayOrder: i,
+    }));
+
+    const moved = moveGlobalNowBulletByDelta(bullets, 'y', -1);
+    expect(moved!.filter((b) => b.lane === 'now').sort((a, b) => a.displayOrder - b.displayOrder).map((b) => b.id)).toEqual([
+      'y',
+      'x',
+      'z',
     ]);
   });
 });

@@ -6949,6 +6949,12 @@ kbd {
   border-radius: 1.75rem 1.75rem 0 0;
 }
 
+/* Calmer spotlight: slower, softer motion */
+.now-spotlight.now-spotlight--calm::before {
+  animation: organize-gradient-flow 22s ease-in-out infinite;
+  opacity: 0.42;
+}
+
 /* Shimmer overlay effect */
 .now-spotlight::after {
   content: "";
@@ -6969,6 +6975,19 @@ kbd {
   background-size: 200% 100%, 100% 100%;
   animation: organize-shimmer 8s linear infinite;
   z-index: 1;
+}
+
+.now-spotlight.now-spotlight--calm::after {
+  animation: organize-shimmer 24s linear infinite;
+  opacity: 0.28;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .now-spotlight.now-spotlight--calm::before,
+  .now-spotlight.now-spotlight--calm::after {
+    animation: none;
+    opacity: 0.35;
+  }
 }
 
 :where(:root[data-theme="light"], :root.light) .now-spotlight {
@@ -7041,6 +7060,22 @@ kbd {
   font-weight: 700;
   color: var(--color-text-secondary);
   letter-spacing: 0.01em;
+}
+
+.now-spotlight-subtitle-primary {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.now-spotlight-subline {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
 }
 
 .now-spotlight-count {
@@ -7557,7 +7592,7 @@ kbd {
 }
 
 .organize-card-meta {
-  opacity: 0.82;
+  opacity: 0.9;
 }
 
 .organize-card-meta .moment-tag-pill {
@@ -7580,6 +7615,78 @@ kbd {
 
 .organize-card-grip button:hover {
   background: color-mix(in srgb, var(--color-bg-elevated) 82%, transparent);
+}
+
+/* Subtle lift while dragging within organize */
+.organize-card--dragging {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-elevated) 38%, var(--color-bg-surface) 62%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 92%, var(--color-bg-elevated) 8%) 100%
+    );
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-card--dragging {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-elevated) 22%, white 18%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-bg-elevated) 12%) 100%
+    );
+}
+
+/* NOW spotlight: reorder chevrons sit in a soft “dock” for glanceable controls */
+.organize-card-reorder-stack {
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--color-bg-base) 52%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-card-reorder-stack {
+  background: color-mix(in srgb, var(--color-bg-surface) 62%, white 22%);
+  border-color: color-mix(in srgb, var(--color-border-subtle) 70%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.organize-card-reorder {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0.45rem;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease;
+}
+
+.organize-card-reorder:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-bg-elevated) 72%, transparent);
+  color: var(--color-text);
+}
+
+.organize-card-reorder:active:not(:disabled) {
+  background: color-mix(in srgb, var(--color-primary) 14%, var(--color-bg-elevated));
+}
+
+.organize-card-reorder:disabled {
+  opacity: 0.34;
+  cursor: default;
+}
+
+.organize-card-reorder:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--color-bg-base),
+    0 0 0 4px color-mix(in srgb, var(--color-primary) 38%, transparent);
 }
 
 .organize-lane-heading {
@@ -8150,6 +8257,132 @@ kbd {
   padding-inline: 0.35rem;
 }
 
+.organize-mobile-surface {
+  margin-top: 0.5rem;
+}
+
+.organize-mobile-tabs {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.35rem;
+  border-radius: 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 72%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-bg-elevated) 12%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 2px 10px rgba(10, 16, 28, 0.06);
+}
+
+.organize-mobile-tab {
+  flex: 1;
+  min-height: 2.75rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.85rem;
+  border: 1px solid transparent;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  background: transparent;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.organize-mobile-tab-active {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-primary) 42%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 14%, var(--color-bg-surface));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 4px 14px color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+.organize-mobile-tab-legend {
+  max-width: 28rem;
+  margin-inline: auto;
+}
+
+.now-spotlight-flow-single {
+  display: block;
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.now-spotlight-active-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.now-spotlight-active-list-collapsed {
+  max-height: 22rem;
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+
+.now-spotlight-active-item {
+  width: 100%;
+}
+
+.now-spotlight-insert {
+  border-radius: 0.85rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px dashed color-mix(in srgb, var(--color-border-subtle) 78%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 55%, transparent);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.now-spotlight-insert-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.now-spotlight-insert-hint span {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+
+.now-spotlight-insert-active {
+  border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-surface));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 12%, transparent);
+}
+
+.now-spotlight-insert-quiet {
+  min-height: 0.45rem;
+  height: 0.45rem;
+  padding: 0;
+  margin: 0.1rem 0;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 35%, transparent);
+  flex-shrink: 0;
+}
+
+.now-spotlight-insert-quiet.now-spotlight-insert-active {
+  min-height: 0.65rem;
+  height: auto;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 14%, transparent);
+}
+
+.now-spotlight-soft-limit {
+  max-width: 36rem;
+}
+
 /* Quick-add input in Inbox */
 .organize-quick-add {
   display: flex;
@@ -8267,16 +8500,28 @@ kbd {
   }
 }
 
-/* Undo bar with countdown */
+/* Undo bar with countdown — aligned with organize-lower-workspace-toggle */
 .organize-undo-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 1rem;
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
+  border-radius: 1.35rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 70%, rgba(255, 255, 255, 0.04));
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-bg-surface) 85%, var(--color-bg-elevated) 15%) 0%,
+      color-mix(in srgb, var(--color-bg-surface) 95%, var(--color-bg-base) 5%) 100%
+    );
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.04),
+    0 6px 16px rgba(10, 16, 28, 0.08);
+  padding: 0.85rem 1.1rem;
+}
+
+.organize-undo-bar-inner {
+  width: 100%;
+}
+
+.organize-undo-message {
+  color: var(--color-text-secondary);
 }
 
 .organize-undo-countdown {
@@ -8284,6 +8529,7 @@ kbd {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.75rem;
+  font-weight: 600;
   color: var(--color-text-muted);
 }
 
@@ -8312,6 +8558,41 @@ kbd {
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
+}
+
+.organize-card-meta-spotlight .moment-tag-pill {
+  font-size: 0.65rem;
+  line-height: 1.2;
+  padding: 0.12rem 0.45rem;
+}
+
+.organize-move-menu > summary {
+  list-style: none;
+}
+
+.organize-move-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.organize-move-menu-panel {
+  animation: organize-move-menu-in 120ms ease-out;
+}
+
+@keyframes organize-move-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .organize-move-menu-panel {
+    animation: none;
+  }
 }
 
 .organize-empty-state {

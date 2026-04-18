@@ -493,3 +493,87 @@ export function addImportMetadata(
     },
   };
 }
+
+/** Project bullets in NOW, globally sorted by displayOrder. */
+export function globalNowBulletsSorted(bullets: ThoughtBullet[]): ThoughtBullet[] {
+  return bullets
+    .filter((b) => b.project && b.lane === 'now')
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+}
+
+export function setGlobalNowOrderFromIds(bullets: ThoughtBullet[], orderedNowIds: string[]): ThoughtBullet[] {
+  const map = new Map(orderedNowIds.map((id, i) => [id, i]));
+  return bullets.map((b) => {
+    if (b.project && b.lane === 'now' && map.has(b.id)) {
+      return {
+        ...b,
+        displayOrder: map.get(b.id)!,
+        priority: laneToPriority('now'),
+      };
+    }
+    return b;
+  });
+}
+
+/**
+ * Move a bullet into NOW and insert it at `insertIndex` in the global NOW queue (0 = front).
+ */
+export function insertIntoGlobalNowQueueAt(
+  prev: ThoughtBullet[],
+  activeId: string,
+  insertIndex: number,
+  projects: ProjectMeta[]
+): ThoughtBullet[] | null {
+  const activeBullet = prev.find((b) => b.id === activeId);
+  if (!activeBullet || !activeBullet.project) return null;
+
+  const movedBullet = {
+    ...activeBullet,
+    projectMeta: projects.find((p) => p.id === activeBullet.project) ?? activeBullet.projectMeta,
+    lane: 'now' as ThoughtLane,
+    priority: laneToPriority('now'),
+  };
+
+  const nowQueue = prev
+    .filter((b) => b.id !== activeId && b.project && b.lane === 'now')
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+
+  const safeIdx = Math.max(0, Math.min(insertIndex, nowQueue.length));
+  nowQueue.splice(safeIdx, 0, movedBullet);
+
+  const nowOrder = new Map<string, number>();
+  nowQueue.forEach((b, i) => {
+    nowOrder.set(b.id, i);
+  });
+
+  return prev.map((b) => {
+    if (b.id === activeId) {
+      return {
+        ...movedBullet,
+        displayOrder: nowOrder.get(activeId) ?? 0,
+      };
+    }
+    if (nowOrder.has(b.id)) {
+      return {
+        ...b,
+        displayOrder: nowOrder.get(b.id)!,
+      };
+    }
+    return b;
+  });
+}
+
+export function moveGlobalNowBulletByDelta(
+  prev: ThoughtBullet[],
+  bulletId: string,
+  delta: -1 | 1
+): ThoughtBullet[] | null {
+  const nowQueue = globalNowBulletsSorted(prev).map((b) => b.id);
+  const idx = nowQueue.indexOf(bulletId);
+  if (idx === -1) return null;
+  const j = idx + delta;
+  if (j < 0 || j >= nowQueue.length) return null;
+  const next = [...nowQueue];
+  [next[idx], next[j]] = [next[j], next[idx]];
+  return setGlobalNowOrderFromIds(prev, next);
+}
