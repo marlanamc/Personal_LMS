@@ -250,10 +250,10 @@ function OrganizableBulletCard({
       <div
         className={`organize-card group relative overflow-hidden transition-[box-shadow,border-color,opacity,transform] duration-200 ${
           dragOverlay
-            ? 'border border-primary/35 bg-bg-elevated/95 ring-2 ring-primary/18 shadow-[0_18px_40px_rgba(10,16,28,0.26)]'
+            ? 'border-primary/35 bg-bg-elevated/95 ring-2 ring-primary/18 shadow-[0_18px_40px_rgba(10,16,28,0.26)]'
             : isDragging
-              ? 'organize-card--dragging border border-primary/25 ring-2 ring-primary/15'
-              : 'border border-border-subtle/35'
+              ? 'organize-card--dragging border-primary/25 ring-2 ring-primary/15'
+              : ''
         } ${inSpotlight ? 'organize-card-spotlight' : ''} ${selected ? 'organize-card-selected' : ''} ${
           inSpotlight ? `organize-card-spotlight-${spotlightPriority}` : ''
         }`}
@@ -267,7 +267,7 @@ function OrganizableBulletCard({
           />
         )}
 
-        <div className={`organize-card-inner relative flex items-start gap-2.5 p-4 sm:p-3.5 ${laneConfig ? 'pl-[1.15rem] sm:pl-4' : ''}`}>
+        <div className={`organize-card-inner relative flex items-start gap-2.5 py-2.5 px-3 sm:py-2 px-3 ${laneConfig ? 'pl-5 sm:pl-5' : ''}`}>
           {selectable && onToggleSelect ? (
             <button
               type="button"

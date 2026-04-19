@@ -282,12 +282,12 @@ function NowSpotlight({
               {focusedProject
                 ? `${nowBullets.length} active task${nowBullets.length === 1 ? '' : 's'}`
                 : nowBullets.length > 0
-                  ? `${nowBullets.length} task${nowBullets.length === 1 ? '' : 's'} you can touch today`
-                  : 'Add tasks from Projects when you are ready'}
+                  ? `${nowBullets.length} active task${nowBullets.length === 1 ? '' : 's'}`
+                  : 'Add tasks from Projects to get started'}
             </p>
             {overSoftLimit ? (
               <p className="now-spotlight-soft-limit mt-1.5 text-[11px] font-medium leading-snug text-text-muted">
-                Full plate? Moving one or two to <span className="text-text-secondary">Next</span> keeps this list kind to future-you.
+                List is full. Consider moving some to <span className="text-text-secondary">Next</span>.
               </p>
             ) : null}
           </div>

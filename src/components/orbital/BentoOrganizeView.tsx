@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   DndContext,
   PointerSensor,
@@ -42,13 +42,22 @@ export function BentoOrganizeView({
   const [selectedBulletId, setSelectedBulletId] = useState<string | null>(null);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [projectSizes, setProjectSizes] = useState<Map<string, ProjectSize>>(new Map());
+  const [projectOrder, setProjectOrder] = useState<string[]>([]);
+
+  // Initialize project order from organization
+  useEffect(() => {
+    if (projectOrder.length === 0 && organization.projects.length > 0) {
+      setProjectOrder(organization.projects.map((p) => p.id));
+    }
+  }, [organization.projects, projectOrder.length]);
 
   const selectedBullet = selectedBulletId
     ? organization.bullets.find((b) => b.id === selectedBulletId) || null
     : null;
 
-  // Group bullets by project
-  const bentoProjects: BentoProject[] = organization.projects.map((project) => {
+  // Group bullets by project and sort by custom order
+  const bentoProjectsMap = new Map<string, BentoProject>();
+  organization.projects.forEach((project) => {
     const projectBullets = organization.bullets.filter(
       (b) => b.project === project.id && b.lane !== 'done'
     );
@@ -60,7 +69,7 @@ export function BentoOrganizeView({
     const defaultSize = getDefaultSize(nowCount, nextCount, laterCount);
     const size = projectSizes.get(project.id) || defaultSize;
 
-    return {
+    bentoProjectsMap.set(project.id, {
       project,
       bullets: projectBullets,
       nowCount,
@@ -68,8 +77,13 @@ export function BentoOrganizeView({
       laterCount,
       totalCount: projectBullets.length,
       size,
-    };
+    });
   });
+
+  // Sort projects by custom order
+  const bentoProjects: BentoProject[] = projectOrder
+    .map((id) => bentoProjectsMap.get(id))
+    .filter((p): p is BentoProject => p !== undefined);
 
   // Inbox bullets (no project)
   const inboxBullets = organization.bullets.filter((b) => !b.project && b.lane !== 'done');
@@ -90,9 +104,30 @@ export function BentoOrganizeView({
       const { active, over } = event;
       if (!over) return;
 
-      const dragData = active.data.current as DragData;
+      const dragData = active.data.current as DragData | { type: 'project'; projectId: string };
+
+      // Handle project reordering
+      if (dragData?.type === 'project') {
+        const activeId = dragData.projectId;
+        const overId = String(over.id).replace('project:', '');
+
+        if (activeId !== overId) {
+          const oldIndex = projectOrder.indexOf(activeId);
+          const newIndex = projectOrder.indexOf(overId);
+
+          if (oldIndex !== -1 && newIndex !== -1) {
+            const newOrder = [...projectOrder];
+            newOrder.splice(oldIndex, 1);
+            newOrder.splice(newIndex, 0, activeId);
+            setProjectOrder(newOrder);
+          }
+        }
+        return;
+      }
+
+      // Handle task dragging
       const dropZone = parseDropZoneId(String(over.id));
-      if (!dragData || !dropZone || dragData.type !== 'task') return;
+      if (!dragData || dragData.type !== 'task' || !dropZone) return;
 
       const bulletId = dragData.bulletId;
       const bullet = organization.bullets.find((b) => b.id === bulletId);
@@ -122,7 +157,7 @@ export function BentoOrganizeView({
         });
       }
     },
-    [organization, onUpdateOrganization]
+    [organization, onUpdateOrganization, projectOrder]
   );
 
   const handleSelectBullet = useCallback((bullet: ThoughtBullet) => {
@@ -183,26 +218,28 @@ export function BentoOrganizeView({
       onDragEnd={handleDragEnd}
     >
       <div className="bento-organize-view w-full h-full flex flex-col overflow-hidden">
+        {/* Atmospheric Background */}
+        <div className="bento-atmosphere" />
+
         {/* Header */}
-        <div className="bento-header px-8 py-6 border-b border-border/30">
-          <h1 className="text-2xl font-display font-bold text-text">
+        <div className="bento-header px-8 py-8 border-b border-border/30 relative z-10">
+          <div className="bento-header-glow" />
+          <h1 className="bento-header-title">
             Project Universe
           </h1>
-          <p className="text-sm text-text-muted mt-1">
-            Adjust tile sizes to reflect project importance
-          </p>
         </div>
 
         {/* Bento Grid */}
-        <div className="bento-grid-container flex-1 overflow-y-auto p-8">
+        <div className="bento-grid-container flex-1 overflow-y-auto p-8 relative z-10">
           <div className="bento-grid">
-            {bentoProjects.map((bentoProject) => (
+            {bentoProjects.map((bentoProject, index) => (
               <BentoProjectCard
                 key={bentoProject.project.id}
                 bentoProject={bentoProject}
                 selectedBulletId={selectedBulletId}
                 onSelectBullet={handleSelectBullet}
                 onResize={handleResizeProject}
+                index={index}
               />
             ))}
           </div>

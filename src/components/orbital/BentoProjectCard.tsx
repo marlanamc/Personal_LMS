@@ -1,10 +1,12 @@
 'use client';
 
-import { memo, useState } from 'react';
-import { useDroppable } from '@dnd-kit/core';
+import { memo, useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
+import { useDroppable, useDraggable } from '@dnd-kit/core';
 import type { ThoughtBullet, ProjectColor } from '@/lib/thought-organization';
 import { createDropZoneId } from './hooks/useOrbitalDrag';
 import { BentoTaskBullet } from './BentoTaskBullet';
+import { GripVertical } from 'lucide-react';
 
 const PROJECT_COLORS: Record<ProjectColor, string> = {
   peach: 'var(--project-peach)',
@@ -40,6 +42,7 @@ type BentoProjectCardProps = {
   selectedBulletId?: string | null;
   onSelectBullet?: (bullet: ThoughtBullet) => void;
   onResize: (projectId: string, newSize: ProjectSize) => void;
+  index?: number;
 };
 
 const SIZE_OPTIONS: ProjectSize[] = ['small', 'medium', 'large', 'xlarge'];
@@ -49,16 +52,74 @@ export const BentoProjectCard = memo(function BentoProjectCard({
   selectedBulletId,
   onSelectBullet,
   onResize,
+  index = 0,
 }: BentoProjectCardProps) {
   const { project, bullets, nowCount, nextCount, laterCount, totalCount, size } = bentoProject;
   const [showSizeMenu, setShowSizeMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const sizeBtnRef = useRef<HTMLButtonElement>(null);
+  const portalMenuRef = useRef<HTMLDivElement>(null);
 
   const colorVar = PROJECT_COLORS[project.color] || PROJECT_COLORS.slate;
+
+  // Stagger animation delay
+  const animationDelay = `${index * 0.08}s`;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const updateMenuPosition = useCallback(() => {
+    const btn = sizeBtnRef.current;
+    if (!btn) return;
+    const r = btn.getBoundingClientRect();
+    setMenuPosition({
+      top: r.bottom + 12,
+      right: Math.max(8, window.innerWidth - r.right),
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!showSizeMenu) {
+      setMenuPosition(null);
+      return;
+    }
+    updateMenuPosition();
+    window.addEventListener('resize', updateMenuPosition);
+    window.addEventListener('scroll', updateMenuPosition, true);
+    return () => {
+      window.removeEventListener('resize', updateMenuPosition);
+      window.removeEventListener('scroll', updateMenuPosition, true);
+    };
+  }, [showSizeMenu, updateMenuPosition]);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!showSizeMenu) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const t = event.target as Node;
+      if (menuRef.current?.contains(t)) return;
+      if (portalMenuRef.current?.contains(t)) return;
+      setShowSizeMenu(false);
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showSizeMenu]);
 
   // Drop zone for the entire card
   const dropZone = useDroppable({
     id: createDropZoneId('center', project.id),
     data: { type: 'project-center', projectId: project.id, lane: 'now' },
+  });
+
+  // Draggable for project reordering
+  const draggable = useDraggable({
+    id: `project:${project.id}`,
+    data: { type: 'project', projectId: project.id },
   });
 
   // Organize bullets by lane
@@ -76,31 +137,70 @@ export const BentoProjectCard = memo(function BentoProjectCard({
       ref={dropZone.setNodeRef as any}
       className={`bento-project-card bento-project-card--${size} ${
         dropZone.isOver ? 'bento-project-card--drop-target' : ''
-      }`}
+      } ${draggable.isDragging ? 'bento-project-card--dragging' : ''}`}
       style={
         {
           '--project-color': colorVar,
+          '--animation-delay': animationDelay,
         } as React.CSSProperties
       }
     >
+      {/* Ambient glow */}
+      <div className="bento-card-glow" />
+
+      {/* Grain texture overlay */}
+      <div className="bento-card-grain" />
+
       {/* Card header */}
       <div className="bento-card-header">
         <div className="flex items-start justify-between gap-2">
+          {/* Drag handle */}
+          <button
+            {...draggable.attributes}
+            {...draggable.listeners}
+            ref={draggable.setNodeRef as any}
+            className="bento-drag-handle"
+            title="Drag to reorder"
+          >
+            <GripVertical className="w-4 h-4" />
+          </button>
+
           <div className="flex-1 min-w-0">
-            <h3 className="bento-card-title">{project.label}</h3>
-            <div className="bento-card-stats">
-              <span className="bento-stat bento-stat--now">{nowCount} now</span>
-              <span className="bento-stat bento-stat--next">{nextCount} next</span>
-              <span className="bento-stat bento-stat--later">{laterCount} later</span>
+            <h3 className="bento-card-title">
+              <span className="bento-card-title-inner">{project.label}</span>
+            </h3>
+            <div
+              className="bento-card-stats"
+              aria-label={`${nowCount} now, ${nextCount} next, ${laterCount} later`}
+            >
+              <div className="bento-stat-tile bento-stat-tile--now">
+                <div className="bento-stat-tile__value-row">
+                  <span className="bento-stat-pulse" aria-hidden />
+                  <span className="bento-stat-tile__value">{nowCount}</span>
+                </div>
+                <span className="bento-stat-tile__label">Now</span>
+              </div>
+              <div className="bento-stat-tile bento-stat-tile--next">
+                <span className="bento-stat-tile__value">{nextCount}</span>
+                <span className="bento-stat-tile__label">Next</span>
+              </div>
+              <div className="bento-stat-tile bento-stat-tile--later">
+                <span className="bento-stat-tile__value">{laterCount}</span>
+                <span className="bento-stat-tile__label">Later</span>
+              </div>
             </div>
           </div>
 
           {/* Size selector */}
-          <div className="relative">
+          <div className="relative" ref={menuRef}>
             <button
-              onClick={() => setShowSizeMenu(!showSizeMenu)}
+              ref={sizeBtnRef}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowSizeMenu(!showSizeMenu);
+              }}
               className="bento-size-btn"
-              title="Adjust importance"
+              title="Adjust width"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -110,20 +210,40 @@ export const BentoProjectCard = memo(function BentoProjectCard({
               </svg>
             </button>
 
-            {showSizeMenu && (
-              <div className="bento-size-menu">
-                {SIZE_OPTIONS.map((sizeOption) => (
-                  <button
-                    key={sizeOption}
-                    onClick={() => handleSizeChange(sizeOption)}
-                    className={`bento-size-option ${sizeOption === size ? 'bento-size-option--active' : ''}`}
-                  >
-                    <div className={`bento-size-preview bento-size-preview--${sizeOption}`} />
-                    <span className="capitalize">{sizeOption}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+            {mounted &&
+              showSizeMenu &&
+              menuPosition &&
+              createPortal(
+                <div
+                  ref={portalMenuRef}
+                  className="bento-size-menu bento-size-menu--portal"
+                  style={{
+                    top: menuPosition.top,
+                    right: menuPosition.right,
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {SIZE_OPTIONS.map((sizeOption) => (
+                    <button
+                      key={sizeOption}
+                      onClick={() => handleSizeChange(sizeOption)}
+                      className={`bento-size-option ${sizeOption === size ? 'bento-size-option--active' : ''}`}
+                    >
+                      <div className={`bento-size-preview bento-size-preview--${sizeOption}`} />
+                      <div className="flex flex-col gap-0.5">
+                        <span className="capitalize font-semibold text-sm">{sizeOption}</span>
+                        <span className="text-xs opacity-60">
+                          {sizeOption === 'small' && '25% width'}
+                          {sizeOption === 'medium' && '33% width'}
+                          {sizeOption === 'large' && '50% width'}
+                          {sizeOption === 'xlarge' && '66% width'}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>,
+                document.body
+              )}
           </div>
         </div>
       </div>
@@ -147,7 +267,7 @@ export const BentoProjectCard = memo(function BentoProjectCard({
             ))}
 
             {/* Next tasks */}
-            {nextBullets.slice(0, size === 'xlarge' ? 5 : size === 'large' ? 3 : 2).map((bullet) => (
+            {nextBullets.map((bullet) => (
               <BentoTaskBullet
                 key={bullet.id}
                 bullet={bullet}
@@ -158,44 +278,20 @@ export const BentoProjectCard = memo(function BentoProjectCard({
               />
             ))}
 
-            {/* Later tasks (only show in larger sizes) */}
-            {(size === 'large' || size === 'xlarge') &&
-              laterBullets.slice(0, size === 'xlarge' ? 3 : 1).map((bullet) => (
-                <BentoTaskBullet
-                  key={bullet.id}
-                  bullet={bullet}
-                  lane="later"
-                  projectColor={project.color}
-                  isSelected={selectedBulletId === bullet.id}
-                  onClick={() => onSelectBullet?.(bullet)}
-                />
-              ))}
-
-            {/* Show "more" indicator if there are hidden tasks */}
-            {getHiddenCount(bullets, size, nowBullets.length, nextBullets.length, laterBullets.length) > 0 && (
-              <div className="bento-more-indicator">
-                +{getHiddenCount(bullets, size, nowBullets.length, nextBullets.length, laterBullets.length)} more
-              </div>
-            )}
+            {/* Later tasks */}
+            {laterBullets.map((bullet) => (
+              <BentoTaskBullet
+                key={bullet.id}
+                bullet={bullet}
+                lane="later"
+                projectColor={project.color}
+                isSelected={selectedBulletId === bullet.id}
+                onClick={() => onSelectBullet?.(bullet)}
+              />
+            ))}
           </div>
         )}
       </div>
     </div>
   );
 });
-
-function getHiddenCount(
-  bullets: ThoughtBullet[],
-  size: ProjectSize,
-  nowCount: number,
-  nextCount: number,
-  laterCount: number
-): number {
-  const maxNext = size === 'xlarge' ? 5 : size === 'large' ? 3 : 2;
-  const maxLater = size === 'xlarge' ? 3 : size === 'large' ? 1 : 0;
-
-  const hiddenNext = Math.max(0, nextCount - maxNext);
-  const hiddenLater = Math.max(0, laterCount - maxLater);
-
-  return hiddenNext + hiddenLater;
-}
