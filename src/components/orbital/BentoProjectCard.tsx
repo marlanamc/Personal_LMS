@@ -2,7 +2,9 @@
 
 import { memo, useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { useDroppable, useDraggable } from '@dnd-kit/core';
+import { useDroppable } from '@dnd-kit/core';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { ThoughtBullet, ProjectColor } from '@/lib/thought-organization';
 import { createDropZoneId } from './hooks/useOrbitalDrag';
 import { BentoTaskBullet } from './BentoTaskBullet';
@@ -120,11 +122,19 @@ export const BentoProjectCard = memo(function BentoProjectCard({
     data: { type: 'project-center', projectId: project.id, lane: 'now' },
   });
 
-  // Draggable for project reordering
-  const draggable = useDraggable({
+  const sortable = useSortable({
     id: `project:${project.id}`,
     data: { type: 'project', projectId: project.id },
   });
+
+  const transform = CSS.Transform.toString(sortable.transform);
+
+  const style = {
+    '--project-color': colorVar,
+    '--animation-delay': animationDelay,
+    transform: transform || undefined,
+    transition: sortable.transition,
+  } as React.CSSProperties;
 
   // Organize bullets by lane
   const nowBullets = bullets.filter((b) => b.lane === 'now');
@@ -138,17 +148,14 @@ export const BentoProjectCard = memo(function BentoProjectCard({
 
   return (
     <div
-      ref={dropZone.setNodeRef as any}
+      ref={sortable.setNodeRef as any}
       className={`bento-project-card bento-project-card--${size} ${
         dropZone.isOver ? 'bento-project-card--drop-target' : ''
-      } ${draggable.isDragging ? 'bento-project-card--dragging' : ''}`}
-      style={
-        {
-          '--project-color': colorVar,
-          '--animation-delay': animationDelay,
-        } as React.CSSProperties
-      }
+      } ${sortable.isDragging ? 'bento-project-card--dragging' : ''}`}
+      style={style}
     >
+      <div ref={dropZone.setNodeRef as any} className="pointer-events-none absolute inset-0" aria-hidden />
+
       {/* Ambient glow */}
       <div className="bento-card-glow" />
 
@@ -160,9 +167,8 @@ export const BentoProjectCard = memo(function BentoProjectCard({
         <div className="flex items-start justify-between gap-2">
           {/* Drag handle */}
           <button
-            {...draggable.attributes}
-            {...draggable.listeners}
-            ref={draggable.setNodeRef as any}
+            {...sortable.attributes}
+            {...sortable.listeners}
             className="bento-drag-handle"
             title="Drag to reorder"
           >

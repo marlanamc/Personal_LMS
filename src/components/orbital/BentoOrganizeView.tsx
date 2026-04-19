@@ -5,11 +5,14 @@ import {
   DndContext,
   PointerSensor,
   TouchSensor,
+  closestCenter,
   useSensor,
   useSensors,
   type DragStartEvent,
   type DragEndEvent,
+  type CollisionDetection,
 } from '@dnd-kit/core';
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { nanoid } from 'nanoid';
 import type { ThoughtOrganization, ThoughtBullet, ProjectMeta } from '@/lib/thought-organization';
 import { laneToPriority, priorityToLane } from '@/lib/thought-organization';
@@ -132,6 +135,26 @@ export function BentoOrganizeView({
     useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 10 } })
   );
 
+  const collisionDetection = useCallback<CollisionDetection>((args) => {
+    const activeType = args.active.data.current?.type;
+
+    if (activeType === 'project') {
+      return closestCenter({
+        ...args,
+        droppableContainers: args.droppableContainers.filter(
+          (container) => typeof container.id === 'string' && container.id.startsWith('project:')
+        ),
+      });
+    }
+
+    return orbitalCollisionDetection({
+      ...args,
+      droppableContainers: args.droppableContainers.filter(
+        (container) => !(typeof container.id === 'string' && container.id.startsWith('project:'))
+      ),
+    });
+  }, []);
+
   const handleDragStart = useCallback((_event: DragStartEvent) => {
     /* reserved for drag overlay / analytics */
   }, []);
@@ -146,7 +169,12 @@ export function BentoOrganizeView({
       // Handle project reordering
       if (dragData?.type === 'project') {
         const activeId = dragData.projectId;
-        const overId = String(over.id).replace('project:', '');
+        const rawOverId = String(over.id);
+        const overId = rawOverId.startsWith('project:')
+          ? rawOverId.replace('project:', '')
+          : rawOverId.startsWith('center:')
+            ? rawOverId.replace('center:', '')
+            : rawOverId;
 
         if (activeId !== overId) {
           const order = getBentoProjectOrder(organization);
@@ -267,7 +295,7 @@ export function BentoOrganizeView({
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={orbitalCollisionDetection}
+      collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
@@ -299,19 +327,24 @@ export function BentoOrganizeView({
 
         {/* Bento Grid */}
         <div className="bento-grid-container flex-1 overflow-y-auto p-8 relative z-10">
-          <div className="bento-grid">
-            {bentoProjects.map((bentoProject, index) => (
-              <BentoProjectCard
-                key={bentoProject.project.id}
-                bentoProject={bentoProject}
-                laneFilter={laneFilter}
-                selectedBulletId={selectedBulletId}
-                onSelectBullet={handleSelectBullet}
-                onResize={handleResizeProject}
-                index={index}
-              />
-            ))}
-          </div>
+          <SortableContext
+            items={bentoProjects.map((bentoProject) => `project:${bentoProject.project.id}`)}
+            strategy={rectSortingStrategy}
+          >
+            <div className="bento-grid">
+              {bentoProjects.map((bentoProject, index) => (
+                <BentoProjectCard
+                  key={bentoProject.project.id}
+                  bentoProject={bentoProject}
+                  laneFilter={laneFilter}
+                  selectedBulletId={selectedBulletId}
+                  onSelectBullet={handleSelectBullet}
+                  onResize={handleResizeProject}
+                  index={index}
+                />
+              ))}
+            </div>
+          </SortableContext>
         </div>
 
         {/* Floating inbox */}
