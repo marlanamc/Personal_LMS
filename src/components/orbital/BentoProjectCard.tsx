@@ -23,6 +23,8 @@ const PROJECT_COLORS: Record<ProjectColor, string> = {
 
 type ProjectSize = 'small' | 'medium' | 'large' | 'xlarge';
 
+type BentoLaneFilter = 'all' | 'now' | 'next' | 'later';
+
 type BentoProject = {
   project: {
     id: string;
@@ -39,6 +41,7 @@ type BentoProject = {
 
 type BentoProjectCardProps = {
   bentoProject: BentoProject;
+  laneFilter?: BentoLaneFilter;
   selectedBulletId?: string | null;
   onSelectBullet?: (bullet: ThoughtBullet) => void;
   onResize: (projectId: string, newSize: ProjectSize) => void;
@@ -49,6 +52,7 @@ const SIZE_OPTIONS: ProjectSize[] = ['small', 'medium', 'large', 'xlarge'];
 
 export const BentoProjectCard = memo(function BentoProjectCard({
   bentoProject,
+  laneFilter = 'all',
   selectedBulletId,
   onSelectBullet,
   onResize,
@@ -252,6 +256,12 @@ export const BentoProjectCard = memo(function BentoProjectCard({
       <div className="bento-card-content">
         {totalCount === 0 ? (
           <p className="bento-empty-state">No active tasks</p>
+        ) : bullets.length === 0 ? (
+          <p className="bento-empty-state">
+            {laneFilter === 'all'
+              ? 'No tasks to show'
+              : `No ${laneFilter === 'now' ? 'Now' : laneFilter === 'next' ? 'Next' : 'Later'} tasks in this project`}
+          </p>
         ) : (
           <div className="bento-task-list">
             {/* Now tasks */}

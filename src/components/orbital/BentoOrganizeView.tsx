@@ -12,13 +12,21 @@ import {
 } from '@dnd-kit/core';
 import { nanoid } from 'nanoid';
 import type { ThoughtOrganization, ThoughtBullet, ProjectMeta } from '@/lib/thought-organization';
-import { laneToPriority } from '@/lib/thought-organization';
+import { laneToPriority, priorityToLane } from '@/lib/thought-organization';
 import { parseDropZoneId, orbitalCollisionDetection, type DragData } from './hooks/useOrbitalDrag';
 import { OrbitalInbox } from './OrbitalInbox';
 import { OrbitalDetailPanel } from './OrbitalDetailPanel';
 import { BentoProjectCard } from './BentoProjectCard';
 
 type ProjectSize = 'small' | 'medium' | 'large' | 'xlarge';
+
+type BentoLaneFilter = 'all' | 'now' | 'next' | 'later';
+
+function resolveBulletLane(b: ThoughtBullet): 'now' | 'next' | 'later' {
+  const l = b.lane ?? priorityToLane(b.priority);
+  if (l === 'now' || l === 'next' || l === 'later') return l;
+  return 'next';
+}
 
 type BentoProject = {
   project: ProjectMeta;
@@ -43,6 +51,7 @@ export function BentoOrganizeView({
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [projectSizes, setProjectSizes] = useState<Map<string, ProjectSize>>(new Map());
   const [projectOrder, setProjectOrder] = useState<string[]>([]);
+  const [laneFilter, setLaneFilter] = useState<BentoLaneFilter>('all');
 
   // Initialize project order from organization
   useEffect(() => {
@@ -61,9 +70,14 @@ export function BentoOrganizeView({
     const projectBullets = organization.bullets.filter(
       (b) => b.project === project.id && b.lane !== 'done'
     );
-    const nowCount = projectBullets.filter((b) => b.lane === 'now').length;
-    const nextCount = projectBullets.filter((b) => b.lane === 'next').length;
-    const laterCount = projectBullets.filter((b) => b.lane === 'later').length;
+    const nowCount = projectBullets.filter((b) => resolveBulletLane(b) === 'now').length;
+    const nextCount = projectBullets.filter((b) => resolveBulletLane(b) === 'next').length;
+    const laterCount = projectBullets.filter((b) => resolveBulletLane(b) === 'later').length;
+
+    const displayBullets =
+      laneFilter === 'all'
+        ? projectBullets
+        : projectBullets.filter((b) => resolveBulletLane(b) === laneFilter);
 
     // Default size based on task count
     const defaultSize = getDefaultSize(nowCount, nextCount, laterCount);
@@ -71,7 +85,7 @@ export function BentoOrganizeView({
 
     bentoProjectsMap.set(project.id, {
       project,
-      bullets: projectBullets,
+      bullets: displayBullets,
       nowCount,
       nextCount,
       laterCount,
@@ -85,8 +99,12 @@ export function BentoOrganizeView({
     .map((id) => bentoProjectsMap.get(id))
     .filter((p): p is BentoProject => p !== undefined);
 
-  // Inbox bullets (no project)
-  const inboxBullets = organization.bullets.filter((b) => !b.project && b.lane !== 'done');
+  // Inbox bullets (no project), same lane filter as grid
+  const inboxBullets = organization.bullets.filter((b) => {
+    if (b.project || b.lane === 'done') return false;
+    if (laneFilter === 'all') return true;
+    return resolveBulletLane(b) === laneFilter;
+  });
 
   // ── DnD ──
   const sensors = useSensors(
@@ -224,9 +242,23 @@ export function BentoOrganizeView({
         {/* Header */}
         <div className="bento-header px-8 py-8 border-b border-border/30 relative z-10">
           <div className="bento-header-glow" />
-          <h1 className="bento-header-title">
-            Project Universe
-          </h1>
+          <div className="bento-header-top">
+            <h1 className="bento-header-title">Project Universe</h1>
+            <div className="bento-lane-filter-bar" role="tablist" aria-label="Filter tasks by lane">
+              {(['all', 'now', 'next', 'later'] as const).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={laneFilter === key}
+                  className={`bento-lane-filter-btn ${laneFilter === key ? 'bento-lane-filter-btn--active' : ''} bento-lane-filter-btn--${key}`}
+                  onClick={() => setLaneFilter(key)}
+                >
+                  {key === 'all' ? 'All' : key === 'now' ? 'Now' : key === 'next' ? 'Next' : 'Later'}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Bento Grid */}
@@ -236,6 +268,7 @@ export function BentoOrganizeView({
               <BentoProjectCard
                 key={bentoProject.project.id}
                 bentoProject={bentoProject}
+                laneFilter={laneFilter}
                 selectedBulletId={selectedBulletId}
                 onSelectBullet={handleSelectBullet}
                 onResize={handleResizeProject}
