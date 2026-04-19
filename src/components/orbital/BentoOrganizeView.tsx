@@ -252,6 +252,7 @@ export function BentoOrganizeView({
             selectedBulletId={selectedBulletId}
             onSelectBullet={handleSelectBullet}
             onAddBullet={handleAddInboxBullet}
+            defaultExpanded={false}
           />
         </div>
 

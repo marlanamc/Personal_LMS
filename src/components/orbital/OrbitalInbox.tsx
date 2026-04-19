@@ -11,6 +11,7 @@ type OrbitalInboxProps = {
   selectedBulletId?: string | null;
   onSelectBullet?: (bullet: ThoughtBullet) => void;
   onAddBullet?: (text: string) => void;
+  defaultExpanded?: boolean;
 };
 
 function InboxItem({
@@ -57,9 +58,10 @@ export const OrbitalInbox = memo(function OrbitalInbox({
   selectedBulletId,
   onSelectBullet,
   onAddBullet,
+  defaultExpanded = true,
 }: OrbitalInboxProps) {
   const [newText, setNewText] = useState('');
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   const { setNodeRef: setDropRef, isOver } = useDroppable({
     id: 'inbox',
