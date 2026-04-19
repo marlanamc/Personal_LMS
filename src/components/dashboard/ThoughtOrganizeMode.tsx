@@ -1261,7 +1261,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
             : bullet
         );
 
-        return { bullets, projects };
+        return { ...prev, bullets, projects };
       });
     }
     setNewProjectName('');
@@ -1271,10 +1271,19 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   };
 
   const pushUndoState = (organization: ThoughtOrganization, message: string) => {
+    const bento = organization.bento;
     setUndoState({
       organization: {
         bullets: organization.bullets.map((bullet) => ({ ...bullet })),
         projects: organization.projects.map((project) => ({ ...project })),
+        ...(bento
+          ? {
+              bento: {
+                ...(bento.projectOrder && { projectOrder: [...bento.projectOrder] }),
+                ...(bento.projectSizes && { projectSizes: { ...bento.projectSizes } }),
+              },
+            }
+          : {}),
       },
       message,
     });
@@ -1392,6 +1401,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
         const nextBullets = insertIntoGlobalNowQueueAt(prev.bullets, activeId, spotlightInsertIndex, prev.projects);
         if (!nextBullets) return prev;
         return {
+          ...prev,
           bullets: nextBullets,
           projects: updateProjectsFromBullets(nextBullets, prev.projects),
         };
@@ -1493,6 +1503,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       });
 
       return {
+        ...prev,
         bullets,
         projects: updateProjectsFromBullets(bullets, prev.projects),
       };
@@ -1506,6 +1517,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       );
 
       return {
+        ...prev,
         bullets,
         projects: updateProjectsFromBullets(bullets, prev.projects),
       };
@@ -1518,6 +1530,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       const bullets = prev.bullets.filter((bullet) => bullet.id !== bulletId);
 
       return {
+        ...prev,
         bullets,
         projects: updateProjectsFromBullets(bullets, prev.projects),
       };
@@ -1533,6 +1546,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       );
 
       return {
+        ...prev,
         bullets,
         projects: updateProjectsFromBullets(bullets, prev.projects),
       };
@@ -1549,6 +1563,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       const bullets = prev.bullets.filter((bullet) => !selectedInboxIds.includes(bullet.id));
 
       return {
+        ...prev,
         bullets,
         projects: updateProjectsFromBullets(bullets, prev.projects),
       };
@@ -1574,6 +1589,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       );
 
       return {
+        ...prev,
         bullets,
         projects: prev.projects.filter((project) => project.id !== projectId),
       };
@@ -1611,6 +1627,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       );
 
       return {
+        ...prev,
         bullets,
         projects: prev.projects.filter((project) => project.id !== mergeProjectId),
       };
@@ -1657,6 +1674,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       const next = moveGlobalNowBulletByDelta(prev.bullets, bulletId, delta);
       if (!next) return prev;
       return {
+        ...prev,
         bullets: next,
         projects: updateProjectsFromBullets(next, prev.projects),
       };

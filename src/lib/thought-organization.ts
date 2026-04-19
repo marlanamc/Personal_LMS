@@ -12,6 +12,14 @@ export type ProjectMeta = {
   color: ProjectColor;
 };
 
+/** Bento grid card width; persisted with thought organizer store */
+export type BentoProjectSize = 'small' | 'medium' | 'large' | 'xlarge';
+
+export type BentoLayout = {
+  projectOrder?: string[];
+  projectSizes?: Record<string, BentoProjectSize>;
+};
+
 export type ThoughtBullet = {
   id: string;
   text: string;
@@ -30,11 +38,13 @@ export type ThoughtBullet = {
 export type ThoughtOrganization = {
   bullets: ThoughtBullet[];
   projects: ProjectMeta[]; // Changed from string[] to ProjectMeta[]
+  bento?: BentoLayout;
 };
 
 export type ThoughtOrganizerStore = {
   bullets: ThoughtBullet[];
   projects: ProjectMeta[];
+  bento?: BentoLayout;
 };
 
 export interface ParsedBullet {
@@ -182,6 +192,7 @@ export function reconcileBullets(
   return {
     bullets: reconciledBullets,
     projects,
+    ...(existingOrganization.bento ? { bento: existingOrganization.bento } : {}),
   };
 }
 
@@ -242,6 +253,53 @@ export function updateProjectList(
   return allProjects;
 }
 
+const BENTO_SIZE_VALUES: BentoProjectSize[] = ['small', 'medium', 'large', 'xlarge'];
+
+function normalizeBentoLayout(
+  bento: unknown,
+  mergedProjects: ProjectMeta[]
+): BentoLayout | undefined {
+  if (!bento || typeof bento !== 'object' || Array.isArray(bento)) return undefined;
+
+  const projectIds = new Set(mergedProjects.map((p) => p.id));
+  const mergedOrder = mergedProjects.map((p) => p.id);
+  const o = bento as Record<string, unknown>;
+  const layout: BentoLayout = {};
+
+  if (Array.isArray(o.projectOrder)) {
+    const valid: string[] = [];
+    const seen = new Set<string>();
+    for (const id of o.projectOrder) {
+      if (typeof id !== 'string') continue;
+      const tid = id.trim();
+      if (!tid || tid.length > 64 || !projectIds.has(tid) || seen.has(tid)) continue;
+      valid.push(tid);
+      seen.add(tid);
+    }
+    for (const tid of mergedOrder) {
+      if (!seen.has(tid)) {
+        valid.push(tid);
+        seen.add(tid);
+      }
+    }
+    if (valid.length) layout.projectOrder = valid.slice(0, 100);
+  }
+
+  if (o.projectSizes && typeof o.projectSizes === 'object' && !Array.isArray(o.projectSizes)) {
+    const sizes: Record<string, BentoProjectSize> = {};
+    for (const [k, v] of Object.entries(o.projectSizes)) {
+      const tid = typeof k === 'string' ? k.trim() : '';
+      if (!tid || tid.length > 64 || !projectIds.has(tid)) continue;
+      if (BENTO_SIZE_VALUES.includes(v as BentoProjectSize)) {
+        sizes[tid] = v as BentoProjectSize;
+      }
+    }
+    if (Object.keys(sizes).length) layout.projectSizes = sizes;
+  }
+
+  return Object.keys(layout).length ? layout : undefined;
+}
+
 /**
  * Normalize organization data (validate and clean)
  * Used for server-side validation
@@ -294,9 +352,13 @@ export function normalizeOrganization(
   // Limit to 500 bullets max
   const limitedBullets = bullets.slice(0, 500);
 
+  const mergedProjects = mergeProjects(deduplicateProjects(limitedBullets), projects);
+  const bento = normalizeBentoLayout(org.bento, mergedProjects);
+
   return {
     bullets: limitedBullets,
-    projects: mergeProjects(deduplicateProjects(limitedBullets), projects),
+    projects: mergedProjects,
+    ...(bento ? { bento } : {}),
   };
 }
 

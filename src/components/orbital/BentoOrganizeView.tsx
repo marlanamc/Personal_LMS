@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   DndContext,
   PointerSensor,
@@ -28,6 +28,27 @@ function resolveBulletLane(b: ThoughtBullet): 'now' | 'next' | 'later' {
   return 'next';
 }
 
+function getBentoProjectOrder(org: ThoughtOrganization): string[] {
+  const mergedOrder = org.projects.map((p) => p.id);
+  const saved = org.bento?.projectOrder;
+  if (!saved?.length) return mergedOrder;
+  const valid: string[] = [];
+  const seen = new Set<string>();
+  for (const id of saved) {
+    if (mergedOrder.includes(id) && !seen.has(id)) {
+      valid.push(id);
+      seen.add(id);
+    }
+  }
+  for (const id of mergedOrder) {
+    if (!seen.has(id)) {
+      valid.push(id);
+      seen.add(id);
+    }
+  }
+  return valid;
+}
+
 type BentoProject = {
   project: ProjectMeta;
   bullets: ThoughtBullet[];
@@ -48,17 +69,16 @@ export function BentoOrganizeView({
   onUpdateOrganization,
 }: BentoOrganizeViewProps) {
   const [selectedBulletId, setSelectedBulletId] = useState<string | null>(null);
-  const [activeDragId, setActiveDragId] = useState<string | null>(null);
-  const [projectSizes, setProjectSizes] = useState<Map<string, ProjectSize>>(new Map());
-  const [projectOrder, setProjectOrder] = useState<string[]>([]);
   const [laneFilter, setLaneFilter] = useState<BentoLaneFilter>('all');
 
-  // Initialize project order from organization
-  useEffect(() => {
-    if (projectOrder.length === 0 && organization.projects.length > 0) {
-      setProjectOrder(organization.projects.map((p) => p.id));
-    }
-  }, [organization.projects, projectOrder.length]);
+  const projectOrder = getBentoProjectOrder(organization);
+  const projectSizesMap = useMemo(
+    () =>
+      new Map(
+        Object.entries(organization.bento?.projectSizes ?? {}) as [string, ProjectSize][]
+      ),
+    [organization.bento?.projectSizes]
+  );
 
   const selectedBullet = selectedBulletId
     ? organization.bullets.find((b) => b.id === selectedBulletId) || null
@@ -81,7 +101,7 @@ export function BentoOrganizeView({
 
     // Default size based on task count
     const defaultSize = getDefaultSize(nowCount, nextCount, laterCount);
-    const size = projectSizes.get(project.id) || defaultSize;
+    const size = projectSizesMap.get(project.id) || defaultSize;
 
     bentoProjectsMap.set(project.id, {
       project,
@@ -112,13 +132,12 @@ export function BentoOrganizeView({
     useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 10 } })
   );
 
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveDragId(String(event.active.id));
+  const handleDragStart = useCallback((_event: DragStartEvent) => {
+    /* reserved for drag overlay / analytics */
   }, []);
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
-      setActiveDragId(null);
       const { active, over } = event;
       if (!over) return;
 
@@ -130,14 +149,22 @@ export function BentoOrganizeView({
         const overId = String(over.id).replace('project:', '');
 
         if (activeId !== overId) {
-          const oldIndex = projectOrder.indexOf(activeId);
-          const newIndex = projectOrder.indexOf(overId);
+          const order = getBentoProjectOrder(organization);
+          const oldIndex = order.indexOf(activeId);
+          const newIndex = order.indexOf(overId);
 
           if (oldIndex !== -1 && newIndex !== -1) {
-            const newOrder = [...projectOrder];
+            const newOrder = [...order];
             newOrder.splice(oldIndex, 1);
             newOrder.splice(newIndex, 0, activeId);
-            setProjectOrder(newOrder);
+            onUpdateOrganization({
+              ...organization,
+              bento: {
+                ...organization.bento,
+                projectOrder: newOrder,
+                projectSizes: { ...organization.bento?.projectSizes },
+              },
+            });
           }
         }
         return;
@@ -175,7 +202,7 @@ export function BentoOrganizeView({
         });
       }
     },
-    [organization, onUpdateOrganization, projectOrder]
+    [organization, onUpdateOrganization]
   );
 
   const handleSelectBullet = useCallback((bullet: ThoughtBullet) => {
@@ -220,13 +247,22 @@ export function BentoOrganizeView({
     [organization, onUpdateOrganization]
   );
 
-  const handleResizeProject = useCallback((projectId: string, newSize: ProjectSize) => {
-    setProjectSizes((prev) => {
-      const next = new Map(prev);
-      next.set(projectId, newSize);
-      return next;
-    });
-  }, []);
+  const handleResizeProject = useCallback(
+    (projectId: string, newSize: ProjectSize) => {
+      onUpdateOrganization({
+        ...organization,
+        bento: {
+          ...organization.bento,
+          projectOrder: getBentoProjectOrder(organization),
+          projectSizes: {
+            ...organization.bento?.projectSizes,
+            [projectId]: newSize,
+          },
+        },
+      });
+    },
+    [organization, onUpdateOrganization]
+  );
 
   return (
     <DndContext
