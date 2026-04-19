@@ -3,6 +3,7 @@ import {
   EMPTY_CLEANING_PLANNER_STORE,
   completeCleaningTask,
   createCleaningTask,
+  formatCleaningCadence,
   getCleaningTaskStatus,
   getNextDueDate,
   normalizeCleaningPlannerStore,
@@ -70,6 +71,11 @@ describe('cleaning planner', () => {
     });
 
     expect(getNextDueDate(task)).toSatisfy((value: Date | null | undefined) => toDateKey(value) === '2026-04-18');
+  });
+
+  it('formats preset cadence labels as full phrases', () => {
+    expect(formatCleaningCadence({ kind: 'monthly' })).toBe('Every month');
+    expect(formatCleaningCadence({ kind: 'custom', everyNDays: 17 })).toBe('Every 17 days');
   });
 
   it('completing a task updates lastCompletedAt and advances the next due date', () => {

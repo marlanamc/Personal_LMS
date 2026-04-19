@@ -196,10 +196,7 @@ export function CleaningTaskCard({ task, zone, now, compact = false, onComplete,
 
         {/* Meta row - compact */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
-          <span className="inline-flex items-center gap-1">
-            <span className="opacity-60">Every</span>
-            <span className="font-medium text-text-secondary">{formatCompactCadence(task.cadence)}</span>
-          </span>
+          <span className="font-medium text-text-secondary">{formatCleaningCadence(task.cadence)}</span>
           <span className="opacity-40">·</span>
           {isNotStarted ? (
             <span className="text-accent-amethyst/70">
