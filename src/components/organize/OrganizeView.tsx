@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Download, Cloud, Plus, Eye, EyeOff, Orbit, List } from 'lucide-react';
+import { Download, Cloud, Plus, Eye, EyeOff, Grid3x3, List } from 'lucide-react';
 import { useThoughtOrganizer } from './useThoughtOrganizer';
 import { ImportFromThoughtDownload } from './ImportFromThoughtDownload';
 import { ThoughtOrganizeMode, type ThoughtOrganizeModeActions } from '@/components/dashboard/ThoughtOrganizeMode';
@@ -9,7 +9,7 @@ import { BentoOrganizeView } from '@/components/orbital/BentoOrganizeView';
 import { addImportMetadata, type ThoughtBullet, type ThoughtOrganization } from '@/lib/thought-organization';
 import { nanoid } from 'nanoid';
 
-type ViewMode = 'list' | 'orbital';
+type ViewMode = 'list' | 'bento';
 
 const VIEW_STORAGE_KEY = 'organize-view-mode';
 
@@ -24,8 +24,11 @@ export function OrganizeView() {
   // Load saved view preference
   useEffect(() => {
     const saved = localStorage.getItem(VIEW_STORAGE_KEY);
-    if (saved === 'orbital' || saved === 'list') {
+    if (saved === 'bento' || saved === 'list') {
       setViewMode(saved);
+    } else if (saved === 'orbital') {
+      // Migrate old 'orbital' to 'bento'
+      setViewMode('bento');
     }
   }, []);
 
@@ -104,16 +107,16 @@ export function OrganizeView() {
             </button>
             <button
               type="button"
-              onClick={() => handleViewModeChange('orbital')}
+              onClick={() => handleViewModeChange('bento')}
               className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] sm:text-xs font-medium transition-colors ${
-                viewMode === 'orbital'
+                viewMode === 'bento'
                   ? 'bg-bg-card text-text shadow-sm'
                   : 'text-text-muted hover:text-text'
               }`}
-              title="Orbital view"
+              title="Bento grid view"
             >
-              <Orbit className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Orbital</span>
+              <Grid3x3 className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Bento</span>
             </button>
           </div>
 
