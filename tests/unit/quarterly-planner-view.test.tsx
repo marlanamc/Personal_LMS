@@ -10,7 +10,7 @@ const hookMock = vi.hoisted(() => ({
 vi.mock('@/components/dashboard/useQuarterlyPlanner', () => hookMock);
 
 describe('QuarterlyPlannerView', () => {
-  it('renders the first-time planner workbook sections', () => {
+  it('renders the minimal planner shell', () => {
     hookMock.useQuarterlyPlanner.mockReturnValue({
       activeQuarter: createQuarterlyPlan('2026-04-13'),
       archivedQuarters: [],
@@ -29,10 +29,13 @@ describe('QuarterlyPlannerView', () => {
     const html = renderToStaticMarkup(<QuarterlyPlannerView storageScope="user-1" />);
 
     expect(html).toContain('Quarterly Planner');
-    expect(html).toContain('Quarter Setup');
-    expect(html).toContain('Why this matters');
-    expect(html).toContain('Goal 1');
-    expect(html).toContain('Weekly Check-Ins');
+    expect(html).toContain('Untitled quarter');
+    expect(html).toContain('Setup');
+    expect(html).toContain('Goals');
+    expect(html).toContain('Weeks');
+    expect(html).toContain('Close');
     expect(html).toContain('Archive');
+    expect(html).toContain('Title');
+    expect(html).toContain('Why');
   });
 });
