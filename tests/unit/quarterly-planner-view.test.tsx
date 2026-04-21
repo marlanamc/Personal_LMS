@@ -29,6 +29,8 @@ describe('QuarterlyPlannerView', () => {
     const html = renderToStaticMarkup(<QuarterlyPlannerView storageScope="user-1" />);
 
     expect(html).toContain('Quarterly Planner');
+    expect(html).toContain('Press Edit before changing this quarter.');
+    expect(html).toContain('Edit');
     expect(html).toContain('Untitled quarter');
     expect(html).toContain('Setup');
     expect(html).toContain('Goals');

@@ -1,15 +1,24 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Archive, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { Archive, ChevronLeft, ChevronRight, Edit3, Plus, Save, X } from 'lucide-react';
 import SaveStatus from '@/components/ui/SaveStatus';
 import { useQuarterlyPlanner } from '@/components/dashboard/useQuarterlyPlanner';
+import {
+  updateQuarterCheckIn,
+  updateQuarterField,
+  updateQuarterGoal,
+  type QuarterlyCheckIn,
+  type QuarterlyGoal,
+  type QuarterlyPlan,
+} from '@/lib/quarterly-planner';
 
 export interface QuarterlyPlannerViewProps {
   storageScope: string;
 }
 
 type FocusSection = 'setup' | 'goals' | 'weeks' | 'close' | 'archive';
+type PendingAction = 'new' | 'archive' | null;
 
 const sections: Array<{ key: FocusSection; label: string }> = [
   { key: 'setup', label: 'Setup' },
@@ -72,13 +81,26 @@ function InputField({
   onChange,
   type = 'text',
   placeholder,
+  disabled,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   type?: 'text' | 'date';
   placeholder?: string;
+  disabled?: boolean;
 }) {
+  if (disabled) {
+    return (
+      <div className="block space-y-1.5">
+        <FieldLabel>{label}</FieldLabel>
+        <div className="min-h-11 rounded-xl border border-transparent bg-bg-base/35 px-3 py-2.5 text-sm text-text-primary">
+          {value || <span className="text-text-muted">Empty</span>}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <label className="block space-y-1.5">
       <FieldLabel>{label}</FieldLabel>
@@ -99,13 +121,26 @@ function TextareaField({
   onChange,
   rows = 4,
   placeholder,
+  disabled,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   rows?: number;
   placeholder?: string;
+  disabled?: boolean;
 }) {
+  if (disabled) {
+    return (
+      <div className="block space-y-1.5">
+        <FieldLabel>{label}</FieldLabel>
+        <div className="min-h-[132px] whitespace-pre-wrap rounded-xl border border-transparent bg-bg-base/35 px-3 py-2.5 text-sm leading-6 text-text-primary">
+          {value || <span className="text-text-muted">Empty</span>}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <label className="block space-y-1.5">
       <FieldLabel>{label}</FieldLabel>
@@ -199,16 +234,18 @@ function ActionButton({
 }: {
   children: React.ReactNode;
   onClick: () => void;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'save';
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${
-        variant === 'primary'
-          ? 'bg-text-primary text-bg-base hover:bg-text-primary/90'
-          : 'border border-border-subtle/70 text-text-primary hover:border-primary/35 hover:text-primary'
+        variant === 'save'
+          ? 'bg-primary text-white shadow-sm shadow-primary/20 hover:bg-primary/90'
+          : variant === 'primary'
+            ? 'bg-text-primary text-bg-base hover:bg-text-primary/90'
+            : 'border border-border-subtle/70 bg-bg-base/40 text-text-primary hover:border-primary/35 hover:text-primary'
       }`}
     >
       {children}
@@ -218,11 +255,10 @@ function ActionButton({
 
 export function QuarterlyPlannerView({ storageScope }: QuarterlyPlannerViewProps) {
   const {
+    plannerStore,
     activeQuarter,
     archivedQuarters,
-    updateActiveQuarterField,
-    updateGoal,
-    updateWeeklyCheckIn,
+    setPlannerStore,
     beginNewQuarter,
     archiveCurrentQuarter,
     reopenQuarter,
@@ -235,15 +271,82 @@ export function QuarterlyPlannerView({ storageScope }: QuarterlyPlannerViewProps
   const [focusSection, setFocusSection] = useState<FocusSection>('setup');
   const [activeGoalIndex, setActiveGoalIndex] = useState(0);
   const [activeWeekIndex, setActiveWeekIndex] = useState(0);
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [draftQuarter, setDraftQuarter] = useState<QuarterlyPlan>(activeQuarter);
+
+  const visibleQuarter = isEditing ? draftQuarter : activeQuarter;
 
   const completedGoals = useMemo(
-    () => activeQuarter.goals.filter((goal) => goal.title || goal.successMetric).length,
-    [activeQuarter.goals],
+    () => visibleQuarter.goals.filter((goal) => goal.title || goal.successMetric).length,
+    [visibleQuarter.goals],
   );
-  const filledCheckIns = useMemo(() => countWeeklyCheckIns(activeQuarter.weeklyCheckIns), [activeQuarter.weeklyCheckIns]);
+  const filledCheckIns = useMemo(() => countWeeklyCheckIns(visibleQuarter.weeklyCheckIns), [visibleQuarter.weeklyCheckIns]);
 
-  const currentGoal = activeQuarter.goals[activeGoalIndex];
-  const currentCheckIn = activeQuarter.weeklyCheckIns[activeWeekIndex];
+  const currentGoal = visibleQuarter.goals[activeGoalIndex];
+  const currentCheckIn = visibleQuarter.weeklyCheckIns[activeWeekIndex];
+
+  const beginEditing = () => {
+    setDraftQuarter(activeQuarter);
+    setIsEditing(true);
+    setPendingAction(null);
+  };
+
+  const cancelEditing = () => {
+    setDraftQuarter(activeQuarter);
+    setIsEditing(false);
+    setPendingAction(null);
+  };
+
+  const saveDraft = () => {
+    setPlannerStore({
+      ...plannerStore,
+      activeQuarter: draftQuarter,
+    });
+    setIsEditing(false);
+    setPendingAction(null);
+  };
+
+  const updateDraftQuarterField = <K extends keyof QuarterlyPlan>(field: K, value: QuarterlyPlan[K]) => {
+    setDraftQuarter((quarter) => updateQuarterField(quarter, field, value));
+  };
+
+  const updateDraftGoal = (goalIndex: number, updates: Partial<QuarterlyGoal>) => {
+    setDraftQuarter((quarter) => updateQuarterGoal(quarter, goalIndex, updates));
+  };
+
+  const updateDraftWeeklyCheckIn = (weekNumber: number, updates: Partial<QuarterlyCheckIn>) => {
+    setDraftQuarter((quarter) => updateQuarterCheckIn(quarter, weekNumber, updates));
+  };
+
+  const requestPendingAction = (action: Exclude<PendingAction, null>) => {
+    if (isEditing) {
+      setPendingAction(null);
+      return;
+    }
+
+    setPendingAction(action);
+  };
+
+  const handleConfirmPendingAction = () => {
+    if (pendingAction === 'new') {
+      beginNewQuarter();
+      setDraftQuarter(activeQuarter);
+      setFocusSection('setup');
+      setActiveGoalIndex(0);
+      setActiveWeekIndex(0);
+    }
+
+    if (pendingAction === 'archive') {
+      archiveCurrentQuarter();
+      setDraftQuarter(activeQuarter);
+      setFocusSection('setup');
+      setActiveGoalIndex(0);
+      setActiveWeekIndex(0);
+    }
+
+    setPendingAction(null);
+  };
 
   if (!isLoaded) {
     return (
@@ -260,25 +363,86 @@ export function QuarterlyPlannerView({ storageScope }: QuarterlyPlannerViewProps
           <div className="min-w-0">
             <h1 className="font-display text-2xl font-semibold tracking-tight text-text-primary">Quarterly Planner</h1>
             <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-muted">
-              <span className="font-medium text-text-primary">{activeQuarter.title || 'Untitled quarter'}</span>
-              <span>{formatDateRange(activeQuarter.startDate, activeQuarter.endDate)}</span>
+              <span className="font-medium text-text-primary">{visibleQuarter.title || 'Untitled quarter'}</span>
+              <span>{formatDateRange(visibleQuarter.startDate, visibleQuarter.endDate)}</span>
               <span>{completedGoals}/3 goals</span>
               <span>{filledCheckIns}/12 weeks</span>
+              {isEditing ? <span className="font-semibold text-primary">Editing</span> : null}
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <SaveStatus isSaving={isSaving} error={saveError} lastSaved={lastSyncedAt} show />
-            <ActionButton onClick={() => beginNewQuarter()}>
-              <Plus className="h-4 w-4" />
-              New
-            </ActionButton>
-            <ActionButton onClick={() => archiveCurrentQuarter()} variant="primary">
-              <Archive className="h-4 w-4" />
-              Archive
-            </ActionButton>
+          <div className="flex flex-col items-start gap-2 sm:items-end">
+            <div className="flex flex-wrap items-center gap-2">
+              <SaveStatus isSaving={isSaving} error={saveError} lastSaved={lastSyncedAt} show />
+              {isEditing ? (
+                <>
+                  <ActionButton onClick={cancelEditing}>
+                    <X className="h-4 w-4" />
+                    Cancel
+                  </ActionButton>
+                  <ActionButton onClick={saveDraft} variant="save">
+                    <Save className="h-4 w-4" />
+                    Save
+                  </ActionButton>
+                </>
+              ) : (
+                <>
+                  <ActionButton onClick={beginEditing}>
+                    <Edit3 className="h-4 w-4" />
+                    Edit
+                  </ActionButton>
+                  <ActionButton onClick={() => requestPendingAction('new')}>
+                    <Plus className="h-4 w-4" />
+                    New
+                  </ActionButton>
+                  <ActionButton onClick={() => requestPendingAction('archive')}>
+                    <Archive className="h-4 w-4" />
+                    Archive
+                  </ActionButton>
+                </>
+              )}
+            </div>
+            <p className="text-xs text-text-muted">
+              {isEditing ? 'Press Save to set changes.' : 'Press Edit before changing this quarter.'}
+            </p>
           </div>
         </div>
+
+        {isEditing ? (
+          <div className="mt-4 rounded-xl border border-primary/20 bg-primary/8 px-4 py-3 text-sm font-medium text-text-primary">
+            Draft mode. Nothing changes until you press Save.
+          </div>
+        ) : (
+          <div className="mt-4 rounded-xl border border-border-subtle/60 bg-bg-base/30 px-4 py-3 text-sm font-medium text-text-muted">
+            View mode. This quarter is locked until you press Edit.
+          </div>
+        )}
+
+        {pendingAction ? (
+          <div className="mt-4 flex flex-col gap-3 rounded-xl border border-border-subtle/70 bg-bg-surface px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-text-primary">
+              {pendingAction === 'new'
+                ? 'Start a new quarter? Your current quarter will move to Archive if it has content.'
+                : 'Archive this quarter and start a blank one?'}
+            </p>
+            <div className="flex shrink-0 gap-2">
+              <button
+                type="button"
+                onClick={() => setPendingAction(null)}
+                className="rounded-lg border border-border-subtle/70 px-3 py-2 font-semibold text-text-primary transition hover:border-primary/35 hover:text-primary"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmPendingAction}
+                className="rounded-lg bg-text-primary px-3 py-2 font-semibold text-bg-base transition hover:bg-text-primary/90"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        ) : null}
 
         <nav className="mt-4 flex gap-1 overflow-x-auto" aria-label="Quarterly planner sections">
           {sections.map((section) => (
@@ -310,7 +474,7 @@ export function QuarterlyPlannerView({ storageScope }: QuarterlyPlannerViewProps
           ) : null}
 
           {focusSection === 'goals'
-            ? activeQuarter.goals.map((goal, index) => (
+            ? visibleQuarter.goals.map((goal, index) => (
                 <StepButton
                   key={goal.id}
                   active={index === activeGoalIndex}
@@ -323,7 +487,7 @@ export function QuarterlyPlannerView({ storageScope }: QuarterlyPlannerViewProps
             : null}
 
           {focusSection === 'weeks'
-            ? activeQuarter.weeklyCheckIns.map((entry, index) => (
+            ? visibleQuarter.weeklyCheckIns.map((entry, index) => (
                 <StepButton
                   key={entry.weekNumber}
                   active={index === activeWeekIndex}
@@ -362,31 +526,35 @@ export function QuarterlyPlannerView({ storageScope }: QuarterlyPlannerViewProps
               <div className="grid gap-4 md:grid-cols-2">
                 <InputField
                   label="Title"
-                  value={activeQuarter.title}
-                  onChange={(value) => updateActiveQuarterField('title', value)}
+                  value={visibleQuarter.title}
+                  onChange={(value) => updateDraftQuarterField('title', value)}
                   placeholder="Quarter name"
+                  disabled={!isEditing}
                 />
                 <InputField
                   label="Start"
                   type="date"
-                  value={activeQuarter.startDate}
-                  onChange={(value) => updateActiveQuarterField('startDate', value)}
+                  value={visibleQuarter.startDate}
+                  onChange={(value) => updateDraftQuarterField('startDate', value)}
+                  disabled={!isEditing}
                 />
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 <TextareaField
                   label="Vision"
-                  value={activeQuarter.vision}
-                  onChange={(value) => updateActiveQuarterField('vision', value)}
+                  value={visibleQuarter.vision}
+                  onChange={(value) => updateDraftQuarterField('vision', value)}
                   rows={5}
                   placeholder="What this quarter is for"
+                  disabled={!isEditing}
                 />
                 <TextareaField
                   label="Why"
-                  value={activeQuarter.whyItMatters}
-                  onChange={(value) => updateActiveQuarterField('whyItMatters', value)}
+                  value={visibleQuarter.whyItMatters}
+                  onChange={(value) => updateDraftQuarterField('whyItMatters', value)}
                   rows={5}
                   placeholder="Why it matters"
+                  disabled={!isEditing}
                 />
               </div>
             </section>
@@ -421,43 +589,49 @@ export function QuarterlyPlannerView({ storageScope }: QuarterlyPlannerViewProps
                 <InputField
                   label="Goal"
                   value={currentGoal.title}
-                  onChange={(value) => updateGoal(activeGoalIndex, { title: value })}
+                  onChange={(value) => updateDraftGoal(activeGoalIndex, { title: value })}
                   placeholder="Result"
+                  disabled={!isEditing}
                 />
                 <TextareaField
                   label="Metric"
                   value={currentGoal.successMetric}
-                  onChange={(value) => updateGoal(activeGoalIndex, { successMetric: value })}
+                  onChange={(value) => updateDraftGoal(activeGoalIndex, { successMetric: value })}
                   rows={3}
                   placeholder="Proof"
+                  disabled={!isEditing}
                 />
                 <TextareaField
                   label="Milestones"
                   value={joinTextarea(currentGoal.milestones)}
-                  onChange={(value) => updateGoal(activeGoalIndex, { milestones: splitTextarea(value) })}
+                  onChange={(value) => updateDraftGoal(activeGoalIndex, { milestones: splitTextarea(value) })}
                   rows={5}
                   placeholder="One per line"
+                  disabled={!isEditing}
                 />
                 <TextareaField
                   label="Habits"
                   value={joinTextarea(currentGoal.habits)}
-                  onChange={(value) => updateGoal(activeGoalIndex, { habits: splitTextarea(value) })}
+                  onChange={(value) => updateDraftGoal(activeGoalIndex, { habits: splitTextarea(value) })}
                   rows={5}
                   placeholder="One per line"
+                  disabled={!isEditing}
                 />
                 <TextareaField
                   label="Obstacles"
                   value={joinTextarea(currentGoal.obstacles)}
-                  onChange={(value) => updateGoal(activeGoalIndex, { obstacles: splitTextarea(value) })}
+                  onChange={(value) => updateDraftGoal(activeGoalIndex, { obstacles: splitTextarea(value) })}
                   rows={5}
                   placeholder="One per line"
+                  disabled={!isEditing}
                 />
                 <TextareaField
                   label="First steps"
                   value={joinTextarea(currentGoal.firstSteps)}
-                  onChange={(value) => updateGoal(activeGoalIndex, { firstSteps: splitTextarea(value) })}
+                  onChange={(value) => updateDraftGoal(activeGoalIndex, { firstSteps: splitTextarea(value) })}
                   rows={5}
                   placeholder="One per line"
+                  disabled={!isEditing}
                 />
               </div>
             </section>
@@ -492,30 +666,34 @@ export function QuarterlyPlannerView({ storageScope }: QuarterlyPlannerViewProps
                 <TextareaField
                   label="Focus"
                   value={currentCheckIn.focus}
-                  onChange={(value) => updateWeeklyCheckIn(currentCheckIn.weekNumber, { focus: value })}
+                  onChange={(value) => updateDraftWeeklyCheckIn(currentCheckIn.weekNumber, { focus: value })}
                   rows={5}
                   placeholder="Focus"
+                  disabled={!isEditing}
                 />
                 <TextareaField
                   label="Wins"
                   value={currentCheckIn.wins}
-                  onChange={(value) => updateWeeklyCheckIn(currentCheckIn.weekNumber, { wins: value })}
+                  onChange={(value) => updateDraftWeeklyCheckIn(currentCheckIn.weekNumber, { wins: value })}
                   rows={5}
                   placeholder="Wins"
+                  disabled={!isEditing}
                 />
                 <TextareaField
                   label="Blockers"
                   value={currentCheckIn.blockers}
-                  onChange={(value) => updateWeeklyCheckIn(currentCheckIn.weekNumber, { blockers: value })}
+                  onChange={(value) => updateDraftWeeklyCheckIn(currentCheckIn.weekNumber, { blockers: value })}
                   rows={5}
                   placeholder="Blockers"
+                  disabled={!isEditing}
                 />
                 <TextareaField
                   label="Adjustment"
                   value={currentCheckIn.adjustment}
-                  onChange={(value) => updateWeeklyCheckIn(currentCheckIn.weekNumber, { adjustment: value })}
+                  onChange={(value) => updateDraftWeeklyCheckIn(currentCheckIn.weekNumber, { adjustment: value })}
                   rows={5}
                   placeholder="Next"
+                  disabled={!isEditing}
                 />
               </div>
             </section>
@@ -529,24 +707,27 @@ export function QuarterlyPlannerView({ storageScope }: QuarterlyPlannerViewProps
               <div className="grid gap-4 md:grid-cols-3">
                 <TextareaField
                   label="Reflection"
-                  value={activeQuarter.closingReflection}
-                  onChange={(value) => updateActiveQuarterField('closingReflection', value)}
+                  value={visibleQuarter.closingReflection}
+                  onChange={(value) => updateDraftQuarterField('closingReflection', value)}
                   rows={7}
                   placeholder="Reflection"
+                  disabled={!isEditing}
                 />
                 <TextareaField
                   label="Celebrate"
-                  value={activeQuarter.celebrationNote}
-                  onChange={(value) => updateActiveQuarterField('celebrationNote', value)}
+                  value={visibleQuarter.celebrationNote}
+                  onChange={(value) => updateDraftQuarterField('celebrationNote', value)}
                   rows={7}
                   placeholder="Celebrate"
+                  disabled={!isEditing}
                 />
                 <TextareaField
                   label="Carry forward"
-                  value={activeQuarter.carryForward}
-                  onChange={(value) => updateActiveQuarterField('carryForward', value)}
+                  value={visibleQuarter.carryForward}
+                  onChange={(value) => updateDraftQuarterField('carryForward', value)}
                   rows={7}
                   placeholder="Carry forward"
+                  disabled={!isEditing}
                 />
               </div>
             </section>
