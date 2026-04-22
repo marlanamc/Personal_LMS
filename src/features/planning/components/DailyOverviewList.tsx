@@ -773,9 +773,14 @@ export function DailyOverviewList({
     [anchors, today]
   );
 
+  const visibleTodayAnchors = useMemo(
+    () => todayAnchors.filter((anchor) => anchor.status !== 'skipped'),
+    [todayAnchors],
+  );
+
   const wakeAnchorForToday = useMemo(
-    () => todayAnchors.find((a) => a.id === 'wake') || todayAnchors.find((a) => a.icon === 'sunrise'),
-    [todayAnchors]
+    () => visibleTodayAnchors.find((a) => a.id === 'wake') || visibleTodayAnchors.find((a) => a.icon === 'sunrise'),
+    [visibleTodayAnchors]
   );
 
   const handleTimeChange = useCallback(
@@ -826,7 +831,7 @@ export function DailyOverviewList({
     const items: DailyOverviewItem[] = [];
     const acknowledgements = todayPlan.acknowledgements || { boundaries: [], events: [], sessions: [], plans: [] };
 
-    for (const anchor of todayAnchors) {
+    for (const anchor of visibleTodayAnchors) {
       items.push({
         id: anchor.id,
         type: 'anchor',
@@ -922,7 +927,7 @@ export function DailyOverviewList({
     }
 
     return items.sort((a, b) => a.scheduledMinutes - b.scheduledMinutes);
-  }, [todayAnchors, calendarEvents, activeConstraints, todayKey, todayPlan.acknowledgements, currentPlan, isPlannerLoaded]);
+  }, [visibleTodayAnchors, calendarEvents, activeConstraints, todayKey, todayPlan.acknowledgements, currentPlan, isPlannerLoaded]);
 
   const scheduleStatusById = useMemo(
     () =>
@@ -998,7 +1003,7 @@ export function DailyOverviewList({
                   anchorData={item.sourceData as DailyAnchor}
                   openEditorAnchorId={openEditorAnchorId}
                   setOpenEditorAnchorId={setOpenEditorAnchorId}
-                  todayAnchors={todayAnchors}
+                  todayAnchors={visibleTodayAnchors}
                   wakeAnchorForToday={wakeAnchorForToday}
                   nowMinutes={nowMinutes}
                   isLoaded={isLoaded}

@@ -692,6 +692,20 @@ export function DailyAnchorsTimeline({
     [calendarEvents, viewDateKey],
   );
 
+  const sortedAnchors = useMemo(() => {
+    return [...todaysAnchors].sort((a, b) => parseHHMMToMinutes(a.scheduledTime) - parseHHMMToMinutes(b.scheduledTime));
+  }, [todaysAnchors]);
+
+  const skippedTodayCount = useMemo(
+    () => sortedAnchors.filter((anchor) => anchor.status === 'skipped').length,
+    [sortedAnchors],
+  );
+
+  const visibleSortedAnchors = useMemo(
+    () => sortedAnchors.filter((anchor) => anchor.status !== 'skipped'),
+    [sortedAnchors],
+  );
+
   /** Matches DailyOverviewList: anchors (done) + events/boundaries (acknowledged). */
   const overviewProgress = useMemo(() => {
     const ack = todayPlan?.acknowledgements ?? {
@@ -702,7 +716,7 @@ export function DailyAnchorsTimeline({
     };
     let completed = 0;
     let total = 0;
-    for (const a of todaysAnchors) {
+    for (const a of visibleSortedAnchors) {
       total += 1;
       if (a.status === 'done') completed += 1;
     }
@@ -716,7 +730,7 @@ export function DailyAnchorsTimeline({
       if (ack.boundaries.includes(c.id)) completed += 1;
     }
     return { completed, total };
-  }, [todaysAnchors, todayCalendarEventsForRiver, activeConstraintsForRiver, todayPlan?.acknowledgements]);
+  }, [visibleSortedAnchors, todayCalendarEventsForRiver, activeConstraintsForRiver, todayPlan?.acknowledgements]);
 
   const overviewCompletedCount = overviewProgress.completed;
   const overviewTotalCount = overviewProgress.total;
@@ -726,15 +740,6 @@ export function DailyAnchorsTimeline({
   const wakeAnchorForToday = useMemo(
     () => todaysAnchors.find((anchor) => anchor.id === 'wake') || todaysAnchors.find((anchor) => anchor.icon === 'sunrise'),
     [todaysAnchors],
-  );
-
-  const sortedAnchors = useMemo(() => {
-    return [...todaysAnchors].sort((a, b) => parseHHMMToMinutes(a.scheduledTime) - parseHHMMToMinutes(b.scheduledTime));
-  }, [todaysAnchors]);
-
-  const skippedTodayCount = useMemo(
-    () => sortedAnchors.filter((anchor) => anchor.status === 'skipped').length,
-    [sortedAnchors],
   );
 
   const [nowMinutes, setNowMinutes] = useState<number | null>(null);
@@ -1155,13 +1160,13 @@ export function DailyAnchorsTimeline({
                 nowMinutes={nowMinutes}
               />
 
-              {sortedAnchors.length === 0 && (
+              {visibleSortedAnchors.length === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-xs text-text-muted">No anchors scheduled for today</span>
                 </div>
               )}
 
-              {sortedAnchors.map((anchor, index) => {
+              {visibleSortedAnchors.map((anchor, index) => {
                 const Icon = iconByName[anchor.icon] || Moon;
                 const isActive = anchor.id === activeAnchor.id;
                 const isDragging = anchor.id === draggingAnchor;
@@ -1177,7 +1182,7 @@ export function DailyAnchorsTimeline({
                 const timeUntil = getTimeUntil(anchor.scheduledTime, nowMinutes);
                 const inLabel = timeUntil.startsWith('in ') ? timeUntil.slice(3) : timeUntil;
                 const isLightsOutAnchor = anchor.id === 'lightsOut' || anchor.icon === 'moon';
-                const nextScheduledAnchor = sortedAnchors[index + 1];
+                const nextScheduledAnchor = visibleSortedAnchors[index + 1];
                 const timeToNextEventLabel = nextScheduledAnchor
                   ? formatDuration(getMinutesBetweenEvents(anchor.scheduledTime, nextScheduledAnchor.scheduledTime))
                   : wakeAnchorForToday
@@ -1485,7 +1490,7 @@ export function DailyAnchorsTimeline({
           <div className="lg:hidden mt-0">
             <MobileAnchorsTimelineStrip
               hourMarkers={hourMarkers}
-              sortedAnchors={sortedAnchors}
+              sortedAnchors={visibleSortedAnchors}
               todayCalendarEvents={todayCalendarEventsForRiver}
               timeFillPercent={dayProgressPercent}
               showNowMarker={showNowMarker}

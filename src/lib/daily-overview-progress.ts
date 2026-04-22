@@ -47,6 +47,7 @@ export function computeDailyOverviewProgress(args: ComputeDailyOverviewProgressA
   let total = 0;
 
   for (const anchor of todayAnchors) {
+    if (anchor.status === 'skipped') continue;
     total += 1;
     if (anchor.status === 'done') completed += 1;
   }
