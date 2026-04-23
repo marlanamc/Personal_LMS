@@ -45,6 +45,8 @@ type DayPlan = {
     boundaries: string[];
     events: string[];
     sessions: string[];
+    plans: string[];
+    notices: string[];
   };
 };
 
@@ -109,7 +111,7 @@ function normalizeDayPlan(raw: unknown): DayPlan {
       thoughtDownload: '',
       thoughtOrganization: undefined,
       interstitialJournalEntries: [],
-      acknowledgements: { boundaries: [], events: [], sessions: [] },
+      acknowledgements: { boundaries: [], events: [], sessions: [], plans: [], notices: [] },
     };
   }
   const candidate = raw as {
@@ -135,12 +137,14 @@ function normalizeDayPlan(raw: unknown): DayPlan {
     candidate.acknowledgements &&
     typeof candidate.acknowledgements === 'object' &&
     !Array.isArray(candidate.acknowledgements)
-      ? (candidate.acknowledgements as { boundaries?: unknown; events?: unknown; sessions?: unknown })
+      ? (candidate.acknowledgements as { boundaries?: unknown; events?: unknown; sessions?: unknown; plans?: unknown; notices?: unknown })
       : null;
   const acknowledgements = {
     boundaries: Array.isArray(rawAck?.boundaries) ? rawAck.boundaries.filter((id): id is string => typeof id === 'string') : [],
     events: Array.isArray(rawAck?.events) ? rawAck.events.filter((id): id is string => typeof id === 'string') : [],
     sessions: Array.isArray(rawAck?.sessions) ? rawAck.sessions.filter((id): id is string => typeof id === 'string') : [],
+    plans: Array.isArray(rawAck?.plans) ? rawAck.plans.filter((id): id is string => typeof id === 'string') : [],
+    notices: Array.isArray(rawAck?.notices) ? rawAck.notices.filter((id): id is string => typeof id === 'string') : [],
   };
   return { notes, tasks, thoughtDownload, thoughtOrganization, interstitialJournalEntries, acknowledgements };
 }
@@ -164,7 +168,9 @@ function normalizePlannerStore(raw: unknown): PlannerStore {
     const hasAcknowledgements =
       (plan.acknowledgements?.boundaries.length ?? 0) > 0 ||
       (plan.acknowledgements?.events.length ?? 0) > 0 ||
-      (plan.acknowledgements?.sessions.length ?? 0) > 0;
+      (plan.acknowledgements?.sessions.length ?? 0) > 0 ||
+      (plan.acknowledgements?.plans.length ?? 0) > 0 ||
+      (plan.acknowledgements?.notices.length ?? 0) > 0;
     if (plan.notes || plan.tasks.length > 0 || hasThoughtDownload || hasThoughtOrganization || hasInterstitialJournalEntries || hasAcknowledgements) {
       store[key] = plan;
     }
@@ -180,7 +186,9 @@ function isPlanEmpty(plan: DayPlan): boolean {
   const hasAcknowledgements =
     (plan.acknowledgements?.boundaries.length ?? 0) > 0 ||
     (plan.acknowledgements?.events.length ?? 0) > 0 ||
-    (plan.acknowledgements?.sessions.length ?? 0) > 0;
+    (plan.acknowledgements?.sessions.length ?? 0) > 0 ||
+    (plan.acknowledgements?.plans.length ?? 0) > 0 ||
+    (plan.acknowledgements?.notices.length ?? 0) > 0;
   return !plan.notes && plan.tasks.length === 0 && !hasThoughtDownload && !hasThoughtOrganization && !hasInterstitialJournalEntries && !hasAcknowledgements;
 }
 
@@ -265,14 +273,14 @@ export async function POST(req: NextRequest) {
         thoughtDownload: '',
         thoughtOrganization: undefined,
         interstitialJournalEntries: [],
-        acknowledgements: { boundaries: [], events: [], sessions: [] },
+        acknowledgements: { boundaries: [], events: [], sessions: [], plans: [], notices: [] },
       };
       const rawIncoming = value as Record<string, unknown>;
       const rawAck =
         rawIncoming.acknowledgements &&
         typeof rawIncoming.acknowledgements === 'object' &&
         !Array.isArray(rawIncoming.acknowledgements)
-          ? (rawIncoming.acknowledgements as { boundaries?: unknown; events?: unknown; sessions?: unknown })
+          ? (rawIncoming.acknowledgements as { boundaries?: unknown; events?: unknown; sessions?: unknown; plans?: unknown; notices?: unknown })
           : null;
 
       // Merge only if the field is present in the incoming data
@@ -302,6 +310,12 @@ export async function POST(req: NextRequest) {
                 : [],
               sessions: Array.isArray(rawAck?.sessions)
                 ? rawAck.sessions.filter((id): id is string => typeof id === 'string')
+                : [],
+              plans: Array.isArray(rawAck?.plans)
+                ? rawAck.plans.filter((id): id is string => typeof id === 'string')
+                : [],
+              notices: Array.isArray(rawAck?.notices)
+                ? rawAck.notices.filter((id): id is string => typeof id === 'string')
                 : [],
             }
           : existingPlan.acknowledgements,

@@ -19,7 +19,7 @@ describe('computeDailyOverviewProgress', () => {
       calendarEvents: [],
       todayKey: '2026-04-21',
       activeConstraints: [],
-      acknowledgements: { boundaries: [], events: [], sessions: [], plans: [] },
+      acknowledgements: { boundaries: [], events: [], sessions: [], plans: [], notices: [] },
     });
 
     expect(progress).toEqual({ completed: 1, total: 2, percent: 50 });

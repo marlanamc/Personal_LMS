@@ -24,7 +24,7 @@ export type AnchorIcon =
 export type AnchorColor = 'peach' | 'sky' | 'mint' | 'periwinkle' | 'lavender' | 'rose';
 export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type AnchorStatus = 'waiting' | 'done' | 'missed' | 'skipped';
-export type SkipReason = 'tired' | 'schedule_changed' | 'not_realistic' | 'low_energy' | 'sick' | 'other';
+export type SkipReason = 'tired' | 'schedule_changed' | 'planned_break' | 'not_realistic' | 'low_energy' | 'sick' | 'other';
 
 export interface DailyAnchorScheduleSlot {
   scheduledTime: string;
@@ -592,6 +592,7 @@ export interface WeeklySkipReasonInsight {
 export function getSkipReasonLabel(reason: SkipReason): string {
   if (reason === 'tired') return 'you were tired';
   if (reason === 'schedule_changed') return 'your schedule changed';
+  if (reason === 'planned_break') return 'you were on a break';
   if (reason === 'not_realistic') return 'the plan felt unrealistic';
   if (reason === 'low_energy') return 'your energy was low';
   if (reason === 'sick') return 'you were sick';
@@ -601,6 +602,7 @@ export function getSkipReasonLabel(reason: SkipReason): string {
 export function getSkipReasonSuggestion(reason: SkipReason): string {
   if (reason === 'tired' || reason === 'low_energy') return 'Work on sleep or move that anchor later.';
   if (reason === 'schedule_changed') return 'The timing may need a new default.';
+  if (reason === 'planned_break') return 'If this was temporary, no retime is needed. Just pick back up next week.';
   if (reason === 'not_realistic') return 'Shrink the anchor or make the block easier to start.';
   if (reason === 'sick') return 'Keep a lighter fallback version for low-capacity days.';
   return 'Review whether that anchor still fits the week you actually have.';
@@ -716,6 +718,7 @@ function normalizeAnchor(
   const skipReason =
     skipReasonCandidate === 'tired' ||
     skipReasonCandidate === 'schedule_changed' ||
+    skipReasonCandidate === 'planned_break' ||
     skipReasonCandidate === 'not_realistic' ||
     skipReasonCandidate === 'low_energy' ||
     skipReasonCandidate === 'sick' ||

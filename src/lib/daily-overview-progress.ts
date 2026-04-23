@@ -7,6 +7,7 @@ export interface DailyOverviewAcknowledgements {
   events: string[];
   sessions: string[];
   plans: string[];
+  notices: string[];
 }
 
 export interface ComputeDailyOverviewProgressArgs {

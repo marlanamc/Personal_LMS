@@ -829,7 +829,7 @@ export function DailyOverviewList({
 
   const overviewItems = useMemo(() => {
     const items: DailyOverviewItem[] = [];
-    const acknowledgements = todayPlan.acknowledgements || { boundaries: [], events: [], sessions: [], plans: [] };
+    const acknowledgements = todayPlan.acknowledgements || { boundaries: [], events: [], sessions: [], plans: [], notices: [] };
 
     for (const anchor of visibleTodayAnchors) {
       items.push({
@@ -938,7 +938,7 @@ export function DailyOverviewList({
   );
 
   const handleAcknowledge = (itemId: string, itemType: DailyOverviewItem['type']) => {
-    const current = todayPlan.acknowledgements || { boundaries: [], events: [], sessions: [], plans: [] };
+    const current = todayPlan.acknowledgements || { boundaries: [], events: [], sessions: [], plans: [], notices: [] };
 
     if (itemType === 'boundary') {
       const isAcknowledged = current.boundaries.includes(itemId);

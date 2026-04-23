@@ -624,7 +624,7 @@ export function DailyAnchorsTimeline({
 }: DailyAnchorsTimelineProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { getPlan } = calendarPlanner;
+  const { getPlan, updatePlanField } = calendarPlanner;
   const { getStateForDate, toggleAnchorForDate, setAnchorStatusForDate, setAnchorsForDate, anchorTemplates, setAnchorTemplates, isLoaded, weeklySkipReasonInsight } =
     useDailyAnchors(storageScope);
 
@@ -713,6 +713,7 @@ export function DailyAnchorsTimeline({
       events: [] as string[],
       sessions: [] as string[],
       plans: [] as string[],
+      notices: [] as string[],
     };
     let completed = 0;
     let total = 0;
@@ -760,6 +761,29 @@ export function DailyAnchorsTimeline({
     () => getRecentSkippedAnchorStreak(sortedAnchors, nowMinutes),
     [sortedAnchors, nowMinutes],
   );
+  const noticeAcknowledgements = todayPlan?.acknowledgements?.notices ?? [];
+  const isSkipStreakNoticeAcknowledged = noticeAcknowledgements.includes('daily-overview-skip-streak');
+  const weeklySkipInsightNoticeId = weeklySkipReasonInsight
+    ? `daily-overview-weekly-skip-reason:${weeklySkipReasonInsight.anchorId}:${weeklySkipReasonInsight.reason}`
+    : null;
+  const isWeeklySkipInsightAcknowledged = weeklySkipInsightNoticeId
+    ? noticeAcknowledgements.includes(weeklySkipInsightNoticeId)
+    : false;
+
+  const acknowledgeOverviewNotice = useCallback((noticeId: string) => {
+    const current = todayPlan?.acknowledgements ?? {
+      boundaries: [] as string[],
+      events: [] as string[],
+      sessions: [] as string[],
+      plans: [] as string[],
+      notices: [] as string[],
+    };
+    if (current.notices.includes(noticeId)) return;
+    updatePlanField(viewDateKey, 'acknowledgements', {
+      ...current,
+      notices: [...current.notices, noticeId],
+    });
+  }, [todayPlan?.acknowledgements, updatePlanField, viewDateKey]);
 
   /** On Again / Off Again: horizontal bands + alternating gap ticks (desktop + mobile river). */
   const onAgainRhythm = useMemo(() => {
@@ -1059,14 +1083,25 @@ export function DailyAnchorsTimeline({
             </div>
           </div>
 
-          {recentSkippedStreak >= 3 && (
+          {recentSkippedStreak >= 3 && !isSkipStreakNoticeAcknowledged && (
             <div className="mb-4 rounded-2xl border border-warning/35 bg-warning/10 px-4 py-3 text-sm text-text">
-              <p className="font-semibold">
-                That&apos;s {recentSkippedStreak} skips in a row. What&apos;s going on?
-              </p>
-              <p className="mt-1 text-text-muted">
-                {skippedTodayCount} skipped today. If the plan is off, adjust the anchor times instead of burning the whole block.
-              </p>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">
+                    That&apos;s {recentSkippedStreak} skips in a row. What&apos;s going on?
+                  </p>
+                  <p className="mt-1 text-text-muted">
+                    {skippedTodayCount} skipped today. If the plan is off, adjust the anchor times instead of burning the whole block.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => acknowledgeOverviewNotice('daily-overview-skip-streak')}
+                  className="shrink-0 rounded-full border border-warning/35 bg-bg-surface/80 px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:border-warning/60 hover:bg-bg-surface"
+                >
+                  Acknowledge
+                </button>
+              </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -1079,14 +1114,25 @@ export function DailyAnchorsTimeline({
             </div>
           )}
 
-          {weeklySkipReasonInsight && weeklySkipReasonInsight.count >= 2 && (
+          {weeklySkipReasonInsight && weeklySkipReasonInsight.count >= 2 && weeklySkipInsightNoticeId && !isWeeklySkipInsightAcknowledged && (
             <div className="mb-4 rounded-2xl border border-border-subtle bg-bg-elevated/75 px-4 py-3 text-sm text-text">
-              <p className="font-semibold">
-                This week: {weeklySkipReasonInsight.anchorLabel} skipped {weeklySkipReasonInsight.count} times because {getSkipReasonLabel(weeklySkipReasonInsight.reason)}.
-              </p>
-              <p className="mt-1 text-text-muted">
-                {getSkipReasonSuggestion(weeklySkipReasonInsight.reason)}
-              </p>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">
+                    This week: {weeklySkipReasonInsight.anchorLabel} skipped {weeklySkipReasonInsight.count} times because {getSkipReasonLabel(weeklySkipReasonInsight.reason)}.
+                  </p>
+                  <p className="mt-1 text-text-muted">
+                    {getSkipReasonSuggestion(weeklySkipReasonInsight.reason)}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => acknowledgeOverviewNotice(weeklySkipInsightNoticeId)}
+                  className="shrink-0 rounded-full border border-border-subtle bg-bg-surface/80 px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:bg-bg-surface"
+                >
+                  Acknowledge
+                </button>
+              </div>
             </div>
           )}
 

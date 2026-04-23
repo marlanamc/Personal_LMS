@@ -6,6 +6,7 @@ export const ANCHOR_SKIP_REASON_OPTIONS: Array<{ value: SkipReason; label: strin
   { value: 'tired', label: 'Too tired' },
   { value: 'low_energy', label: 'Low energy' },
   { value: 'schedule_changed', label: 'Schedule changed' },
+  { value: 'planned_break', label: 'Break / holiday' },
   { value: 'not_realistic', label: 'Not realistic today' },
   { value: 'sick', label: 'Sick' },
   { value: 'other', label: 'Other' },

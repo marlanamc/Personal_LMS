@@ -39,5 +39,7 @@ describe("weekly skip insight helpers", () => {
   it("formats reason labels and suggestions for the dashboard copy", () => {
     expect(getSkipReasonLabel("tired")).toBe("you were tired");
     expect(getSkipReasonSuggestion("tired")).toBe("Work on sleep or move that anchor later.");
+    expect(getSkipReasonLabel("planned_break")).toBe("you were on a break");
+    expect(getSkipReasonSuggestion("planned_break")).toBe("If this was temporary, no retime is needed. Just pick back up next week.");
   });
 });
