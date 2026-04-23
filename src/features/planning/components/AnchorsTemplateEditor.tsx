@@ -40,6 +40,7 @@ import {
   formatTimeRange,
   getAnchorColorPalette,
   sanitizeAnchorId,
+  toDateKey,
   type AnchorColor,
   type AnchorIcon,
   type AnchorId,
@@ -154,6 +155,14 @@ function scheduleSummary(schedule: WeeklyAnchorSchedule): string {
     return 'Every day · custom times';
   }
   return activeDays.map((day) => day.short).join(' • ');
+}
+
+function formatDateLabel(dateKey?: string): string | null {
+  if (!dateKey) return null;
+  const [year, month, day] = dateKey.split('-').map(Number);
+  if (!year || !month || !day) return null;
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function createNewAnchorTemplate(existing: DailyAnchorTemplate[]): DailyAnchorTemplate {
@@ -276,6 +285,7 @@ export function AnchorsTemplateEditor({
 }: AnchorsTemplateEditorProps) {
   const [draftTemplates, setDraftTemplates] = useState<DailyAnchorTemplate[]>([]);
   const [expandedId, setExpandedId] = useState<AnchorId | null>(null);
+  const todayKey = toDateKey(new Date());
 
   useEffect(() => {
     setDraftTemplates(templates.map((template) => ({ ...template, weeklySchedule: cloneWeeklySchedule(template.weeklySchedule) })));
@@ -327,6 +337,10 @@ export function AnchorsTemplateEditor({
           ...(template.color ? { color: template.color } : {}),
           ...(template.importanceNote?.trim() ? { importanceNote: template.importanceNote.trim().slice(0, 240) } : {}),
           weeklySchedule: Object.keys(weeklySchedule).length > 0 ? weeklySchedule : buildUniformWeeklySchedule('08:00'),
+          ...(template.activeFrom ? { activeFrom: template.activeFrom } : {}),
+          ...(template.activeUntil ? { activeUntil: template.activeUntil } : {}),
+          ...(template.pausedFrom ? { pausedFrom: template.pausedFrom } : {}),
+          ...(template.pausedUntil ? { pausedUntil: template.pausedUntil } : {}),
         } satisfies DailyAnchorTemplate;
       })
       .filter((template, index, array) => array.findIndex((entry) => entry.id === template.id) === index);
@@ -399,6 +413,13 @@ export function AnchorsTemplateEditor({
               const iconGradient = `linear-gradient(135deg, ${palette.gradientStart}, ${palette.gradientEnd})`;
               const summary = scheduleSummary(template.weeklySchedule);
               const isExpanded = expandedId === template.id;
+              const isPausedNow = Boolean(
+                template.pausedFrom &&
+                template.pausedUntil &&
+                todayKey >= template.pausedFrom &&
+                todayKey <= template.pausedUntil,
+              );
+              const pauseUntilLabel = formatDateLabel(template.pausedUntil);
 
               return (
                 <Reorder.Item key={template.id} value={template} className="list-none">
@@ -429,8 +450,13 @@ export function AnchorsTemplateEditor({
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-baseline gap-2">
+                        <div className="flex flex-wrap items-baseline gap-2">
                           <h3 className="text-sm font-semibold text-text">{template.label}</h3>
+                          {isPausedNow && pauseUntilLabel ? (
+                            <span className="rounded-full border border-amber-300/55 bg-amber-100/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-900">
+                              Paused until {pauseUntilLabel}
+                            </span>
+                          ) : null}
                           {template.importanceNote && !isExpanded && (
                             <span className="hidden truncate text-xs text-text-muted/55 sm:inline-block max-w-[220px]">
                               — {template.importanceNote}
@@ -483,6 +509,68 @@ export function AnchorsTemplateEditor({
                                     className="h-11 w-full rounded-xl border border-border-subtle/60 bg-bg-surface px-3 text-sm text-text shadow-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
                                     placeholder="This anchor matters because..."
                                   />
+                                </div>
+                              </div>
+
+                              <hr className="border-border-subtle/30" />
+
+                              <div>
+                                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                                  <div>
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted/70">
+                                      Availability
+                                    </p>
+                                    <p className="mt-1 text-sm text-text-muted">
+                                      Pause an anchor for a stretch like summer break without deleting the normal schedule.
+                                    </p>
+                                  </div>
+                                  {template.pausedFrom && template.pausedUntil ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => updateTemplate(template.id, { pausedFrom: undefined, pausedUntil: undefined })}
+                                      className="rounded-full border border-border-subtle/60 bg-bg-surface px-3 py-1.5 text-[11px] font-semibold text-text transition-colors hover:bg-bg-elevated"
+                                    >
+                                      Resume anchor
+                                    </button>
+                                  ) : null}
+                                </div>
+
+                                <div className="rounded-[1.5rem] border border-border-subtle/60 bg-bg-surface/70 p-4">
+                                  <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+                                    <div>
+                                      <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted/70">
+                                        Pause until
+                                      </label>
+                                      <input
+                                        type="date"
+                                        min={todayKey}
+                                        value={template.pausedUntil ?? ''}
+                                        onChange={(event) => {
+                                          const nextDate = event.target.value || undefined;
+                                          updateTemplate(
+                                            template.id,
+                                            nextDate
+                                              ? { pausedFrom: todayKey, pausedUntil: nextDate }
+                                              : { pausedFrom: undefined, pausedUntil: undefined },
+                                          );
+                                        }}
+                                        className="h-11 w-full rounded-xl border border-border-subtle/60 bg-bg-surface px-3 text-sm text-text shadow-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
+                                      />
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => updateTemplate(template.id, { pausedFrom: undefined, pausedUntil: undefined })}
+                                      disabled={!template.pausedUntil}
+                                      className="h-11 rounded-xl border border-border-subtle/60 bg-bg-surface px-4 text-sm font-semibold text-text transition-colors hover:bg-bg-elevated disabled:cursor-not-allowed disabled:opacity-45"
+                                    >
+                                      Clear pause
+                                    </button>
+                                  </div>
+                                  <p className="mt-3 text-xs text-text-muted">
+                                    {template.pausedFrom && template.pausedUntil
+                                      ? `This anchor will stay out of daily overview from ${formatDateLabel(template.pausedFrom) ?? template.pausedFrom} through ${formatDateLabel(template.pausedUntil) ?? template.pausedUntil}, then resume automatically.`
+                                      : 'Leave this blank for anchors that should stay active on their normal weekly schedule.'}
+                                  </p>
                                 </div>
                               </div>
 

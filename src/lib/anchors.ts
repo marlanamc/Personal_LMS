@@ -50,6 +50,10 @@ export interface DailyAnchor {
   activeFrom?: string;
   /** Copied from template - end of active range */
   activeUntil?: string;
+  /** Copied from template - start of a temporary pause window */
+  pausedFrom?: string;
+  /** Copied from template - end of a temporary pause window */
+  pausedUntil?: string;
   /** Copied from template - linked project ID */
   linkedProjectId?: string;
 }
@@ -65,6 +69,10 @@ export interface DailyAnchorTemplate {
   activeFrom?: string;
   /** Optional end date (YYYY-MM-DD) - anchor only active until this date */
   activeUntil?: string;
+  /** Optional start date (YYYY-MM-DD) - anchor is temporarily paused from this date */
+  pausedFrom?: string;
+  /** Optional end date (YYYY-MM-DD) - anchor resumes after this date */
+  pausedUntil?: string;
   /** Optional link to a project ID if created from project planner */
   linkedProjectId?: string;
 }
@@ -404,6 +412,8 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
     durationMinutes?: unknown;
     activeFrom?: unknown;
     activeUntil?: unknown;
+    pausedFrom?: unknown;
+    pausedUntil?: unknown;
     linkedProjectId?: unknown;
   };
 
@@ -430,6 +440,14 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
     typeof candidate.activeUntil === 'string' && DATE_KEY_REGEX.test(candidate.activeUntil)
       ? candidate.activeUntil
       : fallback?.activeUntil;
+  const pausedFrom =
+    typeof candidate.pausedFrom === 'string' && DATE_KEY_REGEX.test(candidate.pausedFrom)
+      ? candidate.pausedFrom
+      : fallback?.pausedFrom;
+  const pausedUntil =
+    typeof candidate.pausedUntil === 'string' && DATE_KEY_REGEX.test(candidate.pausedUntil)
+      ? candidate.pausedUntil
+      : fallback?.pausedUntil;
   const linkedProjectId =
     typeof candidate.linkedProjectId === 'string' && candidate.linkedProjectId.trim()
       ? candidate.linkedProjectId.trim()
@@ -444,6 +462,8 @@ function normalizeAnchorTemplate(raw: unknown, fallback?: DailyAnchorTemplate): 
     weeklySchedule,
     ...(activeFrom ? { activeFrom } : {}),
     ...(activeUntil ? { activeUntil } : {}),
+    ...(pausedFrom ? { pausedFrom } : {}),
+    ...(pausedUntil ? { pausedUntil } : {}),
     ...(linkedProjectId ? { linkedProjectId } : {}),
   };
 }
@@ -492,6 +512,8 @@ function toStateAnchor(template: DailyAnchorTemplate, date: Date, existing?: Dai
     ...(shouldPreserveOverride ? { isTimeOverridden: true } : existing?.isTimeOverridden ? { isTimeOverridden: true } : {}),
     ...(template.activeFrom ? { activeFrom: template.activeFrom } : {}),
     ...(template.activeUntil ? { activeUntil: template.activeUntil } : {}),
+    ...(template.pausedFrom ? { pausedFrom: template.pausedFrom } : {}),
+    ...(template.pausedUntil ? { pausedUntil: template.pausedUntil } : {}),
     ...(template.linkedProjectId ? { linkedProjectId: template.linkedProjectId } : {}),
   };
 }
@@ -553,11 +575,12 @@ export function isAnchorScheduledForDate(
  * Check if a template is within its active date range (if any)
  */
 export function isTemplateActiveForDate(
-  template: Pick<DailyAnchorTemplate, 'activeFrom' | 'activeUntil'>,
+  template: Pick<DailyAnchorTemplate, 'activeFrom' | 'activeUntil' | 'pausedFrom' | 'pausedUntil'>,
   dateKey: string,
 ): boolean {
   if (template.activeFrom && dateKey < template.activeFrom) return false;
   if (template.activeUntil && dateKey > template.activeUntil) return false;
+  if (template.pausedFrom && template.pausedUntil && dateKey >= template.pausedFrom && dateKey <= template.pausedUntil) return false;
   return true;
 }
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildUniformWeeklySchedule,
+  isTemplateActiveForDate,
   mergeDailyAnchorStateWithTemplates,
   normalizeDailyAnchorsStore,
   resolveAnchorTemplateForDate,
@@ -122,5 +123,32 @@ describe('daily anchor weekly schedule', () => {
         isTimeOverridden: true,
       }),
     );
+  });
+
+  it('keeps temporary pause windows and excludes paused dates', () => {
+    const store = normalizeDailyAnchorsStore({
+      version: 2,
+      templates: [
+        {
+          id: 'class',
+          label: 'Class',
+          icon: 'book-open',
+          weeklySchedule: buildUniformWeeklySchedule('17:00', '21:00'),
+          pausedFrom: '2026-06-01',
+          pausedUntil: '2026-08-31',
+        },
+      ],
+      states: {},
+    });
+
+    expect(store.templates[0]).toEqual(
+      expect.objectContaining({
+        pausedFrom: '2026-06-01',
+        pausedUntil: '2026-08-31',
+      }),
+    );
+    expect(isTemplateActiveForDate(store.templates[0], '2026-05-31')).toBe(true);
+    expect(isTemplateActiveForDate(store.templates[0], '2026-07-15')).toBe(false);
+    expect(isTemplateActiveForDate(store.templates[0], '2026-09-01')).toBe(true);
   });
 });
