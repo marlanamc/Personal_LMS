@@ -23,6 +23,7 @@ type BentoTaskBulletProps = {
   lane: ThoughtLane;
   projectColor: ProjectColor;
   isSelected?: boolean;
+  justCompleted?: boolean;
   onClick?: () => void;
 };
 
@@ -31,6 +32,7 @@ export const BentoTaskBullet = memo(function BentoTaskBullet({
   lane,
   projectColor,
   isSelected = false,
+  justCompleted = false,
   onClick,
 }: BentoTaskBulletProps) {
   const colorVar = PROJECT_COLORS[projectColor] || PROJECT_COLORS.slate;
@@ -52,6 +54,7 @@ export const BentoTaskBullet = memo(function BentoTaskBullet({
       ref={setNodeRef as any}
       {...attributes}
       {...listeners}
+      data-just-completed={justCompleted ? 'true' : undefined}
       className={`bento-task-bullet bento-task-bullet--${lane} ${
         isSelected ? 'bento-task-bullet--selected' : ''
       } ${isDragging ? 'bento-task-bullet--dragging' : ''}`}

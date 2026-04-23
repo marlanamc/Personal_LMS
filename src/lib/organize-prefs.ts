@@ -1,5 +1,4 @@
 export const ORGANIZE_PREFS_KEYS = {
-  lowerWorkspaceOpen: 'organize:lowerWorkspaceOpen',
   inboxOpen: 'organize:inboxOpen',
   mobileSurfaceTab: 'organize:mobileSurfaceTab',
 } as const;
@@ -7,7 +6,6 @@ export const ORGANIZE_PREFS_KEYS = {
 export type OrganizeMobileSurfaceTab = 'now' | 'projects' | 'inbox';
 
 export type OrganizePrefs = {
-  lowerWorkspaceOpen?: boolean;
   inboxOpen?: boolean;
   mobileSurfaceTab?: OrganizeMobileSurfaceTab;
 };
@@ -22,13 +20,11 @@ export function readOrganizePrefs(storage?: Pick<Storage, 'getItem'>): OrganizeP
   const s = storage ?? (typeof window !== 'undefined' ? window.localStorage : null);
   if (!s) return {};
   try {
-    const lower = parseBool(s.getItem(ORGANIZE_PREFS_KEYS.lowerWorkspaceOpen));
     const inbox = parseBool(s.getItem(ORGANIZE_PREFS_KEYS.inboxOpen));
     const tabRaw = s.getItem(ORGANIZE_PREFS_KEYS.mobileSurfaceTab);
     const mobileSurfaceTab =
       tabRaw === 'now' || tabRaw === 'projects' || tabRaw === 'inbox' ? tabRaw : undefined;
     return {
-      ...(lower !== undefined ? { lowerWorkspaceOpen: lower } : {}),
       ...(inbox !== undefined ? { inboxOpen: inbox } : {}),
       ...(mobileSurfaceTab ? { mobileSurfaceTab } : {}),
     };
@@ -43,9 +39,6 @@ export function writeOrganizePrefs(
 ) {
   if (!storage) return;
   try {
-    if (prefs.lowerWorkspaceOpen !== undefined) {
-      storage.setItem(ORGANIZE_PREFS_KEYS.lowerWorkspaceOpen, prefs.lowerWorkspaceOpen ? '1' : '0');
-    }
     if (prefs.inboxOpen !== undefined) {
       storage.setItem(ORGANIZE_PREFS_KEYS.inboxOpen, prefs.inboxOpen ? '1' : '0');
     }

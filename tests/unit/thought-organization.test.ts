@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
+  getFlowBoard,
   groupByProjectLane,
+  insertFlowBulletIntoGlobalOrder,
   insertIntoGlobalNowQueueAt,
   moveGlobalNowBulletByDelta,
   normalizeOrganization,
   priorityToLane,
+  removeFlowBulletFromGlobalOrder,
+  moveFlowGlobalBulletByDelta,
   type ThoughtBullet,
   type ThoughtOrganization,
 } from '@/lib/thought-organization';
@@ -153,5 +157,159 @@ describe('thought organization', () => {
       'x',
       'z',
     ]);
+  });
+
+  it('normalizes flow layout metadata and appends missing ids', () => {
+    const normalized = normalizeOrganization({
+      bullets: [
+        {
+          id: 'a',
+          text: 'One',
+          lineNumber: 1,
+          lane: 'next',
+          priority: 'medium',
+          displayOrder: 0,
+        },
+        {
+          id: 'b',
+          text: 'Two',
+          lineNumber: 2,
+          lane: 'next',
+          priority: 'medium',
+          displayOrder: 1,
+        },
+      ],
+      projects: [],
+      flow: {
+        globalOrder: ['b', 'ghost'],
+      },
+    });
+
+    expect(normalized?.flow).toEqual({
+      globalOrder: ['b', 'a'],
+    });
+  });
+
+  it('derives the active flow task from the first unfinished item in sequence order', () => {
+    const organization: ThoughtOrganization = {
+      bullets: [
+        {
+          id: 'a',
+          text: 'Done first',
+          lineNumber: 1,
+          lane: 'done',
+          priority: undefined,
+          displayOrder: 0,
+        },
+        {
+          id: 'b',
+          text: 'Now visible',
+          lineNumber: 2,
+          lane: 'next',
+          priority: 'medium',
+          displayOrder: 1,
+        },
+        {
+          id: 'c',
+          text: 'Later task',
+          lineNumber: 3,
+          lane: 'later',
+          priority: 'low',
+          displayOrder: 2,
+        },
+      ],
+      projects: [],
+      flow: {
+        globalOrder: ['a', 'b', 'c'],
+      },
+    };
+
+    const board = getFlowBoard(organization);
+    expect(board.activeBullet?.id).toBe('b');
+    expect(board.queuedBullets.map((bullet) => bullet.id)).toEqual(['c']);
+  });
+
+  it('reveals the next flow task after the active task is marked done', () => {
+    const organization: ThoughtOrganization = {
+      bullets: [
+        {
+          id: 'a',
+          text: 'Current',
+          lineNumber: 1,
+          lane: 'next',
+          priority: 'medium',
+          displayOrder: 0,
+        },
+        {
+          id: 'b',
+          text: 'Next up',
+          lineNumber: 2,
+          lane: 'later',
+          priority: 'low',
+          displayOrder: 1,
+        },
+      ],
+      projects: [],
+      flow: {
+        globalOrder: ['a', 'b'],
+      },
+    };
+
+    const next = normalizeOrganization({
+      ...organization,
+      bullets: organization.bullets.map((bullet) =>
+        bullet.id === 'a' ? { ...bullet, lane: 'done', priority: undefined } : bullet
+      ),
+      flow: {
+        globalOrder: ['a', 'b'],
+      },
+    })!;
+
+    expect(getFlowBoard(next).activeBullet?.id).toBe('b');
+  });
+
+  it('reorders the trigger chain and can return tasks to the tray', () => {
+    const organization: ThoughtOrganization = {
+      bullets: [
+        {
+          id: 'a',
+          text: 'Alpha',
+          lineNumber: 1,
+          lane: 'next',
+          priority: 'medium',
+          displayOrder: 0,
+        },
+        {
+          id: 'b',
+          text: 'Beta',
+          lineNumber: 2,
+          lane: 'next',
+          priority: 'medium',
+          displayOrder: 1,
+        },
+        {
+          id: 'c',
+          text: 'Gamma',
+          lineNumber: 3,
+          lane: 'later',
+          priority: 'low',
+          displayOrder: 2,
+        },
+      ],
+      projects: [],
+      flow: {
+        globalOrder: ['a', 'b'],
+      },
+    };
+
+    const reordered = moveFlowGlobalBulletByDelta(organization, 'b', -1);
+    expect(getFlowBoard(reordered).orderedBullets.map((bullet) => bullet.id)).toEqual(['b', 'a']);
+
+    const added = insertFlowBulletIntoGlobalOrder(reordered, 'c', 1);
+    expect(getFlowBoard(added).orderedBullets.map((bullet) => bullet.id)).toEqual(['b', 'c', 'a']);
+
+    const removed = removeFlowBulletFromGlobalOrder(added, 'c');
+    expect(getFlowBoard(removed).orderedBullets.map((bullet) => bullet.id)).toEqual(['b', 'a']);
+    expect(getFlowBoard(removed).poolBullets.map((bullet) => bullet.id)).toEqual(['c']);
   });
 });

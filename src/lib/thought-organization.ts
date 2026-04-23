@@ -20,6 +20,14 @@ export type BentoLayout = {
   projectSizes?: Record<string, BentoProjectSize>;
 };
 
+export type FlowLayout = {
+  globalOrder?: string[];
+  projectOrder?: string[];
+  taskOrderByProject?: Record<string, string[]>;
+};
+
+export type TriggerType = 'task' | 'time' | 'rest';
+
 export type ThoughtBullet = {
   id: string;
   text: string;
@@ -33,18 +41,23 @@ export type ThoughtBullet = {
     dateKey: string; // e.g., "2026-03-28"
     importedAt: string; // ISO timestamp
   };
+  triggerType?: TriggerType; // Type of trigger
+  triggerTime?: string; // "HH:mm" format for time triggers (e.g., "16:00")
+  restDuration?: number; // Duration in minutes for rest triggers
 };
 
 export type ThoughtOrganization = {
   bullets: ThoughtBullet[];
   projects: ProjectMeta[]; // Changed from string[] to ProjectMeta[]
   bento?: BentoLayout;
+  flow?: FlowLayout;
 };
 
 export type ThoughtOrganizerStore = {
   bullets: ThoughtBullet[];
   projects: ProjectMeta[];
   bento?: BentoLayout;
+  flow?: FlowLayout;
 };
 
 export interface ParsedBullet {
@@ -54,7 +67,28 @@ export interface ParsedBullet {
   markerType: 'unordered' | 'ordered';
 }
 
+export interface FlowSection {
+  key: string;
+  isInbox: boolean;
+  projectId?: string;
+  projectMeta?: ProjectMeta;
+  bullets: ThoughtBullet[];
+  pendingBullets: ThoughtBullet[];
+  doneBullets: ThoughtBullet[];
+  activeBullet?: ThoughtBullet;
+  queuedBullets: ThoughtBullet[];
+}
+
+export interface FlowBoard {
+  orderedBullets: ThoughtBullet[];
+  activeBullet?: ThoughtBullet;
+  queuedBullets: ThoughtBullet[];
+  doneBullets: ThoughtBullet[];
+  poolBullets: ThoughtBullet[];
+}
+
 export const THOUGHT_LANES: ThoughtLane[] = ['now', 'next', 'later', 'done'];
+export const FLOW_INBOX_ID = 'inbox';
 
 export function priorityToLane(priority?: Priority): ThoughtLane | undefined {
   if (priority === 'high') return 'now';
@@ -189,11 +223,12 @@ export function reconcileBullets(
     existingOrganization.projects
   );
 
-  return {
-    bullets: reconciledBullets,
-    projects,
-    ...(existingOrganization.bento ? { bento: existingOrganization.bento } : {}),
-  };
+    return {
+      bullets: reconciledBullets,
+      projects,
+      ...(existingOrganization.bento ? { bento: existingOrganization.bento } : {}),
+      ...(existingOrganization.flow ? { flow: existingOrganization.flow } : {}),
+    };
 }
 
 /**
@@ -255,6 +290,10 @@ export function updateProjectList(
 
 const BENTO_SIZE_VALUES: BentoProjectSize[] = ['small', 'medium', 'large', 'xlarge'];
 
+function flowContainerKey(projectId?: string | null): string {
+  return projectId ? projectId : FLOW_INBOX_ID;
+}
+
 function normalizeBentoLayout(
   bento: unknown,
   mergedProjects: ProjectMeta[]
@@ -295,6 +334,117 @@ function normalizeBentoLayout(
       }
     }
     if (Object.keys(sizes).length) layout.projectSizes = sizes;
+  }
+
+  return Object.keys(layout).length ? layout : undefined;
+}
+
+function normalizeFlowLayout(
+  flow: unknown,
+  mergedProjects: ProjectMeta[],
+  bullets: ThoughtBullet[]
+): FlowLayout | undefined {
+  if (!flow || typeof flow !== 'object' || Array.isArray(flow)) return undefined;
+
+  const o = flow as Record<string, unknown>;
+  const projectIds = new Set(mergedProjects.map((project) => project.id));
+  const bulletIdsByContainer = new Map<string, string[]>();
+
+  const appendBullet = (key: string, id: string) => {
+    const existing = bulletIdsByContainer.get(key) ?? [];
+    existing.push(id);
+    bulletIdsByContainer.set(key, existing);
+  };
+
+  bullets
+    .slice()
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+    .forEach((bullet) => {
+      appendBullet(flowContainerKey(bullet.project), bullet.id);
+    });
+
+  const layout: FlowLayout = {};
+  const allBulletIds = bullets
+    .slice()
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+    .map((bullet) => bullet.id);
+
+  if (Array.isArray(o.globalOrder)) {
+    const valid: string[] = [];
+    const seen = new Set<string>();
+    const allowed = new Set(allBulletIds);
+    for (const id of o.globalOrder) {
+      if (typeof id !== 'string') continue;
+      const tid = id.trim();
+      if (!tid || !allowed.has(tid) || seen.has(tid)) continue;
+      valid.push(tid);
+      seen.add(tid);
+    }
+    // Don't auto-add bullets to the chain - only keep explicitly ordered ones
+    if (valid.length) layout.globalOrder = valid.slice(0, 500);
+  }
+
+  if (Array.isArray(o.projectOrder)) {
+    const valid: string[] = [];
+    const seen = new Set<string>();
+    for (const id of o.projectOrder) {
+      if (typeof id !== 'string') continue;
+      const tid = id.trim();
+      if (!tid || tid.length > 64 || !projectIds.has(tid) || seen.has(tid)) continue;
+      valid.push(tid);
+      seen.add(tid);
+    }
+    for (const project of mergedProjects) {
+      if (!seen.has(project.id)) {
+        valid.push(project.id);
+        seen.add(project.id);
+      }
+    }
+    if (valid.length) layout.projectOrder = valid.slice(0, 100);
+  }
+
+  if (o.taskOrderByProject && typeof o.taskOrderByProject === 'object' && !Array.isArray(o.taskOrderByProject)) {
+    const nextTaskOrderByProject: Record<string, string[]> = {};
+
+    for (const [rawKey, rawValue] of Object.entries(o.taskOrderByProject)) {
+      const key = typeof rawKey === 'string' ? rawKey.trim() : '';
+      if (!key) continue;
+      if (key !== FLOW_INBOX_ID && !projectIds.has(key)) continue;
+      if (!Array.isArray(rawValue)) continue;
+
+      const allowedIds = new Set(bulletIdsByContainer.get(key) ?? []);
+      const validIds: string[] = [];
+      const seen = new Set<string>();
+
+      for (const id of rawValue) {
+        if (typeof id !== 'string') continue;
+        const tid = id.trim();
+        if (!tid || !allowedIds.has(tid) || seen.has(tid)) continue;
+        validIds.push(tid);
+        seen.add(tid);
+      }
+
+      for (const id of bulletIdsByContainer.get(key) ?? []) {
+        if (!seen.has(id)) {
+          validIds.push(id);
+          seen.add(id);
+        }
+      }
+
+      if (validIds.length) {
+        nextTaskOrderByProject[key] = validIds.slice(0, 500);
+      }
+    }
+
+    for (const [key, ids] of bulletIdsByContainer.entries()) {
+      if (ids.length && !nextTaskOrderByProject[key]) {
+        nextTaskOrderByProject[key] = [...ids];
+      }
+    }
+
+    if (Object.keys(nextTaskOrderByProject).length) {
+      layout.taskOrderByProject = nextTaskOrderByProject;
+    }
   }
 
   return Object.keys(layout).length ? layout : undefined;
@@ -354,11 +504,13 @@ export function normalizeOrganization(
 
   const mergedProjects = mergeProjects(deduplicateProjects(limitedBullets), projects);
   const bento = normalizeBentoLayout(org.bento, mergedProjects);
+  const flow = normalizeFlowLayout(org.flow, mergedProjects, limitedBullets);
 
   return {
     bullets: limitedBullets,
     projects: mergedProjects,
     ...(bento ? { bento } : {}),
+    ...(flow ? { flow } : {}),
   };
 }
 
@@ -638,4 +790,313 @@ export function moveGlobalNowBulletByDelta(
   const next = [...nowQueue];
   [next[idx], next[j]] = [next[j], next[idx]];
   return setGlobalNowOrderFromIds(prev, next);
+}
+
+export function getFlowProjectOrder(org: ThoughtOrganization): string[] {
+  const mergedOrder = org.projects.map((project) => project.id);
+  const saved = org.flow?.projectOrder;
+  if (!saved?.length) return mergedOrder;
+
+  const valid: string[] = [];
+  const seen = new Set<string>();
+
+  for (const id of saved) {
+    if (mergedOrder.includes(id) && !seen.has(id)) {
+      valid.push(id);
+      seen.add(id);
+    }
+  }
+
+  for (const id of mergedOrder) {
+    if (!seen.has(id)) {
+      valid.push(id);
+      seen.add(id);
+    }
+  }
+
+  return valid;
+}
+
+export function getFlowGlobalOrder(org: ThoughtOrganization): string[] {
+  const defaultOrder = org.bullets
+    .slice()
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+    .map((bullet) => bullet.id);
+  const saved = org.flow?.globalOrder;
+  if (!saved?.length) return [];
+
+  const allowed = new Set(defaultOrder);
+  const valid: string[] = [];
+  const seen = new Set<string>();
+
+  for (const id of saved) {
+    if (allowed.has(id) && !seen.has(id)) {
+      valid.push(id);
+      seen.add(id);
+    }
+  }
+
+  return valid;
+}
+
+export function getFlowTaskOrder(
+  org: ThoughtOrganization,
+  projectId?: string | null
+): string[] {
+  const key = flowContainerKey(projectId);
+  const defaultOrder = org.bullets
+    .filter((bullet) => (projectId ? bullet.project === projectId : !bullet.project))
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+    .map((bullet) => bullet.id);
+
+  const saved = org.flow?.taskOrderByProject?.[key];
+  if (!saved?.length) return defaultOrder;
+
+  const allowed = new Set(defaultOrder);
+  const valid: string[] = [];
+  const seen = new Set<string>();
+
+  for (const id of saved) {
+    if (allowed.has(id) && !seen.has(id)) {
+      valid.push(id);
+      seen.add(id);
+    }
+  }
+
+  for (const id of defaultOrder) {
+    if (!seen.has(id)) {
+      valid.push(id);
+      seen.add(id);
+    }
+  }
+
+  return valid;
+}
+
+export function getFlowOrderedBullets(
+  org: ThoughtOrganization,
+  projectId?: string | null
+): ThoughtBullet[] {
+  const bulletMap = new Map(org.bullets.map((bullet) => [bullet.id, bullet]));
+  return getFlowTaskOrder(org, projectId)
+    .map((id) => bulletMap.get(id))
+    .filter((bullet): bullet is ThoughtBullet => Boolean(bullet));
+}
+
+export function getFlowSections(org: ThoughtOrganization): FlowSection[] {
+  const sections: FlowSection[] = getFlowProjectOrder(org).map((projectId) => {
+    const projectMeta = org.projects.find((project) => project.id === projectId);
+    const bullets = getFlowOrderedBullets(org, projectId);
+    const pendingBullets = bullets.filter((bullet) => bullet.lane !== 'done');
+    const doneBullets = bullets.filter((bullet) => bullet.lane === 'done');
+
+    return {
+      key: projectId,
+      isInbox: false,
+      projectId,
+      projectMeta,
+      bullets,
+      pendingBullets,
+      doneBullets,
+      activeBullet: pendingBullets[0],
+      queuedBullets: pendingBullets.slice(1),
+    };
+  });
+
+  const inboxBullets = getFlowOrderedBullets(org, null);
+  if (inboxBullets.length > 0) {
+    const pendingBullets = inboxBullets.filter((bullet) => bullet.lane !== 'done');
+    const doneBullets = inboxBullets.filter((bullet) => bullet.lane === 'done');
+    sections.push({
+      key: FLOW_INBOX_ID,
+      isInbox: true,
+      bullets: inboxBullets,
+      pendingBullets,
+      doneBullets,
+      activeBullet: pendingBullets[0],
+      queuedBullets: pendingBullets.slice(1),
+    });
+  }
+
+  return sections;
+}
+
+export function getFlowBoard(org: ThoughtOrganization): FlowBoard {
+  const bulletMap = new Map(org.bullets.map((bullet) => [bullet.id, bullet]));
+  const orderedBullets = getFlowGlobalOrder(org)
+    .map((id) => bulletMap.get(id))
+    .filter((bullet): bullet is ThoughtBullet => Boolean(bullet));
+  const chainIds = new Set(orderedBullets.map((bullet) => bullet.id));
+  const pendingOrdered = orderedBullets.filter((bullet) => bullet.lane !== 'done');
+  const doneBullets = orderedBullets.filter((bullet) => bullet.lane === 'done');
+  const poolBullets = org.bullets
+    .filter((bullet) => !chainIds.has(bullet.id))
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+
+  return {
+    orderedBullets,
+    activeBullet: pendingOrdered[0],
+    queuedBullets: pendingOrdered.slice(1),
+    doneBullets,
+    poolBullets,
+  };
+}
+
+function withFlowTaskOrder(
+  org: ThoughtOrganization,
+  key: string,
+  orderedIds: string[]
+): ThoughtOrganization {
+  const nextFlow: FlowLayout = {
+    ...(org.flow?.projectOrder ? { projectOrder: [...org.flow.projectOrder] } : {}),
+    taskOrderByProject: {
+      ...(org.flow?.taskOrderByProject ?? {}),
+      [key]: orderedIds,
+    },
+  };
+
+  return {
+    ...org,
+    flow: nextFlow,
+  };
+}
+
+function withFlowGlobalOrder(
+  org: ThoughtOrganization,
+  orderedIds: string[]
+): ThoughtOrganization {
+  return {
+    ...org,
+    flow: {
+      ...(org.flow?.projectOrder ? { projectOrder: [...org.flow.projectOrder] } : {}),
+      ...(org.flow?.taskOrderByProject
+        ? {
+            taskOrderByProject: Object.fromEntries(
+              Object.entries(org.flow.taskOrderByProject).map(([key, ids]) => [key, [...ids]])
+            ),
+          }
+        : {}),
+      globalOrder: orderedIds,
+    },
+  };
+}
+
+export function moveFlowBullet(
+  org: ThoughtOrganization,
+  bulletId: string,
+  targetProjectId: string | null,
+  targetIndex: number
+): ThoughtOrganization {
+  const bullet = org.bullets.find((item) => item.id === bulletId);
+  if (!bullet) return org;
+
+  const sourceProjectId = bullet.project ?? null;
+  const sourceKey = flowContainerKey(sourceProjectId);
+  const targetKey = flowContainerKey(targetProjectId);
+
+  const sourceIds = getFlowTaskOrder(org, sourceProjectId).filter((id) => id !== bulletId);
+  const existingTargetIds =
+    sourceKey === targetKey
+      ? sourceIds
+      : getFlowTaskOrder(org, targetProjectId).filter((id) => id !== bulletId);
+
+  const insertAt = Math.max(0, Math.min(targetIndex, existingTargetIds.length));
+  const nextTargetIds = [...existingTargetIds];
+  nextTargetIds.splice(insertAt, 0, bulletId);
+
+  const targetProjectMeta =
+    targetProjectId === null
+      ? undefined
+      : org.projects.find((project) => project.id === targetProjectId) ?? bullet.projectMeta;
+
+  let nextOrg: ThoughtOrganization = {
+    ...org,
+    bullets: org.bullets.map((item) =>
+      item.id === bulletId
+        ? {
+            ...item,
+            project: targetProjectId ?? undefined,
+            projectMeta: targetProjectMeta,
+          }
+        : item
+    ),
+  };
+
+  nextOrg = withFlowTaskOrder(nextOrg, targetKey, nextTargetIds);
+
+  if (sourceKey !== targetKey) {
+    nextOrg = withFlowTaskOrder(nextOrg, sourceKey, sourceIds);
+  }
+
+  return nextOrg;
+}
+
+export function moveFlowBulletByDelta(
+  org: ThoughtOrganization,
+  bulletId: string,
+  delta: -1 | 1
+): ThoughtOrganization {
+  const bullet = org.bullets.find((item) => item.id === bulletId);
+  if (!bullet) return org;
+
+  const projectId = bullet.project ?? null;
+  const order = getFlowTaskOrder(org, projectId);
+  const index = order.indexOf(bulletId);
+  if (index === -1) return org;
+
+  const nextIndex = index + delta;
+  if (nextIndex < 0 || nextIndex >= order.length) return org;
+
+  const nextOrder = [...order];
+  [nextOrder[index], nextOrder[nextIndex]] = [nextOrder[nextIndex], nextOrder[index]];
+  return withFlowTaskOrder(org, flowContainerKey(projectId), nextOrder);
+}
+
+export function moveFlowBulletToEnd(
+  org: ThoughtOrganization,
+  bulletId: string
+): ThoughtOrganization {
+  const bullet = org.bullets.find((item) => item.id === bulletId);
+  if (!bullet) return org;
+  return moveFlowBullet(org, bulletId, bullet.project ?? null, getFlowTaskOrder(org, bullet.project ?? null).length);
+}
+
+export function insertFlowBulletIntoGlobalOrder(
+  org: ThoughtOrganization,
+  bulletId: string,
+  insertIndex: number
+): ThoughtOrganization {
+  const allIds = new Set(org.bullets.map((bullet) => bullet.id));
+  if (!allIds.has(bulletId)) return org;
+
+  const current = getFlowGlobalOrder(org).filter((id) => id !== bulletId);
+  const safeIndex = Math.max(0, Math.min(insertIndex, current.length));
+  const next = [...current];
+  next.splice(safeIndex, 0, bulletId);
+  return withFlowGlobalOrder(org, next);
+}
+
+export function removeFlowBulletFromGlobalOrder(
+  org: ThoughtOrganization,
+  bulletId: string
+): ThoughtOrganization {
+  return withFlowGlobalOrder(
+    org,
+    getFlowGlobalOrder(org).filter((id) => id !== bulletId)
+  );
+}
+
+export function moveFlowGlobalBulletByDelta(
+  org: ThoughtOrganization,
+  bulletId: string,
+  delta: -1 | 1
+): ThoughtOrganization {
+  const order = getFlowGlobalOrder(org);
+  const index = order.indexOf(bulletId);
+  if (index === -1) return org;
+  const nextIndex = index + delta;
+  if (nextIndex < 0 || nextIndex >= order.length) return org;
+  const next = [...order];
+  [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+  return withFlowGlobalOrder(org, next);
 }

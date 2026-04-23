@@ -14,17 +14,19 @@ function normalizeOrganizerStore(raw: unknown): ThoughtOrganizerStore {
     return { bullets: [], projects: [] };
   }
 
-  const candidate = raw as { bullets?: unknown; projects?: unknown; bento?: unknown };
+  const candidate = raw as { bullets?: unknown; projects?: unknown; bento?: unknown; flow?: unknown };
   const normalized = normalizeOrganization({
     bullets: Array.isArray(candidate.bullets) ? candidate.bullets : [],
     projects: Array.isArray(candidate.projects) ? candidate.projects : [],
     bento: candidate.bento as ThoughtOrganization['bento'],
+    flow: candidate.flow as ThoughtOrganization['flow'],
   } as ThoughtOrganization);
 
   return {
     bullets: normalized?.bullets || [],
     projects: normalized?.projects || [],
     ...(normalized?.bento ? { bento: normalized.bento } : {}),
+    ...(normalized?.flow ? { flow: normalized.flow } : {}),
   };
 }
 

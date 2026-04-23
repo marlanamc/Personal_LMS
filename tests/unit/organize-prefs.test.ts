@@ -31,12 +31,10 @@ describe('organize prefs', () => {
 
   it('round-trips boolean and tab preferences', () => {
     const s = memoryStorage();
-    writeOrganizePrefs({ lowerWorkspaceOpen: false, inboxOpen: true, mobileSurfaceTab: 'now' }, s);
-    expect(s.getItem(ORGANIZE_PREFS_KEYS.lowerWorkspaceOpen)).toBe('0');
+    writeOrganizePrefs({ inboxOpen: true, mobileSurfaceTab: 'now' }, s);
     expect(s.getItem(ORGANIZE_PREFS_KEYS.inboxOpen)).toBe('1');
     expect(s.getItem(ORGANIZE_PREFS_KEYS.mobileSurfaceTab)).toBe('now');
     expect(readOrganizePrefs(s)).toEqual({
-      lowerWorkspaceOpen: false,
       inboxOpen: true,
       mobileSurfaceTab: 'now',
     });

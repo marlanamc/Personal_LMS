@@ -45,6 +45,7 @@ type BentoProjectCardProps = {
   bentoProject: BentoProject;
   laneFilter?: BentoLaneFilter;
   selectedBulletId?: string | null;
+  justCompletedIds?: Set<string>;
   onSelectBullet?: (bullet: ThoughtBullet) => void;
   onResize: (projectId: string, newSize: ProjectSize) => void;
   index?: number;
@@ -56,6 +57,7 @@ export const BentoProjectCard = memo(function BentoProjectCard({
   bentoProject,
   laneFilter = 'all',
   selectedBulletId,
+  justCompletedIds,
   onSelectBullet,
   onResize,
   index = 0,
@@ -177,6 +179,11 @@ export const BentoProjectCard = memo(function BentoProjectCard({
 
           <div className="flex-1 min-w-0">
             <h3 className="bento-card-title">
+              <span
+                className="bento-card-title-dot"
+                data-project-color={project.color}
+                aria-hidden
+              />
               <span className="bento-card-title-inner">{project.label}</span>
             </h3>
             <div
@@ -186,16 +193,31 @@ export const BentoProjectCard = memo(function BentoProjectCard({
               <div className="bento-stat-tile bento-stat-tile--now">
                 <div className="bento-stat-tile__value-row">
                   <span className="bento-stat-pulse" aria-hidden />
-                  <span className="bento-stat-tile__value">{nowCount}</span>
+                  <span
+                    className="bento-stat-tile__value"
+                    data-zero={nowCount === 0 ? 'true' : 'false'}
+                  >
+                    {nowCount}
+                  </span>
                 </div>
                 <span className="bento-stat-tile__label">Now</span>
               </div>
               <div className="bento-stat-tile bento-stat-tile--next">
-                <span className="bento-stat-tile__value">{nextCount}</span>
+                <span
+                  className="bento-stat-tile__value"
+                  data-zero={nextCount === 0 ? 'true' : 'false'}
+                >
+                  {nextCount}
+                </span>
                 <span className="bento-stat-tile__label">Next</span>
               </div>
               <div className="bento-stat-tile bento-stat-tile--later">
-                <span className="bento-stat-tile__value">{laterCount}</span>
+                <span
+                  className="bento-stat-tile__value"
+                  data-zero={laterCount === 0 ? 'true' : 'false'}
+                >
+                  {laterCount}
+                </span>
                 <span className="bento-stat-tile__label">Later</span>
               </div>
             </div>
@@ -278,6 +300,7 @@ export const BentoProjectCard = memo(function BentoProjectCard({
                 lane="now"
                 projectColor={project.color}
                 isSelected={selectedBulletId === bullet.id}
+                justCompleted={justCompletedIds?.has(bullet.id) ?? false}
                 onClick={() => onSelectBullet?.(bullet)}
               />
             ))}
@@ -290,6 +313,7 @@ export const BentoProjectCard = memo(function BentoProjectCard({
                 lane="next"
                 projectColor={project.color}
                 isSelected={selectedBulletId === bullet.id}
+                justCompleted={justCompletedIds?.has(bullet.id) ?? false}
                 onClick={() => onSelectBullet?.(bullet)}
               />
             ))}
@@ -302,6 +326,7 @@ export const BentoProjectCard = memo(function BentoProjectCard({
                 lane="later"
                 projectColor={project.color}
                 isSelected={selectedBulletId === bullet.id}
+                justCompleted={justCompletedIds?.has(bullet.id) ?? false}
                 onClick={() => onSelectBullet?.(bullet)}
               />
             ))}

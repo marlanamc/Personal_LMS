@@ -1068,7 +1068,6 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const [collapsedDoneProjects, setCollapsedDoneProjects] = useState<Record<string, boolean>>({});
   /** On narrow viewports, Later starts collapsed until the user opens it per project */
   const [laterLaneExpanded, setLaterLaneExpanded] = useState<Record<string, boolean>>({});
-  const [bottomWorkspaceCollapsed, setBottomWorkspaceCollapsed] = useState(true);
   const [selectedInboxIds, setSelectedInboxIds] = useState<string[]>([]);
   const [projectMenuId, setProjectMenuId] = useState<string | null>(null);
   const [undoState, setUndoState] = useState<{ organization: ThoughtOrganization; message: string } | null>(null);
@@ -1083,13 +1082,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
 
   useEffect(() => {
     if (!mounted) return;
-    const narrow = typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches;
     const prefs = readOrganizePrefs();
-    if (prefs.lowerWorkspaceOpen !== undefined) {
-      setBottomWorkspaceCollapsed(!prefs.lowerWorkspaceOpen);
-    } else if (narrow) {
-      setBottomWorkspaceCollapsed(false);
-    }
     if (prefs.inboxOpen !== undefined) {
       setInboxCollapsed(!prefs.inboxOpen);
     }
@@ -1098,11 +1091,6 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
     }
     setPrefsHydrated(true);
   }, [mounted]);
-
-  useEffect(() => {
-    if (!mounted || !prefsHydrated) return;
-    writeOrganizePrefs({ lowerWorkspaceOpen: !bottomWorkspaceCollapsed });
-  }, [bottomWorkspaceCollapsed, mounted, prefsHydrated]);
 
   useEffect(() => {
     if (!mounted || !prefsHydrated) return;
@@ -1272,6 +1260,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
 
   const pushUndoState = (organization: ThoughtOrganization, message: string) => {
     const bento = organization.bento;
+    const flow = organization.flow;
     setUndoState({
       organization: {
         bullets: organization.bullets.map((bullet) => ({ ...bullet })),
@@ -1281,6 +1270,16 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
               bento: {
                 ...(bento.projectOrder && { projectOrder: [...bento.projectOrder] }),
                 ...(bento.projectSizes && { projectSizes: { ...bento.projectSizes } }),
+              },
+            }
+          : {}),
+        ...(flow
+          ? {
+              flow: {
+                ...(flow.projectOrder && { projectOrder: [...flow.projectOrder] }),
+                ...(flow.taskOrderByProject && { taskOrderByProject: Object.fromEntries(
+                  Object.entries(flow.taskOrderByProject).map(([key, ids]) => [key, [...ids]])
+                ) }),
               },
             }
           : {}),
@@ -1953,8 +1952,8 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
               </div>
             ) : (
               <>
-                {/* NOW Spotlight */}
-                {localOrg.projects.length > 0 && (
+                {/* NOW Spotlight - Hidden to keep list view clean */}
+                {/* {localOrg.projects.length > 0 && (
                   <div
                     className={
                       hasLowerWorkspace && isBelowLg && mobileSurfaceTab !== 'now'
@@ -1977,7 +1976,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                       onGoToProjectsTab={isBelowLg ? () => setMobileSurfaceTab('projects') : undefined}
                     />
                   </div>
-                )}
+                )} */}
 
                 {hasLowerWorkspace && isBelowLg ? (
                   <div className="organize-mobile-surface lg:hidden">
@@ -2175,27 +2174,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
 
                 {hasLowerWorkspace && !isBelowLg ? (
                   <div className="organize-lower-workspace-shell hidden lg:block">
-                    <button
-                      type="button"
-                      onClick={() => setBottomWorkspaceCollapsed((value) => !value)}
-                      className="organize-lower-workspace-toggle"
-                      aria-expanded={!bottomWorkspaceCollapsed}
-                    >
-                      <span className="organize-lower-workspace-toggle-copy">
-                        <span className="organize-lower-workspace-toggle-label">
-                          {bottomWorkspaceCollapsed ? 'Open inbox and projects' : 'Hide inbox and projects'}
-                        </span>
-                        <span className="organize-lower-workspace-toggle-meta">
-                          {focusedProjectId
-                            ? `${visibleProjectColumns[0]?.projectMeta?.label ?? '1 project'} in focus, ${(inbox?.bullets.length ?? 0)} inbox`
-                            : `${projectColumns.length} projects, ${(inbox?.bullets.length ?? 0)} inbox`}
-                        </span>
-                      </span>
-                      <ChevronDown className={`h-4 w-4 transition-transform ${bottomWorkspaceCollapsed ? '' : 'rotate-180'}`} />
-                    </button>
-
-                    {!bottomWorkspaceCollapsed ? (
-                      <div className="space-y-3">
+                    <div className="space-y-3">
                         {projectColumns.length > 0 ? (
                           <div className="organize-project-focus-bar">
                             <button
@@ -2360,7 +2339,6 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                           </div>
                         </SortableContext>
                       </div>
-                    ) : null}
                   </div>
                 ) : null}
               </>

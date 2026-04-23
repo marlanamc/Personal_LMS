@@ -20,6 +20,8 @@ import { parseDropZoneId, orbitalCollisionDetection, type DragData } from './hoo
 import { OrbitalInbox } from './OrbitalInbox';
 import { OrbitalDetailPanel } from './OrbitalDetailPanel';
 import { BentoProjectCard } from './BentoProjectCard';
+import { OrganizeHeaderPortal } from '@/components/organize/OrganizeHeaderSlot';
+import { useCompletionPulse } from '@/components/organize/useCompletionPulse';
 
 type ProjectSize = 'small' | 'medium' | 'large' | 'xlarge';
 
@@ -73,6 +75,7 @@ export function BentoOrganizeView({
 }: BentoOrganizeViewProps) {
   const [selectedBulletId, setSelectedBulletId] = useState<string | null>(null);
   const [laneFilter, setLaneFilter] = useState<BentoLaneFilter>('all');
+  const justCompletedIds = useCompletionPulse(organization.bullets);
 
   const projectOrder = getBentoProjectOrder(organization);
   const projectSizesMap = useMemo(
@@ -303,27 +306,29 @@ export function BentoOrganizeView({
         {/* Atmospheric Background */}
         <div className="bento-atmosphere" />
 
-        {/* Header */}
-        <div className="bento-header px-8 py-8 border-b border-border/30 relative z-10">
-          <div className="bento-header-glow" />
-          <div className="bento-header-top">
-            <h1 className="bento-header-title">Project Universe</h1>
-            <div className="bento-lane-filter-bar" role="tablist" aria-label="Filter tasks by lane">
-              {(['all', 'now', 'next', 'later'] as const).map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  role="tab"
-                  aria-selected={laneFilter === key}
-                  className={`bento-lane-filter-btn ${laneFilter === key ? 'bento-lane-filter-btn--active' : ''} bento-lane-filter-btn--${key}`}
-                  onClick={() => setLaneFilter(key)}
-                >
-                  {key === 'all' ? 'All' : key === 'now' ? 'Now' : key === 'next' ? 'Next' : 'Later'}
-                </button>
-              ))}
-            </div>
+        {/* Lane filter lives in the unified Organize toolbar */}
+        <OrganizeHeaderPortal>
+          <div
+            className="bento-lane-filter-bar"
+            role="tablist"
+            aria-label="Filter tasks by lane"
+          >
+            {(['all', 'now', 'next', 'later'] as const).map((key) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={laneFilter === key}
+                className={`bento-lane-filter-btn ${
+                  laneFilter === key ? 'bento-lane-filter-btn--active' : ''
+                } bento-lane-filter-btn--${key}`}
+                onClick={() => setLaneFilter(key)}
+              >
+                {key === 'all' ? 'All' : key === 'now' ? 'Now' : key === 'next' ? 'Next' : 'Later'}
+              </button>
+            ))}
           </div>
-        </div>
+        </OrganizeHeaderPortal>
 
         {/* Bento Grid */}
         <div className="bento-grid-container flex-1 overflow-y-auto p-8 relative z-10">
@@ -338,6 +343,7 @@ export function BentoOrganizeView({
                   bentoProject={bentoProject}
                   laneFilter={laneFilter}
                   selectedBulletId={selectedBulletId}
+                  justCompletedIds={justCompletedIds}
                   onSelectBullet={handleSelectBullet}
                   onResize={handleResizeProject}
                   index={index}
