@@ -30,6 +30,7 @@ import {
   Sparkle,
   Sparkles,
   Timer,
+  Trophy,
   User,
   UtensilsCrossed,
   X,
@@ -72,6 +73,7 @@ const quickLinks: NavLink[] = [
   { href: '/dashboard/thought-download', label: 'Thought Download', icon: FileText },
   { href: '/dashboard/organize', label: 'Organize', icon: FolderKanban },
   { href: '/dashboard/interstitial-journalling', label: 'Moment Log', icon: MessageSquare },
+  { href: '/dashboard/daily-wins', label: 'Daily Wins', icon: Trophy },
 
   // Focus section
   { label: 'FOCUS', isHeader: true },

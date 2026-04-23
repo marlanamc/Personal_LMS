@@ -93,6 +93,7 @@ export function HomePlanningHub({
                 { label: 'Thought Download', href: '/dashboard/thought-download' },
                 { label: 'Organize', href: '/dashboard/organize' },
                 { label: 'Moment Log', href: '/dashboard/interstitial-journalling' },
+                { label: 'Daily Wins', href: '/dashboard/daily-wins' },
               ]}
             />
             <AreaCard
