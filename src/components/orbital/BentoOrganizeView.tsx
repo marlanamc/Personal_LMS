@@ -337,7 +337,7 @@ export function BentoOrganizeView({
             strategy={rectSortingStrategy}
           >
             <div className="bento-grid">
-              {bentoProjects.map((bentoProject, index) => (
+              {bentoProjects.map((bentoProject) => (
                 <BentoProjectCard
                   key={bentoProject.project.id}
                   bentoProject={bentoProject}
@@ -346,7 +346,6 @@ export function BentoOrganizeView({
                   justCompletedIds={justCompletedIds}
                   onSelectBullet={handleSelectBullet}
                   onResize={handleResizeProject}
-                  index={index}
                 />
               ))}
             </div>

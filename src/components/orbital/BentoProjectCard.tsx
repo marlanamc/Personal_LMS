@@ -48,7 +48,6 @@ type BentoProjectCardProps = {
   justCompletedIds?: Set<string>;
   onSelectBullet?: (bullet: ThoughtBullet) => void;
   onResize: (projectId: string, newSize: ProjectSize) => void;
-  index?: number;
 };
 
 const SIZE_OPTIONS: ProjectSize[] = ['small', 'medium', 'large', 'xlarge'];
@@ -60,7 +59,6 @@ export const BentoProjectCard = memo(function BentoProjectCard({
   justCompletedIds,
   onSelectBullet,
   onResize,
-  index = 0,
 }: BentoProjectCardProps) {
   const { project, bullets, nowCount, nextCount, laterCount, totalCount, size } = bentoProject;
   const [showSizeMenu, setShowSizeMenu] = useState(false);
@@ -71,9 +69,6 @@ export const BentoProjectCard = memo(function BentoProjectCard({
   const portalMenuRef = useRef<HTMLDivElement>(null);
 
   const colorVar = PROJECT_COLORS[project.color] || PROJECT_COLORS.slate;
-
-  // Stagger animation delay
-  const animationDelay = `${index * 0.08}s`;
 
   useEffect(() => {
     setMounted(true);
@@ -133,7 +128,6 @@ export const BentoProjectCard = memo(function BentoProjectCard({
 
   const style = {
     '--project-color': colorVar,
-    '--animation-delay': animationDelay,
     transform: transform || undefined,
     transition: sortable.transition,
   } as React.CSSProperties;
