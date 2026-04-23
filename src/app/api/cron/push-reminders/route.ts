@@ -34,6 +34,30 @@ type UserPushState = {
   anchorStore: DailyAnchorsStore | null;
 };
 
+type PushReminderDiagnostics = {
+  usersScanned: number;
+  usersEligible: number;
+  remindersSent: number;
+  subscriptionsRemoved: number;
+  remindersSkippedAlreadyDelivered: number;
+  anchors: {
+    considered: number;
+    sent: number;
+    skippedAlreadyDelivered: number;
+  };
+  events: {
+    considered: number;
+    sent: number;
+    skippedAlreadyDelivered: number;
+  };
+  userSkips: {
+    pushDisabled: number;
+    noSubscriptions: number;
+    noAnchorStore: number;
+    noRemindersInWindow: number;
+  };
+};
+
 function isAuthorized(request: NextRequest): boolean {
   if (process.env.NODE_ENV !== "production") return true;
   const secret = process.env.CRON_SECRET;
@@ -202,6 +226,32 @@ async function loadUserPushStates(): Promise<Map<string, UserPushState>> {
   return states;
 }
 
+function createDiagnostics(usersScanned: number): PushReminderDiagnostics {
+  return {
+    usersScanned,
+    usersEligible: 0,
+    remindersSent: 0,
+    subscriptionsRemoved: 0,
+    remindersSkippedAlreadyDelivered: 0,
+    anchors: {
+      considered: 0,
+      sent: 0,
+      skippedAlreadyDelivered: 0,
+    },
+    events: {
+      considered: 0,
+      sent: 0,
+      skippedAlreadyDelivered: 0,
+    },
+    userSkips: {
+      pushDisabled: 0,
+      noSubscriptions: 0,
+      noAnchorStore: 0,
+      noRemindersInWindow: 0,
+    },
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     if (!isAuthorized(request)) {
@@ -214,19 +264,29 @@ export async function GET(request: NextRequest) {
 
     const now = new Date();
     const pushStates = await loadUserPushStates();
-
-    let processedUsers = 0;
-    let remindersSent = 0;
-    let subscriptionsRemoved = 0;
+    const diagnostics = createDiagnostics(pushStates.size);
 
     for (const [userId, state] of pushStates) {
-      if (!state.preferences.enabled) continue;
-      if (state.subscriptions.length === 0) continue;
+      if (!state.preferences.enabled) {
+        diagnostics.userSkips.pushDisabled += 1;
+        continue;
+      }
+      if (state.subscriptions.length === 0) {
+        diagnostics.userSkips.noSubscriptions += 1;
+        continue;
+      }
+
+      diagnostics.usersEligible += 1;
 
       const zonedNow = getZonedParts(now, state.preferences.timezone);
       const deliveryLog = pruneDeliveryLog(await getPushDeliveryLog(userId), now);
       const delivered = new Set(deliveryLog.map((entry) => entry.key));
       const pendingEntries: PushDeliveryLogEntry[] = [];
+      let foundReminderInWindow = false;
+
+      if (state.preferences.anchorsEnabled && !state.anchorStore) {
+        diagnostics.userSkips.noAnchorStore += 1;
+      }
 
       if (state.preferences.anchorsEnabled && state.anchorStore) {
         const rawState = state.anchorStore.states[zonedNow.dateKey];
@@ -238,11 +298,19 @@ export async function GET(request: NextRequest) {
             zonedNow.minutes,
             state.preferences.anchorLeadMinutes,
           );
-          if (!reminder || delivered.has(reminder.deliveryKey)) continue;
+          if (!reminder) continue;
+          foundReminderInWindow = true;
+          if (delivered.has(reminder.deliveryKey)) {
+            diagnostics.remindersSkippedAlreadyDelivered += 1;
+            diagnostics.anchors.skippedAlreadyDelivered += 1;
+            continue;
+          }
+          diagnostics.anchors.considered += 1;
           const result = await sendPushNotificationToUserSubscriptions(userId, reminder.payload);
           if (result.sent > 0) {
-            remindersSent += result.sent;
-            subscriptionsRemoved += result.removed;
+            diagnostics.remindersSent += result.sent;
+            diagnostics.subscriptionsRemoved += result.removed;
+            diagnostics.anchors.sent += result.sent;
             pendingEntries.push({ key: reminder.deliveryKey, sentAt: now.toISOString() });
             delivered.add(reminder.deliveryKey);
           }
@@ -258,29 +326,45 @@ export async function GET(request: NextRequest) {
             state.preferences.eventLeadMinutes,
             state.preferences.timezone,
           );
-          if (!reminder || delivered.has(reminder.deliveryKey)) continue;
+          if (!reminder) continue;
+          foundReminderInWindow = true;
+          if (delivered.has(reminder.deliveryKey)) {
+            diagnostics.remindersSkippedAlreadyDelivered += 1;
+            diagnostics.events.skippedAlreadyDelivered += 1;
+            continue;
+          }
+          diagnostics.events.considered += 1;
           const result = await sendPushNotificationToUserSubscriptions(userId, reminder.payload);
           if (result.sent > 0) {
-            remindersSent += result.sent;
-            subscriptionsRemoved += result.removed;
+            diagnostics.remindersSent += result.sent;
+            diagnostics.subscriptionsRemoved += result.removed;
+            diagnostics.events.sent += result.sent;
             pendingEntries.push({ key: reminder.deliveryKey, sentAt: now.toISOString() });
             delivered.add(reminder.deliveryKey);
           }
         }
       }
 
+      if (!foundReminderInWindow) {
+        diagnostics.userSkips.noRemindersInWindow += 1;
+      }
+
       if (pendingEntries.length > 0) {
         await savePushDeliveryLog(userId, pruneDeliveryLog([...deliveryLog, ...pendingEntries], now));
       }
-
-      processedUsers += 1;
     }
 
     return NextResponse.json({
       ok: true,
-      processedUsers,
-      remindersSent,
-      subscriptionsRemoved,
+      processedUsers: diagnostics.usersEligible,
+      usersScanned: diagnostics.usersScanned,
+      usersEligible: diagnostics.usersEligible,
+      remindersSent: diagnostics.remindersSent,
+      remindersSkippedAlreadyDelivered: diagnostics.remindersSkippedAlreadyDelivered,
+      subscriptionsRemoved: diagnostics.subscriptionsRemoved,
+      anchors: diagnostics.anchors,
+      events: diagnostics.events,
+      userSkips: diagnostics.userSkips,
       ranAt: now.toISOString(),
     });
   } catch (error) {

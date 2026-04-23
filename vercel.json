@@ -2,6 +2,10 @@
   "buildCommand": "npm run build",
   "crons": [
     {
+      "path": "/api/cron/push-reminders",
+      "schedule": "*/5 * * * *"
+    },
+    {
       "path": "/api/cron/reset-weekly-points",
       "schedule": "0 0 * * 2"
     }
