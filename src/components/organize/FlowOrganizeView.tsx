@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   closestCenter,
   DndContext,
@@ -21,7 +21,6 @@ import { TimeTriggerBuilder } from './TimeTriggerBuilder';
 import { OrganizeHeaderPortal } from './OrganizeHeaderSlot';
 import { useCompletionPulse } from './useCompletionPulse';
 import { notifyNextTrigger, requestNotificationPermission, showToast } from '@/lib/flow-notifications';
-import { useEffect } from 'react';
 import { OrganizableBullet } from '@/components/dashboard/OrganizableBullet';
 import {
   getFlowBoard,
