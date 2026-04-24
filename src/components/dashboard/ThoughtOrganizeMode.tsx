@@ -1765,7 +1765,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
               animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
               exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.96 }}
               transition={prefersReducedMotion ? { duration: 0.01 } : { duration: 0.18 }}
-              className="w-full max-w-md rounded-[1.75rem] border border-border-subtle/70 bg-bg-elevated/95 p-5 shadow-2xl backdrop-blur-xl"
+              className="w-[min(100vw-2rem,28rem)] rounded-[1.75rem] border border-border-subtle/70 bg-bg-elevated/95 p-5 shadow-2xl backdrop-blur-xl"
               onClick={(event) => event.stopPropagation()}
               role="dialog"
               aria-modal="true"
@@ -1811,7 +1811,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
 
                 <div>
                   <label className="mb-2 block text-xs font-medium text-text-muted">Color</label>
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
                     {PROJECT_COLORS.map((color) => (
                       <button
                         key={color}
@@ -1996,9 +1996,6 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                         </button>
                       ))}
                     </div>
-                    <p className="organize-mobile-tab-legend mt-2 px-1 text-center text-[11px] leading-snug text-text-muted">
-                      Now = your active set · Projects = board · Inbox = quick capture
-                    </p>
                     {mobileSurfaceTab === 'projects' ? (
                       <div className="mt-3 space-y-3">
                         {projectColumns.length > 0 ? (

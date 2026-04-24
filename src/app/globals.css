@@ -7935,11 +7935,6 @@ kbd {
     0 4px 14px color-mix(in srgb, var(--color-primary) 18%, transparent);
 }
 
-.organize-mobile-tab-legend {
-  max-width: 28rem;
-  margin-inline: auto;
-}
-
 .now-spotlight-flow-single {
   display: block;
   max-width: 42rem;
@@ -10831,6 +10826,29 @@ kbd {
   min-height: 1px;
 }
 
+@media (max-width: 640px) {
+  .organize-toolbar-row {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .organize-toolbar-row > div:first-child {
+    width: 100%;
+  }
+
+  .organize-toolbar-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .organize-view-switcher-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
 /* Overflow menu */
 .flow-overflow-menu {
   position: relative;
@@ -11126,6 +11144,62 @@ kbd {
     #000 calc(100% - 24px),
     transparent 100%
   );
+}
+
+/* Flow chain card — responsive widths for peek-through on mobile */
+.flow-chain-card {
+  min-width: 320px;
+  max-width: 320px;
+}
+
+/* Flow scroll area — responsive padding */
+.flow-scroll-area {
+  padding: 1.25rem 0.75rem 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .flow-scroll-area {
+    padding: 1.25rem 1.5rem 2rem;
+  }
+
+  .flow-chain-card {
+    min-width: 320px;
+    max-width: 320px;
+  }
+}
+
+@media (max-width: 640px) {
+  .flow-chain-track {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 12px,
+      #000 calc(100% - 12px),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 12px,
+      #000 calc(100% - 12px),
+      transparent 100%
+    );
+  }
+
+  .flow-chain-card {
+    min-width: 280px;
+    max-width: 280px;
+  }
+
+  .flow-header-btn {
+    padding: 0.6rem 0.85rem;
+    font-size: 0.8rem;
+  }
+
+  .flow-section-eyebrow {
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+  }
 }
 
 /* Empty states */
@@ -12023,11 +12097,11 @@ kbd {
 @media (max-width: 768px) {
   .bento-grid {
     grid-template-columns: repeat(6, 1fr);
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .bento-grid-container {
-    padding: 1.25rem;
+    padding: 0.75rem;
   }
 
   /* All cards span full width on mobile */
@@ -12038,14 +12112,62 @@ kbd {
     grid-column: span 6;
   }
 
-  .bento-inbox {
-    left: 1rem;
-    bottom: 1rem;
-    max-width: calc(100vw - 2rem);
+  .bento-project-card {
+    border-radius: 14px;
+  }
+
+  .bento-project-card::before {
+    border-radius: 14px 14px 0 0;
+  }
+
+  .bento-card-header {
+    padding: 1rem;
+  }
+
+  .bento-card-content {
+    padding: 0.85rem;
   }
 
   .bento-card-title {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
+    gap: 0.35rem;
+  }
+
+  .bento-card-title-inner {
+    font-size: inherit;
+  }
+
+  /* Size selector is useless on mobile — all cards are full width */
+  .bento-size-btn-wrapper {
+    display: none;
+  }
+
+  /* Stat tile: slightly bigger tap area */
+  .bento-stat-tile {
+    padding: 0.25rem 0.55rem 0.25rem 0.45rem;
+  }
+
+  .bento-inbox {
+    left: 0.75rem;
+    /* Clear the bottom navigation bar */
+    bottom: calc(var(--bottom-nav-height, 64px) + 0.75rem);
+    max-width: min(300px, calc(100vw - 1.5rem));
+    max-height: 36vh;
+    overflow-y: auto;
+  }
+
+  .constellation-inbox__item {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .bento-task-bullet {
+    padding: 0.5rem 0.65rem 0.5rem 0.65rem;
+    border-radius: 0.625rem;
+  }
+
+  .bento-task-text {
+    font-size: 0.8rem;
   }
 }
 

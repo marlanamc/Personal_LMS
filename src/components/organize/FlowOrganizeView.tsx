@@ -425,7 +425,7 @@ export function FlowOrganizeView({
         )}
       </OrganizeHeaderPortal>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-8 pt-5 sm:px-6">
+      <div className="flex-1 overflow-y-auto flow-scroll-area">
         {showTimeTriggerBuilder && (
           <div className="mb-6">
             <TimeTriggerBuilder
@@ -488,7 +488,7 @@ export function FlowOrganizeView({
                         <div className="flow-chain-track flex items-stretch gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-border-subtle scrollbar-track-transparent">
                           {activeBullet && (
                             <div className="flex items-center gap-3 snap-start">
-                              <div className="min-w-[280px] sm:min-w-[320px] max-w-[280px] sm:max-w-[320px]">
+                              <div className="flow-chain-card">
                                 <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
                                   <Sparkles className="h-3 w-3 animate-glow-pulse" />
                                   Live now
@@ -521,7 +521,7 @@ export function FlowOrganizeView({
                                 {index > 0 && (
                                   <ChainConnector className="text-accent-teal/80" variant="future" />
                                 )}
-                                <div className="min-w-[280px] sm:min-w-[320px] max-w-[280px] sm:max-w-[320px]">
+                                <div className="flow-chain-card">
                                   <div className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-text-muted">
                                     {isUpNext ? 'Up next' : `In ${index + 1}`}
                                   </div>

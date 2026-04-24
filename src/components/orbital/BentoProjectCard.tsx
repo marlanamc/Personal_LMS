@@ -217,8 +217,8 @@ export const BentoProjectCard = memo(function BentoProjectCard({
             </div>
           </div>
 
-          {/* Size selector */}
-          <div className="relative" ref={menuRef}>
+          {/* Size selector — hidden on mobile where cards are always full-width */}
+          <div className="bento-size-btn-wrapper relative" ref={menuRef}>
             <button
               ref={sizeBtnRef}
               onClick={(e) => {
