@@ -3,25 +3,33 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { useTheme } from '@/context/ThemeContext';
 
 export interface PhraseItem {
   id: string;
   text: string;
 }
 
+// Size buckets — generous on desktop, tighter on mobile so everything fits.
 const SIZE_CLASS = [
-  'text-lg sm:text-2xl font-semibold tracking-[-0.03em]',
-  'text-base sm:text-xl font-semibold tracking-[-0.02em]',
-  'text-sm sm:text-lg font-medium tracking-[-0.01em]',
+  'text-xl sm:text-3xl font-semibold tracking-[-0.03em] leading-[1.05]',
+  'text-lg sm:text-2xl font-semibold tracking-[-0.025em] leading-[1.1]',
+  'text-base sm:text-xl font-medium tracking-[-0.015em] leading-[1.15]',
+  'text-sm sm:text-lg font-medium tracking-[-0.01em] leading-[1.2]',
+  'text-xs sm:text-base font-medium tracking-[-0.005em] leading-[1.25]',
 ] as const;
 
-const TONE_CLASS = [
-  'text-primary/85',
-  'text-secondary/85',
-  'text-accent/80',
-  'text-[rgba(94,146,255,0.88)]',
-  'text-[rgba(79,176,152,0.86)]',
-] as const;
+const FONT_CLASS = ['font-display italic', 'font-sans', 'font-sans', 'font-sans'] as const;
+
+type ToneKey = 'sakura' | 'mint' | 'amethyst' | 'periwinkle' | 'sage';
+
+const TONES: { key: ToneKey; text: string; rgb: string }[] = [
+  { key: 'sakura',     text: 'text-primary',            rgb: '212, 138, 166' },
+  { key: 'mint',       text: 'text-secondary',          rgb: '120, 191, 165' },
+  { key: 'amethyst',   text: 'text-accent',             rgb: '160, 137, 199' },
+  { key: 'periwinkle', text: 'text-[rgb(140,170,240)]', rgb: '140, 170, 240' },
+  { key: 'sage',       text: 'text-[rgb(130,188,168)]', rgb: '130, 188, 168' },
+];
 
 function hashToBucket(id: string, mod: number): number {
   let h = 0;
@@ -35,29 +43,6 @@ function rotationDeg(id: string): number {
   return hashToBucket(id, 7) - 3;
 }
 
-const DESKTOP_SLOTS = [
-  { left: '14%', top: '20%' },
-  { left: '56%', top: '16%' },
-  { left: '32%', top: '38%' },
-  { left: '73%', top: '36%' },
-  { left: '17%', top: '58%' },
-  { left: '51%', top: '58%' },
-  { left: '77%', top: '60%' },
-  { left: '36%', top: '74%' },
-  { left: '61%', top: '78%' },
-] as const;
-
-const MOBILE_SLOTS = [
-  { left: '12%', top: '16%' },
-  { left: '56%', top: '18%' },
-  { left: '18%', top: '38%' },
-  { left: '58%', top: '40%' },
-  { left: '12%', top: '62%' },
-  { left: '56%', top: '64%' },
-  { left: '18%', top: '82%' },
-  { left: '56%', top: '84%' },
-] as const;
-
 interface DailyWinsPhraseCloudProps {
   items: PhraseItem[];
   emptyMessage?: string;
@@ -65,23 +50,48 @@ interface DailyWinsPhraseCloudProps {
 
 export function DailyWinsPhraseCloud({ items, emptyMessage }: DailyWinsPhraseCloudProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
-  const layout = useMemo(
-    () => {
-      const ranked = [...items].sort((a, b) => a.text.length - b.text.length);
+  const layout = useMemo(() => {
+    // items arrive newest-first (API returns desc by createdAt).
+    const newestId = items[0]?.id;
 
-      return ranked.map((item, index) => ({
+    // Rank by length so the shortest phrases can claim hero sizes — that's
+    // what makes the cloud look curated rather than uniform.
+    const byLength = [...items].sort((a, b) => a.text.length - b.text.length);
+    const sizeByIndex = new Map<string, string>();
+    const n = byLength.length;
+    byLength.forEach((it, i) => {
+      const pct = n <= 1 ? 0 : i / (n - 1);
+      let sizeIdx: number;
+      if (pct < 0.15) sizeIdx = 0;
+      else if (pct < 0.4) sizeIdx = 1;
+      else if (pct < 0.7) sizeIdx = 2;
+      else if (pct < 0.9) sizeIdx = 3;
+      else sizeIdx = 4;
+      sizeByIndex.set(it.id, SIZE_CLASS[sizeIdx]);
+    });
+
+    // Every 4th-ish chip rotates 90° for vertical variety — only when the
+    // phrase is short enough that a vertical column is legible.
+    return items.map((item, index) => {
+      const toneIdx = hashToBucket(item.id, TONES.length);
+      const tone = TONES[toneIdx];
+      const canBeVertical = item.text.length <= 18 && hashToBucket(item.id + 'v', 5) === 0;
+      return {
         item,
-        size: SIZE_CLASS[hashToBucket(item.id, SIZE_CLASS.length)] ?? SIZE_CLASS[1],
-        tone: TONE_CLASS[hashToBucket(item.id, TONE_CLASS.length)] ?? TONE_CLASS[0],
-        rotate: rotationDeg(item.id),
-        desktopSlot: DESKTOP_SLOTS[index % DESKTOP_SLOTS.length] ?? DESKTOP_SLOTS[0],
-        mobileSlot: MOBILE_SLOTS[index % MOBILE_SLOTS.length] ?? MOBILE_SLOTS[0],
-        delay: index * 0.06,
-      }));
-    },
-    [items],
-  );
+        isNewest: item.id === newestId,
+        size: sizeByIndex.get(item.id) ?? SIZE_CLASS[2],
+        font: FONT_CLASS[hashToBucket(item.id, FONT_CLASS.length)],
+        toneText: tone.text,
+        toneRgb: tone.rgb,
+        rotate: canBeVertical ? (hashToBucket(item.id, 2) === 0 ? -90 : 90) : rotationDeg(item.id),
+        isVertical: canBeVertical,
+        delay: Math.min(index * 0.04, 0.6),
+      };
+    });
+  }, [items]);
 
   if (items.length === 0) {
     return (
@@ -91,90 +101,136 @@ export function DailyWinsPhraseCloud({ items, emptyMessage }: DailyWinsPhraseClo
     );
   }
 
-  if (prefersReducedMotion) {
-    return (
-      <div
-        className="relative overflow-hidden rounded-[2rem] border border-white/30 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.55),_rgba(255,244,236,0.92)_45%,_rgba(255,238,228,0.96)_100%)] px-4 py-6 shadow-[0_20px_60px_rgba(219,182,150,0.15),inset_0_1px_0_rgba(255,255,255,0.5)] sm:px-8 sm:py-8"
-        aria-hidden
-      >
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-[8%] top-[12%] h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
-          <div className="absolute right-[12%] top-[18%] h-28 w-28 rounded-full bg-accent/10 blur-3xl" />
-          <div className="absolute bottom-[10%] left-[22%] h-32 w-32 rounded-full bg-secondary/10 blur-3xl" />
+  const containerClass = isDark
+    ? 'relative overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(160,137,199,0.22),_rgba(24,39,58,0.95)_45%,_rgba(18,32,51,0.98)_100%)] shadow-[0_20px_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]'
+    : 'relative overflow-hidden rounded-[2rem] border border-white/30 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.55),_rgba(255,244,236,0.92)_45%,_rgba(255,238,228,0.96)_100%)] shadow-[0_20px_60px_rgba(219,182,150,0.15),inset_0_1px_0_rgba(255,255,255,0.5)]';
+
+  const chipBase = isDark
+    ? 'border border-white/10 bg-white/[0.04] backdrop-blur-md'
+    : 'border border-white/40 bg-white/35 backdrop-blur-sm';
+
+  const blobClasses = isDark
+    ? { primary: 'bg-primary/25', accent: 'bg-accent/25', secondary: 'bg-secondary/25' }
+    : { primary: 'bg-primary/10', accent: 'bg-accent/10', secondary: 'bg-secondary/10' };
+
+  const chipShadow = (toneRgb: string) =>
+    isDark
+      ? `0 8px 22px rgba(${toneRgb}, 0.16), 0 0 18px rgba(${toneRgb}, 0.1), inset 0 1px 0 rgba(255,255,255,0.08)`
+      : `0 8px 22px rgba(255,255,255,0.3), 0 3px 10px rgba(${toneRgb}, 0.1)`;
+
+  const pulseLow = isDark
+    ? '0 0 0 0 rgba(212,138,166,0), 0 8px 22px rgba(212,138,166,0.16), inset 0 1px 0 rgba(255,255,255,0.08)'
+    : '0 0 0 0 rgba(209,138,122,0), 0 8px 22px rgba(255,255,255,0.3)';
+  const pulseHigh = isDark
+    ? '0 0 0 5px rgba(212,138,166,0.22), 0 10px 30px rgba(212,138,166,0.32), inset 0 1px 0 rgba(255,255,255,0.1)'
+    : '0 0 0 5px rgba(209,138,122,0.22), 0 12px 28px rgba(209,138,122,0.25)';
+
+  const renderChip = (
+    entry: (typeof layout)[number],
+    opts: { key: string; animated: boolean }
+  ) => {
+    const { item, size, font, toneText, toneRgb, rotate, isVertical, isNewest, delay } = entry;
+    const baseShadow = chipShadow(toneRgb);
+
+    const className = [
+      'inline-flex items-center justify-center rounded-[1.25rem] px-3 py-2 text-center leading-tight break-words',
+      'sm:px-4 sm:py-2.5 sm:rounded-[1.5rem]',
+      chipBase,
+      size,
+      font,
+      toneText,
+    ].join(' ');
+
+    const style: React.CSSProperties = {
+      transform: `rotate(${rotate}deg)`,
+      boxShadow: isNewest && opts.animated ? undefined : baseShadow,
+      writingMode: isVertical ? ('vertical-rl' as const) : undefined,
+    };
+
+    if (!opts.animated) {
+      return (
+        <div key={opts.key} className={className} style={style}>
+          {item.text}
         </div>
-        <ul className="relative grid min-h-[240px] grid-cols-2 gap-x-5 gap-y-6 py-4 sm:min-h-[320px] sm:grid-cols-3 sm:gap-x-6 sm:gap-y-8">
-          {layout.map(({ item, size, tone, rotate }) => (
-            <li
-              key={item.id}
-              className={`flex min-h-[72px] items-center justify-center rounded-[1.75rem] border border-white/35 bg-white/30 px-4 py-3 text-center leading-tight shadow-[0_10px_30px_rgba(255,255,255,0.28)] backdrop-blur-sm ${size} ${tone}`}
-              style={{ transform: `rotate(${rotate}deg)` }}
-            >
-              {item.text}
-            </li>
-          ))}
-        </ul>
-      </div>
+      );
+    }
+
+    const baseTransition = { delay, duration: 0.45, ease: 'easeOut' as const };
+    const initial = { opacity: 0, scale: 0.9, y: 8 };
+    const animate = isNewest
+      ? { opacity: 1, scale: 1, y: 0, boxShadow: [pulseLow, pulseHigh, pulseLow] }
+      : { opacity: 1, scale: 1, y: 0 };
+    const transition = isNewest
+      ? {
+          opacity: baseTransition,
+          scale: baseTransition,
+          y: baseTransition,
+          boxShadow: {
+            duration: 3,
+            repeat: Infinity,
+            ease: 'easeInOut' as const,
+            delay: delay + 0.4,
+          },
+        }
+      : baseTransition;
+
+    return (
+      <motion.div
+        key={opts.key}
+        className={className}
+        // Framer Motion needs rotate as a motion prop, but because the
+        // chips live in a flex-wrap flow we use style transform to keep
+        // layout measurement accurate.
+        style={style}
+        initial={initial}
+        animate={animate}
+        transition={transition}
+        whileHover={{ scale: 1.06 }}
+      >
+        {item.text}
+      </motion.div>
     );
-  }
+  };
 
   return (
-    <div
-      className="relative overflow-hidden rounded-[2rem] border border-white/30 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.55),_rgba(255,244,236,0.92)_45%,_rgba(255,238,228,0.96)_100%)] shadow-[0_20px_60px_rgba(219,182,150,0.15),inset_0_1px_0_rgba(255,255,255,0.5)]"
-      aria-hidden
-    >
-      <motion.div
-        className="pointer-events-none absolute inset-0"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <motion.div
-          className="absolute left-[8%] top-[12%] h-24 w-24 rounded-full bg-primary/10 blur-2xl sm:h-32 sm:w-32"
-          animate={{ x: [0, 10, -6, 0], y: [0, -8, 6, 0] }}
-          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute right-[12%] top-[16%] h-28 w-28 rounded-full bg-accent/10 blur-3xl sm:h-36 sm:w-36"
-          animate={{ x: [0, -12, 8, 0], y: [0, 10, -8, 0] }}
-          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute bottom-[10%] left-[24%] h-32 w-32 rounded-full bg-secondary/10 blur-3xl sm:h-40 sm:w-40"
-          animate={{ x: [0, 14, -8, 0], y: [0, -10, 10, 0] }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      </motion.div>
-
-      <div className="relative min-h-[280px] px-4 py-6 sm:hidden">
-        {layout.map(({ item, size, tone, rotate, mobileSlot, delay }) => (
-          <motion.li
-            key={item.id}
-            className={`absolute flex max-w-[38vw] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[1.5rem] border border-white/35 bg-white/35 px-3 py-2 text-center leading-tight shadow-[0_12px_30px_rgba(255,255,255,0.32)] backdrop-blur-sm ${size} ${tone}`}
-            style={{ left: mobileSlot.left, top: mobileSlot.top, rotate: `${rotate}deg` }}
-            initial={{ opacity: 0, scale: 0.92, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ delay, duration: 0.45, ease: 'easeOut' }}
-            whileHover={{ scale: 1.06, y: -3 }}
+    <div className={containerClass} aria-hidden>
+      <div className="pointer-events-none absolute inset-0">
+        {prefersReducedMotion ? (
+          <>
+            <div className={`absolute left-[8%] top-[12%] h-24 w-24 rounded-full ${blobClasses.primary} blur-2xl sm:h-36 sm:w-36`} />
+            <div className={`absolute right-[12%] top-[18%] h-28 w-28 rounded-full ${blobClasses.accent} blur-3xl sm:h-40 sm:w-40`} />
+            <div className={`absolute bottom-[10%] left-[22%] h-32 w-32 rounded-full ${blobClasses.secondary} blur-3xl sm:h-44 sm:w-44`} />
+          </>
+        ) : (
+          <motion.div
+            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
           >
-            {item.text}
-          </motion.li>
-        ))}
+            <motion.div
+              className={`absolute left-[8%] top-[12%] h-24 w-24 rounded-full ${blobClasses.primary} blur-2xl sm:h-36 sm:w-36`}
+              animate={{ x: [0, 10, -6, 0], y: [0, -8, 6, 0] }}
+              transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              className={`absolute right-[12%] top-[16%] h-28 w-28 rounded-full ${blobClasses.accent} blur-3xl sm:h-40 sm:w-40`}
+              animate={{ x: [0, -12, 8, 0], y: [0, 10, -8, 0] }}
+              transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              className={`absolute bottom-[10%] left-[24%] h-32 w-32 rounded-full ${blobClasses.secondary} blur-3xl sm:h-44 sm:w-44`}
+              animate={{ x: [0, 14, -8, 0], y: [0, -10, 10, 0] }}
+              transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </motion.div>
+        )}
       </div>
 
-      <div className="relative hidden min-h-[360px] px-8 py-8 sm:block">
-        {layout.map(({ item, size, tone, rotate, desktopSlot, delay }) => (
-          <motion.div
-            key={item.id}
-            className={`absolute flex max-w-[22rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[1.75rem] border border-white/40 bg-white/35 px-5 py-3 text-center leading-tight shadow-[0_18px_40px_rgba(255,255,255,0.34)] backdrop-blur-sm ${size} ${tone}`}
-            style={{ left: desktopSlot.left, top: desktopSlot.top, rotate: `${rotate}deg` }}
-            initial={{ opacity: 0, scale: 0.92, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ delay, duration: 0.5, ease: 'easeOut' }}
-            whileHover={{ scale: 1.08, y: -4 }}
-          >
-            {item.text}
-          </motion.div>
-        ))}
+      <div className="relative flex flex-wrap items-center justify-center gap-2 px-3 py-6 sm:gap-3 sm:px-8 sm:py-10">
+        {layout.map((entry) =>
+          renderChip(entry, { key: entry.item.id, animated: !prefersReducedMotion }),
+        )}
       </div>
     </div>
   );
