@@ -195,10 +195,10 @@
   --rail-width-collapsed: 56px;
   --rail-width-expanded: 240px;
 
-  /* Organize Lane Colors — dark defaults */
+  /* Organize Lane Colors — dark defaults (mobile list prototype: softer NOW card) */
   --color-lane-now: #d48aa6;
-  --color-lane-now-bg: rgba(212, 138, 166, 0.08);
-  --color-lane-now-border: rgba(212, 138, 166, 0.22);
+  --color-lane-now-bg: rgba(212, 138, 166, 0.06);
+  --color-lane-now-border: rgba(212, 138, 166, 0.16);
   --color-lane-now-glow: rgba(212, 138, 166, 0.3);
 
   --color-lane-next: #4f8c9e;
@@ -12302,6 +12302,19 @@ kbd {
   min-height: calc(100svh - var(--header-height-mobile, 44px));
   background: transparent;
   color: var(--color-text);
+}
+
+/* Mobile list: slightly deeper canvas + inset NOW card (matches prototype) */
+@media (max-width: 1023px) {
+  .organize-clean-shell {
+    background: color-mix(in srgb, var(--color-bg-base) 94%, #000 6%);
+  }
+}
+
+.organize-clean-shell .organize-mobile-now-spotlight {
+  background: color-mix(in srgb, var(--color-lane-now) 14%, var(--color-bg-elevated));
+  border-color: color-mix(in srgb, var(--color-lane-now) 26%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .organize-clean-toolbar {

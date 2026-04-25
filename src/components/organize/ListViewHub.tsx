@@ -80,26 +80,20 @@ function ListViewMobile({
   return (
     <div className="lg:hidden flex flex-col h-full overflow-hidden">
       {/* Now spotlight */}
-      <div
-        className="mx-3.5 mt-3 mb-0 shrink-0 rounded-[14px] px-4 py-3"
-        style={{
-          background: 'var(--color-lane-now-bg)',
-          border: '1px solid var(--color-lane-now-border)',
-        }}
-      >
-        <div className="flex items-center gap-1.5 mb-2">
+      <div className="organize-mobile-now-spotlight mx-3.5 mt-2.5 mb-0 shrink-0 rounded-2xl border px-3.5 py-3">
+        <div className="flex items-center gap-1.5 mb-1.5">
           <span
             className="h-[7px] w-[7px] rounded-full bg-[var(--color-lane-now)]"
             style={{ boxShadow: '0 0 7px var(--color-lane-now-glow)' }}
             aria-hidden
           />
-          <span className="font-display text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-lane-now)]">Now</span>
-          <span className="font-body text-[11px] text-[var(--color-text-muted)]">{nowBullets.length} active</span>
+          <span className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--color-lane-now)]">Now</span>
+          <span className="font-display text-[10px] text-[var(--color-text-secondary)]">{nowBullets.length} active</span>
         </div>
         {nowBullets.length === 0 ? (
           <p className="font-body text-[13px] text-[var(--color-text-muted)]">Pull a task in to get started</p>
         ) : (
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col">
             {nowBullets.slice(0, 2).map((b, i) => {
               const proj = organization.projects.find(p => p.id === b.project);
               const pal = proj ? (PROJECT_PALETTE[proj.color] ?? PROJECT_PALETTE.slate) : null;
@@ -108,14 +102,18 @@ function ListViewMobile({
                   key={b.id}
                   className="flex items-center gap-2"
                   style={{
-                    borderBottom: i < Math.min(nowBullets.length, 2) - 1 ? '1px solid var(--color-border-subtle)' : 'none',
-                    paddingBottom: i < Math.min(nowBullets.length, 2) - 1 ? 6 : 0,
+                    borderBottom: i < Math.min(nowBullets.length, 2) - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                    paddingTop: i > 0 ? 5 : 0,
+                    paddingBottom: i < Math.min(nowBullets.length, 2) - 1 ? 5 : 0,
                   }}
                 >
                   {pal && <span className="h-[5px] w-[5px] shrink-0 rounded-full" style={{ background: pal.dot }} aria-hidden />}
-                  <span className="flex-1 font-body text-[13px] font-medium leading-snug text-[var(--color-text-primary)] line-clamp-1">{b.text}</span>
+                  <span className="flex-1 min-w-0 font-body text-[13px] font-medium leading-[1.3] text-[var(--color-text-primary)] line-clamp-1">{b.text}</span>
                   {proj && pal && (
-                    <span className="shrink-0 rounded-full px-2 py-0.5 font-display text-[10px] font-semibold" style={{ background: pal.bg, color: pal.text, border: `1px solid ${pal.border}` }}>
+                    <span
+                      className="shrink-0 rounded-full px-1.5 py-0.5 font-display text-[10px] font-semibold leading-none"
+                      style={{ background: pal.bg, color: pal.text }}
+                    >
                       {proj.label}
                     </span>
                   )}
@@ -123,14 +121,17 @@ function ListViewMobile({
               );
             })}
             {nowBullets.length > 2 && (
-              <p className="font-body text-[11px] text-[var(--color-text-muted)]">+{nowBullets.length - 2} more across projects</p>
+              <p className="mt-1 font-display text-[11px] text-[var(--color-text-muted)]">+{nowBullets.length - 2} more across projects</p>
             )}
           </div>
         )}
       </div>
 
-      {/* Project chips */}
-      <div className="shrink-0 flex gap-2 overflow-x-auto px-3.5 py-2.5" style={{ scrollbarWidth: 'none' }}>
+      {/* Project chips (prototype: inactive = secondary text + hairline border) */}
+      <div
+        className="shrink-0 flex gap-1.5 overflow-x-auto px-3.5 py-2.5 pb-2"
+        style={{ scrollbarWidth: 'none' }}
+      >
         {organization.projects.map(p => {
           const pal = PROJECT_PALETTE[p.color] ?? PROJECT_PALETTE.slate;
           const active = p.id === selectedProjectId;
@@ -139,14 +140,14 @@ function ListViewMobile({
               key={p.id}
               type="button"
               onClick={() => setSelectedProjectId(p.id)}
-              className="flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 font-display text-[13px] font-semibold transition-all"
+              className="flex shrink-0 items-center gap-1.5 rounded-full py-1.5 pl-3 pr-3.5 font-display text-[13px] font-semibold transition-all"
               style={{
-                border: `1.5px solid ${active ? pal.border : 'var(--color-border-subtle)'}`,
+                border: `1.5px solid ${active ? pal.border : 'rgba(255,255,255,0.08)'}`,
                 background: active ? pal.bg : 'transparent',
-                color: active ? pal.text : 'var(--color-text-muted)',
+                color: active ? pal.text : 'var(--color-text-secondary)',
               }}
             >
-              <span className="h-[6px] w-[6px] shrink-0 rounded-full" style={{ background: pal.dot, opacity: active ? 1 : 0.5 }} aria-hidden />
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: pal.dot, opacity: active ? 1 : 0.5 }} aria-hidden />
               {p.label}
             </button>
           );
@@ -156,10 +157,10 @@ function ListViewMobile({
       {/* Lane sections */}
       <div className="flex-1 overflow-y-auto px-3.5 pb-24">
         {selectedProject && selectedPalette && (
-          <div className="flex items-center gap-2 py-2 mb-1">
-            <div className="h-4 w-[3px] rounded-full shrink-0" style={{ background: selectedPalette.dot }} aria-hidden />
-            <span className="font-display text-[13px] font-bold" style={{ color: selectedPalette.text }}>{selectedProject.label}</span>
-            <span className="font-body text-[11px] text-[var(--color-text-muted)]">{projectBullets.length} tasks</span>
+          <div className="flex items-center gap-1.5 py-1.5 mb-0.5" aria-label={`${selectedProject.label}, ${projectBullets.length} tasks`}>
+            <div className="h-4 w-0.5 rounded-sm shrink-0" style={{ background: selectedPalette.dot }} aria-hidden />
+            <span className="font-display text-xs font-semibold" style={{ color: selectedPalette.text }}>{selectedProject.label}</span>
+            <span className="font-display text-[11px] text-[var(--color-text-muted)]">{projectBullets.length} tasks</span>
           </div>
         )}
 
@@ -172,37 +173,41 @@ function ListViewMobile({
               <button
                 type="button"
                 onClick={() => toggleLane(lane)}
-                className="flex w-full items-center justify-between py-3 border-b border-[var(--color-border-subtle)]"
+                className="flex w-full items-center justify-between border-b border-[rgba(255,255,255,0.05)] py-2.5"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <span className="h-[7px] w-[7px] rounded-full shrink-0" style={{ background: `var(${meta.colorVar})` }} aria-hidden />
-                  <span className="font-display text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: `var(${meta.colorVar})` }}>{meta.label}</span>
-                  <span className="font-body text-[11px] text-[var(--color-text-muted)]">{items.length}</span>
+                  <span
+                    className="font-display text-[10px] font-bold uppercase tracking-[0.12em]"
+                    style={{ color: `var(${meta.colorVar})` }}
+                  >
+                    {meta.label}
+                  </span>
+                  <span className="font-display text-[11px] text-[var(--color-text-muted)]">{items.length}</span>
                 </div>
                 {collapsed
-                  ? <ChevronRight className="h-3.5 w-3.5 text-[var(--color-text-muted)]" aria-hidden />
-                  : <ChevronDown className="h-3.5 w-3.5 text-[var(--color-text-muted)]" aria-hidden />
+                  ? <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[var(--color-text-muted)]" aria-hidden />
+                  : <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[var(--color-text-muted)]" aria-hidden />
                 }
               </button>
 
               {!collapsed && (
-                <div className="pb-1">
+                <div className="border-b border-[rgba(255,255,255,0.05)] pb-0.5">
                   {items.length === 0 ? (
-                    <p className="py-2 pb-3 pl-1 font-body text-[13px] text-[var(--color-text-muted)]">Nothing here yet</p>
+                    <p className="py-1.5 pb-2.5 pl-0.5 font-body text-[13px] text-[var(--color-text-muted)]/90">Nothing here yet</p>
                   ) : items.map(b => (
                     <div
                       key={b.id}
-                      className="flex items-center gap-3 py-2.5 border-b border-[var(--color-border-subtle)]"
+                      className="flex items-start gap-2.5 border-b border-[rgba(255,255,255,0.045)] py-2.5 last:border-b-0"
                     >
                       <button
                         type="button"
                         onClick={() => toggleDone(b)}
-                        className="h-[22px] w-[22px] shrink-0 rounded-full transition-all flex items-center justify-center border border-[var(--color-border-subtle)]"
-                        style={{ background: 'transparent' }}
+                        className="mt-0.5 h-6 w-6 shrink-0 rounded-full transition-all flex items-center justify-center border-[1.5px] border-white/[0.18] bg-transparent"
                         aria-label="Mark complete"
                       />
-                      <span className="flex-1 font-body text-[14px] font-medium leading-snug text-[var(--color-text-primary)]">{b.text}</span>
-                      <span className="h-[6px] w-[6px] shrink-0 rounded-full" style={{ background: `var(${meta.colorVar})` }} aria-hidden />
+                      <span className="flex-1 min-w-0 font-body text-[14px] font-medium leading-[1.42] text-[var(--color-text-primary)] pt-px">{b.text}</span>
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: `var(${meta.colorVar})` }} aria-hidden />
                     </div>
                   ))}
                 </div>

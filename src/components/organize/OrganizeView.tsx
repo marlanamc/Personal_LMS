@@ -128,12 +128,16 @@ export function OrganizeView() {
       <header className="organize-chrome-header border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-4 lg:px-6 h-14 lg:h-16 shrink-0 flex items-center">
 
         {/* ── MOBILE header (< lg) ────────────────────────────────────── */}
-        <div className="lg:hidden flex items-center w-full gap-3">
-          <h1 className="font-display text-[19px] font-bold text-[var(--color-text-primary)] leading-none shrink-0">
+        <div className="lg:hidden grid grid-cols-[minmax(0,auto)_1fr_minmax(0,auto)] items-center gap-2 w-full">
+          <h1 className="font-display text-[18px] font-bold tracking-[-0.01em] text-[var(--color-text-primary)] leading-none min-w-0">
             Organize
           </h1>
-          <div className="flex-1 flex justify-center">
-            <div role="tablist" aria-label="Organize view" className="flex items-center gap-0.5 rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-1">
+          <div className="flex justify-center min-w-0 px-1">
+            <div
+              role="tablist"
+              aria-label="Organize view"
+              className="inline-flex max-w-full items-center gap-0.5 overflow-x-auto rounded-full bg-[rgba(255,255,255,0.05)] p-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
               {VIEW_OPTIONS.map(({ id, label }) => {
                 const isActive = viewMode === id;
                 return (
@@ -144,10 +148,10 @@ export function OrganizeView() {
                     aria-selected={isActive}
                     onClick={() => handleViewModeChange(id)}
                     className={[
-                      'rounded-full px-3.5 py-1 text-[13px] font-semibold font-display transition-all duration-150 focus-visible:outline-none',
+                      'shrink-0 rounded-full px-3 py-1.5 text-[12px] font-semibold font-display transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30',
                       isActive
-                        ? 'border border-[var(--color-primary)] text-[var(--color-text-primary)]'
-                        : 'text-[var(--color-text-muted)] border border-transparent',
+                        ? 'bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] shadow-[0_1px_4px_rgba(0,0,0,0.3)]'
+                        : 'text-[var(--color-text-muted)]',
                     ].join(' ')}
                   >
                     {label}
@@ -156,25 +160,16 @@ export function OrganizeView() {
               })}
             </div>
           </div>
-          {/* Inbox dot */}
-          <button
-            type="button"
-            onClick={() => setInboxOpen(o => !o)}
-            aria-label={`Inbox (${inboxCount} items)`}
-            aria-pressed={inboxOpen}
-            className="relative shrink-0 h-8 w-8 flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
+          <span
+            className="organize-sync-status justify-self-end"
+            title={syncLabel}
+            aria-label={syncLabel}
           >
             <span
-              className="h-2.5 w-2.5 rounded-full bg-[var(--color-primary)]"
-              style={{ boxShadow: '0 0 8px var(--color-lane-now-glow)' }}
-              aria-hidden
+              className={`organize-sync-dot ${saveError ? 'is-error' : isSaving ? 'is-saving' : 'is-synced'}`}
             />
-            {inboxCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[var(--color-primary)] text-[8px] font-bold font-mono text-[var(--color-bg-base)]">
-                {inboxCount > 9 ? '9+' : inboxCount}
-              </span>
-            )}
-          </button>
+            <span className="organize-sync-label" aria-hidden>{syncLabel}</span>
+          </span>
         </div>
 
         {/* ── DESKTOP header (≥ lg) ────────────────────────────────────── */}
@@ -360,6 +355,23 @@ export function OrganizeView() {
         organization={organization}
         onUpdateOrganization={handleUpdateOrganization}
       />
+
+      {/* Mobile: Inbox FAB (design prototype — tray + badge, not a ringed header icon) */}
+      <button
+        type="button"
+        onClick={() => setInboxOpen(o => !o)}
+        aria-label={`Inbox${inboxCount > 0 ? `, ${inboxCount} items` : ''}`}
+        aria-pressed={inboxOpen}
+        className="lg:hidden fixed z-20 flex items-center gap-1.5 rounded-[22px] border border-white/10 bg-[var(--color-bg-elevated)] py-2 pl-2.5 pr-3.5 text-[13px] font-semibold font-display text-[var(--color-text-secondary)] shadow-[0_4px_20px_rgba(0,0,0,0.4)] transition-colors hover:bg-[#243852] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 bottom-[calc(var(--bottom-nav-height)+10px)] right-3.5"
+      >
+        <Inbox size={17} strokeWidth={1.75} className="shrink-0 opacity-90" aria-hidden />
+        <span>Inbox</span>
+        {inboxCount > 0 && (
+          <span className="rounded-[10px] bg-[rgba(160,137,199,0.2)] px-1.5 py-px text-[10px] font-bold text-[var(--color-accent)]">
+            {inboxCount > 99 ? '99+' : inboxCount}
+          </span>
+        )}
+      </button>
     </div>
   );
 }
