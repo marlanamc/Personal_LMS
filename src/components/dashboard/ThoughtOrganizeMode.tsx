@@ -1,18 +1,15 @@
 'use client';
 
-import { forwardRef, Fragment, useCallback, useEffect, useImperativeHandle, useMemo, useState, type ReactNode } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { useIsBelowLg } from '@/hooks/useIsBelowLg';
 import {
-  ORGANIZE_DEFAULT_MOBILE_TAB,
   readOrganizePrefs,
   writeOrganizePrefs,
-  type OrganizeMobileSurfaceTab,
 } from '@/lib/organize-prefs';
-import { parseSpotlightNowInsertIndex, spotlightNowInsertId } from '@/lib/organize-spotlight';
-import { ChevronDown, ChevronLeft, Eye, EyeOff, GripVertical, MoreHorizontal, Plus, Trash2, Undo2, X } from 'lucide-react';
+import { ChevronDown, ChevronLeft, Eye, EyeOff, GripVertical, Inbox, MoreHorizontal, Plus, Trash2, Undo2, X } from 'lucide-react';
 import {
   closestCenter,
   DndContext,
@@ -34,10 +31,9 @@ import { CSS } from '@dnd-kit/utilities';
 import { nanoid } from 'nanoid';
 import {
   deduplicateProjects,
+  globalNowBulletsSorted,
   groupByProjectLane,
-  insertIntoGlobalNowQueueAt,
   laneToPriority,
-  moveGlobalNowBulletByDelta,
   reconcileBullets,
   THOUGHT_LANES,
   type ProjectColor,
@@ -49,10 +45,6 @@ import {
 import { OrganizableBullet } from './OrganizableBullet';
 
 const ACTIVE_LANES: ThoughtLane[] = ['now', 'next', 'later'];
-const QUEUED_LANES: ThoughtLane[] = ['next', 'later'];
-const NOW_SOFT_LIMIT = 5;
-const SPOTLIGHT_COMPACT_CAP_MOBILE = 4;
-const SPOTLIGHT_COMPACT_CAP_DESKTOP = 5;
 
 interface ThoughtOrganizeModeProps {
   dateKey?: string;
@@ -91,258 +83,53 @@ const LANE_CONFIG: Record<ThoughtLane, {
 
 const PROJECT_COLORS: ProjectColor[] = ['lavender', 'mint', 'sky', 'peach', 'rose', 'sage', 'periwinkle', 'coral', 'blush', 'slate'];
 
-function SpotlightInsertStrip({
-  insertIndex,
-  label,
-  hint,
-  dragType,
-  size = 'compact',
-  variant = 'full',
-}: {
-  insertIndex: number;
-  label: string;
-  hint: string;
-  dragType?: 'project' | 'bullet' | null;
-  size?: 'compact' | 'hero';
-  /** Minimal hit target when not dragging; expands visually while dragging bullets */
-  variant?: 'full' | 'quiet';
-}) {
-  const id = spotlightNowInsertId(insertIndex);
-  const { setNodeRef, isOver } = useDroppable({ id });
-  const showDropHighlight = isOver && dragType === 'bullet';
-  const aria =
-    variant === 'quiet'
-      ? insertIndex === 0
-        ? 'Drop zone: move to top of active list'
-        : 'Drop zone: insert in active list'
-      : `${label}. ${hint}`;
-
-  if (variant === 'quiet') {
-    return (
-      <div
-        ref={setNodeRef}
-        className={`now-spotlight-insert now-spotlight-insert-quiet ${showDropHighlight ? 'now-spotlight-insert-active' : ''}`}
-        data-drop-slot={id}
-        aria-label={aria}
-        role="presentation"
-      />
-    );
-  }
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={`now-spotlight-insert ${showDropHighlight ? 'now-spotlight-insert-active' : ''}`}
-      data-drop-slot={id}
-    >
-      {label ? <div className="now-spotlight-insert-label">{label}</div> : null}
-      <div className={size === 'hero' ? 'now-spotlight-drop-placeholder' : 'now-spotlight-insert-hint'}>
-        <span>{hint}</span>
-      </div>
-    </div>
-  );
-}
-
-function NowSpotlight({
+function CleanNowSummary({
   bullets,
   projects,
-  onUpdateBullet,
-  onDeleteBullet,
-  showExpanded,
-  onToggleExpanded,
-  focusedProjectId,
-  dragType,
-  compactCap,
-  showLaneActions,
-  onReorderGlobalNow,
-  onGoToProjectsTab,
 }: {
   bullets: ThoughtBullet[];
   projects: ProjectMeta[];
-  onUpdateBullet: (bulletId: string, updates: Partial<ThoughtBullet>) => void;
-  onDeleteBullet: (bulletId: string) => void;
-  showExpanded: boolean;
-  onToggleExpanded: () => void;
-  focusedProjectId?: string | null;
-  dragType?: 'project' | 'bullet' | null;
-  compactCap: number;
-  showLaneActions: boolean;
-  onReorderGlobalNow: (bulletId: string, delta: -1 | 1) => void;
-  /** When set (e.g. mobile), empty spotlight can jump to the Projects tab */
-  onGoToProjectsTab?: () => void;
 }) {
-  const nowBullets = [...bullets]
-    .filter((b) => b.lane === 'now' && b.project && (!focusedProjectId || b.project === focusedProjectId))
-    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
-  const focusedProject = focusedProjectId
-    ? projects.find((project) => project.id === focusedProjectId) ?? null
-    : null;
-
-  const hasOverflow = nowBullets.length > compactCap;
-  const overSoftLimit = nowBullets.length > NOW_SOFT_LIMIT;
-  const listScrollClass =
-    hasOverflow && !showExpanded ? 'now-spotlight-active-list-collapsed' : '';
-  const verboseDropZones = dragType === 'bullet';
-
-  const renderBullet = (bullet: ThoughtBullet, index: number) => {
-    const priority = index === 0 ? 'primary' : 'secondary';
-    const queue = nowBullets.map((b) => b.id);
-    const pos = queue.indexOf(bullet.id);
-    return (
-      <OrganizableBullet
-        key={bullet.id}
-        bullet={bullet}
-        existingProjects={projects}
-        onUpdate={(updates) => onUpdateBullet(bullet.id, updates)}
-        onDelete={() => onDeleteBullet(bullet.id)}
-        interactionMode="drag-only"
-        showProjectPill
-        inSpotlight
-        spotlightPriority={priority}
-        disableSortable={false}
-        showLaneActions={showLaneActions}
-        activeSetReorder={{
-          onMoveUp: () => onReorderGlobalNow(bullet.id, -1),
-          onMoveDown: () => onReorderGlobalNow(bullet.id, 1),
-          canMoveUp: pos > 0,
-          canMoveDown: pos >= 0 && pos < queue.length - 1,
-        }}
-      />
-    );
-  };
-
-  const listInner = (
-    <div className={`now-spotlight-active-list ${listScrollClass}`.trim()}>
-      {nowBullets.length === 0 ? (
-        <>
-          <SpotlightInsertStrip
-            insertIndex={0}
-            label="Active tasks"
-            hint={
-              projects.length > 0
-                ? 'Drag from Projects or capture in Inbox.'
-                : 'Add a project, then pull tasks into this list.'
-            }
-            dragType={dragType}
-            size="hero"
-          />
-          {onGoToProjectsTab && projects.length > 0 ? (
-            <div className="mt-4 flex flex-col items-center px-2 text-center">
-              <button
-                type="button"
-                onClick={onGoToProjectsTab}
-                className="rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-95 touch-manipulation"
-              >
-                Go to Projects
-              </button>
-            </div>
-          ) : null}
-        </>
-      ) : (
-        <>
-          <SpotlightInsertStrip
-            insertIndex={0}
-            label="Drop at front"
-            hint="Release to make this the first active task"
-            dragType={dragType}
-            variant={verboseDropZones ? 'full' : 'quiet'}
-          />
-          {nowBullets.map((bullet, i) => (
-            <Fragment key={bullet.id}>
-              <div className="now-spotlight-active-item">{renderBullet(bullet, i)}</div>
-              <SpotlightInsertStrip
-                insertIndex={i + 1}
-                label=""
-                hint="Drop to insert here"
-                dragType={dragType}
-                variant={verboseDropZones ? 'full' : 'quiet'}
-              />
-            </Fragment>
-          ))}
-        </>
-      )}
-    </div>
-  );
+  const activeBullets = globalNowBulletsSorted(bullets);
+  const visibleBullets = activeBullets.slice(0, 2);
+  const overflowCount = Math.max(0, activeBullets.length - visibleBullets.length);
 
   return (
-    <div className="now-spotlight now-spotlight--calm mb-5">
-      <div className="now-spotlight-header">
-        <div className="now-spotlight-heading">
-          <span className="now-spotlight-dot" />
-          <div className="now-spotlight-title-wrap">
-            <span className="now-spotlight-label">Now</span>
-            <p className="now-spotlight-subtitle now-spotlight-subtitle-primary">
-              {focusedProject
-                ? `${focusedProject.label}`
-                : nowBullets.length > 0
-                  ? 'Active set'
-                  : 'Nothing in motion yet'}
-            </p>
-            <p className="now-spotlight-subline">
-              {focusedProject
-                ? `${nowBullets.length} active task${nowBullets.length === 1 ? '' : 's'}`
-                : nowBullets.length > 0
-                  ? `${nowBullets.length} active task${nowBullets.length === 1 ? '' : 's'}`
-                  : 'Add tasks from Projects to get started'}
-            </p>
-            {overSoftLimit ? (
-              <p className="now-spotlight-soft-limit mt-1.5 text-[11px] font-medium leading-snug text-text-muted">
-                List is full. Consider moving some to <span className="text-text-secondary">Next</span>.
-              </p>
-            ) : null}
-          </div>
-        </div>
-        <span className="now-spotlight-count" aria-hidden>
-          {nowBullets.length}
+    <section className="organize-clean-now-card" aria-label="Active tasks">
+      <div className="organize-clean-now-heading">
+        <span className="organize-clean-dot organize-clean-dot-now" />
+        <span className="organize-clean-now-label">Now</span>
+        <span className="organize-clean-now-count">
+          {activeBullets.length} active
         </span>
       </div>
-
-      <div className="now-spotlight-flow now-spotlight-flow-single">
-        {nowBullets.length > 0 ? (
-          <SortableContext items={nowBullets.map((b) => b.id)} strategy={verticalListSortingStrategy}>
-            {listInner}
-          </SortableContext>
-        ) : (
-          listInner
-        )}
-      </div>
-
-      {nowBullets.length > 0 && hasOverflow ? (
-        <div className="now-spotlight-overflow">
-          <span className="now-spotlight-overflow-text">Long active list</span>
-          <button type="button" onClick={onToggleExpanded} className="now-spotlight-overflow-button">
-            {showExpanded ? 'Collapse scroll' : 'Expand scroll'}
-          </button>
+      {visibleBullets.length > 0 ? (
+        <div className="organize-clean-now-list">
+          {visibleBullets.map((bullet) => {
+            const project =
+              bullet.projectMeta ??
+              projects.find((item) => item.id === bullet.project) ??
+              null;
+            return (
+              <div key={bullet.id} className="organize-clean-now-item">
+                <span className="organize-clean-dot organize-clean-dot-next" />
+                <span className="organize-clean-now-text">{bullet.text}</span>
+                {project ? (
+                  <span className={`organize-clean-project-tag moment-tag-pill moment-tag-pill-selected-${project.color}`}>
+                    {project.label}
+                  </span>
+                ) : null}
+              </div>
+            );
+          })}
+          {overflowCount > 0 ? (
+            <p className="organize-clean-now-more">+{overflowCount} more across projects</p>
+          ) : null}
         </div>
-      ) : null}
-    </div>
-  );
-}
-
-function ProjectNowSummary({
-  bullets,
-}: {
-  bullets: ThoughtBullet[];
-}) {
-  if (bullets.length === 0) return null;
-
-  return (
-    <div className="organize-project-focus-summary">
-      <div className="organize-project-focus-summary-header">
-        <div className="organize-project-focus-summary-label-wrap">
-          <span className="organize-project-focus-summary-dot" />
-          <span className="organize-project-focus-summary-label">In Focus</span>
-        </div>
-        <span className="organize-project-focus-summary-count">{bullets.length}</span>
-      </div>
-      <div className="organize-project-focus-summary-list">
-        {bullets.map((bullet) => (
-          <div key={bullet.id} className="organize-project-focus-summary-item">
-            <span className="organize-project-focus-summary-text">{bullet.text}</span>
-          </div>
-        ))}
-      </div>
-    </div>
+      ) : (
+        <p className="organize-clean-now-empty">No active tasks yet.</p>
+      )}
+    </section>
   );
 }
 
@@ -642,11 +429,12 @@ function DroppableInbox({
           <button
             type="button"
             onClick={onToggle}
-            className="flex w-full flex-col items-center justify-center gap-3 px-2 py-4 text-center transition-opacity hover:opacity-70"
+            className="organize-inbox-pill-button"
             aria-label="Show inbox"
           >
-            <span className="text-xs font-semibold text-text-muted">{bullets.length}</span>
-            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-text-muted" style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>Inbox</span>
+            <Inbox className="h-5 w-5" />
+            <span>Inbox</span>
+            <span className="organize-inbox-pill-count">{bullets.length}</span>
           </button>
         </motion.div>
 
@@ -657,12 +445,9 @@ function DroppableInbox({
             onClick={onToggle}
             className="organize-inbox-sheet-trigger lg:hidden"
           >
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-text">Inbox</span>
-              <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-bold text-primary">
-                {bullets.length}
-              </span>
-            </div>
+            <Inbox className="h-5 w-5" />
+            <span>Inbox</span>
+            <span className="organize-inbox-pill-count">{bullets.length}</span>
             <ChevronDown className="h-5 w-5 text-text-muted rotate-180" />
           </button>
         ) : null}
@@ -1062,7 +847,6 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const [newProjectColor, setNewProjectColor] = useState<ProjectColor>('lavender');
   const [inboxCollapsed, setInboxCollapsed] = useState(true);
   const isBelowLg = useIsBelowLg();
-  const [mobileSurfaceTab, setMobileSurfaceTab] = useState<OrganizeMobileSurfaceTab>(ORGANIZE_DEFAULT_MOBILE_TAB);
   const [prefsHydrated, setPrefsHydrated] = useState(false);
 
   const [collapsedDoneProjects, setCollapsedDoneProjects] = useState<Record<string, boolean>>({});
@@ -1072,7 +856,6 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const [projectMenuId, setProjectMenuId] = useState<string | null>(null);
   const [undoState, setUndoState] = useState<{ organization: ThoughtOrganization; message: string } | null>(null);
   const [undoCountdown, setUndoCountdown] = useState<number>(0);
-  const [nowSpotlightExpanded, setNowSpotlightExpanded] = useState(false);
   const [quickAddText, setQuickAddText] = useState('');
   const [focusedProjectId, setFocusedProjectId] = useState<string | null>(null);
 
@@ -1086,9 +869,6 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
     if (prefs.inboxOpen !== undefined) {
       setInboxCollapsed(!prefs.inboxOpen);
     }
-    if (prefs.mobileSurfaceTab) {
-      setMobileSurfaceTab(prefs.mobileSurfaceTab);
-    }
     setPrefsHydrated(true);
   }, [mounted]);
 
@@ -1096,11 +876,6 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
     if (!mounted || !prefsHydrated) return;
     writeOrganizePrefs({ inboxOpen: !inboxCollapsed });
   }, [inboxCollapsed, mounted, prefsHydrated]);
-
-  useEffect(() => {
-    if (!mounted || !prefsHydrated || !isBelowLg) return;
-    writeOrganizePrefs({ mobileSurfaceTab: mobileSurfaceTab });
-  }, [mobileSurfaceTab, isBelowLg, mounted, prefsHydrated]);
 
   const collisionDetection = (args: Parameters<typeof closestCenter>[0]) => {
     if (activeProjectId) {
@@ -1169,8 +944,13 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   }, [inbox]);
 
   useEffect(() => {
-    if (focusedProjectId && !localOrg.projects.some((project) => project.id === focusedProjectId)) {
+    if (localOrg.projects.length === 0) {
       setFocusedProjectId(null);
+      return;
+    }
+
+    if (!focusedProjectId || !localOrg.projects.some((project) => project.id === focusedProjectId)) {
+      setFocusedProjectId(localOrg.projects[0].id);
     }
   }, [focusedProjectId, localOrg.projects]);
 
@@ -1394,17 +1174,6 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
       const overId = String(over.id);
       const activeBullet = prev.bullets.find((bullet) => bullet.id === activeId);
       if (!activeBullet) return prev;
-      const spotlightInsertIndex = parseSpotlightNowInsertIndex(overId);
-
-      if (spotlightInsertIndex !== null) {
-        const nextBullets = insertIntoGlobalNowQueueAt(prev.bullets, activeId, spotlightInsertIndex, prev.projects);
-        if (!nextBullets) return prev;
-        return {
-          ...prev,
-          bullets: nextBullets,
-          projects: updateProjectsFromBullets(nextBullets, prev.projects),
-        };
-      }
 
       const overBullet = prev.bullets.find((bullet) => bullet.id === overId);
       const sourceContainerId = getBulletContainerId(activeBullet);
@@ -1666,19 +1435,6 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
   const visibleProjectColumns = focusedProjectId
     ? projectColumns.filter((column) => column.projectId === focusedProjectId)
     : projectColumns;
-  const hiddenProjectCount = projectColumns.length - visibleProjectColumns.length;
-
-  const handleReorderGlobalNow = useCallback((bulletId: string, delta: -1 | 1) => {
-    setLocalOrg((prev) => {
-      const next = moveGlobalNowBulletByDelta(prev.bullets, bulletId, delta);
-      if (!next) return prev;
-      return {
-        ...prev,
-        bullets: next,
-        projects: updateProjectsFromBullets(next, prev.projects),
-      };
-    });
-  }, []);
 
   const toggleLaterLane = useCallback((projectId: string) => {
     setLaterLaneExpanded((current) => ({
@@ -1687,8 +1443,7 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
     }));
   }, []);
 
-  const suppressProjectNowLane = isBelowLg && mobileSurfaceTab === 'now';
-  const showLaneQuickActionsProjects = isBelowLg && mobileSurfaceTab === 'projects';
+  const showLaneQuickActionsProjects = isBelowLg;
 
   const contentBody = (
     <div className="flex h-full flex-col overflow-hidden">
@@ -1952,390 +1707,160 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
               </div>
             ) : (
               <>
-                {/* NOW Spotlight - Hidden to keep list view clean */}
-                {/* {localOrg.projects.length > 0 && (
-                  <div
-                    className={
-                      hasLowerWorkspace && isBelowLg && mobileSurfaceTab !== 'now'
-                        ? 'hidden lg:block'
-                        : ''
-                    }
-                  >
-                    <NowSpotlight
-                      bullets={localOrg.bullets}
-                      projects={localOrg.projects}
-                      onUpdateBullet={handleUpdateBullet}
-                      onDeleteBullet={handleDeleteBullet}
-                      showExpanded={nowSpotlightExpanded}
-                      onToggleExpanded={() => setNowSpotlightExpanded((v) => !v)}
-                      focusedProjectId={focusedProjectId}
-                      dragType={dragType}
-                      compactCap={isBelowLg ? SPOTLIGHT_COMPACT_CAP_MOBILE : SPOTLIGHT_COMPACT_CAP_DESKTOP}
-                      showLaneActions={isBelowLg}
-                      onReorderGlobalNow={handleReorderGlobalNow}
-                      onGoToProjectsTab={isBelowLg ? () => setMobileSurfaceTab('projects') : undefined}
-                    />
-                  </div>
-                )} */}
+                <CleanNowSummary bullets={localOrg.bullets} projects={localOrg.projects} />
 
-                {hasLowerWorkspace && isBelowLg ? (
-                  <div className="organize-mobile-surface lg:hidden">
-                    <div className="organize-mobile-tabs" role="tablist" aria-label="Organize sections">
-                      {(['now', 'projects', 'inbox'] as OrganizeMobileSurfaceTab[]).map((tab) => (
-                        <button
-                          key={tab}
-                          type="button"
-                          role="tab"
-                          aria-selected={mobileSurfaceTab === tab}
-                          onClick={() => setMobileSurfaceTab(tab)}
-                          className={`organize-mobile-tab touch-manipulation ${
-                            mobileSurfaceTab === tab ? 'organize-mobile-tab-active' : ''
-                          }`}
-                        >
-                          {tab === 'now' ? 'Now' : tab === 'projects' ? 'Projects' : 'Inbox'}
-                        </button>
-                      ))}
-                    </div>
-                    {mobileSurfaceTab === 'projects' ? (
-                      <div className="mt-3 space-y-3">
-                        {projectColumns.length > 0 ? (
-                          <div className="organize-project-focus-bar">
+                {hasLowerWorkspace ? (
+                  <div className="organize-lower-workspace-shell organize-clean-list-surface">
+                    <div className="space-y-4">
+                      {projectColumns.length > 0 ? (
+                        <div className="organize-project-focus-bar" aria-label="Project filter">
+                          {localOrg.projects.map((project) => (
                             <button
+                              key={project.id}
                               type="button"
-                              onClick={() => setFocusedProjectId(null)}
-                              className={`organize-project-focus-chip ${focusedProjectId === null ? 'organize-project-focus-chip-active' : ''}`}
+                              onClick={() => setFocusedProjectId(project.id)}
+                              className={`organize-project-focus-chip organize-project-focus-chip-${project.color} ${
+                                focusedProjectId === project.id ? 'organize-project-focus-chip-active' : ''
+                              }`}
                             >
-                              All projects
+                              {project.label}
                             </button>
-                            {localOrg.projects.map((project) => (
-                              <button
-                                key={project.id}
-                                type="button"
-                                onClick={() => setFocusedProjectId(project.id)}
-                                className={`organize-project-focus-chip organize-project-focus-chip-${project.color} ${
-                                  focusedProjectId === project.id ? 'organize-project-focus-chip-active' : ''
-                                }`}
-                              >
-                                {project.label}
-                              </button>
-                            ))}
-                          </div>
-                        ) : null}
-                        {focusedProjectId && hiddenProjectCount > 0 ? (
-                          <div className="organize-project-focus-note">
-                            Showing 1 project. {hiddenProjectCount} other {hiddenProjectCount === 1 ? 'project is' : 'projects are'} hidden until you switch back to All projects.
-                          </div>
-                        ) : null}
-                        <SortableContext
-                          items={visibleProjectColumns.map((column) => projectColumnId(column.projectId))}
-                          strategy={rectSortingStrategy}
-                        >
-                          <div className="organize-columns min-h-full gap-4 pb-2">
-                            {visibleProjectColumns.map((column) => (
-                              <SortableProjectColumn
-                                key={column.projectId}
-                                projectId={column.projectId}
-                                color={column.projectMeta?.color ?? 'lavender'}
-                                totalCount={QUEUED_LANES.reduce((sum, lane) => sum + column.lanes[lane].length, 0) + column.lanes.done.length}
-                                label={column.projectMeta?.label || 'Project'}
-                                isMenuOpen={projectMenuId === column.projectId}
-                                onToggleMenu={() => setProjectMenuId((current) => (current === column.projectId ? null : column.projectId))}
-                                menu={
-                                  <div className="absolute right-0 top-11 z-20 w-52 rounded-[1rem] border border-border-subtle/70 bg-bg-elevated/95 p-2 shadow-2xl backdrop-blur-xl">
-                                    <button
-                                      type="button"
-                                      onClick={() => column.projectMeta && openEditProject(column.projectMeta)}
-                                      className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
-                                    >
-                                      Rename or recolor
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleStartMergeProject(column.projectId)}
-                                      disabled={localOrg.projects.length < 2}
-                                      className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                      Merge into…
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        setCollapsedDoneProjects((current) => ({
-                                          ...current,
-                                          [column.projectId]: !(current[column.projectId] ?? true),
-                                        }))
-                                      }
-                                      className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
-                                    >
-                                      {(collapsedDoneProjects[column.projectId] ?? true) ? 'Expand done lane' : 'Collapse done lane'}
-                                    </button>
-                                    {isBelowLg ? (
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          toggleLaterLane(column.projectId);
-                                          setProjectMenuId(null);
-                                        }}
-                                        className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
-                                      >
-                                        {laterLaneExpanded[column.projectId] ? 'Collapse Later lane' : 'Expand Later lane'}
-                                      </button>
-                                    ) : null}
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDeleteProject(column.projectId)}
-                                      className="block w-full rounded-lg px-3 py-2 text-left text-sm text-error hover:bg-error/8"
-                                    >
-                                      Remove project
-                                    </button>
-                                  </div>
-                                }
-                              >
-                                {!suppressProjectNowLane ? <ProjectNowSummary bullets={column.lanes.now} /> : null}
-                                {QUEUED_LANES.map((lane) => (
-                                  <DroppableLane
-                                    key={lane}
-                                    id={laneDropId(column.projectId, lane)}
-                                    lane={lane}
-                                    bullets={column.lanes[lane]}
-                                    existingProjects={localOrg.projects}
-                                    onUpdateBullet={handleUpdateBullet}
-                                    onDeleteBullet={handleDeleteBullet}
-                                    dragType={dragType}
-                                    showLaneActions={showLaneQuickActionsProjects}
-                                    {...(lane === 'later'
-                                      ? {
-                                          collapsed: isBelowLg && !laterLaneExpanded[column.projectId],
-                                          onToggleCollapsed: () => toggleLaterLane(column.projectId),
-                                          laterShowHideControl:
-                                            isBelowLg && Boolean(laterLaneExpanded[column.projectId]),
-                                        }
-                                      : {})}
-                                  />
-                                ))}
-                                {showDoneLanes ? (
-                                  <DroppableLane
-                                    id={laneDropId(column.projectId, 'done')}
-                                    lane="done"
-                                    bullets={column.lanes.done}
-                                    existingProjects={localOrg.projects}
-                                    onUpdateBullet={handleUpdateBullet}
-                                    onDeleteBullet={handleDeleteBullet}
-                                    collapsed={collapsedDoneProjects[column.projectId] ?? true}
-                                    onToggleCollapsed={() =>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      <SortableContext
+                        items={visibleProjectColumns.map((column) => projectColumnId(column.projectId))}
+                        strategy={rectSortingStrategy}
+                      >
+                        <div className="organize-columns organize-clean-project-stack min-h-full gap-4 pb-2">
+                          <DroppableInbox
+                            bullets={inbox?.bullets || []}
+                            existingProjects={localOrg.projects}
+                            onUpdateBullet={handleUpdateBullet}
+                            onDeleteBullet={handleDeleteBullet}
+                            selectedIds={selectedInboxIds}
+                            onToggleSelected={(bulletId) =>
+                              setSelectedInboxIds((current) =>
+                                current.includes(bulletId) ? current.filter((id) => id !== bulletId) : [...current, bulletId]
+                              )
+                            }
+                            onClearSelection={() => setSelectedInboxIds([])}
+                            onBatchUpdate={handleBatchUpdateInbox}
+                            onBatchDelete={handleBatchDeleteInbox}
+                            collapsed={inboxCollapsed}
+                            onToggle={() => setInboxCollapsed((value) => !value)}
+                            quickAddText={quickAddText}
+                            onQuickAddChange={setQuickAddText}
+                            onQuickAdd={handleQuickAdd}
+                            prefersReducedMotion={prefersReducedMotion}
+                            dragType={dragType}
+                            showLaneActions={isBelowLg}
+                          />
+
+                          {visibleProjectColumns.map((column) => (
+                            <SortableProjectColumn
+                              key={column.projectId}
+                              projectId={column.projectId}
+                              color={column.projectMeta?.color ?? 'lavender'}
+                              totalCount={ACTIVE_LANES.reduce((sum, lane) => sum + column.lanes[lane].length, 0) + column.lanes.done.length}
+                              label={column.projectMeta?.label || 'Project'}
+                              isMenuOpen={projectMenuId === column.projectId}
+                              onToggleMenu={() => setProjectMenuId((current) => (current === column.projectId ? null : column.projectId))}
+                              menu={
+                                <div className="absolute right-0 top-11 z-20 w-52 rounded-[1rem] border border-border-subtle/70 bg-bg-elevated/95 p-2 shadow-2xl backdrop-blur-xl">
+                                  <button
+                                    type="button"
+                                    onClick={() => column.projectMeta && openEditProject(column.projectMeta)}
+                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
+                                  >
+                                    Rename or recolor
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleStartMergeProject(column.projectId)}
+                                    disabled={localOrg.projects.length < 2}
+                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-50"
+                                  >
+                                    Merge into...
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
                                       setCollapsedDoneProjects((current) => ({
                                         ...current,
                                         [column.projectId]: !(current[column.projectId] ?? true),
                                       }))
                                     }
-                                    dragType={dragType}
-                                    showLaneActions={showLaneQuickActionsProjects}
-                                  />
-                                ) : null}
-                              </SortableProjectColumn>
-                            ))}
-                          </div>
-                        </SortableContext>
-                      </div>
-                    ) : null}
-                    {mobileSurfaceTab === 'inbox' ? (
-                      <div className="mt-3">
-                        <DroppableInbox
-                          bullets={inbox?.bullets || []}
-                          existingProjects={localOrg.projects}
-                          onUpdateBullet={handleUpdateBullet}
-                          onDeleteBullet={handleDeleteBullet}
-                          selectedIds={selectedInboxIds}
-                          onToggleSelected={(bulletId) =>
-                            setSelectedInboxIds((current) =>
-                              current.includes(bulletId) ? current.filter((id) => id !== bulletId) : [...current, bulletId]
-                            )
-                          }
-                          onClearSelection={() => setSelectedInboxIds([])}
-                          onBatchUpdate={handleBatchUpdateInbox}
-                          onBatchDelete={handleBatchDeleteInbox}
-                          collapsed={false}
-                          onToggle={() => setInboxCollapsed((value) => !value)}
-                          quickAddText={quickAddText}
-                          onQuickAddChange={setQuickAddText}
-                          onQuickAdd={handleQuickAdd}
-                          prefersReducedMotion={prefersReducedMotion}
-                          dragType={dragType}
-                          mobileExpandedInline
-                          showLaneActions={isBelowLg}
-                        />
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
-
-                {hasLowerWorkspace && !isBelowLg ? (
-                  <div className="organize-lower-workspace-shell hidden lg:block">
-                    <div className="space-y-3">
-                        {projectColumns.length > 0 ? (
-                          <div className="organize-project-focus-bar">
-                            <button
-                              type="button"
-                              onClick={() => setFocusedProjectId(null)}
-                              className={`organize-project-focus-chip ${focusedProjectId === null ? 'organize-project-focus-chip-active' : ''}`}
-                            >
-                              All projects
-                            </button>
-                            {localOrg.projects.map((project) => (
-                              <button
-                                key={project.id}
-                                type="button"
-                                onClick={() => setFocusedProjectId(project.id)}
-                                className={`organize-project-focus-chip organize-project-focus-chip-${project.color} ${
-                                  focusedProjectId === project.id ? 'organize-project-focus-chip-active' : ''
-                                }`}
-                              >
-                                {project.label}
-                              </button>
-                            ))}
-                          </div>
-                        ) : null}
-
-                        {focusedProjectId && hiddenProjectCount > 0 ? (
-                          <div className="organize-project-focus-note">
-                            Showing 1 project. {hiddenProjectCount} other {hiddenProjectCount === 1 ? 'project is' : 'projects are'} hidden until you switch back to All projects.
-                          </div>
-                        ) : null}
-
-                        <SortableContext
-                          items={visibleProjectColumns.map((column) => projectColumnId(column.projectId))}
-                          strategy={rectSortingStrategy}
-                        >
-                          <div className="organize-columns min-h-full gap-4 pb-2">
-                            <DroppableInbox
-                              bullets={inbox?.bullets || []}
-                              existingProjects={localOrg.projects}
-                              onUpdateBullet={handleUpdateBullet}
-                              onDeleteBullet={handleDeleteBullet}
-                              selectedIds={selectedInboxIds}
-                              onToggleSelected={(bulletId) =>
-                                setSelectedInboxIds((current) =>
-                                  current.includes(bulletId) ? current.filter((id) => id !== bulletId) : [...current, bulletId]
-                                )
+                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
+                                  >
+                                    {(collapsedDoneProjects[column.projectId] ?? true) ? 'Expand done lane' : 'Collapse done lane'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      toggleLaterLane(column.projectId);
+                                      setProjectMenuId(null);
+                                    }}
+                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
+                                  >
+                                    {laterLaneExpanded[column.projectId] ? 'Collapse Later lane' : 'Expand Later lane'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteProject(column.projectId)}
+                                    className="block w-full rounded-lg px-3 py-2 text-left text-sm text-error hover:bg-error/8"
+                                  >
+                                    Remove project
+                                  </button>
+                                </div>
                               }
-                              onClearSelection={() => setSelectedInboxIds([])}
-                              onBatchUpdate={handleBatchUpdateInbox}
-                              onBatchDelete={handleBatchDeleteInbox}
-                              collapsed={inboxCollapsed}
-                              onToggle={() => setInboxCollapsed((value) => !value)}
-                              quickAddText={quickAddText}
-                              onQuickAddChange={setQuickAddText}
-                              onQuickAdd={handleQuickAdd}
-                              prefersReducedMotion={prefersReducedMotion}
-                              dragType={dragType}
-                            />
-
-                            {visibleProjectColumns.map((column) => (
-                              <SortableProjectColumn
-                                key={column.projectId}
-                                projectId={column.projectId}
-                                color={column.projectMeta?.color ?? 'lavender'}
-                                totalCount={QUEUED_LANES.reduce((sum, lane) => sum + column.lanes[lane].length, 0) + column.lanes.done.length}
-                                label={column.projectMeta?.label || 'Project'}
-                                isMenuOpen={projectMenuId === column.projectId}
-                                onToggleMenu={() => setProjectMenuId((current) => (current === column.projectId ? null : column.projectId))}
-                                menu={
-                                  <div className="absolute right-0 top-11 z-20 w-52 rounded-[1rem] border border-border-subtle/70 bg-bg-elevated/95 p-2 shadow-2xl backdrop-blur-xl">
-                                    <button
-                                      type="button"
-                                      onClick={() => column.projectMeta && openEditProject(column.projectMeta)}
-                                      className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
-                                    >
-                                      Rename or recolor
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleStartMergeProject(column.projectId)}
-                                      disabled={localOrg.projects.length < 2}
-                                      className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                      Merge into…
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        setCollapsedDoneProjects((current) => ({
-                                          ...current,
-                                          [column.projectId]: !(current[column.projectId] ?? true),
-                                        }))
+                            >
+                              {ACTIVE_LANES.map((lane) => (
+                                <DroppableLane
+                                  key={lane}
+                                  id={laneDropId(column.projectId, lane)}
+                                  lane={lane}
+                                  bullets={column.lanes[lane]}
+                                  existingProjects={localOrg.projects}
+                                  onUpdateBullet={handleUpdateBullet}
+                                  onDeleteBullet={handleDeleteBullet}
+                                  dragType={dragType}
+                                  showLaneActions={showLaneQuickActionsProjects}
+                                  {...(lane === 'later'
+                                    ? {
+                                        collapsed: !laterLaneExpanded[column.projectId],
+                                        onToggleCollapsed: () => toggleLaterLane(column.projectId),
+                                        laterShowHideControl: Boolean(laterLaneExpanded[column.projectId]),
                                       }
-                                      className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
-                                    >
-                                      {(collapsedDoneProjects[column.projectId] ?? true) ? 'Expand done lane' : 'Collapse done lane'}
-                                    </button>
-                                    {isBelowLg ? (
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          toggleLaterLane(column.projectId);
-                                          setProjectMenuId(null);
-                                        }}
-                                        className="block w-full rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-bg-surface"
-                                      >
-                                        {laterLaneExpanded[column.projectId] ? 'Collapse Later lane' : 'Expand Later lane'}
-                                      </button>
-                                    ) : null}
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDeleteProject(column.projectId)}
-                                      className="block w-full rounded-lg px-3 py-2 text-left text-sm text-error hover:bg-error/8"
-                                    >
-                                      Remove project
-                                    </button>
-                                  </div>
-                                }
-                              >
-                                <ProjectNowSummary bullets={column.lanes.now} />
+                                    : {})}
+                                />
+                              ))}
 
-                                {QUEUED_LANES.map((lane) => (
-                                  <DroppableLane
-                                    key={lane}
-                                    id={laneDropId(column.projectId, lane)}
-                                    lane={lane}
-                                    bullets={column.lanes[lane]}
-                                    existingProjects={localOrg.projects}
-                                    onUpdateBullet={handleUpdateBullet}
-                                    onDeleteBullet={handleDeleteBullet}
-                                    dragType={dragType}
-                                    {...(lane === 'later'
-                                      ? {
-                                          collapsed: isBelowLg && !laterLaneExpanded[column.projectId],
-                                          onToggleCollapsed: () => toggleLaterLane(column.projectId),
-                                          laterShowHideControl:
-                                            isBelowLg && Boolean(laterLaneExpanded[column.projectId]),
-                                        }
-                                      : {})}
-                                  />
-                                ))}
-
-                                {showDoneLanes ? (
-                                  <DroppableLane
-                                    id={laneDropId(column.projectId, 'done')}
-                                    lane="done"
-                                    bullets={column.lanes.done}
-                                    existingProjects={localOrg.projects}
-                                    onUpdateBullet={handleUpdateBullet}
-                                    onDeleteBullet={handleDeleteBullet}
-                                    collapsed={collapsedDoneProjects[column.projectId] ?? true}
-                                    onToggleCollapsed={() =>
-                                      setCollapsedDoneProjects((current) => ({
-                                        ...current,
-                                        [column.projectId]: !(current[column.projectId] ?? true),
-                                      }))
-                                    }
-                                    dragType={dragType}
-                                  />
-                                ) : null}
-                              </SortableProjectColumn>
-                            ))}
-                          </div>
-                        </SortableContext>
-                      </div>
+                              {showDoneLanes ? (
+                                <DroppableLane
+                                  id={laneDropId(column.projectId, 'done')}
+                                  lane="done"
+                                  bullets={column.lanes.done}
+                                  existingProjects={localOrg.projects}
+                                  onUpdateBullet={handleUpdateBullet}
+                                  onDeleteBullet={handleDeleteBullet}
+                                  collapsed={collapsedDoneProjects[column.projectId] ?? true}
+                                  onToggleCollapsed={() =>
+                                    setCollapsedDoneProjects((current) => ({
+                                      ...current,
+                                      [column.projectId]: !(current[column.projectId] ?? true),
+                                    }))
+                                  }
+                                  dragType={dragType}
+                                  showLaneActions={showLaneQuickActionsProjects}
+                                />
+                              ) : null}
+                            </SortableProjectColumn>
+                          ))}
+                        </div>
+                      </SortableContext>
+                    </div>
                   </div>
                 ) : null}
               </>

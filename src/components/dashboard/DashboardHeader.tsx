@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { BookOpenIcon } from "@/components/icons/Icons";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
 import { useFocusTimer } from "@/context/FocusTimerContext";
@@ -14,7 +15,8 @@ import {
 import { HeaderStatusChips } from "./HeaderStatusChips";
 import { NavigationSidePanel } from "@/components/shared/NavigationSidePanel";
 import { useTimeBlockPlanner } from "@/features/planning/hooks/useTimeBlockPlanner";
-import { Bell } from "lucide-react";
+import { Bell, ChevronLeft } from "lucide-react";
+import { showsBackArrow } from "@/lib/nav-tiers";
 
 interface DashboardHeaderProps {
     userName?: string;
@@ -23,6 +25,9 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) {
     const [isNavOpen, setIsNavOpen] = useState(false);
+    const pathname = usePathname();
+    const router = useRouter();
+    const isTierB = showsBackArrow(pathname);
     const { isActive, formattedTime, activeSessionLabel } = useFocusTimer();
     const { playSound } = useSound();
     const { plannerStore, isLoaded: isTimeBlockPlannerLoaded } = useTimeBlockPlanner();
@@ -79,12 +84,22 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
         prevOnAgainBlockIdRef.current = id;
     }, [activeTimeBlockStatus?.block.id, isTimeBlockPlannerLoaded, playSound]);
 
-    const brandBlock = (
+    const brandBlock = isTierB ? (
+        <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border-subtle/75 bg-bg-surface/75 text-text-muted transition-[transform,color,border-color,background-color] hover:border-primary/35 hover:text-primary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base sm:h-9 sm:w-9"
+            aria-label="Go back"
+        >
+            <ChevronLeft className="h-5 w-5" />
+        </button>
+    ) : (
         <>
+            {/* hamburger — hidden on desktop once the rail (Phase 3) is present */}
             <button
                 type="button"
                 onClick={() => setIsNavOpen(true)}
-                className="group flex w-max shrink-0 items-center gap-0 rounded-xl sm:gap-2 min-h-[44px] min-w-[44px] justify-center sm:min-h-0 sm:min-w-0 sm:justify-start touch-manipulation transition-[transform,box-shadow] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
+                className="lg:hidden group flex w-max shrink-0 items-center gap-0 rounded-xl sm:gap-2 min-h-[44px] min-w-[44px] justify-center sm:min-h-0 sm:min-w-0 sm:justify-start touch-manipulation transition-[transform,box-shadow] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
                 aria-label="Open navigation menu"
                 aria-expanded={isNavOpen}
                 aria-controls="dashboard-side-nav"

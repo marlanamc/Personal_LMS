@@ -45,47 +45,30 @@ export const BottomNav: React.FC<BottomNavProps> = ({ items }) => {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`bottom-nav-item flex items-center justify-center transition-colors duration-150 cursor-pointer touch-manipulation relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 min-h-[44px] min-w-[44px] ${
-                    isTimerTab ? 'is-timer' : ''
-                  } ${
+                  className={`bottom-nav-item flex flex-col items-center justify-center gap-[3px] px-1 py-1 transition-colors duration-150 cursor-pointer touch-manipulation relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${
                     isActive ? 'is-active' : ''
                   }`}
                   style={{
-                    color: isActive
-                      ? 'var(--color-primary)'
-                      : isTimerTab
-                        ? 'var(--color-secondary)'
-                        : 'var(--color-text-muted)',
+                    color: isActive ? 'var(--color-primary)' : 'var(--color-text-muted)',
                     touchAction: 'manipulation'
                   }}
                   aria-label={item.label}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <span className="sr-only">{item.label}</span>
-
-                  {/* Active indicator - slides between tabs */}
-                  {isActive && !prefersReducedMotion && (
-                    <motion.div
-                      layoutId="activeTabIndicator"
-                      className="absolute inset-1 bg-primary/10 rounded-lg -z-10"
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                  {isActive && prefersReducedMotion && (
-                    <div className="absolute inset-1 bg-primary/10 rounded-lg -z-10" />
-                  )}
-
                   {/* Icon with press animation */}
                   <motion.div
-                    className={`bottom-nav-icon pointer-events-none ${
-                      isTimerTab ? 'w-6 h-6' : 'w-5 h-5'
-                    }`}
-                    animate={isActive && !prefersReducedMotion ? { scale: 1.1 } : { scale: 1 }}
-                    whileTap={prefersReducedMotion ? undefined : { scale: 0.85 }}
+                    className="bottom-nav-icon pointer-events-none w-5 h-5"
+                    animate={isActive && !prefersReducedMotion ? { scale: 1.08 } : { scale: 1 }}
+                    whileTap={prefersReducedMotion ? undefined : { scale: 0.82 }}
                     transition={springConfig.snappy}
                   >
                     {item.icon}
                   </motion.div>
+
+                  {/* Visible label */}
+                  <span className="font-display text-[9.5px] font-semibold leading-none tracking-wide pointer-events-none">
+                    {item.label}
+                  </span>
                 </Link>
               );
             })}

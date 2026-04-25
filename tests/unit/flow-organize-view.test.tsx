@@ -48,17 +48,23 @@ const organization: ThoughtOrganization = {
 };
 
 describe('FlowOrganizeView', () => {
-  it('renders the flow shell and active task cards', () => {
+  it('renders the cockpit shell and active task', () => {
     const html = renderToStaticMarkup(
       <FlowOrganizeView organization={organization} onUpdateOrganization={vi.fn()} />
     );
 
     expect(html).toContain('Trigger builder');
-    expect(html).toContain('Trigger Chain');
-    expect(html).toContain('Task Tray');
+    expect(html).toContain('Live Now');
+    expect(html).toContain('Mark done');
+    // Pool zone
+    expect(html).toContain('Ready to chain');
+    // Telemetry zone
+    expect(html).toContain('Session');
+    // Active bullet text is in chain
     expect(html).toContain('Draft lesson intro');
+    // Pool bullet text visible
     expect(html).toContain('Build practice activity');
-    expect(html).not.toContain('Done in chain');
+    // Done bullet hidden by default
     expect(html).not.toContain('Archive old notes');
   });
 
@@ -67,7 +73,8 @@ describe('FlowOrganizeView', () => {
       <FlowOrganizeView organization={organization} onUpdateOrganization={vi.fn()} showDone />
     );
 
-    expect(html).toContain('Done in chain');
+    // Done section label and done bullet text
+    expect(html).toContain('Done');
     expect(html).toContain('Archive old notes');
   });
 });

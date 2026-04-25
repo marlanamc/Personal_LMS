@@ -4,22 +4,10 @@ import { useRef, useState, type CSSProperties } from 'react';
 import type { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Check, ChevronDown, ChevronUp, GripVertical, MoreHorizontal, RotateCcw, Trash2 } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, GripVertical, MoreHorizontal, Trash2 } from 'lucide-react';
 import type { ProjectMeta, ThoughtBullet, ThoughtLane } from '@/lib/thought-organization';
 import { laneToPriority } from '@/lib/thought-organization';
 import { BulletInlineEditor } from './BulletInlineEditor';
-
-function AnimatedCheckmark({ className }: { className?: string }) {
-  return (
-    <svg className={`organize-checkmark ${className ?? ''}`} viewBox="0 0 20 20" fill="none">
-      <circle className="organize-checkmark-circle" cx="10" cy="10" r="10" />
-      <path
-        className="organize-checkmark-check"
-        d="M6 10.5L8.5 13L14 7"
-      />
-    </svg>
-  );
-}
 
 function triggerHaptic() {
   if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
@@ -142,6 +130,8 @@ export interface OrganizableBulletProps {
   disableSortable?: boolean;
   /** Compact lane buttons — prefer on touch / small screens. */
   showLaneActions?: boolean;
+  /** Show the large row completion circle used by the clean list layout. */
+  showCompleteControl?: boolean;
   /**
    * When true with `showLaneActions`, lane moves live in a “Move…” menu instead of inline chips.
    * Defaults to matching `showLaneActions` so touch surfaces stay calm.
@@ -220,6 +210,7 @@ function OrganizableBulletCard({
   spotlightPriority,
   dragOverlay,
   showLaneActions,
+  showCompleteControl,
   showMoveMenu,
   activeSetReorder,
   sortable,
@@ -233,6 +224,7 @@ function OrganizableBulletCard({
   const laneConfig = bullet.lane ? LANE_COLORS[bullet.lane] : null;
   const isDone = bullet.lane === 'done';
   const useMoveMenu = showMoveMenu ?? Boolean(showLaneActions);
+  const showCompletionControl = (showCompleteControl ?? true) && Boolean(bullet.project) && !dragOverlay && !isEditable;
 
   const outerRef = sortable?.setNodeRef;
   const style = sortable?.style;
@@ -284,9 +276,30 @@ function OrganizableBulletCard({
             </button>
           ) : null}
 
+          {showCompletionControl ? (
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic();
+                onUpdate({
+                  lane: isDone ? 'next' : 'done',
+                  priority: laneToPriority(isDone ? 'next' : 'done'),
+                });
+              }}
+              className={`organize-card-complete-circle ${isDone ? 'is-done' : ''}`}
+              aria-label={isDone ? 'Reopen task' : 'Mark task done'}
+            >
+              {isDone ? <Check className="h-4 w-4" /> : null}
+            </button>
+          ) : null}
+
           {showDragGrip ? (
             <div
-              className={`organize-card-grip absolute ${laneConfig ? 'left-3' : 'left-2'} top-[0.9rem] opacity-70 sm:top-3 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity`}
+              className={
+                showCompletionControl
+                  ? 'organize-card-grip organize-card-grip-inline mt-1 opacity-0 transition-opacity sm:group-hover:opacity-70 focus-within:opacity-100'
+                  : `organize-card-grip absolute ${laneConfig ? 'left-3' : 'left-2'} top-[0.9rem] opacity-70 sm:top-3 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity`
+              }
             >
               <button
                 {...(dragOverlay ? {} : listeners)}
@@ -302,7 +315,7 @@ function OrganizableBulletCard({
             </div>
           ) : null}
 
-          <div className={`flex-1 min-w-0 ${selectable && onToggleSelect ? '' : showDragGrip ? 'pl-12 sm:pl-11' : ''}`}>
+          <div className={`flex-1 min-w-0 ${selectable && onToggleSelect ? '' : showDragGrip && !showCompletionControl ? 'pl-12 sm:pl-11' : ''}`}>
             <div className="flex items-start gap-1">
               {activeSetReorder ? (
                 <div className="organize-card-reorder-stack mt-0.5 flex w-[2.35rem] shrink-0 flex-col items-center gap-0.5 py-0.5">
@@ -465,6 +478,8 @@ function OrganizableBulletCard({
               </div>
             </div>
 
+            {laneConfig ? <span className="organize-card-lane-dot" data-lane={bullet.lane} /> : null}
+
             {isEditable && isEditing && (
               <div className="mt-3">
                 <BulletInlineEditor
@@ -478,31 +493,6 @@ function OrganizableBulletCard({
 
             {!isEditable ? (
               <div className="absolute right-3 bottom-1.5 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-hover:flex transition-opacity">
-                {bullet.project ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      triggerHaptic();
-                      onUpdate({
-                        lane: isDone ? 'next' : 'done',
-                        priority: laneToPriority(isDone ? 'next' : 'done'),
-                      });
-                    }}
-                    className={`p-1.5 rounded-full transition-colors touch-manipulation ${
-                      isDone
-                        ? 'text-text-muted hover:bg-bg-elevated hover:text-text'
-                        : 'text-text-muted hover:text-emerald-600 hover:bg-emerald-500/10'
-                    }`}
-                    aria-label={isDone ? 'Reopen' : 'Done'}
-                  >
-                    {isDone ? (
-                      <RotateCcw className="h-3.5 w-3.5" />
-                    ) : (
-                      <AnimatedCheckmark className="h-4 w-4" />
-                    )}
-                  </button>
-                ) : null}
-
                 {onDelete ? (
                   <button
                     type="button"
