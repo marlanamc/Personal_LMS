@@ -93,6 +93,8 @@ function CleanNowSummary({
   const activeBullets = globalNowBulletsSorted(bullets);
   const visibleBullets = activeBullets.slice(0, 2);
   const overflowCount = Math.max(0, activeBullets.length - visibleBullets.length);
+  const activeTotal = bullets.filter((bullet) => bullet.project && bullet.lane !== 'done').length;
+  const progressPercent = Math.min(100, Math.round((activeBullets.length / Math.max(activeTotal, 1)) * 100));
 
   return (
     <section className="organize-clean-now-card" aria-label="Active tasks">
@@ -125,6 +127,15 @@ function CleanNowSummary({
           {overflowCount > 0 ? (
             <p className="organize-clean-now-more">+{overflowCount} more across projects</p>
           ) : null}
+          <div className="organize-clean-now-progress">
+            <div className="organize-clean-now-progress-labels">
+              <span>Today&apos;s progress</span>
+              <span>{activeBullets.length} of {activeTotal} tasks</span>
+            </div>
+            <div className="organize-clean-now-progress-track">
+              <div style={{ width: `${progressPercent}%` }} />
+            </div>
+          </div>
         </div>
       ) : (
         <p className="organize-clean-now-empty">No active tasks yet.</p>
@@ -1714,7 +1725,11 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                     <div className="space-y-4">
                       {projectColumns.length > 0 ? (
                         <div className="organize-project-focus-bar" aria-label="Project filter">
-                          {localOrg.projects.map((project) => (
+                          {localOrg.projects.map((project) => {
+                            const projectCount = localOrg.bullets.filter(
+                              (bullet) => bullet.project === project.id && bullet.lane !== 'done'
+                            ).length;
+                            return (
                             <button
                               key={project.id}
                               type="button"
@@ -1723,9 +1738,10 @@ export const ThoughtOrganizeMode = forwardRef<ThoughtOrganizeModeActions, Though
                                 focusedProjectId === project.id ? 'organize-project-focus-chip-active' : ''
                               }`}
                             >
-                              {project.label}
+                              <span>{project.label}</span>
+                              <span className="organize-project-focus-chip-count">{projectCount}</span>
                             </button>
-                          ))}
+                          )})}
                         </div>
                       ) : null}
 

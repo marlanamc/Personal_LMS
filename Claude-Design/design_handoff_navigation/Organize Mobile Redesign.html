@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organize — Mobile Redesign</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: radial-gradient(ellipse at 30% 20%, #1a2f44 0%, #0a1520 60%);
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: 'Manrope', sans-serif;
+  padding: 32px 16px;
+  gap: 20px;
+}
+
+.label-row {
+  display: flex; gap: 40px; align-items: flex-start;
+}
+.view-label {
+  width: 390px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.view-label-text {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(169,183,200,0.55); font-family: 'Outfit', sans-serif;
+}
+
+.phone {
+  width: 390px; height: 820px;
+  background: #122033; border-radius: 46px; overflow: hidden; position: relative;
+  box-shadow:
+    0 0 0 1.5px rgba(255,255,255,0.07),
+    0 0 0 6px rgba(0,0,0,0.35),
+    0 50px 100px rgba(0,0,0,0.65),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+
+/* Status bar */
+.status-bar {
+  height: 44px; display: flex; align-items: center;
+  justify-content: space-between; padding: 0 26px;
+  flex-shrink: 0;
+}
+.status-time {
+  font-size: 15px; font-weight: 700; color: #e6edf6; font-family: 'Outfit', sans-serif;
+}
+.status-icons { display: flex; align-items: center; gap: 6px; }
+
+/* Top bar */
+.top-bar {
+  height: 50px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px; border-bottom: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0; gap: 10px;
+}
+.top-bar-title {
+  font-size: 18px; font-weight: 700; color: #e6edf6;
+  font-family: 'Outfit', sans-serif; letter-spacing: -0.01em; flex-shrink: 0;
+}
+.view-pills {
+  display: flex; align-items: center; background: rgba(255,255,255,0.05);
+  border-radius: 22px; padding: 3px; gap: 2px;
+}
+.view-pill {
+  padding: 5px 13px; border-radius: 18px; border: none;
+  background: transparent; color: #6e7e91; font-size: 12px; font-weight: 600;
+  font-family: 'Outfit', sans-serif; cursor: pointer; transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.view-pill.active {
+  background: #1e3046; color: #e6edf6;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* Content area */
+.content-area {
+  flex: 1; overflow: hidden; display: flex; flex-direction: column;
+  position: relative;
+}
+
+/* Inbox FAB */
+.inbox-fab {
+  position: absolute; bottom: 72px; right: 14px; z-index: 20;
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 14px 9px 11px; border-radius: 22px;
+  background: #1e3046; border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  cursor: pointer; transition: all 0.15s;
+  font-size: 13px; font-weight: 600; color: #a9b7c8;
+  font-family: 'Outfit', sans-serif;
+}
+.inbox-fab:hover { background: #243852; }
+.inbox-fab-badge {
+  background: rgba(160,137,199,0.2); color: #a089c7;
+  font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Bottom nav */
+.bottom-nav {
+  height: 68px; display: flex; align-items: flex-start; justify-content: space-around;
+  padding: 10px 6px 0; border-top: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0; position: relative; z-index: 10; background: #122033;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 4px 12px; flex: 1; cursor: pointer;
+}
+.nav-icon { color: #6e7e91; }
+.nav-icon.active { color: #d48aa6; }
+.nav-label { font-size: 9px; font-weight: 600; color: #6e7e91; font-family: 'Outfit', sans-serif; }
+.nav-label.active { color: #d48aa6; }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="organize-mobile-data.js"></script>
+<script type="text/babel" src="organize-mobile-components.jsx"></script>
+<script type="text/babel" src="organize-mobile-views.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+
+<script type="text/babel">
+const { useState, useCallback, useMemo, useEffect } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentColor": "#d48aa6",
+  "showProjectCount": true,
+  "showNowSpotlight": true,
+  "defaultView": "list"
+}/*EDITMODE-END*/;
+
+// ── Status Bar ────────────────────────────────────────────────────────────────
+function StatusBar() {
+  const now = new Date();
+  const time = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  return (
+    <div className="status-bar">
+      <span className="status-time">{time}</span>
+      <div className="status-icons">
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+          <rect x="0" y="3" width="3" height="9" rx="0.8" fill="#e6edf6"/>
+          <rect x="4.5" y="2" width="3" height="10" rx="0.8" fill="#e6edf6"/>
+          <rect x="9" y="0.5" width="3" height="11.5" rx="0.8" fill="#e6edf6"/>
+          <rect x="13.5" y="0.5" width="2" height="11.5" rx="0.8" fill="rgba(255,255,255,0.3)"/>
+        </svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+          <path d="M8 3C9.9 3 11.6 3.8 12.8 5L14.5 3.3C12.8 1.7 10.5 0.7 8 0.7C5.5 0.7 3.2 1.7 1.5 3.3L3.2 5C4.4 3.8 6.1 3 8 3Z" fill="#e6edf6"/>
+          <path d="M8 6C9.1 6 10.1 6.4 10.8 7.2L12.5 5.5C11.3 4.3 9.7 3.5 8 3.5C6.3 3.5 4.7 4.3 3.5 5.5L5.2 7.2C5.9 6.4 6.9 6 8 6Z" fill="#e6edf6"/>
+          <circle cx="8" cy="10" r="1.5" fill="#e6edf6"/>
+        </svg>
+        <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+          <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="rgba(255,255,255,0.35)" strokeWidth="1"/>
+          <rect x="22" y="3.5" width="2.5" height="5" rx="1" fill="rgba(255,255,255,0.35)"/>
+          <rect x="2" y="2" width="14" height="8" rx="1.5" fill="#e6edf6"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ── Top Bar ───────────────────────────────────────────────────────────────────
+function TopBar({ viewMode, onViewChange, isSaving, tweaks }) {
+  const views = [
+    { id: 'list',  label: 'List'  },
+    { id: 'bento', label: 'Bento' },
+    { id: 'flow',  label: 'Flow'  },
+  ];
+
+  return (
+    <div className="top-bar">
+      <span className="top-bar-title">Organize</span>
+      <div className="view-pills">
+        {views.map(v => (
+          <button
+            key={v.id}
+            className={`view-pill ${viewMode === v.id ? 'active' : ''}`}
+            onClick={() => onViewChange(v.id)}
+          >
+            {v.label}
+          </button>
+        ))}
+      </div>
+      <div className="status-dot" style={{
+        background: isSaving ? '#c8a46a' : tweaks.accentColor,
+        boxShadow: isSaving ? 'none' : `0 0 6px ${tweaks.accentColor}80`,
+      }} title={isSaving ? 'Saving…' : 'Synced'} />
+    </div>
+  );
+}
+
+// ── Bottom Nav ────────────────────────────────────────────────────────────────
+function BottomNav() {
+  const items = [
+    { label: 'Home',    active: false, path: 'M3 10L8 5l5 5' },
+    { label: 'Plan',    active: false, path: 'M3 5h10M3 8h7M3 11h10' },
+    { label: 'Timer',   active: false, path: 'M8 3v5l3 3M8 3a6 6 0 110 12A6 6 0 018 3z' },
+    { label: 'Organize',active: true,  path: 'M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM9 9h4v4H9z' },
+    { label: 'Subjects',active: false, path: 'M4 3h8M4 6.5h8M4 10h5' },
+  ];
+  return (
+    <div className="bottom-nav">
+      {items.map(({ label, active, path }) => (
+        <div key={label} className="nav-item">
+          <svg width="22" height="22" viewBox="0 0 16 16" fill="none" className={`nav-icon${active ? ' active' : ''}`}>
+            <path d={path} stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span className={`nav-label${active ? ' active' : ''}`}>{label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Main App ──────────────────────────────────────────────────────────────────
+function OrganizeApp({ tweaks }) {
+  const [viewMode, setViewMode] = useState(tweaks.defaultView || 'list');
+  const [bullets, setBullets] = useState(INITIAL_BULLETS);
+  const [showInbox, setShowInbox] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const inboxCount = bullets.filter(b => !b.project && b.lane !== 'done').length;
+
+  const handleToggleDone = useCallback(id => {
+    setIsSaving(true);
+    setBullets(prev => prev.map(b =>
+      b.id === id ? { ...b, lane: b.lane === 'done' ? (b.prevLane ?? 'next') : 'done', prevLane: b.lane !== 'done' ? b.lane : b.prevLane } : b
+    ));
+    setTimeout(() => setIsSaving(false), 700);
+  }, []);
+
+  const handleQuickAdd = useCallback(text => {
+    const newBullet = {
+      id: `b-${Date.now()}`,
+      text,
+      project: null,
+      lane: null,
+    };
+    setBullets(prev => [...prev, newBullet]);
+  }, []);
+
+  const handleViewChange = useCallback(mode => {
+    setViewMode(mode);
+    setShowInbox(false);
+  }, []);
+
+  const viewProps = { bullets, projects: PROJECTS, onToggleDone: handleToggleDone };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+      <StatusBar />
+      <TopBar viewMode={viewMode} onViewChange={handleViewChange} isSaving={isSaving} tweaks={tweaks} />
+
+      <div className="content-area">
+        {viewMode === 'list'  && tweaks.showNowSpotlight !== false && <ListViewMobile  {...viewProps} />}
+        {viewMode === 'list'  && tweaks.showNowSpotlight === false  && <ListViewMobile  {...viewProps} />}
+        {viewMode === 'bento' && <BentoViewMobile {...viewProps} />}
+        {viewMode === 'flow'  && <FlowViewMobile  {...viewProps} />}
+
+        {/* Inbox FAB */}
+        {!showInbox && (
+          <button className="inbox-fab" onClick={() => setShowInbox(true)} aria-label="Open inbox">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ color: '#a089c7' }}>
+              <rect x="1" y="8" width="12" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+              <path d="M1 8l2.5-6h7L13 8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Inbox
+            {inboxCount > 0 && <span className="inbox-fab-badge">{inboxCount}</span>}
+          </button>
+        )}
+
+        {/* Inbox sheet */}
+        {showInbox && (
+          <InboxSheet
+            bullets={bullets}
+            projects={PROJECTS}
+            onClose={() => setShowInbox(false)}
+            onToggleDone={handleToggleDone}
+            onQuickAdd={handleQuickAdd}
+          />
+        )}
+      </div>
+
+      <BottomNav />
+    </div>
+  );
+}
+
+// ── Phone Shell + Root ────────────────────────────────────────────────────────
+function App() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  return (
+    <>
+      <div className="label-row">
+        <div className="view-label">
+          <div className="phone">
+            <OrganizeApp tweaks={tweaks} />
+          </div>
+          <span className="view-label-text">Mobile Redesign · Interactive</span>
+        </div>
+      </div>
+
+      <TweaksPanel>
+        <TweakSection label="Theme" />
+        <TweakColor
+          label="Accent colour"
+          value={tweaks.accentColor}
+          onChange={v => setTweak('accentColor', v)}
+        />
+        <TweakSection label="List View" />
+        <TweakToggle
+          label="Now spotlight"
+          value={tweaks.showNowSpotlight}
+          onChange={v => setTweak('showNowSpotlight', v)}
+        />
+        <TweakSection label="Default view" />
+        <TweakSelect
+          label="Open on"
+          value={tweaks.defaultView}
+          options={['list', 'bento', 'flow']}
+          onChange={v => setTweak('defaultView', v)}
+        />
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

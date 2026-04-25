@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Organize — Desktop Redesign</title>
+<meta name="viewport" content="width=1920">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #0a1220; color: #e6edf6; overflow: hidden; }
+  body { font-family: 'Manrope', system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  button { font-family: inherit; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
+
+  /* Prevent stray wrapping of labels/pills/hints inside flex rows */
+  #root span, #root kbd, #root h1, #root h2, #root h3, #root button { white-space: nowrap; }
+  /* But p tags (body copy / bullet text) should still wrap naturally */
+  #root p { white-space: normal; }
+
+  /* Scale stage to fit any viewport while designing at 1920x1080 */
+  #stage {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(120% 80% at 50% 0%, rgba(212,138,166,0.04) 0%, transparent 40%), #0a1220;
+  }
+  #root {
+    width: 1920px; height: 1080px;
+    transform-origin: center center;
+    flex-shrink: 0;
+    box-shadow: 0 30px 120px rgba(0,0,0,0.5);
+    border-radius: 12px; overflow: hidden;
+  }
+</style>
+<script type="application/json" data-design-notes>
+{
+  "title": "Organize — Desktop Redesign",
+  "width": 1920,
+  "height": 1080,
+  "views": ["List", "Bento", "Flow"],
+  "tweaks": ["Bento variant", "Flow variant", "Inbox toggle"],
+  "shortcuts": "1/2/3 views · I inbox · ⌘K palette · / quick-add"
+}
+</script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="stage">
+  <div id="root"></div>
+</div>
+
+<script src="desktop/data.js"></script>
+<script type="text/babel" src="desktop/atoms.jsx"></script>
+<script type="text/babel" src="desktop/chrome.jsx"></script>
+<script type="text/babel" src="desktop/list-view.jsx"></script>
+<script type="text/babel" src="desktop/bento-view.jsx"></script>
+<script type="text/babel" src="desktop/flow-view.jsx"></script>
+<script type="text/babel" src="desktop/tweaks-panel.jsx"></script>
+<script type="text/babel" src="desktop/app.jsx"></script>
+
+<script>
+  // Scale 1920x1080 stage to fit viewport
+  function fit() {
+    const root = document.getElementById('root');
+    if (!root) return;
+    const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    root.style.transform = `scale(${scale})`;
+  }
+  window.addEventListener('resize', fit);
+  fit();
+  setTimeout(fit, 50);
+  setTimeout(fit, 500);
+</script>
+</body>
+</html>

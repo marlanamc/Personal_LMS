@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { Cloud, LayoutList, LayoutGrid, Zap, Plus, Command, Inbox } from 'lucide-react';
+import { Cloud, LayoutList, LayoutGrid, Zap, Plus, Command, Inbox, Search } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useThoughtOrganizer } from './useThoughtOrganizer';
 import { FlowOrganizeView } from './FlowOrganizeView';
@@ -125,18 +125,41 @@ export function OrganizeView() {
     <div className="organize-clean-shell mx-auto flex min-h-screen w-full max-w-[88rem] lg:max-w-[104rem] 2xl:max-w-[120rem] flex-col">
 
       {/* ── Organize chrome header ──────────────────────────────────────── */}
-      <header className="organize-chrome-header border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-4 lg:px-6 h-14 lg:h-16 shrink-0 flex items-center">
+      <header className="organize-chrome-header border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-4 py-3 lg:px-6 lg:py-0 min-h-[8.75rem] lg:h-16 lg:min-h-0 shrink-0 flex items-center">
 
         {/* ── MOBILE header (< lg) ────────────────────────────────────── */}
-        <div className="lg:hidden grid grid-cols-[minmax(0,auto)_1fr_minmax(0,auto)] items-center gap-2 w-full">
-          <h1 className="font-display text-[18px] font-bold tracking-[-0.01em] text-[var(--color-text-primary)] leading-none min-w-0">
-            Organize
-          </h1>
-          <div className="flex justify-center min-w-0 px-1">
+        <div className="lg:hidden grid grid-cols-[1fr_minmax(0,auto)] grid-rows-[auto_auto] items-center gap-x-3 gap-y-2 w-full">
+          <div className="min-w-0">
+            <p className="mb-0.5 font-display text-[12px] font-semibold tracking-[0.02em] text-[var(--color-primary)]">
+              Good afternoon, Marlie
+            </p>
+            <h1 className="font-display text-[25px] font-bold tracking-[-0.03em] text-[var(--color-text-primary)] leading-none min-w-0">
+              Organize
+            </h1>
+          </div>
+          <div className="justify-self-end flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCmdOpen(true)}
+              className="organize-mobile-header-action organize-mobile-header-action-search"
+              aria-label="Search"
+            >
+              <Search className="h-4.5 w-4.5" strokeWidth={2} aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={() => setQuickAddOpen(true)}
+              className="organize-mobile-header-action organize-mobile-header-action-add"
+              aria-label="Add task"
+            >
+              <Plus className="h-5 w-5" strokeWidth={2.2} aria-hidden />
+            </button>
+          </div>
+          <div className="col-span-2 flex justify-center min-w-0">
             <div
               role="tablist"
               aria-label="Organize view"
-              className="inline-flex max-w-full items-center gap-0.5 overflow-x-auto rounded-full bg-[rgba(255,255,255,0.05)] p-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="organize-view-toggle inline-flex w-full max-w-[24rem] items-center gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {VIEW_OPTIONS.map(({ id, label }) => {
                 const isActive = viewMode === id;
@@ -148,10 +171,10 @@ export function OrganizeView() {
                     aria-selected={isActive}
                     onClick={() => handleViewModeChange(id)}
                     className={[
-                      'shrink-0 rounded-full px-3 py-1.5 text-[12px] font-semibold font-display transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30',
+                      'flex-1 shrink-0 rounded-full px-3 py-2 text-[12px] font-semibold font-display transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30',
                       isActive
-                        ? 'bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] shadow-[0_1px_4px_rgba(0,0,0,0.3)]'
-                        : 'text-[var(--color-text-muted)]',
+                        ? 'organize-view-toggle-active text-[var(--color-text-primary)]'
+                        : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]',
                     ].join(' ')}
                   >
                     {label}
@@ -160,16 +183,6 @@ export function OrganizeView() {
               })}
             </div>
           </div>
-          <span
-            className="organize-sync-status justify-self-end"
-            title={syncLabel}
-            aria-label={syncLabel}
-          >
-            <span
-              className={`organize-sync-dot ${saveError ? 'is-error' : isSaving ? 'is-saving' : 'is-synced'}`}
-            />
-            <span className="organize-sync-label" aria-hidden>{syncLabel}</span>
-          </span>
         </div>
 
         {/* ── DESKTOP header (≥ lg) ────────────────────────────────────── */}
@@ -195,7 +208,7 @@ export function OrganizeView() {
           <div
             role="tablist"
             aria-label="Organize view"
-            className="flex items-center gap-0.5 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-1"
+            className="organize-view-toggle flex items-center gap-1 rounded-full p-1"
           >
             {VIEW_OPTIONS.map(({ id, label, Icon }) => {
               const isActive = viewMode === id;
@@ -207,9 +220,9 @@ export function OrganizeView() {
                   aria-selected={isActive}
                   onClick={() => handleViewModeChange(id)}
                   className={[
-                    'flex items-center gap-1.5 rounded-[7px] px-3 py-1.5 text-[12px] font-semibold font-display transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
+                    'flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-semibold font-display transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
                     isActive
-                      ? 'bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] shadow-sm'
+                      ? 'organize-view-toggle-active text-[var(--color-text-primary)] shadow-sm'
                       : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]',
                   ].join(' ')}
                 >
@@ -256,7 +269,7 @@ export function OrganizeView() {
               <button
                 type="button"
                 onClick={() => setQuickAddOpen(true)}
-                className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-1.5 text-[12px] font-semibold font-display text-[var(--color-text-muted)] transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
+                className="organize-header-action flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold font-display transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
                 aria-label="Quick add bullet"
               >
                 <Plus size={13} strokeWidth={2.5} aria-hidden />
@@ -269,7 +282,7 @@ export function OrganizeView() {
               type="button"
               onClick={() => setCmdOpen(true)}
               aria-label="Open command palette (⌘K)"
-              className="flex items-center gap-1 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2.5 py-1.5 font-mono text-[11px] text-[var(--color-text-muted)] transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
+              className="organize-header-action flex items-center gap-1 rounded-full px-2.5 py-1.5 font-mono text-[11px] transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
             >
               <Command size={11} strokeWidth={2} aria-hidden />
               <span>K</span>
@@ -295,7 +308,7 @@ export function OrganizeView() {
                 'relative flex h-9 w-9 items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
                 inboxOpen
                   ? 'border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-                  : 'border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)]',
+                  : 'organize-header-action text-[var(--color-text-muted)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)]',
               ].join(' ')}
             >
               <Inbox size={16} strokeWidth={1.75} aria-hidden />
@@ -362,7 +375,7 @@ export function OrganizeView() {
         onClick={() => setInboxOpen(o => !o)}
         aria-label={`Inbox${inboxCount > 0 ? `, ${inboxCount} items` : ''}`}
         aria-pressed={inboxOpen}
-        className="lg:hidden fixed z-20 flex items-center gap-1.5 rounded-[22px] border border-white/10 bg-[var(--color-bg-elevated)] py-2 pl-2.5 pr-3.5 text-[13px] font-semibold font-display text-[var(--color-text-secondary)] shadow-[0_4px_20px_rgba(0,0,0,0.4)] transition-colors hover:bg-[#243852] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 bottom-[calc(var(--bottom-nav-height)+10px)] right-3.5"
+        className="organize-floating-inbox lg:hidden fixed z-20 flex items-center gap-2 rounded-[24px] py-2 pl-3 pr-3.5 text-[12px] font-semibold font-display transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 right-3.5"
       >
         <Inbox size={17} strokeWidth={1.75} className="shrink-0 opacity-90" aria-hidden />
         <span>Inbox</span>

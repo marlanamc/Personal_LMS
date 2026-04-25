@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Navigation Architecture — Marlie LMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0e1c2b; --surface: #14243a; --elevated: #1a2f48;
+  --border: rgba(255,255,255,0.07); --text: #e6edf6; --text-2: #a9b7c8; --text-3: #6e7e91;
+  --sakura: #d48aa6; --teal: #4f8c9e; --mint: #78bfa5; --amethyst: #a089c7;
+  --tier-a: rgba(120,191,165,0.12); --tier-a-border: rgba(120,191,165,0.3); --tier-a-text: #78bfa5;
+  --tier-b: rgba(212,138,166,0.1); --tier-b-border: rgba(212,138,166,0.25); --tier-b-text: #d48aa6;
+  --tier-c: rgba(160,137,199,0.1); --tier-c-border: rgba(160,137,199,0.25); --tier-c-text: #a089c7;
+}
+
+body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; min-height: 100vh; }
+
+.page { max-width: 960px; margin: 0 auto; padding: 48px 24px 80px; }
+
+/* Doc header */
+.doc-header { margin-bottom: 48px; }
+.doc-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); font-family: 'Outfit', sans-serif; margin-bottom: 8px; }
+.doc-title { font-size: 32px; font-weight: 800; color: var(--text); font-family: 'Outfit', sans-serif; letter-spacing: -0.02em; margin-bottom: 10px; }
+.doc-sub { font-size: 15px; color: var(--text-2); line-height: 1.6; max-width: 520px; }
+
+/* Section */
+.section { margin-bottom: 52px; }
+.section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); font-family: 'Outfit', sans-serif; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+/* Two-col layout */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* Card */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 20px; }
+.card-title { font-size: 13px; font-weight: 700; color: var(--text); font-family: 'Outfit', sans-serif; margin-bottom: 4px; }
+.card-sub { font-size: 12px; color: var(--text-3); font-family: 'Outfit', sans-serif; margin-bottom: 14px; }
+
+/* Tier badges */
+.tier { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; font-family: 'Outfit', sans-serif; letter-spacing: 0.05em; }
+.tier-a { background: var(--tier-a); border: 1px solid var(--tier-a-border); color: var(--tier-a-text); }
+.tier-b { background: var(--tier-b); border: 1px solid var(--tier-b-border); color: var(--tier-b-text); }
+.tier-c { background: var(--tier-c); border: 1px solid var(--tier-c-border); color: var(--tier-c-text); }
+
+/* ── PHONE MOCKUP ── */
+.phone-shell {
+  width: 220px; height: 420px; background: #0e1c2b; border-radius: 28px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 0 0 4px rgba(0,0,0,0.3), 0 24px 48px rgba(0,0,0,0.5);
+  display: flex; flex-direction: column; flex-shrink: 0;
+}
+.p-statusbar { height: 28px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; }
+.p-statusbar-time { font-size: 10px; font-weight: 700; color: var(--text); font-family: 'Outfit', sans-serif; }
+.p-header { height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.p-logo { display: flex; align-items: center; gap: 5px; }
+.p-logo-icon { width: 20px; height: 20px; border-radius: 6px; background: rgba(212,138,166,0.12); border: 1px solid rgba(212,138,166,0.2); display: flex; align-items: center; justify-content: center; }
+.p-logo-text { font-size: 8px; font-weight: 700; color: var(--sakura); letter-spacing: 0.12em; text-transform: uppercase; font-family: 'Outfit', sans-serif; }
+.p-content { flex: 1; padding: 10px 10px 0; overflow: hidden; }
+.p-page-title { font-size: 12px; font-weight: 700; color: var(--text); font-family: 'Outfit', sans-serif; margin-bottom: 8px; }
+
+/* phone content lines (skeleton) */
+.p-line { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.07); margin-bottom: 5px; }
+.p-card { height: 36px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); margin-bottom: 5px; }
+
+.p-bottom-nav {
+  height: 46px; display: flex; align-items: flex-start; justify-content: space-around;
+  padding: 7px 4px 0; border-top: 1px solid var(--border); flex-shrink: 0; background: #0e1c2b;
+}
+.p-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
+.p-nav-dot { width: 18px; height: 18px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+.p-nav-label { font-size: 6px; font-weight: 600; font-family: 'Outfit', sans-serif; }
+
+/* ── DESKTOP MOCKUP ── */
+.desktop-shell {
+  width: 380px; height: 260px; background: #0e1c2b; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 24px 48px rgba(0,0,0,0.5);
+  display: flex; flex-direction: column;
+}
+.d-titlebar { height: 28px; background: #0a1825; display: flex; align-items: center; padding: 0 12px; gap: 6px; flex-shrink: 0; border-bottom: 1px solid var(--border); }
+.d-dot { width: 8px; height: 8px; border-radius: 50%; }
+.d-body { flex: 1; display: flex; overflow: hidden; }
+.d-rail { width: 44px; border-right: 1px solid var(--border); background: #0a1825; display: flex; flex-direction: column; align-items: center; padding: 10px 0; gap: 8px; flex-shrink: 0; }
+.d-rail-item { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.d-content { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+.d-header { height: 24px; background: rgba(255,255,255,0.03); border-radius: 6px; display: flex; align-items: center; padding: 0 8px; border: 1px solid var(--border); }
+.d-header-title { font-size: 8px; font-weight: 700; color: var(--text); font-family: 'Outfit', sans-serif; }
+.d-chip { height: 14px; border-radius: 10px; padding: 0 6px; display: flex; align-items: center; font-size: 6px; font-weight: 700; font-family: 'Outfit', sans-serif; margin-left: auto; }
+
+/* ── RULE ROWS ── */
+.rule-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.rule-row:last-child { border-bottom: none; }
+.rule-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
+.rule-body { flex: 1; min-width: 0; }
+.rule-title { font-size: 13px; font-weight: 700; color: var(--text); font-family: 'Outfit', sans-serif; margin-bottom: 2px; }
+.rule-desc { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+.rule-meta { font-size: 11px; color: var(--text-3); margin-top: 3px; font-family: 'Space Mono', monospace; }
+
+/* ── PAGE INVENTORY ── */
+.inv-section { margin-bottom: 20px; }
+.inv-section-label { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); font-family: 'Outfit', sans-serif; margin-bottom: 8px; padding: 0 4px; }
+.inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; }
+.inv-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; }
+.inv-item-name { font-size: 12px; font-weight: 600; color: var(--text); font-family: 'Outfit', sans-serif; }
+.inv-item-path { font-size: 10px; color: var(--text-3); font-family: 'Space Mono', monospace; }
+.inv-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+
+/* Tab indicator */
+.tab-indicator { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; font-family: 'Outfit', sans-serif; background: rgba(212,138,166,0.08); border: 1px solid rgba(212,138,166,0.2); color: var(--sakura); }
+
+/* divider */
+.divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+/* callout */
+.callout { background: rgba(79,140,158,0.07); border: 1px solid rgba(79,140,158,0.2); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; }
+.callout-title { font-size: 12px; font-weight: 700; color: var(--teal); font-family: 'Outfit', sans-serif; margin-bottom: 4px; }
+.callout-body { font-size: 12px; color: var(--text-2); line-height: 1.55; }
+
+@media (max-width: 680px) {
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  .desktop-shell { width: 100%; }
+  .phone-shell { width: 180px; height: 360px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <p class="doc-eyebrow">Marlie LMS · Design System</p>
+    <h1 class="doc-title">Navigation Architecture</h1>
+    <p class="doc-sub">A unified system defining what nav chrome appears on each page, on mobile and desktop — so every screen redesign can follow consistent rules.</p>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="section">
+    <p class="section-title">Page Tiers</p>
+    <div class="three-col">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span class="tier tier-a">Tier A · Hub</span>
+        </div>
+        <p class="card-sub" style="margin-bottom:6px">Full navigation always present. These are daily destinations worth one tap.</p>
+        <p style="font-size:11px;color:var(--text-3);font-family:'Outfit',sans-serif;">Header + Bottom tabs (mobile) · Header + Sidebar (desktop)</p>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span class="tier tier-b">Tier B · Deep-dive</span>
+        </div>
+        <p class="card-sub" style="margin-bottom:6px">Sub-pages reached from a hub. Header shows a back arrow. Bottom tabs still visible.</p>
+        <p style="font-size:11px;color:var(--text-3);font-family:'Outfit',sans-serif;">Header (back) + Bottom tabs (mobile) · Sidebar collapsed (desktop)</p>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span class="tier tier-c">Tier C · Immersive</span>
+        </div>
+        <p class="card-sub" style="margin-bottom:6px">Focus-mode pages. Nav is hidden or replaced by a single exit control.</p>
+        <p style="font-size:11px;color:var(--text-3);font-family:'Outfit',sans-serif;">No header · No bottom tabs · Just ✕ or ← Back</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE -->
+  <div class="section">
+    <p class="section-title">Mobile — Bottom Tabs + Header</p>
+    <div class="two-col" style="align-items:start">
+
+      <!-- Phone visual -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+        <div class="phone-shell">
+          <div class="p-statusbar">
+            <span class="p-statusbar-time">9:41</span>
+            <span style="font-size:9px;color:rgba(255,255,255,0.4)">●●●</span>
+          </div>
+          <div class="p-header">
+            <div class="p-logo">
+              <div class="p-logo-icon">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#d48aa6" stroke-width="2.2" stroke-linecap="round">
+                  <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                </svg>
+              </div>
+              <span class="p-logo-text">Marlie</span>
+            </div>
+            <div style="display:flex;gap:5px;align-items:center">
+              <!-- status chip -->
+              <div style="height:16px;border-radius:8px;background:rgba(79,140,158,0.15);border:1px solid rgba(79,140,158,0.3);padding:0 5px;display:flex;align-items:center">
+                <span style="font-size:6px;font-weight:700;color:#4f8c9e;font-family:'Outfit',sans-serif;">12m Work</span>
+              </div>
+              <!-- bell -->
+              <div style="width:20px;height:20px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="rgba(110,126,145,0.9)" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="p-content">
+            <p class="p-page-title">Home</p>
+            <!-- anchor timeline mock -->
+            <div style="height:28px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);margin-bottom:6px;padding:6px 8px;display:flex;align-items:center;gap:4px">
+              <div style="flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden"><div style="width:40%;height:100%;background:linear-gradient(90deg,#78bfa5,#d48aa6);border-radius:2px"></div></div>
+            </div>
+            <div class="p-card"></div>
+            <div class="p-card" style="height:28px"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+              <div style="height:32px;border-radius:8px;background:rgba(79,140,158,0.08);border:1px solid rgba(79,140,158,0.15)"></div>
+              <div style="height:32px;border-radius:8px;background:rgba(160,137,199,0.08);border:1px solid rgba(160,137,199,0.15)"></div>
+              <div style="height:32px;border-radius:8px;background:rgba(212,138,166,0.08);border:1px solid rgba(212,138,166,0.15)"></div>
+              <div style="height:32px;border-radius:8px;background:rgba(120,191,165,0.08);border:1px solid rgba(120,191,165,0.15)"></div>
+            </div>
+          </div>
+          <div class="p-bottom-nav">
+            <!-- Home (active) -->
+            <div class="p-nav-item">
+              <div class="p-nav-dot" style="background:rgba(212,138,166,0.15)">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#d48aa6" stroke-width="2.2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <span class="p-nav-label" style="color:#d48aa6">Home</span>
+            </div>
+            <!-- Plan -->
+            <div class="p-nav-item">
+              <div class="p-nav-dot">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(110,126,145,0.8)" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              </div>
+              <span class="p-nav-label" style="color:var(--text-3)">Plan</span>
+            </div>
+            <!-- Organize -->
+            <div class="p-nav-item">
+              <div class="p-nav-dot">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(110,126,145,0.8)" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              </div>
+              <span class="p-nav-label" style="color:var(--text-3)">Organize</span>
+            </div>
+            <!-- Think -->
+            <div class="p-nav-item">
+              <div class="p-nav-dot">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(110,126,145,0.8)" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              </div>
+              <span class="p-nav-label" style="color:var(--text-3)">Think</span>
+            </div>
+            <!-- Timer -->
+            <div class="p-nav-item">
+              <div class="p-nav-dot">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(110,126,145,0.8)" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/><path d="M9.5 3h5"/></svg>
+              </div>
+              <span class="p-nav-label" style="color:var(--text-3)">Timer</span>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-3);font-family:'Outfit',sans-serif;">Proposed mobile nav</p>
+      </div>
+
+      <!-- Rules -->
+      <div>
+        <div class="callout">
+          <p class="callout-title">Bottom tabs: your top 5, no compromise</p>
+          <p class="callout-body">Home · Plan · Organize · Think · Timer maps exactly to your most-used pages. Everything else is reachable via the <strong style="color:var(--text)">MARLIE logo → slide-in panel</strong> which stays in the header on all pages.</p>
+        </div>
+
+        <div class="rule-row">
+          <div class="rule-icon" style="background:rgba(212,138,166,0.1);">🏠</div>
+          <div class="rule-body">
+            <p class="rule-title">Home</p>
+            <p class="rule-desc">Timeline, Today ribbon, Area cards. Full header with status chips.</p>
+            <p class="rule-meta">Tier A · /dashboard</p>
+          </div>
+        </div>
+        <div class="rule-row">
+          <div class="rule-icon" style="background:rgba(79,140,158,0.1);">📅</div>
+          <div class="rule-body">
+            <p class="rule-title">Plan → Day Planner</p>
+            <p class="rule-desc">Header shows current date. Status chip (active time block) stays visible.</p>
+            <p class="rule-meta">Tier A · /dashboard/day-planner</p>
+          </div>
+        </div>
+        <div class="rule-row">
+          <div class="rule-icon" style="background:rgba(160,137,199,0.1);">🗂</div>
+          <div class="rule-body">
+            <p class="rule-title">Organize</p>
+            <p class="rule-desc">Header has view switcher slot (List / Bento / Flow). No extra chrome.</p>
+            <p class="rule-meta">Tier A · /dashboard/organize</p>
+          </div>
+        </div>
+        <div class="rule-row">
+          <div class="rule-icon" style="background:rgba(120,191,165,0.1);">📝</div>
+          <div class="rule-body">
+            <p class="rule-title">Think → Thought Download</p>
+            <p class="rule-desc">Tab lands on Thought Download. Header shows page title.</p>
+            <p class="rule-meta">Tier A · /dashboard/thought-download</p>
+          </div>
+        </div>
+        <div class="rule-row">
+          <div class="rule-icon" style="background:rgba(200,164,106,0.1);">⏱</div>
+          <div class="rule-body">
+            <p class="rule-title">Timer (idle)</p>
+            <p class="rule-desc">Shows timer setup. Normal header and bottom tabs.</p>
+            <p class="rule-meta">Tier A → Tier C when running · /dashboard/timer</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESKTOP -->
+  <div class="section">
+    <p class="section-title">Desktop — Icon Rail Sidebar + Header</p>
+    <div class="two-col" style="align-items:start">
+
+      <!-- Desktop visual -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+        <div class="desktop-shell">
+          <div class="d-titlebar">
+            <div class="d-dot" style="background:#ff5f57"></div>
+            <div class="d-dot" style="background:#febc2e"></div>
+            <div class="d-dot" style="background:#28c840"></div>
+            <span style="margin-left:8px;font-size:8px;color:rgba(255,255,255,0.3);font-family:'Outfit',sans-serif;">marlie.app/dashboard</span>
+          </div>
+          <div class="d-body">
+            <!-- Icon rail -->
+            <div class="d-rail">
+              <!-- Logo -->
+              <div style="width:28px;height:28px;border-radius:8px;background:rgba(212,138,166,0.12);border:1px solid rgba(212,138,166,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:4px">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d48aa6" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+              </div>
+              <div class="d-rail-item" style="background:rgba(212,138,166,0.12);border:1px solid rgba(212,138,166,0.2)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d48aa6" stroke-width="2.2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+              </div>
+              <div class="d-rail-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(110,126,145,0.7)" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              </div>
+              <div class="d-rail-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(110,126,145,0.7)" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              </div>
+              <div class="d-rail-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(110,126,145,0.7)" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              </div>
+              <div class="d-rail-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(110,126,145,0.7)" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div style="flex:1"></div>
+              <!-- All pages -->
+              <div class="d-rail-item" style="opacity:0.5">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(110,126,145,0.7)" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+              </div>
+            </div>
+            <!-- Main content -->
+            <div class="d-content">
+              <div class="d-header">
+                <span class="d-header-title">Home</span>
+                <div class="d-chip" style="background:rgba(79,140,158,0.15);border:1px solid rgba(79,140,158,0.3);color:#4f8c9e;">12m · Work block</div>
+              </div>
+              <div style="height:48px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:8px 10px">
+                <div style="height:3px;border-radius:2px;background:rgba(255,255,255,0.05);overflow:hidden;margin-bottom:8px"><div style="width:38%;height:100%;background:linear-gradient(90deg,#78bfa5,#d48aa6)"></div></div>
+                <div style="display:flex;gap:4px;justify-content:space-between">
+                  <div style="width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,rgba(251,191,36,0.2),rgba(251,191,36,0.06));border:1.5px solid rgba(120,191,165,0.4)"></div>
+                  <div style="width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,rgba(52,211,153,0.2),rgba(52,211,153,0.06));border:1.5px solid rgba(120,191,165,0.4)"></div>
+                  <div style="width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(56,189,248,0.06));border:1.5px solid rgba(212,138,166,0.4)" class="anchor-active"></div>
+                  <div style="width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.08)"></div>
+                  <div style="width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.08)"></div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+                <div style="height:30px;border-radius:8px;background:rgba(79,140,158,0.07);border:1px solid rgba(79,140,158,0.15)"></div>
+                <div style="height:30px;border-radius:8px;background:rgba(160,137,199,0.07);border:1px solid rgba(160,137,199,0.15)"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+                <div style="height:30px;border-radius:8px;background:rgba(212,138,166,0.07);border:1px solid rgba(212,138,166,0.15)"></div>
+                <div style="height:30px;border-radius:8px;background:rgba(120,191,165,0.07);border:1px solid rgba(120,191,165,0.15)"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-3);font-family:'Outfit',sans-serif;">Proposed desktop nav (rail collapsed)</p>
+      </div>
+
+      <!-- Rules -->
+      <div>
+        <div class="callout" style="background:rgba(160,137,199,0.07);border-color:rgba(160,137,199,0.2)">
+          <p class="callout-title" style="color:var(--amethyst)">Icon rail behaviour</p>
+          <p class="callout-body"><strong style="color:var(--text)">Collapsed (default):</strong> 56px wide, shows icons only. Same 5 tabs as mobile + ··· for all pages.<br><strong style="color:var(--text)">Expanded:</strong> 240px on hover or keyboard shortcut (⌘\), shows icons + labels + section headers.<br><strong style="color:var(--text)">Header:</strong> Slimmer since sidebar handles primary nav — just status chip, bell, user avatar.</p>
+        </div>
+        <div class="rule-row">
+          <div class="rule-icon" style="background:rgba(79,140,158,0.1);">↔</div>
+          <div class="rule-body">
+            <p class="rule-title">Expand on hover / ⌘\</p>
+            <p class="rule-desc">Rail expands to 240px showing all nav groups. Collapses back on mouse leave or second shortcut.</p>
+          </div>
+        </div>
+        <div class="rule-row">
+          <div class="rule-icon" style="background:rgba(120,191,165,0.1);">⋯</div>
+          <div class="rule-body">
+            <p class="rule-title">··· at the bottom = all pages</p>
+            <p class="rule-desc">The 5 tabs + ··· covers every page. ··· expands the full Planning/Thinking/Focus/Learning sections.</p>
+          </div>
+        </div>
+        <div class="rule-row">
+          <div class="rule-icon" style="background:rgba(212,138,166,0.1);">📐</div>
+          <div class="rule-body">
+            <p class="rule-title">Header gets leaner</p>
+            <p class="rule-desc">Sidebar handles nav so the header only needs: status chip (time block / timer), bell, avatar. No hamburger.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMMERSIVE PAGES -->
+  <div class="section">
+    <p class="section-title">Tier C — Immersive pages (nav hidden)</p>
+    <div class="three-col">
+      <div class="card" style="border-color:var(--tier-c-border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:18px">⏱</span>
+          <span class="tier tier-c">Tier C</span>
+        </div>
+        <p class="card-title">Focus Timer (running)</p>
+        <p class="card-sub">Nav disappears when a session starts. Only controls: pause, stop, session label. Full-bleed calm view.</p>
+      </div>
+      <div class="card" style="border-color:var(--tier-c-border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:18px">📖</span>
+          <span class="tier tier-c">Tier C</span>
+        </div>
+        <p class="card-title">Activity / Exercise pages</p>
+        <p class="card-sub">Learning activities need zero distraction. Just a back arrow (←) at top-left. No sidebar, no tabs.</p>
+      </div>
+      <div class="card" style="border-color:var(--tier-c-border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:18px">🚨</span>
+          <span class="tier tier-c">Tier C</span>
+        </div>
+        <p class="card-title">Crisis Mode</p>
+        <p class="card-sub">The entire point is removing distractions. No nav at all. Exit button only. Calm, centered layout.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL PAGE INVENTORY -->
+  <div class="section">
+    <p class="section-title">All Pages — Tier Assignment</p>
+
+    <!-- Planning -->
+    <div class="inv-section">
+      <p class="inv-section-label">Planning</p>
+      <div class="inv-grid">
+        <div class="inv-item">
+          <p class="inv-item-name">Day Planner</p>
+          <p class="inv-item-path">/day-planner</p>
+          <div class="inv-badges"><span class="tier tier-a">Tier A · Hub</span><span class="tab-indicator">Tab</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Monthly Calendar</p>
+          <p class="inv-item-path">/calendar</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Quarterly Planner</p>
+          <p class="inv-item-path">/quarterly-planner</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Anchors</p>
+          <p class="inv-item-path">/anchors</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Meal Planner</p>
+          <p class="inv-item-path">/meal-planner</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Skincare Planner</p>
+          <p class="inv-item-path">/skincare-planner</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Cleaning Planner</p>
+          <p class="inv-item-path">/cleaning-planner</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Media Hub</p>
+          <p class="inv-item-path">/media-hub</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thinking -->
+    <div class="inv-section">
+      <p class="inv-section-label">Thinking</p>
+      <div class="inv-grid">
+        <div class="inv-item">
+          <p class="inv-item-name">Thought Download</p>
+          <p class="inv-item-path">/thought-download</p>
+          <div class="inv-badges"><span class="tier tier-a">Tier A · Hub</span><span class="tab-indicator">Tab</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Organize</p>
+          <p class="inv-item-path">/organize</p>
+          <div class="inv-badges"><span class="tier tier-a">Tier A · Hub</span><span class="tab-indicator">Tab</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Workspace</p>
+          <p class="inv-item-path">/workspace</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Moment Log</p>
+          <p class="inv-item-path">/interstitial-journalling</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Daily Wins</p>
+          <p class="inv-item-path">/daily-wins</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Focus -->
+    <div class="inv-section">
+      <p class="inv-section-label">Focus</p>
+      <div class="inv-grid">
+        <div class="inv-item">
+          <p class="inv-item-name">Focus Timer (idle)</p>
+          <p class="inv-item-path">/timer</p>
+          <div class="inv-badges"><span class="tier tier-a">Tier A · Hub</span><span class="tab-indicator">Tab</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Focus Timer (running)</p>
+          <p class="inv-item-path">/timer → active</p>
+          <div class="inv-badges"><span class="tier tier-c">Tier C · Immersive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Crisis Mode</p>
+          <p class="inv-item-path">/crisis</p>
+          <div class="inv-badges"><span class="tier tier-c">Tier C · Immersive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Health Log</p>
+          <p class="inv-item-path">/health-tracker</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Learning -->
+    <div class="inv-section">
+      <p class="inv-section-label">Learning</p>
+      <div class="inv-grid">
+        <div class="inv-item">
+          <p class="inv-item-name">All Subjects</p>
+          <p class="inv-item-path">/subjects</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Spanish Course Map</p>
+          <p class="inv-item-path">/spanish-course-map</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Coding Course Map</p>
+          <p class="inv-item-path">/coding-course-map</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Activity / Exercise</p>
+          <p class="inv-item-path">/activity/[id]</p>
+          <div class="inv-badges"><span class="tier tier-c">Tier C · Immersive</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other -->
+    <div class="inv-section">
+      <p class="inv-section-label">System</p>
+      <div class="inv-grid">
+        <div class="inv-item">
+          <p class="inv-item-name">Home</p>
+          <p class="inv-item-path">/dashboard</p>
+          <div class="inv-badges"><span class="tier tier-a">Tier A · Hub</span><span class="tab-indicator">Tab</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Profile</p>
+          <p class="inv-item-path">/profile</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+        <div class="inv-item">
+          <p class="inv-item-name">Notifications</p>
+          <p class="inv-item-path">/notifications</p>
+          <div class="inv-badges"><span class="tier tier-b">Tier B · Deep-dive</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="section">
+    <p class="section-title">Rules at a glance</p>
+    <div class="card" style="font-family:'Space Mono',monospace;font-size:11px;line-height:1.9;color:var(--text-2)">
+      <p><span style="color:var(--tier-a-text)">Tier A</span>  →  Header always · Bottom tabs (mobile) · Rail (desktop)</p>
+      <p><span style="color:var(--tier-b-text)">Tier B</span>  →  Header with back arrow · Bottom tabs · Rail collapses to icons</p>
+      <p><span style="color:var(--tier-c-text)">Tier C</span>  →  No header · No tabs · No rail · Exit control only</p>
+      <div class="divider" style="margin:10px 0"></div>
+      <p style="color:var(--text-3)">  5 tabs:  Home · Plan · Organize · Think · Timer</p>
+      <p style="color:var(--text-3)">  ⋯ more:  opens full side panel (all 25+ pages)</p>
+      <p style="color:var(--text-3)">  desktop: 56px rail collapsed → 240px expanded (hover / ⌘\)</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

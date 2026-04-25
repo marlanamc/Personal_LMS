@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useMemo } from 'react';
-import { ArrowRight, Check, ChevronDown, ChevronRight, Download, Eye, EyeOff, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
+import { ArrowRight, CalendarDays, Check, ChevronDown, ChevronRight, Download, Eye, EyeOff, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
 import { ThoughtOrganizeMode, type ThoughtOrganizeModeActions } from '@/components/dashboard/ThoughtOrganizeMode';
 import { ImportFromThoughtDownload } from './ImportFromThoughtDownload';
 import { OrganizeHeaderPortal } from './OrganizeHeaderSlot';
@@ -17,16 +17,16 @@ import { nanoid } from 'nanoid';
 
 // ── Project color palette ────────────────────────────────────────────────────
 const PROJECT_PALETTE: Record<string, { dot: string; bg: string; border: string; text: string }> = {
-  peach:      { dot: 'hsl(24,45%,73%)',   bg: 'hsla(24,45%,73%,0.15)',  border: 'hsla(24,45%,73%,0.28)',  text: 'hsl(24,40%,55%)' },
-  sky:        { dot: 'hsl(205,60%,75%)',  bg: 'hsla(205,60%,75%,0.15)', border: 'hsla(205,60%,75%,0.28)', text: 'hsl(205,55%,52%)' },
-  mint:       { dot: 'hsl(162,38%,58%)',  bg: 'hsla(162,38%,58%,0.15)', border: 'hsla(162,38%,58%,0.28)', text: 'hsl(162,38%,42%)' },
-  periwinkle: { dot: 'hsl(235,38%,72%)',  bg: 'hsla(235,38%,72%,0.15)', border: 'hsla(235,38%,72%,0.28)', text: 'hsl(235,35%,55%)' },
-  lavender:   { dot: 'hsl(270,25%,68%)',  bg: 'hsla(270,25%,68%,0.15)', border: 'hsla(270,25%,68%,0.28)', text: 'hsl(270,25%,52%)' },
-  rose:       { dot: 'hsl(343,32%,67%)',  bg: 'hsla(343,32%,67%,0.15)', border: 'hsla(343,32%,67%,0.28)', text: 'hsl(343,30%,50%)' },
-  coral:      { dot: 'hsl(12,48%,74%)',   bg: 'hsla(12,48%,74%,0.15)',  border: 'hsla(12,48%,74%,0.28)',  text: 'hsl(12,44%,52%)' },
-  sage:       { dot: 'hsl(167,35%,66%)',  bg: 'hsla(167,35%,66%,0.15)', border: 'hsla(167,35%,66%,0.28)', text: 'hsl(167,32%,46%)' },
-  blush:      { dot: 'hsl(330,28%,74%)',  bg: 'hsla(330,28%,74%,0.15)', border: 'hsla(330,28%,74%,0.28)', text: 'hsl(330,26%,52%)' },
-  slate:      { dot: 'hsl(220,18%,70%)',  bg: 'hsla(220,18%,70%,0.15)', border: 'hsla(220,18%,70%,0.28)', text: 'hsl(220,16%,48%)' },
+  peach:      { dot: 'hsl(24,72%,70%)',   bg: 'hsla(24,72%,70%,0.15)',  border: 'hsla(24,72%,70%,0.32)',  text: 'hsl(24,78%,76%)' },
+  sky:        { dot: 'hsl(210,96%,74%)',  bg: 'hsla(210,96%,74%,0.15)', border: 'hsla(210,96%,74%,0.32)', text: 'hsl(210,96%,78%)' },
+  mint:       { dot: 'hsl(162,58%,64%)',  bg: 'hsla(162,58%,64%,0.15)', border: 'hsla(162,58%,64%,0.32)', text: 'hsl(162,58%,74%)' },
+  periwinkle: { dot: 'hsl(235,66%,76%)',  bg: 'hsla(235,66%,76%,0.15)', border: 'hsla(235,66%,76%,0.32)', text: 'hsl(235,70%,82%)' },
+  lavender:   { dot: 'hsl(270,68%,72%)',  bg: 'hsla(270,68%,72%,0.15)', border: 'hsla(270,68%,72%,0.32)', text: 'hsl(270,74%,80%)' },
+  rose:       { dot: 'hsl(336,82%,74%)',  bg: 'hsla(336,82%,74%,0.15)', border: 'hsla(336,82%,74%,0.32)', text: 'hsl(336,82%,80%)' },
+  coral:      { dot: 'hsl(13,100%,74%)',  bg: 'hsla(13,100%,74%,0.15)', border: 'hsla(13,100%,74%,0.32)', text: 'hsl(13,100%,78%)' },
+  sage:       { dot: 'hsl(152,50%,66%)',  bg: 'hsla(152,50%,66%,0.15)', border: 'hsla(152,50%,66%,0.32)', text: 'hsl(152,56%,76%)' },
+  blush:      { dot: 'hsl(324,62%,76%)',  bg: 'hsla(324,62%,76%,0.15)', border: 'hsla(324,62%,76%,0.32)', text: 'hsl(324,68%,82%)' },
+  slate:      { dot: 'hsl(220,28%,74%)',  bg: 'hsla(220,28%,74%,0.15)', border: 'hsla(220,28%,74%,0.32)', text: 'hsl(220,36%,82%)' },
 };
 
 const LANE_META: Record<ThoughtLane, { label: string; colorVar: string; bgVar: string; borderVar: string }> = {
@@ -51,7 +51,11 @@ function ListViewMobile({
   const toggleLane = (lane: string) => {
     setCollapsedLanes(prev => {
       const next = new Set(prev);
-      next.has(lane) ? next.delete(lane) : next.add(lane);
+      if (next.has(lane)) {
+        next.delete(lane);
+      } else {
+        next.add(lane);
+      }
       return next;
     });
   };
@@ -67,6 +71,9 @@ function ListViewMobile({
   };
 
   const nowBullets = organization.bullets.filter(b => b.lane === 'now' && b.project);
+  const activeProjectBullets = organization.bullets.filter(b => b.project && b.lane !== 'done');
+  const progressTotal = Math.max(activeProjectBullets.length, 1);
+  const progressPercent = Math.min(100, Math.round((nowBullets.length / progressTotal) * 100));
 
   const projectBullets = useMemo(() =>
     organization.bullets.filter(b => b.project === selectedProjectId && b.lane !== 'done'),
@@ -76,42 +83,64 @@ function ListViewMobile({
   const byLane = (lane: ThoughtLane) => projectBullets.filter(b => b.lane === lane);
   const selectedProject = organization.projects.find(p => p.id === selectedProjectId);
   const selectedPalette = selectedProject ? (PROJECT_PALETTE[selectedProject.color] ?? PROJECT_PALETTE.slate) : null;
+  const countForProject = (projectId: string) =>
+    organization.bullets.filter(b => b.project === projectId && b.lane !== 'done').length;
+  const handleAddToLane = (lane: ThoughtLane) => {
+    if (!selectedProject) return;
+    onUpdateOrganization({
+      ...organization,
+      bullets: [
+        {
+          id: nanoid(),
+          text: lane === 'next' ? 'Plan the next small step' : 'New task',
+          lineNumber: 0,
+          displayOrder: projectBullets.length,
+          lane,
+          priority: laneToPriority(lane),
+          project: selectedProject.id,
+          projectMeta: selectedProject,
+        },
+        ...organization.bullets,
+      ],
+    });
+  };
 
   return (
     <div className="lg:hidden flex flex-col h-full overflow-hidden">
       {/* Now spotlight */}
-      <div className="organize-mobile-now-spotlight mx-3.5 mt-2.5 mb-0 shrink-0 rounded-2xl border px-3.5 py-3">
-        <div className="flex items-center gap-1.5 mb-1.5">
+      <div className="organize-mobile-now-spotlight mx-3.5 mt-3 mb-0 shrink-0 rounded-[24px] border px-4 py-3.5">
+        <div className="flex items-center gap-2 mb-2.5">
           <span
-            className="h-[7px] w-[7px] rounded-full bg-[var(--color-lane-now)]"
-            style={{ boxShadow: '0 0 7px var(--color-lane-now-glow)' }}
+            className="h-2.5 w-2.5 rounded-full bg-[var(--color-lane-now)]"
+            style={{ boxShadow: '0 0 14px var(--color-lane-now-glow)' }}
             aria-hidden
           />
-          <span className="font-display text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--color-lane-now)]">Now</span>
-          <span className="font-display text-[10px] text-[var(--color-text-secondary)]">{nowBullets.length} active</span>
+          <span className="font-display text-[13px] font-bold uppercase tracking-[0.16em] text-[var(--color-lane-now)]">Now</span>
+          <span className="rounded-full bg-white/[0.06] px-2 py-0.5 font-display text-[11px] font-semibold text-[var(--color-text-secondary)]">{nowBullets.length} active</span>
         </div>
         {nowBullets.length === 0 ? (
-          <p className="font-body text-[13px] text-[var(--color-text-muted)]">Pull a task in to get started</p>
+          <div className="warm-empty-state rounded-2xl px-4 py-5">
+            <p className="mb-1 font-display text-[15px] font-semibold text-[var(--color-text-primary)]">Nothing in Now</p>
+            <p className="mb-0 font-body text-[13px] text-[var(--color-text-muted)]">Pull in one calm commitment when you are ready.</p>
+          </div>
         ) : (
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-2">
             {nowBullets.slice(0, 2).map((b, i) => {
               const proj = organization.projects.find(p => p.id === b.project);
               const pal = proj ? (PROJECT_PALETTE[proj.color] ?? PROJECT_PALETTE.slate) : null;
               return (
                 <div
                   key={b.id}
-                  className="flex items-center gap-2"
-                  style={{
-                    borderBottom: i < Math.min(nowBullets.length, 2) - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-                    paddingTop: i > 0 ? 5 : 0,
-                    paddingBottom: i < Math.min(nowBullets.length, 2) - 1 ? 5 : 0,
-                  }}
+                  className="flex items-start gap-2.5 rounded-2xl bg-white/[0.035] px-3 py-2"
                 >
-                  {pal && <span className="h-[5px] w-[5px] shrink-0 rounded-full" style={{ background: pal.dot }} aria-hidden />}
-                  <span className="flex-1 min-w-0 font-body text-[13px] font-medium leading-[1.3] text-[var(--color-text-primary)] line-clamp-1">{b.text}</span>
+                  {pal && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full" style={{ background: pal.dot, boxShadow: `0 0 10px ${pal.dot}` }} aria-hidden />}
+                  <div className="min-w-0 flex-1">
+                    <span className="block min-w-0 font-body text-[15px] font-semibold leading-[1.35] text-[var(--color-text-primary)] line-clamp-2">{b.text}</span>
+                    <span className="mt-0.5 block font-body text-[11px] text-[var(--color-text-muted)]">{i === 0 ? 'Primary focus' : 'Queued focus'}</span>
+                  </div>
                   {proj && pal && (
                     <span
-                      className="shrink-0 rounded-full px-1.5 py-0.5 font-display text-[10px] font-semibold leading-none"
+                      className="shrink-0 rounded-full px-2 py-0.5 font-display text-[10px] font-semibold leading-none"
                       style={{ background: pal.bg, color: pal.text }}
                     >
                       {proj.label}
@@ -123,6 +152,18 @@ function ListViewMobile({
             {nowBullets.length > 2 && (
               <p className="mt-1 font-display text-[11px] text-[var(--color-text-muted)]">+{nowBullets.length - 2} more across projects</p>
             )}
+            <div className="mt-2 border-t border-white/[0.07] pt-2.5">
+              <div className="mb-2 flex items-center justify-between font-display text-[12px] text-[var(--color-text-secondary)]">
+                <span>Today&apos;s progress</span>
+                <span>{nowBullets.length} of {activeProjectBullets.length} tasks</span>
+              </div>
+              <div className="h-2 rounded-full bg-white/[0.10]">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-[var(--color-lane-now)] to-[var(--color-accent-amethyst)]"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -135,20 +176,22 @@ function ListViewMobile({
         {organization.projects.map(p => {
           const pal = PROJECT_PALETTE[p.color] ?? PROJECT_PALETTE.slate;
           const active = p.id === selectedProjectId;
+          const count = countForProject(p.id);
           return (
             <button
               key={p.id}
               type="button"
               onClick={() => setSelectedProjectId(p.id)}
-              className="flex shrink-0 items-center gap-1.5 rounded-full py-1.5 pl-3 pr-3.5 font-display text-[13px] font-semibold transition-all"
+              className="organize-mobile-project-pill flex shrink-0 items-center gap-2 rounded-full py-2 pl-3 pr-3.5 font-display text-[13px] font-semibold transition-all"
               style={{
                 border: `1.5px solid ${active ? pal.border : 'rgba(255,255,255,0.08)'}`,
                 background: active ? pal.bg : 'transparent',
                 color: active ? pal.text : 'var(--color-text-secondary)',
               }}
             >
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: pal.dot, opacity: active ? 1 : 0.5 }} aria-hidden />
-              {p.label}
+              <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: pal.dot, opacity: active ? 1 : 0.65, boxShadow: active ? `0 0 10px ${pal.dot}` : undefined }} aria-hidden />
+              <span>{p.label}</span>
+              <span className="font-mono text-[11px] opacity-75">{count}</span>
             </button>
           );
         })}
@@ -157,7 +200,7 @@ function ListViewMobile({
       {/* Lane sections */}
       <div className="flex-1 overflow-y-auto px-3.5 pb-24">
         {selectedProject && selectedPalette && (
-          <div className="flex items-center gap-1.5 py-1.5 mb-0.5" aria-label={`${selectedProject.label}, ${projectBullets.length} tasks`}>
+          <div className="flex items-center gap-1.5 py-1 mb-0.5" aria-label={`${selectedProject.label}, ${projectBullets.length} tasks`}>
             <div className="h-4 w-0.5 rounded-sm shrink-0" style={{ background: selectedPalette.dot }} aria-hidden />
             <span className="font-display text-xs font-semibold" style={{ color: selectedPalette.text }}>{selectedProject.label}</span>
             <span className="font-display text-[11px] text-[var(--color-text-muted)]">{projectBullets.length} tasks</span>
@@ -169,11 +212,11 @@ function ListViewMobile({
           const meta = LANE_META[lane];
           const collapsed = collapsedLanes.has(lane);
           return (
-            <div key={lane}>
+            <div key={lane} className="organize-mobile-lane-section">
               <button
                 type="button"
                 onClick={() => toggleLane(lane)}
-                className="flex w-full items-center justify-between border-b border-[rgba(255,255,255,0.05)] py-2.5"
+                className="flex w-full items-center justify-between py-2.5"
               >
                 <div className="flex items-center gap-1.5 min-w-0">
                   <span className="h-[7px] w-[7px] rounded-full shrink-0" style={{ background: `var(${meta.colorVar})` }} aria-hidden />
@@ -183,7 +226,7 @@ function ListViewMobile({
                   >
                     {meta.label}
                   </span>
-                  <span className="font-display text-[11px] text-[var(--color-text-muted)]">{items.length}</span>
+                  <span className="rounded-full bg-white/[0.07] px-2 py-0.5 font-display text-[11px] text-[var(--color-text-muted)]">{items.length}</span>
                 </div>
                 {collapsed
                   ? <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[var(--color-text-muted)]" aria-hidden />
@@ -192,21 +235,44 @@ function ListViewMobile({
               </button>
 
               {!collapsed && (
-                <div className="border-b border-[rgba(255,255,255,0.05)] pb-0.5">
+                <div className="organize-mobile-task-group pb-2.5">
                   {items.length === 0 ? (
-                    <p className="py-1.5 pb-2.5 pl-0.5 font-body text-[13px] text-[var(--color-text-muted)]/90">Nothing here yet</p>
+                    <div className="organize-compact-empty-state warm-empty-state flex items-center justify-between gap-3 rounded-2xl px-3 py-2.5">
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[var(--app-border)] bg-white/[0.035] text-[var(--color-lane-next)]">
+                          <CalendarDays className="h-4 w-4" strokeWidth={1.8} aria-hidden />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="mb-0.5 font-display text-[13px] font-semibold text-[var(--color-text-primary)]">Nothing in {meta.label}</p>
+                          <p className="mb-0 font-body text-[11px] text-[var(--color-text-muted)]">Plan what comes next.</p>
+                        </div>
+                      </div>
+                      {lane === 'next' && (
+                        <button
+                          type="button"
+                          onClick={() => handleAddToLane('next')}
+                          className="shrink-0 rounded-full border border-[var(--color-lane-next-border)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--color-lane-next)]"
+                        >
+                          <Plus className="mr-0.5 inline h-3 w-3" />
+                          Add
+                        </button>
+                      )}
+                    </div>
                   ) : items.map(b => (
                     <div
                       key={b.id}
-                      className="flex items-start gap-2.5 border-b border-[rgba(255,255,255,0.045)] py-2.5 last:border-b-0"
+                      className="task-row-surface mb-1.5 flex items-start gap-3 rounded-2xl px-3 py-2.5 last:mb-0"
                     >
                       <button
                         type="button"
                         onClick={() => toggleDone(b)}
-                        className="mt-0.5 h-6 w-6 shrink-0 rounded-full transition-all flex items-center justify-center border-[1.5px] border-white/[0.18] bg-transparent"
+                        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/[0.20] bg-transparent transition-all"
                         aria-label="Mark complete"
                       />
-                      <span className="flex-1 min-w-0 font-body text-[14px] font-medium leading-[1.42] text-[var(--color-text-primary)] pt-px">{b.text}</span>
+                      <div className="min-w-0 flex-1">
+                        <span className="block font-body text-[14px] font-semibold leading-[1.42] text-[var(--color-text-primary)] pt-px">{b.text}</span>
+                        <span className="mt-1 block text-[12px] text-[var(--color-text-muted)]">{selectedProject?.label}</span>
+                      </div>
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: `var(${meta.colorVar})` }} aria-hidden />
                     </div>
                   ))}
@@ -333,15 +399,15 @@ function ProjectSidebar({
   const inboxCount = bullets.filter(b => !b.project && b.lane !== 'done').length;
 
   return (
-    <aside className="hidden lg:flex w-[220px] shrink-0 flex-col border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] overflow-y-auto" aria-label="Projects sidebar">
-      <div className="flex items-center justify-between px-4 py-4 border-b border-[var(--color-border-subtle)]">
-        <span className="font-display text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">Projects</span>
-        <button type="button" onClick={onCreateProject} className="rounded-lg p-1 text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors" aria-label="Create new project" title="New project">
+    <aside className="organize-project-sidebar hidden lg:flex w-[236px] shrink-0 flex-col overflow-y-auto" aria-label="Projects sidebar">
+      <div className="flex items-center justify-between px-4 py-4">
+        <span className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">Projects</span>
+        <button type="button" onClick={onCreateProject} className="rounded-full p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors" aria-label="Create new project" title="New project">
           <Plus className="h-4 w-4" />
         </button>
       </div>
-      <nav className="flex flex-col gap-0.5 p-2">
-        <button type="button" onClick={() => onSelectProject(null)} className={['flex items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium font-body transition-colors', selectedProjectId === null ? 'bg-[rgba(255,255,255,0.06)] text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)] hover:bg-[rgba(255,255,255,0.03)] hover:text-[var(--color-text-primary)]'].join(' ')}>
+      <nav className="flex flex-col gap-1.5 p-2.5">
+        <button type="button" onClick={() => onSelectProject(null)} className={['organize-project-sidebar-row flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold font-body transition-colors', selectedProjectId === null ? 'is-active text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'].join(' ')}>
           <span className="h-2 w-2 rounded-full shrink-0 bg-[var(--color-text-muted)]" />
           <span className="flex-1 truncate">All projects</span>
           {inboxCount > 0 && <span className="font-mono text-[11px] text-[var(--color-text-muted)]">{inboxCount}</span>}
@@ -351,10 +417,10 @@ function ProjectSidebar({
           const count = countFor(p.id);
           const isActive = selectedProjectId === p.id;
           return (
-            <button key={p.id} type="button" onClick={() => onSelectProject(p.id)} className={['flex items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium font-body transition-colors', isActive ? 'bg-[rgba(255,255,255,0.06)] text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)] hover:bg-[rgba(255,255,255,0.03)] hover:text-[var(--color-text-primary)]'].join(' ')}>
-              <span className="h-2 w-2 rounded-full shrink-0" style={{ background: palette.dot }} />
+            <button key={p.id} type="button" onClick={() => onSelectProject(p.id)} className={['organize-project-sidebar-row flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold font-body transition-colors', isActive ? 'is-active text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'].join(' ')}>
+              <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: palette.dot, boxShadow: isActive ? `0 0 10px ${palette.dot}` : undefined }} />
               <span className="flex-1 truncate">{p.label}</span>
-              {count > 0 && <span className="font-mono text-[11px] text-[var(--color-text-muted)]">{count}</span>}
+              <span className="rounded-full bg-white/[0.06] px-2 py-0.5 font-mono text-[11px] text-[var(--color-text-muted)]">{count}</span>
             </button>
           );
         })}

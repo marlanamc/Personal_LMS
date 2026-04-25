@@ -36,7 +36,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({ items }) => {
           >
             {items.map((item) => {
               const isHomeTab = item.href === '/dashboard';
-              const isTimerTab = item.href === '/dashboard/timer';
               const isActive = isHomeTab
                 ? pathname === item.href
                 : pathname === item.href || pathname?.startsWith(item.href + '/');
@@ -45,7 +44,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ items }) => {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`bottom-nav-item flex flex-col items-center justify-center gap-[3px] px-1 py-1 transition-colors duration-150 cursor-pointer touch-manipulation relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${
+                  className={`bottom-nav-item flex flex-col items-center justify-center gap-[2px] px-1 py-0.5 transition-colors duration-150 cursor-pointer touch-manipulation relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 ${
                     isActive ? 'is-active' : ''
                   }`}
                   style={{

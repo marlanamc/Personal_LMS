@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Home — Mobile Redesign</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: radial-gradient(ellipse at 30% 20%, #1a2f44 0%, #0a1520 60%);
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-start;
+  font-family: 'Manrope', sans-serif;
+  padding: 32px 16px 48px; gap: 16px;
+}
+.compare-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(169,183,200,0.45); font-family: 'Outfit', sans-serif;
+  text-align: center;
+}
+.phone {
+  width: 390px; height: 844px;
+  background: #122033; border-radius: 46px; overflow: hidden; position: relative;
+  box-shadow:
+    0 0 0 1.5px rgba(255,255,255,0.07),
+    0 0 0 6px rgba(0,0,0,0.35),
+    0 50px 100px rgba(0,0,0,0.65),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+/* status bar */
+.sb { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 26px; flex-shrink: 0; }
+.sb-time { font-size: 15px; font-weight: 700; color: #e6edf6; font-family: 'Outfit', sans-serif; }
+/* app header */
+.ah { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
+.ah-brand { display: flex; align-items: center; gap: 7px; }
+.ah-logo { width: 34px; height: 34px; border-radius: 10px; background: rgba(212,138,166,0.1); border: 1px solid rgba(212,138,166,0.2); display: flex; align-items: center; justify-content: center; }
+.ah-name { font-size: 11px; font-weight: 700; color: #d48aa6; letter-spacing: 0.16em; text-transform: uppercase; font-family: 'Outfit', sans-serif; }
+.ah-actions { display: flex; align-items: center; gap: 8px; }
+.ah-btn { width: 34px; height: 34px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #6e7e91; }
+/* scroll content */
+.content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+/* section header */
+.sec-hd { display: flex; align-items: center; justify-content: space-between; padding: '0 16px'; margin-bottom: 8px; }
+.sec-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #6e7e91; font-family: 'Outfit', sans-serif; }
+/* bottom nav */
+.bnav { height: 68px; display: flex; align-items: flex-start; justify-content: space-around; padding: 10px 6px 0; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; background: #122033; }
+.ni { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 2px 8px; flex: 1; cursor: pointer; }
+.ni-ic { color: #6e7e91; } .ni-ic.act { color: #d48aa6; }
+.ni-lb { font-size: 9px; font-weight: 600; color: #6e7e91; font-family: 'Outfit', sans-serif; }
+.ni-lb.act { color: #d48aa6; }
+/* scrollbars */
+::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+/* today strip horizontal scroll */
+.today-strip { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 2px; scrollbar-width: none; }
+.today-strip::-webkit-scrollbar { display: none; }
+/* area grid */
+.area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 16px; }
+/* anchor dot animation */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212,138,166,0); }
+  50%       { box-shadow: 0 0 0 4px rgba(212,138,166,0.25), 0 0 12px rgba(212,138,166,0.3); }
+}
+.anchor-active { animation: pulseGlow 2.4s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+const { useState, useMemo, useEffect, useRef } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "showGreeting": true,
+  "ribbonLayout": "scroll",
+  "accentColor": "#d48aa6",
+  "showShortcuts": true
+}/*EDITMODE-END*/;
+
+// ── Mock data ─────────────────────────────────────────────────────────────────
+const NOW_MINUTES = (() => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); })();
+const TODAY_DATE = new Date();
+const DATE_LABEL = TODAY_DATE.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+const GREETING = NOW_MINUTES < 720 ? 'Good morning' : NOW_MINUTES < 1020 ? 'Good afternoon' : 'Good evening';
+
+const ANCHORS = [
+  { id: 'wake',  time: '07:00', label: 'Wake',      status: 'done',   emoji: '🌅', glow: 'rgba(251,191,36,0.4)',  grad: ['rgba(251,191,36,0.18)','rgba(251,191,36,0.06)'] },
+  { id: 'gym',   time: '08:30', label: 'Gym',       status: 'done',   emoji: '🏋️', glow: 'rgba(52,211,153,0.4)',  grad: ['rgba(52,211,153,0.18)','rgba(52,211,153,0.06)'] },
+  { id: 'work',  time: '10:00', label: 'Work',      status: 'active', emoji: '💼', glow: 'rgba(56,189,248,0.4)',  grad: ['rgba(56,189,248,0.18)','rgba(56,189,248,0.06)'] },
+  { id: 'study', time: '14:00', label: 'Spanish',   status: 'future', emoji: '📖', glow: 'rgba(129,140,248,0.4)', grad: ['rgba(129,140,248,0.18)','rgba(129,140,248,0.06)'] },
+  { id: 'wind',  time: '22:00', label: 'Wind Down', status: 'future', emoji: '🌙', glow: 'rgba(167,139,250,0.4)', grad: ['rgba(167,139,250,0.18)','rgba(167,139,250,0.06)'] },
+];
+
+const NEXT_ANCHOR = ANCHORS.find(a => a.status === 'active') ?? ANCHORS.find(a => a.status === 'future');
+const minutesUntilNext = (() => {
+  if (!NEXT_ANCHOR) return null;
+  const [h,m] = NEXT_ANCHOR.time.split(':').map(Number);
+  return (h*60+m) - NOW_MINUTES;
+})();
+
+const RIBBON_CARDS = [
+  {
+    id: 'now', label: 'Now', icon: 'zap', href: '/dashboard/organize',
+    bg: 'rgba(212,138,166,0.08)', border: 'rgba(212,138,166,0.2)', color: '#d48aa6',
+    content: ['Fix mobile layout', 'Review ser vs estar', 'Morning walk'],
+    empty: false,
+  },
+  {
+    id: 'meals', label: 'Meals', icon: 'utensils', href: '/dashboard/meal-planner',
+    bg: 'hsla(24,44%,70%,0.08)', border: 'hsla(24,44%,70%,0.22)', color: 'hsl(24,46%,75%)',
+    content: ['Oatmeal', 'Chicken salad', 'Tacos'],
+    empty: false,
+  },
+  {
+    id: 'skincare', label: 'Skincare', icon: 'droplets', href: '/dashboard/skincare-planner',
+    bg: 'hsla(205,58%,72%,0.08)', border: 'hsla(205,58%,72%,0.22)', color: 'hsl(205,60%,76%)',
+    content: ['CeraVe AM · SPF', 'Retinol PM'],
+    empty: false,
+  },
+  {
+    id: 'cleaning', label: 'Cleaning', icon: 'sparkles', href: '/dashboard/cleaning-planner',
+    bg: 'hsla(162,38%,58%,0.08)', border: 'hsla(162,38%,58%,0.22)', color: 'hsl(162,40%,68%)',
+    content: ['Vacuum living room'],
+    overdue: 0, empty: false,
+  },
+];
+
+const AREA_CARDS = [
+  {
+    id: 'planning', label: 'Planning', emoji: '📅',
+    dot: '#4f8c9e', bg: 'rgba(79,140,158,0.07)', border: 'rgba(79,140,158,0.18)',
+    color: '#4f8c9e', href: '/dashboard/day-planner',
+    shortcuts: ['Calendar','Anchors','Quarterly','Meals','Cleaning'],
+  },
+  {
+    id: 'thinking', label: 'Thinking', emoji: '✦',
+    dot: '#a089c7', bg: 'rgba(160,137,199,0.07)', border: 'rgba(160,137,199,0.18)',
+    color: '#a089c7', href: '/dashboard/workspace',
+    shortcuts: ['Organize','Workspace','Journal','Wins'],
+  },
+  {
+    id: 'focus', label: 'Focus', emoji: '⏱',
+    dot: '#d48aa6', bg: 'rgba(212,138,166,0.07)', border: 'rgba(212,138,166,0.18)',
+    color: '#d48aa6', href: '/dashboard/timer',
+    shortcuts: ['Timer','Crisis Mode','Health Log'],
+  },
+  {
+    id: 'learning', label: 'Learning', emoji: '📚',
+    dot: '#78bfa5', bg: 'rgba(120,191,165,0.07)', border: 'rgba(120,191,165,0.18)',
+    color: '#78bfa5', href: '/dashboard/subjects',
+    shortcuts: ['Spanish','Coding'],
+  },
+];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const TSTART = 6 * 60, TTOTAL = 18 * 60;
+const toPercent = t => { const [h,m]=t.split(':').map(Number); return ((h*60+m-TSTART)/TTOTAL)*100; };
+const nowPct = Math.max(0, Math.min(100, ((NOW_MINUTES-TSTART)/TTOTAL)*100));
+const showNow = NOW_MINUTES >= TSTART && NOW_MINUTES < TSTART+TTOTAL;
+
+// ── Icons (inline SVG) ────────────────────────────────────────────────────────
+function Icon({ name, size=14, color='currentColor' }) {
+  const paths = {
+    zap:      <path d="M13 2L3 14h8l-1 8 10-12h-8l1-10z" />,
+    utensils: <><path d="M3 2v7c0 1.1.9 2 2 2h0a2 2 0 002-2V2"/><path d="M7 2v20M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h0V22"/></>,
+    droplets: <><path d="M12 2C6.5 11 4 15.5 4 17a8 8 0 0016 0c0-1.5-2.5-6-8-15z"/></>,
+    sparkles: <><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/></>,
+    bell:     <><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></>,
+    chevron:  <path d="M9 18l6-6-6-6"/>,
+    check:    <path d="M20 6L9 17l-5-5"/>,
+    book:     <><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></>,
+    timer:    <><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/><path d="M9.5 3h5"/></>,
+    calendar: <><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></>,
+    subjects: <><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><path d="M8 10h8M8 14h4"/></>,
+    home:     <><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>,
+  };
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      {paths[name] || null}
+    </svg>
+  );
+}
+
+// ── Status Bar ────────────────────────────────────────────────────────────────
+function StatusBar() {
+  const now = new Date();
+  const time = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  return (
+    <div className="sb">
+      <span className="sb-time">{time}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+        <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
+          <rect x="0" y="3" width="2.5" height="8" rx="0.6" fill="#e6edf6" opacity=".9"/>
+          <rect x="4" y="2" width="2.5" height="9" rx="0.6" fill="#e6edf6" opacity=".9"/>
+          <rect x="8" y="0.5" width="2.5" height="10.5" rx="0.6" fill="#e6edf6" opacity=".9"/>
+          <rect x="12" y="0.5" width="2.5" height="10.5" rx="0.6" fill="#e6edf6" opacity=".25"/>
+        </svg>
+        <svg width="24" height="11" viewBox="0 0 24 11" fill="none">
+          <rect x="0.5" y="0.5" width="20" height="10" rx="2.5" stroke="rgba(255,255,255,0.3)" strokeWidth=".9"/>
+          <rect x="21" y="3" width="2.5" height="5" rx="1" fill="rgba(255,255,255,0.3)"/>
+          <rect x="2" y="2" width="13" height="7" rx="1.5" fill="#e6edf6"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// ── App Header ────────────────────────────────────────────────────────────────
+function AppHeader() {
+  return (
+    <div className="ah">
+      <div className="ah-brand">
+        <div className="ah-logo">
+          <Icon name="book" size={16} color="#d48aa6" />
+        </div>
+        <span className="ah-name">Marlie</span>
+      </div>
+      <div className="ah-actions">
+        <div className="ah-btn"><Icon name="bell" size={16} color="#6e7e91"/></div>
+        <div style={{ width:34,height:34,borderRadius:10,background:'rgba(212,138,166,0.15)',border:'1px solid rgba(212,138,166,0.25)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer' }}>
+          <span style={{ fontSize:13,fontWeight:700,color:'#d48aa6',fontFamily:'Outfit' }}>M</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Greeting Strip ────────────────────────────────────────────────────────────
+function GreetingStrip({ show }) {
+  if (!show) return null;
+  return (
+    <div style={{ padding: '10px 16px 0', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+      <div>
+        <p style={{ fontSize: 18, fontWeight: 700, color: '#e6edf6', fontFamily: 'Outfit', lineHeight: 1.25, letterSpacing: '-0.01em' }}>
+          {GREETING} ✦
+        </p>
+        {NEXT_ANCHOR && minutesUntilNext !== null && minutesUntilNext > 0 && (
+          <p style={{ fontSize: 11, color: '#6e7e91', fontFamily: 'Manrope', marginTop: 2 }}>
+            {NEXT_ANCHOR.emoji} {NEXT_ANCHOR.label}{' '}
+            <span style={{ color: '#a9b7c8' }}>in {minutesUntilNext < 60 ? `${minutesUntilNext} min` : `${Math.floor(minutesUntilNext/60)}h`}</span>
+          </p>
+        )}
+      </div>
+      <p style={{ fontSize: 11, color: '#6e7e91', fontFamily: 'Outfit', textAlign: 'right', lineHeight: 1.4, flexShrink: 0, marginLeft: 8 }}>
+        {TODAY_DATE.toLocaleDateString('en-US', { weekday: 'short' })}<br />
+        <span style={{ color: '#a9b7c8', fontWeight: 600 }}>{TODAY_DATE.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+      </p>
+    </div>
+  );
+}
+
+// ── Anchor Timeline ───────────────────────────────────────────────────────────
+function AnchorTimeline() {
+  const HOUR_LABELS = ['6a','9a','12p','3p','6p','9p','12a'];
+
+  return (
+    <div style={{ margin: '10px 16px 0', padding: '10px 12px 12px', borderRadius: 16, background: 'rgba(24,39,58,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}>
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6e7e91', fontFamily: 'Outfit' }}>Daily Anchors</span>
+          <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 8, background: 'rgba(120,191,165,0.12)', color: '#78bfa5', fontFamily: 'Outfit', fontWeight: 700 }}>
+            {ANCHORS.filter(a=>a.status==='done').length}/{ANCHORS.length}
+          </span>
+        </div>
+        <button style={{ fontSize: 10, color: '#6e7e91', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Outfit', fontWeight: 600 }}>Edit</button>
+      </div>
+
+      {/* Hour labels */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 1px', marginBottom: 3 }}>
+        {HOUR_LABELS.map(l => (
+          <span key={l} style={{ fontSize: 9, color: 'rgba(110,126,145,0.45)', fontFamily: 'Outfit', fontWeight: 500, tabularNums: true }}>{l}</span>
+        ))}
+      </div>
+
+      {/* Track + dots */}
+      <div style={{ position: 'relative', height: 42 }}>
+        {/* BG track */}
+        <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', transform: 'translateY(-50%)', height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.05)' }} />
+        {/* Progress fill */}
+        <div style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', height: 5, width: `${showNow ? nowPct : 0}%`, borderRadius: 3, background: 'linear-gradient(90deg,#78bfa5,#d48aa6,#4f8c9e)', transition: 'width 1s ease' }} />
+
+        {/* Anchor dots */}
+        {ANCHORS.map(a => {
+          const pos = toPercent(a.time);
+          const isDone = a.status === 'done';
+          const isActive = a.status === 'active';
+          return (
+            <div key={a.id} style={{ position: 'absolute', left: `${pos}%`, top: '50%', transform: 'translate(-50%,-50%)', zIndex: 20 }}>
+              <div
+                className={isActive ? 'anchor-active' : ''}
+                style={{
+                  width: 30, height: 30, borderRadius: 10,
+                  background: isDone
+                    ? 'linear-gradient(135deg,rgba(120,191,165,0.6),rgba(120,191,165,0.3))'
+                    : isActive
+                      ? `linear-gradient(135deg,${a.grad[0]},${a.grad[1]})`
+                      : 'rgba(18,32,51,0.95)',
+                  border: `2px solid ${isDone ? 'rgba(120,191,165,0.5)' : isActive ? a.glow.replace('0.4','0.5') : 'rgba(255,255,255,0.09)'}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: isActive ? `0 0 14px ${a.glow}` : 'none',
+                  backdropFilter: 'blur(4px)',
+                }}
+              >
+                {isDone ? (
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l2.5 2.5L10 3" stroke="#78bfa5" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ) : (
+                  <span style={{ fontSize: 12, lineHeight: 1 }}>{a.emoji}</span>
+                )}
+              </div>
+              {/* Label below active */}
+              {isActive && (
+                <div style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 3, whiteSpace: 'nowrap', fontSize: 9, fontWeight: 700, color: a.glow.replace('0.4','1').replace('rgba','rgba'), fontFamily: 'Outfit', letterSpacing: '0.04em' }}>
+                  {a.label}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Now line */}
+        {showNow && (
+          <div style={{ position: 'absolute', left: `${nowPct}%`, top: '50%', transform: 'translate(-50%,-50%)', zIndex: 14, pointerEvents: 'none' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <span style={{ fontSize: 7, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#d48aa6', fontFamily: 'Outfit', marginBottom: 2 }}>now</span>
+              <div style={{ width: 2, height: 32, background: 'linear-gradient(to bottom,#d48aa6,rgba(212,138,166,0))', borderRadius: 1, boxShadow: '0 0 6px rgba(212,138,166,0.5)' }} />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Today Ribbon ──────────────────────────────────────────────────────────────
+function TodayRibbon({ layout }) {
+  const MEAL_ICONS = { breakfast: '☀️', lunch: '🌤', dinner: '🌙', snack: '☕' };
+  const mealRows = [
+    { icon: '🌅', text: 'Oatmeal + berries' },
+    { icon: '🌤', text: 'Chicken salad' },
+    { icon: '🌙', text: 'Tacos al pastor' },
+  ];
+
+  const cardStyle = (card) => ({
+    flexShrink: 0,
+    width: layout === 'scroll' ? 148 : '100%',
+    padding: '11px 12px',
+    borderRadius: 14,
+    background: card.bg,
+    border: `1px solid ${card.border}`,
+    cursor: 'pointer',
+    transition: 'opacity 0.15s',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 7,
+    minHeight: layout === 'scroll' ? 88 : 'auto',
+  });
+
+  const headerRow = (card) => (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+        <Icon name={card.icon} size={13} color={card.color} />
+        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: card.color, fontFamily: 'Outfit' }}>{card.label}</span>
+      </div>
+      <Icon name="chevron" size={11} color={`${card.color}88`} />
+    </div>
+  );
+
+  const nowCard = RIBBON_CARDS[0];
+  const mealsCard = RIBBON_CARDS[1];
+  const skincareCard = RIBBON_CARDS[2];
+  const cleaningCard = RIBBON_CARDS[3];
+
+  return (
+    <div style={{ marginTop: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', marginBottom: 8 }}>
+        <span className="sec-label">Today</span>
+      </div>
+      {layout === 'scroll' ? (
+        <div className="today-strip">
+          {/* NOW */}
+          <div style={cardStyle(nowCard)}>
+            {headerRow(nowCard)}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {['Fix mobile layout','Review ser vs estar','Morning walk'].map((t,i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <div style={{ width: 4, height: 4, borderRadius: '50%', background: nowCard.color, opacity: 0.7, flexShrink: 0 }} />
+                  <span style={{ fontSize: 11, color: '#e6edf6', fontFamily: 'Manrope', fontWeight: 500, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* MEALS */}
+          <div style={cardStyle(mealsCard)}>
+            {headerRow(mealsCard)}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {mealRows.map((r,i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <span style={{ fontSize: 9 }}>{r.icon}</span>
+                  <span style={{ fontSize: 11, color: '#e6edf6', fontFamily: 'Manrope', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* SKINCARE */}
+          <div style={cardStyle(skincareCard)}>
+            {headerRow(skincareCard)}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ fontSize: 10 }}>☀️</span>
+                <span style={{ fontSize: 11, color: '#e6edf6', fontFamily: 'Manrope', fontWeight: 500 }}>CeraVe AM · SPF 50</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ fontSize: 10 }}>🌙</span>
+                <span style={{ fontSize: 11, color: '#e6edf6', fontFamily: 'Manrope', fontWeight: 500 }}>Retinol 0.3%</span>
+              </div>
+            </div>
+          </div>
+          {/* CLEANING */}
+          <div style={cardStyle(cleaningCard)}>
+            {headerRow(cleaningCard)}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ width: 5, height: 5, borderRadius: '50%', background: cleaningCard.color, flexShrink: 0 }} />
+              <span style={{ fontSize: 11, color: '#e6edf6', fontFamily: 'Manrope', fontWeight: 500 }}>Vacuum living room</span>
+            </div>
+            <span style={{ fontSize: 10, color: '#6e7e91', fontFamily: 'Outfit' }}>All caught up otherwise ✓</span>
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7, padding: '0 16px' }}>
+          {RIBBON_CARDS.map(card => (
+            <div key={card.id} style={cardStyle(card)}>
+              {headerRow(card)}
+              <span style={{ fontSize: 11, color: '#a9b7c8', fontFamily: 'Manrope' }}>
+                {card.content[0]}{card.content.length > 1 ? ` +${card.content.length - 1}` : ''}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Area Cards ────────────────────────────────────────────────────────────────
+function AreaCards({ showShortcuts }) {
+  return (
+    <div style={{ marginTop: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px', marginBottom: 8 }}>
+        <span className="sec-label">Areas</span>
+      </div>
+      <div className="area-grid">
+        {AREA_CARDS.map(card => (
+          <div key={card.id} style={{
+            borderRadius: 16, padding: '14px 14px 12px',
+            background: card.bg, border: `1px solid ${card.border}`,
+            cursor: 'pointer', transition: 'all 0.15s',
+            display: 'flex', flexDirection: 'column', gap: 8,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <span style={{ fontSize: 16, lineHeight: 1 }}>{card.emoji}</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#e6edf6', fontFamily: 'Outfit' }}>{card.label}</span>
+              </div>
+              <div style={{ width: 24, height: 24, borderRadius: 8, background: `${card.bg}`, border: `1px solid ${card.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="chevron" size={12} color={card.color} />
+              </div>
+            </div>
+            {showShortcuts && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {card.shortcuts.slice(0,4).map(s => (
+                  <span key={s} style={{
+                    fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 8,
+                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+                    color: '#a9b7c8', fontFamily: 'Outfit', whiteSpace: 'nowrap',
+                  }}>{s}</span>
+                ))}
+                {card.shortcuts.length > 4 && (
+                  <span style={{ fontSize: 10, color: '#6e7e91', fontFamily: 'Outfit', padding: '3px 4px' }}>+{card.shortcuts.length - 4}</span>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Bottom Nav ────────────────────────────────────────────────────────────────
+function BottomNav() {
+  const items = [
+    { label: 'Home',     icon: 'home',     active: true  },
+    { label: 'Planner',  icon: 'calendar', active: false },
+    { label: 'Timer',    icon: 'timer',    active: false },
+    { label: 'Subjects', icon: 'subjects', active: false },
+  ];
+  return (
+    <div className="bnav">
+      {items.map(({ label, icon, active }) => (
+        <div key={label} className="ni">
+          <Icon name={icon} size={21} color={active ? '#d48aa6' : '#6e7e91'} />
+          <span className={`ni-lb${active ? ' act' : ''}`}>{label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Main Phone App ────────────────────────────────────────────────────────────
+function DashboardApp({ tweaks }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <StatusBar />
+      <AppHeader />
+      <div className="content" style={{ flex: 1, overflowY: 'auto', paddingBottom: 16 }}>
+        <GreetingStrip show={tweaks.showGreeting} />
+        <AnchorTimeline />
+        <TodayRibbon layout={tweaks.ribbonLayout} />
+        <AreaCards showShortcuts={tweaks.showShortcuts} />
+        <div style={{ height: 16 }} />
+      </div>
+      <BottomNav />
+    </div>
+  );
+}
+
+// ── Root ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  return (
+    <>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+        <div className="phone"><DashboardApp tweaks={tweaks} /></div>
+        <span className="compare-label">Dashboard Home · Mobile Redesign</span>
+      </div>
+      <TweaksPanel>
+        <TweakSection label="Layout" />
+        <TweakToggle label="Greeting strip" value={tweaks.showGreeting} onChange={v => setTweak('showGreeting', v)} />
+        <TweakSelect label="Today ribbon" value={tweaks.ribbonLayout} options={['scroll','grid']} onChange={v => setTweak('ribbonLayout', v)} />
+        <TweakToggle label="Area shortcuts" value={tweaks.showShortcuts} onChange={v => setTweak('showShortcuts', v)} />
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
