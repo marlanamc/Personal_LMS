@@ -13,8 +13,20 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { ArrowRight, CheckCircle2, Clock, Eye, EyeOff, Grip, MoreHorizontal, RotateCcw, Sparkles, Inbox, ChevronDown } from 'lucide-react';
-import { FlowProgressBar } from './FlowProgressBar';
+import {
+  ArrowDown,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Eye,
+  EyeOff,
+  Inbox,
+  MoreHorizontal,
+  Plus,
+  RotateCcw,
+  Sparkles,
+} from 'lucide-react';
 import { FlowToast } from './FlowToast';
 import { TimeTriggerBuilder } from './TimeTriggerBuilder';
 import { OrganizeHeaderPortal } from './OrganizeHeaderSlot';
@@ -39,6 +51,8 @@ type FlowOrganizeViewProps = {
 
 const FLOW_CHAIN_ID = 'flow-chain';
 const FLOW_POOL_ID = 'flow-pool';
+
+// ── Overflow menu ────────────────────────────────────────────────────────────
 
 function FlowOverflowMenu({
   onClear,
@@ -70,9 +84,7 @@ function FlowOverflowMenu({
           className="organize-clean-overflow-item"
           onClick={(e) => {
             onToggleTriggerBuilder();
-            (e.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute(
-              'open'
-            );
+            (e.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute('open');
           }}
         >
           <Clock className="h-4 w-4" />
@@ -84,9 +96,7 @@ function FlowOverflowMenu({
             className="organize-clean-overflow-item"
             onClick={(e) => {
               onToggleDone();
-              (e.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute(
-                'open'
-              );
+              (e.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute('open');
             }}
             aria-pressed={showDone}
           >
@@ -100,9 +110,7 @@ function FlowOverflowMenu({
           disabled={!hasChain}
           onClick={(e) => {
             onClear();
-            (e.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute(
-              'open'
-            );
+            (e.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute('open');
           }}
         >
           <RotateCcw className="h-4 w-4" />
@@ -112,6 +120,8 @@ function FlowOverflowMenu({
     </details>
   );
 }
+
+// ── Time trigger wrapper ─────────────────────────────────────────────────────
 
 function TimeTriggerWrapper({
   bullet,
@@ -126,11 +136,7 @@ function TimeTriggerWrapper({
 
   if (bullet.triggerType !== 'time') {
     if (!justCompleted) return <>{children}</>;
-    return (
-      <div className="relative" {...pulseProp}>
-        {children}
-      </div>
-    );
+    return <div className="relative" {...pulseProp}>{children}</div>;
   }
 
   return (
@@ -146,41 +152,72 @@ function TimeTriggerWrapper({
   );
 }
 
+// ── Drop zone ────────────────────────────────────────────────────────────────
+
 function FlowDropZone({
   id,
-  title,
-  subtitle,
   children,
   empty,
 }: {
   id: string;
-  title: string;
-  subtitle: string;
   children: React.ReactNode;
   empty?: React.ReactNode;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
-    <section
+    <div
       ref={setNodeRef}
-      className={`rounded-[1.9rem] px-4 py-4 sm:px-5 sm:py-5 transition-all duration-300 ${
-        isOver
-          ? 'border-2 border-primary/40 bg-primary/5 shadow-glow-pink'
-          : 'border border-transparent'
+      className={`transition-all duration-200 rounded-2xl ${
+        isOver ? 'ring-2 ring-[var(--color-lane-now)]/40 bg-[var(--color-lane-now-bg)]' : ''
       }`}
     >
-      {title && (
-        <div className="mb-4">
-          <h3 className="text-sm font-display font-semibold text-text">{title}</h3>
-          {subtitle && <p className="mt-1 text-xs text-text-muted">{subtitle}</p>}
-        </div>
-      )}
-      <div className="space-y-3">{children}</div>
+      {children}
       {empty}
-    </section>
+    </div>
   );
 }
+
+// ── Project pill ─────────────────────────────────────────────────────────────
+
+function ProjectPill({ bullet, size = 'sm' }: { bullet: ThoughtBullet; size?: 'sm' | 'xs' }) {
+  if (!bullet.projectMeta) return null;
+  const textSize = size === 'xs' ? 'text-[10px]' : 'text-[11px]';
+  const padding = size === 'xs' ? 'px-1.5 py-px' : 'px-2 py-0.5';
+  return (
+    <span
+      className={`inline-block rounded-full font-display font-semibold ${textSize} ${padding}`}
+      style={{
+        color: `var(--project-${bullet.projectMeta.color})`,
+        background: `color-mix(in srgb, var(--project-${bullet.projectMeta.color}) 14%, var(--color-bg-elevated))`,
+      }}
+    >
+      {bullet.projectMeta.label}
+    </span>
+  );
+}
+
+// ── Chain sequence indicator ──────────────────────────────────────────────────
+
+function ChainNodeIndicator({ position, isNext }: { position: number; isNext: boolean }) {
+  return (
+    <div className="flex flex-col items-center shrink-0" style={{ width: 20 }}>
+      <div className="w-px flex-1 bg-[var(--color-border-subtle)] min-h-[10px]" />
+      <div
+        className={`flex items-center justify-center rounded-full border text-[10px] font-bold font-mono transition-colors ${
+          isNext
+            ? 'h-5 w-5 border-[var(--color-lane-next)]/60 bg-[var(--color-lane-next-bg)] text-[var(--color-lane-next)]'
+            : 'h-5 w-5 border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)]'
+        }`}
+      >
+        {position}
+      </div>
+      <div className="w-px flex-1 bg-[var(--color-border-subtle)] min-h-[10px]" />
+    </div>
+  );
+}
+
+// ── Main component ───────────────────────────────────────────────────────────
 
 export function FlowOrganizeView({
   organization,
@@ -192,18 +229,16 @@ export function FlowOrganizeView({
   const [showTimeTriggerBuilder, setShowTimeTriggerBuilder] = useState(false);
   const [showTaskTray, setShowTaskTray] = useState(false);
 
-  // Restore tray preference
   useEffect(() => {
     const saved = typeof window !== 'undefined' ? localStorage.getItem('flow-show-tray') : null;
     if (saved === '1') setShowTaskTray(true);
   }, []);
 
-  // If any task is dragged open the tray so drop targets are visible
   useEffect(() => {
     if (activeDragId && !showTaskTray) setShowTaskTray(true);
   }, [activeDragId, showTaskTray]);
 
-  const toggleTaskTray = useCallback(() => {
+  const _toggleTaskTray = useCallback(() => {
     setShowTaskTray((prev) => {
       const next = !prev;
       if (typeof window !== 'undefined') {
@@ -212,10 +247,11 @@ export function FlowOrganizeView({
       return next;
     });
   }, []);
+
   const board = useMemo(() => getFlowBoard(organization), [organization]);
   const justCompleted = useCompletionPulse(organization.bullets);
   const bulletMap = useMemo(
-    () => new Map(organization.bullets.map((bullet) => [bullet.id, bullet])),
+    () => new Map(organization.bullets.map((b) => [b.id, b])),
     [organization.bullets]
   );
   const activeDragBullet = activeDragId ? bulletMap.get(activeDragId) ?? null : null;
@@ -225,73 +261,50 @@ export function FlowOrganizeView({
     useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 10 } })
   );
 
-  // Request notification permission on mount
   useEffect(() => {
     requestNotificationPermission();
   }, []);
 
-  // Background timer to check time triggers
   useEffect(() => {
     const checkTimeTriggers = () => {
       const now = new Date();
       const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-
-      // Find time triggers in the chain that are ready to fire
       board.orderedBullets.forEach((bullet) => {
-        if (
-          bullet.triggerType === 'time' &&
-          bullet.triggerTime === currentTime &&
-          bullet.lane !== 'done'
-        ) {
-          // Notify that this time trigger has fired
+        if (bullet.triggerType === 'time' && bullet.triggerTime === currentTime && bullet.lane !== 'done') {
           showToast(`⏰ Time to: ${bullet.text}`, 'info');
-
-          // If it's the active trigger, send notification
-          if (bullet === board.activeBullet) {
-            notifyNextTrigger(bullet);
-          }
+          if (bullet === board.activeBullet) notifyNextTrigger(bullet);
         }
       });
     };
-
-    // Check every minute
     const interval = setInterval(checkTimeTriggers, 60000);
-
-    // Check immediately on mount
     checkTimeTriggers();
-
     return () => clearInterval(interval);
   }, [board.orderedBullets, board.activeBullet]);
 
   const updateBullet = useCallback(
     (bulletId: string, updates: Partial<ThoughtBullet>) => {
-      const current = organization.bullets.find((bullet) => bullet.id === bulletId);
+      const current = organization.bullets.find((b) => b.id === bulletId);
       if (!current) return;
 
       const nextOrg: ThoughtOrganization = {
         ...organization,
-        bullets: organization.bullets.map((bullet) =>
-          bullet.id === bulletId ? { ...bullet, ...updates } : bullet
+        bullets: organization.bullets.map((b) =>
+          b.id === bulletId ? { ...b, ...updates } : b
         ),
       };
 
-      // Check if we're marking a task as done
       if (updates.lane === 'done' && current.lane !== 'done') {
-        // Find the next pending bullet in the chain
         const currentIndex = getFlowGlobalOrder(organization).indexOf(bulletId);
         if (currentIndex !== -1) {
           const nextPendingId = getFlowGlobalOrder(organization)
             .slice(currentIndex + 1)
             .find((id) => {
-              const bullet = organization.bullets.find((b) => b.id === id);
-              return bullet && bullet.lane !== 'done';
+              const b = organization.bullets.find((x) => x.id === id);
+              return b && b.lane !== 'done';
             });
-
           const nextBullet = nextPendingId
             ? organization.bullets.find((b) => b.id === nextPendingId)
             : undefined;
-
-          // Notify about the completion and next trigger
           notifyNextTrigger(current, nextBullet);
         }
       }
@@ -301,11 +314,11 @@ export function FlowOrganizeView({
     [onUpdateOrganization, organization]
   );
 
-  const deleteBullet = useCallback(
+  const _deleteBullet = useCallback(
     (bulletId: string) => {
       onUpdateOrganization({
         ...removeFlowBulletFromGlobalOrder(organization, bulletId),
-        bullets: organization.bullets.filter((bullet) => bullet.id !== bulletId),
+        bullets: organization.bullets.filter((b) => b.id !== bulletId),
       });
     },
     [onUpdateOrganization, organization]
@@ -319,24 +332,13 @@ export function FlowOrganizeView({
   );
 
   const clearChain = useCallback(() => {
-    // Send all tasks to the pool by clearing globalOrder
-    onUpdateOrganization({
-      ...organization,
-      flow: {
-        ...organization.flow,
-        globalOrder: [],
-      },
-    });
+    onUpdateOrganization({ ...organization, flow: { ...organization.flow, globalOrder: [] } });
     showToast('All tasks sent to pool', 'info');
   }, [onUpdateOrganization, organization]);
 
   const addTimeTrigger = useCallback(
     (trigger: ThoughtBullet) => {
-      // Add the time trigger to bullets and to the end of the chain
-      const updatedOrg = {
-        ...organization,
-        bullets: [...organization.bullets, trigger],
-      };
+      const updatedOrg = { ...organization, bullets: [...organization.bullets, trigger] };
       onUpdateOrganization(insertFlowBulletIntoGlobalOrder(updatedOrg, trigger.id, board.orderedBullets.length));
       setShowTimeTriggerBuilder(false);
       showToast(`⏰ Time trigger added for ${trigger.triggerTime}`, 'info');
@@ -349,30 +351,24 @@ export function FlowOrganizeView({
       setActiveDragId(null);
       const { active, over } = event;
       if (!over) return;
-
       const bulletId = String(active.id);
       if (!bulletMap.has(bulletId)) return;
-
       const overId = String(over.id);
       if (overId === FLOW_POOL_ID) {
         onUpdateOrganization(removeFlowBulletFromGlobalOrder(organization, bulletId));
         return;
       }
-
       if (overId === FLOW_CHAIN_ID) {
         onUpdateOrganization(insertFlowBulletIntoGlobalOrder(organization, bulletId, board.orderedBullets.length));
         return;
       }
-
       const overBullet = bulletMap.get(overId);
       if (!overBullet) return;
-
       const targetIndex = getFlowGlobalOrder(organization).indexOf(overBullet.id);
       if (targetIndex === -1) {
         onUpdateOrganization(insertFlowBulletIntoGlobalOrder(organization, bulletId, board.orderedBullets.length));
         return;
       }
-
       onUpdateOrganization(insertFlowBulletIntoGlobalOrder(organization, bulletId, targetIndex));
     },
     [board.orderedBullets.length, bulletMap, onUpdateOrganization, organization]
@@ -381,10 +377,10 @@ export function FlowOrganizeView({
   if (organization.bullets.length === 0) {
     return (
       <div className="px-4 pb-8 pt-6 sm:px-6">
-        <div className="rounded-[1.8rem] border border-border-subtle/60 bg-bg-elevated/70 p-8 text-center">
-          <Sparkles className="mx-auto h-7 w-7 text-text-muted" />
-          <h2 className="mt-4 text-lg font-display font-semibold text-text">Flow view is ready</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm text-text-muted">
+        <div className="rounded-[1.8rem] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]/70 p-8 text-center">
+          <Sparkles className="mx-auto h-7 w-7 text-[var(--color-text-muted)]" />
+          <h2 className="mt-4 text-lg font-display font-semibold text-[var(--color-text-primary)]">Flow is ready</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm text-[var(--color-text-muted)]">
             Import tasks first, then drag the ones you want into the trigger chain.
           </p>
         </div>
@@ -394,10 +390,10 @@ export function FlowOrganizeView({
 
   const visibleOrderedBullets = showDone
     ? board.orderedBullets
-    : board.orderedBullets.filter((bullet) => bullet.lane !== 'done');
+    : board.orderedBullets.filter((b) => b.lane !== 'done');
   const visiblePoolBullets = showDone
     ? board.poolBullets
-    : board.poolBullets.filter((bullet) => bullet.lane !== 'done');
+    : board.poolBullets.filter((b) => b.lane !== 'done');
 
   const hasChain = visibleOrderedBullets.length > 0;
   const chainTotal = board.orderedBullets.length;
@@ -410,7 +406,7 @@ export function FlowOrganizeView({
         <FlowOverflowMenu
           onClear={clearChain}
           onToggleDone={onToggleShowDone}
-          onToggleTriggerBuilder={() => setShowTimeTriggerBuilder((value) => !value)}
+          onToggleTriggerBuilder={() => setShowTimeTriggerBuilder((v) => !v)}
           showDone={showDone}
           triggerBuilderOpen={showTimeTriggerBuilder}
           hasChain={hasChain}
@@ -424,48 +420,50 @@ export function FlowOrganizeView({
         onDragCancel={() => setActiveDragId(null)}
         onDragEnd={handleDragEnd}
       >
-        {/* ── LEFT: Pool ───────────────────────────────────────────────── */}
-        <aside className="hidden lg:flex w-[300px] shrink-0 flex-col border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] overflow-hidden">
-          <div className="px-5 pt-5 pb-3 shrink-0">
-            <p className="font-display text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">Pool</p>
-            <p className="font-display text-[16px] font-bold text-[var(--color-text-primary)] mt-0.5">Ready to chain</p>
-            <p className="font-body text-[11.5px] text-[var(--color-text-muted)] mt-0.5">
-              {visiblePoolBullets.length} bullet{visiblePoolBullets.length !== 1 ? 's' : ''} waiting
+        {/* ── DESKTOP LAYOUT ──────────────────────────────────────────── */}
+
+        {/* Left: Pool */}
+        <aside className="hidden lg:flex w-[280px] shrink-0 flex-col border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] overflow-hidden">
+          <div className="px-5 pt-5 pb-3 shrink-0 border-b border-[var(--color-border-subtle)]/50">
+            <p className="font-display text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-0.5">Pool</p>
+            <p className="font-display text-[15px] font-bold text-[var(--color-text-primary)] leading-tight">Ready to chain</p>
+            <p className="font-body text-[11px] text-[var(--color-text-muted)] mt-0.5">
+              {visiblePoolBullets.length} task{visiblePoolBullets.length !== 1 ? 's' : ''} waiting
             </p>
           </div>
+
           <FlowDropZone
             id={FLOW_POOL_ID}
-            title=""
-            subtitle=""
             empty={
               visiblePoolBullets.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 py-10 px-4 text-center">
-                  <CheckCircle2 className="h-6 w-6 text-[var(--color-lane-done)]" />
-                  <p className="font-body text-[13px] text-[var(--color-text-muted)]">Pool is clear — every task is in the chain.</p>
+                <div className="flex flex-col items-center gap-2 py-10 px-4 text-center">
+                  <CheckCircle2 className="h-5 w-5 text-[var(--color-lane-done)]" />
+                  <p className="font-body text-[12px] text-[var(--color-text-muted)]">Pool clear — all tasks are in the chain.</p>
                 </div>
               ) : null
             }
           >
-            <SortableContext items={visiblePoolBullets.map(b => b.id)} strategy={verticalListSortingStrategy}>
-              <div className="flex flex-col gap-1.5 overflow-y-auto px-3 pb-4" style={{ maxHeight: 'calc(100vh - 220px)' }}>
-                {visiblePoolBullets.map(bullet => (
+            <SortableContext items={visiblePoolBullets.map((b) => b.id)} strategy={verticalListSortingStrategy}>
+              <div className="flex flex-col gap-1.5 overflow-y-auto px-3 py-3 scroll-contain" style={{ maxHeight: 'calc(100vh - 180px)' }}>
+                {visiblePoolBullets.map((bullet) => (
                   <TimeTriggerWrapper key={bullet.id} bullet={bullet} justCompleted={justCompleted.has(bullet.id)}>
-                    <div
-                      className="rounded-[9px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-2.5 cursor-pointer transition-colors hover:bg-[var(--color-bg-surface)]"
-                      style={{ borderLeft: `3px solid ${bullet.projectMeta ? 'var(--project-' + bullet.projectMeta.color + ')' : 'var(--color-border-subtle)'}` }}
+                    <button
+                      type="button"
+                      className="group w-full text-left rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-2.5 transition-all duration-150 hover:bg-[var(--color-bg-soft)] hover:border-[var(--color-border-subtle)]/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-lane-now)]/40"
+                      style={{ borderLeft: `3px solid ${bullet.projectMeta ? `var(--project-${bullet.projectMeta.color})` : 'var(--color-border-subtle)'}` }}
                       onClick={() => onUpdateOrganization(insertFlowBulletIntoGlobalOrder(organization, bullet.id, board.orderedBullets.length))}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onUpdateOrganization(insertFlowBulletIntoGlobalOrder(organization, bullet.id, board.orderedBullets.length)); }}
                       aria-label={`Pull "${bullet.text}" into chain`}
                     >
-                      <p className="font-body text-[12.5px] text-[var(--color-text-primary)] leading-[1.4] truncate">{bullet.text}</p>
+                      <div className="flex items-start gap-2">
+                        <p className="font-body text-[12.5px] text-[var(--color-text-primary)] leading-[1.4] flex-1 min-w-0">{bullet.text}</p>
+                        <Plus className="h-3.5 w-3.5 shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity mt-0.5" aria-hidden />
+                      </div>
                       {bullet.projectMeta && (
-                        <span className="mt-1 inline-block font-display text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ color: `var(--project-${bullet.projectMeta.color})` }}>
-                          {bullet.projectMeta.label}
-                        </span>
+                        <div className="mt-1.5">
+                          <ProjectPill bullet={bullet} size="xs" />
+                        </div>
                       )}
-                    </div>
+                    </button>
                   </TimeTriggerWrapper>
                 ))}
               </div>
@@ -473,220 +471,57 @@ export function FlowOrganizeView({
           </FlowDropZone>
         </aside>
 
-        {/* ── CENTER: Live chain (desktop only) ───────────────────────── */}
+        {/* Center: Flow chain */}
         <div className="hidden lg:flex flex-1 min-w-0 flex-col overflow-hidden">
+          {/* Progress bar */}
           {chainTotal > 0 && (
-            <FlowProgressBar completed={chainDone} total={chainTotal} className="flow-clean-progress shrink-0" />
+            <div className="shrink-0 px-6 pt-4 pb-0">
+              <FlowDesktopProgress completed={chainDone} total={chainTotal} />
+            </div>
           )}
+
           {showTimeTriggerBuilder && (
-            <div className="px-4 pt-4 shrink-0">
+            <div className="px-6 pt-3 shrink-0">
               <TimeTriggerBuilder onAdd={addTimeTrigger} onCancel={() => setShowTimeTriggerBuilder(false)} />
             </div>
           )}
 
-          <div className="flex-1 overflow-y-auto flow-scroll-area px-6 py-6">
-            <FlowDropZone
-              id={FLOW_CHAIN_ID}
-              title=""
-              subtitle=""
-              empty={
-                visibleOrderedBullets.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 py-16 text-center">
+          <FlowDropZone
+            id={FLOW_CHAIN_ID}
+            empty={
+              visibleOrderedBullets.length === 0 ? (
+                <div className="flex flex-col items-center gap-3 py-20 text-center">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-dashed border-[var(--color-border-subtle)]">
-                    <ArrowRight className="h-6 w-6 text-[var(--color-text-muted)]" />
+                    <ArrowDown className="h-5 w-5 text-[var(--color-text-muted)]" />
                   </div>
-                  <p className="font-display text-[18px] font-bold text-[var(--color-text-primary)]">Chain is empty</p>
-                  <p className="font-body text-[13px] text-[var(--color-text-muted)] max-w-[240px]">
-                    Click a bullet in the pool to pull it into your chain.
+                  <p className="font-display text-[17px] font-bold text-[var(--color-text-primary)]">Chain is empty</p>
+                  <p className="font-body text-[13px] text-[var(--color-text-muted)] max-w-[220px] leading-relaxed">
+                    Click a task in the pool to pull it into your chain.
                   </p>
                 </div>
-              ) : null}
-            >
-              <SortableContext items={visibleOrderedBullets.map(b => b.id)} strategy={verticalListSortingStrategy}>
-                {(() => {
-                  const activeBullet = visibleOrderedBullets.find(b => b.lane !== 'done');
-                  const activeIndex = activeBullet ? visibleOrderedBullets.indexOf(activeBullet) : -1;
-                  const queuedBullets = activeIndex >= 0 ? visibleOrderedBullets.slice(activeIndex + 1).filter(b => b.lane !== 'done') : [];
-                  const doneBulletsVisible = visibleOrderedBullets.filter(b => b.lane === 'done');
-
-                  return (
-                    <div className="flex flex-col gap-4">
-                      {/* Live Now stage */}
-                      {activeBullet && (
-                        <div
-                          className="rounded-[20px] border p-7"
-                          style={{
-                            borderColor: 'var(--color-lane-now-border)',
-                            background: 'radial-gradient(140% 120% at 0% 0%, var(--color-live-now-glow) 0%, transparent 55%), var(--color-bg-surface)',
-                            boxShadow: 'var(--color-live-now-shadow)',
-                          }}
-                        >
-                          <div className="flex items-center gap-2 mb-4">
-                            <span className="h-2 w-2 rounded-full bg-[var(--color-lane-now)]" style={{ boxShadow: '0 0 8px var(--color-lane-now-glow)' }} />
-                            <span className="font-display text-[10px] font-extrabold uppercase tracking-[0.22em] text-[var(--color-lane-now)]">Live Now</span>
-                            {activeBullet.projectMeta && (
-                              <span className="ml-auto font-display text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ color: `var(--project-${activeBullet.projectMeta.color})` }}>
-                                {activeBullet.projectMeta.label}
-                              </span>
-                            )}
-                          </div>
-                          <TimeTriggerWrapper bullet={activeBullet} justCompleted={justCompleted.has(activeBullet.id)}>
-                            <p className="font-body text-[26px] font-semibold text-[var(--color-text-primary)] leading-[1.25] mb-5">{activeBullet.text}</p>
-                          </TimeTriggerWrapper>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <button
-                              type="button"
-                              onClick={() => updateBullet(activeBullet.id, { lane: 'done' })}
-                              className="flex items-center gap-2 rounded-[10px] px-3.5 py-2 font-display text-[12.5px] font-semibold transition-colors"
-                              style={{ background: 'var(--color-lane-later-bg)', border: '1px solid var(--color-lane-later-border)', color: 'var(--color-lane-later)' }}
-                            >
-                              <CheckCircle2 className="h-4 w-4" />
-                              Mark done
-                              <kbd className="font-mono text-[10px] opacity-60 ml-0.5">X</kbd>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => sendToPool(activeBullet.id)}
-                              className="flex items-center gap-2 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3.5 py-2 font-display text-[12.5px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-surface)]"
-                            >
-                              <ArrowRight className="h-4 w-4 rotate-90" />
-                              Next
-                              <kbd className="font-mono text-[10px] opacity-60 ml-0.5">N</kbd>
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Chain queue */}
-                      {queuedBullets.length > 0 && (
-                        <div>
-                          <p className="font-display text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--color-text-muted)] mb-3">
-                            Chain — {queuedBullets.length} queued
-                          </p>
-                          <div className="flex flex-col gap-2">
-                            {queuedBullets.map((bullet, i) => (
-                              <div key={bullet.id} className="flex items-center gap-3.5">
-                                <div className="h-7 w-7 shrink-0 flex items-center justify-center rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]">
-                                  <span className="font-mono text-[11px] font-semibold text-[var(--color-text-muted)]">{i + 2}</span>
-                                </div>
-                                <TimeTriggerWrapper bullet={bullet} justCompleted={justCompleted.has(bullet.id)}>
-                                  <div
-                                    className="flex-1 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-3.5 py-2.5"
-                                    style={{ borderLeft: `3px solid ${bullet.projectMeta ? `var(--project-${bullet.projectMeta.color})` : 'var(--color-border-subtle)'}` }}
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <p className="font-body text-[13.5px] text-[var(--color-text-primary)] truncate flex-1">{bullet.text}</p>
-                                      {bullet.projectMeta && (
-                                        <span className="font-display text-[10px] font-semibold shrink-0" style={{ color: `var(--project-${bullet.projectMeta.color})` }}>
-                                          {bullet.projectMeta.label}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                </TimeTriggerWrapper>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Done in chain */}
-                      {showDone && doneBulletsVisible.length > 0 && (
-                        <div className="opacity-55">
-                          <p className="font-display text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)] mb-2">Done</p>
-                          <div className="flex flex-col gap-1.5">
-                            {doneBulletsVisible.map(bullet => (
-                              <div key={bullet.id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-lane-done-bg)] border border-[var(--color-lane-done-border)]">
-                                <CheckCircle2 className="h-[11px] w-[11px] shrink-0 text-[var(--color-lane-done)]" />
-                                <p className="font-body text-[12px] text-[var(--color-text-secondary)] truncate">{bullet.text}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
-              </SortableContext>
-            </FlowDropZone>
-          </div>
+              ) : null
+            }
+          >
+            <SortableContext items={visibleOrderedBullets.map((b) => b.id)} strategy={verticalListSortingStrategy}>
+              <div className="flex-1 overflow-y-auto flow-scroll-area px-6 py-5 scroll-contain" style={{ maxHeight: 'calc(100vh - 160px)' }}>
+                <DesktopChain
+                  visibleOrderedBullets={visibleOrderedBullets}
+                  justCompleted={justCompleted}
+                  showDone={showDone}
+                  updateBullet={updateBullet}
+                  sendToPool={sendToPool}
+                />
+              </div>
+            </SortableContext>
+          </FlowDropZone>
         </div>
 
-        {/* ── RIGHT: Telemetry ─────────────────────────────────────────── */}
-        <aside className="hidden lg:flex w-[260px] shrink-0 flex-col border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] overflow-y-auto px-4 py-5 gap-4">
-          <p className="font-display text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">Session</p>
-
-          {/* Progress ring */}
-          <div className="rounded-[14px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 flex flex-col items-center gap-3">
-            {(() => {
-              const total = board.orderedBullets.length;
-              const done = board.doneBullets.length;
-              const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-              const deg = total > 0 ? (done / total) * 360 : 0;
-              return (
-                <>
-                  <div
-                    className="relative flex items-center justify-center"
-                    style={{ width: 120, height: 120 }}
-                  >
-                    <svg width="120" height="120" className="absolute inset-0" style={{ transform: 'rotate(-90deg)' }}>
-                      <circle cx="60" cy="60" r="52" fill="none" stroke="var(--color-border-subtle)" strokeWidth="8" />
-                      <circle
-                        cx="60" cy="60" r="52" fill="none"
-                        stroke="var(--color-lane-later)"
-                        strokeWidth="8"
-                        strokeDasharray={`${(deg / 360) * (2 * Math.PI * 52)} ${2 * Math.PI * 52}`}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <div className="relative flex flex-col items-center">
-                      <span className="font-display text-[26px] font-bold text-[var(--color-text-primary)]">{done}</span>
-                      <span className="font-display text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">of {total} done</span>
-                    </div>
-                  </div>
-                  <p className="font-body text-[12px] text-[var(--color-text-muted)] text-center">
-                    You&apos;re {pct}% through the chain.
-                  </p>
-                </>
-              );
-            })()}
-          </div>
-
-          {/* Stats grid */}
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { label: 'In chain', value: board.orderedBullets.filter(b => b.lane !== 'done').length, color: 'var(--color-lane-now)' },
-              { label: 'Completed', value: board.doneBullets.length, color: 'var(--color-lane-later)' },
-              { label: 'Pool', value: board.poolBullets.length, color: 'var(--color-lane-next)' },
-              { label: 'Projects', value: new Set(board.orderedBullets.map(b => b.project).filter(Boolean)).size, color: 'var(--color-accent-amethyst)' },
-            ].map(({ label, value, color }) => (
-              <div key={label} className="rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-3 py-2.5">
-                <p className="font-display text-[20px] font-bold" style={{ color }}>{value}</p>
-                <p className="font-display text-[9.5px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">{label}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Just done — only shown when showDone is active */}
-          {showDone && (
-            <div>
-              <p className="font-display text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)] mb-2">Just done</p>
-              {board.doneBullets.length === 0 ? (
-                <p className="font-body text-[12px] text-[var(--color-text-muted)]">Nothing yet — finish your first to unlock the streak.</p>
-              ) : (
-                <div className="flex flex-col gap-1.5">
-                  {board.doneBullets.slice(-3).reverse().map(bullet => (
-                    <div key={bullet.id} className="flex items-center gap-2 rounded-lg px-2.5 py-2" style={{ background: 'var(--color-lane-done-bg)', border: '1px solid var(--color-lane-done-border)' }}>
-                      <CheckCircle2 className="h-[11px] w-[11px] shrink-0 text-[var(--color-lane-later)]" />
-                      <p className="font-body text-[12px] text-[var(--color-text-secondary)] truncate">{bullet.text}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+        {/* Right: Session */}
+        <aside className="hidden lg:flex w-[240px] shrink-0 flex-col border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] overflow-y-auto px-4 py-5 gap-3 scroll-contain">
+          <DesktopSessionPanel board={board} showDone={showDone} />
         </aside>
 
+        {/* Drag overlay */}
         <DragOverlay>
           {activeDragBullet ? (
             <div className="w-[min(32rem,calc(100vw-2rem))]">
@@ -704,7 +539,7 @@ export function FlowOrganizeView({
         </DragOverlay>
       </DndContext>
 
-      {/* ── MOBILE: Flow cockpit (below lg) ────────────────────────── */}
+      {/* ── MOBILE LAYOUT ───────────────────────────────────────────── */}
       <FlowMobileCockpit
         board={board}
         visibleOrderedBullets={visibleOrderedBullets}
@@ -715,13 +550,254 @@ export function FlowOrganizeView({
         onUpdateOrganization={onUpdateOrganization}
         updateBullet={updateBullet}
         sendToPool={sendToPool}
+        justCompleted={justCompleted}
       />
     </div>
   );
 }
 
-// ── Mobile cockpit ───────────────────────────────────────────────────────────
+// ── Desktop: progress bar ────────────────────────────────────────────────────
+
+function FlowDesktopProgress({ completed, total }: { completed: number; total: number }) {
+  const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+  return (
+    <div className="flex items-center gap-3">
+      <span className="font-display text-[11px] font-bold text-[var(--color-text-muted)] tabular-nums">
+        {completed}<span className="opacity-50">/{total}</span>
+      </span>
+      <div className="flex-1 h-[3px] rounded-full overflow-hidden bg-[var(--color-border-subtle)]">
+        <div
+          className="h-full rounded-full transition-all duration-500 ease-out"
+          style={{
+            width: `${pct}%`,
+            background: pct === 100
+              ? 'var(--color-lane-done)'
+              : 'linear-gradient(90deg, var(--color-lane-now), var(--color-lane-later))',
+          }}
+        />
+      </div>
+      <span className="font-display text-[11px] font-bold text-[var(--color-text-muted)] tabular-nums">{pct}%</span>
+    </div>
+  );
+}
+
+// ── Desktop: chain ───────────────────────────────────────────────────────────
+
+function DesktopChain({
+  visibleOrderedBullets,
+  justCompleted,
+  showDone,
+  updateBullet,
+  sendToPool,
+}: {
+  visibleOrderedBullets: ThoughtBullet[];
+  justCompleted: Set<string>;
+  showDone: boolean;
+  updateBullet: (id: string, updates: Partial<ThoughtBullet>) => void;
+  sendToPool: (id: string) => void;
+}) {
+  const activeBullet = visibleOrderedBullets.find((b) => b.lane !== 'done');
+  const activeIndex = activeBullet ? visibleOrderedBullets.indexOf(activeBullet) : -1;
+  const queuedBullets = activeIndex >= 0
+    ? visibleOrderedBullets.slice(activeIndex + 1).filter((b) => b.lane !== 'done')
+    : [];
+  const doneBulletsVisible = visibleOrderedBullets.filter((b) => b.lane === 'done');
+
+  return (
+    <div className="flex flex-col gap-5 max-w-[580px] mx-auto w-full">
+      {/* Live Now */}
+      {activeBullet && (
+        <TimeTriggerWrapper bullet={activeBullet} justCompleted={justCompleted.has(activeBullet.id)}>
+          <div
+            className="rounded-[22px] p-7"
+            style={{
+              background: 'radial-gradient(140% 130% at 0% 0%, var(--color-live-now-glow) 0%, transparent 55%), var(--color-bg-surface)',
+              border: '1.5px solid var(--color-lane-now-border)',
+              boxShadow: 'var(--color-live-now-shadow)',
+            }}
+          >
+            {/* Header row */}
+            <div className="flex items-center gap-2 mb-5">
+              <span
+                className="h-2 w-2 rounded-full bg-[var(--color-lane-now)] shrink-0"
+                style={{ boxShadow: '0 0 10px var(--color-lane-now-glow)' }}
+              />
+              <span className="font-display text-[9px] font-extrabold uppercase tracking-[0.25em] text-[var(--color-lane-now)]">
+                Live Now
+              </span>
+              {activeBullet.projectMeta && (
+                <div className="ml-auto">
+                  <ProjectPill bullet={activeBullet} />
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-end justify-between gap-4">
+              <p className="font-display text-[28px] font-bold text-[var(--color-text-primary)] leading-[1.2]">
+                {activeBullet.text}
+              </p>
+              <div className="flex items-center gap-2 shrink-0 pb-0.5">
+                <button
+                  type="button"
+                  onClick={() => updateBullet(activeBullet.id, { lane: 'done' })}
+                  className="flex items-center gap-1.5 rounded-[9px] px-3 py-1.5 font-display text-[12px] font-semibold transition-all hover:opacity-90 active:scale-[0.97]"
+                  style={{
+                    background: 'color-mix(in srgb, var(--color-lane-later) 18%, var(--color-bg-elevated))',
+                    border: '1px solid color-mix(in srgb, var(--color-lane-later) 35%, transparent)',
+                    color: 'var(--color-lane-later)',
+                  }}
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Done
+                  <kbd className="font-mono text-[10px] opacity-50 ml-0.5 font-normal">X</kbd>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => sendToPool(activeBullet.id)}
+                  className="flex items-center gap-1.5 rounded-[9px] border border-[var(--color-border-subtle)] bg-transparent px-3 py-1.5 font-display text-[12px] font-semibold text-[var(--color-text-muted)] transition-all hover:text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] active:scale-[0.97]"
+                >
+                  <ArrowDown className="h-3.5 w-3.5" />
+                  Later
+                  <kbd className="font-mono text-[10px] opacity-50 ml-0.5 font-normal">N</kbd>
+                </button>
+              </div>
+            </div>
+          </div>
+        </TimeTriggerWrapper>
+      )}
+
+      {/* Queue */}
+      {queuedBullets.length > 0 && (
+        <div>
+          <p className="font-display text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-3 px-1">
+            Chain — {queuedBullets.length} queued
+          </p>
+          <div className="flex flex-col gap-2">
+            {queuedBullets.map((bullet, i) => (
+              <div key={bullet.id} className="flex items-stretch gap-3">
+                <ChainNodeIndicator position={i + 2} isNext={i === 0} />
+                <TimeTriggerWrapper bullet={bullet} justCompleted={justCompleted.has(bullet.id)}>
+                  <div
+                    className="flex-1 rounded-[12px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-4 py-3 transition-colors"
+                    style={{
+                      borderLeft: `3px solid ${bullet.projectMeta ? `var(--project-${bullet.projectMeta.color})` : 'var(--color-border-subtle)'}`,
+                      opacity: Math.max(0.5, 1 - i * 0.1),
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <p className="font-body text-[14px] text-[var(--color-text-primary)] flex-1 min-w-0">{bullet.text}</p>
+                      {bullet.projectMeta && <ProjectPill bullet={bullet} size="xs" />}
+                    </div>
+                  </div>
+                </TimeTriggerWrapper>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Done */}
+      {showDone && doneBulletsVisible.length > 0 && (
+        <div className="opacity-50">
+          <p className="font-display text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--color-text-muted)] mb-2 px-1">Done</p>
+          <div className="flex flex-col gap-1.5">
+            {doneBulletsVisible.map((bullet) => (
+              <div key={bullet.id} className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-[var(--color-lane-done-bg)] border border-[var(--color-lane-done-border)]">
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[var(--color-lane-done)]" />
+                <p className="font-body text-[12px] text-[var(--color-text-secondary)] truncate">{bullet.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Desktop: session panel ───────────────────────────────────────────────────
+
 type FlowBoard = ReturnType<typeof getFlowBoard>;
+
+function DesktopSessionPanel({ board, showDone }: { board: FlowBoard; showDone: boolean }) {
+  const total = board.orderedBullets.length;
+  const done = board.doneBullets.length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const deg = total > 0 ? (done / total) * 360 : 0;
+  const r = 46;
+  const circ = 2 * Math.PI * r;
+
+  const stats = [
+    { label: 'In chain', value: board.orderedBullets.filter((b) => b.lane !== 'done').length, color: 'var(--color-lane-now)' },
+    { label: 'Completed', value: done, color: 'var(--color-lane-later)' },
+    { label: 'Pool', value: board.poolBullets.length, color: 'var(--color-lane-next)' },
+    { label: 'Projects', value: new Set(board.orderedBullets.map((b) => b.project).filter(Boolean)).size, color: 'var(--color-accent-amethyst)' },
+  ];
+
+  return (
+    <>
+      <p className="font-display text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Session</p>
+
+      {/* Progress ring */}
+      <div className="rounded-[14px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-4 flex flex-col items-center gap-3">
+        <div className="relative flex items-center justify-center" style={{ width: 108, height: 108 }}>
+          <svg width="108" height="108" className="absolute inset-0" style={{ transform: 'rotate(-90deg)' }}>
+            <circle cx="54" cy="54" r={r} fill="none" stroke="var(--color-border-subtle)" strokeWidth="7" />
+            <circle
+              cx="54" cy="54" r={r} fill="none"
+              stroke="var(--color-lane-later)"
+              strokeWidth="7"
+              strokeDasharray={`${(deg / 360) * circ} ${circ}`}
+              strokeLinecap="round"
+              style={{ transition: 'stroke-dasharray 0.5s ease' }}
+            />
+          </svg>
+          <div className="relative flex flex-col items-center">
+            <span className="font-display text-[24px] font-bold text-[var(--color-text-primary)] leading-none">{done}</span>
+            <span className="font-display text-[9px] font-bold uppercase tracking-[0.1em] text-[var(--color-text-muted)]">of {total}</span>
+          </div>
+        </div>
+        <p className="font-body text-[11px] text-[var(--color-text-muted)] text-center">
+          {pct}% through the chain
+        </p>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-1.5">
+        {stats.map(({ label, value, color }) => (
+          <div key={label} className="rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-3 py-2.5">
+            <p className="font-display text-[18px] font-bold leading-none mb-0.5" style={{ color }}>{value}</p>
+            <p className="font-display text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">{label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Just done */}
+      {showDone && (
+        <div>
+          <p className="font-display text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--color-text-muted)] mb-2">Just done</p>
+          {board.doneBullets.length === 0 ? (
+            <p className="font-body text-[11.5px] text-[var(--color-text-muted)] leading-relaxed">Finish your first task to unlock the streak.</p>
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              {board.doneBullets.slice(-3).reverse().map((bullet) => (
+                <div
+                  key={bullet.id}
+                  className="flex items-center gap-2 rounded-[9px] px-2.5 py-1.5"
+                  style={{ background: 'var(--color-lane-done-bg)', border: '1px solid var(--color-lane-done-border)' }}
+                >
+                  <CheckCircle2 className="h-3 w-3 shrink-0 text-[var(--color-lane-done)]" />
+                  <p className="font-body text-[11.5px] text-[var(--color-text-secondary)] truncate">{bullet.text}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+// ── Mobile cockpit ───────────────────────────────────────────────────────────
 
 function FlowMobileCockpit({
   board,
@@ -733,6 +809,7 @@ function FlowMobileCockpit({
   onUpdateOrganization,
   updateBullet,
   sendToPool,
+  justCompleted,
 }: {
   board: FlowBoard;
   visibleOrderedBullets: ThoughtBullet[];
@@ -743,28 +820,37 @@ function FlowMobileCockpit({
   onUpdateOrganization: (org: ThoughtOrganization) => void;
   updateBullet: (id: string, updates: Partial<ThoughtBullet>) => void;
   sendToPool: (id: string) => void;
+  justCompleted: Set<string>;
 }) {
-  const [showPool, setShowPool] = useState(false);
+  const [showTray, setShowTray] = useState(false);
 
-  const activeBullet = visibleOrderedBullets.find(b => b.lane !== 'done') ?? null;
-  const queuedBullets = activeBullet
-    ? visibleOrderedBullets.slice(visibleOrderedBullets.indexOf(activeBullet) + 1).filter(b => b.lane !== 'done')
+  const activeBullet = visibleOrderedBullets.find((b) => b.lane !== 'done') ?? null;
+  const activeIndex = activeBullet ? visibleOrderedBullets.indexOf(activeBullet) : -1;
+  const queuedBullets = activeIndex >= 0
+    ? visibleOrderedBullets.slice(activeIndex + 1).filter((b) => b.lane !== 'done')
     : [];
+  const shownQueue = queuedBullets.slice(0, 5);
+
+  const pct = chainTotal > 0 ? Math.round((chainDone / chainTotal) * 100) : 0;
 
   return (
     <div className="lg:hidden flex flex-col flex-1 overflow-hidden">
-      {/* Progress bar */}
+
+      {/* Progress strip */}
       {chainTotal > 0 && (
-        <div className="px-4 pt-2 pb-1 shrink-0">
-          <div className="flex items-center gap-3">
-            <span className="font-display text-[10px] font-bold text-[var(--color-text-muted)]">{chainDone}/{chainTotal}</span>
+        <div className="shrink-0 px-4 pt-3 pb-2">
+          <div className="flex items-center gap-2.5">
+            <span className="font-display text-[11px] font-bold text-[var(--color-text-muted)] tabular-nums">
+              {chainDone}/{chainTotal}
+            </span>
             <div className="flex-1 h-[3px] rounded-full overflow-hidden bg-[var(--color-border-subtle)]">
               <div
-                className="h-full rounded-full"
+                className="h-full rounded-full transition-all duration-500 ease-out"
                 style={{
-                  width: `${chainTotal > 0 ? (chainDone / chainTotal) * 100 : 0}%`,
-                  background: 'linear-gradient(90deg, var(--color-lane-later), var(--color-lane-next))',
-                  transition: 'width 0.4s ease',
+                  width: `${pct}%`,
+                  background: pct === 100
+                    ? 'var(--color-lane-done)'
+                    : 'linear-gradient(90deg, var(--color-lane-now), var(--color-lane-later))',
                 }}
               />
             </div>
@@ -772,140 +858,167 @@ function FlowMobileCockpit({
         </div>
       )}
 
-      {/* Chain scroll area */}
-      <div className="flex-1 overflow-y-auto px-3.5 py-3 flex flex-col gap-3">
-        {visibleOrderedBullets.length === 0 ? (
+      {/* Main scroll area */}
+      <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2 scroll-contain">
+
+        {/* Empty state */}
+        {visibleOrderedBullets.length === 0 && (
           <div className="mt-8 rounded-[20px] border border-dashed border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-8 text-center">
             <p className="font-display text-[15px] font-bold text-[var(--color-text-primary)] mb-1.5">Chain is empty</p>
-            <p className="font-body text-[13px] text-[var(--color-text-muted)] leading-relaxed">Tap a task in the pool below to pull it into your chain.</p>
+            <p className="font-body text-[13px] text-[var(--color-text-muted)] leading-relaxed">
+              Tap a task in the tray below to pull it into your chain.
+            </p>
           </div>
-        ) : (
-          <>
-            {activeBullet && (
-              <div>
-                <div className="flex items-center gap-1.5 mb-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-lane-now)]" style={{ boxShadow: '0 0 8px var(--color-lane-now-glow)' }} />
-                  <span className="font-display text-[10px] font-extrabold uppercase tracking-[0.18em] text-[var(--color-lane-now)]">Live Now</span>
-                </div>
-                <div
-                  className="rounded-[18px] p-4"
-                  style={{
-                    background: 'radial-gradient(140% 120% at 0% 0%, var(--color-live-now-glow) 0%, transparent 60%), var(--color-bg-surface)',
-                    border: '1.5px solid var(--color-lane-now-border)',
-                    boxShadow: 'var(--color-live-now-shadow)',
-                  }}
-                >
-                  {activeBullet.projectMeta && (
-                    <span
-                      className="mb-2.5 inline-block rounded-full px-2 py-0.5 font-display text-[11px] font-semibold"
-                      style={{ color: `var(--project-${activeBullet.projectMeta.color})` }}
-                    >
-                      {activeBullet.projectMeta.label}
-                    </span>
-                  )}
-                  <p className="font-body text-[20px] font-bold leading-snug text-[var(--color-text-primary)] mb-5">{activeBullet.text}</p>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => updateBullet(activeBullet.id, { lane: 'done' })}
-                      className="flex flex-1 items-center justify-center gap-2 rounded-[11px] py-3 font-display text-[13px] font-semibold"
-                      style={{ background: 'color-mix(in srgb, var(--color-lane-later) 22%, var(--color-bg-elevated))', border: '1px solid var(--color-lane-later-border)', color: 'var(--color-lane-later)' }}
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                      Mark done
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => sendToPool(activeBullet.id)}
-                      className="flex flex-1 items-center justify-center gap-2 rounded-[11px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] py-3 font-display text-[13px] font-semibold text-[var(--color-text-secondary)]"
-                    >
-                      <ArrowRight className="h-4 w-4 rotate-90" />
-                      Push later
-                    </button>
+        )}
+
+        {/* Live Now hero */}
+        {activeBullet && (
+          <TimeTriggerWrapper bullet={activeBullet} justCompleted={justCompleted.has(activeBullet.id)}>
+            <div
+              className="rounded-[20px] p-5"
+              style={{
+                background: 'radial-gradient(150% 130% at 0% 0%, var(--color-live-now-glow) 0%, transparent 60%), var(--color-bg-surface)',
+                border: '1.5px solid var(--color-lane-now-border)',
+                boxShadow: 'var(--color-live-now-shadow)',
+              }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <span
+                  className="h-1.5 w-1.5 rounded-full bg-[var(--color-lane-now)]"
+                  style={{ boxShadow: '0 0 8px var(--color-lane-now-glow)' }}
+                />
+                <span className="font-display text-[9px] font-extrabold uppercase tracking-[0.24em] text-[var(--color-lane-now)]">
+                  Live Now
+                </span>
+                {activeBullet.projectMeta && (
+                  <div className="ml-auto">
+                    <ProjectPill bullet={activeBullet} />
                   </div>
+                )}
+              </div>
+
+              <div className="flex items-end justify-between gap-3">
+                <p className="font-display text-[22px] font-bold text-[var(--color-text-primary)] leading-[1.2]">
+                  {activeBullet.text}
+                </p>
+                <div className="flex items-center gap-2 shrink-0 pb-0.5">
+                  <button
+                    type="button"
+                    onClick={() => updateBullet(activeBullet.id, { lane: 'done' })}
+                    className="flex items-center gap-1.5 rounded-[9px] px-3 py-1.5 font-display text-[12px] font-semibold transition-all active:scale-[0.97]"
+                    style={{
+                      background: 'color-mix(in srgb, var(--color-lane-later) 18%, var(--color-bg-elevated))',
+                      border: '1px solid color-mix(in srgb, var(--color-lane-later) 35%, transparent)',
+                      color: 'var(--color-lane-later)',
+                    }}
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Done
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => sendToPool(activeBullet.id)}
+                    className="flex items-center gap-1.5 rounded-[9px] border border-[var(--color-border-subtle)] bg-transparent px-3 py-1.5 font-display text-[12px] font-semibold text-[var(--color-text-muted)] transition-all active:scale-[0.97]"
+                  >
+                    <ArrowDown className="h-3.5 w-3.5" />
+                    Later
+                  </button>
                 </div>
               </div>
-            )}
+            </div>
+          </TimeTriggerWrapper>
+        )}
 
-            {queuedBullets.map((bullet, i) => {
+        {/* Up Next queue */}
+        {shownQueue.length > 0 && (
+          <div className="flex flex-col">
+            {shownQueue.map((bullet, i) => {
               const isNext = i === 0;
-              const opacity = Math.max(0.35, 1 - i * 0.18);
+              const opacity = Math.max(0.38, 1 - i * 0.16);
               return (
-                <div key={bullet.id} className="flex flex-col" style={{ opacity }}>
-                  {/* Connector + position label */}
-                  <div className="flex items-center gap-2.5 py-2" aria-hidden>
-                    <div className="flex flex-col items-center w-4 shrink-0">
+                <div key={bullet.id} style={{ opacity }}>
+                  {/* Node connector */}
+                  <div className="flex items-center gap-3 py-1.5 px-1" aria-hidden>
+                    <div className="flex flex-col items-center w-5 shrink-0">
                       <div className="w-px h-2.5 bg-[var(--color-border-subtle)]" />
-                      <div className="w-1.5 h-1.5 rounded-full border border-[var(--color-border-subtle)]" />
+                      <div
+                        className={`rounded-full border transition-colors ${
+                          isNext
+                            ? 'h-2 w-2 border-[var(--color-lane-next)]/70 bg-[var(--color-lane-next-bg)]'
+                            : 'h-1.5 w-1.5 border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]'
+                        }`}
+                      />
                       <div className="w-px h-2.5 bg-[var(--color-border-subtle)]" />
                     </div>
-                    <span className="font-body text-[11px] text-[var(--color-text-muted)]">
+                    <span className="font-display text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.14em]">
                       {isNext ? 'up next' : `in ${i + 2}`}
                     </span>
                   </div>
-                  {/* Card */}
+
+                  {/* Queue card */}
                   <div
-                    className="rounded-[16px] px-4 py-3.5"
+                    className="rounded-[15px] px-4 py-3.5"
                     style={{
                       background: 'var(--color-bg-surface)',
-                      border: '1px solid var(--color-border-subtle)',
+                      border: `1px solid var(--color-border-subtle)`,
+                      borderLeft: `3px solid ${bullet.projectMeta ? `var(--project-${bullet.projectMeta.color})` : 'var(--color-border-subtle)'}`,
                     }}
                   >
-                    <p className="font-body text-[16px] font-medium leading-snug text-[var(--color-text-primary)]">{bullet.text}</p>
+                    <p className="font-body text-[16px] font-medium leading-snug text-[var(--color-text-primary)]">
+                      {bullet.text}
+                    </p>
                     {bullet.projectMeta && (
-                      <span
-                        className="mt-2 inline-block rounded-full px-2.5 py-0.5 font-display text-[11px] font-semibold"
-                        style={{
-                          background: `color-mix(in srgb, var(--project-${bullet.projectMeta.color}) 14%, var(--color-bg-elevated))`,
-                          color: `var(--project-${bullet.projectMeta.color})`,
-                        }}
-                      >
-                        {bullet.projectMeta.label}
-                      </span>
+                      <div className="mt-2">
+                        <ProjectPill bullet={bullet} />
+                      </div>
                     )}
                   </div>
                 </div>
               );
             })}
-          </>
+          </div>
         )}
       </div>
 
-      {/* Pool tray (sticky bottom) */}
+      {/* Task tray */}
       <div className="shrink-0 border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)]">
         <button
           type="button"
-          onClick={() => setShowPool(p => !p)}
+          onClick={() => setShowTray((p) => !p)}
           className="flex w-full items-center justify-between px-4 py-3"
+          aria-expanded={showTray}
         >
           <div className="flex items-center gap-2">
             <Inbox className="h-3.5 w-3.5 text-[var(--color-text-muted)]" aria-hidden />
             <span className="font-display text-[13px] font-semibold text-[var(--color-text-secondary)]">Task Tray</span>
-            <span className="rounded-full bg-[var(--color-bg-elevated)] px-2 py-0.5 font-mono text-[11px] text-[var(--color-text-muted)]">{visiblePoolBullets.length}</span>
+            <span className="rounded-full bg-[var(--color-bg-elevated)] px-2 py-0.5 font-mono text-[11px] text-[var(--color-text-muted)]">
+              {visiblePoolBullets.length}
+            </span>
           </div>
-          <ChevronDown className={`h-4 w-4 text-[var(--color-text-muted)] transition-transform duration-200 ${showPool ? 'rotate-180' : ''}`} aria-hidden />
+          {showTray
+            ? <ChevronDown className="h-4 w-4 text-[var(--color-text-muted)] rotate-180 transition-transform duration-200" aria-hidden />
+            : <ChevronUp className="h-4 w-4 text-[var(--color-text-muted)] transition-transform duration-200" aria-hidden />
+          }
         </button>
-        {showPool && (
-          <div className="max-h-48 overflow-y-auto px-3.5 pb-4 flex flex-col gap-1.5">
+        {showTray && (
+          <div className="max-h-52 overflow-y-auto px-4 pb-4 flex flex-col gap-1.5 scroll-contain">
             {visiblePoolBullets.length === 0 ? (
               <p className="py-3 text-center font-body text-[13px] text-[var(--color-text-muted)]">Pool is clear</p>
-            ) : visiblePoolBullets.map(bullet => (
-              <button
-                key={bullet.id}
-                type="button"
-                onClick={() => onUpdateOrganization(insertFlowBulletIntoGlobalOrder(organization, bullet.id, board.orderedBullets.length))}
-                className="flex items-center gap-2.5 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-2 text-left transition-colors hover:bg-[var(--color-bg-surface)]"
-                style={{ borderLeft: `3px solid ${bullet.projectMeta ? `var(--project-${bullet.projectMeta.color})` : 'var(--color-border-subtle)'}` }}
-              >
-                <p className="flex-1 font-body text-[12.5px] text-[var(--color-text-secondary)] leading-snug truncate">{bullet.text}</p>
-                {bullet.projectMeta && (
-                  <span className="shrink-0 font-display text-[10px] font-semibold" style={{ color: `var(--project-${bullet.projectMeta.color})` }}>
-                    {bullet.projectMeta.label}
-                  </span>
-                )}
-                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-[var(--color-text-muted)]" aria-hidden />
-              </button>
-            ))}
+            ) : (
+              visiblePoolBullets.map((bullet) => (
+                <button
+                  key={bullet.id}
+                  type="button"
+                  onClick={() => onUpdateOrganization(insertFlowBulletIntoGlobalOrder(organization, bullet.id, board.orderedBullets.length))}
+                  className="flex items-center gap-2.5 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-2.5 text-left transition-colors active:bg-[var(--color-bg-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-lane-now)]/40"
+                  style={{ borderLeft: `3px solid ${bullet.projectMeta ? `var(--project-${bullet.projectMeta.color})` : 'var(--color-border-subtle)'}` }}
+                >
+                  <p className="flex-1 font-body text-[13px] text-[var(--color-text-secondary)] leading-snug min-w-0">{bullet.text}</p>
+                  {bullet.projectMeta && <ProjectPill bullet={bullet} size="xs" />}
+                  <Plus className="h-3.5 w-3.5 shrink-0 text-[var(--color-text-muted)]" aria-hidden />
+                </button>
+              ))
+            )}
           </div>
         )}
       </div>

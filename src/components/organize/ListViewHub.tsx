@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useMemo } from 'react';
-import { ArrowRight, CalendarDays, Check, ChevronDown, ChevronRight, Download, Eye, EyeOff, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, ChevronRight, Download, Eye, EyeOff, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
 import { ThoughtOrganizeMode, type ThoughtOrganizeModeActions } from '@/components/dashboard/ThoughtOrganizeMode';
 import { ImportFromThoughtDownload } from './ImportFromThoughtDownload';
 import { OrganizeHeaderPortal } from './OrganizeHeaderSlot';
@@ -46,18 +46,27 @@ function ListViewMobile({
 }) {
   const firstProjectId = organization.projects[0]?.id ?? null;
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(firstProjectId);
-  const [collapsedLanes, setCollapsedLanes] = useState<Set<string>>(new Set(['later']));
+  // Tracks lanes the user has explicitly collapsed (always collapsed) or explicitly expanded (force-open even when empty)
+  const [manuallyCollapsed, setManuallyCollapsed] = useState<Set<string>>(new Set(['later']));
+  const [manuallyExpanded, setManuallyExpanded] = useState<Set<string>>(new Set());
 
-  const toggleLane = (lane: string) => {
-    setCollapsedLanes(prev => {
-      const next = new Set(prev);
-      if (next.has(lane)) {
-        next.delete(lane);
-      } else {
-        next.add(lane);
-      }
-      return next;
-    });
+  const isCollapsed = (lane: string, itemCount: number) => {
+    if (manuallyExpanded.has(lane)) return false;
+    if (manuallyCollapsed.has(lane)) return true;
+    return itemCount === 0; // auto-collapse empty lanes
+  };
+
+  const toggleLane = (lane: string, itemCount: number) => {
+    const currentlyCollapsed = isCollapsed(lane, itemCount);
+    if (currentlyCollapsed) {
+      // Expanding: remove from collapsed, add to expanded
+      setManuallyCollapsed(prev => { const s = new Set(prev); s.delete(lane); return s; });
+      setManuallyExpanded(prev => new Set(prev).add(lane));
+    } else {
+      // Collapsing: remove from expanded, add to collapsed
+      setManuallyExpanded(prev => { const s = new Set(prev); s.delete(lane); return s; });
+      setManuallyCollapsed(prev => new Set(prev).add(lane));
+    }
   };
 
   const toggleDone = (bullet: ThoughtBullet) => {
@@ -210,12 +219,12 @@ function ListViewMobile({
         {(['now', 'next', 'later'] as ThoughtLane[]).map(lane => {
           const items = byLane(lane);
           const meta = LANE_META[lane];
-          const collapsed = collapsedLanes.has(lane);
+          const collapsed = isCollapsed(lane, items.length);
           return (
             <div key={lane} className="organize-mobile-lane-section">
               <button
                 type="button"
-                onClick={() => toggleLane(lane)}
+                onClick={() => toggleLane(lane, items.length)}
                 className="flex w-full items-center justify-between py-2.5"
               >
                 <div className="flex items-center gap-1.5 min-w-0">
@@ -237,27 +246,22 @@ function ListViewMobile({
               {!collapsed && (
                 <div className="organize-mobile-task-group pb-2.5">
                   {items.length === 0 ? (
-                    <div className="organize-compact-empty-state warm-empty-state flex items-center justify-between gap-3 rounded-2xl px-3 py-2.5">
-                      <div className="flex min-w-0 items-center gap-2.5">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[var(--app-border)] bg-white/[0.035] text-[var(--color-lane-next)]">
-                          <CalendarDays className="h-4 w-4" strokeWidth={1.8} aria-hidden />
-                        </span>
-                        <div className="min-w-0">
-                          <p className="mb-0.5 font-display text-[13px] font-semibold text-[var(--color-text-primary)]">Nothing in {meta.label}</p>
-                          <p className="mb-0 font-body text-[11px] text-[var(--color-text-muted)]">Plan what comes next.</p>
-                        </div>
-                      </div>
-                      {lane === 'next' && (
+                    (lane === 'now' || lane === 'next') ? (
+                      <div className="flex justify-end px-1 py-1">
                         <button
                           type="button"
-                          onClick={() => handleAddToLane('next')}
-                          className="shrink-0 rounded-full border border-[var(--color-lane-next-border)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--color-lane-next)]"
+                          onClick={() => handleAddToLane(lane)}
+                          className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+                            lane === 'now'
+                              ? 'border-[var(--color-lane-now-border)] text-[var(--color-lane-now)]'
+                              : 'border-[var(--color-lane-next-border)] text-[var(--color-lane-next)]'
+                          }`}
                         >
                           <Plus className="mr-0.5 inline h-3 w-3" />
                           Add
                         </button>
-                      )}
-                    </div>
+                      </div>
+                    ) : null
                   ) : items.map(b => (
                     <div
                       key={b.id}

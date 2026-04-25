@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { Cloud, LayoutList, LayoutGrid, Zap, Plus, Command, Inbox, Search } from 'lucide-react';
+import { Cloud, Plus, Command, Inbox, Search } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useThoughtOrganizer } from './useThoughtOrganizer';
 import { FlowOrganizeView } from './FlowOrganizeView';
@@ -17,10 +17,10 @@ type ViewMode = 'list' | 'bento' | 'flow';
 
 const VIEW_STORAGE_KEY = 'organize-view-mode';
 
-const VIEW_OPTIONS: { id: ViewMode; label: string; Icon: React.ElementType }[] = [
-  { id: 'list', label: 'List', Icon: LayoutList },
-  { id: 'bento', label: 'Bento', Icon: LayoutGrid },
-  { id: 'flow', label: 'Flow', Icon: Zap },
+const VIEW_OPTIONS: { id: ViewMode; label: string }[] = [
+  { id: 'list', label: 'List' },
+  { id: 'bento', label: 'Bento' },
+  { id: 'flow', label: 'Flow' },
 ];
 
 export function OrganizeView() {
@@ -159,7 +159,7 @@ export function OrganizeView() {
             <div
               role="tablist"
               aria-label="Organize view"
-              className="organize-view-toggle inline-flex w-full max-w-[24rem] items-center gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="organize-view-toggle organize-view-toggle-mobile inline-flex w-full max-w-[22rem] items-stretch rounded-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {VIEW_OPTIONS.map(({ id, label }) => {
                 const isActive = viewMode === id;
@@ -171,9 +171,9 @@ export function OrganizeView() {
                     aria-selected={isActive}
                     onClick={() => handleViewModeChange(id)}
                     className={[
-                      'flex-1 shrink-0 rounded-full px-3 py-2 text-[12px] font-semibold font-display transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30',
+                      'organize-view-toggle-mobile-btn flex-1 rounded-full font-semibold font-display transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30',
                       isActive
-                        ? 'organize-view-toggle-active text-[var(--color-text-primary)]'
+                        ? 'organize-view-toggle-active organize-view-toggle-mobile-btn-active text-[var(--color-text-primary)]'
                         : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]',
                     ].join(' ')}
                   >
@@ -204,13 +204,13 @@ export function OrganizeView() {
 
           <div className="flex-1" />
 
-          {/* Center: view switcher with icons */}
+          {/* Center: view switcher */}
           <div
             role="tablist"
             aria-label="Organize view"
-            className="organize-view-toggle flex items-center gap-1 rounded-full p-1"
+            className="organize-view-toggle flex items-stretch rounded-full"
           >
-            {VIEW_OPTIONS.map(({ id, label, Icon }) => {
+            {VIEW_OPTIONS.map(({ id, label }) => {
               const isActive = viewMode === id;
               return (
                 <button
@@ -220,14 +220,13 @@ export function OrganizeView() {
                   aria-selected={isActive}
                   onClick={() => handleViewModeChange(id)}
                   className={[
-                    'flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-semibold font-display transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
+                    'rounded-full px-5 py-1.5 text-[13px] font-semibold font-display transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
                     isActive
-                      ? 'organize-view-toggle-active text-[var(--color-text-primary)] shadow-sm'
+                      ? 'organize-view-toggle-active text-[var(--color-text-primary)]'
                       : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]',
                   ].join(' ')}
                 >
-                  <Icon size={13} strokeWidth={2} aria-hidden />
-                  <span>{label}</span>
+                  {label}
                 </button>
               );
             })}
