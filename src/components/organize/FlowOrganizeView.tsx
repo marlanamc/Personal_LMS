@@ -15,6 +15,7 @@ import {
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
   ArrowDown,
+  ArrowLeft,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
@@ -26,6 +27,7 @@ import {
   Plus,
   RotateCcw,
   Sparkles,
+  LayoutGrid,
 } from 'lucide-react';
 import { FlowToast } from './FlowToast';
 import { TimeTriggerBuilder } from './TimeTriggerBuilder';
@@ -47,6 +49,9 @@ type FlowOrganizeViewProps = {
   onUpdateOrganization: (org: ThoughtOrganization) => void;
   showDone?: boolean;
   onToggleShowDone?: () => void;
+  onOpenList?: () => void;
+  onOpenBento?: () => void;
+  onViewProjectInBento?: (projectId: string) => void;
 };
 
 const FLOW_CHAIN_ID = 'flow-chain';
@@ -224,6 +229,9 @@ export function FlowOrganizeView({
   onUpdateOrganization,
   showDone = false,
   onToggleShowDone,
+  onOpenList,
+  onOpenBento,
+  onViewProjectInBento,
 }: FlowOrganizeViewProps) {
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [showTimeTriggerBuilder, setShowTimeTriggerBuilder] = useState(false);
@@ -381,8 +389,18 @@ export function FlowOrganizeView({
           <Sparkles className="mx-auto h-7 w-7 text-[var(--color-text-muted)]" />
           <h2 className="mt-4 text-lg font-display font-semibold text-[var(--color-text-primary)]">Flow is ready</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-[var(--color-text-muted)]">
-            Import tasks first, then drag the ones you want into the trigger chain.
+            No tasks queued. Open List to organize more.
           </p>
+          {onOpenList ? (
+            <button
+              type="button"
+              onClick={onOpenList}
+              className="mt-5 inline-flex items-center gap-2 rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-4 py-2 text-sm font-semibold text-[var(--color-text-secondary)]"
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden />
+              Open List
+            </button>
+          ) : null}
         </div>
       </div>
     );
@@ -496,8 +514,18 @@ export function FlowOrganizeView({
                   </div>
                   <p className="font-display text-[17px] font-bold text-[var(--color-text-primary)]">Chain is empty</p>
                   <p className="font-body text-[13px] text-[var(--color-text-muted)] max-w-[220px] leading-relaxed">
-                    Click a task in the pool to pull it into your chain.
+                    No tasks queued. Open List to organize more.
                   </p>
+                  {onOpenList ? (
+                    <button
+                      type="button"
+                      onClick={onOpenList}
+                      className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-3 py-1.5 font-display text-[12px] font-semibold text-[var(--color-text-secondary)]"
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+                      Open List
+                    </button>
+                  ) : null}
                 </div>
               ) : null
             }
@@ -510,6 +538,9 @@ export function FlowOrganizeView({
                   showDone={showDone}
                   updateBullet={updateBullet}
                   sendToPool={sendToPool}
+                  onOpenList={onOpenList}
+                  onOpenBento={onOpenBento}
+                  onViewProjectInBento={onViewProjectInBento}
                 />
               </div>
             </SortableContext>
@@ -551,6 +582,9 @@ export function FlowOrganizeView({
         updateBullet={updateBullet}
         sendToPool={sendToPool}
         justCompleted={justCompleted}
+        onOpenList={onOpenList}
+        onOpenBento={onOpenBento}
+        onViewProjectInBento={onViewProjectInBento}
       />
     </div>
   );
@@ -589,12 +623,18 @@ function DesktopChain({
   showDone,
   updateBullet,
   sendToPool,
+  onOpenList,
+  onOpenBento,
+  onViewProjectInBento,
 }: {
   visibleOrderedBullets: ThoughtBullet[];
   justCompleted: Set<string>;
   showDone: boolean;
   updateBullet: (id: string, updates: Partial<ThoughtBullet>) => void;
   sendToPool: (id: string) => void;
+  onOpenList?: () => void;
+  onOpenBento?: () => void;
+  onViewProjectInBento?: (projectId: string) => void;
 }) {
   const activeBullet = visibleOrderedBullets.find((b) => b.lane !== 'done');
   const activeIndex = activeBullet ? visibleOrderedBullets.indexOf(activeBullet) : -1;
@@ -640,6 +680,7 @@ function DesktopChain({
                 <button
                   type="button"
                   onClick={() => updateBullet(activeBullet.id, { lane: 'done' })}
+                  aria-label="Mark done"
                   className="flex items-center gap-1.5 rounded-[9px] px-3 py-1.5 font-display text-[12px] font-semibold transition-all hover:opacity-90 active:scale-[0.97]"
                   style={{
                     background: 'color-mix(in srgb, var(--color-lane-later) 18%, var(--color-bg-elevated))',
@@ -648,7 +689,7 @@ function DesktopChain({
                   }}
                 >
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  Done
+                  Mark done
                   <kbd className="font-mono text-[10px] opacity-50 ml-0.5 font-normal">X</kbd>
                 </button>
                 <button
@@ -657,14 +698,38 @@ function DesktopChain({
                   className="flex items-center gap-1.5 rounded-[9px] border border-[var(--color-border-subtle)] bg-transparent px-3 py-1.5 font-display text-[12px] font-semibold text-[var(--color-text-muted)] transition-all hover:text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] active:scale-[0.97]"
                 >
                   <ArrowDown className="h-3.5 w-3.5" />
-                  Later
+                  Push later
                   <kbd className="font-mono text-[10px] opacity-50 ml-0.5 font-normal">N</kbd>
                 </button>
               </div>
             </div>
+            <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[var(--color-border-subtle)]/70 pt-4">
+              {onOpenList ? (
+                <button type="button" onClick={onOpenList} className="flow-secondary-action">
+                  <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+                  Exit to List
+                </button>
+              ) : null}
+              {activeBullet.project && onViewProjectInBento ? (
+                <button type="button" onClick={() => onViewProjectInBento(activeBullet.project!)} className="flow-secondary-action">
+                  <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
+                  View project in Bento
+                </button>
+              ) : null}
+            </div>
           </div>
         </TimeTriggerWrapper>
       )}
+
+      {!activeBullet && visibleOrderedBullets.length > 0 && onOpenBento ? (
+        <div className="rounded-[16px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 text-center">
+          <p className="font-display text-[15px] font-bold text-[var(--color-text-primary)]">Chain complete</p>
+          <button type="button" onClick={onOpenBento} className="flow-secondary-action mx-auto mt-3">
+            <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
+            Review project balance in Bento
+          </button>
+        </div>
+      ) : null}
 
       {/* Queue */}
       {queuedBullets.length > 0 && (
@@ -810,6 +875,9 @@ function FlowMobileCockpit({
   updateBullet,
   sendToPool,
   justCompleted,
+  onOpenList,
+  onOpenBento,
+  onViewProjectInBento,
 }: {
   board: FlowBoard;
   visibleOrderedBullets: ThoughtBullet[];
@@ -821,6 +889,9 @@ function FlowMobileCockpit({
   updateBullet: (id: string, updates: Partial<ThoughtBullet>) => void;
   sendToPool: (id: string) => void;
   justCompleted: Set<string>;
+  onOpenList?: () => void;
+  onOpenBento?: () => void;
+  onViewProjectInBento?: (projectId: string) => void;
 }) {
   const [showTray, setShowTray] = useState(false);
 
@@ -866,8 +937,18 @@ function FlowMobileCockpit({
           <div className="mt-8 rounded-[20px] border border-dashed border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-8 text-center">
             <p className="font-display text-[15px] font-bold text-[var(--color-text-primary)] mb-1.5">Chain is empty</p>
             <p className="font-body text-[13px] text-[var(--color-text-muted)] leading-relaxed">
-              Tap a task in the tray below to pull it into your chain.
+              No tasks queued. Open List to organize more.
             </p>
+            {onOpenList ? (
+              <button
+                type="button"
+                onClick={onOpenList}
+                className="flow-secondary-action mx-auto mt-4"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+                Open List
+              </button>
+            ) : null}
           </div>
         )}
 
@@ -905,6 +986,7 @@ function FlowMobileCockpit({
                   <button
                     type="button"
                     onClick={() => updateBullet(activeBullet.id, { lane: 'done' })}
+                    aria-label="Mark done"
                     className="flex items-center gap-1.5 rounded-[9px] px-3 py-1.5 font-display text-[12px] font-semibold transition-all active:scale-[0.97]"
                     style={{
                       background: 'color-mix(in srgb, var(--color-lane-later) 18%, var(--color-bg-elevated))',
@@ -913,7 +995,7 @@ function FlowMobileCockpit({
                     }}
                   >
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    Done
+                    Mark done
                   </button>
                   <button
                     type="button"
@@ -921,13 +1003,37 @@ function FlowMobileCockpit({
                     className="flex items-center gap-1.5 rounded-[9px] border border-[var(--color-border-subtle)] bg-transparent px-3 py-1.5 font-display text-[12px] font-semibold text-[var(--color-text-muted)] transition-all active:scale-[0.97]"
                   >
                     <ArrowDown className="h-3.5 w-3.5" />
-                    Later
+                    Push later
                   </button>
                 </div>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-[var(--color-border-subtle)]/70 pt-3">
+                {onOpenList ? (
+                  <button type="button" onClick={onOpenList} className="flow-secondary-action">
+                    <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+                    Exit to List
+                  </button>
+                ) : null}
+                {activeBullet.project && onViewProjectInBento ? (
+                  <button type="button" onClick={() => onViewProjectInBento(activeBullet.project!)} className="flow-secondary-action">
+                    <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
+                    View project in Bento
+                  </button>
+                ) : null}
               </div>
             </div>
           </TimeTriggerWrapper>
         )}
+
+        {!activeBullet && visibleOrderedBullets.length > 0 && onOpenBento ? (
+          <div className="rounded-[18px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 text-center">
+            <p className="font-display text-[15px] font-bold text-[var(--color-text-primary)]">Chain complete</p>
+            <button type="button" onClick={onOpenBento} className="flow-secondary-action mx-auto mt-3">
+              <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
+              Review project balance in Bento
+            </button>
+          </div>
+        ) : null}
 
         {/* Up Next queue */}
         {shownQueue.length > 0 && (

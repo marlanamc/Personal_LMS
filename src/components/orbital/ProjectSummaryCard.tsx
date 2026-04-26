@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ListChecks, MoveLeft, MoveRight, Plus, Timer } from 'lucide-react';
 import { BentoProgressBar } from './BentoProgressBar';
 
 type ProjectSummaryCardProps = {
@@ -13,6 +13,11 @@ type ProjectSummaryCardProps = {
   progressPercent: number | null;
   accentClass?: string;
   onClick?: () => void;
+  onOrganizeProject?: () => void;
+  onFocusProjectInFlow?: () => void;
+  onAddBullet?: () => void;
+  onMoveEarlier?: () => void;
+  onMoveLater?: () => void;
   subtitle?: string;
   iconEmoji?: string;
 };
@@ -27,6 +32,11 @@ export function ProjectSummaryCard({
   progressPercent,
   accentClass,
   onClick,
+  onOrganizeProject,
+  onFocusProjectInFlow,
+  onAddBullet,
+  onMoveEarlier,
+  onMoveLater,
   subtitle,
   iconEmoji,
 }: ProjectSummaryCardProps) {
@@ -73,21 +83,63 @@ export function ProjectSummaryCard({
     </>
   );
 
+  const actions = onOrganizeProject || onFocusProjectInFlow || onAddBullet || onMoveEarlier || onMoveLater
+    ? (
+      <div className="bento-card-actions bento-card-actions--summary" aria-label={`${title} project actions`}>
+        {onOrganizeProject ? (
+          <button type="button" onClick={onOrganizeProject}>
+            <ListChecks className="h-3.5 w-3.5" aria-hidden />
+            Organize project
+          </button>
+        ) : null}
+        {onFocusProjectInFlow ? (
+          <button type="button" onClick={onFocusProjectInFlow}>
+            <Timer className="h-3.5 w-3.5" aria-hidden />
+            Focus in Flow
+          </button>
+        ) : null}
+        {onAddBullet ? (
+          <button type="button" onClick={onAddBullet} aria-label={`Add bullet to ${title}`}>
+            <Plus className="h-3.5 w-3.5" aria-hidden />
+            Add bullet
+          </button>
+        ) : null}
+        {onMoveEarlier ? (
+          <button type="button" onClick={onMoveEarlier} aria-label={`Move ${title} earlier`}>
+            <MoveLeft className="h-3.5 w-3.5" aria-hidden />
+            Earlier
+          </button>
+        ) : null}
+        {onMoveLater ? (
+          <button type="button" onClick={onMoveLater} aria-label={`Move ${title} later`}>
+            <MoveRight className="h-3.5 w-3.5" aria-hidden />
+            Later
+          </button>
+        ) : null}
+      </div>
+    )
+    : null;
+
   if (onClick) {
     return (
-      <button
-        type="button"
-        className={['bento-summary-card', accentClass].filter(Boolean).join(' ')}
-        onClick={onClick}
-      >
-        {content}
-      </button>
+      <article className={['bento-summary-card', accentClass].filter(Boolean).join(' ')}>
+        <button
+          type="button"
+          className="bento-summary-card__primary"
+          onClick={onClick}
+          aria-label={`Open ${title} project card`}
+        >
+          {content}
+        </button>
+        {actions}
+      </article>
     );
   }
 
   return (
-    <div className={['bento-summary-card', accentClass].filter(Boolean).join(' ')}>
+    <article className={['bento-summary-card', accentClass].filter(Boolean).join(' ')}>
       {content}
-    </div>
+      {actions}
+    </article>
   );
 }

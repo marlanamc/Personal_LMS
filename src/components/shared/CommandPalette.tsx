@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Search, LayoutList, LayoutGrid, Zap, Home, CalendarDays, FolderKanban, FileText, Timer } from 'lucide-react';
 import type { ThoughtOrganization } from '@/lib/thought-organization';
 
@@ -71,6 +71,21 @@ export function CommandPalette({
       setTimeout(() => inputRef.current?.focus(), 10);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' || event.key === 'Esc') {
+        event.preventDefault();
+        event.stopPropagation();
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape, true);
+    return () => document.removeEventListener('keydown', handleEscape, true);
+  }, [isOpen, onClose]);
 
   // Build flat command list
   const allCommands = useCallback((): CommandItem[] => {
@@ -150,6 +165,7 @@ export function CommandPalette({
       e.preventDefault();
       flat[clampedIndex]?.action();
     } else if (e.key === 'Escape') {
+      e.preventDefault();
       onClose();
     }
   }, [flat, clampedIndex, onClose]);

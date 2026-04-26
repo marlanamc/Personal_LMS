@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { Cloud, Plus, Command, Inbox, Search } from 'lucide-react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { Cloud, Plus, Inbox, Search } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useThoughtOrganizer } from './useThoughtOrganizer';
 import { FlowOrganizeView } from './FlowOrganizeView';
@@ -17,10 +17,10 @@ type ViewMode = 'list' | 'bento' | 'flow';
 
 const VIEW_STORAGE_KEY = 'organize-view-mode';
 
-const VIEW_OPTIONS: { id: ViewMode; label: string }[] = [
-  { id: 'list', label: 'List' },
-  { id: 'bento', label: 'Bento' },
-  { id: 'flow', label: 'Flow' },
+const VIEW_OPTIONS: { id: ViewMode; label: string; hint: string; helper: string }[] = [
+  { id: 'list', label: 'List', hint: 'Clarify and sort', helper: 'Sort, prioritize, and route your bullets.' },
+  { id: 'bento', label: 'Bento', hint: 'See projects', helper: 'See your projects at a glance.' },
+  { id: 'flow', label: 'Flow', hint: 'Do the next thing', helper: 'Move through your next actions.' },
 ];
 
 export function OrganizeView() {
@@ -33,6 +33,7 @@ export function OrganizeView() {
   const [cmdOpen, setCmdOpen] = useState(false);
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [quickAddText, setQuickAddText] = useState('');
+  const [focusedProjectId, setFocusedProjectId] = useState<string | null>(null);
   const quickAddRef = useRef<HTMLInputElement>(null);
 
   // Load saved view preference
@@ -54,6 +55,8 @@ export function OrganizeView() {
     setViewMode(mode);
     localStorage.setItem(VIEW_STORAGE_KEY, mode);
   }, []);
+
+  const activeViewMeta = VIEW_OPTIONS.find(option => option.id === viewMode) ?? VIEW_OPTIONS[0];
 
   const handleUpdateOrganization = useCallback(
     (org: ThoughtOrganization) => {
@@ -99,6 +102,44 @@ export function OrganizeView() {
   ).length;
 
   const bulletCount = organization.bullets.filter(b => b.lane !== 'done').length;
+  const nowBullets = useMemo(
+    () => organization.bullets
+      .filter(b => b.lane === 'now' && b.project)
+      .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)),
+    [organization.bullets]
+  );
+
+  const seedFlow = useCallback((projectId?: string | null) => {
+    const scoped = organization.bullets
+      .filter(b => b.lane !== 'done' && b.project && (!projectId || b.project === projectId));
+    const laneRank = { now: 0, next: 1, later: 2, done: 3 } as const;
+    const candidates = scoped
+      .filter(b => b.lane === 'now' || b.lane === 'next')
+      .sort((a, b) => {
+        const laneDelta = laneRank[a.lane ?? 'next'] - laneRank[b.lane ?? 'next'];
+        return laneDelta || (a.displayOrder ?? 0) - (b.displayOrder ?? 0);
+      })
+      .slice(0, 6);
+
+    updateOrganization(prev => ({
+      ...prev,
+      flow: {
+        ...(prev.flow ?? {}),
+        globalOrder: candidates.map(b => b.id),
+      },
+    }));
+    handleViewModeChange('flow');
+  }, [handleViewModeChange, organization.bullets, updateOrganization]);
+
+  const organizeProjectInList = useCallback((projectId: string) => {
+    setFocusedProjectId(projectId);
+    handleViewModeChange('list');
+  }, [handleViewModeChange]);
+
+  const viewProjectInBento = useCallback((projectId: string) => {
+    setFocusedProjectId(projectId);
+    handleViewModeChange('bento');
+  }, [handleViewModeChange]);
 
   if (!isLoaded) {
     return (
@@ -161,7 +202,7 @@ export function OrganizeView() {
               aria-label="Organize view"
               className="organize-view-toggle organize-view-toggle-mobile inline-flex w-full max-w-[22rem] items-stretch rounded-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
-              {VIEW_OPTIONS.map(({ id, label }) => {
+              {VIEW_OPTIONS.map(({ id, label, hint }) => {
                 const isActive = viewMode === id;
                 return (
                   <button
@@ -169,6 +210,8 @@ export function OrganizeView() {
                     type="button"
                     role="tab"
                     aria-selected={isActive}
+                    aria-label={`${label}: ${hint}`}
+                    title={`${label}: ${hint}`}
                     onClick={() => handleViewModeChange(id)}
                     className={[
                       'organize-view-toggle-mobile-btn flex-1 rounded-full font-semibold font-display transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30',
@@ -198,7 +241,7 @@ export function OrganizeView() {
               Organize
             </h1>
             <span className="font-body text-[11px] text-[var(--color-text-muted)] ml-1 whitespace-nowrap">
-              {bulletCount} bullet{bulletCount !== 1 ? 's' : ''} in flight
+              {bulletCount} bullet{bulletCount !== 1 ? 's' : ''} • {organization.projects.length} project{organization.projects.length !== 1 ? 's' : ''}
             </span>
           </div>
 
@@ -210,7 +253,7 @@ export function OrganizeView() {
             aria-label="Organize view"
             className="organize-view-toggle flex items-stretch rounded-full"
           >
-            {VIEW_OPTIONS.map(({ id, label }) => {
+            {VIEW_OPTIONS.map(({ id, label, hint }) => {
               const isActive = viewMode === id;
               return (
                 <button
@@ -218,6 +261,8 @@ export function OrganizeView() {
                   type="button"
                   role="tab"
                   aria-selected={isActive}
+                  aria-label={`${label}: ${hint}`}
+                  title={`${label}: ${hint}`}
                   onClick={() => handleViewModeChange(id)}
                   className={[
                     'rounded-full px-5 py-1.5 text-[13px] font-semibold font-display transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
@@ -233,6 +278,10 @@ export function OrganizeView() {
           </div>
 
           <div className="flex-1" />
+
+          <p className="organize-mode-helper" aria-live="polite">
+            {activeViewMeta.helper}
+          </p>
 
           {/* Right: quick-add, ⌘K pill, sync dot, inbox toggle */}
           <div className="flex items-center gap-2 shrink-0">
@@ -281,10 +330,11 @@ export function OrganizeView() {
               type="button"
               onClick={() => setCmdOpen(true)}
               aria-label="Open command palette (⌘K)"
-              className="organize-header-action flex items-center gap-1 rounded-full px-2.5 py-1.5 font-mono text-[11px] transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
+              className="organize-header-search organize-header-action flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
             >
-              <Command size={11} strokeWidth={2} aria-hidden />
-              <span>K</span>
+              <Search size={14} strokeWidth={1.8} aria-hidden />
+              <span className="min-w-[8rem] text-left text-[var(--color-text-muted)]">Search bullets...</span>
+              <kbd className="font-mono text-[10px] text-[var(--color-text-muted)] bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded px-1 py-px">⌘ K</kbd>
             </button>
 
             <span
@@ -304,15 +354,16 @@ export function OrganizeView() {
               aria-label={`Inbox (${inboxCount} items)`}
               aria-pressed={inboxOpen}
               className={[
-                'relative flex h-9 w-9 items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
+                'relative flex h-9 items-center justify-center gap-1.5 rounded-lg border px-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
                 inboxOpen
                   ? 'border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
                   : 'organize-header-action text-[var(--color-text-muted)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)]',
               ].join(' ')}
             >
               <Inbox size={16} strokeWidth={1.75} aria-hidden />
+              <span className="text-[12px] font-semibold">Inbox</span>
               {inboxCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-primary)] text-[9px] font-bold font-mono text-[var(--color-bg-base)]">
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-primary)] px-1 text-[9px] font-bold font-mono text-[var(--color-bg-base)]">
                   {inboxCount > 9 ? '9+' : inboxCount}
                 </span>
               )}
@@ -336,11 +387,19 @@ export function OrganizeView() {
               onUpdateOrganization={handleUpdateOrganization}
               showDone={showDone}
               onToggleShowDone={() => setShowDone(!showDone)}
+              selectedProjectId={focusedProjectId}
+              onSelectProject={setFocusedProjectId}
+              onStartFlow={seedFlow}
+              onViewProjectInBento={viewProjectInBento}
+              nowBulletCount={nowBullets.length}
             />
           ) : viewMode === 'bento' ? (
             <BentoOrganizeView
               organization={organization}
               onUpdateOrganization={handleUpdateOrganization}
+              focusedProjectId={focusedProjectId}
+              onOrganizeProject={organizeProjectInList}
+              onFocusProjectInFlow={seedFlow}
             />
           ) : (
             <FlowOrganizeView
@@ -348,6 +407,9 @@ export function OrganizeView() {
               onUpdateOrganization={handleUpdateOrganization}
               showDone={showDone}
               onToggleShowDone={() => setShowDone(!showDone)}
+              onOpenList={() => handleViewModeChange('list')}
+              onOpenBento={() => handleViewModeChange('bento')}
+              onViewProjectInBento={viewProjectInBento}
             />
           )}
         </div>

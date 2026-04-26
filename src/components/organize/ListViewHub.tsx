@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef, useCallback, useMemo } from 'react';
-import { ArrowRight, Check, ChevronDown, ChevronRight, Download, Eye, EyeOff, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
-import { ThoughtOrganizeMode, type ThoughtOrganizeModeActions } from '@/components/dashboard/ThoughtOrganizeMode';
+import { useState, useCallback, useMemo } from 'react';
+import { DndContext, DragEndEvent, DragStartEvent, PointerSensor, TouchSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
+import { ArrowRight, Check, ChevronDown, ChevronRight, Download, Eye, EyeOff, Filter, Inbox, MoreHorizontal, Plus, Sparkles, Star, Timer, Trash2 } from 'lucide-react';
 import { ImportFromThoughtDownload } from './ImportFromThoughtDownload';
 import { OrganizeHeaderPortal } from './OrganizeHeaderSlot';
 import {
@@ -35,6 +36,26 @@ const LANE_META: Record<ThoughtLane, { label: string; colorVar: string; bgVar: s
   later: { label: 'Later', colorVar: '--color-lane-later', bgVar: '--color-lane-later-bg', borderVar: '--color-lane-later-border' },
   done:  { label: 'Done',  colorVar: '--color-lane-done',  bgVar: '--color-lane-done-bg',  borderVar: '--color-lane-done-border' },
 };
+
+type ActiveLane = Exclude<ThoughtLane, 'done'>;
+
+const ACTIVE_LANES: ActiveLane[] = ['now', 'next', 'later'];
+
+const LANE_EMPTY_COPY: Record<ActiveLane, string> = {
+  now: 'Move bullets here when they need attention soon.',
+  next: 'Queue work here when it is ready, but not urgent.',
+  later: 'Park bullets here so they stay out of your head.',
+};
+
+const LANE_HELPER_COPY: Record<ActiveLane, string> = {
+  now: 'Active attention',
+  next: 'Ready queue',
+  later: 'Parked for later',
+};
+
+function isActiveLane(value: string): value is ActiveLane {
+  return value === 'now' || value === 'next' || value === 'later';
+}
 
 // ── Mobile list view ─────────────────────────────────────────────────────────
 function ListViewMobile({
@@ -290,69 +311,260 @@ function ListViewMobile({
   );
 }
 
+function getProjectPalette(project?: ProjectMeta | null) {
+  return project ? (PROJECT_PALETTE[project.color] ?? PROJECT_PALETTE.slate) : PROJECT_PALETTE.slate;
+}
+
+function formatSourceDate(bullet: ThoughtBullet) {
+  if (!bullet.source?.dateKey) return null;
+  return new Date(`${bullet.source.dateKey}T12:00:00`).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+function getActiveBullets(bullets: ThoughtBullet[]) {
+  return bullets.filter(b => b.project && b.lane !== 'done');
+}
+
+function getInboxBullets(bullets: ThoughtBullet[]) {
+  return bullets.filter(b => !b.project && b.lane !== 'done');
+}
+
+function getTopProject(projects: ProjectMeta[], bullets: ThoughtBullet[]) {
+  return projects
+    .map(project => ({
+      project,
+      count: bullets.filter(b => b.project === project.id && b.lane !== 'done').length,
+    }))
+    .sort((a, b) => b.count - a.count)[0];
+}
+
+function DesktopTaskCard({
+  bullet,
+  project,
+  selected,
+  onSelect,
+  onDone,
+}: {
+  bullet: ThoughtBullet;
+  project?: ProjectMeta;
+  selected: boolean;
+  onSelect: () => void;
+  onDone: () => void;
+}) {
+  const palette = getProjectPalette(project);
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: bullet.id,
+    data: { type: 'bullet' },
+  });
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    opacity: isDragging ? 0.55 : 1,
+    borderLeftColor: palette.dot,
+  };
+
+  return (
+    <article
+      ref={setNodeRef}
+      style={style}
+      className={[
+        'organize-command-task group',
+        selected ? 'is-selected' : '',
+      ].join(' ')}
+      onClick={onSelect}
+    >
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          onDone();
+        }}
+        className="organize-command-task-check"
+        aria-label="Mark done"
+      >
+        <span />
+      </button>
+      <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 items-start gap-2">
+          <p className="organize-command-task-title">{bullet.text}</p>
+          {bullet.priority === 'high' ? <Star className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--color-lane-now)]" aria-hidden /> : null}
+        </div>
+        {project ? (
+          <span
+            className="organize-command-project-pill"
+            style={{ background: palette.bg, borderColor: palette.border, color: palette.text }}
+          >
+            {project.label}
+          </span>
+        ) : null}
+      </div>
+      <button
+        type="button"
+        className="organize-command-drag"
+        aria-label="Drag bullet"
+        {...listeners}
+        {...attributes}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <MoreHorizontal className="h-4 w-4" aria-hidden />
+      </button>
+    </article>
+  );
+}
+
+function DesktopLaneColumn({
+  lane,
+  bullets,
+  projects,
+  selectedBulletId,
+  onSelectBullet,
+  onMarkDone,
+  onAdd,
+}: {
+  lane: ThoughtLane;
+  bullets: ThoughtBullet[];
+  projects: ProjectMeta[];
+  selectedBulletId: string | null;
+  onSelectBullet: (id: string) => void;
+  onMarkDone: (id: string) => void;
+  onAdd: (lane: ThoughtLane) => void;
+}) {
+  const meta = LANE_META[lane];
+  const { setNodeRef, isOver } = useDroppable({ id: `desktop-lane:${lane}` });
+
+  return (
+    <section
+      ref={setNodeRef}
+      className={[
+        'organize-command-column',
+        `organize-command-column-${lane}`,
+        isOver ? 'is-over' : '',
+      ].join(' ')}
+      aria-label={`${meta.label} bullets`}
+    >
+      <div className="organize-command-column-header">
+        <div className="flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full" style={{ background: `var(${meta.colorVar})`, boxShadow: `0 0 12px var(${meta.colorVar})` }} aria-hidden />
+          <h3 style={{ color: `var(${meta.colorVar})` }}>{meta.label}</h3>
+          <span>{bullets.length}</span>
+          <small>{LANE_HELPER_COPY[lane as ActiveLane]}</small>
+        </div>
+        <button type="button" onClick={() => onAdd(lane)} aria-label={`Add bullet to ${meta.label}`}>
+          <Plus className="h-4 w-4" aria-hidden />
+        </button>
+      </div>
+
+      <div className="organize-command-column-scroll">
+        {bullets.length === 0 ? (
+          <p className="organize-command-empty">{LANE_EMPTY_COPY[lane as ActiveLane]}</p>
+        ) : (
+          bullets.map(bullet => {
+            const project = bullet.projectMeta ?? projects.find(p => p.id === bullet.project);
+            return (
+              <DesktopTaskCard
+                key={bullet.id}
+                bullet={bullet}
+                project={project}
+                selected={selectedBulletId === bullet.id}
+                onSelect={() => onSelectBullet(bullet.id)}
+                onDone={() => onMarkDone(bullet.id)}
+              />
+            );
+          })
+        )}
+      </div>
+
+      <button type="button" className="organize-command-add-row" onClick={() => onAdd(lane)}>
+        <Plus className="h-3.5 w-3.5" aria-hidden />
+        Add bullet
+      </button>
+    </section>
+  );
+}
+
 // ── Desktop: focus inspector ─────────────────────────────────────────────────
 function FocusInspector({
   bullet,
   projects,
   onUpdate,
   onDelete,
-  onClose,
 }: {
-  bullet: ThoughtBullet;
+  bullet: ThoughtBullet | null;
   projects: ProjectMeta[];
   onUpdate: (updates: Partial<ThoughtBullet>) => void;
   onDelete: () => void;
-  onClose: () => void;
 }) {
+  if (!bullet) {
+    return (
+      <aside className="organize-command-inspector" aria-label="Inspector">
+        <div className="organize-command-panel-heading">
+          <span>Inspector</span>
+        </div>
+        <div className="organize-command-inspector-empty">
+          <p>Click a bullet to inspect & edit.</p>
+        </div>
+      </aside>
+    );
+  }
+
   const project = projects.find(p => p.id === bullet.project);
   const palette = project ? (PROJECT_PALETTE[project.color] ?? PROJECT_PALETTE.slate) : null;
   const lane = bullet.lane as ThoughtLane | undefined;
+  const created = formatSourceDate(bullet);
 
   return (
-    <aside
-      className="hidden lg:flex w-[300px] shrink-0 flex-col border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] overflow-y-auto"
-      aria-label="Focus inspector"
-    >
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border-subtle)]">
-        <span className="font-display text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">Inspector</span>
-        <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors" aria-label="Close inspector">✕</button>
+    <aside className="organize-command-inspector" aria-label="Inspector">
+      <div className="organize-command-panel-heading">
+        <span>Inspector</span>
+        <MoreHorizontal className="h-4 w-4" aria-hidden />
       </div>
-      <div className="flex flex-col gap-4 p-5">
-        {project && palette && (
-          <div className="inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold font-display" style={{ background: palette.bg, color: palette.text, border: `1px solid ${palette.border}` }}>
-            <span className="h-2 w-2 rounded-full shrink-0" style={{ background: palette.dot }} />
-            {project.label}
-          </div>
-        )}
-        <p className="font-body text-[16px] font-medium leading-[1.4] text-[var(--color-text-primary)]">{bullet.text}</p>
+      <div className="organize-command-inspector-body">
         <div>
-          <p className="mb-2 font-display text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">Lane</p>
-          <div className="flex flex-col gap-1">
-            {(['now', 'next', 'later', 'done'] as ThoughtLane[]).map(l => {
-              const meta = LANE_META[l];
-              const isActive = lane === l;
-              return (
-                <button
-                  key={l}
-                  type="button"
-                  onClick={() => onUpdate({ lane: l, priority: laneToPriority(l) })}
-                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium font-body text-left transition-colors"
-                  style={isActive ? { background: `var(${meta.bgVar})`, color: `var(${meta.colorVar})`, border: `1px solid var(${meta.borderVar})` } : { color: 'var(--color-text-muted)', border: '1px solid transparent' }}
-                  aria-pressed={isActive}
-                >
-                  <span className="h-2 w-2 rounded-full shrink-0" style={{ background: `var(${meta.colorVar})` }} />
-                  {meta.label}
-                  {isActive && <Check className="ml-auto h-3.5 w-3.5" />}
-                </button>
-              );
-            })}
+          <div className="flex items-start gap-2">
+            {palette ? <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: palette.dot }} aria-hidden /> : null}
+            <h2>{bullet.text}</h2>
           </div>
+          {project && palette ? (
+            <div className="mt-3 flex items-center gap-2">
+              <span className="organize-command-project-pill" style={{ background: palette.bg, borderColor: palette.border, color: palette.text }}>
+                {project.label}
+              </span>
+              <span className="text-[12px] text-[var(--color-text-muted)]">+ Add tag</span>
+            </div>
+          ) : null}
         </div>
+
+        <section className="organize-command-detail-block">
+          <h3>Details</h3>
+          <dl>
+            {project ? (
+              <>
+                <dt>Project</dt>
+                <dd style={palette ? { color: palette.text } : undefined}>{project.label}</dd>
+              </>
+            ) : null}
+            {lane ? (
+              <>
+                <dt>Priority</dt>
+                <dd>{lane === 'now' ? 'High' : lane === 'next' ? 'Medium' : lane === 'later' ? 'Low' : 'Done'}</dd>
+              </>
+            ) : null}
+            {created ? (
+              <>
+                <dt>Created</dt>
+                <dd>{created}</dd>
+              </>
+            ) : null}
+          </dl>
+        </section>
+
         {projects.length > 0 && (
-          <div>
-            <p className="mb-2 font-display text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">Project</p>
+          <section className="organize-command-detail-block">
+            <h3>Move to project</h3>
             <select
-              className="w-full rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-2 text-[13px] font-body text-[var(--color-text-primary)] focus:border-[var(--color-primary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
+              className="organize-command-select"
               value={bullet.project ?? ''}
               onChange={e => {
                 const pid = e.target.value;
@@ -361,29 +573,33 @@ function FocusInspector({
                 else onUpdate({ project: undefined, projectMeta: undefined });
               }}
             >
-              <option value="">— No project —</option>
+              <option value="">No project</option>
               {projects.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
             </select>
-          </div>
+          </section>
         )}
-        {bullet.source && (
-          <p className="font-body text-[12px] text-[var(--color-text-muted)]">
-            Imported {new Date(bullet.source.dateKey + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-          </p>
-        )}
-        <div className="flex flex-col gap-2 border-t border-[var(--color-border-subtle)] pt-4">
-          <button type="button" onClick={() => { onUpdate({ lane: 'done', priority: laneToPriority('done') }); onClose(); }} className="flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-semibold font-display text-left transition-colors" style={{ background: 'var(--color-lane-done-bg)', color: 'var(--color-lane-done)', border: '1px solid var(--color-lane-done-border)' }}>
-            <Check className="h-3.5 w-3.5" /> Mark done
-          </button>
-          {lane !== 'next' && (
-            <button type="button" onClick={() => onUpdate({ lane: 'next', priority: laneToPriority('next') })} className="flex items-center gap-2 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-2 text-[13px] font-semibold font-display text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text-primary)]">
-              <ArrowRight className="h-3.5 w-3.5" /> Push to Next
+
+        <section className="organize-command-detail-block">
+          <h3>Actions</h3>
+          <div className="organize-command-actions">
+            <button type="button" onClick={() => onUpdate({ lane: 'done', priority: laneToPriority('done') })} className="is-done">
+              <Check className="h-4 w-4" /> Mark done
             </button>
-          )}
-          <button type="button" onClick={() => { onDelete(); onClose(); }} className="flex items-center gap-2 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-2 text-[13px] font-semibold font-display text-[var(--color-error)] transition-colors hover:bg-[var(--color-error)]/8">
+            {lane !== 'next' ? (
+              <button type="button" onClick={() => onUpdate({ lane: 'next', priority: laneToPriority('next') })}>
+                <ArrowRight className="h-4 w-4" /> Push to Next
+              </button>
+            ) : null}
+            {lane !== 'later' ? (
+              <button type="button" onClick={() => onUpdate({ lane: 'later', priority: laneToPriority('later') })}>
+                <ArrowRight className="h-4 w-4 rotate-45" /> Push to Later
+              </button>
+            ) : null}
+          <button type="button" onClick={onDelete} className="is-delete">
             <Trash2 className="h-3.5 w-3.5" /> Delete
           </button>
-        </div>
+          </div>
+        </section>
       </div>
     </aside>
   );
@@ -400,35 +616,54 @@ function ProjectSidebar({
   onCreateProject: () => void;
 }) {
   const countFor = (id: string) => bullets.filter(b => b.project === id && b.lane !== 'done').length;
-  const inboxCount = bullets.filter(b => !b.project && b.lane !== 'done').length;
+  const activeCount = getActiveBullets(bullets).length;
+  const nowCount = bullets.filter(b => b.project && b.lane === 'now').length;
 
   return (
-    <aside className="organize-project-sidebar hidden lg:flex w-[236px] shrink-0 flex-col overflow-y-auto" aria-label="Projects sidebar">
-      <div className="flex items-center justify-between px-4 py-4">
-        <span className="font-display text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">Projects</span>
-        <button type="button" onClick={onCreateProject} className="rounded-full p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors" aria-label="Create new project" title="New project">
-          <Plus className="h-4 w-4" />
+    <aside className="organize-project-sidebar organize-command-sidebar hidden lg:flex w-[220px] shrink-0 flex-col overflow-y-auto" aria-label="List sidebar">
+      <div className="organize-command-section">
+        <p className="organize-command-section-label">Filter</p>
+        <button type="button" onClick={() => onSelectProject(null)} className={['organize-command-sidebar-row', selectedProjectId === null ? 'is-active' : ''].join(' ')}>
+          <span className="h-2 w-2 rounded-full bg-[var(--color-lane-now)]" />
+          <span>All active</span>
+          <strong>{activeCount}</strong>
+        </button>
+        <button type="button" onClick={() => onSelectProject(null)} className="organize-command-sidebar-row">
+          <span className="h-2 w-2 rounded-full bg-[var(--color-lane-next)]" />
+          <span>Now across projects</span>
+          <strong>{nowCount}</strong>
         </button>
       </div>
-      <nav className="flex flex-col gap-1.5 p-2.5">
-        <button type="button" onClick={() => onSelectProject(null)} className={['organize-project-sidebar-row flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold font-body transition-colors', selectedProjectId === null ? 'is-active text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'].join(' ')}>
-          <span className="h-2 w-2 rounded-full shrink-0 bg-[var(--color-text-muted)]" />
-          <span className="flex-1 truncate">All projects</span>
-          {inboxCount > 0 && <span className="font-mono text-[11px] text-[var(--color-text-muted)]">{inboxCount}</span>}
-        </button>
+
+      <div className="organize-command-section">
+        <div className="organize-command-section-header">
+          <p className="organize-command-section-label">Projects</p>
+          <button type="button" onClick={onCreateProject} aria-label="Create new project" title="New project">
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
         {projects.map(p => {
           const palette = PROJECT_PALETTE[p.color] ?? PROJECT_PALETTE.slate;
           const count = countFor(p.id);
           const isActive = selectedProjectId === p.id;
           return (
-            <button key={p.id} type="button" onClick={() => onSelectProject(p.id)} className={['organize-project-sidebar-row flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-[13px] font-semibold font-body transition-colors', isActive ? 'is-active text-[var(--color-text-primary)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]'].join(' ')}>
-              <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: palette.dot, boxShadow: isActive ? `0 0 10px ${palette.dot}` : undefined }} />
-              <span className="flex-1 truncate">{p.label}</span>
-              <span className="rounded-full bg-white/[0.06] px-2 py-0.5 font-mono text-[11px] text-[var(--color-text-muted)]">{count}</span>
+            <button key={p.id} type="button" onClick={() => onSelectProject(p.id)} className={['organize-command-sidebar-row', isActive ? 'is-active' : ''].join(' ')}>
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: palette.dot, boxShadow: isActive ? `0 0 10px ${palette.dot}` : undefined }} />
+              <span>{p.label}</span>
+              <strong>{count}</strong>
             </button>
           );
         })}
-      </nav>
+      </div>
+
+      <div className="organize-command-shortcuts">
+        <p className="organize-command-section-label">Shortcuts</p>
+        <div><span>Move</span><kbd>J / K</kbd></div>
+        <div><span>Push to Next</span><kbd>N</kbd></div>
+        <div><span>Push to Later</span><kbd>L</kbd></div>
+        <div><span>Mark done</span><kbd>X</kbd></div>
+        <div><span>Quick add</span><kbd>/</kbd></div>
+      </div>
     </aside>
   );
 }
@@ -439,13 +674,31 @@ interface ListViewHubProps {
   onUpdateOrganization: (org: ThoughtOrganization) => void;
   showDone: boolean;
   onToggleShowDone: () => void;
+  selectedProjectId: string | null;
+  onSelectProject: (id: string | null) => void;
+  onStartFlow: (projectId?: string | null) => void;
+  onViewProjectInBento: (projectId: string) => void;
+  nowBulletCount: number;
 }
 
-export function ListViewHub({ organization, onUpdateOrganization, showDone, onToggleShowDone }: ListViewHubProps) {
+export function ListViewHub({
+  organization,
+  onUpdateOrganization,
+  showDone,
+  onToggleShowDone,
+  selectedProjectId,
+  onSelectProject,
+  onStartFlow,
+  onViewProjectInBento,
+  nowBulletCount,
+}: ListViewHubProps) {
   const [showImportModal, setShowImportModal] = useState(false);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedBulletId, setSelectedBulletId] = useState<string | null>(null);
-  const organizerRef = useRef<ThoughtOrganizeModeActions>(null);
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 120, tolerance: 8 } })
+  );
 
   const handleImport = useCallback(
     (bullets: ThoughtBullet[], sourceDateKey: string) => {
@@ -477,6 +730,84 @@ export function ListViewHub({ organization, onUpdateOrganization, showDone, onTo
     [organization, onUpdateOrganization, selectedBulletId]
   );
 
+  const activeBullets = useMemo(() => getActiveBullets(organization.bullets), [organization.bullets]);
+  const visibleBullets = useMemo(
+    () => activeBullets.filter(bullet => selectedProjectId === null || bullet.project === selectedProjectId),
+    [activeBullets, selectedProjectId]
+  );
+  const inboxBullets = useMemo(() => getInboxBullets(organization.bullets), [organization.bullets]);
+  const doneBullets = useMemo(() => organization.bullets.filter(b => b.lane === 'done'), [organization.bullets]);
+  const topProject = useMemo(() => getTopProject(organization.projects, activeBullets), [organization.projects, activeBullets]);
+  const bulletsByLane = useMemo(
+    () => ({
+      now: visibleBullets.filter(b => b.lane === 'now'),
+      next: visibleBullets.filter(b => b.lane === 'next'),
+      later: visibleBullets.filter(b => b.lane === 'later'),
+    }),
+    [visibleBullets]
+  );
+  const selectedProject = organization.projects.find(project => project.id === selectedProjectId) ?? null;
+  const visibleNowCount = selectedProject ? bulletsByLane.now.length : nowBulletCount;
+
+  const addBulletToLane = useCallback((lane: ThoughtLane) => {
+    const project = selectedProject ?? organization.projects[0];
+    if (!project) return;
+    const nextBullet: ThoughtBullet = {
+      id: nanoid(),
+      text: 'New bullet',
+      lineNumber: 0,
+      displayOrder: organization.bullets.length,
+      lane,
+      priority: laneToPriority(lane),
+      project: project.id,
+      projectMeta: project,
+    };
+    onUpdateOrganization({ ...organization, bullets: [nextBullet, ...organization.bullets] });
+    setSelectedBulletId(nextBullet.id);
+  }, [organization, onUpdateOrganization, selectedProject]);
+
+  const markDone = useCallback((id: string) => {
+    handleBulletUpdate(id, { lane: 'done', priority: laneToPriority('done') });
+  }, [handleBulletUpdate]);
+
+  const moveBulletToLane = useCallback((id: string, lane: ThoughtLane) => {
+    const bullet = organization.bullets.find(item => item.id === id);
+    if (!bullet) return;
+    const project = bullet.project
+      ? (bullet.projectMeta ?? organization.projects.find(item => item.id === bullet.project))
+      : (selectedProject ?? organization.projects[0]);
+    if (!project) return;
+    handleBulletUpdate(id, {
+      lane,
+      priority: laneToPriority(lane),
+      project: project.id,
+      projectMeta: project,
+    });
+  }, [handleBulletUpdate, organization.bullets, organization.projects, selectedProject]);
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveDragId(String(event.active.id));
+  }, []);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    setActiveDragId(null);
+    const overId = event.over?.id ? String(event.over.id) : '';
+    const lane = overId.startsWith('desktop-lane:') ? overId.replace('desktop-lane:', '') : null;
+    if (lane && isActiveLane(lane)) {
+      moveBulletToLane(String(event.active.id), lane);
+    }
+  }, [moveBulletToLane]);
+
+  const createProject = useCallback(() => {
+    const project: ProjectMeta = {
+      id: nanoid(),
+      label: 'New Project',
+      color: 'lavender',
+    };
+    onUpdateOrganization({ ...organization, projects: [...organization.projects, project] });
+    onSelectProject(project.id);
+  }, [organization, onSelectProject, onUpdateOrganization]);
+
   return (
     <div className="flex h-full overflow-hidden">
       {/* ── MOBILE: full replacement list view ── */}
@@ -487,11 +818,11 @@ export function ListViewHub({ organization, onUpdateOrganization, showDone, onTo
         projects={organization.projects}
         bullets={organization.bullets}
         selectedProjectId={selectedProjectId}
-        onSelectProject={setSelectedProjectId}
-        onCreateProject={() => organizerRef.current?.openCreateProject()}
+        onSelectProject={onSelectProject}
+        onCreateProject={createProject}
       />
 
-      <div className="hidden lg:flex flex-1 min-w-0 overflow-hidden flex-col">
+      <div className="organize-command-main hidden lg:flex flex-1 min-w-0 overflow-hidden flex-col">
         <OrganizeHeaderPortal>
           <details className="organize-clean-overflow">
             <summary className="organize-clean-icon-btn" aria-label="List actions" title="List actions">
@@ -505,35 +836,91 @@ export function ListViewHub({ organization, onUpdateOrganization, showDone, onTo
               <button type="button" onClick={(e) => { setShowImportModal(true); e.currentTarget.closest('details')?.removeAttribute('open'); }} className="organize-clean-overflow-item">
                 <Download className="h-4 w-4" /> Import tasks
               </button>
-              <button type="button" onClick={(e) => { organizerRef.current?.openCreateProject(); e.currentTarget.closest('details')?.removeAttribute('open'); }} className="organize-clean-overflow-item">
+              <button type="button" onClick={(e) => { createProject(); e.currentTarget.closest('details')?.removeAttribute('open'); }} className="organize-clean-overflow-item">
                 <Plus className="h-4 w-4" /> New project
               </button>
             </div>
           </details>
         </OrganizeHeaderPortal>
 
-        <div className="flex-1 overflow-hidden">
-          <ThoughtOrganizeMode
-            ref={organizerRef}
-            organization={organization}
-            onUpdateOrganization={onUpdateOrganization}
-            isInline={true}
-            standalone={true}
-            hideHeader={true}
-            showDone={showDone}
-          />
+        <div className="organize-command-board-shell">
+          <div className="organize-command-board-header">
+            <div>
+              <h2>{selectedProject ? selectedProject.label : 'All active bullets'}</h2>
+              <p>{visibleBullets.length} across {selectedProject ? '1 project' : `${organization.projects.length} projects`}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button type="button"><Filter className="h-4 w-4" aria-hidden /> Filter</button>
+              <button type="button" onClick={onToggleShowDone}><Check className="h-4 w-4" aria-hidden /> {showDone ? 'Hide done' : 'Done log'}</button>
+            </div>
+          </div>
+
+          <section className="organize-command-focus-strip" aria-label="Today focus">
+            <div>
+              <p>Today Focus</p>
+              <strong>{bulletsByLane.now.length} bullets active</strong>
+              {topProject?.project && topProject.count > 0 ? <span>Top project: {topProject.project.label}</span> : null}
+            </div>
+            <div className="organize-command-focus-actions">
+              <button type="button" onClick={() => setSelectedBulletId(inboxBullets[0]?.id ?? null)}><Inbox className="h-4 w-4" /> Capture to Inbox</button>
+              {visibleNowCount > 0 ? (
+                <button type="button" onClick={() => onStartFlow(selectedProjectId)}>
+                  <Sparkles className="h-4 w-4" /> Start Flow <span>{Math.min(visibleNowCount, 6)} Now</span>
+                </button>
+              ) : (
+                <button type="button" onClick={() => addBulletToLane('now')}><Sparkles className="h-4 w-4" /> Plan my day</button>
+              )}
+              {selectedProject ? (
+                <button type="button" onClick={() => onViewProjectInBento(selectedProject.id)}>
+                  <ArrowRight className="h-4 w-4" /> View project in Bento
+                </button>
+              ) : null}
+              <button type="button"><Timer className="h-4 w-4" /> Focus timer <span>25:00</span></button>
+            </div>
+          </section>
+
+          <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            <div className="organize-command-columns" data-dragging={activeDragId ? 'true' : 'false'}>
+              {ACTIVE_LANES.map(lane => (
+                <DesktopLaneColumn
+                  key={lane}
+                  lane={lane}
+                  bullets={bulletsByLane[lane]}
+                  projects={organization.projects}
+                  selectedBulletId={selectedBulletId}
+                  onSelectBullet={setSelectedBulletId}
+                  onMarkDone={markDone}
+                  onAdd={addBulletToLane}
+                />
+              ))}
+            </div>
+          </DndContext>
         </div>
       </div>
 
-      {selectedBullet && (
-        <FocusInspector
-          bullet={selectedBullet}
-          projects={organization.projects}
-          onUpdate={updates => handleBulletUpdate(selectedBullet.id, updates)}
-          onDelete={() => handleBulletDelete(selectedBullet.id)}
-          onClose={() => setSelectedBulletId(null)}
-        />
-      )}
+      <FocusInspector
+        bullet={selectedBullet}
+        projects={organization.projects}
+        onUpdate={updates => selectedBullet && handleBulletUpdate(selectedBullet.id, updates)}
+        onDelete={() => selectedBullet && handleBulletDelete(selectedBullet.id)}
+      />
+
+      <aside className="organize-command-right-rail hidden lg:flex" aria-label="Summary">
+        <section className="organize-command-rail-panel">
+          <div className="organize-command-panel-heading">
+            <span>Summary</span>
+          </div>
+          <dl className="organize-command-summary">
+            <div><dt>{activeBullets.length}</dt><dd>Active</dd></div>
+            <div><dt>{bulletsByLane.now.length}</dt><dd>Now</dd></div>
+            <div><dt>{bulletsByLane.next.length}</dt><dd>Next</dd></div>
+            <div><dt>{bulletsByLane.later.length}</dt><dd>Later</dd></div>
+            <div><dt>{doneBullets.length}</dt><dd>Done</dd></div>
+            <div><dt>{inboxBullets.length}</dt><dd>Inbox</dd></div>
+            <div><dt>{organization.bullets.length}</dt><dd>Total bullets</dd></div>
+          </dl>
+        </section>
+      </aside>
 
       <ImportFromThoughtDownload
         isOpen={showImportModal}

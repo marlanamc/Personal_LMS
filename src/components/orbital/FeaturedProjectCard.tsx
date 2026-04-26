@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, ListChecks, Plus, Timer } from 'lucide-react';
 import type { ThoughtBullet, ThoughtLane } from '@/lib/thought-organization';
 import { BentoProgressBar } from './BentoProgressBar';
 
@@ -17,6 +17,9 @@ type FeaturedProjectCardProps = {
   expanded: boolean;
   onToggleExpanded: () => void;
   onSelectBullet: (bullet: ThoughtBullet) => void;
+  onOrganizeProject?: () => void;
+  onFocusProjectInFlow?: () => void;
+  onAddBullet?: () => void;
   iconEmoji?: string;
 };
 
@@ -42,6 +45,9 @@ export function FeaturedProjectCard({
   expanded,
   onToggleExpanded,
   onSelectBullet,
+  onOrganizeProject,
+  onFocusProjectInFlow,
+  onAddBullet,
   iconEmoji = '✦',
 }: FeaturedProjectCardProps) {
   const pct = progressPercent ?? 0;
@@ -79,6 +85,27 @@ export function FeaturedProjectCard({
           {expanded ? <ChevronUp size={15} aria-hidden /> : <ChevronDown size={15} aria-hidden />}
         </button>
       </header>
+
+      <div className="bento-card-actions" aria-label={`${title} project actions`}>
+        {onOrganizeProject ? (
+          <button type="button" onClick={onOrganizeProject}>
+            <ListChecks className="h-3.5 w-3.5" aria-hidden />
+            Organize project
+          </button>
+        ) : null}
+        {onFocusProjectInFlow ? (
+          <button type="button" onClick={onFocusProjectInFlow}>
+            <Timer className="h-3.5 w-3.5" aria-hidden />
+            Focus in Flow
+          </button>
+        ) : null}
+        {onAddBullet ? (
+          <button type="button" onClick={onAddBullet}>
+            <Plus className="h-3.5 w-3.5" aria-hidden />
+            Add bullet
+          </button>
+        ) : null}
+      </div>
 
       {expanded ? (
         <div className="bento-featured-card__content">

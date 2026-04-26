@@ -62,11 +62,17 @@ type BentoProjectStats = {
 type BentoOrganizeViewProps = {
   organization: ThoughtOrganization;
   onUpdateOrganization: (org: ThoughtOrganization) => void;
+  focusedProjectId?: string | null;
+  onOrganizeProject?: (projectId: string) => void;
+  onFocusProjectInFlow?: (projectId: string) => void;
 };
 
 export function BentoOrganizeView({
   organization,
   onUpdateOrganization,
+  focusedProjectId,
+  onOrganizeProject,
+  onFocusProjectInFlow,
 }: BentoOrganizeViewProps) {
   const [selectedBulletId, setSelectedBulletId] = useState<string | null>(null);
   const [laneFilter, setLaneFilter] = useState<BentoLaneFilter>('all');
@@ -128,6 +134,11 @@ export function BentoOrganizeView({
     : null;
 
   useEffect(() => {
+    if (focusedProjectId && bentoProjects.some((item) => item.project.id === focusedProjectId)) {
+      setFeaturedProjectId(focusedProjectId);
+      setFeaturedExpanded(true);
+      return;
+    }
     if (bentoProjects.length === 0) {
       setFeaturedProjectId(null);
       return;
@@ -138,7 +149,7 @@ export function BentoOrganizeView({
     ) {
       setFeaturedProjectId(defaultHeroProjectId);
     }
-  }, [bentoProjects, featuredProjectId, defaultHeroProjectId]);
+  }, [bentoProjects, featuredProjectId, focusedProjectId, defaultHeroProjectId]);
 
   const featuredProject =
     bentoProjects.find((item) => item.project.id === featuredProjectId)
@@ -251,6 +262,46 @@ export function BentoOrganizeView({
     [organization, onUpdateOrganization]
   );
 
+  const handleAddProjectBullet = useCallback(
+    (project: ProjectMeta) => {
+      const newBullet: ThoughtBullet = {
+        id: nanoid(),
+        text: 'New bullet',
+        lineNumber: 0,
+        displayOrder: organization.bullets.length,
+        lane: 'next',
+        priority: laneToPriority('next'),
+        project: project.id,
+        projectMeta: project,
+      };
+      onUpdateOrganization({
+        ...organization,
+        bullets: [newBullet, ...organization.bullets],
+      });
+      setSelectedBulletId(newBullet.id);
+    },
+    [organization, onUpdateOrganization]
+  );
+
+  const moveProjectByDelta = useCallback(
+    (projectId: string, delta: -1 | 1) => {
+      const current = getBentoProjectOrder(organization);
+      const index = current.indexOf(projectId);
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= current.length) return;
+      const next = [...current];
+      [next[index], next[target]] = [next[target], next[index]];
+      onUpdateOrganization({
+        ...organization,
+        bento: {
+          ...(organization.bento ?? {}),
+          projectOrder: next,
+        },
+      });
+    },
+    [organization, onUpdateOrganization]
+  );
+
   return (
     <DndContext
       sensors={sensors}
@@ -276,6 +327,9 @@ export function BentoOrganizeView({
                 expanded={featuredExpanded}
                 onToggleExpanded={() => setFeaturedExpanded((current) => !current)}
                 onSelectBullet={handleSelectBullet}
+                onOrganizeProject={() => onOrganizeProject?.(featuredProject.project.id)}
+                onFocusProjectInFlow={() => onFocusProjectInFlow?.(featuredProject.project.id)}
+                onAddBullet={() => handleAddProjectBullet(featuredProject.project)}
               />
             ) : null}
 
@@ -291,6 +345,11 @@ export function BentoOrganizeView({
                   nextUp={projectStats.nextUp}
                   progressPercent={projectStats.progressPercent}
                   accentClass={`bento-summary-card--${projectStats.project.color}`}
+                  onOrganizeProject={() => onOrganizeProject?.(projectStats.project.id)}
+                  onFocusProjectInFlow={() => onFocusProjectInFlow?.(projectStats.project.id)}
+                  onAddBullet={() => handleAddProjectBullet(projectStats.project)}
+                  onMoveEarlier={projectOrder.indexOf(projectStats.project.id) > 0 ? () => moveProjectByDelta(projectStats.project.id, -1) : undefined}
+                  onMoveLater={projectOrder.indexOf(projectStats.project.id) < projectOrder.length - 1 ? () => moveProjectByDelta(projectStats.project.id, 1) : undefined}
                   onClick={() => {
                     setFeaturedProjectId(projectStats.project.id);
                     setFeaturedExpanded(true);
