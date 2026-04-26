@@ -884,7 +884,6 @@ function ProjectSidebar({
 }) {
   const countFor = (id: string) => bullets.filter(b => b.project === id && b.lane !== 'done').length;
   const activeCount = getActiveBullets(bullets).length;
-  const nowCount = bullets.filter(b => b.project && b.lane === 'now').length;
 
   return (
     <aside className="organize-project-sidebar organize-command-sidebar hidden lg:flex w-[220px] shrink-0 flex-col overflow-y-auto" aria-label="List sidebar">
@@ -894,11 +893,6 @@ function ProjectSidebar({
           <span className="h-2 w-2 rounded-full bg-[var(--color-lane-now)]" />
           <span>All active</span>
           <strong>{activeCount}</strong>
-        </button>
-        <button type="button" onClick={() => onSelectProject(null)} className="organize-command-sidebar-row">
-          <span className="h-2 w-2 rounded-full bg-[var(--color-lane-next)]" />
-          <span>Now across projects</span>
-          <strong>{nowCount}</strong>
         </button>
       </div>
 

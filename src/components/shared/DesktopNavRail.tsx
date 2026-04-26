@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -131,14 +131,14 @@ export function DesktopNavRail() {
   return (
     <motion.nav
       aria-label="Desktop navigation rail"
-      className="fixed left-0 z-40 hidden lg:flex flex-col overflow-hidden border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]"
+      className="desktop-nav-rail fixed left-0 z-40 hidden lg:flex flex-col overflow-hidden border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]"
       style={{ top: 'var(--header-height-desktop)', height: 'calc(100vh - var(--header-height-desktop))' }}
       animate={{ width: isExpanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH }}
       transition={{ duration, ease: 'easeOut' }}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >
-      <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden py-2 scrollbar-none">
+      <div className="desktop-nav-rail-scroll flex flex-col flex-1 overflow-y-auto overflow-x-hidden py-2">
         {NAV_SECTIONS.map((section, sectionIdx) => (
           <div key={section.id} className={sectionIdx > 0 ? 'mt-1' : ''}>
             {/* Section header — only shown when expanded */}

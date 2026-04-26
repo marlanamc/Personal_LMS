@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { Cloud, Plus, Inbox, Search, ListChecks, LayoutGrid, Play } from 'lucide-react';
-import { nanoid } from 'nanoid';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { Cloud, Inbox, Search, ListChecks, LayoutGrid, Play } from 'lucide-react';
 import { useThoughtOrganizer } from './useThoughtOrganizer';
 import { FlowOrganizeView } from './FlowOrganizeView';
 import { ListViewHub } from './ListViewHub';
@@ -40,11 +39,8 @@ export function OrganizeView() {
   const [headerSlot, setHeaderSlot] = useState<HTMLDivElement | null>(null);
   const [inboxOpen, setInboxOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
-  const [quickAddOpen, setQuickAddOpen] = useState(false);
-  const [quickAddText, setQuickAddText] = useState('');
   const [focusedProjectId, setFocusedProjectId] = useState<string | null>(null);
   const [localGreeting, setLocalGreeting] = useState(() => getLocalGreeting());
-  const quickAddRef = useRef<HTMLInputElement>(null);
 
   // Load saved view preference
   useEffect(() => {
@@ -55,11 +51,6 @@ export function OrganizeView() {
       setViewMode('bento');
     }
   }, []);
-
-  // Focus quick-add input when opened
-  useEffect(() => {
-    if (quickAddOpen) quickAddRef.current?.focus();
-  }, [quickAddOpen]);
 
   useEffect(() => {
     const updateGreeting = () => setLocalGreeting(getLocalGreeting());
@@ -82,34 +73,10 @@ export function OrganizeView() {
     [updateOrganization]
   );
 
-  const handleQuickAdd = useCallback(() => {
-    const text = quickAddText.trim();
-    if (!text) {
-      setQuickAddOpen(false);
-      return;
-    }
-    updateOrganization(prev => ({
-      ...prev,
-      bullets: [
-        {
-          id: nanoid(),
-          text,
-          lineNumber: 0,
-          displayOrder: -1, // prepend to inbox
-          lane: undefined,
-          project: undefined,
-        },
-        ...prev.bullets,
-      ],
-    }));
-    setQuickAddText('');
-    setQuickAddOpen(false);
-  }, [quickAddText, updateOrganization]);
-
   useGlobalShortcuts({
     currentView: viewMode,
     onOpenPalette: useCallback(() => setCmdOpen(true), []),
-    onOpenQuickAdd: useCallback(() => setQuickAddOpen(true), []),
+    onOpenQuickAdd: useCallback(() => setInboxOpen(true), []),
     onToggleInbox: useCallback(() => setInboxOpen(o => !o), []),
     onSwitchView: handleViewModeChange,
   });
@@ -321,49 +288,8 @@ export function OrganizeView() {
             {activeViewMeta.helper}
           </p>
 
-          {/* Right: quick-add, ⌘K pill, sync dot, inbox toggle */}
+          {/* Right: ⌘K pill, sync dot, inbox toggle */}
           <div className="flex items-center gap-2 shrink-0">
-            {quickAddOpen ? (
-              <form
-                onSubmit={e => { e.preventDefault(); handleQuickAdd(); }}
-                className="flex items-center gap-1"
-              >
-                <input
-                  ref={quickAddRef}
-                  type="text"
-                  value={quickAddText}
-                  onChange={e => setQuickAddText(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Escape') { setQuickAddOpen(false); setQuickAddText(''); } }}
-                  placeholder="Add to inbox…"
-                  className="w-44 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-1.5 text-[13px] font-body text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
-                />
-                <button
-                  type="submit"
-                  className="rounded-lg bg-[var(--color-primary)] px-3 py-1.5 text-[12px] font-semibold font-display text-[var(--color-bg-base)] transition-opacity hover:opacity-90"
-                >
-                  Add
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setQuickAddOpen(false); setQuickAddText(''); }}
-                  className="rounded-lg px-2 py-1.5 text-[12px] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
-                >
-                  Cancel
-                </button>
-              </form>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setQuickAddOpen(true)}
-                className="organize-header-action flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold font-display transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
-                aria-label="Quick add bullet"
-              >
-                <Plus size={13} strokeWidth={2.5} aria-hidden />
-                <span>Add</span>
-                <kbd className="font-mono text-[10px] text-[var(--color-text-muted)] bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded px-1 py-px ml-0.5">/</kbd>
-              </button>
-            )}
-
             <button
               type="button"
               onClick={() => setCmdOpen(true)}

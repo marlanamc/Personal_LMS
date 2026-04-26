@@ -548,7 +548,7 @@ export function FlowOrganizeView({
         </div>
 
         {/* Right: Session */}
-        <aside className="hidden lg:flex w-[240px] shrink-0 flex-col border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] overflow-y-auto px-4 py-5 gap-3 scroll-contain">
+        <aside className="flow-session-rail hidden lg:flex w-[240px] shrink-0 flex-col border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] overflow-y-auto px-4 py-5 gap-3 scroll-contain">
           <DesktopSessionPanel board={board} showDone={showDone} />
         </aside>
 
@@ -800,11 +800,11 @@ function DesktopSessionPanel({ board, showDone }: { board: FlowBoard; showDone: 
 
   return (
     <>
-      <p className="font-display text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Session</p>
+      <p className="flow-session-title font-display text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Session</p>
 
       {/* Progress ring */}
-      <div className="rounded-[14px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-4 flex flex-col items-center gap-3">
-        <div className="relative flex items-center justify-center" style={{ width: 108, height: 108 }}>
+      <div className="flow-session-progress rounded-[14px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-4 flex flex-col items-center gap-3">
+        <div className="flow-session-ring relative flex items-center justify-center">
           <svg width="108" height="108" className="absolute inset-0" style={{ transform: 'rotate(-90deg)' }}>
             <circle cx="54" cy="54" r={r} fill="none" stroke="var(--color-border-subtle)" strokeWidth="7" />
             <circle
@@ -817,29 +817,29 @@ function DesktopSessionPanel({ board, showDone }: { board: FlowBoard; showDone: 
             />
           </svg>
           <div className="relative flex flex-col items-center">
-            <span className="font-display text-[24px] font-bold text-[var(--color-text-primary)] leading-none">{done}</span>
-            <span className="font-display text-[9px] font-bold uppercase tracking-[0.1em] text-[var(--color-text-muted)]">of {total}</span>
+            <span className="flow-session-ring-value font-display text-[24px] font-bold text-[var(--color-text-primary)] leading-none">{done}</span>
+            <span className="flow-session-ring-total font-display text-[9px] font-bold uppercase tracking-[0.1em] text-[var(--color-text-muted)]">of {total}</span>
           </div>
         </div>
-        <p className="font-body text-[11px] text-[var(--color-text-muted)] text-center">
+        <p className="flow-session-progress-copy font-body text-[11px] text-[var(--color-text-muted)] text-center">
           {pct}% through the chain
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="flow-session-stats grid grid-cols-2 gap-1.5">
         {stats.map(({ label, value, color }) => (
-          <div key={label} className="rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-3 py-2.5">
-            <p className="font-display text-[18px] font-bold leading-none mb-0.5" style={{ color }}>{value}</p>
-            <p className="font-display text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">{label}</p>
+          <div key={label} className="flow-session-stat rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-3 py-2.5">
+            <p className="flow-session-stat-value font-display text-[18px] font-bold leading-none mb-0.5" style={{ color }}>{value}</p>
+            <p className="flow-session-stat-label font-display text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Just done */}
       {showDone && (
-        <div>
-          <p className="font-display text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--color-text-muted)] mb-2">Just done</p>
+        <div className="flow-session-done">
+          <p className="flow-session-subtitle font-display text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--color-text-muted)] mb-2">Just done</p>
           {board.doneBullets.length === 0 ? (
             <p className="font-body text-[11.5px] text-[var(--color-text-muted)] leading-relaxed">Finish your first task to unlock the streak.</p>
           ) : (
