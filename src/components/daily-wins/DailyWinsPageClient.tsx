@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { Trash2, Trophy, Sparkles } from 'lucide-react';
 import { DailyWinsPhraseCloud } from '@/components/daily-wins/DailyWinsPhraseCloud';
-import { getRollingSevenDayWins } from '@/lib/daily-wins';
+import { aggregateDailyWinPhrases, getRollingSevenDayWins } from '@/lib/daily-wins';
 
 export type DailyWinRow = {
   id: string;
@@ -118,7 +118,7 @@ export function DailyWinsPageClient() {
   );
 
   const recentWins = useMemo(() => getRollingSevenDayWins(wins), [wins]);
-  const phraseItems = useMemo(() => recentWins.map((w) => ({ id: w.id, text: w.text })), [recentWins]);
+  const phraseItems = useMemo(() => aggregateDailyWinPhrases(recentWins), [recentWins]);
 
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6">

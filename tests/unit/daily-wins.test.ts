@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getRollingSevenDayWins } from '@/lib/daily-wins';
+import { aggregateDailyWinPhrases, getRollingSevenDayWins } from '@/lib/daily-wins';
 
 describe('daily wins helpers', () => {
   it('keeps the full list available while filtering the cloud to the rolling past 7 days', () => {
@@ -14,5 +14,19 @@ describe('daily wins helpers', () => {
 
     expect(wins.map((win) => win.id)).toEqual(['new', 'edge', 'old']);
     expect(recentWins.map((win) => win.id)).toEqual(['new', 'edge']);
+  });
+
+  it('aggregates repeated phrase cloud items and keeps the newest display text', () => {
+    const wins = [
+      { id: 'new-folded', text: 'Folded laundry' },
+      { id: 'other', text: 'Cooked dinner' },
+      { id: 'old-folded', text: ' folded   laundry ' },
+      { id: 'empty', text: '   ' },
+    ];
+
+    expect(aggregateDailyWinPhrases(wins)).toEqual([
+      { id: 'new-folded', text: 'Folded laundry', count: 2 },
+      { id: 'other', text: 'Cooked dinner', count: 1 },
+    ]);
   });
 });

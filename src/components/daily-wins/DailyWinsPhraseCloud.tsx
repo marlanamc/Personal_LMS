@@ -8,6 +8,7 @@ import { useTheme } from '@/context/ThemeContext';
 export interface PhraseItem {
   id: string;
   text: string;
+  count?: number;
 }
 
 // Size buckets — generous on desktop, tighter on mobile so everything fits.
@@ -133,7 +134,7 @@ export function DailyWinsPhraseCloud({ items, emptyMessage }: DailyWinsPhraseClo
     const baseShadow = chipShadow(toneRgb);
 
     const className = [
-      'inline-flex items-center justify-center rounded-[1.25rem] px-3 py-2 text-center leading-tight break-words',
+      'relative inline-flex items-center justify-center rounded-[1.25rem] px-3 py-2 text-center leading-tight break-words',
       'sm:px-4 sm:py-2.5 sm:rounded-[1.5rem]',
       chipBase,
       size,
@@ -151,6 +152,11 @@ export function DailyWinsPhraseCloud({ items, emptyMessage }: DailyWinsPhraseClo
       return (
         <div key={opts.key} className={className} style={style}>
           {item.text}
+          {(item.count ?? 1) > 1 ? (
+            <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full border border-white/60 bg-bg-surface px-1.5 text-[10px] font-bold leading-none text-text shadow-sm">
+              x{item.count}
+            </span>
+          ) : null}
         </div>
       );
     }
@@ -188,6 +194,11 @@ export function DailyWinsPhraseCloud({ items, emptyMessage }: DailyWinsPhraseClo
         whileHover={{ scale: 1.06 }}
       >
         {item.text}
+        {(item.count ?? 1) > 1 ? (
+          <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full border border-white/60 bg-bg-surface px-1.5 text-[10px] font-bold leading-none text-text shadow-sm">
+            x{item.count}
+          </span>
+        ) : null}
       </motion.div>
     );
   };
