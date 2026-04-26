@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, Inbox, MoveRight } from 'lucide-react';
+import { X, Inbox, MoveRight, Plus } from 'lucide-react';
+import { nanoid } from 'nanoid';
 import type { ThoughtBullet, ThoughtOrganization, ProjectMeta } from '@/lib/thought-organization';
 
 type ProjectColor =
@@ -30,18 +31,39 @@ type InboxPanelProps = {
 };
 
 function usePrefersReducedMotion() {
-  const ref = useRef(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   useEffect(() => {
-    ref.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setPrefersReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }, []);
-  return ref.current;
+  return prefersReducedMotion;
 }
 
 export function InboxPanel({ isOpen, onClose, organization, onUpdateOrganization }: InboxPanelProps) {
   const reduced = usePrefersReducedMotion();
   const duration = reduced ? 0 : 0.22;
+  const [draftText, setDraftText] = useState('');
+  const draftInputRef = useRef<HTMLInputElement>(null);
 
   const inboxBullets = organization.bullets.filter(b => !b.project && b.lane !== 'done');
+
+  const handleAddBullet = useCallback(() => {
+    const text = draftText.trim();
+    if (!text) return;
+
+    onUpdateOrganization({
+      ...organization,
+      bullets: [
+        {
+          id: nanoid(),
+          text,
+          lineNumber: 0,
+          displayOrder: inboxBullets.length,
+        },
+        ...organization.bullets,
+      ],
+    });
+    setDraftText('');
+  }, [draftText, inboxBullets.length, onUpdateOrganization, organization]);
 
   const handleAssign = useCallback((bullet: ThoughtBullet, project: ProjectMeta) => {
     onUpdateOrganization({
@@ -105,17 +127,51 @@ export function InboxPanel({ isOpen, onClose, organization, onUpdateOrganization
               </button>
             </div>
 
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                handleAddBullet();
+              }}
+              className="border-b border-[var(--color-border-subtle)] px-4 py-3 shrink-0"
+            >
+              <div className="flex items-center gap-2 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-2">
+                <Plus className="h-4 w-4 shrink-0 text-[var(--color-primary)]" aria-hidden />
+                <input
+                  ref={draftInputRef}
+                  value={draftText}
+                  onChange={(event) => setDraftText(event.target.value)}
+                  placeholder="Add bullet to Inbox"
+                  className="min-w-0 flex-1 bg-transparent font-body text-[13px] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={!draftText.trim()}
+                  className="rounded-full bg-[var(--color-primary)] px-3 py-1.5 font-display text-[11px] font-bold text-[var(--color-bg-base)] transition-opacity disabled:opacity-40"
+                >
+                  Add
+                </button>
+              </div>
+            </form>
+
             {/* Bullet list */}
             <div className="flex-1 overflow-y-auto py-2">
               {inboxBullets.length === 0 ? (
-                <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
+                <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
                   <Inbox className="h-8 w-8 text-[var(--color-text-muted)] opacity-40" aria-hidden />
                   <p className="font-body text-[13px] text-[var(--color-text-muted)]">
                     Inbox is empty
                   </p>
-                  <p className="font-body text-[11px] text-[var(--color-text-muted)] opacity-60">
-                    Use quick-add or "/" to capture bullets
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDraftText('New bullet');
+                      window.requestAnimationFrame(() => draftInputRef.current?.focus());
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-2 font-display text-[12px] font-semibold text-[var(--color-text-secondary)]"
+                  >
+                    <Plus className="h-3.5 w-3.5" aria-hidden />
+                    Add bullet
+                  </button>
                 </div>
               ) : (
                 <ul role="list" className="divide-y divide-[var(--color-border-subtle)]">

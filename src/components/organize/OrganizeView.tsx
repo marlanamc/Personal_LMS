@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { Cloud, Plus, Inbox, Search } from 'lucide-react';
+import { Cloud, Plus, Inbox, Search, ListChecks, LayoutGrid, Play } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useThoughtOrganizer } from './useThoughtOrganizer';
 import { FlowOrganizeView } from './FlowOrganizeView';
@@ -17,11 +17,20 @@ type ViewMode = 'list' | 'bento' | 'flow';
 
 const VIEW_STORAGE_KEY = 'organize-view-mode';
 
-const VIEW_OPTIONS: { id: ViewMode; label: string; hint: string; helper: string }[] = [
-  { id: 'list', label: 'List', hint: 'Clarify and sort', helper: 'Sort, prioritize, and route your bullets.' },
-  { id: 'bento', label: 'Bento', hint: 'See projects', helper: 'See your projects at a glance.' },
-  { id: 'flow', label: 'Flow', hint: 'Do the next thing', helper: 'Move through your next actions.' },
+const VIEW_OPTIONS: { id: ViewMode; label: string; hint: string; helper: string; Icon: typeof ListChecks }[] = [
+  { id: 'list', label: 'List', hint: 'Clarify & sort', helper: 'Sort, prioritize, and route your bullets.', Icon: ListChecks },
+  { id: 'bento', label: 'Bento', hint: 'See projects', helper: 'See your projects at a glance.', Icon: LayoutGrid },
+  { id: 'flow', label: 'Flow', hint: 'Do the next thing', helper: 'Move through your next actions.', Icon: Play },
 ];
+
+function getLocalGreeting(date = new Date()) {
+  const hour = date.getHours();
+
+  if (hour >= 5 && hour < 12) return 'Good morning, Marlie';
+  if (hour >= 12 && hour < 17) return 'Good afternoon, Marlie';
+  if (hour >= 17 && hour < 22) return 'Good evening, Marlie 🌙';
+  return 'Working late, Marlie 🌙';
+}
 
 export function OrganizeView() {
   const { organization, isLoaded, isSaving, saveError, lastSyncedAt, updateOrganization } =
@@ -34,6 +43,7 @@ export function OrganizeView() {
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [quickAddText, setQuickAddText] = useState('');
   const [focusedProjectId, setFocusedProjectId] = useState<string | null>(null);
+  const [localGreeting, setLocalGreeting] = useState(() => getLocalGreeting());
   const quickAddRef = useRef<HTMLInputElement>(null);
 
   // Load saved view preference
@@ -50,6 +60,13 @@ export function OrganizeView() {
   useEffect(() => {
     if (quickAddOpen) quickAddRef.current?.focus();
   }, [quickAddOpen]);
+
+  useEffect(() => {
+    const updateGreeting = () => setLocalGreeting(getLocalGreeting());
+    updateGreeting();
+    const timer = window.setInterval(updateGreeting, 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const handleViewModeChange = useCallback((mode: ViewMode) => {
     setViewMode(mode);
@@ -172,7 +189,7 @@ export function OrganizeView() {
         <div className="lg:hidden grid grid-cols-[1fr_minmax(0,auto)] grid-rows-[auto_auto] items-center gap-x-3 gap-y-2 w-full">
           <div className="min-w-0">
             <p className="mb-0.5 font-display text-[12px] font-semibold tracking-[0.02em] text-[var(--color-primary)]">
-              Good afternoon, Marlie
+              {localGreeting}
             </p>
             <h1 className="font-display text-[25px] font-bold tracking-[-0.03em] text-[var(--color-text-primary)] leading-none min-w-0">
               Organize
@@ -189,11 +206,17 @@ export function OrganizeView() {
             </button>
             <button
               type="button"
-              onClick={() => setQuickAddOpen(true)}
+              onClick={() => setInboxOpen(o => !o)}
               className="organize-mobile-header-action organize-mobile-header-action-add"
-              aria-label="Add task"
+              aria-label={`Inbox${inboxCount > 0 ? `, ${inboxCount} items` : ''}`}
+              aria-pressed={inboxOpen}
             >
-              <Plus className="h-5 w-5" strokeWidth={2.2} aria-hidden />
+              <Inbox className="h-5 w-5" strokeWidth={2} aria-hidden />
+              {inboxCount > 0 ? (
+                <span className="organize-mobile-header-action-badge">
+                  {inboxCount > 9 ? '9+' : inboxCount}
+                </span>
+              ) : null}
             </button>
           </div>
           <div className="col-span-2 flex justify-center min-w-0">
@@ -202,7 +225,7 @@ export function OrganizeView() {
               aria-label="Organize view"
               className="organize-view-toggle organize-view-toggle-mobile inline-flex w-full max-w-[22rem] items-stretch rounded-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
-              {VIEW_OPTIONS.map(({ id, label, hint }) => {
+              {VIEW_OPTIONS.map(({ id, label, hint, Icon }) => {
                 const isActive = viewMode === id;
                 return (
                   <button
@@ -220,11 +243,26 @@ export function OrganizeView() {
                         : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]',
                     ].join(' ')}
                   >
-                    {label}
+                    <span className="organize-view-toggle-mobile-content">
+                      <Icon className="organize-view-toggle-mobile-icon" aria-hidden />
+                      <span className="organize-view-toggle-mobile-copy">
+                        <span className="organize-view-toggle-mobile-label">{label}</span>
+                        <span className="organize-view-toggle-mobile-subtitle">{hint}</span>
+                      </span>
+                    </span>
                   </button>
                 );
               })}
             </div>
+          </div>
+          <div className="organize-mobile-purpose-row col-span-2 min-w-0">
+            <p>{activeViewMeta.helper}</p>
+            {viewMode === 'list' && nowBullets.length > 0 ? (
+              <button type="button" onClick={() => seedFlow(focusedProjectId)}>
+                <Play className="h-3.5 w-3.5" aria-hidden />
+                Start Flow
+              </button>
+            ) : null}
           </div>
         </div>
 
@@ -430,22 +468,6 @@ export function OrganizeView() {
         onUpdateOrganization={handleUpdateOrganization}
       />
 
-      {/* Mobile: Inbox FAB (design prototype — tray + badge, not a ringed header icon) */}
-      <button
-        type="button"
-        onClick={() => setInboxOpen(o => !o)}
-        aria-label={`Inbox${inboxCount > 0 ? `, ${inboxCount} items` : ''}`}
-        aria-pressed={inboxOpen}
-        className="organize-floating-inbox lg:hidden fixed z-20 flex items-center gap-2 rounded-[24px] py-2 pl-3 pr-3.5 text-[12px] font-semibold font-display transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 right-3.5"
-      >
-        <Inbox size={17} strokeWidth={1.75} className="shrink-0 opacity-90" aria-hidden />
-        <span>Inbox</span>
-        {inboxCount > 0 && (
-          <span className="rounded-[10px] bg-[rgba(160,137,199,0.2)] px-1.5 py-px text-[10px] font-bold text-[var(--color-accent)]">
-            {inboxCount > 99 ? '99+' : inboxCount}
-          </span>
-        )}
-      </button>
     </div>
   );
 }

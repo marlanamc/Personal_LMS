@@ -258,24 +258,24 @@
 :root.light {
   color-scheme: light;
 
-  --color-bg-base: #f7efe4;
-  --color-bg-surface: #fffaf3;
-  --color-bg-elevated: #f8eee5;
+  --color-bg-base: #f8f1e8;
+  --color-bg-surface: #fff9f1;
+  --color-bg-elevated: #f3e3d6;
   --color-bg-soft: #ead6c8;
-  --color-surface-glass: rgba(255, 250, 243, 0.82);
-  --color-border-subtle: rgba(66, 48, 38, 0.10);
+  --color-surface-glass: rgba(255, 250, 244, 0.88);
+  --color-border-subtle: rgba(70, 55, 45, 0.10);
   --color-border-glow: rgba(221, 139, 160, 0.35);
 
-  --color-text-primary: #252a36;
-  --color-text-secondary: #4c5568;
-  --color-text-muted: #7f8797;
+  --color-text-primary: #232936;
+  --color-text-secondary: #4f5a6d;
+  --color-text-muted: #7b8495;
 
-  --color-accent-sakura: #d9829f;
-  --color-accent-sakura-soft: rgba(217, 130, 159, 0.16);
-  --color-accent-teal: #77b9a5;
-  --color-accent-mint: #77b9a5;
-  --color-accent-amethyst: #9b78c6;
-  --color-accent-blue: #7d9ed8;
+  --color-accent-sakura: #d9789a;
+  --color-accent-sakura-soft: rgba(217, 120, 154, 0.16);
+  --color-accent-teal: #6fb7a3;
+  --color-accent-mint: #78aa82;
+  --color-accent-amethyst: #9b73c7;
+  --color-accent-blue: #7198d8;
   --color-accent-honey: #d9a84f;
   --color-accent-coral: #cf735f;
   --app-bg: var(--color-bg-base);
@@ -291,17 +291,17 @@
   --accent-secondary: var(--color-accent-amethyst);
   --accent-tertiary: var(--color-accent-teal);
 
-  --color-bg-base-light: #f7efe4;
-  --color-bg-surface-light: #fffaf3;
-  --color-bg-elevated-light: #f8eee5;
-  --color-text-primary-light: #252a36;
-  --color-text-secondary-light: #4c5568;
-  --color-text-muted-light: #7f8797;
-  --color-accent-sakura-light: #d9829f;
-  --color-accent-sakura-soft-light: rgba(217, 130, 159, 0.16);
-  --color-accent-teal-light: #77b9a5;
-  --color-accent-mint-light: #77b9a5;
-  --color-accent-amethyst-light: #9b78c6;
+  --color-bg-base-light: #f8f1e8;
+  --color-bg-surface-light: #fff9f1;
+  --color-bg-elevated-light: #f3e3d6;
+  --color-text-primary-light: #232936;
+  --color-text-secondary-light: #4f5a6d;
+  --color-text-muted-light: #7b8495;
+  --color-accent-sakura-light: #d9789a;
+  --color-accent-sakura-soft-light: rgba(217, 120, 154, 0.16);
+  --color-accent-teal-light: #6fb7a3;
+  --color-accent-mint-light: #78aa82;
+  --color-accent-amethyst-light: #9b73c7;
 
   --color-light-nebula-start: #f8efe4;
   --color-light-nebula-mid: #ead8c8;
@@ -399,20 +399,20 @@
     0 18px 32px rgba(177, 139, 118, 0.2);
 
   /* Organize Lane Colors — light overrides (warm family) */
-  --color-lane-now: #c2725e;
-  --color-lane-now-bg: rgba(194, 114, 94, 0.13);
-  --color-lane-now-border: rgba(194, 114, 94, 0.28);
-  --color-lane-now-glow: rgba(194, 114, 94, 0.18);
+  --color-lane-now: #cf725e;
+  --color-lane-now-bg: rgba(207, 114, 94, 0.13);
+  --color-lane-now-border: rgba(214, 124, 153, 0.30);
+  --color-lane-now-glow: rgba(207, 114, 94, 0.18);
 
-  --color-lane-next: #7a94c9;
-  --color-lane-next-bg: rgba(122, 148, 201, 0.13);
-  --color-lane-next-border: rgba(122, 148, 201, 0.28);
-  --color-lane-next-glow: rgba(122, 148, 201, 0.18);
+  --color-lane-next: #7198d8;
+  --color-lane-next-bg: rgba(113, 152, 216, 0.13);
+  --color-lane-next-border: rgba(113, 152, 216, 0.28);
+  --color-lane-next-glow: rgba(113, 152, 216, 0.18);
 
-  --color-lane-later: #8fa987;
-  --color-lane-later-bg: rgba(143, 169, 135, 0.13);
-  --color-lane-later-border: rgba(143, 169, 135, 0.28);
-  --color-lane-later-glow: rgba(143, 169, 135, 0.18);
+  --color-lane-later: #78aa82;
+  --color-lane-later-bg: rgba(120, 170, 130, 0.13);
+  --color-lane-later-border: rgba(120, 170, 130, 0.28);
+  --color-lane-later-glow: rgba(120, 170, 130, 0.18);
 
   --color-lane-done: #7aa69d;
   --color-lane-done-bg: rgba(122, 166, 157, 0.10);
@@ -13973,6 +13973,7 @@ kbd {
 }
 
 .organize-mobile-header-action {
+  position: relative;
   display: inline-flex;
   width: 2.55rem;
   height: 2.55rem;
@@ -13987,6 +13988,25 @@ kbd {
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
+.organize-mobile-header-action-badge {
+  position: absolute;
+  right: -0.2rem;
+  top: -0.2rem;
+  display: inline-flex;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--accent-primary);
+  color: var(--color-bg-base);
+  padding-inline: 0.22rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 800;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-surface) 88%, transparent);
 }
 
 .organize-mobile-header-action-add {
@@ -14752,13 +14772,157 @@ kbd {
   -webkit-backdrop-filter: blur(18px) saturate(130%);
 }
 
+:where(:root[data-theme="light"], :root.light) .organize-clean-shell {
+  background:
+    radial-gradient(circle at 15% 0%, rgba(232, 155, 181, 0.22), transparent 32%),
+    radial-gradient(circle at 90% 10%, rgba(245, 202, 147, 0.18), transparent 28%),
+    linear-gradient(180deg, #fff8ef 0%, #ead8c8 100%);
+}
+
+.organize-view-toggle-mobile-content {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.48rem;
+}
+
+.organize-view-toggle-mobile {
+  max-width: 100% !important;
+}
+
+.organize-view-toggle-mobile-btn {
+  min-height: 2.82rem;
+  padding-inline: 0.48rem;
+}
+
+.organize-view-toggle-mobile-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: 0 0 auto;
+  opacity: 0.9;
+}
+
+.organize-view-toggle-mobile-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.05rem;
+  text-align: left;
+}
+
+.organize-view-toggle-mobile-label,
+.organize-view-toggle-mobile-subtitle {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.organize-view-toggle-mobile-label {
+  font-size: 0.8rem;
+  font-weight: 820;
+  line-height: 1.05;
+}
+
+.organize-view-toggle-mobile-subtitle {
+  color: color-mix(in srgb, var(--app-text-muted) 82%, var(--app-text-soft));
+  font-size: clamp(0.54rem, 2.35vw, 0.66rem);
+  font-weight: 650;
+  line-height: 1.08;
+}
+
+.organize-view-toggle-mobile-btn-active .organize-view-toggle-mobile-subtitle {
+  color: color-mix(in srgb, var(--app-text) 74%, var(--accent-primary));
+}
+
+@media (max-width: 390px) {
+  .organize-view-toggle-mobile-content {
+    gap: 0.34rem;
+  }
+
+  .organize-view-toggle-mobile-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  .organize-view-toggle-mobile-label {
+    font-size: 0.74rem;
+  }
+
+  .organize-view-toggle-mobile-subtitle {
+    font-size: 0.52rem;
+  }
+
+  .organize-mobile-purpose-row p {
+    font-size: 0.7rem;
+  }
+}
+
+.organize-mobile-purpose-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.12rem;
+}
+
+.organize-mobile-purpose-row p {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--app-text-muted);
+  font-size: 0.76rem;
+  font-weight: 640;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.organize-mobile-purpose-row button,
+.organize-mobile-now-flow,
+.organize-mobile-view-bento {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 1.9rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 34%, var(--app-border));
+  background: color-mix(in srgb, var(--accent-primary) 13%, var(--app-surface-glass));
+  color: color-mix(in srgb, var(--accent-primary) 76%, var(--app-text));
+  padding: 0.32rem 0.72rem;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--accent-primary) 10%, transparent);
+}
+
+.organize-mobile-now-flow {
+  min-height: 1.7rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.68rem;
+}
+
 :where(:root[data-theme="light"], :root.light) .organize-mobile-now-spotlight,
 :where(:root[data-theme="light"], :root.light) .organize-clean-now-card {
   background:
-    radial-gradient(circle at 15% 0%, rgba(217, 130, 159, 0.18), transparent 36%),
-    rgba(255, 246, 239, 0.88);
-  border-color: rgba(207, 115, 95, 0.24) !important;
-  box-shadow: 0 20px 50px rgba(116, 77, 58, 0.13);
+    radial-gradient(circle at 15% 0%, rgba(217, 120, 154, 0.20), transparent 36%),
+    radial-gradient(circle at 92% 8%, rgba(245, 202, 147, 0.18), transparent 34%),
+    rgba(255, 249, 241, 0.92);
+  border-color: rgba(214, 124, 153, 0.30) !important;
+  box-shadow:
+    0 18px 44px rgba(116, 77, 58, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.organize-mobile-now-item {
+  border: 1px solid color-mix(in srgb, var(--app-border) 72%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 38%, transparent);
+}
+
+.organize-mobile-now-item.is-primary {
+  background: color-mix(in srgb, var(--accent-primary) 9%, var(--app-surface-glass));
 }
 
 .organize-mobile-project-pill,
@@ -14771,6 +14935,14 @@ kbd {
     0 8px 22px rgba(1, 7, 18, 0.14);
 }
 
+.organize-mobile-project-strip {
+  overscroll-behavior-x: contain;
+}
+
+.organize-mobile-project-strip::-webkit-scrollbar {
+  display: none;
+}
+
 .organize-project-focus-chip {
   gap: 0.55rem;
   padding: 0.48rem 0.9rem 0.48rem 0.75rem;
@@ -14779,7 +14951,8 @@ kbd {
 }
 
 .organize-project-focus-chip-active,
-.organize-mobile-project-pill:hover {
+.organize-mobile-project-pill:hover,
+.organize-mobile-project-pill[data-active="true"] {
   border-color: color-mix(in srgb, var(--accent-primary) 45%, var(--app-border));
   background:
     linear-gradient(
@@ -14788,6 +14961,26 @@ kbd {
       color-mix(in srgb, var(--accent-secondary) 10%, var(--app-surface-glass)) 100%
     );
   color: var(--app-text);
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-mobile-project-pill,
+:where(:root[data-theme="light"], :root.light) .organize-project-focus-chip {
+  background: rgba(255, 249, 241, 0.86) !important;
+  border-color: rgba(70, 55, 45, 0.12) !important;
+  color: var(--color-text-secondary) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.78),
+    0 8px 18px rgba(116, 77, 58, 0.09);
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-mobile-project-pill[data-active="true"],
+:where(:root[data-theme="light"], :root.light) .organize-project-focus-chip-active {
+  background: rgba(255, 240, 238, 0.92) !important;
+  border-color: rgba(214, 124, 153, 0.36) !important;
+  color: var(--color-text-primary) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8),
+    0 10px 24px rgba(217, 120, 154, 0.13);
 }
 
 .organize-project-focus-chip-count {
@@ -14809,6 +15002,177 @@ kbd {
 
 .organize-mobile-task-group {
   border-bottom: 1px solid color-mix(in srgb, var(--app-border) 48%, transparent);
+}
+
+.organize-mobile-task-group-over {
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--accent-primary) 7%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent-primary) 22%, transparent);
+}
+
+.organize-mobile-selected-project {
+  border-bottom: 1px solid color-mix(in srgb, var(--app-border) 58%, transparent);
+}
+
+.organize-mobile-view-bento {
+  min-height: 1.65rem;
+  padding: 0.26rem 0.58rem;
+  font-size: 0.66rem;
+}
+
+.organize-mobile-task-row {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--app-border) 66%, transparent);
+  background: color-mix(in srgb, var(--app-surface-glass) 52%, transparent);
+  touch-action: manipulation;
+}
+
+.organize-mobile-task-row[data-dragging="true"] {
+  box-shadow:
+    0 14px 30px color-mix(in srgb, var(--color-bg-base) 48%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent-primary) 24%, transparent);
+}
+
+.organize-mobile-task-check {
+  margin-top: 0.1rem;
+  display: flex;
+  width: 1.55rem;
+  height: 1.55rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid color-mix(in srgb, var(--app-text-muted) 42%, transparent);
+  border-radius: 999px;
+  background: transparent;
+}
+
+.organize-mobile-task-project {
+  display: block;
+  color: var(--app-text-muted);
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+
+.organize-mobile-task-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-primary) 38%, transparent);
+  background: transparent;
+  padding: 0 0 0.18rem;
+  color: var(--app-text);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 720;
+  line-height: 1.35;
+  outline: none;
+}
+
+.organize-mobile-task-input::placeholder {
+  color: color-mix(in srgb, var(--app-text-muted) 72%, transparent);
+}
+
+.organize-mobile-task-drag,
+.organize-mobile-task-menu {
+  margin-top: 0.05rem;
+  display: inline-flex;
+  width: 1.65rem;
+  height: 1.65rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--app-text-muted);
+}
+
+.organize-mobile-task-drag {
+  touch-action: none;
+  cursor: grab;
+}
+
+.organize-mobile-task-drag:active {
+  cursor: grabbing;
+}
+
+.organize-mobile-task-actions {
+  position: absolute;
+  right: 2.25rem;
+  top: 2.25rem;
+  z-index: 20;
+  display: grid;
+  min-width: 9.5rem;
+  gap: 0.12rem;
+  border: 1px solid color-mix(in srgb, var(--app-border) 92%, transparent);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--app-surface) 96%, transparent);
+  padding: 0.35rem;
+  box-shadow:
+    0 18px 36px rgba(1, 7, 18, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px) saturate(145%);
+  -webkit-backdrop-filter: blur(16px) saturate(145%);
+}
+
+.organize-mobile-task-actions button {
+  min-height: 2rem;
+  border-radius: 0.72rem;
+  padding: 0.42rem 0.65rem;
+  color: var(--app-text-soft);
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 720;
+}
+
+.organize-mobile-task-actions button:hover,
+.organize-mobile-task-actions button:focus-visible {
+  background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  color: var(--app-text);
+  outline: none;
+}
+
+.organize-mobile-task-actions button.is-delete {
+  color: var(--color-error);
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-mobile-task-actions {
+  background: rgba(255, 249, 241, 0.96);
+  border-color: rgba(70, 55, 45, 0.12);
+  box-shadow:
+    0 18px 36px rgba(116, 77, 58, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.84);
+}
+
+.organize-mobile-empty-add {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0.25rem 0.85rem;
+}
+
+.organize-mobile-empty-add button {
+  display: inline-flex;
+  min-height: 2.35rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 1px dashed color-mix(in srgb, var(--app-border) 88%, transparent);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--app-surface-glass) 34%, transparent);
+  color: var(--app-text-muted);
+  padding: 0.42rem 1rem;
+  font-size: 0.78rem;
+  font-weight: 760;
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-mobile-task-row {
+  background: rgba(255, 249, 241, 0.72);
+  border-color: rgba(70, 55, 45, 0.10);
+}
+
+:where(:root[data-theme="light"], :root.light) .organize-mobile-empty-add button {
+  background: rgba(255, 249, 241, 0.54);
+  border-color: rgba(70, 55, 45, 0.16);
+  color: var(--color-text-muted);
 }
 
 .organize-lower-workspace-shell.organize-clean-list-surface {
@@ -14986,7 +15350,7 @@ kbd {
   }
 
   .organize-floating-inbox {
-    bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 4.8rem) !important;
+    bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 0.9rem) !important;
   }
 
   .organize-clean-shell {

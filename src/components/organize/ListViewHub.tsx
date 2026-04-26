@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, type ReactNode } from 'react';
 import { DndContext, DragEndEvent, DragStartEvent, PointerSensor, TouchSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { ArrowRight, Check, ChevronDown, ChevronRight, Download, Eye, EyeOff, Filter, Inbox, MoreHorizontal, Plus, Sparkles, Star, Timer, Trash2 } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, ChevronRight, Download, Eye, EyeOff, Filter, GripVertical, Inbox, MoreHorizontal, Plus, Sparkles, Star, Timer, Trash2 } from 'lucide-react';
 import { ImportFromThoughtDownload } from './ImportFromThoughtDownload';
 import { OrganizeHeaderPortal } from './OrganizeHeaderSlot';
 import {
@@ -57,16 +57,185 @@ function isActiveLane(value: string): value is ActiveLane {
   return value === 'now' || value === 'next' || value === 'later';
 }
 
+function mobileLaneDropId(lane: ActiveLane) {
+  return `mobile-lane:${lane}`;
+}
+
+function mobileBulletDragId(bulletId: string) {
+  return `mobile-bullet:${bulletId}`;
+}
+
+function parseMobileLaneDropId(id: string): ActiveLane | null {
+  const lane = id.replace('mobile-lane:', '');
+  return isActiveLane(lane) ? lane : null;
+}
+
+function parseMobileBulletDragId(id: string) {
+  return id.startsWith('mobile-bullet:') ? id.replace('mobile-bullet:', '') : null;
+}
+
+function MobileLaneDropzone({
+  lane,
+  children,
+}: {
+  lane: ActiveLane;
+  children: ReactNode;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: mobileLaneDropId(lane) });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={[
+        'organize-mobile-task-group pb-2.5',
+        isOver ? 'organize-mobile-task-group-over' : '',
+      ].join(' ')}
+      data-lane={lane}
+    >
+      {children}
+    </div>
+  );
+}
+
+function MobileTaskRow({
+  bullet,
+  lane,
+  project,
+  isEditing,
+  isMenuOpen,
+  editText,
+  onEditStart,
+  onEditTextChange,
+  onCommitEdit,
+  onCancelEdit,
+  onDone,
+  onToggleMenu,
+  onMoveToLane,
+  onDelete,
+}: {
+  bullet: ThoughtBullet;
+  lane: ActiveLane;
+  project?: ProjectMeta | null;
+  isEditing: boolean;
+  isMenuOpen: boolean;
+  editText: string;
+  onEditStart: () => void;
+  onEditTextChange: (value: string) => void;
+  onCommitEdit: () => void;
+  onCancelEdit: () => void;
+  onDone: () => void;
+  onToggleMenu: () => void;
+  onMoveToLane: (lane: ActiveLane) => void;
+  onDelete: () => void;
+}) {
+  const meta = LANE_META[lane];
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: mobileBulletDragId(bullet.id),
+    disabled: isEditing,
+  });
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    opacity: isDragging ? 0.58 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="task-row-surface organize-mobile-task-row mb-1.5 flex items-start gap-3 rounded-2xl px-3 py-2.5 last:mb-0"
+      data-dragging={isDragging ? 'true' : 'false'}
+    >
+      <button
+        type="button"
+        onClick={onDone}
+        className="organize-mobile-task-check"
+        aria-label="Mark complete"
+      />
+      <div className="min-w-0 flex-1">
+        {isEditing ? (
+          <input
+            value={editText}
+            onChange={(event) => onEditTextChange(event.target.value)}
+            onBlur={onCommitEdit}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                onCommitEdit();
+              }
+              if (event.key === 'Escape') {
+                event.preventDefault();
+                onCancelEdit();
+              }
+            }}
+            onFocus={(event) => event.currentTarget.select()}
+            placeholder="Add bullet"
+            className="organize-mobile-task-input"
+            autoFocus
+          />
+        ) : (
+          <button type="button" onClick={onEditStart} className="block w-full min-w-0 text-left">
+            <span className="block font-body text-[14px] font-semibold leading-[1.42] text-[var(--color-text-primary)] pt-px">
+              {bullet.text || 'Add bullet'}
+            </span>
+          </button>
+        )}
+        {project ? (
+          <span className="organize-mobile-task-project mt-1">{project.label}</span>
+        ) : null}
+      </div>
+      <button
+        type="button"
+        className="organize-mobile-task-drag"
+        aria-label={`Drag ${bullet.text || 'bullet'}`}
+        {...listeners}
+        {...attributes}
+      >
+        <GripVertical className="h-4 w-4" aria-hidden />
+      </button>
+      <button type="button" onClick={onToggleMenu} className="organize-mobile-task-menu" aria-label={`${meta.label} task actions`} aria-expanded={isMenuOpen}>
+        <MoreHorizontal className="h-4 w-4" aria-hidden />
+      </button>
+      {isMenuOpen ? (
+        <div className="organize-mobile-task-actions" role="menu">
+          <button type="button" onClick={onEditStart} role="menuitem">Edit</button>
+          {ACTIVE_LANES.filter(item => item !== lane).map(item => (
+            <button key={item} type="button" onClick={() => onMoveToLane(item)} role="menuitem">
+              Move to {LANE_META[item].label}
+            </button>
+          ))}
+          <button type="button" onClick={onDelete} role="menuitem" className="is-delete">Delete</button>
+        </div>
+      ) : null}
+      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: `var(${meta.colorVar})` }} aria-hidden />
+    </div>
+  );
+}
+
 // ── Mobile list view ─────────────────────────────────────────────────────────
 function ListViewMobile({
   organization,
   onUpdateOrganization,
+  selectedProjectId,
+  onSelectProject,
+  onStartFlow,
+  onViewProjectInBento,
 }: {
   organization: ThoughtOrganization;
   onUpdateOrganization: (org: ThoughtOrganization) => void;
+  selectedProjectId: string | null;
+  onSelectProject: (id: string | null) => void;
+  onStartFlow: (projectId?: string | null) => void;
+  onViewProjectInBento: (projectId: string) => void;
 }) {
   const firstProjectId = organization.projects[0]?.id ?? null;
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(firstProjectId);
+  const mobileSelectedProjectId = selectedProjectId ?? firstProjectId;
+  const [editingBulletId, setEditingBulletId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
+  const [mobileTaskMenuId, setMobileTaskMenuId] = useState<string | null>(null);
+  const mobileSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 140, tolerance: 8 } })
+  );
   // Tracks lanes the user has explicitly collapsed (always collapsed) or explicitly expanded (force-open even when empty)
   const [manuallyCollapsed, setManuallyCollapsed] = useState<Set<string>>(new Set(['later']));
   const [manuallyExpanded, setManuallyExpanded] = useState<Set<string>>(new Set());
@@ -74,7 +243,7 @@ function ListViewMobile({
   const isCollapsed = (lane: string, itemCount: number) => {
     if (manuallyExpanded.has(lane)) return false;
     if (manuallyCollapsed.has(lane)) return true;
-    return itemCount === 0; // auto-collapse empty lanes
+    return itemCount === 0;
   };
 
   const toggleLane = (lane: string, itemCount: number) => {
@@ -106,23 +275,40 @@ function ListViewMobile({
   const progressPercent = Math.min(100, Math.round((nowBullets.length / progressTotal) * 100));
 
   const projectBullets = useMemo(() =>
-    organization.bullets.filter(b => b.project === selectedProjectId && b.lane !== 'done'),
-    [organization.bullets, selectedProjectId]
+    organization.bullets.filter(b => b.project === mobileSelectedProjectId && b.lane !== 'done'),
+    [organization.bullets, mobileSelectedProjectId]
   );
 
   const byLane = (lane: ThoughtLane) => projectBullets.filter(b => b.lane === lane);
-  const selectedProject = organization.projects.find(p => p.id === selectedProjectId);
+  const selectedProject = organization.projects.find(p => p.id === mobileSelectedProjectId);
   const selectedPalette = selectedProject ? (PROJECT_PALETTE[selectedProject.color] ?? PROJECT_PALETTE.slate) : null;
   const countForProject = (projectId: string) =>
     organization.bullets.filter(b => b.project === projectId && b.lane !== 'done').length;
+
+  const updateMobileBullet = (bulletId: string, updates: Partial<ThoughtBullet>) => {
+    onUpdateOrganization({
+      ...organization,
+      bullets: organization.bullets.map(b => b.id === bulletId ? { ...b, ...updates } : b),
+    });
+  };
+
+  const deleteMobileBullet = (bulletId: string) => {
+    onUpdateOrganization({
+      ...organization,
+      bullets: organization.bullets.filter(b => b.id !== bulletId),
+    });
+  };
+
   const handleAddToLane = (lane: ThoughtLane) => {
     if (!selectedProject) return;
+    const id = nanoid();
+    const text = 'New bullet';
     onUpdateOrganization({
       ...organization,
       bullets: [
         {
-          id: nanoid(),
-          text: lane === 'next' ? 'Plan the next small step' : 'New task',
+          id,
+          text,
           lineNumber: 0,
           displayOrder: projectBullets.length,
           lane,
@@ -133,12 +319,91 @@ function ListViewMobile({
         ...organization.bullets,
       ],
     });
+    setEditingBulletId(id);
+    setEditingText(text);
   };
+
+  const startEditingBullet = (bullet: ThoughtBullet) => {
+    setMobileTaskMenuId(null);
+    setEditingBulletId(bullet.id);
+    setEditingText(bullet.text);
+  };
+
+  const commitEditingBullet = () => {
+    if (!editingBulletId) return;
+    const trimmed = editingText.trim();
+
+    if (!trimmed) {
+      deleteMobileBullet(editingBulletId);
+    } else {
+      updateMobileBullet(editingBulletId, { text: trimmed });
+    }
+
+    setEditingBulletId(null);
+    setEditingText('');
+  };
+
+  const cancelEditingBullet = () => {
+    if (editingBulletId) {
+      const bullet = organization.bullets.find(item => item.id === editingBulletId);
+      if (bullet && !bullet.text.trim()) {
+        deleteMobileBullet(editingBulletId);
+      }
+    }
+    setEditingBulletId(null);
+    setEditingText('');
+  };
+
+  const handleMobileDragEnd = (event: DragEndEvent) => {
+    const bulletId = parseMobileBulletDragId(String(event.active.id));
+    const targetLane = event.over?.id ? parseMobileLaneDropId(String(event.over.id)) : null;
+    if (!bulletId || !targetLane || !selectedProject) return;
+
+    updateMobileBullet(bulletId, {
+      lane: targetLane,
+      priority: laneToPriority(targetLane),
+      project: selectedProject.id,
+      projectMeta: selectedProject,
+    });
+    setManuallyCollapsed(prev => {
+      const next = new Set(prev);
+      next.delete(targetLane);
+      return next;
+    });
+  };
+
+  const moveMobileBulletToLane = (bullet: ThoughtBullet, lane: ActiveLane) => {
+    if (!selectedProject) return;
+    updateMobileBullet(bullet.id, {
+      lane,
+      priority: laneToPriority(lane),
+      project: selectedProject.id,
+      projectMeta: selectedProject,
+    });
+    setMobileTaskMenuId(null);
+  };
+
+  const deleteMobileTask = (bulletId: string) => {
+    deleteMobileBullet(bulletId);
+    setMobileTaskMenuId(null);
+  };
+
+  const renderEmptyAdd = (lane: ActiveLane) => (
+    <div className="organize-mobile-empty-add">
+      <button
+        type="button"
+        onClick={() => handleAddToLane(lane)}
+      >
+        <Plus className="h-3.5 w-3.5" aria-hidden />
+        Add bullet
+      </button>
+    </div>
+  );
 
   return (
     <div className="lg:hidden flex flex-col h-full overflow-hidden">
       {/* Now spotlight */}
-      <div className="organize-mobile-now-spotlight mx-3.5 mt-3 mb-0 shrink-0 rounded-[24px] border px-4 py-3.5">
+      <div className={`organize-mobile-now-spotlight mx-3.5 mt-3 mb-0 shrink-0 rounded-[24px] border px-4 ${nowBullets.length <= 1 ? 'py-3' : 'py-3.5'}`}>
         <div className="flex items-center gap-2 mb-2.5">
           <span
             className="h-2.5 w-2.5 rounded-full bg-[var(--color-lane-now)]"
@@ -147,12 +412,19 @@ function ListViewMobile({
           />
           <span className="font-display text-[13px] font-bold uppercase tracking-[0.16em] text-[var(--color-lane-now)]">Now</span>
           <span className="rounded-full bg-white/[0.06] px-2 py-0.5 font-display text-[11px] font-semibold text-[var(--color-text-secondary)]">{nowBullets.length} active</span>
+          {nowBullets.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => onStartFlow(mobileSelectedProjectId)}
+              className="organize-mobile-now-flow ml-auto"
+            >
+              <Sparkles className="h-3.5 w-3.5" aria-hidden />
+              Start Flow
+            </button>
+          ) : null}
         </div>
         {nowBullets.length === 0 ? (
-          <div className="warm-empty-state rounded-2xl px-4 py-5">
-            <p className="mb-1 font-display text-[15px] font-semibold text-[var(--color-text-primary)]">Nothing in Now</p>
-            <p className="mb-0 font-body text-[13px] text-[var(--color-text-muted)]">Pull in one calm commitment when you are ready.</p>
-          </div>
+          renderEmptyAdd('now')
         ) : (
           <div className="flex flex-col gap-2">
             {nowBullets.slice(0, 2).map((b, i) => {
@@ -161,7 +433,7 @@ function ListViewMobile({
               return (
                 <div
                   key={b.id}
-                  className="flex items-start gap-2.5 rounded-2xl bg-white/[0.035] px-3 py-2"
+                  className={`organize-mobile-now-item flex items-start gap-2.5 rounded-2xl px-3 ${i === 0 ? 'py-2.5 is-primary' : 'py-2'}`}
                 >
                   {pal && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full" style={{ background: pal.dot, boxShadow: `0 0 10px ${pal.dot}` }} aria-hidden />}
                   <div className="min-w-0 flex-1">
@@ -200,24 +472,25 @@ function ListViewMobile({
 
       {/* Project chips (prototype: inactive = secondary text + hairline border) */}
       <div
-        className="shrink-0 flex gap-1.5 overflow-x-auto px-3.5 py-2.5 pb-2"
+        className="organize-mobile-project-strip shrink-0 flex gap-1.5 overflow-x-auto px-3.5 py-2.5 pb-2"
         style={{ scrollbarWidth: 'none' }}
       >
         {organization.projects.map(p => {
           const pal = PROJECT_PALETTE[p.color] ?? PROJECT_PALETTE.slate;
-          const active = p.id === selectedProjectId;
+          const active = p.id === mobileSelectedProjectId;
           const count = countForProject(p.id);
           return (
             <button
               key={p.id}
               type="button"
-              onClick={() => setSelectedProjectId(p.id)}
+              onClick={() => onSelectProject(p.id)}
               className="organize-mobile-project-pill flex shrink-0 items-center gap-2 rounded-full py-2 pl-3 pr-3.5 font-display text-[13px] font-semibold transition-all"
               style={{
                 border: `1.5px solid ${active ? pal.border : 'rgba(255,255,255,0.08)'}`,
                 background: active ? pal.bg : 'transparent',
                 color: active ? pal.text : 'var(--color-text-secondary)',
               }}
+              data-active={active ? 'true' : 'false'}
             >
               <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: pal.dot, opacity: active ? 1 : 0.65, boxShadow: active ? `0 0 10px ${pal.dot}` : undefined }} aria-hidden />
               <span>{p.label}</span>
@@ -230,82 +503,76 @@ function ListViewMobile({
       {/* Lane sections */}
       <div className="flex-1 overflow-y-auto px-3.5 pb-24">
         {selectedProject && selectedPalette && (
-          <div className="flex items-center gap-1.5 py-1 mb-0.5" aria-label={`${selectedProject.label}, ${projectBullets.length} tasks`}>
+          <div className="organize-mobile-selected-project flex items-center gap-1.5 py-1 mb-0.5" aria-label={`${selectedProject.label}, ${projectBullets.length} tasks`}>
             <div className="h-4 w-0.5 rounded-sm shrink-0" style={{ background: selectedPalette.dot }} aria-hidden />
             <span className="font-display text-xs font-semibold" style={{ color: selectedPalette.text }}>{selectedProject.label}</span>
             <span className="font-display text-[11px] text-[var(--color-text-muted)]">{projectBullets.length} tasks</span>
+            <button type="button" onClick={() => onViewProjectInBento(selectedProject.id)} className="organize-mobile-view-bento ml-auto">
+              View in Bento
+            </button>
           </div>
         )}
 
-        {(['now', 'next', 'later'] as ThoughtLane[]).map(lane => {
-          const items = byLane(lane);
-          const meta = LANE_META[lane];
-          const collapsed = isCollapsed(lane, items.length);
-          return (
-            <div key={lane} className="organize-mobile-lane-section">
-              <button
-                type="button"
-                onClick={() => toggleLane(lane, items.length)}
-                className="flex w-full items-center justify-between py-2.5"
-              >
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="h-[7px] w-[7px] rounded-full shrink-0" style={{ background: `var(${meta.colorVar})` }} aria-hidden />
-                  <span
-                    className="font-display text-[10px] font-bold uppercase tracking-[0.12em]"
-                    style={{ color: `var(${meta.colorVar})` }}
-                  >
-                    {meta.label}
-                  </span>
-                  <span className="rounded-full bg-white/[0.07] px-2 py-0.5 font-display text-[11px] text-[var(--color-text-muted)]">{items.length}</span>
-                </div>
-                {collapsed
-                  ? <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[var(--color-text-muted)]" aria-hidden />
-                  : <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[var(--color-text-muted)]" aria-hidden />
-                }
-              </button>
-
-              {!collapsed && (
-                <div className="organize-mobile-task-group pb-2.5">
-                  {items.length === 0 ? (
-                    (lane === 'now' || lane === 'next') ? (
-                      <div className="flex justify-end px-1 py-1">
-                        <button
-                          type="button"
-                          onClick={() => handleAddToLane(lane)}
-                          className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
-                            lane === 'now'
-                              ? 'border-[var(--color-lane-now-border)] text-[var(--color-lane-now)]'
-                              : 'border-[var(--color-lane-next-border)] text-[var(--color-lane-next)]'
-                          }`}
-                        >
-                          <Plus className="mr-0.5 inline h-3 w-3" />
-                          Add
-                        </button>
-                      </div>
-                    ) : null
-                  ) : items.map(b => (
-                    <div
-                      key={b.id}
-                      className="task-row-surface mb-1.5 flex items-start gap-3 rounded-2xl px-3 py-2.5 last:mb-0"
+        <DndContext sensors={mobileSensors} onDragEnd={handleMobileDragEnd}>
+          {([
+            { id: 'now' as const, items: byLane('now') },
+            { id: 'next' as const, items: byLane('next') },
+            { id: 'later' as const, items: byLane('later') },
+          ]).map(({ id: lane, items }) => {
+            const meta = LANE_META[lane];
+            const collapsed = isCollapsed(lane, items.length);
+            return (
+              <div key={lane} className="organize-mobile-lane-section">
+                <button
+                  type="button"
+                  onClick={() => toggleLane(lane, items.length)}
+                  className="flex w-full items-center justify-between py-2.5"
+                >
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="h-[7px] w-[7px] rounded-full shrink-0" style={{ background: `var(${meta.colorVar})` }} aria-hidden />
+                    <span
+                      className="font-display text-[10px] font-bold uppercase tracking-[0.12em]"
+                      style={{ color: `var(${meta.colorVar})` }}
                     >
-                      <button
-                        type="button"
-                        onClick={() => toggleDone(b)}
-                        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/[0.20] bg-transparent transition-all"
-                        aria-label="Mark complete"
+                      {meta.label}
+                    </span>
+                    <span className="rounded-full bg-white/[0.07] px-2 py-0.5 font-display text-[11px] text-[var(--color-text-muted)]">{items.length}</span>
+                  </div>
+                  {collapsed
+                    ? <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[var(--color-text-muted)]" aria-hidden />
+                    : <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[var(--color-text-muted)]" aria-hidden />
+                  }
+                </button>
+
+                {!collapsed && (
+                  <MobileLaneDropzone lane={lane}>
+                    {items.length === 0 ? (
+                      renderEmptyAdd(lane)
+                    ) : items.map(b => (
+                      <MobileTaskRow
+                        key={b.id}
+                        bullet={b}
+                        lane={lane}
+                        project={selectedProject}
+                        isEditing={editingBulletId === b.id}
+                        isMenuOpen={mobileTaskMenuId === b.id}
+                        editText={editingBulletId === b.id ? editingText : b.text}
+                        onEditStart={() => startEditingBullet(b)}
+                        onEditTextChange={setEditingText}
+                        onCommitEdit={commitEditingBullet}
+                        onCancelEdit={cancelEditingBullet}
+                        onDone={() => toggleDone(b)}
+                        onToggleMenu={() => setMobileTaskMenuId(current => current === b.id ? null : b.id)}
+                        onMoveToLane={targetLane => moveMobileBulletToLane(b, targetLane)}
+                        onDelete={() => deleteMobileTask(b.id)}
                       />
-                      <div className="min-w-0 flex-1">
-                        <span className="block font-body text-[14px] font-semibold leading-[1.42] text-[var(--color-text-primary)] pt-px">{b.text}</span>
-                        <span className="mt-1 block text-[12px] text-[var(--color-text-muted)]">{selectedProject?.label}</span>
-                      </div>
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: `var(${meta.colorVar})` }} aria-hidden />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
+                    ))}
+                  </MobileLaneDropzone>
+                )}
+              </div>
+            );
+          })}
+        </DndContext>
       </div>
     </div>
   );
@@ -811,7 +1078,14 @@ export function ListViewHub({
   return (
     <div className="flex h-full overflow-hidden">
       {/* ── MOBILE: full replacement list view ── */}
-      <ListViewMobile organization={organization} onUpdateOrganization={onUpdateOrganization} />
+      <ListViewMobile
+        organization={organization}
+        onUpdateOrganization={onUpdateOrganization}
+        selectedProjectId={selectedProjectId}
+        onSelectProject={onSelectProject}
+        onStartFlow={onStartFlow}
+        onViewProjectInBento={onViewProjectInBento}
+      />
 
       {/* ── DESKTOP: sidebar + kanban + inspector ── */}
       <ProjectSidebar
