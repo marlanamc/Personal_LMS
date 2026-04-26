@@ -46,7 +46,7 @@ describe('daily-wins route', () => {
     expect(delRes.status).toBe(401);
   });
 
-  it('GET loads wins for the current week for the authenticated user', async () => {
+  it('GET loads all wins for the authenticated user newest first', async () => {
     authMock.getServerSession.mockResolvedValue({ user: { id: 'user-1' } });
     const created = new Date('2026-04-22T10:00:00.000Z');
     prismaMock.dailyWin.findMany.mockResolvedValue([
@@ -60,12 +60,8 @@ describe('daily-wins route', () => {
     expect(prismaMock.dailyWin.findMany).toHaveBeenCalledWith({
       where: {
         userId: 'user-1',
-        createdAt: {
-          gte: expect.any(Date),
-          lt: expect.any(Date),
-        },
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: 'desc' },
       select: { id: true, text: true, createdAt: true },
     });
     expect(payload.wins).toHaveLength(1);
@@ -74,7 +70,8 @@ describe('daily-wins route', () => {
       text: 'Did a thing',
       createdAt: created.toISOString(),
     });
-    expect(typeof payload.weekStart).toBe('string');
+    expect(payload.weekStart).toBeUndefined();
+    expect(payload.weekEndExclusive).toBeUndefined();
   });
 
   it('POST creates a win with trimmed text', async () => {

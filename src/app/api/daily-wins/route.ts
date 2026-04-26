@@ -1,18 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { addDays, startOfWeek } from 'date-fns';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { handleApiError, ApiError } from '@/lib/api-error';
 
 const MAX_TEXT_LEN = 500;
-
-function getCurrentWeekRangeUtc(): { gte: Date; lt: Date } {
-  const now = new Date();
-  const weekStart = startOfWeek(now, { weekStartsOn: 0 });
-  const weekEndExclusive = addDays(weekStart, 7);
-  return { gte: weekStart, lt: weekEndExclusive };
-}
 
 export async function GET() {
   try {
@@ -23,17 +15,11 @@ export async function GET() {
 
     const userId = session.user.id;
 
-    const { gte, lt } = getCurrentWeekRangeUtc();
-
     const wins = await prisma.dailyWin.findMany({
       where: {
         userId: userId,
-        createdAt: {
-          gte,
-          lt,
-        },
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: 'desc' },
       select: {
         id: true,
         text: true,
@@ -41,7 +27,7 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ wins, weekStart: gte.toISOString(), weekEndExclusive: lt.toISOString() });
+    return NextResponse.json({ wins });
   } catch (error) {
     return handleApiError(error, 'api/daily-wins:GET');
   }

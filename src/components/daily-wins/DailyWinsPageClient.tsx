@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { format, isToday, isYesterday } from 'date-fns';
 import { Trash2, Trophy, Sparkles } from 'lucide-react';
 import { DailyWinsPhraseCloud } from '@/components/daily-wins/DailyWinsPhraseCloud';
+import { getRollingSevenDayWins } from '@/lib/daily-wins';
 
 export type DailyWinRow = {
   id: string;
@@ -116,7 +117,8 @@ export function DailyWinsPageClient() {
     [],
   );
 
-  const phraseItems = useMemo(() => wins.map((w) => ({ id: w.id, text: w.text })), [wins]);
+  const recentWins = useMemo(() => getRollingSevenDayWins(wins), [wins]);
+  const phraseItems = useMemo(() => recentWins.map((w) => ({ id: w.id, text: w.text })), [recentWins]);
 
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6">
@@ -163,7 +165,7 @@ export function DailyWinsPageClient() {
 
       <section aria-labelledby="wins-cloud-heading" className="mb-16">
         <h2 id="wins-cloud-heading" className="sr-only">
-          This week at a glance
+          Past 7 days at a glance
         </h2>
         {isLoading ? (
           <div className="rounded-3xl bg-bg-surface/20 py-16 text-center text-text-muted backdrop-blur-sm">
