@@ -20,8 +20,8 @@ export function DashboardLayoutClient({ userName, children }: DashboardLayoutCli
   // Timer page goes immersive (Tier C) when a session is running
   const timerImmersive = pathname === '/dashboard/timer' && isActive;
   const tier = timerImmersive ? 'C' : getNavTier(pathname);
-  // Organize manages its own full-chrome header — skip the layout header there
-  const skipTopBar = pathname.startsWith('/dashboard/organize');
+  // Keep dashboard header visible across routes, including Organize
+  const skipTopBar = false;
 
   return (
     <DashboardHeaderCenterProvider>

@@ -1064,14 +1064,14 @@ function FlowMobileCockpit({
         {activeBullet && (
           <TimeTriggerWrapper bullet={activeBullet} justCompleted={justCompleted.has(activeBullet.id)}>
             <div
-              className="rounded-[20px] p-5"
+              className="flow-live-now-card rounded-[20px] p-5"
               style={{
                 background: 'radial-gradient(150% 130% at 0% 0%, var(--color-live-now-glow) 0%, transparent 60%), var(--color-bg-surface)',
                 border: '1.5px solid var(--color-lane-now-border)',
                 boxShadow: 'var(--color-live-now-shadow)',
               }}
             >
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-4">
                 <span
                   className="h-1.5 w-1.5 rounded-full bg-[var(--color-lane-now)]"
                   style={{ boxShadow: '0 0 8px var(--color-lane-now-glow)' }}
@@ -1086,32 +1086,33 @@ function FlowMobileCockpit({
                 )}
               </div>
 
-              <div className="flex items-end justify-between gap-3">
-                <p className="font-body text-[25px] font-semibold tracking-normal text-[var(--color-text-primary)] leading-[1.14]">
+              <div className="flex items-start justify-between gap-3">
+                <p className="min-w-0 flex-1 font-body text-[34px] font-semibold tracking-normal text-[var(--color-text-primary)] leading-[1.12]">
                   {activeBullet.text}
                 </p>
-                <div className="flex items-center gap-2 shrink-0 pb-0.5">
+                <div className="flow-live-now-actions flex items-center gap-2 shrink-0 pb-0.5">
                   <button
                     type="button"
                     onClick={() => updateBullet(activeBullet.id, { lane: 'done' })}
                     aria-label="Mark done"
-                    className="flex items-center gap-1.5 rounded-[9px] px-3 py-1.5 font-display text-[12px] font-semibold transition-all active:scale-[0.97]"
+                    title="Mark done"
+                    className="flow-primary-action flow-done-icon-action flex items-center justify-center rounded-[9px] p-2 font-display text-[12px] font-semibold transition-all active:scale-[0.97]"
                     style={{
                       background: 'color-mix(in srgb, var(--color-lane-later) 18%, var(--color-bg-elevated))',
                       border: '1px solid color-mix(in srgb, var(--color-lane-later) 35%, transparent)',
                       color: 'var(--color-lane-later)',
                     }}
                   >
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    Mark done
+                    <CheckCircle2 className="h-4 w-4" />
                   </button>
                   <button
                     type="button"
                     onClick={() => sendToPool(activeBullet.id)}
-                    className="flex items-center gap-1.5 rounded-[9px] border border-[var(--color-border-subtle)] bg-transparent px-3 py-1.5 font-display text-[12px] font-semibold text-[var(--color-text-muted)] transition-all active:scale-[0.97]"
+                    aria-label="Push later"
+                    title="Push later"
+                    className="flow-icon-action rounded-[9px] border border-[var(--color-border-subtle)] bg-transparent p-2 text-[var(--color-text-muted)] transition-all active:scale-[0.97]"
                   >
                     <ArrowDown className="h-3.5 w-3.5" />
-                    Push later
                   </button>
                 </div>
               </div>

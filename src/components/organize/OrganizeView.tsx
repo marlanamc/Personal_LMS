@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Cloud, Inbox, Search, ListChecks, LayoutGrid, Play } from 'lucide-react';
 import { useThoughtOrganizer } from './useThoughtOrganizer';
 import { FlowOrganizeView } from './FlowOrganizeView';
@@ -22,15 +22,6 @@ const VIEW_OPTIONS: { id: ViewMode; label: string; hint: string; helper: string;
   { id: 'flow', label: 'Flow', hint: 'Do the next thing', helper: 'Move through your next actions.', Icon: Play },
 ];
 
-function getLocalGreeting(date = new Date()) {
-  const hour = date.getHours();
-
-  if (hour >= 5 && hour < 12) return 'Good morning, Marlie';
-  if (hour >= 12 && hour < 17) return 'Good afternoon, Marlie';
-  if (hour >= 17 && hour < 22) return 'Good evening, Marlie 🌙';
-  return 'Working late, Marlie 🌙';
-}
-
 export function OrganizeView() {
   const { organization, isLoaded, isSaving, saveError, lastSyncedAt, updateOrganization } =
     useThoughtOrganizer();
@@ -40,7 +31,6 @@ export function OrganizeView() {
   const [inboxOpen, setInboxOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [focusedProjectId, setFocusedProjectId] = useState<string | null>(null);
-  const [localGreeting, setLocalGreeting] = useState(() => getLocalGreeting());
 
   // Load saved view preference
   useEffect(() => {
@@ -50,13 +40,6 @@ export function OrganizeView() {
     } else if (saved === 'orbital') {
       setViewMode('bento');
     }
-  }, []);
-
-  useEffect(() => {
-    const updateGreeting = () => setLocalGreeting(getLocalGreeting());
-    updateGreeting();
-    const timer = window.setInterval(updateGreeting, 60_000);
-    return () => window.clearInterval(timer);
   }, []);
 
   const handleViewModeChange = useCallback((mode: ViewMode) => {
@@ -86,13 +69,6 @@ export function OrganizeView() {
   ).length;
 
   const bulletCount = organization.bullets.filter(b => b.lane !== 'done').length;
-  const nowBullets = useMemo(
-    () => organization.bullets
-      .filter(b => b.lane === 'now' && b.project)
-      .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)),
-    [organization.bullets]
-  );
-
   const seedFlow = useCallback((projectId?: string | null) => {
     const scoped = organization.bullets
       .filter(b => b.lane !== 'done' && b.project && (!projectId || b.project === projectId));
@@ -118,11 +94,6 @@ export function OrganizeView() {
   const organizeProjectInList = useCallback((projectId: string) => {
     setFocusedProjectId(projectId);
     handleViewModeChange('list');
-  }, [handleViewModeChange]);
-
-  const viewProjectInBento = useCallback((projectId: string) => {
-    setFocusedProjectId(projectId);
-    handleViewModeChange('bento');
   }, [handleViewModeChange]);
 
   if (!isLoaded) {
@@ -151,35 +122,25 @@ export function OrganizeView() {
     <div className="organize-clean-shell mx-auto flex min-h-screen w-full max-w-[88rem] lg:max-w-[104rem] 2xl:max-w-[120rem] flex-col">
 
       {/* ── Organize chrome header ──────────────────────────────────────── */}
-      <header className="organize-chrome-header border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-4 py-3 lg:px-6 lg:py-0 min-h-[8.75rem] lg:h-16 lg:min-h-0 shrink-0 flex items-center">
+      <header className="organize-chrome-header border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-4 py-1.5 lg:px-6 lg:py-0 min-h-[5.7rem] lg:h-16 lg:min-h-0 shrink-0 flex items-center">
 
         {/* ── MOBILE header (< lg) ────────────────────────────────────── */}
-        <div className="lg:hidden grid grid-cols-[1fr_minmax(0,auto)] grid-rows-[auto_auto] items-center gap-x-3 gap-y-2 w-full">
+        <div className="lg:hidden grid grid-cols-[1fr_minmax(0,auto)] grid-rows-[auto_auto] items-center gap-x-3 gap-y-1 w-full">
           <div className="min-w-0">
-            <p className="mb-0.5 font-display text-[12px] font-semibold tracking-[0.02em] text-[var(--color-primary)]">
-              {localGreeting}
-            </p>
-            <h1 className="font-display text-[25px] font-bold tracking-[-0.03em] text-[var(--color-text-primary)] leading-none min-w-0">
+            <h1 className="font-display text-[24px] font-bold tracking-[-0.02em] text-[var(--color-text-primary)] leading-none">
               Organize
             </h1>
           </div>
           <div className="justify-self-end flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setCmdOpen(true)}
-              className="organize-mobile-header-action organize-mobile-header-action-search"
-              aria-label="Search"
-            >
-              <Search className="h-4.5 w-4.5" strokeWidth={2} aria-hidden />
-            </button>
-            <button
-              type="button"
               onClick={() => setInboxOpen(o => !o)}
-              className="organize-mobile-header-action organize-mobile-header-action-add"
-              aria-label={`Inbox${inboxCount > 0 ? `, ${inboxCount} items` : ''}`}
+              className="organize-mobile-header-action"
+              aria-label={`Open task tray${inboxCount > 0 ? `, ${inboxCount} items` : ''}`}
               aria-pressed={inboxOpen}
+              title="Task tray"
             >
-              <Inbox className="h-5 w-5" strokeWidth={2} aria-hidden />
+              <Inbox className="h-4 w-4" strokeWidth={2} aria-hidden />
               {inboxCount > 0 ? (
                 <span className="organize-mobile-header-action-badge">
                   {inboxCount > 9 ? '9+' : inboxCount}
@@ -191,7 +152,7 @@ export function OrganizeView() {
             <div
               role="tablist"
               aria-label="Organize view"
-              className="organize-view-toggle organize-view-toggle-mobile inline-flex w-full max-w-[22rem] items-stretch rounded-full [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="organize-view-toggle organize-view-toggle-mobile inline-flex w-[min(100%,15rem)] shrink-0 items-stretch rounded-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {VIEW_OPTIONS.map(({ id, label, hint, Icon }) => {
                 const isActive = viewMode === id;
@@ -205,7 +166,7 @@ export function OrganizeView() {
                     title={`${label}: ${hint}`}
                     onClick={() => handleViewModeChange(id)}
                     className={[
-                      'organize-view-toggle-mobile-btn flex-1 rounded-full font-semibold font-display transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30',
+                      'organize-view-toggle-mobile-btn flex-1 rounded-lg font-semibold font-display transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30',
                       isActive
                         ? 'organize-view-toggle-active organize-view-toggle-mobile-btn-active text-[var(--color-text-primary)]'
                         : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]',
@@ -213,24 +174,11 @@ export function OrganizeView() {
                   >
                     <span className="organize-view-toggle-mobile-content">
                       <Icon className="organize-view-toggle-mobile-icon" aria-hidden />
-                      <span className="organize-view-toggle-mobile-copy">
-                        <span className="organize-view-toggle-mobile-label">{label}</span>
-                        <span className="organize-view-toggle-mobile-subtitle">{hint}</span>
-                      </span>
                     </span>
                   </button>
                 );
               })}
             </div>
-          </div>
-          <div className="organize-mobile-purpose-row col-span-2 min-w-0">
-            <p>{activeViewMeta.helper}</p>
-            {viewMode === 'list' && nowBullets.length > 0 ? (
-              <button type="button" onClick={() => seedFlow(focusedProjectId)}>
-                <Play className="h-3.5 w-3.5" aria-hidden />
-                Start Flow
-              </button>
-            ) : null}
           </div>
         </div>
 
@@ -257,7 +205,7 @@ export function OrganizeView() {
           <div
             role="tablist"
             aria-label="Organize view"
-            className="organize-view-toggle flex items-stretch rounded-full"
+            className="organize-view-toggle flex items-stretch rounded-2xl"
           >
             {VIEW_OPTIONS.map(({ id, label, hint }) => {
               const isActive = viewMode === id;
@@ -271,7 +219,7 @@ export function OrganizeView() {
                   title={`${label}: ${hint}`}
                   onClick={() => handleViewModeChange(id)}
                   className={[
-                    'rounded-full px-5 py-1.5 text-[13px] font-semibold font-display transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
+                    'rounded-lg px-5 py-1.5 text-[13px] font-semibold font-display transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
                     isActive
                       ? 'organize-view-toggle-active text-[var(--color-text-primary)]'
                       : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]',
@@ -364,9 +312,6 @@ export function OrganizeView() {
               onToggleShowDone={() => setShowDone(!showDone)}
               selectedProjectId={focusedProjectId}
               onSelectProject={setFocusedProjectId}
-              onStartFlow={seedFlow}
-              onViewProjectInBento={viewProjectInBento}
-              nowBulletCount={nowBullets.length}
             />
           ) : viewMode === 'bento' ? (
             <BentoOrganizeView
