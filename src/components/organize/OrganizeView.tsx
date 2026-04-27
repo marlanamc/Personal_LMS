@@ -145,7 +145,7 @@ export function OrganizeView() {
       : lastSyncedAt
         ? `Synced ${lastSyncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
         : 'Synced';
-  const compactHeaderActions = viewMode === 'list' || viewMode === 'flow';
+  const compactHeaderActions = viewMode === 'list' || viewMode === 'bento' || viewMode === 'flow';
 
   return (
     <div className="organize-clean-shell mx-auto flex min-h-screen w-full max-w-[88rem] lg:max-w-[104rem] 2xl:max-w-[120rem] flex-col">

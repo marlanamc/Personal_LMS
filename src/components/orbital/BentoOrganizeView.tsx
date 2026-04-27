@@ -357,17 +357,6 @@ export function BentoOrganizeView({
                 />
               ))}
 
-              <ProjectSummaryCard
-                title="Inbox"
-                nowCount={0}
-                nextCount={0}
-                laterCount={0}
-                totalCount={inboxBullets.length}
-                nextUp={inboxBullets[0]?.text}
-                progressPercent={null}
-                subtitle={`${inboxBullets.length} unsorted`}
-                accentClass="bento-summary-card--inbox"
-              />
             </div>
           </div>
         </div>
