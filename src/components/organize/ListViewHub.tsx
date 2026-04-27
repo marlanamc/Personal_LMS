@@ -782,7 +782,21 @@ function FocusInspector({
         <div>
           <div className="flex items-start gap-2">
             {palette ? <span className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: palette.dot }} aria-hidden /> : null}
-            <h2>{bullet.text}</h2>
+            <label className="sr-only" htmlFor={`organize-command-title-${bullet.id}`}>Bullet title</label>
+            <input
+              id={`organize-command-title-${bullet.id}`}
+              value={bullet.text}
+              onChange={event => onUpdate({ text: event.target.value })}
+              onFocus={event => {
+                if (bullet.text === 'New bullet') event.currentTarget.select();
+              }}
+              onKeyDown={event => {
+                if (event.key === 'Enter') event.currentTarget.blur();
+              }}
+              placeholder="Add bullet"
+              className="organize-command-title-input"
+              autoFocus={bullet.text === 'New bullet'}
+            />
           </div>
           {project && palette ? (
             <div className="mt-3 flex items-center gap-2">

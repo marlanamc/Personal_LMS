@@ -14621,6 +14621,26 @@ kbd {
   line-height: 1.36;
 }
 
+.organize-command-title-input {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 0.65rem;
+  background: transparent;
+  color: var(--app-text);
+  font-size: 1rem;
+  font-weight: 760;
+  line-height: 1.36;
+  outline: none;
+  padding: 0.18rem 0.3rem;
+}
+
+.organize-command-title-input:focus {
+  border-color: color-mix(in srgb, var(--accent-primary) 42%, var(--app-border));
+  background: color-mix(in srgb, var(--app-surface) 56%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary) 13%, transparent);
+}
+
 .organize-command-inspector-empty {
   display: flex;
   min-height: 14rem;
