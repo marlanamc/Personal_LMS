@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo, type ReactNode } from 'react';
 import { DndContext, DragEndEvent, DragStartEvent, PointerSensor, TouchSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { ArrowRight, Check, ChevronDown, ChevronRight, Download, Eye, EyeOff, Filter, GripVertical, Inbox, MoreHorizontal, Plus, Sparkles, Star, Timer, Trash2 } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, ChevronRight, Download, Eye, EyeOff, GripVertical, MoreHorizontal, Plus, Sparkles, Star, Trash2, X } from 'lucide-react';
 import { ImportFromThoughtDownload } from './ImportFromThoughtDownload';
 import { OrganizeHeaderPortal } from './OrganizeHeaderSlot';
 import {
@@ -595,19 +595,6 @@ function getActiveBullets(bullets: ThoughtBullet[]) {
   return bullets.filter(b => b.project && b.lane !== 'done');
 }
 
-function getInboxBullets(bullets: ThoughtBullet[]) {
-  return bullets.filter(b => !b.project && b.lane !== 'done');
-}
-
-function getTopProject(projects: ProjectMeta[], bullets: ThoughtBullet[]) {
-  return projects
-    .map(project => ({
-      project,
-      count: bullets.filter(b => b.project === project.id && b.lane !== 'done').length,
-    }))
-    .sort((a, b) => b.count - a.count)[0];
-}
-
 function DesktopTaskCard({
   bullet,
   project,
@@ -757,11 +744,13 @@ function FocusInspector({
   projects,
   onUpdate,
   onDelete,
+  onClose,
 }: {
   bullet: ThoughtBullet | null;
   projects: ProjectMeta[];
   onUpdate: (updates: Partial<ThoughtBullet>) => void;
   onDelete: () => void;
+  onClose: () => void;
 }) {
   if (!bullet) {
     return (
@@ -782,10 +771,12 @@ function FocusInspector({
   const created = formatSourceDate(bullet);
 
   return (
-    <aside className="organize-command-inspector" aria-label="Inspector">
+    <aside className="organize-command-inspector" aria-label="Inspector" style={{ position: 'fixed', top: '4rem', right: 0, bottom: 0, zIndex: 60 }}>
       <div className="organize-command-panel-heading">
         <span>Inspector</span>
-        <MoreHorizontal className="h-4 w-4" aria-hidden />
+        <button type="button" onClick={onClose} className="organize-command-inspector-close" aria-label="Close inspector" title="Close inspector">
+          <X className="h-4 w-4" aria-hidden />
+        </button>
       </div>
       <div className="organize-command-inspector-body">
         <div>
@@ -886,7 +877,7 @@ function ProjectSidebar({
   const activeCount = getActiveBullets(bullets).length;
 
   return (
-    <aside className="organize-project-sidebar organize-command-sidebar hidden lg:flex w-[220px] shrink-0 flex-col overflow-y-auto" aria-label="List sidebar">
+    <aside className="organize-project-sidebar organize-command-sidebar hidden xl:flex w-[200px] shrink-0 flex-col overflow-y-auto" aria-label="List sidebar">
       <div className="organize-command-section">
         <p className="organize-command-section-label">Filter</p>
         <button type="button" onClick={() => onSelectProject(null)} className={['organize-command-sidebar-row', selectedProjectId === null ? 'is-active' : ''].join(' ')}>
@@ -917,14 +908,6 @@ function ProjectSidebar({
         })}
       </div>
 
-      <div className="organize-command-shortcuts">
-        <p className="organize-command-section-label">Shortcuts</p>
-        <div><span>Move</span><kbd>J / K</kbd></div>
-        <div><span>Push to Next</span><kbd>N</kbd></div>
-        <div><span>Push to Later</span><kbd>L</kbd></div>
-        <div><span>Mark done</span><kbd>X</kbd></div>
-        <div><span>Quick add</span><kbd>/</kbd></div>
-      </div>
     </aside>
   );
 }
@@ -951,7 +934,7 @@ export function ListViewHub({
   onSelectProject,
   onStartFlow,
   onViewProjectInBento,
-  nowBulletCount,
+  nowBulletCount: _nowBulletCount,
 }: ListViewHubProps) {
   const [showImportModal, setShowImportModal] = useState(false);
   const [selectedBulletId, setSelectedBulletId] = useState<string | null>(null);
@@ -996,9 +979,6 @@ export function ListViewHub({
     () => activeBullets.filter(bullet => selectedProjectId === null || bullet.project === selectedProjectId),
     [activeBullets, selectedProjectId]
   );
-  const inboxBullets = useMemo(() => getInboxBullets(organization.bullets), [organization.bullets]);
-  const doneBullets = useMemo(() => organization.bullets.filter(b => b.lane === 'done'), [organization.bullets]);
-  const topProject = useMemo(() => getTopProject(organization.projects, activeBullets), [organization.projects, activeBullets]);
   const bulletsByLane = useMemo(
     () => ({
       now: visibleBullets.filter(b => b.lane === 'now'),
@@ -1008,7 +988,6 @@ export function ListViewHub({
     [visibleBullets]
   );
   const selectedProject = organization.projects.find(project => project.id === selectedProjectId) ?? null;
-  const visibleNowCount = selectedProject ? bulletsByLane.now.length : nowBulletCount;
 
   const addBulletToLane = useCallback((lane: ThoughtLane) => {
     const project = selectedProject ?? organization.projects[0];
@@ -1070,7 +1049,7 @@ export function ListViewHub({
   }, [organization, onSelectProject, onUpdateOrganization]);
 
   return (
-    <div className="flex h-full overflow-hidden">
+    <div className="organize-list-view-root flex h-full overflow-hidden">
       {/* ── MOBILE: full replacement list view ── */}
       <ListViewMobile
         organization={organization}
@@ -1117,35 +1096,7 @@ export function ListViewHub({
               <h2>{selectedProject ? selectedProject.label : 'All active bullets'}</h2>
               <p>{visibleBullets.length} across {selectedProject ? '1 project' : `${organization.projects.length} projects`}</p>
             </div>
-            <div className="flex items-center gap-2">
-              <button type="button"><Filter className="h-4 w-4" aria-hidden /> Filter</button>
-              <button type="button" onClick={onToggleShowDone}><Check className="h-4 w-4" aria-hidden /> {showDone ? 'Hide done' : 'Done log'}</button>
-            </div>
           </div>
-
-          <section className="organize-command-focus-strip" aria-label="Today focus">
-            <div>
-              <p>Today Focus</p>
-              <strong>{bulletsByLane.now.length} bullets active</strong>
-              {topProject?.project && topProject.count > 0 ? <span>Top project: {topProject.project.label}</span> : null}
-            </div>
-            <div className="organize-command-focus-actions">
-              <button type="button" onClick={() => setSelectedBulletId(inboxBullets[0]?.id ?? null)}><Inbox className="h-4 w-4" /> Capture to Inbox</button>
-              {visibleNowCount > 0 ? (
-                <button type="button" onClick={() => onStartFlow(selectedProjectId)}>
-                  <Sparkles className="h-4 w-4" /> Start Flow <span>{Math.min(visibleNowCount, 6)} Now</span>
-                </button>
-              ) : (
-                <button type="button" onClick={() => addBulletToLane('now')}><Sparkles className="h-4 w-4" /> Plan my day</button>
-              )}
-              {selectedProject ? (
-                <button type="button" onClick={() => onViewProjectInBento(selectedProject.id)}>
-                  <ArrowRight className="h-4 w-4" /> View project in Bento
-                </button>
-              ) : null}
-              <button type="button"><Timer className="h-4 w-4" /> Focus timer <span>25:00</span></button>
-            </div>
-          </section>
 
           <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
             <div className="organize-command-columns" data-dragging={activeDragId ? 'true' : 'false'}>
@@ -1166,29 +1117,15 @@ export function ListViewHub({
         </div>
       </div>
 
-      <FocusInspector
-        bullet={selectedBullet}
-        projects={organization.projects}
-        onUpdate={updates => selectedBullet && handleBulletUpdate(selectedBullet.id, updates)}
-        onDelete={() => selectedBullet && handleBulletDelete(selectedBullet.id)}
-      />
-
-      <aside className="organize-command-right-rail hidden lg:flex" aria-label="Summary">
-        <section className="organize-command-rail-panel">
-          <div className="organize-command-panel-heading">
-            <span>Summary</span>
-          </div>
-          <dl className="organize-command-summary">
-            <div><dt>{activeBullets.length}</dt><dd>Active</dd></div>
-            <div><dt>{bulletsByLane.now.length}</dt><dd>Now</dd></div>
-            <div><dt>{bulletsByLane.next.length}</dt><dd>Next</dd></div>
-            <div><dt>{bulletsByLane.later.length}</dt><dd>Later</dd></div>
-            <div><dt>{doneBullets.length}</dt><dd>Done</dd></div>
-            <div><dt>{inboxBullets.length}</dt><dd>Inbox</dd></div>
-            <div><dt>{organization.bullets.length}</dt><dd>Total bullets</dd></div>
-          </dl>
-        </section>
-      </aside>
+      {selectedBullet ? (
+        <FocusInspector
+          bullet={selectedBullet}
+          projects={organization.projects}
+          onUpdate={updates => handleBulletUpdate(selectedBullet.id, updates)}
+          onDelete={() => handleBulletDelete(selectedBullet.id)}
+          onClose={() => setSelectedBulletId(null)}
+        />
+      ) : null}
 
       <ImportFromThoughtDownload
         isOpen={showImportModal}

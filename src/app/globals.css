@@ -13986,6 +13986,15 @@ kbd {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
+.organize-sync-status-compact .organize-sync-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .organize-floating-inbox {
   border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
   background:
@@ -14210,6 +14219,10 @@ kbd {
   border-right: 1px solid color-mix(in srgb, var(--app-border) 72%, transparent);
 }
 
+.organize-list-view-root {
+  position: relative;
+}
+
 .organize-command-board-shell {
   display: flex;
   min-height: 0;
@@ -14267,16 +14280,15 @@ kbd {
 
 .organize-command-focus-strip {
   display: grid;
-  grid-template-columns: minmax(12rem, 1fr) minmax(21rem, auto);
+  grid-template-columns: minmax(12rem, 1fr) auto;
   align-items: center;
-  gap: 1.2rem;
-  min-height: 5.8rem;
+  gap: 1rem;
+  min-height: 4.15rem;
   border: 1px solid color-mix(in srgb, var(--app-border) 78%, transparent);
-  border-radius: 1rem;
+  border-radius: 0.85rem;
   background:
-    radial-gradient(circle at 10% 0%, color-mix(in srgb, var(--accent-primary) 13%, transparent), transparent 42%),
-    color-mix(in srgb, var(--app-surface-glass) 58%, transparent);
-  padding: 0.85rem 1rem;
+    linear-gradient(180deg, color-mix(in srgb, var(--app-surface-glass) 60%, transparent), color-mix(in srgb, var(--app-surface) 54%, transparent));
+  padding: 0.7rem 0.85rem;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
@@ -14293,9 +14305,9 @@ kbd {
 
 .organize-command-focus-strip strong {
   display: block;
-  margin-top: 0.55rem;
+  margin-top: 0.32rem;
   color: var(--app-text);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
 }
 
 .organize-command-focus-strip span {
@@ -14324,11 +14336,14 @@ kbd {
 
 .organize-command-columns {
   display: grid;
-  grid-template-columns: repeat(3, minmax(13rem, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(17rem, 1fr));
+  gap: 0.65rem;
   min-height: 0;
   flex: 1;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.2rem;
+  scrollbar-width: thin;
 }
 
 .organize-command-column {
@@ -14338,11 +14353,8 @@ kbd {
   flex-direction: column;
   border: 1px solid color-mix(in srgb, var(--app-border) 74%, transparent);
   border-radius: 1rem;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--app-surface-glass) 62%, transparent), color-mix(in srgb, var(--app-surface) 72%, transparent));
-  box-shadow:
-    0 16px 42px rgba(1, 7, 18, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.055);
+  background: color-mix(in srgb, var(--app-surface-glass) 48%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
@@ -14357,7 +14369,7 @@ kbd {
   justify-content: space-between;
   gap: 0.75rem;
   border-bottom: 1px solid color-mix(in srgb, var(--app-border) 66%, transparent);
-  padding: 0.8rem 0.85rem;
+  padding: 0.68rem 0.78rem;
 }
 
 .organize-command-column-header h3 {
@@ -14399,9 +14411,9 @@ kbd {
   min-height: 0;
   flex: 1;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.45rem;
   overflow-y: auto;
-  padding: 0.75rem;
+  padding: 0.65rem;
 }
 
 .organize-command-task {
@@ -14411,10 +14423,10 @@ kbd {
   border: 1px solid color-mix(in srgb, var(--app-border) 78%, transparent);
   border-left: 2px solid;
   border-radius: 0.72rem;
-  background: color-mix(in srgb, var(--app-surface-glass) 62%, transparent);
-  padding: 0.72rem 0.7rem 0.68rem;
+  background: color-mix(in srgb, var(--app-surface-glass) 54%, transparent);
+  padding: 0.62rem 0.65rem;
   cursor: pointer;
-  box-shadow: 0 8px 22px rgba(1, 7, 18, 0.12);
+  box-shadow: 0 5px 14px rgba(1, 7, 18, 0.08);
   transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 
@@ -14428,7 +14440,7 @@ kbd {
 .organize-command-task.is-selected {
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--accent-primary) 18%, transparent),
-    0 12px 30px rgba(1, 7, 18, 0.2);
+    0 8px 20px rgba(1, 7, 18, 0.14);
 }
 
 .organize-command-task-check {
@@ -14455,8 +14467,8 @@ kbd {
   overflow-wrap: break-word;
   word-break: normal;
   color: var(--app-text);
-  font-size: 0.83rem;
-  font-weight: 680;
+  font-size: 0.88rem;
+  font-weight: 650;
   line-height: 1.34;
 }
 
@@ -14467,7 +14479,7 @@ kbd {
   border: 1px solid;
   border-radius: 999px;
   margin-top: 0.48rem;
-  padding: 0.14rem 0.5rem;
+  padding: 0.12rem 0.48rem;
   font-size: 0.68rem;
   font-weight: 750;
   line-height: 1.1;
@@ -14514,6 +14526,14 @@ kbd {
 }
 
 .organize-command-column-header small {
+  display: none;
+}
+
+.organize-command-column-header span:last-child {
+  padding: 0.06rem 0.38rem;
+}
+
+.organize-command-column-header small {
   color: var(--app-text-muted);
   font-size: 0.68rem;
   font-weight: 600;
@@ -14527,11 +14547,18 @@ kbd {
 }
 
 .organize-command-inspector {
-  display: none;
+  position: fixed;
+  top: 4rem;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
   width: clamp(13.75rem, 14.5vw, 15.5rem);
-  flex-shrink: 0;
   flex-direction: column;
   overflow-y: auto;
+  box-shadow:
+    -18px 0 42px rgba(1, 7, 18, 0.18),
+    inset 1px 0 0 rgba(255, 255, 255, 0.04);
 }
 
 .organize-command-right-rail {
@@ -14559,6 +14586,24 @@ kbd {
   padding: 0.1rem 0.48rem;
   font-family: var(--font-mono);
   font-size: 0.68rem;
+}
+
+.organize-command-inspector-close {
+  display: inline-flex;
+  width: 1.8rem;
+  height: 1.8rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--app-text-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.organize-command-inspector-close:hover,
+.organize-command-inspector-close:focus-visible {
+  background: color-mix(in srgb, var(--app-surface-soft) 64%, transparent);
+  color: var(--app-text);
+  outline: none;
 }
 
 .organize-command-inspector-body {
@@ -14763,12 +14808,6 @@ kbd {
   margin: 0.16rem 0 0;
   color: var(--app-text-muted);
   font-size: 0.72rem;
-}
-
-@media (min-width: 1024px) {
-  .organize-command-inspector {
-    display: flex;
-  }
 }
 
 @media (max-width: 1399px) {
@@ -15657,6 +15696,84 @@ kbd {
   color: var(--color-text-primary);
 }
 
+.flow-drag-grip {
+  display: inline-flex;
+  width: 1.65rem;
+  height: 1.65rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--color-text-muted) 72%, transparent);
+  cursor: grab;
+  touch-action: none;
+  transition: background 0.16s ease, color 0.16s ease, opacity 0.16s ease;
+}
+
+.flow-drag-grip:hover,
+.flow-drag-grip:focus-visible {
+  background: color-mix(in srgb, var(--color-bg-elevated) 80%, transparent);
+  color: var(--color-text-secondary);
+  outline: none;
+}
+
+.flow-drag-grip:active {
+  cursor: grabbing;
+}
+
+.flow-live-now-card {
+  contain: layout paint;
+}
+
+.flow-live-now-dot {
+  box-shadow: 0 0 10px var(--color-lane-now-glow);
+}
+
+.flow-icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flow-done-icon-action {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.45rem;
+}
+
+.flow-panel-toggle {
+  display: inline-flex;
+  height: 1.85rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 75%, transparent);
+  background: color-mix(in srgb, var(--color-bg-surface) 82%, transparent);
+  color: var(--color-text-muted);
+  padding: 0 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 750;
+  transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+
+.flow-panel-toggle:hover,
+.flow-panel-toggle:focus-visible,
+.flow-panel-toggle[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--accent-primary) 38%, var(--color-border-subtle));
+  background: color-mix(in srgb, var(--color-bg-elevated) 86%, transparent);
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+@media (max-width: 1180px) {
+  .flow-live-now-card .flow-live-now-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 .flow-session-rail {
   gap: 0.85rem;
 }
@@ -15679,40 +15796,6 @@ kbd {
     0 8px 20px color-mix(in srgb, var(--color-bg-base) 22%, transparent);
 }
 
-.flow-session-progress {
-  gap: 0.75rem;
-  padding: 0.95rem 0.85rem 1rem;
-}
-
-.flow-session-ring {
-  width: 6rem;
-  height: 6rem;
-}
-
-.flow-session-ring svg {
-  width: 6rem;
-  height: 6rem;
-}
-
-.flow-session-ring svg circle {
-  transform-origin: center;
-}
-
-.flow-session-ring-value {
-  font-size: 1.42rem !important;
-}
-
-.flow-session-ring-total {
-  letter-spacing: 0.08em !important;
-}
-
-.flow-session-progress-copy {
-  max-width: 100%;
-  color: var(--color-text-secondary) !important;
-  font-size: 0.78rem !important;
-  line-height: 1.25;
-}
-
 .flow-session-stats {
   gap: 0.55rem;
 }
@@ -15724,7 +15807,6 @@ kbd {
 }
 
 .flow-session-stat-value {
-  margin-bottom: 0.32rem !important;
   font-size: 1.05rem !important;
 }
 
@@ -15752,22 +15834,6 @@ kbd {
   .flow-session-rail {
     width: 13.5rem !important;
     padding-inline: 0.85rem !important;
-  }
-
-  .flow-session-stats {
-    grid-template-columns: 1fr;
-  }
-
-  .flow-session-stat {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: baseline;
-    column-gap: 0.65rem;
-    padding-block: 0.62rem !important;
-  }
-
-  .flow-session-stat-value {
-    margin-bottom: 0 !important;
   }
 }
 

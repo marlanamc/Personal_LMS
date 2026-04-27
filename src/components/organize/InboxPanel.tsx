@@ -157,22 +157,11 @@ export function InboxPanel({ isOpen, onClose, organization, onUpdateOrganization
             <div className="flex-1 overflow-y-auto py-2">
               {inboxBullets.length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-                  <Inbox className="h-8 w-8 text-[var(--color-text-muted)] opacity-40" aria-hidden />
-                  <p className="font-body text-[13px] text-[var(--color-text-muted)]">
-                    Inbox is empty
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDraftText('New bullet');
-                      window.requestAnimationFrame(() => draftInputRef.current?.focus());
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-2 font-display text-[12px] font-semibold text-[var(--color-text-secondary)]"
-                  >
-                    <Plus className="h-3.5 w-3.5" aria-hidden />
-                    Add bullet
-                  </button>
-                </div>
+            <Inbox className="h-8 w-8 text-[var(--color-text-muted)] opacity-40" aria-hidden />
+            <p className="font-body text-[13px] text-[var(--color-text-muted)]">
+              Inbox is empty
+            </p>
+          </div>
               ) : (
                 <ul role="list" className="divide-y divide-[var(--color-border-subtle)]">
                   {inboxBullets.map(bullet => (

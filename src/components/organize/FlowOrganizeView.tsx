@@ -6,13 +6,16 @@ import {
   DndContext,
   DragEndEvent,
   DragOverlay,
+  type DraggableAttributes,
+  type DraggableSyntheticListeners,
   PointerSensor,
   TouchSensor,
   useDroppable,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   ArrowDown,
   ArrowLeft,
@@ -22,8 +25,11 @@ import {
   Clock,
   Eye,
   EyeOff,
+  GripVertical,
   Inbox,
   MoreHorizontal,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plus,
   RotateCcw,
   Sparkles,
@@ -51,7 +57,6 @@ type FlowOrganizeViewProps = {
   onToggleShowDone?: () => void;
   onOpenList?: () => void;
   onOpenBento?: () => void;
-  onViewProjectInBento?: (projectId: string) => void;
 };
 
 const FLOW_CHAIN_ID = 'flow-chain';
@@ -62,14 +67,18 @@ const FLOW_POOL_ID = 'flow-pool';
 function FlowOverflowMenu({
   onClear,
   onToggleDone,
+  onTogglePanels,
   onToggleTriggerBuilder,
+  sidePanelsOpen,
   showDone,
   triggerBuilderOpen,
   hasChain,
 }: {
   onClear: () => void;
   onToggleDone?: () => void;
+  onTogglePanels: () => void;
   onToggleTriggerBuilder: () => void;
+  sidePanelsOpen: boolean;
   showDone: boolean;
   triggerBuilderOpen: boolean;
   hasChain: boolean;
@@ -94,6 +103,18 @@ function FlowOverflowMenu({
         >
           <Clock className="h-4 w-4" />
           {triggerBuilderOpen ? 'Hide trigger builder' : 'Trigger builder'}
+        </button>
+        <button
+          type="button"
+          className="organize-clean-overflow-item"
+          onClick={(e) => {
+            onTogglePanels();
+            (e.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute('open');
+          }}
+          aria-pressed={!sidePanelsOpen}
+        >
+          {sidePanelsOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+          {sidePanelsOpen ? 'Focus mode' : 'Show panels'}
         </button>
         {onToggleDone ? (
           <button
@@ -123,6 +144,57 @@ function FlowOverflowMenu({
         </button>
       </div>
     </details>
+  );
+}
+
+type SortableFlowItemState = {
+  attributes: DraggableAttributes;
+  listeners: DraggableSyntheticListeners;
+  isDragging: boolean;
+};
+
+function SortableFlowItem({
+  id,
+  className = '',
+  children,
+}: {
+  id: string;
+  className?: string;
+  children: (state: SortableFlowItemState) => React.ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: isDragging ? 'none' : transition,
+    opacity: isDragging ? 0.42 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className={className}>
+      {children({ attributes, listeners, isDragging })}
+    </div>
+  );
+}
+
+function DragGrip({
+  attributes,
+  listeners,
+  label,
+}: {
+  attributes: DraggableAttributes;
+  listeners: DraggableSyntheticListeners;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      {...attributes}
+      {...listeners}
+      className="flow-drag-grip"
+      aria-label={label}
+    >
+      <GripVertical className="h-3.5 w-3.5" aria-hidden />
+    </button>
   );
 }
 
@@ -185,16 +257,26 @@ function FlowDropZone({
 
 // ── Project pill ─────────────────────────────────────────────────────────────
 
-function ProjectPill({ bullet, size = 'sm' }: { bullet: ThoughtBullet; size?: 'sm' | 'xs' }) {
+function ProjectPill({ bullet, size = 'sm', emphasis = 'soft' }: { bullet: ThoughtBullet; size?: 'sm' | 'xs'; emphasis?: 'soft' | 'strong' }) {
   if (!bullet.projectMeta) return null;
   const textSize = size === 'xs' ? 'text-[10px]' : 'text-[11px]';
-  const padding = size === 'xs' ? 'px-1.5 py-px' : 'px-2 py-0.5';
+  const padding = emphasis === 'strong'
+    ? 'px-2.5 py-1'
+    : size === 'xs' ? 'px-1.5 py-px' : 'px-2 py-0.5';
   return (
     <span
       className={`inline-block rounded-full font-display font-semibold ${textSize} ${padding}`}
       style={{
         color: `var(--project-${bullet.projectMeta.color})`,
-        background: `color-mix(in srgb, var(--project-${bullet.projectMeta.color}) 14%, var(--color-bg-elevated))`,
+        background: emphasis === 'strong'
+          ? `color-mix(in srgb, var(--project-${bullet.projectMeta.color}) 24%, var(--color-bg-elevated))`
+          : `color-mix(in srgb, var(--project-${bullet.projectMeta.color}) 14%, var(--color-bg-elevated))`,
+        border: emphasis === 'strong'
+          ? `1px solid color-mix(in srgb, var(--project-${bullet.projectMeta.color}) 42%, transparent)`
+          : undefined,
+        boxShadow: emphasis === 'strong'
+          ? `0 0 0 1px color-mix(in srgb, var(--project-${bullet.projectMeta.color}) 12%, transparent)`
+          : undefined,
       }}
     >
       {bullet.projectMeta.label}
@@ -231,15 +313,20 @@ export function FlowOrganizeView({
   onToggleShowDone,
   onOpenList,
   onOpenBento,
-  onViewProjectInBento,
 }: FlowOrganizeViewProps) {
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [showTimeTriggerBuilder, setShowTimeTriggerBuilder] = useState(false);
   const [showTaskTray, setShowTaskTray] = useState(false);
+  const [sidePanelsOpen, setSidePanelsOpen] = useState(true);
 
   useEffect(() => {
     const saved = typeof window !== 'undefined' ? localStorage.getItem('flow-show-tray') : null;
     if (saved === '1') setShowTaskTray(true);
+  }, []);
+
+  useEffect(() => {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('flow-side-panels-open') : null;
+    if (saved === '0') setSidePanelsOpen(false);
   }, []);
 
   useEffect(() => {
@@ -251,6 +338,16 @@ export function FlowOrganizeView({
       const next = !prev;
       if (typeof window !== 'undefined') {
         localStorage.setItem('flow-show-tray', next ? '1' : '0');
+      }
+      return next;
+    });
+  }, []);
+
+  const toggleSidePanels = useCallback(() => {
+    setSidePanelsOpen((prev) => {
+      const next = !prev;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('flow-side-panels-open', next ? '1' : '0');
       }
       return next;
     });
@@ -424,7 +521,9 @@ export function FlowOrganizeView({
         <FlowOverflowMenu
           onClear={clearChain}
           onToggleDone={onToggleShowDone}
+          onTogglePanels={toggleSidePanels}
           onToggleTriggerBuilder={() => setShowTimeTriggerBuilder((v) => !v)}
+          sidePanelsOpen={sidePanelsOpen}
           showDone={showDone}
           triggerBuilderOpen={showTimeTriggerBuilder}
           hasChain={hasChain}
@@ -441,7 +540,8 @@ export function FlowOrganizeView({
         {/* ── DESKTOP LAYOUT ──────────────────────────────────────────── */}
 
         {/* Left: Pool */}
-        <aside className="hidden lg:flex w-[280px] shrink-0 flex-col border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] overflow-hidden">
+        {sidePanelsOpen ? (
+        <aside className="hidden xl:flex w-[280px] shrink-0 flex-col border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] overflow-hidden">
           <div className="px-5 pt-5 pb-3 shrink-0 border-b border-[var(--color-border-subtle)]/50">
             <p className="font-display text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-0.5">Pool</p>
             <p className="font-display text-[15px] font-bold text-[var(--color-text-primary)] leading-tight">Ready to chain</p>
@@ -465,36 +565,51 @@ export function FlowOrganizeView({
               <div className="flex flex-col gap-1.5 overflow-y-auto px-3 py-3 scroll-contain" style={{ maxHeight: 'calc(100vh - 180px)' }}>
                 {visiblePoolBullets.map((bullet) => (
                   <TimeTriggerWrapper key={bullet.id} bullet={bullet} justCompleted={justCompleted.has(bullet.id)}>
-                    <button
-                      type="button"
-                      className="group w-full text-left rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-2.5 transition-all duration-150 hover:bg-[var(--color-bg-soft)] hover:border-[var(--color-border-subtle)]/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-lane-now)]/40"
-                      style={{ borderLeft: `3px solid ${bullet.projectMeta ? `var(--project-${bullet.projectMeta.color})` : 'var(--color-border-subtle)'}` }}
-                      onClick={() => onUpdateOrganization(insertFlowBulletIntoGlobalOrder(organization, bullet.id, board.orderedBullets.length))}
-                      aria-label={`Pull "${bullet.text}" into chain`}
-                    >
-                      <div className="flex items-start gap-2">
-                        <p className="font-body text-[12.5px] text-[var(--color-text-primary)] leading-[1.4] flex-1 min-w-0">{bullet.text}</p>
-                        <Plus className="h-3.5 w-3.5 shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity mt-0.5" aria-hidden />
-                      </div>
-                      {bullet.projectMeta && (
-                        <div className="mt-1.5">
-                          <ProjectPill bullet={bullet} size="xs" />
+                    <SortableFlowItem id={bullet.id}>
+                      {({ attributes, listeners }) => (
+                        <div
+                          className="group flex items-start gap-1.5 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2 py-2 transition-all duration-150 hover:bg-[var(--color-bg-soft)] hover:border-[var(--color-border-subtle)]/80"
+                          style={{ borderLeft: `3px solid ${bullet.projectMeta ? `var(--project-${bullet.projectMeta.color})` : 'var(--color-border-subtle)'}` }}
+                        >
+                          <DragGrip attributes={attributes} listeners={listeners} label={`Drag ${bullet.text}`} />
+                          <button
+                            type="button"
+                            className="min-w-0 flex-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-lane-now)]/40"
+                            onClick={() => onUpdateOrganization(insertFlowBulletIntoGlobalOrder(organization, bullet.id, board.orderedBullets.length))}
+                            aria-label={`Pull "${bullet.text}" into chain`}
+                          >
+                            <div className="flex items-start gap-2">
+                              <p className="font-body text-[12.5px] text-[var(--color-text-primary)] leading-[1.4] flex-1 min-w-0">{bullet.text}</p>
+                              <Plus className="h-3.5 w-3.5 shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity mt-0.5" aria-hidden />
+                            </div>
+                            {bullet.projectMeta && (
+                              <div className="mt-1.5">
+                                <ProjectPill bullet={bullet} size="xs" />
+                              </div>
+                            )}
+                          </button>
                         </div>
                       )}
-                    </button>
+                    </SortableFlowItem>
                   </TimeTriggerWrapper>
                 ))}
               </div>
             </SortableContext>
           </FlowDropZone>
         </aside>
+        ) : null}
 
         {/* Center: Flow chain */}
         <div className="hidden lg:flex flex-1 min-w-0 flex-col overflow-hidden">
           {/* Progress bar */}
           {chainTotal > 0 && (
             <div className="shrink-0 px-6 pt-4 pb-0">
-              <FlowDesktopProgress completed={chainDone} total={chainTotal} />
+              <FlowDesktopProgress
+                completed={chainDone}
+                total={chainTotal}
+                sidePanelsOpen={sidePanelsOpen}
+                onTogglePanels={toggleSidePanels}
+              />
             </div>
           )}
 
@@ -538,9 +653,7 @@ export function FlowOrganizeView({
                   showDone={showDone}
                   updateBullet={updateBullet}
                   sendToPool={sendToPool}
-                  onOpenList={onOpenList}
                   onOpenBento={onOpenBento}
-                  onViewProjectInBento={onViewProjectInBento}
                 />
               </div>
             </SortableContext>
@@ -548,9 +661,11 @@ export function FlowOrganizeView({
         </div>
 
         {/* Right: Session */}
-        <aside className="flow-session-rail hidden lg:flex w-[240px] shrink-0 flex-col border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] overflow-y-auto px-4 py-5 gap-3 scroll-contain">
+        {sidePanelsOpen ? (
+        <aside className="flow-session-rail hidden xl:flex w-[240px] shrink-0 flex-col border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] overflow-y-auto px-4 py-5 gap-3 scroll-contain">
           <DesktopSessionPanel board={board} showDone={showDone} />
         </aside>
+        ) : null}
 
         {/* Drag overlay */}
         <DragOverlay>
@@ -584,7 +699,6 @@ export function FlowOrganizeView({
         justCompleted={justCompleted}
         onOpenList={onOpenList}
         onOpenBento={onOpenBento}
-        onViewProjectInBento={onViewProjectInBento}
       />
     </div>
   );
@@ -592,13 +706,34 @@ export function FlowOrganizeView({
 
 // ── Desktop: progress bar ────────────────────────────────────────────────────
 
-function FlowDesktopProgress({ completed, total }: { completed: number; total: number }) {
+function FlowDesktopProgress({
+  completed,
+  total,
+  sidePanelsOpen,
+  onTogglePanels,
+}: {
+  completed: number;
+  total: number;
+  sidePanelsOpen: boolean;
+  onTogglePanels: () => void;
+}) {
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
   return (
     <div className="flex items-center gap-3">
       <span className="font-display text-[11px] font-bold text-[var(--color-text-muted)] tabular-nums">
         {completed}<span className="opacity-50">/{total}</span>
       </span>
+      <button
+        type="button"
+        onClick={onTogglePanels}
+        className="flow-panel-toggle"
+        aria-pressed={!sidePanelsOpen}
+        aria-label={sidePanelsOpen ? 'Hide side panels' : 'Show side panels'}
+        title={sidePanelsOpen ? 'Focus mode' : 'Show panels'}
+      >
+        {sidePanelsOpen ? <PanelLeftClose className="h-3.5 w-3.5" /> : <PanelLeftOpen className="h-3.5 w-3.5" />}
+        <span>{sidePanelsOpen ? 'Focus' : 'Panels'}</span>
+      </button>
       <div className="flex-1 h-[3px] rounded-full overflow-hidden bg-[var(--color-border-subtle)]">
         <div
           className="h-full rounded-full transition-all duration-500 ease-out"
@@ -623,18 +758,14 @@ function DesktopChain({
   showDone,
   updateBullet,
   sendToPool,
-  onOpenList,
   onOpenBento,
-  onViewProjectInBento,
 }: {
   visibleOrderedBullets: ThoughtBullet[];
   justCompleted: Set<string>;
   showDone: boolean;
   updateBullet: (id: string, updates: Partial<ThoughtBullet>) => void;
   sendToPool: (id: string) => void;
-  onOpenList?: () => void;
   onOpenBento?: () => void;
-  onViewProjectInBento?: (projectId: string) => void;
 }) {
   const activeBullet = visibleOrderedBullets.find((b) => b.lane !== 'done');
   const activeIndex = activeBullet ? visibleOrderedBullets.indexOf(activeBullet) : -1;
@@ -644,12 +775,14 @@ function DesktopChain({
   const doneBulletsVisible = visibleOrderedBullets.filter((b) => b.lane === 'done');
 
   return (
-    <div className="flex flex-col gap-5 max-w-[580px] mx-auto w-full">
+    <div className="flex flex-col gap-4 max-w-[640px] mx-auto w-full">
       {/* Live Now */}
       {activeBullet && (
         <TimeTriggerWrapper bullet={activeBullet} justCompleted={justCompleted.has(activeBullet.id)}>
+          <SortableFlowItem id={activeBullet.id}>
+            {({ attributes, listeners }) => (
           <div
-            className="rounded-[22px] p-7"
+            className="flow-live-now-card rounded-[18px] p-5"
             style={{
               background: 'radial-gradient(140% 130% at 0% 0%, var(--color-live-now-glow) 0%, transparent 55%), var(--color-bg-surface)',
               border: '1.5px solid var(--color-lane-now-border)',
@@ -657,67 +790,52 @@ function DesktopChain({
             }}
           >
             {/* Header row */}
-            <div className="flex items-center gap-2 mb-5">
-              <span
-                className="h-2 w-2 rounded-full bg-[var(--color-lane-now)] shrink-0"
-                style={{ boxShadow: '0 0 10px var(--color-lane-now-glow)' }}
-              />
-              <span className="font-display text-[9px] font-extrabold uppercase tracking-[0.25em] text-[var(--color-lane-now)]">
+            <div className="flex items-center gap-2 mb-4">
+              <DragGrip attributes={attributes} listeners={listeners} label={`Drag ${activeBullet.text}`} />
+              <span className="flow-live-now-dot h-2 w-2 rounded-full bg-[var(--color-lane-now)] shrink-0" />
+              <span className="font-display text-[9px] font-extrabold uppercase tracking-[0.2em] text-[var(--color-lane-now)]">
                 Live Now
               </span>
               {activeBullet.projectMeta && (
                 <div className="ml-auto">
-                  <ProjectPill bullet={activeBullet} />
+                  <ProjectPill bullet={activeBullet} size="xs" emphasis="strong" />
                 </div>
               )}
             </div>
 
-            <div className="flex items-end justify-between gap-4">
-              <p className="font-display text-[28px] font-bold text-[var(--color-text-primary)] leading-[1.2]">
+            <div className="flex items-start justify-between gap-4">
+              <p className="min-w-0 flex-1 font-body text-[27px] font-semibold tracking-normal text-[var(--color-text-primary)] leading-[1.16]">
                 {activeBullet.text}
               </p>
-              <div className="flex items-center gap-2 shrink-0 pb-0.5">
+              <div className="flow-live-now-actions flex items-center gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => updateBullet(activeBullet.id, { lane: 'done' })}
                   aria-label="Mark done"
-                  className="flex items-center gap-1.5 rounded-[9px] px-3 py-1.5 font-display text-[12px] font-semibold transition-all hover:opacity-90 active:scale-[0.97]"
+                  title="Mark done"
+                  className="flow-primary-action flow-done-icon-action flex items-center justify-center rounded-[9px] p-2 font-display text-[12px] font-semibold transition-all hover:opacity-90 active:scale-[0.97]"
                   style={{
                     background: 'color-mix(in srgb, var(--color-lane-later) 18%, var(--color-bg-elevated))',
                     border: '1px solid color-mix(in srgb, var(--color-lane-later) 35%, transparent)',
                     color: 'var(--color-lane-later)',
                   }}
                 >
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  Mark done
-                  <kbd className="font-mono text-[10px] opacity-50 ml-0.5 font-normal">X</kbd>
+                  <CheckCircle2 className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
                   onClick={() => sendToPool(activeBullet.id)}
-                  className="flex items-center gap-1.5 rounded-[9px] border border-[var(--color-border-subtle)] bg-transparent px-3 py-1.5 font-display text-[12px] font-semibold text-[var(--color-text-muted)] transition-all hover:text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] active:scale-[0.97]"
+                  className="flow-icon-action rounded-[9px] border border-[var(--color-border-subtle)] bg-transparent p-2 text-[var(--color-text-muted)] transition-all hover:text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] active:scale-[0.97]"
+                  aria-label="Push later"
+                  title="Push later"
                 >
                   <ArrowDown className="h-3.5 w-3.5" />
-                  Push later
-                  <kbd className="font-mono text-[10px] opacity-50 ml-0.5 font-normal">N</kbd>
                 </button>
               </div>
             </div>
-            <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[var(--color-border-subtle)]/70 pt-4">
-              {onOpenList ? (
-                <button type="button" onClick={onOpenList} className="flow-secondary-action">
-                  <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-                  Exit to List
-                </button>
-              ) : null}
-              {activeBullet.project && onViewProjectInBento ? (
-                <button type="button" onClick={() => onViewProjectInBento(activeBullet.project!)} className="flow-secondary-action">
-                  <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
-                  View project in Bento
-                </button>
-              ) : null}
-            </div>
           </div>
+            )}
+          </SortableFlowItem>
         </TimeTriggerWrapper>
       )}
 
@@ -742,18 +860,21 @@ function DesktopChain({
               <div key={bullet.id} className="flex items-stretch gap-3">
                 <ChainNodeIndicator position={i + 2} isNext={i === 0} />
                 <TimeTriggerWrapper bullet={bullet} justCompleted={justCompleted.has(bullet.id)}>
-                  <div
-                    className="flex-1 rounded-[12px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-4 py-3 transition-colors"
-                    style={{
-                      borderLeft: `3px solid ${bullet.projectMeta ? `var(--project-${bullet.projectMeta.color})` : 'var(--color-border-subtle)'}`,
-                      opacity: Math.max(0.5, 1 - i * 0.1),
-                    }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <p className="font-body text-[14px] text-[var(--color-text-primary)] flex-1 min-w-0">{bullet.text}</p>
-                      {bullet.projectMeta && <ProjectPill bullet={bullet} size="xs" />}
-                    </div>
-                  </div>
+                  <SortableFlowItem id={bullet.id} className="flex-1">
+                    {({ attributes, listeners }) => (
+                      <div
+                        className="flex items-center gap-2 rounded-[12px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-3 py-3 transition-colors"
+                        style={{
+                          borderLeft: `3px solid ${bullet.projectMeta ? `var(--project-${bullet.projectMeta.color})` : 'var(--color-border-subtle)'}`,
+                          opacity: Math.max(0.5, 1 - i * 0.1),
+                        }}
+                      >
+                        <DragGrip attributes={attributes} listeners={listeners} label={`Drag ${bullet.text}`} />
+                        <p className="font-body text-[14px] text-[var(--color-text-primary)] flex-1 min-w-0">{bullet.text}</p>
+                        {bullet.projectMeta && <ProjectPill bullet={bullet} size="xs" />}
+                      </div>
+                    )}
+                  </SortableFlowItem>
                 </TimeTriggerWrapper>
               </div>
             ))}
@@ -787,9 +908,6 @@ function DesktopSessionPanel({ board, showDone }: { board: FlowBoard; showDone: 
   const total = board.orderedBullets.length;
   const done = board.doneBullets.length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  const deg = total > 0 ? (done / total) * 360 : 0;
-  const r = 46;
-  const circ = 2 * Math.PI * r;
 
   const stats = [
     { label: 'In chain', value: board.orderedBullets.filter((b) => b.lane !== 'done').length, color: 'var(--color-lane-now)' },
@@ -802,36 +920,28 @@ function DesktopSessionPanel({ board, showDone }: { board: FlowBoard; showDone: 
     <>
       <p className="flow-session-title font-display text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Session</p>
 
-      {/* Progress ring */}
-      <div className="flow-session-progress rounded-[14px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-4 flex flex-col items-center gap-3">
-        <div className="flow-session-ring relative flex items-center justify-center">
-          <svg width="108" height="108" className="absolute inset-0" style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx="54" cy="54" r={r} fill="none" stroke="var(--color-border-subtle)" strokeWidth="7" />
-            <circle
-              cx="54" cy="54" r={r} fill="none"
-              stroke="var(--color-lane-later)"
-              strokeWidth="7"
-              strokeDasharray={`${(deg / 360) * circ} ${circ}`}
-              strokeLinecap="round"
-              style={{ transition: 'stroke-dasharray 0.5s ease' }}
-            />
-          </svg>
-          <div className="relative flex flex-col items-center">
-            <span className="flow-session-ring-value font-display text-[24px] font-bold text-[var(--color-text-primary)] leading-none">{done}</span>
-            <span className="flow-session-ring-total font-display text-[9px] font-bold uppercase tracking-[0.1em] text-[var(--color-text-muted)]">of {total}</span>
-          </div>
+      <div className="flow-session-progress rounded-[12px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-3 py-2.5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-body text-[12px] font-semibold text-[var(--color-text-secondary)]">
+            <span className="tabular-nums text-[var(--color-text-primary)]">{done}/{total}</span>
+            <span className="ml-1 text-[var(--color-text-muted)]">complete</span>
+          </p>
+          <p className="font-body text-[12px] font-semibold tabular-nums text-[var(--color-lane-later)]">{pct}%</p>
         </div>
-        <p className="flow-session-progress-copy font-body text-[11px] text-[var(--color-text-muted)] text-center">
-          {pct}% through the chain
-        </p>
+        <div className="mt-2 h-1 overflow-hidden rounded-full bg-[var(--color-border-subtle)]">
+          <div
+            className="h-full rounded-full bg-[var(--color-lane-later)] transition-all duration-500"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
       </div>
 
       {/* Stats */}
-      <div className="flow-session-stats grid grid-cols-2 gap-1.5">
+      <div className="flow-session-stats flex flex-col gap-1.5">
         {stats.map(({ label, value, color }) => (
-          <div key={label} className="flow-session-stat rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-3 py-2.5">
-            <p className="flow-session-stat-value font-display text-[18px] font-bold leading-none mb-0.5" style={{ color }}>{value}</p>
+          <div key={label} className="flow-session-stat flex items-baseline justify-between gap-3 rounded-[10px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-3 py-2.5">
             <p className="flow-session-stat-label font-display text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">{label}</p>
+            <p className="flow-session-stat-value font-display text-[18px] font-bold leading-none mb-0.5" style={{ color }}>{value}</p>
           </div>
         ))}
       </div>
@@ -877,7 +987,6 @@ function FlowMobileCockpit({
   justCompleted,
   onOpenList,
   onOpenBento,
-  onViewProjectInBento,
 }: {
   board: FlowBoard;
   visibleOrderedBullets: ThoughtBullet[];
@@ -891,7 +1000,6 @@ function FlowMobileCockpit({
   justCompleted: Set<string>;
   onOpenList?: () => void;
   onOpenBento?: () => void;
-  onViewProjectInBento?: (projectId: string) => void;
 }) {
   const [showTray, setShowTray] = useState(false);
 
@@ -979,7 +1087,7 @@ function FlowMobileCockpit({
               </div>
 
               <div className="flex items-end justify-between gap-3">
-                <p className="font-display text-[22px] font-bold text-[var(--color-text-primary)] leading-[1.2]">
+                <p className="font-body text-[25px] font-semibold tracking-normal text-[var(--color-text-primary)] leading-[1.14]">
                   {activeBullet.text}
                 </p>
                 <div className="flex items-center gap-2 shrink-0 pb-0.5">
@@ -1006,20 +1114,6 @@ function FlowMobileCockpit({
                     Push later
                   </button>
                 </div>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2 border-t border-[var(--color-border-subtle)]/70 pt-3">
-                {onOpenList ? (
-                  <button type="button" onClick={onOpenList} className="flow-secondary-action">
-                    <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
-                    Exit to List
-                  </button>
-                ) : null}
-                {activeBullet.project && onViewProjectInBento ? (
-                  <button type="button" onClick={() => onViewProjectInBento(activeBullet.project!)} className="flow-secondary-action">
-                    <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
-                    View project in Bento
-                  </button>
-                ) : null}
               </div>
             </div>
           </TimeTriggerWrapper>

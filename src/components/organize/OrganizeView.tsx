@@ -145,6 +145,7 @@ export function OrganizeView() {
       : lastSyncedAt
         ? `Synced ${lastSyncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
         : 'Synced';
+  const compactHeaderActions = viewMode === 'list' || viewMode === 'flow';
 
   return (
     <div className="organize-clean-shell mx-auto flex min-h-screen w-full max-w-[88rem] lg:max-w-[104rem] 2xl:max-w-[120rem] flex-col">
@@ -284,9 +285,11 @@ export function OrganizeView() {
 
           <div className="flex-1" />
 
-          <p className="organize-mode-helper" aria-live="polite">
-            {activeViewMeta.helper}
-          </p>
+          {!compactHeaderActions ? (
+            <p className="organize-mode-helper" aria-live="polite">
+              {activeViewMeta.helper}
+            </p>
+          ) : null}
 
           {/* Right: ⌘K pill, sync dot, inbox toggle */}
           <div className="flex items-center gap-2 shrink-0">
@@ -294,23 +297,19 @@ export function OrganizeView() {
               type="button"
               onClick={() => setCmdOpen(true)}
               aria-label="Open command palette (⌘K)"
-              className="organize-header-search organize-header-action flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
+              className={[
+                'organize-header-search organize-header-action flex items-center gap-2 rounded-lg text-[12px] transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
+                compactHeaderActions ? 'h-9 w-9 justify-center px-0 py-0' : 'px-3 py-1.5',
+              ].join(' ')}
             >
               <Search size={14} strokeWidth={1.8} aria-hidden />
-              <span className="min-w-[8rem] text-left text-[var(--color-text-muted)]">Search bullets...</span>
-              <kbd className="font-mono text-[10px] text-[var(--color-text-muted)] bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded px-1 py-px">⌘ K</kbd>
+              {!compactHeaderActions ? (
+                <>
+                  <span className="min-w-[8rem] text-left text-[var(--color-text-muted)]">Search bullets...</span>
+                  <kbd className="font-mono text-[10px] text-[var(--color-text-muted)] bg-[var(--color-bg-surface)] border border-[var(--color-border-subtle)] rounded px-1 py-px">⌘ K</kbd>
+                </>
+              ) : null}
             </button>
-
-            <span
-              className="organize-sync-status"
-              title={syncLabel}
-              aria-label={syncLabel}
-            >
-              <span
-                className={`organize-sync-dot ${saveError ? 'is-error' : isSaving ? 'is-saving' : 'is-synced'}`}
-              />
-              <span className="organize-sync-label" aria-hidden>{syncLabel}</span>
-            </span>
 
             <button
               type="button"
@@ -318,14 +317,15 @@ export function OrganizeView() {
               aria-label={`Inbox (${inboxCount} items)`}
               aria-pressed={inboxOpen}
               className={[
-                'relative flex h-9 items-center justify-center gap-1.5 rounded-lg border px-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
+                'relative flex h-9 items-center justify-center gap-1.5 rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40',
+                compactHeaderActions ? 'w-9 px-0' : 'px-3',
                 inboxOpen
                   ? 'border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
                   : 'organize-header-action text-[var(--color-text-muted)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-text-primary)]',
               ].join(' ')}
             >
               <Inbox size={16} strokeWidth={1.75} aria-hidden />
-              <span className="text-[12px] font-semibold">Inbox</span>
+              {!compactHeaderActions ? <span className="text-[12px] font-semibold">Inbox</span> : null}
               {inboxCount > 0 && (
                 <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-primary)] px-1 text-[9px] font-bold font-mono text-[var(--color-bg-base)]">
                   {inboxCount > 9 ? '9+' : inboxCount}
@@ -338,6 +338,17 @@ export function OrganizeView() {
               className="organize-toolbar-actions"
               aria-label={`${viewMode} view actions`}
             />
+
+            <span
+              className={compactHeaderActions ? 'organize-sync-status organize-sync-status-compact' : 'organize-sync-status'}
+              title={syncLabel}
+              aria-label={syncLabel}
+            >
+              <span
+                className={`organize-sync-dot ${saveError ? 'is-error' : isSaving ? 'is-saving' : 'is-synced'}`}
+              />
+              <span className="organize-sync-label" aria-hidden>{syncLabel}</span>
+            </span>
           </div>
         </div>
       </header>
@@ -373,7 +384,6 @@ export function OrganizeView() {
               onToggleShowDone={() => setShowDone(!showDone)}
               onOpenList={() => handleViewModeChange('list')}
               onOpenBento={() => handleViewModeChange('bento')}
-              onViewProjectInBento={viewProjectInBento}
             />
           )}
         </div>
