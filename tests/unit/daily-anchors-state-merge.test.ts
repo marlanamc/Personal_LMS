@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildUniformWeeklySchedule,
   mergeDailyAnchorStateWithTemplates,
+  resolveAnchorStatuses,
   type DailyAnchorState,
   type DailyAnchorTemplate,
 } from "@/lib/anchors";
@@ -112,5 +113,51 @@ describe("mergeDailyAnchorStateWithTemplates", () => {
     expect(mergeDailyAnchorStateWithTemplates(state, templates).anchors).toEqual([
       expect.objectContaining({ id: "wake" }),
     ]);
+  });
+});
+
+describe("resolveAnchorStatuses", () => {
+  it("keeps a ranged anchor waiting while its time window is in progress", () => {
+    const state: DailyAnchorState = {
+      date: "2026-03-12",
+      sleepRhythmDayComplete: false,
+      anchors: [
+        {
+          id: "class",
+          label: "Class",
+          icon: "book-open",
+          weeklySchedule: buildUniformWeeklySchedule("17:00", "18:30"),
+          scheduledTime: "17:00",
+          endTime: "18:30",
+          status: "missed",
+        },
+      ],
+    };
+
+    const resolved = resolveAnchorStatuses(state, new Date(2026, 2, 12, 17, 45));
+
+    expect(resolved[0].status).toBe("waiting");
+  });
+
+  it("marks a ranged anchor missed after its end-time grace period", () => {
+    const state: DailyAnchorState = {
+      date: "2026-03-12",
+      sleepRhythmDayComplete: false,
+      anchors: [
+        {
+          id: "class",
+          label: "Class",
+          icon: "book-open",
+          weeklySchedule: buildUniformWeeklySchedule("17:00", "18:30"),
+          scheduledTime: "17:00",
+          endTime: "18:30",
+          status: "waiting",
+        },
+      ],
+    };
+
+    const resolved = resolveAnchorStatuses(state, new Date(2026, 2, 12, 18, 46));
+
+    expect(resolved[0].status).toBe("missed");
   });
 });

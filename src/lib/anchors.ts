@@ -907,8 +907,10 @@ export function resolveAnchorStatuses(state: DailyAnchorState, now: Date): Daily
     if (anchor.status === 'done' || anchor.status === 'skipped') return anchor;
 
     const scheduledMinutes = parseHHMMToMinutes(anchor.scheduledTime);
+    const endMinutes = anchor.endTime ? parseHHMMToMinutes(anchor.endTime) : null;
+    const missedAfterMinutes = endMinutes !== null && endMinutes > scheduledMinutes ? endMinutes : scheduledMinutes;
     if (isPastDay) return { ...anchor, status: 'missed' };
-    if (state.date === todayKey && nowMinutes > scheduledMinutes + 15) {
+    if (state.date === todayKey && nowMinutes > missedAfterMinutes + 15) {
       return { ...anchor, status: 'missed' };
     }
     return { ...anchor, status: 'waiting' };

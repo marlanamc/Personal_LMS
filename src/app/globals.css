@@ -14554,12 +14554,15 @@ kbd {
   bottom: 0;
   z-index: 30;
   display: flex;
-  width: clamp(13.75rem, 14.5vw, 15.5rem);
+  width: clamp(17rem, 18vw, 19.5rem);
   flex-direction: column;
   overflow-y: auto;
+  background: color-mix(in srgb, var(--app-surface) 92%, var(--app-surface-glass));
   box-shadow:
-    -18px 0 42px rgba(1, 7, 18, 0.18),
+    -18px 0 46px rgba(1, 7, 18, 0.24),
     inset 1px 0 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
 }
 
 .organize-command-right-rail {

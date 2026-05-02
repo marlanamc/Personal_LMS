@@ -189,6 +189,14 @@ function formatRiverInLabel(timeStr: string, nowMinutes: number | null): string 
   return raw;
 }
 
+function isRangeAnchorInProgress(anchor: DailyAnchor, nowMinutes: number | null, isToday: boolean): boolean {
+  if (!isToday || nowMinutes === null || !anchor.endTime) return false;
+  if (anchor.status === 'done' || anchor.status === 'skipped') return false;
+  const startMinutes = parseHHMMToMinutes(anchor.scheduledTime);
+  const endMinutes = parseHHMMToMinutes(anchor.endTime);
+  return endMinutes > startMinutes && nowMinutes >= startMinutes && nowMinutes < endMinutes;
+}
+
 /** Matches desktop anchor hover bubble (range + point): tight padding, elevated glass, bottom caret. */
 function RiverOverlayHoverCard({
   title,
@@ -1221,6 +1229,8 @@ export function DailyAnchorsTimeline({
                 const isMissed = anchor.status === 'missed';
                 const isSkipped = anchor.status === 'skipped';
                 const isRange = Boolean(anchor.endTime && parseHHMMToMinutes(anchor.endTime) > parseHHMMToMinutes(anchor.scheduledTime));
+                const isInProgress = isRangeAnchorInProgress(anchor, nowMinutes, isToday);
+                const isVisuallyMissed = isMissed && !isInProgress;
 
                 const displayTime = isDragging && dragPreviewTime ? dragPreviewTime : anchor.scheduledTime;
                 const position = getTimePosition(displayTime);
@@ -1240,11 +1250,11 @@ export function DailyAnchorsTimeline({
                     : null;
                 const stateClass = isDone
                   ? 'is-done'
-                  : isMissed
+                  : isVisuallyMissed
                     ? 'is-missed'
                     : isSkipped
                       ? 'is-skipped'
-                    : isActive
+                    : isActive || isInProgress
                       ? 'is-active'
                       : 'is-future';
 
@@ -1260,7 +1270,7 @@ export function DailyAnchorsTimeline({
                     backdrop-blur-sm
                     ${isDone
                       ? 'bg-secondary/90 text-white border-secondary/50'
-                      : isMissed
+                      : isVisuallyMissed
                         ? 'bg-bg-surface/45 text-text-muted/40 border-border-subtle/50'
                         : isSkipped
                           ? 'bg-bg-surface/35 text-text-muted/45 border-border-subtle/45 grayscale'
@@ -1296,8 +1306,8 @@ export function DailyAnchorsTimeline({
                             : formatTimeRange(displayTime, anchor.endTime!, true)}
                         </div>
                         {!isDragging && (
-                          <div className={`text-[10px] whitespace-nowrap ${isDone ? 'text-secondary' : isMissed ? 'text-error/70' : isSkipped ? 'text-text-muted/70' : 'text-text-muted'}`}>
-                            {isDone ? 'Completed' : isMissed ? 'Missed' : isSkipped ? 'Skipped' : `In: ${inLabel}`}
+                          <div className={`text-[10px] whitespace-nowrap ${isDone ? 'text-secondary' : isVisuallyMissed ? 'text-error/70' : isSkipped ? 'text-text-muted/70' : 'text-text-muted'}`}>
+                            {isDone ? 'Completed' : isInProgress ? 'In progress' : isVisuallyMissed ? 'Missed' : isSkipped ? 'Skipped' : `In: ${inLabel}`}
                           </div>
                         )}
                         {isDragging && <div className="text-[10px] text-primary whitespace-nowrap">Release to set</div>}
@@ -1329,7 +1339,7 @@ export function DailyAnchorsTimeline({
                           ${isDragging ? 'ring-2 ring-accent-teal/35 shadow-lg' : ''}
                           ${isDone
                             ? 'bg-secondary/20 border-secondary/40'
-                            : isMissed
+                            : isVisuallyMissed
                               ? 'bg-bg-surface/30 border-border-subtle/40'
                               : isSkipped
                                 ? 'bg-bg-surface/25 border-border-subtle/40'
@@ -1353,16 +1363,16 @@ export function DailyAnchorsTimeline({
                           opacity-85 hover:opacity-100
                           hover:scale-105 active:scale-95
                           disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
-                          ${!isDone && !isMissed && !isSkipped ? 'border-primary/30 text-text backdrop-blur-sm' : ''}
+                          ${!isDone && !isVisuallyMissed && !isSkipped ? 'border-primary/30 text-text backdrop-blur-sm' : ''}
                           ${isDragging ? 'scale-110 shadow-xl ring-2 ring-accent-teal/35' : ''}
                         `}
                         style={
-                          !isDone && !isMissed && !isSkipped
+                          !isDone && !isVisuallyMissed && !isSkipped
                             ? { ['--node-glow' as string]: getRiverFlowGradient(anchor.icon).glow }
                             : undefined
                         }
                       >
-                        {!isDone && !isMissed && !isSkipped && (
+                        {!isDone && !isVisuallyMissed && !isSkipped && (
                           <div className={`absolute inset-0 bg-gradient-to-br ${getRiverFlowGradient(anchor.icon).from} ${getRiverFlowGradient(anchor.icon).to} opacity-30`} aria-hidden />
                         )}
                         <span className="relative z-10">
@@ -1373,14 +1383,14 @@ export function DailyAnchorsTimeline({
                         className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 ${orbBaseClass} pointer-events-none opacity-90`}
                         aria-hidden
                       >
-                        {!isDone && !isMissed && !isSkipped && (
+                        {!isDone && !isVisuallyMissed && !isSkipped && (
                           <div className={`absolute inset-0 bg-gradient-to-br ${getRiverFlowGradient(anchor.icon).from} ${getRiverFlowGradient(anchor.icon).to} opacity-30`} aria-hidden />
                         )}
                         <span className="relative z-10">
                           <Icon size={20} strokeWidth={1.7} />
                         </span>
                       </div>
-                      <span className={`absolute left-1/2 -translate-x-1/2 top-full mt-1.5 text-[10px] font-semibold whitespace-nowrap ${isActive ? 'text-text' : 'text-text-muted/70'}`}>
+                      <span className={`absolute left-1/2 -translate-x-1/2 top-full mt-1.5 text-[10px] font-semibold whitespace-nowrap ${isActive || isInProgress ? 'text-text' : 'text-text-muted/70'}`}>
                         {anchor.label}
                       </span>
                     </div>
