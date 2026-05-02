@@ -213,7 +213,7 @@
   --z-fixed: 100;
 
   /* Layout */
-  --bottom-nav-height: 56px;
+  --bottom-nav-height: 52px;
   --header-height-mobile: 44px;
   --header-height-desktop: 72px;
   --rail-width-collapsed: 56px;
@@ -2082,9 +2082,9 @@ textarea {
   left: 50%;
   transform: translateX(-50%);
   bottom: max(8px, env(safe-area-inset-bottom));
-  width: min(22rem, calc(100% - 1.25rem));
+  width: min(21.5rem, calc(100% - 1.5rem));
   height: var(--bottom-nav-height);
-  padding: 0.24rem;
+  padding: 0.2rem;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--app-border) 86%, transparent);
   background:
@@ -2112,11 +2112,11 @@ textarea {
 
 :root[data-theme="light"] .bottom-nav-item.is-active,
 :root.light .bottom-nav-item.is-active {
-  background: rgba(255, 246, 239, 0.95);
+  background: rgba(255, 246, 239, 0.9);
   color: var(--color-accent-coral) !important;
-  border: 1px solid rgba(207, 115, 95, 0.25);
+  border: 1px solid rgba(207, 115, 95, 0.22);
   box-shadow:
-    0 8px 25px rgba(207, 115, 95, 0.15),
+    0 5px 16px rgba(207, 115, 95, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
@@ -2136,7 +2136,7 @@ textarea {
     color-mix(in srgb, var(--app-surface-soft) 78%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent-primary) 46%, transparent);
   box-shadow:
-    0 8px 24px color-mix(in srgb, var(--accent-primary) 18%, transparent),
+    0 5px 16px color-mix(in srgb, var(--accent-primary) 14%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
@@ -10400,8 +10400,23 @@ kbd {
 
 /* Mobile list: slightly deeper canvas + inset NOW card (matches prototype) */
 @media (max-width: 1023px) {
+  .dashboard-content-organize .organize-clean-shell {
+    height: calc(100svh - 61px - var(--bottom-nav-height, 52px) - max(8px, env(safe-area-inset-bottom)) - 8px);
+    min-height: auto;
+  }
+
   .organize-clean-shell {
     background: color-mix(in srgb, var(--color-bg-base) 94%, #000 6%);
+  }
+
+  .organize-chrome-header {
+    min-height: 4.75rem;
+    padding-block: 0.8rem !important;
+  }
+
+  .organize-chrome-header h1 {
+    font-size: 1.45rem !important;
+    letter-spacing: -0.01em !important;
   }
 }
 
@@ -11542,7 +11557,7 @@ kbd {
 
 /* Mobile toggle — full-width track, tall pill, prototype style */
 .organize-view-toggle-mobile {
-  min-height: 2.55rem;
+  min-height: 2.32rem;
   border-color: color-mix(in srgb, var(--app-border) 65%, transparent);
   background: color-mix(in srgb, var(--app-surface-glass) 50%, rgba(12, 8, 26, 0.65));
   box-shadow:
@@ -11552,10 +11567,10 @@ kbd {
 }
 
 .organize-view-toggle-mobile-btn {
-  min-height: 2.1rem;
+  min-height: 1.9rem;
   font-size: 0.8rem;
   letter-spacing: 0.005em;
-  padding-inline: 0.5rem;
+  padding-inline: 0.46rem;
   padding-block: 0;
 }
 
@@ -11603,8 +11618,8 @@ kbd {
 .organize-mobile-header-action {
   position: relative;
   display: inline-flex;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.28rem;
+  height: 2.28rem;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
@@ -12055,6 +12070,7 @@ kbd {
   overflow-wrap: break-word;
   word-break: normal;
   color: var(--app-text);
+  font-family: var(--font-body);
   font-size: 0.88rem;
   font-weight: 650;
   line-height: 1.34;
@@ -12530,7 +12546,7 @@ kbd {
 }
 
 .organize-view-toggle-mobile-btn {
-  min-height: 2.1rem;
+  min-height: 1.9rem;
   padding-inline: 0.35rem;
 }
 
@@ -12564,7 +12580,7 @@ kbd {
 
 .organize-view-toggle-mobile-subtitle {
   color: color-mix(in srgb, var(--app-text-muted) 82%, var(--app-text-soft));
-  font-size: clamp(0.54rem, 2.35vw, 0.66rem);
+  font-size: 0.62rem;
   font-weight: 650;
   line-height: 1.08;
 }
@@ -13248,13 +13264,6 @@ kbd {
   outline: none;
 }
 
-@media (max-width: 1180px) {
-  .flow-live-now-card .flow-live-now-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
 .flow-session-rail {
   gap: 0.85rem;
 }
@@ -13626,6 +13635,7 @@ kbd {
     display: -webkit-box;
     overflow: hidden;
     color: var(--app-text);
+    font-family: var(--font-body);
     font-size: 0.82rem;
     font-weight: 660;
     line-height: 1.32;
@@ -13763,6 +13773,99 @@ kbd {
 /* ============================================================
  * Flow Mode — redesign polish
  * ============================================================ */
+
+@media (max-width: 1023px) {
+  [data-testid="flow-organize-view"] {
+    min-height: 0;
+  }
+
+  [data-testid="flow-organize-view"] .flow-mobile-progress {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 42%, transparent);
+    background: color-mix(in srgb, var(--color-bg-base) 42%, transparent);
+  }
+
+  [data-testid="flow-organize-view"] .flow-live-now-card {
+    border-radius: 1.12rem !important;
+  }
+
+  [data-testid="flow-organize-view"] .flow-mobile-live-title {
+    font-size: 1.22rem;
+    line-height: 1.28;
+  }
+
+  [data-testid="flow-organize-view"] .flow-mobile-queue-title {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+  }
+
+  [data-testid="flow-organize-view"] .flow-live-now-card p {
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 370px) {
+    [data-testid="flow-organize-view"] .flow-mobile-live-title {
+      font-size: 1.08rem;
+    }
+  }
+
+  [data-testid="flow-organize-view"] .flow-live-now-actions button {
+    width: auto;
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  [data-testid="flow-organize-view"] .flow-live-now-actions .flow-done-icon-action {
+    width: auto;
+    min-width: 0;
+    height: 3rem;
+  }
+
+  [data-testid="flow-organize-view"] .flow-mobile-chain-marker {
+    margin-top: 0.1rem;
+  }
+
+  :where(:root[data-theme="light"], :root.light) [data-testid="flow-organize-view"] .flow-mobile-progress {
+    background: rgba(255, 248, 239, 0.54);
+    border-bottom-color: rgba(70, 55, 45, 0.09);
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Flow task copy uses .organize-command-task-title; undo list-column line-clamp + compact metrics */
+  [data-testid="flow-organize-view"] .flow-desktop-live-title.organize-command-task-title,
+  [data-testid="flow-organize-view"] .flow-desktop-queue-card .organize-command-task-title {
+    display: block;
+    overflow: visible;
+    overflow-wrap: break-word;
+    word-break: normal;
+    -webkit-box-orient: unset;
+    -webkit-line-clamp: unset;
+    color: var(--app-text);
+  }
+
+  [data-testid="flow-organize-view"] .flow-desktop-live-title {
+    font-size: clamp(1.42rem, 1.15vw + 0.92rem, 2.12rem) !important;
+    line-height: 1.12 !important;
+    letter-spacing: -0.015em;
+  }
+
+  [data-testid="flow-organize-view"] .flow-desktop-live-card {
+    min-height: 11.25rem;
+  }
+
+  [data-testid="flow-organize-view"] .flow-desktop-queue-card p {
+    font-size: clamp(1rem, 0.35vw + 0.82rem, 1.22rem) !important;
+  }
+
+  :where(:root[data-theme="light"], :root.light) [data-testid="flow-organize-view"] .flow-desktop-live-card {
+    background: linear-gradient(135deg, rgba(255, 250, 244, 0.94) 0%, rgba(255, 248, 240, 0.88) 100%) !important;
+    border-color: rgba(239, 143, 143, 0.38) !important;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.82) inset,
+      0 18px 46px rgba(194, 114, 94, 0.12),
+      0 34px 80px rgba(158, 132, 112, 0.14) !important;
+  }
+}
 
 /* Live Now card: subtle pulse animation on the dot */
 @keyframes flow-live-pulse {

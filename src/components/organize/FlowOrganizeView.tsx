@@ -724,10 +724,10 @@ function FlowDesktopProgress({
         className="flow-panel-toggle"
         aria-pressed={!sidePanelsOpen}
         aria-label={sidePanelsOpen ? 'Hide side panels' : 'Show side panels'}
-        title={sidePanelsOpen ? 'Focus mode' : 'Show panels'}
+        title={sidePanelsOpen ? 'Hide side panels' : 'Show side panels'}
       >
         {sidePanelsOpen ? <PanelLeftClose className="h-3.5 w-3.5" /> : <PanelLeftOpen className="h-3.5 w-3.5" />}
-        <span>{sidePanelsOpen ? 'Focus' : 'Panels'}</span>
+        <span>{sidePanelsOpen ? 'Hide panels' : 'Show panels'}</span>
       </button>
       <div className="flex-1 h-[3px] rounded-full overflow-hidden bg-[var(--color-border-subtle)]">
         <div
@@ -768,25 +768,35 @@ function DesktopChain({
   const doneBulletsVisible = visibleOrderedBullets.filter((b) => b.lane === 'done');
 
   return (
-    <div className="flex flex-col gap-4 max-w-[640px] mx-auto w-full">
+    <div className="flow-desktop-chain flex flex-col gap-5 max-w-[960px] mx-auto w-full">
       {/* Live Now */}
       {activeBullet && (
         <TimeTriggerWrapper bullet={activeBullet} justCompleted={justCompleted.has(activeBullet.id)}>
           <SortableFlowItem id={activeBullet.id}>
             {({ attributes, listeners }) => (
           <div
-            className="flow-live-now-card rounded-[18px] p-5"
+            {...attributes}
+            {...listeners}
+            className="flow-live-now-card flow-desktop-live-card relative overflow-hidden rounded-[26px] px-10 py-10 pl-12"
             style={{
-              background: 'radial-gradient(140% 130% at 0% 0%, var(--color-live-now-glow) 0%, transparent 55%), var(--color-bg-surface)',
-              border: '1.5px solid var(--color-lane-now-border)',
-              boxShadow: 'var(--color-live-now-shadow)',
+              background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-lane-now) 6%, var(--color-bg-elevated)) 0%, var(--color-bg-elevated) 70%, var(--color-bg-surface) 100%)',
+              border: '1px solid color-mix(in srgb, var(--color-lane-now) 24%, var(--color-border-subtle))',
+              boxShadow: '0 1px 0 rgba(255,255,255,0.76) inset, 0 18px 46px rgba(194,114,94,0.13), 0 34px 80px rgba(158,132,112,0.15)',
             }}
           >
+            {/* Coral accent rail */}
+            <div
+              aria-hidden
+              className="absolute left-0 top-0 bottom-0 w-[6px] rounded-l-[26px]"
+              style={{
+                background: 'linear-gradient(180deg, var(--color-lane-now) 0%, color-mix(in srgb, var(--color-lane-now) 60%, transparent) 100%)',
+              }}
+            />
+
             {/* Header row */}
-            <div className="flex items-center gap-2 mb-4">
-              <DragGrip attributes={attributes} listeners={listeners} label={`Drag ${activeBullet.text}`} />
+            <div className="flex items-center gap-3 mb-9">
               <span className="flow-live-now-dot h-2 w-2 rounded-full bg-[var(--color-lane-now)] shrink-0" />
-              <span className="font-display text-[9px] font-extrabold uppercase tracking-[0.2em] text-[var(--color-lane-now)]">
+              <span className="font-display text-[12px] font-extrabold uppercase tracking-[0.22em] text-[var(--color-lane-now)]">
                 Live Now
               </span>
               {activeBullet.projectMeta && (
@@ -796,33 +806,35 @@ function DesktopChain({
               )}
             </div>
 
-            <div className="flex items-start justify-between gap-4">
-              <p className="min-w-0 flex-1 font-body text-[27px] font-semibold tracking-normal text-[var(--color-text-primary)] leading-[1.16]">
+            <div className="flex items-center justify-between gap-8">
+              <p className="organize-command-task-title flow-desktop-live-title min-w-0 flex-1">
                 {activeBullet.text}
               </p>
-              <div className="flow-live-now-actions flex items-center gap-2 shrink-0">
+              <div className="flow-live-now-actions flex items-center gap-4 shrink-0">
                 <button
                   type="button"
+                  onPointerDown={(e) => e.stopPropagation()}
                   onClick={() => updateBullet(activeBullet.id, { lane: 'done' })}
                   aria-label="Mark done"
                   title="Mark done"
-                  className="flow-primary-action flow-done-icon-action flex items-center justify-center rounded-[9px] p-2 font-display text-[12px] font-semibold transition-all hover:opacity-90 active:scale-[0.97]"
+                  className="flow-primary-action flow-done-icon-action flex h-16 w-16 items-center justify-center rounded-[16px] transition-all hover:opacity-90 active:scale-[0.97]"
                   style={{
                     background: 'color-mix(in srgb, var(--color-lane-later) 18%, var(--color-bg-elevated))',
                     border: '1px solid color-mix(in srgb, var(--color-lane-later) 35%, transparent)',
                     color: 'var(--color-lane-later)',
                   }}
                 >
-                  <CheckCircle2 className="h-4 w-4" />
+                  <CheckCircle2 className="h-6 w-6" />
                 </button>
                 <button
                   type="button"
+                  onPointerDown={(e) => e.stopPropagation()}
                   onClick={() => sendToPool(activeBullet.id)}
-                  className="flow-icon-action rounded-[9px] border border-[var(--color-border-subtle)] bg-transparent p-2 text-[var(--color-text-muted)] transition-all hover:text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] active:scale-[0.97]"
+                  className="flow-icon-action flex h-16 w-16 items-center justify-center rounded-[16px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] text-[var(--color-text-muted)] transition-all hover:text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] active:scale-[0.97]"
                   aria-label="Push later"
                   title="Push later"
                 >
-                  <ArrowDown className="h-3.5 w-3.5" />
+                  <ArrowDown className="h-5 w-5" />
                 </button>
               </div>
             </div>
@@ -840,11 +852,20 @@ function DesktopChain({
 
       {/* Queue */}
       {queuedBullets.length > 0 && (
-        <div>
-          <p className="font-display text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)] mb-3 px-1">
+        <div className="relative">
+          {/* Connecting rail running through node column */}
+          <div
+            aria-hidden
+            className="absolute top-0 bottom-0 w-px"
+            style={{
+              left: '9px',
+              background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-lane-now) 35%, transparent) 0%, var(--color-border-subtle) 18%, var(--color-border-subtle) 100%)',
+            }}
+          />
+          <p className="font-display text-[12px] font-extrabold uppercase tracking-[0.24em] text-[var(--color-text-muted)] mb-4 pl-12">
             Chain — {queuedBullets.length} queued
           </p>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3 relative">
             {queuedBullets.map((bullet, i) => (
               <div key={bullet.id} className="flex items-stretch gap-3">
                 <ChainNodeIndicator position={i + 2} isNext={i === 0} />
@@ -852,15 +873,23 @@ function DesktopChain({
                   <SortableFlowItem id={bullet.id} className="flex-1">
                     {({ attributes, listeners }) => (
                       <div
-                        className="flex items-center gap-2 rounded-[12px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-3 py-3 transition-colors"
+                        className="flow-desktop-queue-card flex items-center gap-3 rounded-[17px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] px-7 py-5 transition-colors"
                         style={{
-                          borderLeft: `3px solid ${bullet.projectMeta ? `var(--project-${bullet.projectMeta.color})` : 'var(--color-border-subtle)'}`,
+                          background: i === 0
+                            ? 'color-mix(in srgb, var(--color-lane-next-bg) 68%, var(--color-bg-surface))'
+                            : 'var(--color-bg-surface)',
+                          borderColor: i === 0
+                            ? 'color-mix(in srgb, var(--color-lane-next) 22%, var(--color-border-subtle))'
+                            : 'var(--color-border-subtle)',
+                          borderLeft: `4px solid ${bullet.projectMeta ? `color-mix(in srgb, var(--project-${bullet.projectMeta.color}) 72%, transparent)` : 'var(--color-border-subtle)'}`,
                           opacity: Math.max(0.5, 1 - i * 0.1),
                         }}
                       >
                         <DragGrip attributes={attributes} listeners={listeners} label={`Drag ${bullet.text}`} />
-                        <p className="font-body text-[14px] text-[var(--color-text-primary)] flex-1 min-w-0">{bullet.text}</p>
-                        {bullet.projectMeta && <ProjectPill bullet={bullet} size="xs" />}
+                        <p className="organize-command-task-title flex-1 min-w-0">
+                          {bullet.text}
+                        </p>
+                        {bullet.projectMeta && <ProjectPill bullet={bullet} emphasis="strong" />}
                       </div>
                     )}
                   </SortableFlowItem>
@@ -996,6 +1025,7 @@ function FlowMobileCockpit({
     ? visibleOrderedBullets.slice(activeIndex + 1).filter((b) => b.lane !== 'done')
     : [];
   const shownQueue = queuedBullets.slice(0, 5);
+  const totalActive = (activeBullet ? 1 : 0) + queuedBullets.length;
 
   const pct = chainTotal > 0 ? Math.round((chainDone / chainTotal) * 100) : 0;
 
@@ -1004,7 +1034,7 @@ function FlowMobileCockpit({
 
       {/* Progress strip */}
       {chainTotal > 0 && (
-        <div className="shrink-0 px-4 pt-3 pb-2">
+        <div className="flow-mobile-progress shrink-0 px-4 pt-3 pb-2">
           <div className="flex items-center gap-2.5">
             <span className="font-display text-[11px] font-bold text-[var(--color-text-muted)] tabular-nums">
               {chainDone}/{chainTotal}
@@ -1020,6 +1050,9 @@ function FlowMobileCockpit({
                 }}
               />
             </div>
+            <span className="font-display text-[11px] font-bold text-[var(--color-lane-later)] tabular-nums">
+              {pct}%
+            </span>
           </div>
         </div>
       )}
@@ -1050,22 +1083,18 @@ function FlowMobileCockpit({
         {/* Live Now hero */}
         {activeBullet && (
           <TimeTriggerWrapper bullet={activeBullet} justCompleted={justCompleted.has(activeBullet.id)}>
-            <div
-              className="flow-live-now-card rounded-[20px] p-5"
-              style={{
-                background: 'radial-gradient(150% 130% at 0% 0%, var(--color-live-now-glow) 0%, transparent 60%), var(--color-bg-surface)',
-                border: '1.5px solid var(--color-lane-now-border)',
-                boxShadow: 'var(--color-live-now-shadow)',
-              }}
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <span
-                  className="h-1.5 w-1.5 rounded-full bg-[var(--color-lane-now)]"
-                  style={{ boxShadow: '0 0 8px var(--color-lane-now-glow)' }}
-                />
-                <span className="font-display text-[9px] font-extrabold uppercase tracking-[0.24em] text-[var(--color-lane-now)]">
+            <div className="flex flex-col gap-2.5">
+              {/* External header */}
+              <div className="flex items-center gap-2 px-1">
+                <span className="h-2 w-2 rounded-full bg-[var(--color-lane-now)] shrink-0" />
+                <span className="font-display text-[10px] font-extrabold uppercase tracking-[0.22em] text-[var(--color-lane-now)]">
                   Live Now
                 </span>
+                {totalActive > 1 && (
+                  <span className="font-display text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--color-text-muted)] tabular-nums">
+                    · Step 1 of {totalActive}
+                  </span>
+                )}
                 {activeBullet.projectMeta && (
                   <div className="ml-auto">
                     <ProjectPill bullet={activeBullet} />
@@ -1073,17 +1102,33 @@ function FlowMobileCockpit({
                 )}
               </div>
 
-              <div className="flex items-start justify-between gap-3">
-                <p className="min-w-0 flex-1 font-body text-[34px] font-semibold tracking-normal text-[var(--color-text-primary)] leading-[1.12]">
+              {/* Card */}
+              <div
+                className="flow-live-now-card relative overflow-hidden rounded-[20px] p-5 pl-6"
+                style={{
+                  background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-lane-now) 8%, var(--color-bg-elevated)) 0%, var(--color-bg-elevated) 65%, var(--color-bg-surface) 100%)',
+                  border: '1px solid color-mix(in srgb, var(--color-lane-now) 22%, var(--color-border-subtle))',
+                  boxShadow: '0 1px 0 rgba(255,255,255,0.7) inset, 0 2px 4px rgba(194,114,94,0.06), 0 12px 28px rgba(194,114,94,0.14), 0 24px 48px rgba(158,132,112,0.16)',
+                }}
+              >
+                <div
+                  aria-hidden
+                  className="absolute left-0 top-0 bottom-0 w-[4px] rounded-l-[20px]"
+                  style={{
+                    background: 'linear-gradient(180deg, var(--color-lane-now) 0%, color-mix(in srgb, var(--color-lane-now) 60%, transparent) 100%)',
+                  }}
+                />
+
+                <p className="organize-command-task-title flow-mobile-live-title mb-5">
                   {activeBullet.text}
                 </p>
-                <div className="flow-live-now-actions flex items-center gap-2 shrink-0 pb-0.5">
+
+                <div className="flow-live-now-actions grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => updateBullet(activeBullet.id, { lane: 'done' })}
                     aria-label="Mark done"
-                    title="Mark done"
-                    className="flow-primary-action flow-done-icon-action flex items-center justify-center rounded-[9px] p-2 font-display text-[12px] font-semibold transition-all active:scale-[0.97]"
+                    className="flow-primary-action flow-done-icon-action flex h-12 items-center justify-center gap-2 rounded-[12px] font-display text-[14px] font-bold transition-all active:scale-[0.97]"
                     style={{
                       background: 'color-mix(in srgb, var(--color-lane-later) 18%, var(--color-bg-elevated))',
                       border: '1px solid color-mix(in srgb, var(--color-lane-later) 35%, transparent)',
@@ -1091,15 +1136,16 @@ function FlowMobileCockpit({
                     }}
                   >
                     <CheckCircle2 className="h-4 w-4" />
+                    Mark done
                   </button>
                   <button
                     type="button"
                     onClick={() => sendToPool(activeBullet.id)}
                     aria-label="Push later"
-                    title="Push later"
-                    className="flow-icon-action rounded-[9px] border border-[var(--color-border-subtle)] bg-transparent p-2 text-[var(--color-text-muted)] transition-all active:scale-[0.97]"
+                    className="flow-icon-action flex h-12 items-center justify-center gap-2 rounded-[12px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] font-display text-[14px] font-bold text-[var(--color-text-secondary)] transition-all active:scale-[0.97]"
                   >
-                    <ArrowDown className="h-3.5 w-3.5" />
+                    <ArrowDown className="h-4 w-4" />
+                    Push later
                   </button>
                 </div>
               </div>
@@ -1122,20 +1168,22 @@ function FlowMobileCockpit({
               return (
                 <div key={bullet.id} style={{ opacity }}>
                   {/* Node connector */}
-                  <div className="flex items-center gap-3 py-1.5 px-1" aria-hidden>
-                    <div className="flex flex-col items-center w-5 shrink-0">
+                  <div className="flow-mobile-chain-marker flex items-center gap-3 py-1.5 px-1" aria-hidden>
+                    <div className="flex flex-col items-center w-6 shrink-0">
                       <div className="w-px h-2.5 bg-[var(--color-border-subtle)]" />
                       <div
-                        className={`rounded-full border transition-colors ${
+                        className={`flex items-center justify-center rounded-full border font-display text-[10px] font-bold tabular-nums transition-colors ${
                           isNext
-                            ? 'h-2 w-2 border-[var(--color-lane-next)]/70 bg-[var(--color-lane-next-bg)]'
-                            : 'h-1.5 w-1.5 border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]'
+                            ? 'h-5 w-5 border-[var(--color-lane-next)]/65 bg-[var(--color-lane-next-bg)] text-[var(--color-lane-next)]'
+                            : 'h-5 w-5 border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)]'
                         }`}
-                      />
+                      >
+                        {i + 2}
+                      </div>
                       <div className="w-px h-2.5 bg-[var(--color-border-subtle)]" />
                     </div>
                     <span className="font-display text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-[0.14em]">
-                      {isNext ? 'up next' : `in ${i + 2}`}
+                      {isNext ? 'Up Next' : `In ${i + 1}`}
                     </span>
                   </div>
 
@@ -1145,10 +1193,10 @@ function FlowMobileCockpit({
                     style={{
                       background: 'var(--color-bg-surface)',
                       border: `1px solid var(--color-border-subtle)`,
-                      borderLeft: `3px solid ${bullet.projectMeta ? `var(--project-${bullet.projectMeta.color})` : 'var(--color-border-subtle)'}`,
+                      borderLeft: `2px solid ${bullet.projectMeta ? `color-mix(in srgb, var(--project-${bullet.projectMeta.color}) 55%, transparent)` : 'var(--color-border-subtle)'}`,
                     }}
                   >
-                    <p className="font-body text-[16px] font-medium leading-snug text-[var(--color-text-primary)]">
+                    <p className="organize-command-task-title flow-mobile-queue-title">
                       {bullet.text}
                     </p>
                     {bullet.projectMeta && (

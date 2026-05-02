@@ -21,7 +21,7 @@ export function DashboardLayoutClient({ userName, children }: DashboardLayoutCli
   const timerImmersive = pathname === '/dashboard/timer' && isActive;
   const tier = timerImmersive ? 'C' : getNavTier(pathname);
   const isOrganizeRoute = pathname.startsWith('/dashboard/organize');
-  // Keep dashboard header visible across routes, including Organize
+  // Keep the global dashboard header visible across routes, including Organize.
   const skipTopBar = false;
 
   return (

@@ -91,37 +91,20 @@ export function OrganizeView() {
     <div className="organize-clean-shell mx-auto flex min-h-screen w-full max-w-[88rem] lg:max-w-[104rem] 2xl:max-w-[120rem] flex-col">
 
       {/* ── Organize chrome header ──────────────────────────────────────── */}
-      <header className="organize-chrome-header border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] max-lg:min-h-[5.7rem] shrink-0 flex items-center px-3 py-2.5 sm:px-6 md:py-4 lg:px-8">
+      <header className="organize-chrome-header border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] shrink-0 flex items-center px-3 py-2.5 sm:px-6 md:py-4 lg:px-8">
 
         {/* ── MOBILE header (< lg) ────────────────────────────────────── */}
-        <div className="lg:hidden grid grid-cols-[1fr_minmax(0,auto)] grid-rows-[auto_auto] items-center gap-x-3 gap-y-1 w-full">
+        <div className="lg:hidden grid grid-cols-[minmax(5.8rem,1fr)_minmax(8.5rem,12rem)_auto] items-center gap-2 w-full">
           <div className="min-w-0">
             <h1 className="font-display text-[24px] font-bold tracking-[-0.02em] text-[var(--color-text-primary)] leading-none">
               Organize
             </h1>
           </div>
-          <div className="justify-self-end flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setInboxOpen(o => !o)}
-              className="organize-mobile-header-action"
-              aria-label={`Open task tray${inboxCount > 0 ? `, ${inboxCount} items` : ''}`}
-              aria-pressed={inboxOpen}
-              title="Task tray"
-            >
-              <Inbox className="h-4 w-4" strokeWidth={2} aria-hidden />
-              {inboxCount > 0 ? (
-                <span className="organize-mobile-header-action-badge">
-                  {inboxCount > 9 ? '9+' : inboxCount}
-                </span>
-              ) : null}
-            </button>
-          </div>
-          <div className="col-span-2 flex justify-center min-w-0">
+          <div className="flex justify-center min-w-0">
             <div
               role="tablist"
               aria-label="Organize view"
-              className="organize-view-toggle organize-view-toggle-mobile inline-flex w-[min(100%,15rem)] shrink-0 items-stretch rounded-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="organize-view-toggle organize-view-toggle-mobile inline-flex w-full shrink-0 items-stretch rounded-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {VIEW_OPTIONS.map(({ id, label, hint, Icon }) => {
                 const isActive = viewMode === id;
@@ -148,6 +131,23 @@ export function OrganizeView() {
                 );
               })}
             </div>
+          </div>
+          <div className="justify-self-end flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setInboxOpen(o => !o)}
+              className="organize-mobile-header-action"
+              aria-label={`Open task tray${inboxCount > 0 ? `, ${inboxCount} items` : ''}`}
+              aria-pressed={inboxOpen}
+              title="Task tray"
+            >
+              <Inbox className="h-4 w-4" strokeWidth={2} aria-hidden />
+              {inboxCount > 0 ? (
+                <span className="organize-mobile-header-action-badge">
+                  {inboxCount > 9 ? '9+' : inboxCount}
+                </span>
+              ) : null}
+            </button>
           </div>
         </div>
 

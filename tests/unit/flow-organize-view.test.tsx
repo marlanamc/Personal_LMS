@@ -56,6 +56,7 @@ describe('FlowOrganizeView', () => {
     expect(html).toContain('Trigger builder');
     expect(html).toContain('Live Now');
     expect(html).toContain('Mark done');
+    expect(html).toContain('Hide panels');
     // Pool zone
     expect(html).toContain('Ready to chain');
     // Telemetry zone
