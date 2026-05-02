@@ -76,11 +76,12 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
       <Link
         href="/dashboard/organize"
         className={`
+          bento-tile-now
           group relative flex flex-col p-3 rounded-xl border transition-all
-          bg-violet-50/80 dark:bg-violet-950/25
-          border-violet-200/60 dark:border-violet-800/40
-          hover:border-violet-300/70 dark:hover:border-violet-700/50
-          hover:bg-violet-100/70 dark:hover:bg-violet-950/35
+          dark:bg-violet-950/25
+          dark:border-violet-800/40
+          dark:hover:border-violet-700/50
+          dark:hover:bg-violet-950/35
           shadow-sm
           ${!hasNowItems ? 'opacity-60' : ''}
         `}
@@ -122,11 +123,12 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
       <Link
         href="/dashboard/meal-planner"
         className={`
+          bento-tile-meals
           group relative flex flex-col p-3 rounded-xl border transition-all
-          bg-pink-100/70 dark:bg-pink-900/25
-          border-pink-300/60 dark:border-pink-700/40
-          hover:border-pink-400/70 dark:hover:border-pink-600/50
-          hover:bg-pink-100/90 dark:hover:bg-pink-900/35
+          dark:bg-pink-900/25
+          dark:border-pink-700/40
+          dark:hover:border-pink-600/50
+          dark:hover:bg-pink-900/35
           shadow-sm
           ${!hasMeals ? 'opacity-60' : ''}
         `}
@@ -167,11 +169,12 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
       <Link
         href="/dashboard/skincare-planner"
         className={`
+          bento-tile-skincare
           group relative flex flex-col p-3 rounded-xl border transition-all
-          bg-sky-50/80 dark:bg-sky-950/30
-          border-sky-200/60 dark:border-sky-800/50
-          hover:border-sky-300/70 dark:hover:border-sky-700/60
-          hover:bg-sky-100/80 dark:hover:bg-sky-950/40
+          dark:bg-sky-950/30
+          dark:border-sky-800/50
+          dark:hover:border-sky-700/60
+          dark:hover:bg-sky-950/40
           shadow-sm
           ${!hasSkincare ? 'opacity-60' : ''}
         `}
@@ -216,11 +219,12 @@ export function TodayRibbon({ storageScope }: TodayRibbonProps) {
       <Link
         href="/dashboard/cleaning-planner"
         className={`
+          bento-tile-cleaning
           group relative flex flex-col p-3 rounded-xl border transition-all
-          bg-emerald-50/80 dark:bg-emerald-950/25
-          border-emerald-200/60 dark:border-emerald-800/40
-          hover:border-emerald-300/70 dark:hover:border-emerald-700/50
-          hover:bg-emerald-100/70 dark:hover:bg-emerald-950/35
+          dark:bg-emerald-950/25
+          dark:border-emerald-800/40
+          dark:hover:border-emerald-700/50
+          dark:hover:bg-emerald-950/35
           shadow-sm
           ${!hasCleaning ? 'opacity-60' : ''}
         `}

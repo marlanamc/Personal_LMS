@@ -259,11 +259,11 @@
 :root.light {
   color-scheme: light;
 
-  --color-bg-base: #f8f1e8;
-  --color-bg-surface: #fff9f1;
-  --color-bg-elevated: #f3e3d6;
-  --color-bg-soft: #ead6c8;
-  --color-surface-glass: rgba(255, 250, 244, 0.88);
+  --color-bg-base: #fbf6ee;
+  --color-bg-surface: #fffaf2;
+  --color-bg-elevated: #f5ead9;
+  --color-bg-soft: #ecdcc6;
+  --color-surface-glass: rgba(255, 251, 244, 0.9);
   --color-border-subtle: rgba(70, 55, 45, 0.10);
   --color-border-strong: rgba(70, 55, 45, 0.12);
   --color-border-glow: rgba(221, 139, 160, 0.35);
@@ -272,10 +272,10 @@
   --color-text-secondary: #4f5a6d;
   --color-text-muted: #7b8495;
 
-  --color-accent-sakura: #d9789a;
-  --color-accent-sakura-soft: rgba(217, 120, 154, 0.16);
+  --color-accent-sakura: #e85f8e;
+  --color-accent-sakura-soft: rgba(232, 95, 142, 0.16);
   --color-accent-teal: #6fb7a3;
-  --color-accent-mint: #78aa82;
+  --color-accent-mint: #5cb87a;
   --color-accent-amethyst: #9b73c7;
   --color-accent-blue: #7198d8;
   --color-accent-honey: #d9a84f;
@@ -293,26 +293,26 @@
   --accent-secondary: var(--color-accent-amethyst);
   --accent-tertiary: var(--color-accent-teal);
 
-  --color-bg-base-light: #f8f1e8;
-  --color-bg-surface-light: #fff9f1;
-  --color-bg-elevated-light: #f3e3d6;
+  --color-bg-base-light: #fbf6ee;
+  --color-bg-surface-light: #fffaf2;
+  --color-bg-elevated-light: #f5ead9;
   --color-text-primary-light: #232936;
   --color-text-secondary-light: #4f5a6d;
   --color-text-muted-light: #7b8495;
-  --color-accent-sakura-light: #d9789a;
-  --color-accent-sakura-soft-light: rgba(217, 120, 154, 0.16);
+  --color-accent-sakura-light: #e85f8e;
+  --color-accent-sakura-soft-light: rgba(232, 95, 142, 0.16);
   --color-accent-teal-light: #6fb7a3;
-  --color-accent-mint-light: #78aa82;
+  --color-accent-mint-light: #5cb87a;
   --color-accent-amethyst-light: #9b73c7;
 
-  --color-light-nebula-start: #f8efe4;
-  --color-light-nebula-mid: #ead8c8;
-  --color-light-nebula-end: #f4becd;
-  --color-light-hero-start: #fffaf3;
-  --color-light-hero-mid: #f8eee5;
-  --color-light-hero-end: #ead6c8;
-  --color-light-card-top: #fffaf3;
-  --color-light-card-bottom: #f8eee5;
+  --color-light-nebula-start: #fbf3e7;
+  --color-light-nebula-mid: #efdfcd;
+  --color-light-nebula-end: #f9c7d4;
+  --color-light-hero-start: #fffbf4;
+  --color-light-hero-mid: #faf1e6;
+  --color-light-hero-end: #ecdcc6;
+  --color-light-card-top: #fffbf4;
+  --color-light-card-bottom: #faf1e6;
   --color-light-shadow-soft: 0 18px 45px rgba(96, 62, 41, 0.10);
   --color-light-shadow-hover: 0 22px 54px rgba(96, 62, 41, 0.14);
   --color-light-shadow-hero: 0 20px 50px rgba(116, 77, 58, 0.13);
@@ -1441,6 +1441,93 @@ textarea {
 :where(:root[data-theme="light"], :root.light) .glass-card:hover {
   border-color: color-mix(in srgb, var(--color-text-primary) 10%, transparent);
   box-shadow: var(--color-card-shadow-hover);
+}
+
+/* Warm bento tile surfaces — light mode only. Replaces cool Tailwind pastels
+   (violet-50, pink-100, sky-50, emerald-50) with warm-family tints that
+   harmonize with the cream base. Subtle inner highlight gives specular lift. */
+:where(:root[data-theme="light"], :root.light) .bento-tile-now {
+  background-color: #f1ecf7;
+  border-color: rgba(155, 115, 199, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+:where(:root[data-theme="light"], :root.light) .bento-tile-now:hover {
+  background-color: #ebe2f3;
+  border-color: rgba(155, 115, 199, 0.32);
+}
+:where(:root[data-theme="light"], :root.light) .bento-tile-meals {
+  background-color: #fbe4e1;
+  border-color: rgba(207, 115, 95, 0.26);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+:where(:root[data-theme="light"], :root.light) .bento-tile-meals:hover {
+  background-color: #f9d6d2;
+  border-color: rgba(207, 115, 95, 0.36);
+}
+:where(:root[data-theme="light"], :root.light) .bento-tile-skincare {
+  background-color: #e6efea;
+  border-color: rgba(111, 183, 163, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+:where(:root[data-theme="light"], :root.light) .bento-tile-skincare:hover {
+  background-color: #d9e8e1;
+  border-color: rgba(111, 183, 163, 0.4);
+}
+:where(:root[data-theme="light"], :root.light) .bento-tile-cleaning {
+  background-color: #e3eedb;
+  border-color: rgba(92, 184, 122, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+:where(:root[data-theme="light"], :root.light) .bento-tile-cleaning:hover {
+  background-color: #d6e6cb;
+  border-color: rgba(92, 184, 122, 0.4);
+}
+
+/* Warm-family area card surfaces — light mode only. Replaces cool blue/purple/
+   orange/green Tailwind gradients with tints derived from warm accent tokens. */
+:where(:root[data-theme="light"], :root.light) .area-card-blue {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--color-accent-amethyst) 12%, var(--color-bg-surface)) 0%,
+    color-mix(in srgb, var(--color-accent-amethyst) 8%, var(--color-bg-surface)) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+:where(:root[data-theme="light"], :root.light) .area-card-blue:hover {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--color-accent-amethyst) 20%, var(--color-bg-surface)) 0%,
+    color-mix(in srgb, var(--color-accent-amethyst) 14%, var(--color-bg-surface)) 100%);
+}
+:where(:root[data-theme="light"], :root.light) .area-card-purple {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--color-accent-sakura) 11%, var(--color-bg-surface)) 0%,
+    color-mix(in srgb, var(--color-accent-sakura) 7%, var(--color-bg-surface)) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+:where(:root[data-theme="light"], :root.light) .area-card-purple:hover {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--color-accent-sakura) 18%, var(--color-bg-surface)) 0%,
+    color-mix(in srgb, var(--color-accent-sakura) 12%, var(--color-bg-surface)) 100%);
+}
+:where(:root[data-theme="light"], :root.light) .area-card-orange {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--color-accent-honey) 14%, var(--color-bg-surface)) 0%,
+    color-mix(in srgb, var(--color-accent-coral) 9%, var(--color-bg-surface)) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+:where(:root[data-theme="light"], :root.light) .area-card-orange:hover {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--color-accent-honey) 22%, var(--color-bg-surface)) 0%,
+    color-mix(in srgb, var(--color-accent-coral) 14%, var(--color-bg-surface)) 100%);
+}
+:where(:root[data-theme="light"], :root.light) .area-card-green {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--color-accent-mint) 12%, var(--color-bg-surface)) 0%,
+    color-mix(in srgb, var(--color-accent-teal) 8%, var(--color-bg-surface)) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+:where(:root[data-theme="light"], :root.light) .area-card-green:hover {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--color-accent-mint) 20%, var(--color-bg-surface)) 0%,
+    color-mix(in srgb, var(--color-accent-teal) 14%, var(--color-bg-surface)) 100%);
 }
 
 .soft-glow-border {
