@@ -142,7 +142,7 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
                 className="dashboard-header-shell sticky top-0 z-50 border-b border-border/70 bg-bg-elevated/95 shadow-sm backdrop-blur-sm transition-[background-color,box-shadow,border-color] duration-200"
                 aria-label="Dashboard toolbar"
             >
-                <div className="dashboard-header-inner mx-auto max-w-[1800px] px-3 py-2.5 sm:px-6 md:py-4 lg:px-8">
+                <div className="dashboard-header-inner mx-auto max-w-[1800px] px-3 py-1.5 sm:px-6 md:py-2 lg:px-8">
                     {headerCenter ? (
                         <>
                             <div className="flex w-full items-center justify-between gap-2 sm:hidden">

@@ -33,7 +33,6 @@ import {
   Plus,
   RotateCcw,
   Sparkles,
-  LayoutGrid,
 } from 'lucide-react';
 import { FlowToast } from './FlowToast';
 import { TimeTriggerBuilder } from './TimeTriggerBuilder';
@@ -56,7 +55,6 @@ type FlowOrganizeViewProps = {
   showDone?: boolean;
   onToggleShowDone?: () => void;
   onOpenList?: () => void;
-  onOpenBento?: () => void;
 };
 
 const FLOW_CHAIN_ID = 'flow-chain';
@@ -312,7 +310,6 @@ export function FlowOrganizeView({
   showDone = false,
   onToggleShowDone,
   onOpenList,
-  onOpenBento,
 }: FlowOrganizeViewProps) {
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [showTimeTriggerBuilder, setShowTimeTriggerBuilder] = useState(false);
@@ -653,7 +650,6 @@ export function FlowOrganizeView({
                   showDone={showDone}
                   updateBullet={updateBullet}
                   sendToPool={sendToPool}
-                  onOpenBento={onOpenBento}
                 />
               </div>
             </SortableContext>
@@ -698,7 +694,6 @@ export function FlowOrganizeView({
         sendToPool={sendToPool}
         justCompleted={justCompleted}
         onOpenList={onOpenList}
-        onOpenBento={onOpenBento}
       />
     </div>
   );
@@ -758,14 +753,12 @@ function DesktopChain({
   showDone,
   updateBullet,
   sendToPool,
-  onOpenBento,
 }: {
   visibleOrderedBullets: ThoughtBullet[];
   justCompleted: Set<string>;
   showDone: boolean;
   updateBullet: (id: string, updates: Partial<ThoughtBullet>) => void;
   sendToPool: (id: string) => void;
-  onOpenBento?: () => void;
 }) {
   const activeBullet = visibleOrderedBullets.find((b) => b.lane !== 'done');
   const activeIndex = activeBullet ? visibleOrderedBullets.indexOf(activeBullet) : -1;
@@ -839,13 +832,9 @@ function DesktopChain({
         </TimeTriggerWrapper>
       )}
 
-      {!activeBullet && visibleOrderedBullets.length > 0 && onOpenBento ? (
+      {!activeBullet && visibleOrderedBullets.length > 0 ? (
         <div className="rounded-[16px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 text-center">
           <p className="font-display text-[15px] font-bold text-[var(--color-text-primary)]">Chain complete</p>
-          <button type="button" onClick={onOpenBento} className="flow-secondary-action mx-auto mt-3">
-            <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
-            Review project balance in Bento
-          </button>
         </div>
       ) : null}
 
@@ -986,7 +975,6 @@ function FlowMobileCockpit({
   sendToPool,
   justCompleted,
   onOpenList,
-  onOpenBento,
 }: {
   board: FlowBoard;
   visibleOrderedBullets: ThoughtBullet[];
@@ -999,7 +987,6 @@ function FlowMobileCockpit({
   sendToPool: (id: string) => void;
   justCompleted: Set<string>;
   onOpenList?: () => void;
-  onOpenBento?: () => void;
 }) {
   const [showTray, setShowTray] = useState(false);
 
@@ -1120,13 +1107,9 @@ function FlowMobileCockpit({
           </TimeTriggerWrapper>
         )}
 
-        {!activeBullet && visibleOrderedBullets.length > 0 && onOpenBento ? (
+        {!activeBullet && visibleOrderedBullets.length > 0 ? (
           <div className="rounded-[18px] border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] p-5 text-center">
             <p className="font-display text-[15px] font-bold text-[var(--color-text-primary)]">Chain complete</p>
-            <button type="button" onClick={onOpenBento} className="flow-secondary-action mx-auto mt-3">
-              <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
-              Review project balance in Bento
-            </button>
           </div>
         ) : null}
 

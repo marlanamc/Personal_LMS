@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Search, LayoutList, LayoutGrid, Zap, Home, CalendarDays, FolderKanban, FileText, Timer } from 'lucide-react';
+import { Search, LayoutList, Zap, Home, CalendarDays, FolderKanban, FileText, Timer } from 'lucide-react';
 import type { ThoughtOrganization } from '@/lib/thought-organization';
 
-type ViewMode = 'list' | 'bento' | 'flow';
+type ViewMode = 'list' | 'flow';
 
 type CommandItem = {
   id: string;
@@ -34,7 +34,6 @@ const NAV_ITEMS = [
 
 const VIEW_ITEMS: { id: ViewMode; label: string; icon: React.ElementType }[] = [
   { id: 'list', label: 'List view', icon: LayoutList },
-  { id: 'bento', label: 'Bento view', icon: LayoutGrid },
   { id: 'flow', label: 'Flow view', icon: Zap },
 ];
 

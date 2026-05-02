@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-type ViewMode = 'list' | 'bento' | 'flow';
+type ViewMode = 'list' | 'flow';
 
 type GlobalShortcutHandlers = {
   onOpenPalette: () => void;
@@ -56,10 +56,6 @@ export function useGlobalShortcuts({
           onSwitchView('list');
           break;
         case '2':
-          e.preventDefault();
-          onSwitchView('bento');
-          break;
-        case '3':
           e.preventDefault();
           onSwitchView('flow');
           break;

@@ -77,4 +77,21 @@ describe('FlowOrganizeView', () => {
     expect(html).toContain('Done');
     expect(html).toContain('Archive old notes');
   });
+
+  it('does not link completed chains back to Bento', () => {
+    const completedOrganization: ThoughtOrganization = {
+      ...organization,
+      flow: {
+        globalOrder: ['c'],
+      },
+    };
+
+    const html = renderToStaticMarkup(
+      <FlowOrganizeView organization={completedOrganization} onUpdateOrganization={vi.fn()} showDone />
+    );
+
+    expect(html).toContain('Chain complete');
+    expect(html).not.toContain('Bento');
+    expect(html).not.toContain('Review project balance');
+  });
 });

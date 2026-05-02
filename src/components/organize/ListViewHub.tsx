@@ -9,6 +9,7 @@ import { OrganizeHeaderPortal } from './OrganizeHeaderSlot';
 import {
   addImportMetadata,
   laneToPriority,
+  type ProjectColor,
   type ProjectMeta,
   type ThoughtBullet,
   type ThoughtLane,
@@ -16,18 +17,18 @@ import {
 } from '@/lib/thought-organization';
 import { nanoid } from 'nanoid';
 
-// ── Project color palette ────────────────────────────────────────────────────
-const PROJECT_PALETTE: Record<string, { dot: string; bg: string; border: string; text: string }> = {
-  peach:      { dot: 'hsl(24,72%,70%)',   bg: 'hsla(24,72%,70%,0.15)',  border: 'hsla(24,72%,70%,0.32)',  text: 'hsl(24,78%,76%)' },
-  sky:        { dot: 'hsl(210,96%,74%)',  bg: 'hsla(210,96%,74%,0.15)', border: 'hsla(210,96%,74%,0.32)', text: 'hsl(210,96%,78%)' },
-  mint:       { dot: 'hsl(162,58%,64%)',  bg: 'hsla(162,58%,64%,0.15)', border: 'hsla(162,58%,64%,0.32)', text: 'hsl(162,58%,74%)' },
-  periwinkle: { dot: 'hsl(235,66%,76%)',  bg: 'hsla(235,66%,76%,0.15)', border: 'hsla(235,66%,76%,0.32)', text: 'hsl(235,70%,82%)' },
-  lavender:   { dot: 'hsl(270,68%,72%)',  bg: 'hsla(270,68%,72%,0.15)', border: 'hsla(270,68%,72%,0.32)', text: 'hsl(270,74%,80%)' },
-  rose:       { dot: 'hsl(336,82%,74%)',  bg: 'hsla(336,82%,74%,0.15)', border: 'hsla(336,82%,74%,0.32)', text: 'hsl(336,82%,80%)' },
-  coral:      { dot: 'hsl(13,100%,74%)',  bg: 'hsla(13,100%,74%,0.15)', border: 'hsla(13,100%,74%,0.32)', text: 'hsl(13,100%,78%)' },
-  sage:       { dot: 'hsl(152,50%,66%)',  bg: 'hsla(152,50%,66%,0.15)', border: 'hsla(152,50%,66%,0.32)', text: 'hsl(152,56%,76%)' },
-  blush:      { dot: 'hsl(324,62%,76%)',  bg: 'hsla(324,62%,76%,0.15)', border: 'hsla(324,62%,76%,0.32)', text: 'hsl(324,68%,82%)' },
-  slate:      { dot: 'hsl(220,28%,74%)',  bg: 'hsla(220,28%,74%,0.15)', border: 'hsla(220,28%,74%,0.32)', text: 'hsl(220,36%,82%)' },
+// ── Project colors (match globals.css --project-* for sidebar dots + card rails)
+const PROJECT_PALETTE: Record<ProjectColor, { dot: string; bg: string; border: string; text: string }> = {
+  peach:      { dot: 'var(--project-peach)',      bg: 'var(--project-peach-wash)',      border: 'var(--project-peach-border)',      text: 'var(--project-peach)' },
+  sky:        { dot: 'var(--project-sky)',       bg: 'var(--project-sky-wash)',       border: 'var(--project-sky-border)',       text: 'var(--project-sky)' },
+  mint:       { dot: 'var(--project-mint)',      bg: 'var(--project-mint-wash)',      border: 'var(--project-mint-border)',      text: 'var(--project-mint)' },
+  periwinkle: { dot: 'var(--project-periwinkle)', bg: 'var(--project-periwinkle-wash)', border: 'var(--project-periwinkle-border)', text: 'var(--project-periwinkle)' },
+  lavender:   { dot: 'var(--project-lavender)',   bg: 'var(--project-lavender-wash)',   border: 'var(--project-lavender-border)',   text: 'var(--project-lavender)' },
+  rose:       { dot: 'var(--project-rose)',      bg: 'var(--project-rose-wash)',      border: 'var(--project-rose-border)',      text: 'var(--project-rose)' },
+  coral:      { dot: 'var(--project-coral)',      bg: 'var(--project-coral-wash)',      border: 'var(--project-coral-border)',      text: 'var(--project-coral)' },
+  sage:       { dot: 'var(--project-sage)',       bg: 'var(--project-sage-wash)',       border: 'var(--project-sage-border)',       text: 'var(--project-sage)' },
+  blush:      { dot: 'var(--project-blush)',     bg: 'var(--project-blush-wash)',     border: 'var(--project-blush-border)',     text: 'var(--project-blush)' },
+  slate:      { dot: 'var(--project-slate)',      bg: 'var(--project-slate-wash)',      border: 'var(--project-slate-border)',      text: 'var(--project-slate)' },
 };
 
 const LANE_META: Record<ThoughtLane, { label: string; colorVar: string; bgVar: string; borderVar: string }> = {
@@ -51,6 +52,12 @@ const LANE_HELPER_COPY: Record<ActiveLane, string> = {
   now: 'Primary route',
   next: 'Momentum lane',
   later: 'Anchored',
+};
+
+const LANE_SHORT_LABEL: Record<ActiveLane, string> = {
+  now: 'Now',
+  next: 'Next',
+  later: 'Later',
 };
 
 const LANE_MOVE_COPY: Record<ActiveLane, string> = {
@@ -572,6 +579,14 @@ function DesktopTaskCard({
         selected ? 'is-selected' : '',
       ].join(' ')}
       onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
+      tabIndex={0}
+      aria-label={`Inspect ${bullet.text || 'bullet'}`}
     >
       <button
         type="button"
@@ -605,7 +620,7 @@ function DesktopTaskCard({
         {...attributes}
         onClick={(event) => event.stopPropagation()}
       >
-        <MoreHorizontal className="h-4 w-4" aria-hidden />
+        <GripVertical className="h-4 w-4" aria-hidden />
       </button>
     </article>
   );
@@ -639,16 +654,20 @@ function DesktopLaneColumn({
         `organize-command-column-${lane}`,
         isOver ? 'is-over' : '',
       ].join(' ')}
-      aria-label={`${meta.label} bullets`}
+      aria-label={`${LANE_SHORT_LABEL[lane as ActiveLane]} bullets, ${meta.label}`}
     >
       <div className="organize-command-column-header">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full" style={{ background: `var(${meta.colorVar})`, boxShadow: `0 0 12px var(${meta.colorVar})` }} aria-hidden />
-          <h3 style={{ color: `var(${meta.colorVar})` }}>{meta.label}</h3>
+          <span
+            className="organize-lane-header-dot h-2 w-2 shrink-0 rounded-full"
+            style={{ background: `var(${meta.colorVar})` }}
+            aria-hidden
+          />
+          <h3 style={{ color: `var(${meta.colorVar})` }}>{LANE_SHORT_LABEL[lane as ActiveLane]}</h3>
           <span>{bullets.length}</span>
-          <small>{LANE_HELPER_COPY[lane as ActiveLane]}</small>
+          <small>{meta.label} · {LANE_HELPER_COPY[lane as ActiveLane]}</small>
         </div>
-        <button type="button" onClick={() => onAdd(lane)} aria-label={`Add bullet to ${meta.label}`}>
+        <button type="button" onClick={() => onAdd(lane)} aria-label={`Add bullet to ${LANE_SHORT_LABEL[lane as ActiveLane]}`}>
           <Plus className="h-4 w-4" aria-hidden />
         </button>
       </div>
@@ -714,7 +733,7 @@ function FocusInspector({
   const created = formatSourceDate(bullet);
 
   return (
-    <aside className="organize-command-inspector" aria-label="Inspector" style={{ position: 'fixed', top: '4rem', right: 0, bottom: 0, zIndex: 60 }}>
+    <aside className="organize-command-inspector" aria-label="Inspector">
       <div className="organize-command-panel-heading">
         <span>Inspector</span>
         <button type="button" onClick={onClose} className="organize-command-inspector-close" aria-label="Close inspector" title="Close inspector">

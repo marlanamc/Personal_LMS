@@ -131,8 +131,7 @@ export function DesktopNavRail() {
   return (
     <motion.nav
       aria-label="Desktop navigation rail"
-      className="desktop-nav-rail fixed left-0 z-40 hidden lg:flex flex-col overflow-hidden border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]"
-      style={{ top: 'var(--header-height-desktop)', height: 'calc(100vh - var(--header-height-desktop))' }}
+      className="desktop-nav-rail fixed left-0 top-0 z-[55] hidden h-svh lg:flex flex-col overflow-hidden border-r border-[var(--color-border-strong)] bg-[var(--color-bg-elevated)]"
       animate={{ width: isExpanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH }}
       transition={{ duration, ease: 'easeOut' }}
       onMouseEnter={() => setIsExpanded(true)}
