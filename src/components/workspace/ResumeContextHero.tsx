@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, FileText, FolderKanban, MessageSquare } from 'lucide-react';
+import { ArrowRight, BriefcaseBusiness, FileText, FolderKanban, MessageSquare } from 'lucide-react';
 import type { ResumeContext } from '@/types/workspace';
 
 interface ResumeContextHeroProps {
@@ -9,14 +9,16 @@ interface ResumeContextHeroProps {
 }
 
 export function ResumeContextHero({ resumeContext }: ResumeContextHeroProps) {
-  const { tool, label, preview, lastEditedAt, resumeHref } = resumeContext;
+  const { tool, workspaceId, label, preview, lastEditedAt, resumeHref } = resumeContext;
 
   const getIcon = () => {
     switch (tool) {
       case 'thought-download':
         return <FileText className="w-6 h-6" />;
       case 'organize':
-        return <FolderKanban className="w-6 h-6" />;
+        return workspaceId === 'work'
+          ? <BriefcaseBusiness className="w-6 h-6" />
+          : <FolderKanban className="w-6 h-6" />;
       case 'moment-log':
         return <MessageSquare className="w-6 h-6" />;
     }

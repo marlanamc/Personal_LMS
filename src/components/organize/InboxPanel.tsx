@@ -28,6 +28,13 @@ type InboxPanelProps = {
   onClose: () => void;
   organization: ThoughtOrganization;
   onUpdateOrganization: (org: ThoughtOrganization) => void;
+  copy?: {
+    title: string;
+    ariaLabel: string;
+    emptyLabel: string;
+    placeholder: string;
+    closeLabel: string;
+  };
 };
 
 function usePrefersReducedMotion() {
@@ -38,7 +45,15 @@ function usePrefersReducedMotion() {
   return prefersReducedMotion;
 }
 
-export function InboxPanel({ isOpen, onClose, organization, onUpdateOrganization }: InboxPanelProps) {
+const DEFAULT_COPY = {
+  title: 'Inbox',
+  ariaLabel: 'Inbox panel',
+  emptyLabel: 'Inbox is empty',
+  placeholder: 'Add bullet to Inbox',
+  closeLabel: 'Close inbox panel',
+};
+
+export function InboxPanel({ isOpen, onClose, organization, onUpdateOrganization, copy = DEFAULT_COPY }: InboxPanelProps) {
   const reduced = usePrefersReducedMotion();
   const duration = reduced ? 0 : 0.22;
   const [draftText, setDraftText] = useState('');
@@ -101,7 +116,7 @@ export function InboxPanel({ isOpen, onClose, organization, onUpdateOrganization
           {/* Panel */}
           <motion.aside
             role="complementary"
-            aria-label="Inbox panel"
+            aria-label={copy.ariaLabel}
             className="fixed right-0 top-0 z-[100] flex h-full w-80 flex-col border-l border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-elevated)]"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
@@ -112,7 +127,7 @@ export function InboxPanel({ isOpen, onClose, organization, onUpdateOrganization
             <div className="flex items-center gap-2 border-b border-[var(--color-border-subtle)] px-4 py-3.5 shrink-0">
               <Inbox className="h-4 w-4 text-[var(--color-primary)]" aria-hidden />
               <h2 className="flex-1 font-display text-[15px] font-bold text-[var(--color-text-primary)]">
-                Inbox
+                {copy.title}
               </h2>
               <span className="font-mono text-[11px] text-[var(--color-text-muted)]">
                 {inboxBullets.length} unsorted
@@ -120,7 +135,7 @@ export function InboxPanel({ isOpen, onClose, organization, onUpdateOrganization
               <button
                 type="button"
                 onClick={onClose}
-                aria-label="Close inbox panel"
+                aria-label={copy.closeLabel}
                 className="ml-1 flex h-7 w-7 items-center justify-center rounded-md text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/40"
               >
                 <X className="h-4 w-4" aria-hidden />
@@ -140,7 +155,7 @@ export function InboxPanel({ isOpen, onClose, organization, onUpdateOrganization
                   ref={draftInputRef}
                   value={draftText}
                   onChange={(event) => setDraftText(event.target.value)}
-                  placeholder="Add bullet to Inbox"
+                  placeholder={copy.placeholder}
                   className="min-w-0 flex-1 bg-transparent font-body text-[13px] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none"
                 />
                 <button
@@ -159,7 +174,7 @@ export function InboxPanel({ isOpen, onClose, organization, onUpdateOrganization
                 <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
             <Inbox className="h-8 w-8 text-[var(--color-text-muted)] opacity-40" aria-hidden />
             <p className="font-body text-[13px] text-[var(--color-text-muted)]">
-              Inbox is empty
+              {copy.emptyLabel}
             </p>
           </div>
               ) : (

@@ -16,6 +16,7 @@ import {
   Anchor,
   Bell,
   BookOpen,
+  BriefcaseBusiness,
   CalendarDays,
   Code,
   FileText,
@@ -72,6 +73,7 @@ const quickLinks: NavLink[] = [
   { label: 'THINKING', isHeader: true },
   { href: '/dashboard/thought-download', label: 'Thought Download', icon: FileText },
   { href: '/dashboard/organize', label: 'Organize', icon: FolderKanban },
+  { href: '/dashboard/work-desk', label: 'Work Desk', icon: BriefcaseBusiness },
   { href: '/dashboard/interstitial-journalling', label: 'Moment Log', icon: MessageSquare },
   { href: '/dashboard/daily-wins', label: 'Daily Wins', icon: Trophy },
 

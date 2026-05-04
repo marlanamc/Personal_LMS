@@ -5,9 +5,8 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api-error';
 import { normalizeOrganization, type ThoughtOrganization, type ThoughtOrganizerStore } from '@/lib/thought-organization';
+import { resolveOrganizerSubjectKey, resolveOrganizerWorkspaceId } from '@/lib/organize-workspaces';
 import type { RecentCapture } from '@/types/workspace';
-
-const SUBJECT_KEY = 'thought-organizer';
 
 function normalizeOrganizerStore(raw: unknown): ThoughtOrganizerStore {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
@@ -30,18 +29,20 @@ function normalizeOrganizerStore(raw: unknown): ThoughtOrganizerStore {
   };
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const workspaceId = resolveOrganizerWorkspaceId(req.nextUrl.searchParams.get('workspace'));
+    const subjectKey = resolveOrganizerSubjectKey(workspaceId);
 
     const row = await prisma.utilitySubjectState.findUnique({
       where: {
         userId_subjectKey: {
           userId: session.user.id,
-          subjectKey: SUBJECT_KEY,
+          subjectKey,
         },
       },
       select: {
@@ -70,18 +71,20 @@ export async function POST(req: NextRequest) {
 
     const body = (await req.json()) as { store?: unknown };
     const incomingStore = normalizeOrganizerStore(body.store);
+    const workspaceId = resolveOrganizerWorkspaceId(req.nextUrl.searchParams.get('workspace'));
+    const subjectKey = resolveOrganizerSubjectKey(workspaceId);
 
     // Full replacement strategy (simpler than calendar-planner merge)
     const state = await prisma.utilitySubjectState.upsert({
       where: {
         userId_subjectKey: {
           userId: session.user.id,
-          subjectKey: SUBJECT_KEY,
+          subjectKey,
         },
       },
       create: {
         userId: session.user.id,
-        subjectKey: SUBJECT_KEY,
+        subjectKey,
         checklist: incomingStore as unknown as Prisma.InputJsonValue,
         links: [] as Prisma.InputJsonValue,
       },
@@ -119,6 +122,7 @@ export async function POST(req: NextRequest) {
         const newCapture = {
           type: 'organize',
           projectId: activeProject?.id,
+          workspaceId,
           preview,
           timestamp: new Date().toISOString(),
         };

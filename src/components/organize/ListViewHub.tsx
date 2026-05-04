@@ -851,7 +851,7 @@ function ProjectSidebar({
   const activeCount = getActiveBullets(bullets).length;
 
   return (
-    <aside className="organize-project-sidebar organize-command-sidebar hidden xl:flex w-[200px] shrink-0 flex-col overflow-y-auto" aria-label="List sidebar">
+    <aside className="organize-project-sidebar organize-command-sidebar hidden lg:flex w-[200px] shrink-0 flex-col overflow-y-auto" aria-label="List sidebar">
       <div className="organize-command-section">
         <p className="organize-command-section-label">Filter</p>
         <button type="button" onClick={() => onSelectProject(null)} className={['organize-command-sidebar-row', selectedProjectId === null ? 'is-active' : ''].join(' ')}>

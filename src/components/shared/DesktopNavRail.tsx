@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home,
+  BriefcaseBusiness,
   CalendarDays,
   FolderKanban,
   FileText,
@@ -50,6 +51,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/dashboard', label: 'Home', icon: Home },
       { href: '/dashboard/day-planner', label: 'Plan', icon: CalendarDays },
       { href: '/dashboard/organize', label: 'Organize', icon: FolderKanban },
+      { href: '/dashboard/work-desk', label: 'Work Desk', icon: BriefcaseBusiness },
       { href: '/dashboard/workspace', label: 'Think', icon: FileText },
       { href: '/dashboard/timer', label: 'Timer', icon: Timer },
     ],

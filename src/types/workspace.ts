@@ -4,6 +4,7 @@ export interface RecentCapture {
   type: WorkspaceToolType;
   dateKey?: string;
   projectId?: string;
+  workspaceId?: 'personal' | 'work';
   preview: string;
   timestamp: string;
 }
@@ -21,6 +22,7 @@ export interface WorkspaceContext {
 
 export interface ResumeContext {
   tool: WorkspaceToolType;
+  workspaceId?: 'personal' | 'work';
   label: string;
   preview: string;
   lastEditedAt: Date;

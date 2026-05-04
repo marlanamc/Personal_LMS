@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { WorkspaceContext, ResumeContext, WorkspaceToolType } from '@/types/workspace';
+import type { WorkspaceContext, ResumeContext } from '@/types/workspace';
 
 export function useWorkspaceContext() {
   const [context, setContext] = useState<WorkspaceContext | null>(null);
@@ -49,7 +49,8 @@ export function useWorkspaceContext() {
   const resumeContext: ResumeContext | null = context && context.lastTool
     ? {
         tool: context.lastTool,
-        label: getToolLabel(context.lastTool),
+        workspaceId: context.lastTool === 'organize' ? getLatestOrganizeWorkspaceId(context) : undefined,
+        label: getToolLabel(context),
         preview: getPreview(context),
         lastEditedAt: context.lastEditedAt,
         resumeHref: getResumeHref(context),
@@ -66,17 +67,22 @@ export function useWorkspaceContext() {
   };
 }
 
-function getToolLabel(tool: WorkspaceToolType): string {
-  switch (tool) {
+function getToolLabel(context: WorkspaceContext): string {
+  switch (context.lastTool) {
     case 'thought-download':
       return 'Thought Download';
     case 'organize':
-      return 'Organize';
+      return getLatestOrganizeWorkspaceId(context) === 'work' ? 'Work Desk' : 'Organize';
     case 'moment-log':
       return 'Moment Log';
     default:
       return 'Workspace';
   }
+}
+
+function getLatestOrganizeWorkspaceId(context: WorkspaceContext): 'personal' | 'work' {
+  const latestOrganizeCapture = context.recentCaptures.find(capture => capture.type === 'organize');
+  return latestOrganizeCapture?.workspaceId === 'work' ? 'work' : 'personal';
 }
 
 function getPreview(context: WorkspaceContext): string {
@@ -96,7 +102,7 @@ function getResumeHref(context: WorkspaceContext): string {
         ? `/dashboard/thought-download?date=${context.lastDateKey}`
         : '/dashboard/thought-download';
     case 'organize':
-      return '/dashboard/organize';
+      return getLatestOrganizeWorkspaceId(context) === 'work' ? '/dashboard/work-desk' : '/dashboard/organize';
     case 'moment-log':
       return context.lastDateKey
         ? `/dashboard/interstitial-journalling?date=${context.lastDateKey}`

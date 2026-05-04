@@ -5,6 +5,7 @@ const TIER_A_ROUTES = new Set([
   '/dashboard',
   '/dashboard/day-planner',
   '/dashboard/organize',
+  '/dashboard/work-desk',
   '/dashboard/workspace',
   '/dashboard/timer',
 ]);

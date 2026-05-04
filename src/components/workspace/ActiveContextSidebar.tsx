@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Clock, FileText, FolderKanban, MessageSquare } from 'lucide-react';
+import { BriefcaseBusiness, Clock, FileText, FolderKanban, MessageSquare } from 'lucide-react';
 import type { RecentCapture } from '@/types/workspace';
 
 interface ActiveContextSidebarProps {
@@ -9,12 +9,14 @@ interface ActiveContextSidebarProps {
 }
 
 export function ActiveContextSidebar({ recentCaptures }: ActiveContextSidebarProps) {
-  const getIcon = (type: string) => {
-    switch (type) {
+  const getIcon = (capture: RecentCapture) => {
+    switch (capture.type) {
       case 'thought-download':
         return <FileText className="w-4 h-4" />;
       case 'organize':
-        return <FolderKanban className="w-4 h-4" />;
+        return capture.workspaceId === 'work'
+          ? <BriefcaseBusiness className="w-4 h-4" />
+          : <FolderKanban className="w-4 h-4" />;
       case 'moment-log':
         return <MessageSquare className="w-4 h-4" />;
       default:
@@ -27,7 +29,7 @@ export function ActiveContextSidebar({ recentCaptures }: ActiveContextSidebarPro
       case 'thought-download':
         return capture.dateKey ? `/dashboard/thought-download?date=${capture.dateKey}` : '/dashboard/thought-download';
       case 'organize':
-        return '/dashboard/organize';
+        return capture.workspaceId === 'work' ? '/dashboard/work-desk' : '/dashboard/organize';
       case 'moment-log':
         return capture.dateKey ? `/dashboard/interstitial-journalling?date=${capture.dateKey}` : '/dashboard/interstitial-journalling';
       default:
@@ -40,7 +42,7 @@ export function ActiveContextSidebar({ recentCaptures }: ActiveContextSidebarPro
       case 'thought-download':
         return capture.dateKey || 'Thought Download';
       case 'organize':
-        return 'Organize';
+        return capture.workspaceId === 'work' ? 'Work Desk' : 'Organize';
       case 'moment-log':
         return capture.dateKey || 'Moment Log';
       default:
@@ -84,7 +86,7 @@ export function ActiveContextSidebar({ recentCaptures }: ActiveContextSidebarPro
             >
               <div className="flex items-start gap-3">
                 <div className="p-1.5 rounded bg-primary/10 text-primary flex-shrink-0 mt-0.5">
-                  {getIcon(capture.type)}
+                  {getIcon(capture)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">

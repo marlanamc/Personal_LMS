@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FileText, FolderKanban, MessageSquare, Clock } from 'lucide-react';
+import { BriefcaseBusiness, FileText, FolderKanban, MessageSquare } from 'lucide-react';
 
 export function WorkspaceToolsGrid() {
   const tools = [
@@ -22,6 +22,14 @@ export function WorkspaceToolsGrid() {
       iconColor: 'text-purple-600',
     },
     {
+      name: 'Work Desk',
+      description: 'Separate job projects and tasks',
+      href: '/dashboard/work-desk',
+      icon: BriefcaseBusiness,
+      color: 'from-slate-500/10 to-sky-600/10 hover:from-slate-500/20 hover:to-sky-600/20',
+      iconColor: 'text-sky-700',
+    },
+    {
       name: 'Moment Log',
       description: 'Quick timestamped entries',
       href: '/dashboard/interstitial-journalling',
@@ -32,7 +40,7 @@ export function WorkspaceToolsGrid() {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       {tools.map((tool) => (
         <Link
           key={tool.name}

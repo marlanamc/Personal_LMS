@@ -10,19 +10,22 @@ import { CommandPalette } from '@/components/shared/CommandPalette';
 import { InboxPanel } from './InboxPanel';
 import { useGlobalShortcuts } from '@/hooks/useGlobalShortcuts';
 import type { ThoughtOrganization } from '@/lib/thought-organization';
+import { getOrganizerWorkspace, type OrganizerWorkspaceConfig } from '@/lib/organize-workspaces';
 
 type ViewMode = 'list' | 'flow';
-
-const VIEW_STORAGE_KEY = 'organize-view-mode';
 
 const VIEW_OPTIONS: { id: ViewMode; label: string; hint: string; Icon: typeof ListChecks }[] = [
   { id: 'list', label: 'List', hint: 'Clarify & sort', Icon: ListChecks },
   { id: 'flow', label: 'Flow', hint: 'Do the next thing', Icon: Play },
 ];
 
-export function OrganizeView() {
+type OrganizeViewProps = {
+  workspace?: OrganizerWorkspaceConfig;
+};
+
+export function OrganizeView({ workspace = getOrganizerWorkspace('personal') }: OrganizeViewProps) {
   const { organization, isLoaded, isSaving, saveError, lastSyncedAt, updateOrganization } =
-    useThoughtOrganizer();
+    useThoughtOrganizer(workspace.id);
   const [showDone, setShowDone] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [headerSlot, setHeaderSlot] = useState<HTMLDivElement | null>(null);
@@ -32,19 +35,19 @@ export function OrganizeView() {
 
   // Load saved view preference
   useEffect(() => {
-    const saved = localStorage.getItem(VIEW_STORAGE_KEY);
+    const saved = localStorage.getItem(workspace.viewStorageKey);
     if (saved === 'list' || saved === 'flow') {
       setViewMode(saved);
     } else if (saved === 'bento' || saved === 'orbital') {
       setViewMode('list');
-      localStorage.setItem(VIEW_STORAGE_KEY, 'list');
+      localStorage.setItem(workspace.viewStorageKey, 'list');
     }
-  }, []);
+  }, [workspace.viewStorageKey]);
 
   const handleViewModeChange = useCallback((mode: ViewMode) => {
     setViewMode(mode);
-    localStorage.setItem(VIEW_STORAGE_KEY, mode);
-  }, []);
+    localStorage.setItem(workspace.viewStorageKey, mode);
+  }, [workspace.viewStorageKey]);
 
   const handleUpdateOrganization = useCallback(
     (org: ThoughtOrganization) => {
@@ -73,7 +76,7 @@ export function OrganizeView() {
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
             <Cloud className="mx-auto h-8 w-8 text-[var(--color-text-muted)] animate-pulse" />
-            <p className="mt-3 text-sm text-[var(--color-text-muted)]">Loading organize workspace...</p>
+            <p className="mt-3 text-sm text-[var(--color-text-muted)]">{workspace.loadingLabel}</p>
           </div>
         </div>
       </div>
@@ -97,7 +100,7 @@ export function OrganizeView() {
         <div className="lg:hidden grid grid-cols-[minmax(5.8rem,1fr)_minmax(8.5rem,12rem)_auto] items-center gap-2 w-full">
           <div className="min-w-0">
             <h1 className="font-display text-[24px] font-bold tracking-[-0.02em] text-[var(--color-text-primary)] leading-none">
-              Organize
+              {workspace.title}
             </h1>
           </div>
           <div className="flex justify-center min-w-0">
@@ -137,9 +140,9 @@ export function OrganizeView() {
               type="button"
               onClick={() => setInboxOpen(o => !o)}
               className="organize-mobile-header-action"
-              aria-label={`Open task tray${inboxCount > 0 ? `, ${inboxCount} items` : ''}`}
+              aria-label={`Open ${workspace.inboxToggleTitle.toLowerCase()}${inboxCount > 0 ? `, ${inboxCount} items` : ''}`}
               aria-pressed={inboxOpen}
-              title="Task tray"
+              title={workspace.inboxToggleTitle}
             >
               <Inbox className="h-4 w-4" strokeWidth={2} aria-hidden />
               {inboxCount > 0 ? (
@@ -161,10 +164,10 @@ export function OrganizeView() {
               aria-hidden
             />
             <h1 className="font-display text-[20px] font-bold text-[var(--color-text-primary)] leading-none">
-              Organize
+              {workspace.title}
             </h1>
             <span className="font-body text-[11px] text-[var(--color-text-muted)] ml-1 whitespace-nowrap">
-              {bulletCount} bullet{bulletCount !== 1 ? 's' : ''} • {organization.projects.length} project{organization.projects.length !== 1 ? 's' : ''}
+              {bulletCount} {bulletCount === 1 ? workspace.itemSingular : workspace.itemPlural} • {organization.projects.length} project{organization.projects.length !== 1 ? 's' : ''}
             </span>
           </div>
 
@@ -294,6 +297,13 @@ export function OrganizeView() {
         onClose={() => setInboxOpen(false)}
         organization={organization}
         onUpdateOrganization={handleUpdateOrganization}
+        copy={{
+          title: workspace.inboxTitle,
+          ariaLabel: workspace.inboxAriaLabel,
+          emptyLabel: workspace.inboxEmptyLabel,
+          placeholder: workspace.inboxPlaceholder,
+          closeLabel: workspace.closeInboxLabel,
+        }}
       />
 
     </div>

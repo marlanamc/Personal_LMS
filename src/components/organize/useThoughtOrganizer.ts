@@ -2,9 +2,18 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ThoughtOrganizerStore } from '@/lib/thought-organization';
+import type { OrganizerWorkspaceId } from '@/lib/organize-workspaces';
 
-async function persistToServer(store: ThoughtOrganizerStore, keepalive = false): Promise<void> {
-  const res = await fetch('/api/thought-organizer', {
+function organizerEndpoint(workspaceId: OrganizerWorkspaceId): string {
+  return workspaceId === 'work' ? '/api/thought-organizer?workspace=work' : '/api/thought-organizer';
+}
+
+async function persistToServer(
+  store: ThoughtOrganizerStore,
+  workspaceId: OrganizerWorkspaceId,
+  keepalive = false
+): Promise<void> {
+  const res = await fetch(organizerEndpoint(workspaceId), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     keepalive,
@@ -13,7 +22,7 @@ async function persistToServer(store: ThoughtOrganizerStore, keepalive = false):
   if (!res.ok) throw new Error('Failed to save organizer');
 }
 
-export function useThoughtOrganizer() {
+export function useThoughtOrganizer(workspaceId: OrganizerWorkspaceId = 'personal') {
   const [organization, setOrganization] = useState<ThoughtOrganizerStore>({
     bullets: [],
     projects: [],
@@ -45,7 +54,7 @@ export function useThoughtOrganizer() {
     if (isInitial) setIsLoaded(false);
 
     try {
-      const response = await fetch('/api/thought-organizer', {
+      const response = await fetch(organizerEndpoint(workspaceId), {
         method: 'GET',
         cache: 'no-store',
       });
@@ -69,7 +78,7 @@ export function useThoughtOrganizer() {
       readyToPersistRef.current = true;
       isSyncingRef.current = false;
     }
-  }, []);
+  }, [workspaceId]);
 
   // Initial load
   useEffect(() => {
@@ -117,7 +126,7 @@ export function useThoughtOrganizer() {
       setIsSaving(true);
       setSaveError(null);
       try {
-        await persistToServer(latestOrgRef.current);
+        await persistToServer(latestOrgRef.current, workspaceId);
         hasPendingChangesRef.current = false;
         setLastSyncedAt(new Date());
       } catch (error) {
@@ -134,7 +143,7 @@ export function useThoughtOrganizer() {
         saveTimerRef.current = null;
       }
     };
-  }, [isLoaded, organization]);
+  }, [isLoaded, organization, workspaceId]);
 
   // Flush pending save when navigating away or hiding the page
   useEffect(() => {
@@ -144,7 +153,7 @@ export function useThoughtOrganizer() {
         clearTimeout(saveTimerRef.current);
         saveTimerRef.current = null;
       }
-      void persistToServer(latestOrgRef.current, true)
+      void persistToServer(latestOrgRef.current, workspaceId, true)
         .then(() => {
           hasPendingChangesRef.current = false;
         })
@@ -167,7 +176,7 @@ export function useThoughtOrganizer() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       flushPendingSave();
     };
-  }, []);
+  }, [workspaceId]);
 
   const updateOrganization = useCallback((updater: (prev: ThoughtOrganizerStore) => ThoughtOrganizerStore) => {
     hasPendingChangesRef.current = true;
