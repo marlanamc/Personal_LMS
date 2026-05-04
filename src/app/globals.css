@@ -13995,9 +13995,6 @@ kbd {
     max-width: 100%;
     margin-top: 0.38rem;
     padding: 0.1rem 0.42rem;
-    background: color-mix(in srgb, var(--organize-pane-soft) 78%, transparent) !important;
-    border-color: color-mix(in srgb, var(--organize-border) 90%, transparent) !important;
-    color: var(--app-text-soft);
     font-size: 0.62rem;
     font-weight: 720;
   }

@@ -198,7 +198,7 @@ function MobileTaskRow({
         {project ? (
           <span
             className="mt-1 inline-flex items-center rounded-full border px-2 py-0.5 font-display text-[10px] font-semibold leading-none"
-            style={{ background: palette.bg, borderColor: palette.border, color: 'var(--app-text)' }}
+            style={{ background: palette.bg, borderColor: palette.border, color: palette.text }}
           >
             {project.label}
           </span>
@@ -442,9 +442,9 @@ function ListViewMobile({
               onClick={() => onSelectProject(p.id)}
               className="organize-mobile-project-pill flex shrink-0 items-center gap-2 rounded-full py-2 pl-3 pr-3.5 font-display text-[13px] font-semibold transition-all"
               style={{
-                border: `1.5px solid ${active ? pal.border : 'rgba(255,255,255,0.08)'}`,
-                background: active ? pal.bg : 'transparent',
-                color: active ? pal.text : 'var(--color-text-secondary)',
+                border: `1.5px solid ${active ? pal.border : `color-mix(in srgb, ${pal.border} 58%, transparent)`}`,
+                background: active ? pal.bg : `color-mix(in srgb, ${pal.bg} 42%, transparent)`,
+                color: pal.text,
               }}
               data-active={active ? 'true' : 'false'}
             >
@@ -608,7 +608,7 @@ function DesktopTaskCard({
         {project ? (
           <span
             className="organize-command-project-pill"
-            style={{ background: palette.bg, borderColor: palette.border }}
+            style={{ background: palette.bg, borderColor: palette.border, color: palette.text }}
           >
             {project.label}
           </span>
@@ -703,6 +703,130 @@ function DesktopLaneColumn({
 }
 
 // ── Desktop: focus inspector ─────────────────────────────────────────────────
+function ProjectEditorSection({
+  project,
+  onUpdateProject,
+}: {
+  project: ProjectMeta;
+  onUpdateProject: (projectId: string, patch: { label: string; color: ProjectColor }) => void;
+}) {
+  const [projectNameDraft, setProjectNameDraft] = useState(project.label);
+
+  useEffect(() => {
+    setProjectNameDraft(project.label);
+  }, [project.id, project.label]);
+
+  const commitProjectName = () => {
+    const trimmed = projectNameDraft.trim().slice(0, 50);
+    if (!trimmed) {
+      setProjectNameDraft(project.label);
+      return;
+    }
+    if (trimmed !== project.label) {
+      onUpdateProject(project.id, { label: trimmed, color: project.color });
+    }
+  };
+
+  const applyProjectColor = (color: ProjectColor) => {
+    const trimmed = projectNameDraft.trim().slice(0, 50) || project.label;
+    if (!trimmed) return;
+    onUpdateProject(project.id, { label: trimmed.slice(0, 50), color });
+  };
+
+  return (
+    <section className="organize-command-detail-block">
+      <h3>Project</h3>
+      <label className="sr-only" htmlFor={`organize-project-name-${project.id}`}>Project name</label>
+      <input
+        id={`organize-project-name-${project.id}`}
+        type="text"
+        value={projectNameDraft}
+        onChange={e => setProjectNameDraft(e.target.value.slice(0, 50))}
+        onBlur={commitProjectName}
+        onKeyDown={e => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            (e.target as HTMLInputElement).blur();
+          }
+        }}
+        className="organize-command-title-input min-h-0 py-2 text-[0.94rem]"
+        placeholder="Project name"
+        autoComplete="off"
+      />
+      <p className="mt-2 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">Color</p>
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Project color">
+        {PROJECT_COLOR_KEYS.map((colorKey) => {
+          const pal = PROJECT_PALETTE[colorKey];
+          const selected = project.color === colorKey;
+          return (
+            <button
+              key={colorKey}
+              type="button"
+              title={colorKey}
+              aria-label={`${colorKey}${selected ? ', selected' : ''}`}
+              aria-pressed={selected}
+              onClick={() => applyProjectColor(colorKey)}
+              className={[
+                'h-8 w-8 shrink-0 rounded-full border-2 transition-[box-shadow,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/35',
+                selected ? 'border-[var(--color-text-primary)] scale-105' : 'border-transparent',
+              ].join(' ')}
+              style={{
+                background: pal.dot,
+                boxShadow: selected ? '0 0 0 2px var(--color-text-primary)' : undefined,
+              }}
+            />
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function ProjectInspector({
+  project,
+  bullets,
+  onUpdateProject,
+  onClose,
+}: {
+  project: ProjectMeta;
+  bullets: ThoughtBullet[];
+  onUpdateProject: (projectId: string, patch: { label: string; color: ProjectColor }) => void;
+  onClose: () => void;
+}) {
+  const palette = PROJECT_PALETTE[project.color] ?? PROJECT_PALETTE.slate;
+  const activeCount = bullets.filter(b => b.project === project.id && b.lane !== 'done').length;
+  const doneCount = bullets.filter(b => b.project === project.id && b.lane === 'done').length;
+
+  return (
+    <aside className="organize-command-inspector" aria-label="Project inspector">
+      <div className="organize-command-panel-heading">
+        <span>Project Inspector</span>
+        <button type="button" onClick={onClose} className="organize-command-inspector-close" aria-label="Close inspector" title="Close inspector">
+          <X className="h-4 w-4" aria-hidden />
+        </button>
+      </div>
+      <div className="organize-command-inspector-body">
+        <div className="flex items-center gap-2">
+          <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: palette.dot, boxShadow: `0 0 12px ${palette.dot}` }} aria-hidden />
+          <h2>{project.label}</h2>
+        </div>
+
+        <ProjectEditorSection project={project} onUpdateProject={onUpdateProject} />
+
+        <section className="organize-command-detail-block">
+          <h3>Details</h3>
+          <dl>
+            <dt>Active</dt>
+            <dd>{activeCount}</dd>
+            <dt>Done</dt>
+            <dd>{doneCount}</dd>
+          </dl>
+        </section>
+      </div>
+    </aside>
+  );
+}
+
 function FocusInspector({
   bullet,
   projects,
@@ -719,11 +843,6 @@ function FocusInspector({
   onClose: () => void;
 }) {
   const project = bullet ? projects.find(p => p.id === bullet.project) : null;
-  const [projectNameDraft, setProjectNameDraft] = useState(project?.label ?? '');
-
-  useEffect(() => {
-    setProjectNameDraft(project?.label ?? '');
-  }, [bullet?.id, project?.id, project?.label]);
 
   if (!bullet) {
     return (
@@ -741,25 +860,6 @@ function FocusInspector({
   const palette = project ? (PROJECT_PALETTE[project.color] ?? PROJECT_PALETTE.slate) : null;
   const lane = bullet.lane as ThoughtLane | undefined;
   const created = formatSourceDate(bullet);
-
-  const commitProjectName = () => {
-    if (!project || !onUpdateProject) return;
-    const trimmed = projectNameDraft.trim().slice(0, 50);
-    if (!trimmed) {
-      setProjectNameDraft(project.label);
-      return;
-    }
-    if (trimmed !== project.label) {
-      onUpdateProject(project.id, { label: trimmed, color: project.color });
-    }
-  };
-
-  const applyProjectColor = (color: ProjectColor) => {
-    if (!project || !onUpdateProject) return;
-    const trimmed = projectNameDraft.trim().slice(0, 50) || project.label;
-    if (!trimmed) return;
-    onUpdateProject(project.id, { label: trimmed.slice(0, 50), color });
-  };
 
   return (
     <aside className="organize-command-inspector" aria-label="Inspector">
@@ -789,53 +889,7 @@ function FocusInspector({
           </div>
         </div>
 
-        {project && onUpdateProject ? (
-          <section className="organize-command-detail-block">
-            <h3>Project</h3>
-            <label className="sr-only" htmlFor={`organize-project-name-${project.id}`}>Project name</label>
-            <input
-              id={`organize-project-name-${project.id}`}
-              type="text"
-              value={projectNameDraft}
-              onChange={e => setProjectNameDraft(e.target.value.slice(0, 50))}
-              onBlur={commitProjectName}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  (e.target as HTMLInputElement).blur();
-                }
-              }}
-              className="organize-command-title-input min-h-0 py-2 text-[0.94rem]"
-              placeholder="Project name"
-              autoComplete="off"
-            />
-            <p className="mt-2 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">Color</p>
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Project color">
-              {PROJECT_COLOR_KEYS.map((colorKey) => {
-                const pal = PROJECT_PALETTE[colorKey];
-                const selected = project.color === colorKey;
-                return (
-                  <button
-                    key={colorKey}
-                    type="button"
-                    title={colorKey}
-                    aria-label={`${colorKey}${selected ? ', selected' : ''}`}
-                    aria-pressed={selected}
-                    onClick={() => applyProjectColor(colorKey)}
-                    className={[
-                      'h-8 w-8 shrink-0 rounded-full border-2 transition-[box-shadow,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/35',
-                      selected ? 'border-[var(--color-text-primary)] scale-105' : 'border-transparent',
-                    ].join(' ')}
-                    style={{
-                      background: pal.dot,
-                      boxShadow: selected ? '0 0 0 2px var(--color-text-primary)' : undefined,
-                    }}
-                  />
-                );
-              })}
-            </div>
-          </section>
-        ) : null}
+        {project && onUpdateProject ? <ProjectEditorSection project={project} onUpdateProject={onUpdateProject} /> : null}
 
         <section className="organize-command-detail-block">
           <h3>Details</h3>
@@ -936,10 +990,20 @@ function ProjectSidebar({
           const count = countFor(p.id);
           const isActive = selectedProjectId === p.id;
           return (
-            <button key={p.id} type="button" onClick={() => onSelectProject(p.id)} className={['organize-command-sidebar-row', isActive ? 'is-active' : ''].join(' ')}>
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => onSelectProject(p.id)}
+              className={['organize-command-sidebar-row', isActive ? 'is-active' : ''].join(' ')}
+              style={{
+                borderColor: isActive ? palette.border : `color-mix(in srgb, ${palette.border} 46%, transparent)`,
+                background: isActive ? palette.bg : 'transparent',
+                color: isActive ? palette.text : 'var(--app-text-soft)',
+              }}
+            >
               <span className="h-2.5 w-2.5 rounded-full" style={{ background: palette.dot, boxShadow: isActive ? `0 0 10px ${palette.dot}` : undefined }} />
               <span>{p.label}</span>
-              <strong>{count}</strong>
+              <strong style={{ background: palette.bg, color: palette.text }}>{count}</strong>
             </button>
           );
         })}
@@ -969,6 +1033,7 @@ export function ListViewHub({
 }: ListViewHubProps) {
   const [showImportModal, setShowImportModal] = useState(false);
   const [selectedBulletId, setSelectedBulletId] = useState<string | null>(null);
+  const [inspectorProjectId, setInspectorProjectId] = useState<string | null>(null);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -1019,6 +1084,18 @@ export function ListViewHub({
     [visibleBullets]
   );
   const selectedProject = organization.projects.find(project => project.id === selectedProjectId) ?? null;
+  const inspectorProject = organization.projects.find(project => project.id === inspectorProjectId) ?? null;
+
+  const selectSidebarProject = useCallback((projectId: string | null) => {
+    onSelectProject(projectId);
+    setSelectedBulletId(null);
+    setInspectorProjectId(projectId);
+  }, [onSelectProject]);
+
+  const selectDesktopBullet = useCallback((bulletId: string) => {
+    setInspectorProjectId(null);
+    setSelectedBulletId(bulletId);
+  }, []);
 
   const addBulletToLane = useCallback((lane: ThoughtLane) => {
     const project = selectedProject ?? organization.projects[0];
@@ -1077,6 +1154,8 @@ export function ListViewHub({
     };
     onUpdateOrganization({ ...organization, projects: [...organization.projects, project] });
     onSelectProject(project.id);
+    setSelectedBulletId(null);
+    setInspectorProjectId(project.id);
   }, [organization, onSelectProject, onUpdateOrganization]);
 
   const handleProjectUpdate = useCallback(
@@ -1111,7 +1190,7 @@ export function ListViewHub({
         projects={organization.projects}
         bullets={organization.bullets}
         selectedProjectId={selectedProjectId}
-        onSelectProject={onSelectProject}
+        onSelectProject={selectSidebarProject}
         onCreateProject={createProject}
       />
 
@@ -1153,7 +1232,7 @@ export function ListViewHub({
                   bullets={bulletsByLane[lane]}
                   projects={organization.projects}
                   selectedBulletId={selectedBulletId}
-                  onSelectBullet={setSelectedBulletId}
+                  onSelectBullet={selectDesktopBullet}
                   onMarkDone={markDone}
                   onAdd={addBulletToLane}
                 />
@@ -1171,6 +1250,13 @@ export function ListViewHub({
           onUpdateProject={handleProjectUpdate}
           onDelete={() => handleBulletDelete(selectedBullet.id)}
           onClose={() => setSelectedBulletId(null)}
+        />
+      ) : inspectorProject ? (
+        <ProjectInspector
+          project={inspectorProject}
+          bullets={organization.bullets}
+          onUpdateProject={handleProjectUpdate}
+          onClose={() => setInspectorProjectId(null)}
         />
       ) : null}
 
