@@ -379,6 +379,8 @@ export function useDailyAnchors(storageScope: string) {
   };
 }
 
+export type DailyAnchorsApi = ReturnType<typeof useDailyAnchors>;
+
 export function useDailyAnchorsForToday(storageScope: string) {
   const {
     isLoaded,

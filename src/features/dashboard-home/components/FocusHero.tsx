@@ -2,25 +2,26 @@
 
 import { DailyAnchorsTimeline } from '@/components/planning/DailyAnchorsTimeline';
 import { CalendarPanelRestoreButton } from '@/components/shared/ContextSidebar';
+import type { DailyAnchorsApi } from '@/components/daily-anchors/useDailyAnchors';
 import type { CalendarPlannerApi } from '@/features/planning/hooks/useCalendarPlanner';
 import type { CalendarEvent } from '@/features/planning/types';
 
 interface FocusHeroProps {
   userName: string;
-  storageScope: string;
   isCalendarRestoreVisible: boolean;
   onRestoreCalendar: () => void;
   calendarEvents: CalendarEvent[];
   calendarPlanner: CalendarPlannerApi;
+  dailyAnchors: DailyAnchorsApi;
 }
 
 export function FocusHero({
   userName: _userName,
-  storageScope,
   isCalendarRestoreVisible,
   onRestoreCalendar,
   calendarEvents,
   calendarPlanner,
+  dailyAnchors,
 }: FocusHeroProps) {
   // Format today's date for display
   const today = new Date();
@@ -76,9 +77,9 @@ export function FocusHero({
           {/* Timeline moved inside hero container */}
           <div className="pr-0">
             <DailyAnchorsTimeline
-              storageScope={storageScope}
               calendarEvents={calendarEvents}
               calendarPlanner={calendarPlanner}
+              dailyAnchors={dailyAnchors}
             />
           </div>
         </div>

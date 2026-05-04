@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
+import type { DailyAnchorsApi } from '@/components/daily-anchors/useDailyAnchors';
 import {
   isAnchorScheduledForDate,
   parseHHMMToMinutes,
@@ -195,12 +195,12 @@ function buildTimeWindows(
 }
 
 export function useTodayFlow(
-  storageScope: string,
   calendarEvents: CalendarEvent[],
   /** Must be the same instance passed to {@link DailyOverviewList} so acknowledgements update the progress bar. */
-  calendarPlanner: CalendarPlannerApi
+  calendarPlanner: CalendarPlannerApi,
+  /** Must be the same instance passed to the home timeline so the shell does not render stale defaults first. */
+  dailyAnchors: DailyAnchorsApi,
 ): TodayFlowState {
-  const { anchors } = useDailyAnchorsForToday(storageScope);
   const {
     getPlan,
     updatePlanField,
@@ -215,6 +215,11 @@ export function useTodayFlow(
   const today = useMemo(() => new Date(), []);
   const todayKey = getTodayKey();
   const todayPlan = getPlan(todayKey);
+  const todayAnchorState = dailyAnchors.getStateForDate(today);
+  const anchors = useMemo(
+    () => (dailyAnchors.isLoaded ? todayAnchorState.anchors : []),
+    [dailyAnchors.isLoaded, todayAnchorState.anchors],
+  );
 
   const currentPlan = plannerStore[todayKey];
   const activeConstraints = useMemo(() => {

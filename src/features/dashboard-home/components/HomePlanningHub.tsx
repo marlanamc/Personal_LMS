@@ -10,6 +10,7 @@ import { MobileCommandHeader } from '@/features/dashboard-home';
 import { useZenMode } from '@/features/planning/hooks/useZenMode';
 import { useTodayFlow } from '@/features/planning/hooks/useTodayFlow';
 import { useCalendarPlanner } from '@/features/planning/hooks/useCalendarPlanner';
+import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import type { CalendarEvent } from '@/features/planning/types';
 import type { ChecklistItem } from '@/types/checklist-item';
 
@@ -28,10 +29,11 @@ export function HomePlanningHub({
 }: HomePlanningHubProps) {
   const { isZenMode, toggleZenMode } = useZenMode();
   const calendarPlanner = useCalendarPlanner(storageScope);
+  const dailyAnchors = useDailyAnchors(storageScope);
 
   const {
     todaySummary,
-  } = useTodayFlow(storageScope, calendarEvents, calendarPlanner);
+  } = useTodayFlow(calendarEvents, calendarPlanner, dailyAnchors);
 
   return (
     <div
@@ -52,11 +54,11 @@ export function HomePlanningHub({
         <section className="animate-fade-in-up relative cosmic-hero-field md:cosmic-hero-field focus-hero-mobile-plain-field">
           <FocusHero
             userName={userName}
-            storageScope={storageScope}
             isCalendarRestoreVisible={isZenMode}
             onRestoreCalendar={toggleZenMode}
             calendarEvents={calendarEvents}
             calendarPlanner={calendarPlanner}
+            dailyAnchors={dailyAnchors}
           />
         </section>
 

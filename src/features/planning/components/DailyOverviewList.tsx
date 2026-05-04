@@ -30,7 +30,6 @@ import {
   Timer,
   type LucideIcon,
 } from 'lucide-react';
-import { useDailyAnchorsForToday } from '@/components/daily-anchors/useDailyAnchors';
 import { useTimeBlockPlanner } from '@/features/planning/hooks/useTimeBlockPlanner';
 import type { CalendarPlannerApi } from '@/features/planning/hooks/useCalendarPlanner';
 import { getTodayKey } from '@/lib/unified-scheduler';
@@ -71,6 +70,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { AnchorSkipReasonDialog } from './AnchorSkipReasonDialog';
 import { MobileAnchorEditPanel } from './MobileAnchorEditPanel';
 import { cn } from '@/lib/utils';
+import type { DailyAnchorsApi } from '@/components/daily-anchors/useDailyAnchors';
 
 // Icon component mapping
 const iconByName: Record<string, LucideIcon> = {
@@ -211,9 +211,9 @@ function OverviewRowStatusBadge({
 }
 
 interface DailyOverviewListProps {
-  storageScope: string;
   calendarEvents: CalendarEvent[];
   calendarPlanner: CalendarPlannerApi;
+  dailyAnchors: DailyAnchorsApi;
 }
 
 function AnchorOverviewRow({
@@ -720,23 +720,41 @@ function OnAgainPlanOverviewRow({
 }
 
 export function DailyOverviewList({
-  storageScope,
   calendarEvents,
   calendarPlanner,
+  dailyAnchors,
 }: DailyOverviewListProps) {
   const todayKey = getTodayKey();
   const today = useMemo(() => new Date(), []);
 
   const {
-    anchors,
-    toggleAnchor,
-    setTodayAnchors,
-    setTodayAnchorStatus,
     isLoaded,
-  } = useDailyAnchorsForToday(storageScope);
+    getStateForDate,
+    toggleAnchorForDate,
+    setAnchorsForDate,
+    setAnchorStatusForDate,
+  } = dailyAnchors;
   const { plannerStore, plannerDefaults, isLoaded: isPlannerLoaded } = useTimeBlockPlanner();
   const { getPlan, updatePlanField } = calendarPlanner;
   const todayPlan = getPlan(todayKey);
+  const todayAnchorState = getStateForDate(today);
+  const anchors = useMemo(
+    () => (isLoaded ? todayAnchorState.anchors : []),
+    [isLoaded, todayAnchorState.anchors],
+  );
+  const toggleAnchor = useCallback(
+    (anchorId: AnchorId) => toggleAnchorForDate(today, anchorId),
+    [toggleAnchorForDate, today],
+  );
+  const setTodayAnchors = useCallback(
+    (nextAnchors: DailyAnchor[]) => setAnchorsForDate(today, nextAnchors),
+    [setAnchorsForDate, today],
+  );
+  const setTodayAnchorStatus = useCallback(
+    (anchorId: AnchorId, status: DailyAnchor['status'], skipReason?: SkipReason) =>
+      setAnchorStatusForDate(today, anchorId, status, skipReason),
+    [setAnchorStatusForDate, today],
+  );
 
   const [openEditorAnchorId, setOpenEditorAnchorId] = useState<AnchorId | null>(null);
   const [skipReasonAnchor, setSkipReasonAnchor] = useState<{ id: AnchorId; label: string } | null>(null);
@@ -974,6 +992,18 @@ export function DailyOverviewList({
       });
     }
   };
+
+  if (!isLoaded) {
+    return (
+      <div className="mobile-anchor-stack relative overflow-hidden rounded-[2.2rem] border border-border-subtle/70 bg-bg-surface/75 p-3">
+        <div className="space-y-2">
+          <div className="h-14 rounded-2xl bg-bg-elevated/70 animate-pulse" />
+          <div className="h-14 rounded-2xl bg-bg-elevated/55 animate-pulse" />
+          <div className="h-14 rounded-2xl bg-bg-elevated/45 animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   if (overviewItems.length === 0) {
     return (

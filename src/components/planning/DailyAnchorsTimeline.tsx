@@ -42,8 +42,8 @@ import {
 import { EditAnchorsSheet } from '@/components/dashboard/EditAnchorsSheet';
 import { AnchorSkipReasonDialog } from '@/features/planning/components/AnchorSkipReasonDialog';
 import { DailyOverviewList } from '@/features/planning/components/DailyOverviewList';
+import type { DailyAnchorsApi } from '@/components/daily-anchors/useDailyAnchors';
 import type { CalendarPlannerApi } from '@/features/planning/hooks/useCalendarPlanner';
-import { useDailyAnchors } from '@/components/daily-anchors/useDailyAnchors';
 import {
   formatTimeLabel,
   formatTimeRange,
@@ -83,9 +83,9 @@ import { getCalendarMarkerColor } from '@/components/planning/MiniCalendar';
 import { getBoundaryKindAccent } from '@/features/planning/components/daily-overview-styles';
 
 interface DailyAnchorsTimelineProps {
-  storageScope: string;
   calendarEvents: CalendarEvent[];
   calendarPlanner: CalendarPlannerApi;
+  dailyAnchors: DailyAnchorsApi;
 }
 
 
@@ -626,15 +626,15 @@ function MobileAnchorsTimelineStrip({
 }
 
 export function DailyAnchorsTimeline({
-  storageScope,
   calendarEvents,
   calendarPlanner,
+  dailyAnchors,
 }: DailyAnchorsTimelineProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { getPlan, updatePlanField } = calendarPlanner;
   const { getStateForDate, toggleAnchorForDate, setAnchorStatusForDate, setAnchorsForDate, anchorTemplates, setAnchorTemplates, isLoaded, weeklySkipReasonInsight } =
-    useDailyAnchors(storageScope);
+    dailyAnchors;
 
   // Date navigation: default to today, allow browsing up to 7 days back
   const [viewDate, setViewDate] = useState<Date>(() => new Date());
@@ -644,7 +644,10 @@ export function DailyAnchorsTimeline({
   }, [viewDate]);
 
   const viewDateState = getStateForDate(viewDate);
-  const anchors = viewDateState.anchors;
+  const anchors = useMemo(
+    () => (isLoaded ? viewDateState.anchors : []),
+    [isLoaded, viewDateState.anchors],
+  );
   const anchorsScheduledForView = useMemo(
     () => anchors.filter((anchor) => isAnchorScheduledForDate(anchor, viewDate)),
     [anchors, viewDate],
@@ -1003,6 +1006,33 @@ export function DailyAnchorsTimeline({
     }
     return markers;
   }, []);
+
+  if (!isLoaded) {
+    return (
+      <div className="daily-anchors-card mobile-anchors-plain relative overflow-hidden rounded-none lg:rounded-2xl">
+        <div aria-hidden className="absolute inset-0 daily-anchors-nebula pointer-events-none" />
+        <div className="relative z-10 p-0 lg:p-5">
+          <div className="hidden lg:flex items-center justify-between gap-3 mb-6">
+            <div className="h-6 w-44 rounded-full bg-bg-surface/70 animate-pulse" />
+            <div className="h-9 w-9 rounded-full bg-bg-surface/70 animate-pulse" />
+          </div>
+          <div className="rounded-2xl border border-border-subtle/60 bg-bg-surface/45 px-3 py-4 lg:px-5 lg:py-8">
+            <div className="flex justify-between gap-2">
+              {hourMarkers.map(({ hour }) => (
+                <span key={hour} className="h-2 w-7 rounded-full bg-bg-elevated/70 animate-pulse" />
+              ))}
+            </div>
+            <div className="mt-5 h-3 rounded-full bg-bg-elevated/75 animate-pulse" />
+            <div className="mt-5 space-y-2 lg:hidden">
+              <div className="h-12 rounded-2xl bg-bg-elevated/60 animate-pulse" />
+              <div className="h-12 rounded-2xl bg-bg-elevated/50 animate-pulse" />
+              <div className="h-12 rounded-2xl bg-bg-elevated/40 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -1558,9 +1588,9 @@ export function DailyAnchorsTimeline({
               onAgainRhythm={onAgainRhythm}
             />
             <DailyOverviewList
-              storageScope={storageScope}
               calendarEvents={calendarEvents}
               calendarPlanner={calendarPlanner}
+              dailyAnchors={dailyAnchors}
             />
           </div>
 
