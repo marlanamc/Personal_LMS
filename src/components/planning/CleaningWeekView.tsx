@@ -6,7 +6,7 @@ import { CleaningTaskCard } from './CleaningTaskCard';
 import {
   getAvailableCleaningZones,
   getCleaningTaskStatus,
-  getScheduledCleaningTaskDate,
+  getScheduledCleaningTaskDatesInRange,
   type CleaningPlannerStore,
   type CleaningTask,
 } from '@/lib/cleaning-planner';
@@ -39,6 +39,10 @@ function startOfWeek(date: Date): Date {
   return next;
 }
 
+function toDateKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
 function isSameDay(a: Date, b: Date): boolean {
   return (
     a.getFullYear() === b.getFullYear() &&
@@ -47,12 +51,8 @@ function isSameDay(a: Date, b: Date): boolean {
   );
 }
 
-function toDateKey(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-}
-
 function getDayTasks(tasks: CleaningTask[], day: Date, now: Date): CleaningTask[] {
-  return tasks.filter((task) => isSameDay(getScheduledCleaningTaskDate(task, now), day));
+  return tasks.filter((task) => getScheduledCleaningTaskDatesInRange(task, day, day, now).length > 0);
 }
 
 function formatDayLabel(date: Date): string {

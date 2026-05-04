@@ -393,6 +393,44 @@ export function getScheduledCleaningTaskDate(task: CleaningTask, now = new Date(
   return getEffectiveCleaningDueDate(task, now) ?? startOfDay(now);
 }
 
+export function getScheduledCleaningTaskDatesInRange(
+  task: CleaningTask,
+  rangeStart: Date,
+  rangeEnd: Date,
+  now = new Date(),
+): Date[] {
+  const start = startOfDay(rangeStart);
+  const end = startOfDay(rangeEnd);
+  if (end.getTime() < start.getTime()) return [];
+
+  if (task.cadence.kind !== 'weekly-days') {
+    const scheduledDate = getScheduledCleaningTaskDate(task, now);
+    return scheduledDate.getTime() >= start.getTime() && scheduledDate.getTime() <= end.getTime()
+      ? [scheduledDate]
+      : [];
+  }
+
+  const firstScheduledDate = getEffectiveCleaningDueDate(task, now);
+  if (!firstScheduledDate) return [];
+
+  const dates: Date[] = [];
+  let cursor = startOfDay(firstScheduledDate);
+  while (cursor.getTime() < start.getTime()) {
+    const next = nextSelectedWeekdayOnOrAfter(addDays(cursor, 1), task.cadence.daysOfWeek);
+    if (!next || next.getTime() <= cursor.getTime()) return dates;
+    cursor = next;
+  }
+
+  while (cursor.getTime() <= end.getTime()) {
+    dates.push(cursor);
+    const next = nextSelectedWeekdayOnOrAfter(addDays(cursor, 1), task.cadence.daysOfWeek);
+    if (!next || next.getTime() <= cursor.getTime()) break;
+    cursor = next;
+  }
+
+  return dates;
+}
+
 export function getCleaningTaskStatus(task: CleaningTask, now = new Date(), upcomingWindowDays = 7): CleaningTaskStatus {
   const today = startOfDay(now);
 

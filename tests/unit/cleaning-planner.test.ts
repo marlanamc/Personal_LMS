@@ -7,6 +7,7 @@ import {
   getCleaningTaskStatus,
   getNextDueDate,
   getScheduledCleaningTaskDate,
+  getScheduledCleaningTaskDatesInRange,
   normalizeCleaningPlannerStore,
   upsertCleaningTask,
   type CleaningPlannerStore,
@@ -185,6 +186,24 @@ describe('cleaning planner', () => {
 
     expect(toDateKey(getScheduledCleaningTaskDate(task, new Date('2026-05-03T13:00:00.000Z')))).toBe('2026-05-04');
     expect(getCleaningTaskStatus(task, new Date('2026-05-03T13:00:00.000Z'))).toBe('upcoming');
+  });
+
+  it('returns every weekday recurrence instance inside a calendar range', () => {
+    const task = createCleaningTask({
+      title: 'Vacuum traffic areas',
+      zoneId: 'whole-home',
+      taskType: 'clean',
+      cadence: { kind: 'weekly-days', daysOfWeek: [1, 4] },
+    });
+
+    const dates = getScheduledCleaningTaskDatesInRange(
+      task,
+      new Date('2026-05-03T13:00:00.000Z'),
+      new Date('2026-05-09T13:00:00.000Z'),
+      new Date('2026-05-03T13:00:00.000Z'),
+    );
+
+    expect(dates.map((date) => toDateKey(date))).toEqual(['2026-05-04', '2026-05-07']);
   });
 
   it('round-trips saved data through normalization', () => {

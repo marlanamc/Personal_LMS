@@ -6,7 +6,7 @@ import { CleaningTaskCard } from './CleaningTaskCard';
 import {
   getAvailableCleaningZones,
   getCleaningTaskStatus,
-  getScheduledCleaningTaskDate,
+  getScheduledCleaningTaskDatesInRange,
   getStatusColors,
   type CleaningPlannerStore,
   type CleaningTask,
@@ -53,7 +53,7 @@ function toDateKey(date: Date): string {
 }
 
 function getDayTasks(tasks: CleaningTask[], day: Date, now: Date): CleaningTask[] {
-  return tasks.filter((task) => isSameDay(getScheduledCleaningTaskDate(task, now), day));
+  return tasks.filter((task) => getScheduledCleaningTaskDatesInRange(task, day, day, now).length > 0);
 }
 
 export function CleaningMonthView({
