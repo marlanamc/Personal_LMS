@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo, type ReactNode } from 'react';
+import { useState, useCallback, useMemo, useEffect, type ReactNode } from 'react';
 import { DndContext, DragEndEvent, DragStartEvent, PointerSensor, TouchSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { ArrowRight, Check, ChevronDown, ChevronRight, Download, Eye, EyeOff, GripVertical, MoreHorizontal, Plus, Trash2, X } from 'lucide-react';
@@ -30,6 +30,8 @@ const PROJECT_PALETTE: Record<ProjectColor, { dot: string; bg: string; border: s
   blush:      { dot: 'var(--project-blush)',     bg: 'var(--project-blush-wash)',     border: 'var(--project-blush-border)',     text: 'var(--project-blush)' },
   slate:      { dot: 'var(--project-slate)',      bg: 'var(--project-slate-wash)',      border: 'var(--project-slate-border)',      text: 'var(--project-slate)' },
 };
+
+const PROJECT_COLOR_KEYS = Object.keys(PROJECT_PALETTE) as ProjectColor[];
 
 const LANE_META: Record<ThoughtLane, { label: string; colorVar: string; bgVar: string; borderVar: string }> = {
   now:   { label: "Today's Journey", colorVar: '--color-lane-now',   bgVar: '--color-lane-now-bg',   borderVar: '--color-lane-now-border' },
@@ -705,15 +707,24 @@ function FocusInspector({
   bullet,
   projects,
   onUpdate,
+  onUpdateProject,
   onDelete,
   onClose,
 }: {
   bullet: ThoughtBullet | null;
   projects: ProjectMeta[];
   onUpdate: (updates: Partial<ThoughtBullet>) => void;
+  onUpdateProject?: (projectId: string, patch: { label: string; color: ProjectColor }) => void;
   onDelete: () => void;
   onClose: () => void;
 }) {
+  const project = bullet ? projects.find(p => p.id === bullet.project) : null;
+  const [projectNameDraft, setProjectNameDraft] = useState(project?.label ?? '');
+
+  useEffect(() => {
+    setProjectNameDraft(project?.label ?? '');
+  }, [bullet?.id, project?.id, project?.label]);
+
   if (!bullet) {
     return (
       <aside className="organize-command-inspector" aria-label="Inspector">
@@ -727,10 +738,28 @@ function FocusInspector({
     );
   }
 
-  const project = projects.find(p => p.id === bullet.project);
   const palette = project ? (PROJECT_PALETTE[project.color] ?? PROJECT_PALETTE.slate) : null;
   const lane = bullet.lane as ThoughtLane | undefined;
   const created = formatSourceDate(bullet);
+
+  const commitProjectName = () => {
+    if (!project || !onUpdateProject) return;
+    const trimmed = projectNameDraft.trim().slice(0, 50);
+    if (!trimmed) {
+      setProjectNameDraft(project.label);
+      return;
+    }
+    if (trimmed !== project.label) {
+      onUpdateProject(project.id, { label: trimmed, color: project.color });
+    }
+  };
+
+  const applyProjectColor = (color: ProjectColor) => {
+    if (!project || !onUpdateProject) return;
+    const trimmed = projectNameDraft.trim().slice(0, 50) || project.label;
+    if (!trimmed) return;
+    onUpdateProject(project.id, { label: trimmed.slice(0, 50), color });
+  };
 
   return (
     <aside className="organize-command-inspector" aria-label="Inspector">
@@ -758,25 +787,59 @@ function FocusInspector({
               rows={2}
             />
           </div>
-          {project && palette ? (
-            <div className="mt-3 flex items-center gap-2">
-              <span className="organize-command-project-pill" style={{ background: palette.bg, borderColor: palette.border }}>
-                {project.label}
-              </span>
-              <span className="text-[12px] text-[var(--color-text-muted)]">+ Add tag</span>
-            </div>
-          ) : null}
         </div>
+
+        {project && onUpdateProject ? (
+          <section className="organize-command-detail-block">
+            <h3>Project</h3>
+            <label className="sr-only" htmlFor={`organize-project-name-${project.id}`}>Project name</label>
+            <input
+              id={`organize-project-name-${project.id}`}
+              type="text"
+              value={projectNameDraft}
+              onChange={e => setProjectNameDraft(e.target.value.slice(0, 50))}
+              onBlur={commitProjectName}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  (e.target as HTMLInputElement).blur();
+                }
+              }}
+              className="organize-command-title-input min-h-0 py-2 text-[0.94rem]"
+              placeholder="Project name"
+              autoComplete="off"
+            />
+            <p className="mt-2 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-text-muted)]">Color</p>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Project color">
+              {PROJECT_COLOR_KEYS.map((colorKey) => {
+                const pal = PROJECT_PALETTE[colorKey];
+                const selected = project.color === colorKey;
+                return (
+                  <button
+                    key={colorKey}
+                    type="button"
+                    title={colorKey}
+                    aria-label={`${colorKey}${selected ? ', selected' : ''}`}
+                    aria-pressed={selected}
+                    onClick={() => applyProjectColor(colorKey)}
+                    className={[
+                      'h-8 w-8 shrink-0 rounded-full border-2 transition-[box-shadow,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/35',
+                      selected ? 'border-[var(--color-text-primary)] scale-105' : 'border-transparent',
+                    ].join(' ')}
+                    style={{
+                      background: pal.dot,
+                      boxShadow: selected ? '0 0 0 2px var(--color-text-primary)' : undefined,
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
 
         <section className="organize-command-detail-block">
           <h3>Details</h3>
           <dl>
-            {project ? (
-              <>
-                <dt>Project</dt>
-                <dd style={palette ? { color: palette.text } : undefined}>{project.label}</dd>
-              </>
-            ) : null}
             {lane ? (
               <>
                 <dt>Priority</dt>
@@ -1016,6 +1079,23 @@ export function ListViewHub({
     onSelectProject(project.id);
   }, [organization, onSelectProject, onUpdateOrganization]);
 
+  const handleProjectUpdate = useCallback(
+    (projectId: string, patch: { label: string; color: ProjectColor }) => {
+      const trimmed = patch.label.trim().slice(0, 50);
+      if (!trimmed) return;
+      const projectsNext = organization.projects.map(p =>
+        p.id === projectId ? { ...p, label: trimmed, color: patch.color } : p
+      );
+      const updatedMeta = projectsNext.find(p => p.id === projectId);
+      if (!updatedMeta) return;
+      const bulletsNext = organization.bullets.map(b =>
+        b.project === projectId ? { ...b, projectMeta: updatedMeta } : b
+      );
+      onUpdateOrganization({ ...organization, projects: projectsNext, bullets: bulletsNext });
+    },
+    [organization, onUpdateOrganization]
+  );
+
   return (
     <div className="organize-list-view-root flex h-full overflow-hidden">
       {/* ── MOBILE: full replacement list view ── */}
@@ -1088,6 +1168,7 @@ export function ListViewHub({
           bullet={selectedBullet}
           projects={organization.projects}
           onUpdate={updates => handleBulletUpdate(selectedBullet.id, updates)}
+          onUpdateProject={handleProjectUpdate}
           onDelete={() => handleBulletDelete(selectedBullet.id)}
           onClose={() => setSelectedBulletId(null)}
         />
