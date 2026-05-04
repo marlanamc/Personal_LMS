@@ -212,7 +212,7 @@ function RiverOverlayHoverCard({
   const fullLabel = `${title}. ${timeLabel}. In: ${inLabel}`;
   return (
     <div
-      className="group relative flex flex-col items-center justify-center rounded-sm outline-none pointer-events-auto focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
+      className="river-overlay-marker group relative flex flex-col items-center justify-center rounded-sm outline-none pointer-events-auto focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
       tabIndex={0}
       aria-label={fullLabel}
     >

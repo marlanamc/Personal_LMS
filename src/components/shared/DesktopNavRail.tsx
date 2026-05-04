@@ -174,9 +174,9 @@ export function DesktopNavRail() {
                   href={item.href}
                   title={!isExpanded ? item.label : undefined}
                   className={[
-                    'flex items-center gap-3 mx-1.5 my-0.5 px-2.5 rounded-[10px] h-10 min-w-0 transition-colors duration-150',
+                    'desktop-nav-item flex items-center gap-3 mx-1.5 my-0.5 px-2.5 rounded-[10px] h-10 min-w-0 transition-[background-color,border-color,color,box-shadow] duration-150',
                     isActive
-                      ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                      ? 'is-active bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
                       : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-surface)]/60',
                   ].join(' ')}
                   aria-current={isActive ? 'page' : undefined}
@@ -213,9 +213,9 @@ export function DesktopNavRail() {
           href="/dashboard/profile"
           title={!isExpanded ? 'Settings' : undefined}
           className={[
-            'flex items-center gap-3 mx-1.5 my-0.5 px-2.5 rounded-[10px] h-10 min-w-0 transition-colors duration-150',
+            'desktop-nav-item flex items-center gap-3 mx-1.5 my-0.5 px-2.5 rounded-[10px] h-10 min-w-0 transition-[background-color,border-color,color,box-shadow] duration-150',
             pathname.startsWith('/dashboard/profile')
-              ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+              ? 'is-active bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
               : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-surface)]/60',
           ].join(' ')}
           aria-current={pathname.startsWith('/dashboard/profile') ? 'page' : undefined}

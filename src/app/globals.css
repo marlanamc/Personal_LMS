@@ -13,10 +13,10 @@
   --color-bg-surface: #0d1a2d;
   --color-bg-elevated: #12223a;
   --color-bg-soft: #172842;
-  --color-surface-glass: rgba(28, 39, 68, 0.72);
+  --color-surface-glass: rgba(22, 32, 62, 0.68);
   --color-border-subtle: rgba(255, 255, 255, 0.08);
   --color-border-strong: rgba(255, 255, 255, 0.12);
-  --color-border-glow: rgba(244, 151, 190, 0.35);
+  --color-border-glow: rgba(167, 139, 250, 0.40);
 
   --color-text-primary: #f4f1ea;
   --color-text-secondary: #c8d0df;
@@ -30,6 +30,44 @@
   --color-accent-blue: #79b8ff;
   --color-accent-honey: #f5c86a;
   --color-accent-coral: #ff9b7a;
+  --liquid-canvas-a: #061427;
+  --liquid-canvas-b: #081f3c;
+  --liquid-canvas-c: #151436;
+  --liquid-glass-fill: rgba(13, 31, 62, 0.58);
+  --liquid-glass-fill-strong: rgba(16, 35, 72, 0.72);
+  --liquid-glass-fill-soft: rgba(22, 50, 88, 0.36);
+  --liquid-glass-border: rgba(139, 181, 255, 0.22);
+  --liquid-glass-highlight: rgba(255, 255, 255, 0.09);
+  --liquid-glass-primary-fill: rgba(12, 30, 61, 0.64);
+  --liquid-glass-primary-border: rgba(135, 178, 255, 0.24);
+  --liquid-glass-secondary-fill: rgba(13, 28, 58, 0.46);
+  --liquid-glass-secondary-border: rgba(142, 183, 255, 0.18);
+  --liquid-glass-tertiary-fill: rgba(18, 38, 75, 0.38);
+  --liquid-glass-tertiary-border: rgba(181, 205, 255, 0.18);
+  --liquid-glass-shadow:
+    0 22px 70px rgba(0, 7, 24, 0.38),
+    inset 0 1px 0 var(--liquid-glass-highlight);
+  --liquid-glass-shadow-soft:
+    0 14px 42px rgba(0, 7, 24, 0.28),
+    inset 0 1px 0 var(--liquid-glass-highlight);
+  --liquid-glass-shadow-primary:
+    0 26px 80px rgba(0, 8, 28, 0.42),
+    0 0 0 1px rgba(150, 190, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.11);
+  --liquid-glass-shadow-secondary:
+    0 16px 46px rgba(0, 8, 28, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --liquid-glass-shadow-tertiary:
+    0 8px 24px rgba(0, 8, 28, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --liquid-header-fill: rgba(4, 14, 34, 0.28);
+  --liquid-rail-fill: rgba(7, 22, 48, 0.54);
+  --liquid-ambient-primary: rgba(74, 147, 255, 0.22);
+  --liquid-ambient-secondary: rgba(232, 95, 180, 0.16);
+  --liquid-ambient-tertiary: rgba(112, 217, 205, 0.12);
+  --liquid-top-light: rgba(109, 176, 255, 0.13);
+  --liquid-edge-depth: rgba(0, 5, 20, 0.36);
+  --liquid-grain-opacity: 0.028;
   --app-bg: var(--color-bg-base);
   --app-surface: var(--color-bg-surface);
   --app-surface-soft: var(--color-bg-soft);
@@ -60,7 +98,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --color-card-shadow-hover:
     0 22px 58px rgba(1, 7, 18, 0.52),
-    0 0 0 1px rgba(244, 151, 190, 0.12),
+    0 0 0 1px rgba(167, 139, 250, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
   /* Legacy aliases to keep existing utilities working */
@@ -152,9 +190,9 @@
   --shadow-organize-card-hover: var(--shadow-organize-card-dark-hover);
 
   /* Glow Effects (Dark Mode) */
-  --glow-primary: 0 0 24px rgba(212, 138, 166, 0.4);
-  --glow-teal: 0 0 24px rgba(79, 140, 158, 0.4);
-  --glow-mint: 0 0 24px rgba(120, 191, 165, 0.4);
+  --glow-primary: 0 0 24px rgba(167, 139, 250, 0.45);
+  --glow-teal:    0 0 24px rgba(120, 216, 195, 0.40);
+  --glow-mint:    0 0 24px rgba(120, 191, 165, 0.40);
 
   /* Glow Shadows for Tailwind utilities (used by Button, Card) */
   --shadow-glow-pink: 0 0 16px rgba(212, 138, 166, 0.35);
@@ -259,14 +297,14 @@
 :root.light {
   color-scheme: light;
 
-  --color-bg-base: #fbf6ee;
-  --color-bg-surface: #fffaf2;
-  --color-bg-elevated: #f5ead9;
-  --color-bg-soft: #ecdcc6;
-  --color-surface-glass: rgba(255, 251, 244, 0.9);
-  --color-border-subtle: rgba(70, 55, 45, 0.10);
-  --color-border-strong: rgba(70, 55, 45, 0.12);
-  --color-border-glow: rgba(221, 139, 160, 0.35);
+  --color-bg-base: #f5f3ff;
+  --color-bg-surface: #faf8ff;
+  --color-bg-elevated: #eeeaff;
+  --color-bg-soft: #e4dfff;
+  --color-surface-glass: rgba(248, 246, 255, 0.88);
+  --color-border-subtle: rgba(120, 100, 200, 0.12);
+  --color-border-strong: rgba(120, 100, 200, 0.16);
+  --color-border-glow: rgba(167, 139, 250, 0.40);
 
   --color-text-primary: #232936;
   --color-text-secondary: #4f5a6d;
@@ -280,6 +318,44 @@
   --color-accent-blue: #7198d8;
   --color-accent-honey: #d9a84f;
   --color-accent-coral: #cf735f;
+  --liquid-canvas-a: #eaf4ff;
+  --liquid-canvas-b: #f4edff;
+  --liquid-canvas-c: #fff2f8;
+  --liquid-glass-fill: rgba(255, 255, 255, 0.44);
+  --liquid-glass-fill-strong: rgba(255, 255, 255, 0.62);
+  --liquid-glass-fill-soft: rgba(255, 255, 255, 0.28);
+  --liquid-glass-border: rgba(255, 255, 255, 0.68);
+  --liquid-glass-highlight: rgba(255, 255, 255, 0.92);
+  --liquid-glass-primary-fill: rgba(255, 255, 255, 0.58);
+  --liquid-glass-primary-border: rgba(255, 255, 255, 0.72);
+  --liquid-glass-secondary-fill: rgba(255, 255, 255, 0.38);
+  --liquid-glass-secondary-border: rgba(255, 255, 255, 0.58);
+  --liquid-glass-tertiary-fill: rgba(255, 255, 255, 0.48);
+  --liquid-glass-tertiary-border: rgba(255, 255, 255, 0.62);
+  --liquid-glass-shadow:
+    0 24px 70px rgba(93, 108, 180, 0.18),
+    inset 0 1px 0 var(--liquid-glass-highlight);
+  --liquid-glass-shadow-soft:
+    0 14px 42px rgba(93, 108, 180, 0.13),
+    inset 0 1px 0 var(--liquid-glass-highlight);
+  --liquid-glass-shadow-primary:
+    0 28px 80px rgba(96, 116, 190, 0.20),
+    0 0 0 1px rgba(255, 255, 255, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96);
+  --liquid-glass-shadow-secondary:
+    0 16px 44px rgba(96, 116, 190, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  --liquid-glass-shadow-tertiary:
+    0 8px 22px rgba(96, 116, 190, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88);
+  --liquid-header-fill: rgba(255, 255, 255, 0.22);
+  --liquid-rail-fill: rgba(232, 241, 255, 0.42);
+  --liquid-ambient-primary: rgba(118, 185, 255, 0.46);
+  --liquid-ambient-secondary: rgba(255, 125, 190, 0.30);
+  --liquid-ambient-tertiary: rgba(172, 144, 255, 0.38);
+  --liquid-top-light: rgba(255, 255, 255, 0.46);
+  --liquid-edge-depth: rgba(126, 114, 190, 0.08);
+  --liquid-grain-opacity: 0.022;
   --app-bg: var(--color-bg-base);
   --app-surface: var(--color-bg-surface);
   --app-surface-soft: var(--color-bg-elevated);
@@ -293,9 +369,9 @@
   --accent-secondary: var(--color-accent-amethyst);
   --accent-tertiary: var(--color-accent-teal);
 
-  --color-bg-base-light: #fbf6ee;
-  --color-bg-surface-light: #fffaf2;
-  --color-bg-elevated-light: #f5ead9;
+  --color-bg-base-light: #f5f3ff;
+  --color-bg-surface-light: #faf8ff;
+  --color-bg-elevated-light: #eeeaff;
   --color-text-primary-light: #232936;
   --color-text-secondary-light: #4f5a6d;
   --color-text-muted-light: #7b8495;
@@ -305,20 +381,20 @@
   --color-accent-mint-light: #5cb87a;
   --color-accent-amethyst-light: #9b73c7;
 
-  --color-light-nebula-start: #fbf3e7;
-  --color-light-nebula-mid: #efdfcd;
-  --color-light-nebula-end: #f9c7d4;
-  --color-light-hero-start: #fffbf4;
-  --color-light-hero-mid: #faf1e6;
-  --color-light-hero-end: #ecdcc6;
-  --color-light-card-top: #fffbf4;
-  --color-light-card-bottom: #faf1e6;
-  --color-light-shadow-soft: 0 18px 45px rgba(96, 62, 41, 0.10);
-  --color-light-shadow-hover: 0 22px 54px rgba(96, 62, 41, 0.14);
-  --color-light-shadow-hero: 0 20px 50px rgba(116, 77, 58, 0.13);
-  --color-light-progress-track: #ead6c8;
-  --color-light-timeline-track: #e0d1c3;
-  --color-light-timeline-complete: #c0d2c0;
+  --color-light-nebula-start: #f0eeff;
+  --color-light-nebula-mid:   #e4deff;
+  --color-light-nebula-end:   #ddd5ff;
+  --color-light-hero-start:   #faf8ff;
+  --color-light-hero-mid:     #f0ecff;
+  --color-light-hero-end:     #e4dfff;
+  --color-light-card-top:     #faf8ff;
+  --color-light-card-bottom:  #f0ecff;
+  --color-light-shadow-soft: 0 18px 45px rgba(100, 80, 180, 0.10);
+  --color-light-shadow-hover: 0 22px 54px rgba(100, 80, 180, 0.14);
+  --color-light-shadow-hero:  0 20px 50px rgba(100, 80, 180, 0.12);
+  --color-light-progress-track: #dcd8f5;
+  --color-light-timeline-track: #d8d4f0;
+  --color-light-timeline-complete: #b8d0f0;
   --color-light-selected-anchor-fill: #dde7ff;
   --color-light-calendar-event: #9db8ec;
   --color-light-calendar-vacation: #7aa69d;
@@ -340,29 +416,29 @@
     var(--color-text-muted) 16%
   );
   --color-card-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.62),
+    0 1px 0 rgba(255, 255, 255, 0.72),
     var(--color-light-shadow-soft);
   --color-card-shadow-hover:
-    0 1px 0 rgba(255, 255, 255, 0.7),
+    0 1px 0 rgba(255, 255, 255, 0.80),
     var(--color-light-shadow-hover);
 
   /* Enhanced Shadow System for Organize Page (Light Mode) */
   --shadow-organize-card-light:
-    0 1px 0 rgba(255, 255, 255, 0.7),
-    0 2px 4px rgba(158, 132, 112, 0.08),
-    0 8px 16px rgba(158, 132, 112, 0.12);
+    0 1px 0 rgba(255, 255, 255, 0.75),
+    0 2px 4px rgba(110, 90, 180, 0.08),
+    0 8px 16px rgba(110, 90, 180, 0.11);
   --shadow-organize-card-light-hover:
-    0 1px 0 rgba(255, 255, 255, 0.8),
-    0 4px 8px rgba(158, 132, 112, 0.12),
-    0 12px 24px rgba(158, 132, 112, 0.16),
-    0 24px 48px rgba(158, 132, 112, 0.1);
+    0 1px 0 rgba(255, 255, 255, 0.85),
+    0 4px 8px rgba(110, 90, 180, 0.10),
+    0 12px 24px rgba(110, 90, 180, 0.14),
+    0 24px 48px rgba(110, 90, 180, 0.08);
   --shadow-organize-card: var(--shadow-organize-card-light);
   --shadow-organize-card-hover: var(--shadow-organize-card-light-hover);
 
   /* Glow Effects (Light Mode - Softer) */
-  --glow-primary: 0 0 20px rgba(209, 138, 122, 0.3);
-  --glow-teal: 0 0 20px rgba(157, 184, 236, 0.3);
-  --glow-mint: 0 0 20px rgba(150, 180, 155, 0.3);
+  --glow-primary: 0 0 20px rgba(167, 139, 250, 0.35);
+  --glow-teal:    0 0 20px rgba(147, 197, 253, 0.35);
+  --glow-mint:    0 0 20px rgba(134, 239, 172, 0.30);
 
   --color-primary: var(--color-accent-sakura);
   --color-primary-light: #e5a4ba;
@@ -392,13 +468,13 @@
   --color-bg-card: var(--color-bg-surface);
 
   --shadow-sm:
-    0 1px 0 rgba(255, 255, 255, 0.55),
-    0 8px 16px rgba(177, 139, 118, 0.14);
+    0 1px 0 rgba(255, 255, 255, 0.60),
+    0 8px 16px rgba(110, 90, 180, 0.12);
   --shadow-md: var(--color-card-shadow);
   --shadow-lg: var(--color-card-shadow-hover);
   --shadow-xl:
-    0 1px 0 rgba(255, 255, 255, 0.7),
-    0 18px 32px rgba(177, 139, 118, 0.2);
+    0 1px 0 rgba(255, 255, 255, 0.75),
+    0 18px 32px rgba(110, 90, 180, 0.16);
 
   /* Organize lane headers — coral NOW / medium blue NEXT / muted green LATER */
   --color-lane-now: #e0574a;
@@ -469,6 +545,20 @@ html {
   overscroll-behavior: none;
 }
 
+@keyframes aurora-dark {
+  0%   { background: radial-gradient(ellipse 55% 40% at 12% -10%, rgba(167, 139, 250, 0.22) 0%, transparent 70%), radial-gradient(ellipse 45% 35% at 86% 0%,  rgba(99, 102, 241, 0.18) 0%, transparent 65%), radial-gradient(ellipse 40% 30% at 50% 90%, rgba(120, 216, 195, 0.12) 0%, transparent 60%), linear-gradient(180deg, #071221 0%, #081322 58%, #0d1a2d 100%); }
+  33%  { background: radial-gradient(ellipse 55% 40% at 20%   5%, rgba(167, 139, 250, 0.20) 0%, transparent 70%), radial-gradient(ellipse 45% 35% at 70% 15%, rgba(99, 102, 241, 0.15) 0%, transparent 65%), radial-gradient(ellipse 40% 30% at 38% 80%, rgba(120, 216, 195, 0.14) 0%, transparent 60%), linear-gradient(180deg, #071221 0%, #081322 58%, #0d1a2d 100%); }
+  66%  { background: radial-gradient(ellipse 55% 40% at  8%  18%, rgba(167, 139, 250, 0.18) 0%, transparent 70%), radial-gradient(ellipse 45% 35% at 92% -5%, rgba(99, 102, 241, 0.20) 0%, transparent 65%), radial-gradient(ellipse 40% 30% at 62% 95%, rgba(120, 216, 195, 0.10) 0%, transparent 60%), linear-gradient(180deg, #071221 0%, #081322 58%, #0d1a2d 100%); }
+  100% { background: radial-gradient(ellipse 55% 40% at 12% -10%, rgba(167, 139, 250, 0.22) 0%, transparent 70%), radial-gradient(ellipse 45% 35% at 86% 0%,  rgba(99, 102, 241, 0.18) 0%, transparent 65%), radial-gradient(ellipse 40% 30% at 50% 90%, rgba(120, 216, 195, 0.12) 0%, transparent 60%), linear-gradient(180deg, #071221 0%, #081322 58%, #0d1a2d 100%); }
+}
+
+@keyframes aurora-light {
+  0%   { background: radial-gradient(ellipse 60% 45% at 20%  0%,  rgba(196, 181, 253, 0.45) 0%, transparent 70%), radial-gradient(ellipse 50% 40% at 85% 10%, rgba(232, 121, 249, 0.20) 0%, transparent 65%), radial-gradient(ellipse 45% 35% at 55% 85%, rgba(147, 197, 253, 0.28) 0%, transparent 60%), linear-gradient(160deg, #f8f6ff 0%, #f0eeff 50%, #faf5ff 100%); }
+  33%  { background: radial-gradient(ellipse 60% 45% at 32% 12%,  rgba(196, 181, 253, 0.38) 0%, transparent 70%), radial-gradient(ellipse 50% 40% at 72% -5%, rgba(232, 121, 249, 0.22) 0%, transparent 65%), radial-gradient(ellipse 45% 35% at 42% 78%, rgba(147, 197, 253, 0.24) 0%, transparent 60%), linear-gradient(160deg, #f8f6ff 0%, #f0eeff 50%, #faf5ff 100%); }
+  66%  { background: radial-gradient(ellipse 60% 45% at 10% 20%,  rgba(196, 181, 253, 0.40) 0%, transparent 70%), radial-gradient(ellipse 50% 40% at 94% 15%, rgba(232, 121, 249, 0.18) 0%, transparent 65%), radial-gradient(ellipse 45% 35% at 65% 92%, rgba(147, 197, 253, 0.30) 0%, transparent 60%), linear-gradient(160deg, #f8f6ff 0%, #f0eeff 50%, #faf5ff 100%); }
+  100% { background: radial-gradient(ellipse 60% 45% at 20%  0%,  rgba(196, 181, 253, 0.45) 0%, transparent 70%), radial-gradient(ellipse 50% 40% at 85% 10%, rgba(232, 121, 249, 0.20) 0%, transparent 65%), radial-gradient(ellipse 45% 35% at 55% 85%, rgba(147, 197, 253, 0.28) 0%, transparent 60%), linear-gradient(160deg, #f8f6ff 0%, #f0eeff 50%, #faf5ff 100%); }
+}
+
 body {
   position: relative;
   width: 100%;
@@ -476,22 +566,11 @@ body {
   overflow: auto;
   overflow-x: clip;
   background:
-    radial-gradient(
-      circle at 12% -10%,
-      rgba(242, 139, 184, 0.16) 0%,
-      transparent 36%
-    ),
-    radial-gradient(
-      circle at 86% 0%,
-      rgba(120, 216, 195, 0.10) 0%,
-      transparent 30%
-    ),
-    linear-gradient(
-      180deg,
-      #071221 0%,
-      #081322 58%,
-      #0d1a2d 100%
-    );
+    radial-gradient(ellipse 55% 40% at 12% -10%, rgba(167, 139, 250, 0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 45% 35% at 86% 0%,  rgba(99, 102, 241, 0.18) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 30% at 50% 90%, rgba(120, 216, 195, 0.12) 0%, transparent 60%),
+    linear-gradient(180deg, #071221 0%, #081322 58%, #0d1a2d 100%);
+  animation: aurora-dark 28s ease-in-out infinite;
   color: var(--color-text);
   font-size: 1rem;
 
@@ -636,23 +715,17 @@ html {
 
 :where(:root[data-theme="light"], :root.light) body {
   background:
-    radial-gradient(
-      circle at 20% 0%,
-      rgba(244, 190, 205, 0.35) 0%,
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at 90% 8%,
-      rgba(255, 214, 161, 0.24) 0%,
-      transparent 28%
-    ),
-    linear-gradient(
-      180deg,
-      #f8efe4 0%,
-      #ead8c8 100%
-    );
+    radial-gradient(ellipse 60% 45% at 20% 0%,  rgba(196, 181, 253, 0.45) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 10%, rgba(232, 121, 249, 0.20) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 35% at 55% 85%, rgba(147, 197, 253, 0.28) 0%, transparent 60%),
+    linear-gradient(160deg, #f8f6ff 0%, #f0eeff 50%, #faf5ff 100%);
+  animation: aurora-light 24s ease-in-out infinite;
   color: var(--color-text);
   line-height: 1.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body { animation: none; }
 }
 
 :where(:root[data-theme="light"], :root.light) h1,
@@ -1431,11 +1504,11 @@ textarea {
 }
 
 :where(:root[data-theme="light"], :root.light) .glass-card {
-  background: rgba(255, 250, 243, 0.78);
-  border: 1px solid rgba(211, 130, 105, 0.22);
+  background: rgba(248, 246, 255, 0.82);
+  border: 1px solid rgba(167, 139, 250, 0.18);
   box-shadow:
-    0 18px 45px rgba(96, 62, 41, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    0 18px 45px rgba(100, 80, 180, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80);
 }
 
 :where(:root[data-theme="light"], :root.light) .glass-card:hover {
@@ -1447,13 +1520,13 @@ textarea {
    (violet-50, pink-100, sky-50, emerald-50) with warm-family tints that
    harmonize with the cream base. Subtle inner highlight gives specular lift. */
 :where(:root[data-theme="light"], :root.light) .bento-tile-now {
-  background-color: #f1ecf7;
-  border-color: rgba(155, 115, 199, 0.22);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  background-color: #ede8ff;
+  border-color: rgba(139, 109, 210, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.80);
 }
 :where(:root[data-theme="light"], :root.light) .bento-tile-now:hover {
-  background-color: #ebe2f3;
-  border-color: rgba(155, 115, 199, 0.32);
+  background-color: #e3dcff;
+  border-color: rgba(139, 109, 210, 0.34);
 }
 :where(:root[data-theme="light"], :root.light) .bento-tile-meals {
   background-color: #fbe4e1;
@@ -1811,7 +1884,7 @@ textarea {
 
 :where(:root[data-theme="light"], :root.light) .sakura-action {
   color: #252a36;
-  box-shadow: 0 8px 18px rgba(177, 139, 118, 0.22);
+  box-shadow: 0 8px 18px rgba(110, 90, 180, 0.18);
 }
 
 :where(:root[data-theme="light"], :root.light) .sakura-action:hover {
@@ -2103,8 +2176,8 @@ textarea {
 
 :root[data-theme="light"] .bottom-nav-dock,
 :root.light .bottom-nav-dock {
-  background: rgba(255, 250, 243, 0.84);
-  border: 1px solid rgba(90, 67, 50, 0.12);
+  background: rgba(248, 246, 255, 0.88);
+  border: 1px solid rgba(120, 100, 200, 0.14);
   box-shadow:
     0 12px 28px rgba(82, 54, 38, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.72);
@@ -4771,18 +4844,18 @@ kbd {
 }
 :where(:root[data-theme="light"], :root.light) .elevation-1 {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    0 4px 16px rgba(177, 139, 118, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 4px 16px rgba(110, 90, 180, 0.08);
 }
 :where(:root[data-theme="light"], :root.light) .elevation-2 {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    0 6px 20px rgba(177, 139, 118, 0.12);
+    inset 0 1px 0 rgba(255, 255, 255, 0.60),
+    0 6px 20px rgba(110, 90, 180, 0.11);
 }
 :where(:root[data-theme="light"], :root.light) .elevation-3 {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 8px 24px rgba(177, 139, 118, 0.16);
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 8px 24px rgba(110, 90, 180, 0.14);
 }
 
 :where(:root[data-theme="light"], :root.light) .cloud-panel {
@@ -4794,7 +4867,7 @@ kbd {
     );
   border-color: var(--color-border-subtle);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.58),
+    0 1px 0 rgba(255, 255, 255, 0.65),
     var(--color-light-shadow-soft);
 }
 
@@ -4807,8 +4880,8 @@ kbd {
     );
   border-color: color-mix(in srgb, var(--color-border-subtle) 96%, white 4%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 6px 18px rgba(177, 139, 118, 0.1);
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 6px 18px rgba(110, 90, 180, 0.08);
 }
 
 :where(:root[data-theme="light"], :root.light) .daily-anchors-track-base {
@@ -4913,8 +4986,8 @@ kbd {
   border-color: color-mix(in srgb, var(--color-accent-sakura) 38%, white 62%) !important;
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--color-accent-teal) 20%, transparent),
-    0 8px 18px rgba(177, 139, 118, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+    0 8px 18px rgba(110, 90, 180, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80) !important;
 }
 
 :where(:root[data-theme="light"], :root.light) .daily-anchors-dot.is-done {
@@ -4939,7 +5012,7 @@ kbd {
 
 :where(:root[data-theme="light"], :root.light) .daily-anchors-dot.is-dragging {
   box-shadow:
-    0 10px 22px rgba(177, 139, 118, 0.26),
+    0 10px 22px rgba(110, 90, 180, 0.22),
     0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 24%, transparent) !important;
 }
 
@@ -5056,18 +5129,7 @@ kbd {
   }
 
   :where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .dashboard-shell-frame {
-    background:
-      radial-gradient(
-        circle at 18% 0%,
-        rgba(74, 104, 134, 0.26) 0%,
-        transparent 24%
-      ),
-      linear-gradient(
-        180deg,
-        #16283d 0%,
-        color-mix(in srgb, #16283d 74%, var(--color-bg-base) 26%) 7rem,
-        var(--color-bg-base) 18rem
-      );
+    background: transparent;
   }
 
   :where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .dashboard-home-shell {
@@ -5075,13 +5137,11 @@ kbd {
   }
 
   :where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .dashboard-header-shell {
-    background: color-mix(
-      in srgb,
-      #16283d 88%,
-      rgba(17, 24, 39, 0.96) 12%
-    ) !important;
+    background: color-mix(in srgb, var(--color-surface-glass) 94%, transparent) !important;
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
     border-bottom-color: var(--color-border-strong) !important;
-    box-shadow: 0 14px 28px rgba(6, 12, 20, 0.34) !important;
+    box-shadow: 0 14px 28px rgba(1, 7, 18, 0.28) !important;
   }
 
   .dashboard-home-main {
@@ -5354,14 +5414,14 @@ kbd {
     color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-light-card-bottom) 6%) 100%
   );
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.7),
-    0 3px 12px rgba(158, 132, 112, 0.14);
+    0 1px 0 rgba(255, 255, 255, 0.75),
+    0 3px 12px rgba(110, 90, 180, 0.12);
 }
 
 :where(:root[data-theme="light"], :root.light) .river-flow-card:hover {
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.8),
-    0 6px 20px rgba(158, 132, 112, 0.2);
+    0 1px 0 rgba(255, 255, 255, 0.82),
+    0 6px 20px rgba(110, 90, 180, 0.16);
 }
 
 :where(:root[data-theme="light"], :root.light) .river-flow-card-done {
@@ -5384,7 +5444,7 @@ kbd {
     0 1px 0 rgba(255, 255, 255, 0.75),
     0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 30%, transparent),
     0 8px 24px color-mix(in srgb, var(--color-accent-sakura) 18%, transparent),
-    0 2px 8px rgba(158, 132, 112, 0.12);
+    0 2px 8px rgba(110, 90, 180, 0.10);
 }
 
 :where(:root[data-theme="light"], :root.light) .river-flow-card-future {
@@ -5432,8 +5492,8 @@ kbd {
 
 :where(:root[data-theme="light"], :root.light) .river-flow-orb {
   box-shadow:
-    0 2px 8px rgba(158, 132, 112, 0.12),
-    0 1px 0 rgba(255, 255, 255, 0.5) inset;
+    0 2px 8px rgba(110, 90, 180, 0.10),
+    0 1px 0 rgba(255, 255, 255, 0.55) inset;
 }
 
 :where(:root[data-theme="light"], :root.light) .mobile-anchor-stack {
@@ -5445,8 +5505,8 @@ kbd {
   );
   border-color: color-mix(in srgb, var(--color-border-subtle) 90%, white 10%);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.72),
-    0 10px 24px rgba(158, 132, 112, 0.1);
+    0 1px 0 rgba(255, 255, 255, 0.78),
+    0 10px 24px rgba(110, 90, 180, 0.09);
 }
 
 :where(:root[data-theme="light"], :root.light) .mobile-anchor-row {
@@ -5677,14 +5737,14 @@ kbd {
     color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-light-card-bottom) 6%) 100%
   );
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.65),
-    0 3px 10px rgba(158, 132, 112, 0.12);
+    0 1px 0 rgba(255, 255, 255, 0.72),
+    0 3px 10px rgba(110, 90, 180, 0.10);
 }
 
 :where(:root[data-theme="light"], :root.light) .checklist-river-card:hover {
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.75),
-    0 5px 16px rgba(158, 132, 112, 0.18);
+    0 1px 0 rgba(255, 255, 255, 0.80),
+    0 5px 16px rgba(110, 90, 180, 0.15);
 }
 
 :where(:root[data-theme="light"], :root.light) .checklist-river-card-done {
@@ -5702,8 +5762,8 @@ kbd {
 
 :where(:root[data-theme="light"], :root.light) .checklist-river-orb {
   box-shadow:
-    0 2px 6px rgba(158, 132, 112, 0.1),
-    0 1px 0 rgba(255, 255, 255, 0.4) inset;
+    0 2px 6px rgba(110, 90, 180, 0.09),
+    0 1px 0 rgba(255, 255, 255, 0.45) inset;
 }
 
 /* Light theme completed orb */
@@ -5846,14 +5906,14 @@ kbd {
 /* Desktop Anchor Node - Light Theme */
 :where(:root[data-theme="light"], :root.light) .desktop-anchor-node {
   box-shadow:
-    0 2px 8px rgba(158, 132, 112, 0.15),
-    0 1px 0 rgba(255, 255, 255, 0.6) inset;
+    0 2px 8px rgba(110, 90, 180, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.65) inset;
 }
 
 :where(:root[data-theme="light"], :root.light) .desktop-anchor-node:hover {
   box-shadow:
-    0 4px 16px rgba(158, 132, 112, 0.22),
-    0 1px 0 rgba(255, 255, 255, 0.7) inset;
+    0 4px 16px rgba(110, 90, 180, 0.18),
+    0 1px 0 rgba(255, 255, 255, 0.75) inset;
 }
 
 :where(:root[data-theme="light"], :root.light) .desktop-anchor-glow {
@@ -5894,8 +5954,8 @@ kbd {
     color-mix(in srgb, var(--color-bg-surface) 94%, var(--color-light-card-bottom) 6%) 100%
   );
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.65),
-    0 2px 8px rgba(158, 132, 112, 0.12);
+    0 1px 0 rgba(255, 255, 255, 0.72),
+    0 2px 8px rgba(110, 90, 180, 0.10);
 }
 
 :where(:root[data-theme="light"], :root.light) .desktop-checklist-card:hover {
@@ -5906,8 +5966,8 @@ kbd {
   );
   border-color: color-mix(in srgb, var(--color-accent-sakura) 30%, var(--color-border-subtle) 70%);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.75),
-    0 6px 20px rgba(158, 132, 112, 0.18),
+    0 1px 0 rgba(255, 255, 255, 0.80),
+    0 6px 20px rgba(110, 90, 180, 0.14),
     0 0 0 1px color-mix(in srgb, var(--color-accent-sakura) 10%, transparent);
 }
 
@@ -11271,8 +11331,8 @@ kbd {
 :where(:root[data-theme="light"], :root.light) .organize-inbox-sheet-trigger,
 :where(:root[data-theme="light"], :root.light) .flow-floating-tray-btn {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.72),
-    0 12px 24px rgba(158, 132, 112, 0.16) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    0 12px 24px rgba(110, 90, 180, 0.13) !important;
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-clean-now-card,
@@ -11470,27 +11530,22 @@ kbd {
 .dashboard-home-shell,
 .organize-clean-shell {
   background:
-    radial-gradient(circle at 16% -10%, color-mix(in srgb, var(--accent-primary) 16%, transparent) 0%, transparent 34%),
-    radial-gradient(circle at 88% 0%, color-mix(in srgb, var(--accent-tertiary) 12%, transparent) 0%, transparent 30%),
-    linear-gradient(180deg, var(--app-bg) 0%, color-mix(in srgb, var(--app-bg) 82%, var(--app-surface) 18%) 100%);
+    radial-gradient(ellipse 60% 36% at 50% -8%, var(--liquid-top-light) 0%, transparent 66%),
+    radial-gradient(ellipse 72% 52% at 12% -8%, var(--liquid-ambient-primary) 0%, transparent 64%),
+    radial-gradient(ellipse 58% 46% at 88% 2%, var(--liquid-ambient-secondary) 0%, transparent 62%),
+    radial-gradient(ellipse 54% 42% at 48% 92%, var(--liquid-ambient-tertiary) 0%, transparent 58%),
+    radial-gradient(ellipse 62% 52% at 0% 100%, var(--liquid-edge-depth) 0%, transparent 68%),
+    linear-gradient(132deg, var(--liquid-canvas-a) 0%, var(--liquid-canvas-b) 52%, var(--liquid-canvas-c) 100%);
   color: var(--app-text);
 }
 
-:where(:root[data-theme="light"], :root.light) .dashboard-shell-frame,
-:where(:root[data-theme="light"], :root.light) .dashboard-home-shell {
-  background:
-    radial-gradient(circle at 20% 0%, rgba(244, 190, 205, 0.35), transparent 34%),
-    radial-gradient(circle at 90% 8%, rgba(255, 214, 161, 0.24), transparent 28%),
-    linear-gradient(180deg, #f8efe4 0%, #ead8c8 100%);
-}
-
-/* Organize: warm canvas (matches original vibrant design) */
+/* Organize: aurora glass canvas */
 :where(:root[data-theme="light"], :root.light) .organize-clean-shell {
   background:
-    radial-gradient(circle at 14% -5%, rgba(244, 190, 205, 0.45), transparent 40%),
-    radial-gradient(circle at 88% 5%, rgba(255, 214, 161, 0.35), transparent 35%),
-    radial-gradient(circle at 50% 100%, rgba(234, 216, 200, 0.4), transparent 50%),
-    linear-gradient(180deg, #fffcf8 0%, #f9f1e8 40%, #efe1d3 100%);
+    radial-gradient(circle at 14% -5%, rgba(196, 181, 253, 0.35), transparent 40%),
+    radial-gradient(circle at 88% 5%, rgba(232, 121, 249, 0.18), transparent 35%),
+    radial-gradient(circle at 50% 100%, rgba(147, 197, 253, 0.20), transparent 50%),
+    linear-gradient(180deg, #f8f6ff 0%, #f0ecff 40%, #eae6ff 100%);
 }
 
 .organize-clean-shell {
@@ -12528,9 +12583,9 @@ kbd {
 
 :where(:root[data-theme="light"], :root.light) .organize-clean-shell {
   background:
-    radial-gradient(circle at 15% 0%, rgba(232, 155, 181, 0.22), transparent 32%),
-    radial-gradient(circle at 90% 10%, rgba(245, 202, 147, 0.18), transparent 28%),
-    linear-gradient(180deg, #fff8ef 0%, #ead8c8 100%);
+    radial-gradient(circle at 15% 0%, rgba(196, 181, 253, 0.30), transparent 32%),
+    radial-gradient(circle at 90% 10%, rgba(147, 197, 253, 0.20), transparent 28%),
+    linear-gradient(180deg, #f8f6ff 0%, #eae6ff 100%);
 }
 
 .organize-view-toggle-mobile-content {
@@ -12660,13 +12715,13 @@ kbd {
 :where(:root[data-theme="light"], :root.light) .organize-mobile-now-spotlight,
 :where(:root[data-theme="light"], :root.light) .organize-clean-now-card {
   background:
-    radial-gradient(circle at 15% 0%, rgba(217, 120, 154, 0.20), transparent 36%),
-    radial-gradient(circle at 92% 8%, rgba(245, 202, 147, 0.18), transparent 34%),
-    rgba(255, 249, 241, 0.92);
-  border-color: rgba(214, 124, 153, 0.30) !important;
+    radial-gradient(circle at 15% 0%, rgba(196, 181, 253, 0.28), transparent 36%),
+    radial-gradient(circle at 92% 8%, rgba(232, 121, 249, 0.16), transparent 34%),
+    rgba(248, 246, 255, 0.94);
+  border-color: rgba(167, 139, 250, 0.28) !important;
   box-shadow:
-    0 18px 44px rgba(116, 77, 58, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    0 18px 44px rgba(100, 80, 180, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88);
 }
 
 .organize-mobile-now-item {
@@ -12720,12 +12775,12 @@ kbd {
 
 :where(:root[data-theme="light"], :root.light) .organize-mobile-project-pill,
 :where(:root[data-theme="light"], :root.light) .organize-project-focus-chip {
-  background: rgba(255, 249, 241, 0.86) !important;
-  border-color: rgba(70, 55, 45, 0.12) !important;
+  background: rgba(248, 246, 255, 0.90) !important;
+  border-color: rgba(120, 100, 200, 0.12) !important;
   color: var(--color-text-secondary) !important;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.78),
-    0 8px 18px rgba(116, 77, 58, 0.09);
+    0 8px 18px rgba(110, 90, 180, 0.09);
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-mobile-project-pill[data-active="true"],
@@ -12907,11 +12962,11 @@ kbd {
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-mobile-task-actions {
-  background: rgba(255, 249, 241, 0.96);
-  border-color: rgba(70, 55, 45, 0.12);
+  background: rgba(248, 246, 255, 0.96);
+  border-color: rgba(120, 100, 200, 0.12);
   box-shadow:
-    0 18px 36px rgba(116, 77, 58, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.84);
+    0 18px 36px rgba(100, 80, 180, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88);
 }
 
 .organize-mobile-empty-add {
@@ -12936,11 +12991,11 @@ kbd {
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-mobile-task-row {
-  background: rgba(255, 249, 241, 0.84);
-  border-color: rgba(70, 55, 45, 0.16);
+  background: rgba(250, 248, 255, 0.88);
+  border-color: rgba(120, 100, 200, 0.14);
   box-shadow:
-    0 2px 10px rgba(101, 70, 49, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    0 2px 10px rgba(100, 80, 180, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80);
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-mobile-lane-section[data-lane="now"] .organize-mobile-lane-header {
@@ -12954,8 +13009,8 @@ kbd {
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-mobile-empty-add button {
-  background: rgba(255, 249, 241, 0.54);
-  border-color: rgba(70, 55, 45, 0.16);
+  background: rgba(248, 246, 255, 0.58);
+  border-color: rgba(120, 100, 200, 0.16);
   color: var(--color-text-muted);
 }
 
@@ -13104,28 +13159,320 @@ kbd {
 
 :where(:root[data-theme="light"], :root.light) .focus-hero,
 :where(:root[data-theme="light"], :root.light) .daily-anchors-panel {
-  background: rgba(255, 250, 243, 0.84);
-  border-color: rgba(211, 130, 105, 0.18);
+  background: rgba(248, 246, 255, 0.86);
+  border-color: rgba(167, 139, 250, 0.18);
   box-shadow:
-    0 18px 45px rgba(96, 62, 41, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    0 18px 45px rgba(100, 80, 180, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80);
 }
 
 :where(:root[data-theme="light"], :root.light) .daily-anchor-row {
-  background: rgba(255, 250, 243, 0.88);
-  border-color: rgba(66, 48, 38, 0.12);
+  background: rgba(250, 248, 255, 0.90);
+  border-color: rgba(120, 100, 200, 0.12);
   box-shadow:
-    0 8px 22px rgba(96, 62, 41, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    0 8px 22px rgba(100, 80, 180, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80);
 }
 
 :where(:root[data-theme="light"], :root.light) .daily-anchor-icon-wrap {
-  background: rgba(255, 246, 239, 0.95) !important;
+  background: rgba(240, 236, 255, 0.95) !important;
 }
 
 :where(:root[data-theme="light"], :root.light) .text-page-title {
   color: var(--app-text);
   letter-spacing: -0.03em;
+}
+
+/* ==========================================
+   Global Liquid Glass Theme
+   Shared material language for light and dark dashboard surfaces.
+   ========================================== */
+
+.dashboard-shell-frame::before,
+.dashboard-home-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--liquid-canvas-a) 18%, transparent), transparent 22%, transparent 78%, color-mix(in srgb, var(--liquid-canvas-c) 18%, transparent)),
+    radial-gradient(ellipse 46% 28% at 50% 0%, rgba(255, 255, 255, 0.13), transparent 70%);
+  mix-blend-mode: screen;
+  opacity: 0.72;
+}
+
+.dashboard-shell-frame::after,
+.dashboard-home-shell::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.38'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: var(--liquid-grain-opacity);
+  mix-blend-mode: overlay;
+}
+
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .dashboard-shell-frame::before,
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .dashboard-home-shell::before {
+  opacity: 0.38;
+}
+
+.dashboard-header-shell {
+  background: var(--liquid-header-fill) !important;
+  border-bottom-color: color-mix(in srgb, var(--liquid-glass-border) 52%, transparent) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(24px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(170%) !important;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-header-shell {
+    background: transparent !important;
+    border-bottom-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+.desktop-nav-rail {
+  background:
+    radial-gradient(ellipse 120% 42% at 50% 0%, color-mix(in srgb, var(--liquid-top-light) 28%, transparent) 0%, transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--liquid-rail-fill) 88%, white 12%) 0%, color-mix(in srgb, var(--liquid-rail-fill) 86%, transparent) 100%) !important;
+  border-right-color: color-mix(in srgb, var(--liquid-glass-border) 54%, transparent) !important;
+  box-shadow:
+    1px 0 0 color-mix(in srgb, var(--liquid-glass-highlight) 34%, transparent),
+    18px 0 60px color-mix(in srgb, var(--liquid-edge-depth) 34%, transparent) !important;
+  backdrop-filter: blur(24px) saturate(175%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(175%) !important;
+}
+
+.desktop-nav-item {
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.desktop-nav-item.is-active {
+  background:
+    radial-gradient(circle at 34% 22%, color-mix(in srgb, var(--liquid-glass-highlight) 58%, transparent) 0%, transparent 48%),
+    color-mix(in srgb, var(--accent-primary) 14%, var(--liquid-glass-tertiary-fill)) !important;
+  border-color: color-mix(in srgb, var(--accent-primary) 28%, var(--liquid-glass-tertiary-border)) !important;
+  box-shadow:
+    0 10px 28px color-mix(in srgb, var(--accent-primary) 18%, transparent),
+    inset 0 1px 0 var(--liquid-glass-highlight);
+  color: var(--accent-primary) !important;
+}
+
+.desktop-nav-item:not(.is-active):hover {
+  background: color-mix(in srgb, var(--liquid-glass-fill) 72%, transparent) !important;
+  border-color: color-mix(in srgb, var(--liquid-glass-border) 62%, transparent) !important;
+}
+
+.dashboard-home-main,
+.dashboard-shell-frame > div:not(.dashboard-header-shell),
+.dashboard-content-organize {
+  position: relative;
+  z-index: 1;
+}
+
+.focus-timer-chip,
+.focus-timer-main-button,
+.user-profile-trigger,
+.bottom-nav-dock {
+  background: color-mix(in srgb, var(--liquid-glass-tertiary-fill) 84%, transparent) !important;
+  border-color: color-mix(in srgb, var(--accent-primary) 30%, var(--liquid-glass-tertiary-border)) !important;
+  box-shadow: var(--liquid-glass-shadow-tertiary) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+}
+
+.focus-timer-chip,
+.focus-timer-chip .timer-icon,
+.focus-timer-main-button {
+  color: var(--accent-primary) !important;
+}
+
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .focus-timer-chip,
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .focus-timer-chip .timer-icon,
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .focus-timer-main-button {
+  color: color-mix(in srgb, var(--accent-primary) 82%, white 18%) !important;
+}
+
+.focus-hero,
+.daily-anchors-panel,
+.daily-anchors-card,
+.dashboard-home-shell .area-card-blue,
+.dashboard-home-shell .area-card-purple,
+.dashboard-home-shell .area-card-orange,
+.dashboard-home-shell .area-card-green {
+  background:
+    radial-gradient(ellipse 82% 46% at 50% 0%, color-mix(in srgb, var(--liquid-top-light) 30%, transparent) 0%, transparent 72%),
+    linear-gradient(150deg, color-mix(in srgb, var(--liquid-glass-primary-fill) 90%, white 10%) 0%, var(--liquid-glass-primary-fill) 56%, color-mix(in srgb, var(--liquid-glass-fill-soft) 78%, transparent) 100%) !important;
+  border-color: color-mix(in srgb, var(--liquid-glass-primary-border) 80%, transparent) !important;
+  box-shadow: var(--liquid-glass-shadow-primary) !important;
+  backdrop-filter: blur(26px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(160%) !important;
+}
+
+.glass-card,
+.card-elevated,
+.dashboard-home-shell .bento-tile-now,
+.dashboard-home-shell .bento-tile-meals,
+.dashboard-home-shell .bento-tile-skincare,
+.dashboard-home-shell .bento-tile-cleaning {
+  background:
+    linear-gradient(150deg, color-mix(in srgb, var(--liquid-glass-secondary-fill) 88%, white 12%) 0%, var(--liquid-glass-secondary-fill) 54%, color-mix(in srgb, var(--liquid-glass-fill-soft) 76%, transparent) 100%) !important;
+  border-color: var(--liquid-glass-secondary-border) !important;
+  box-shadow: var(--liquid-glass-shadow-secondary) !important;
+  backdrop-filter: blur(20px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+}
+
+.focus-hero-nebula,
+.daily-anchors-nebula,
+.daily-anchors-panel-nebula {
+  background:
+    radial-gradient(circle at 8% 12%, color-mix(in srgb, var(--liquid-ambient-primary) 70%, transparent) 0%, transparent 44%),
+    radial-gradient(circle at 88% 10%, color-mix(in srgb, var(--liquid-ambient-secondary) 72%, transparent) 0%, transparent 48%),
+    radial-gradient(circle at 50% 92%, color-mix(in srgb, var(--liquid-ambient-tertiary) 70%, transparent) 0%, transparent 54%) !important;
+}
+
+.daily-anchors-track-base {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--liquid-glass-highlight) 18%, transparent) 0%, color-mix(in srgb, var(--liquid-glass-highlight) 42%, var(--liquid-glass-secondary-fill)) 48%, color-mix(in srgb, var(--liquid-glass-highlight) 20%, transparent) 100%) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--liquid-glass-highlight) 18%, transparent),
+    0 0 24px color-mix(in srgb, var(--liquid-ambient-primary) 28%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--liquid-glass-highlight) 46%, transparent);
+}
+
+.daily-anchors-track-progress {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-accent-teal) 74%, white 10%) 0%, color-mix(in srgb, var(--accent-primary) 82%, white 8%) 48%, color-mix(in srgb, var(--color-accent-blue) 80%, white 10%) 100%) !important;
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--accent-primary) 30%, transparent),
+    0 0 30px color-mix(in srgb, var(--color-accent-blue) 18%, transparent);
+}
+
+.daily-anchors-now-line {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, white 56%, transparent),
+    0 0 16px color-mix(in srgb, var(--accent-primary) 88%, transparent),
+    0 0 42px color-mix(in srgb, var(--accent-primary) 42%, transparent) !important;
+}
+
+.daily-anchors-now-label {
+  text-shadow:
+    0 0 12px color-mix(in srgb, var(--accent-primary) 52%, transparent),
+    0 1px 2px color-mix(in srgb, var(--liquid-edge-depth) 34%, transparent);
+}
+
+.daily-anchors-dot,
+.desktop-anchor-node {
+  background:
+    radial-gradient(circle at 32% 22%, color-mix(in srgb, var(--liquid-glass-highlight) 50%, transparent) 0%, transparent 42%),
+    color-mix(in srgb, var(--liquid-glass-tertiary-fill) 86%, var(--node-glow, transparent) 14%) !important;
+  border-color: color-mix(in srgb, var(--node-glow, var(--liquid-glass-tertiary-border)) 28%, var(--liquid-glass-tertiary-border)) !important;
+  box-shadow:
+    0 12px 30px color-mix(in srgb, var(--node-glow, var(--liquid-edge-depth)) 22%, transparent),
+    inset 0 1px 0 var(--liquid-glass-highlight) !important;
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
+}
+
+.desktop-anchor-node:hover,
+.daily-anchors-dot:hover {
+  box-shadow:
+    0 14px 34px color-mix(in srgb, var(--node-glow, var(--accent-primary)) 30%, transparent),
+    0 0 18px color-mix(in srgb, var(--node-glow, var(--accent-primary)) 20%, transparent),
+    inset 0 1px 0 var(--liquid-glass-highlight) !important;
+}
+
+.daily-anchors-dot.is-active,
+.desktop-anchor-node.is-active {
+  box-shadow:
+    0 16px 42px color-mix(in srgb, var(--accent-primary) 34%, transparent),
+    0 0 28px color-mix(in srgb, var(--accent-primary) 28%, transparent),
+    inset 0 1px 0 var(--liquid-glass-highlight) !important;
+}
+
+.daily-anchors-dot.is-done,
+.desktop-anchor-node.is-done {
+  background:
+    radial-gradient(circle at 32% 22%, color-mix(in srgb, white 32%, transparent) 0%, transparent 42%),
+    color-mix(in srgb, var(--color-accent-teal) 42%, var(--liquid-glass-tertiary-fill)) !important;
+  border-color: color-mix(in srgb, var(--color-accent-teal) 42%, var(--liquid-glass-tertiary-border)) !important;
+  box-shadow:
+    0 12px 30px color-mix(in srgb, var(--color-accent-teal) 24%, transparent),
+    inset 0 1px 0 var(--liquid-glass-highlight) !important;
+}
+
+.daily-anchors-dot.is-missed,
+.daily-anchors-dot.is-skipped,
+.desktop-anchor-node.is-missed,
+.desktop-anchor-node.is-skipped,
+.daily-anchors-dot.is-future,
+.desktop-anchor-node.is-future {
+  border-color: color-mix(in srgb, var(--liquid-glass-tertiary-border) 72%, transparent) !important;
+}
+
+.river-overlay-marker > svg {
+  filter: drop-shadow(0 8px 18px color-mix(in srgb, currentColor 28%, transparent));
+}
+
+.river-overlay-marker > :not(div[role="tooltip"]) {
+  text-shadow: 0 0 12px color-mix(in srgb, currentColor 26%, transparent);
+}
+
+.dashboard-home-shell .bento-tile-now,
+.dashboard-home-shell .area-card-purple {
+  --liquid-glass-fill-soft: color-mix(in srgb, var(--color-accent-amethyst) 12%, transparent);
+}
+
+.dashboard-home-shell .bento-tile-meals {
+  --liquid-glass-fill-soft: color-mix(in srgb, var(--color-accent-sakura) 11%, transparent);
+}
+
+.dashboard-home-shell .bento-tile-skincare,
+.dashboard-home-shell .area-card-blue {
+  --liquid-glass-fill-soft: color-mix(in srgb, var(--color-accent-blue) 13%, transparent);
+}
+
+.dashboard-home-shell .bento-tile-cleaning,
+.dashboard-home-shell .area-card-green {
+  --liquid-glass-fill-soft: color-mix(in srgb, var(--color-accent-teal) 12%, transparent);
+}
+
+.dashboard-home-shell .area-card-orange {
+  --liquid-glass-fill-soft: color-mix(in srgb, var(--color-accent-coral) 10%, transparent);
+}
+
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .dashboard-home-shell .area-card-purple,
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .dashboard-home-shell .bento-tile-now {
+  --liquid-glass-fill-soft: color-mix(in srgb, var(--color-accent-amethyst) 9%, transparent);
+}
+
+:where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light)) .dashboard-home-shell .area-card-orange {
+  --liquid-glass-fill-soft: color-mix(in srgb, var(--color-accent-coral) 8%, transparent);
+}
+
+.dashboard-home-shell .focus-hero-wrapper {
+  margin-bottom: 0.2rem;
+}
+
+.text-page-title {
+  color: var(--app-text);
+}
+
+:where(:root[data-theme="light"], :root.light) {
+  --app-text: #10195a;
+  --app-text-soft: #5260a5;
+  --app-text-muted: #737db5;
+  --color-text-primary: #10195a;
+  --color-text-secondary: #5260a5;
+  --color-text-muted: #737db5;
 }
 
 @media (max-width: 1023px) {
@@ -13313,11 +13660,11 @@ kbd {
 
 :where(:root[data-theme="light"], :root.light) .flow-session-progress,
 :where(:root[data-theme="light"], :root.light) .flow-session-stat {
-  background: rgba(255, 249, 241, 0.78);
-  border-color: rgba(70, 55, 45, 0.11);
+  background: rgba(248, 246, 255, 0.82);
+  border-color: rgba(120, 100, 200, 0.11);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.74),
-    0 8px 18px rgba(116, 77, 58, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    0 8px 18px rgba(100, 80, 180, 0.08);
 }
 
 @media (min-width: 1201px) and (max-width: 1380px) {
@@ -13331,18 +13678,18 @@ kbd {
  * Organize toggle — light mode overrides
  * ============================================================ */
 :where(:root[data-theme="light"], :root.light) .organize-view-toggle {
-  background: rgba(255, 250, 243, 0.82);
-  border-color: rgba(66, 48, 38, 0.12);
+  background: rgba(248, 246, 255, 0.86);
+  border-color: rgba(120, 100, 200, 0.12);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 4px 12px rgba(96, 62, 41, 0.10);
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 4px 12px rgba(100, 80, 180, 0.10);
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-view-toggle-active {
   background: linear-gradient(
     145deg,
-    color-mix(in srgb, var(--accent-primary) 18%, rgba(255, 250, 243, 0.96)) 0%,
-    color-mix(in srgb, var(--accent-secondary) 12%, rgba(248, 238, 229, 0.96)) 100%
+    color-mix(in srgb, var(--accent-primary) 18%, rgba(248, 246, 255, 0.96)) 0%,
+    color-mix(in srgb, var(--accent-secondary) 12%, rgba(238, 234, 255, 0.96)) 100%
   );
   border-color: color-mix(in srgb, var(--accent-primary) 45%, transparent);
   box-shadow:
@@ -13351,11 +13698,11 @@ kbd {
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-view-toggle-mobile {
-  background: rgba(255, 250, 243, 0.78);
-  border-color: rgba(66, 48, 38, 0.12);
+  background: rgba(248, 246, 255, 0.82);
+  border-color: rgba(120, 100, 200, 0.12);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 6px 18px rgba(96, 62, 41, 0.10);
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 6px 18px rgba(100, 80, 180, 0.10);
 }
 
 /* ============================================================
@@ -13377,29 +13724,29 @@ kbd {
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-clean-shell {
-  --app-bg: #f8f1e8;
-  --app-surface: #fff9f1;
-  --app-surface-soft: #f3e3d6;
-  --app-surface-glass: rgba(255, 250, 244, 0.92);
-  --app-border: rgba(70, 55, 45, 0.12);
+  --app-bg: #f0ecff;
+  --app-surface: #faf8ff;
+  --app-surface-soft: #eeeaff;
+  --app-surface-glass: rgba(248, 246, 255, 0.92);
+  --app-border: rgba(120, 100, 200, 0.12);
   --app-text: #232936;
   --app-text-soft: #4f5a6d;
   --app-text-muted: #7b8495;
-  --organize-pane: #fff9f1;
-  --organize-pane-soft: #f6ead9;
-  --organize-border: rgba(70, 55, 45, 0.12);
-  --organize-row: #fff9f1;
-  --organize-row-hover: #fff3e4;
+  --organize-pane: #faf8ff;
+  --organize-pane-soft: #eeeaff;
+  --organize-border: rgba(120, 100, 200, 0.12);
+  --organize-row: #faf8ff;
+  --organize-row-hover: #f0ecff;
   background:
-    radial-gradient(circle at 14% 0%, rgba(217, 119, 87, 0.08), transparent 32%),
-    radial-gradient(circle at 90% 6%, rgba(244, 211, 94, 0.07), transparent 28%),
-    linear-gradient(180deg, #fdf5e9 0%, #f5e6d2 100%) !important;
+    radial-gradient(circle at 14% 0%, rgba(196, 181, 253, 0.18), transparent 32%),
+    radial-gradient(circle at 90% 6%, rgba(147, 197, 253, 0.12), transparent 28%),
+    linear-gradient(180deg, #f5f3ff 0%, #e8e4ff 100%) !important;
 }
 
 :where(:root[data-theme="light"], :root.light) .dashboard-shell-frame:has(.dashboard-content-organize) {
-  --organize-pane: #fff9f1;
-  --organize-pane-soft: #f6ead9;
-  --organize-border: rgba(70, 55, 45, 0.12);
+  --organize-pane: #faf8ff;
+  --organize-pane-soft: #eeeaff;
+  --organize-border: rgba(120, 100, 200, 0.12);
 }
 
 @media (min-width: 1024px) {
@@ -13825,8 +14172,8 @@ kbd {
   }
 
   :where(:root[data-theme="light"], :root.light) [data-testid="flow-organize-view"] .flow-mobile-progress {
-    background: rgba(255, 248, 239, 0.54);
-    border-bottom-color: rgba(70, 55, 45, 0.09);
+    background: rgba(248, 246, 255, 0.58);
+    border-bottom-color: rgba(120, 100, 200, 0.09);
   }
 }
 
@@ -13858,12 +14205,12 @@ kbd {
   }
 
   :where(:root[data-theme="light"], :root.light) [data-testid="flow-organize-view"] .flow-desktop-live-card {
-    background: linear-gradient(135deg, rgba(255, 250, 244, 0.94) 0%, rgba(255, 248, 240, 0.88) 100%) !important;
-    border-color: rgba(239, 143, 143, 0.38) !important;
+    background: linear-gradient(135deg, rgba(248, 246, 255, 0.94) 0%, rgba(240, 236, 255, 0.90) 100%) !important;
+    border-color: rgba(167, 139, 250, 0.32) !important;
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.82) inset,
-      0 18px 46px rgba(194, 114, 94, 0.12),
-      0 34px 80px rgba(158, 132, 112, 0.14) !important;
+      0 1px 0 rgba(255, 255, 255, 0.85) inset,
+      0 18px 46px rgba(100, 80, 180, 0.12),
+      0 34px 80px rgba(110, 90, 180, 0.10) !important;
   }
 }
 
