@@ -6,6 +6,7 @@ import {
   formatCleaningCadence,
   getCleaningTaskStatus,
   getNextDueDate,
+  getScheduledCleaningTaskDate,
   normalizeCleaningPlannerStore,
   upsertCleaningTask,
   type CleaningPlannerStore,
@@ -76,6 +77,7 @@ describe('cleaning planner', () => {
   it('formats preset cadence labels as full phrases', () => {
     expect(formatCleaningCadence({ kind: 'monthly' })).toBe('Every month');
     expect(formatCleaningCadence({ kind: 'custom', everyNDays: 17 })).toBe('Every 17 days');
+    expect(formatCleaningCadence({ kind: 'weekly-days', daysOfWeek: [1, 4] })).toBe('Every Monday, Thursday');
   });
 
   it('completing a task updates lastCompletedAt and advances the next due date', () => {
@@ -128,6 +130,61 @@ describe('cleaning planner', () => {
     expect(getCleaningTaskStatus(due, now)).toBe('due');
     expect(getCleaningTaskStatus(upcoming, now)).toBe('upcoming');
     expect(getCleaningTaskStatus(missingCompletion, now)).toBe('due');
+  });
+
+  it('schedules a future-starting task on its start date before recurrence takes over', () => {
+    const sunday = new Date('2026-05-03T13:00:00.000Z');
+    const wednesday = '2026-05-06';
+    const task = createCleaningTask({
+      title: 'Clean mirrors',
+      zoneId: 'bathroom',
+      taskType: 'clean',
+      cadence: { kind: 'weekly' },
+      lastCompletedAt: '2026-05-03T12:00:00.000Z',
+      startDate: wednesday,
+    });
+
+    expect(getCleaningTaskStatus(task, sunday)).toBe('not-started');
+    expect(toDateKey(getScheduledCleaningTaskDate(task, sunday))).toBe(wednesday);
+    expect(getCleaningTaskStatus(task, new Date('2026-05-06T13:00:00.000Z'))).toBe('due');
+  });
+
+  it('uses recurrence after a task has been completed on or after its start date', () => {
+    const task = createCleaningTask({
+      title: 'Clean mirrors',
+      zoneId: 'bathroom',
+      taskType: 'clean',
+      cadence: { kind: 'weekly' },
+      lastCompletedAt: '2026-05-06T12:00:00.000Z',
+      startDate: '2026-05-06',
+    });
+
+    expect(toDateKey(getScheduledCleaningTaskDate(task, new Date('2026-05-07T13:00:00.000Z')))).toBe('2026-05-13');
+  });
+
+  it('schedules specific weekday recurrence after completion', () => {
+    const task = createCleaningTask({
+      title: 'Vacuum traffic areas',
+      zoneId: 'whole-home',
+      taskType: 'clean',
+      cadence: { kind: 'weekly-days', daysOfWeek: [1, 4] },
+      lastCompletedAt: '2026-05-04T12:00:00.000Z',
+    });
+
+    expect(toDateKey(getNextDueDate(task))).toBe('2026-05-07');
+    expect(getCleaningTaskStatus(task, new Date('2026-05-07T13:00:00.000Z'))).toBe('due');
+  });
+
+  it('places a never-completed weekday recurrence on the next selected day', () => {
+    const task = createCleaningTask({
+      title: 'Vacuum traffic areas',
+      zoneId: 'whole-home',
+      taskType: 'clean',
+      cadence: { kind: 'weekly-days', daysOfWeek: [1, 4] },
+    });
+
+    expect(toDateKey(getScheduledCleaningTaskDate(task, new Date('2026-05-03T13:00:00.000Z')))).toBe('2026-05-04');
+    expect(getCleaningTaskStatus(task, new Date('2026-05-03T13:00:00.000Z'))).toBe('upcoming');
   });
 
   it('round-trips saved data through normalization', () => {

@@ -6,7 +6,7 @@ import {
   formatCleaningCadence,
   formatEstimatedTime,
   getCleaningTaskStatus,
-  getNextDueDate,
+  getScheduledCleaningTaskDate,
   parseCleaningStartDate,
   getStatusColors,
   getStatusLabel,
@@ -45,6 +45,10 @@ function formatRelativeDate(date: Date | null, now: Date, isStartDate = false): 
 
 function formatCompactCadence(cadence: CleaningTask['cadence']): string {
   if (cadence.kind === 'custom') return `${cadence.everyNDays}d`;
+  if (cadence.kind === 'weekly-days') {
+    const dayLabels = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
+    return cadence.daysOfWeek.map((day) => dayLabels[day]).join('/');
+  }
   switch (cadence.kind) {
     case 'weekly': return 'Weekly';
     case 'biweekly': return '2 weeks';
@@ -58,7 +62,7 @@ function formatCompactCadence(cadence: CleaningTask['cadence']): string {
 
 export function CleaningTaskCard({ task, zone, now, compact = false, onComplete, onEdit }: CleaningTaskCardProps) {
   const status = getCleaningTaskStatus(task, now);
-  const nextDueDate = getNextDueDate(task);
+  const nextDueDate = getScheduledCleaningTaskDate(task, now);
   const zoneColors = getZoneColors(task.zoneId);
   const statusColors = getStatusColors(status);
   const timeEstimate = formatEstimatedTime(task.estimatedMinutes);

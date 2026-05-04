@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { Trash2, X, Clock, Calendar, Zap, Plus, GripVertical, Check } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptic';
 import {
-  CLEANING_CADENCE_LABELS,
   CLEANING_TASK_TYPE_LABELS,
   createCleaningTask,
   createSubtask,
@@ -22,6 +21,7 @@ import {
 
 type LastCompletedOption = 'never' | 'today' | 'yesterday' | 'custom';
 type StartDateOption = 'now' | 'custom';
+type CadenceOption = CleaningCadencePreset | 'custom' | 'weekly-days';
 
 type SubtaskDraft = {
   id: string;
@@ -34,8 +34,9 @@ type TaskDraft = {
   zoneMode: string;
   customZoneLabel: string;
   taskType: CleaningTaskType;
-  cadenceKind: CleaningCadencePreset | 'custom';
+  cadenceKind: CadenceOption;
   customEveryNDays: number;
+  weeklyDays: number[];
   notes: string;
   // New ADHD-friendly fields
   lastCompletedOption: LastCompletedOption;
@@ -86,8 +87,9 @@ type CleaningTaskEditSheetProps = {
   onClose: () => void;
 };
 
-const CADENCE_OPTIONS: Array<{ value: CleaningCadencePreset | 'custom'; label: string }> = [
+const CADENCE_OPTIONS: Array<{ value: CadenceOption; label: string }> = [
   { value: 'weekly', label: 'Every week' },
+  { value: 'weekly-days', label: 'Specific weekdays' },
   { value: 'biweekly', label: 'Every 2 weeks' },
   { value: 'monthly', label: 'Every month' },
   { value: 'quarterly', label: 'Every 3 months' },
@@ -95,6 +97,16 @@ const CADENCE_OPTIONS: Array<{ value: CleaningCadencePreset | 'custom'; label: s
   { value: 'yearly', label: 'Every year' },
   { value: 'custom', label: 'Custom days' },
 ];
+
+const WEEKDAY_OPTIONS = [
+  { value: 0, label: 'Sun' },
+  { value: 1, label: 'Mon' },
+  { value: 2, label: 'Tue' },
+  { value: 3, label: 'Wed' },
+  { value: 4, label: 'Thu' },
+  { value: 5, label: 'Fri' },
+  { value: 6, label: 'Sat' },
+] as const;
 
 function createDraft(task: CleaningTask | null, store: CleaningPlannerStore): TaskDraft {
   const zoneOptions = getAvailableCleaningZones(store);
@@ -141,6 +153,7 @@ function createDraft(task: CleaningTask | null, store: CleaningPlannerStore): Ta
     taskType: task?.taskType ?? 'clean',
     cadenceKind: task?.cadence.kind ?? 'weekly',
     customEveryNDays: task?.cadence.kind === 'custom' ? task.cadence.everyNDays : 30,
+    weeklyDays: task?.cadence.kind === 'weekly-days' ? task.cadence.daysOfWeek : [1],
     notes: task?.notes ?? '',
     lastCompletedOption,
     lastCompletedDate,
@@ -155,6 +168,9 @@ function createDraft(task: CleaningTask | null, store: CleaningPlannerStore): Ta
 function getCadenceFromDraft(draft: TaskDraft): CleaningCadence {
   if (draft.cadenceKind === 'custom') {
     return { kind: 'custom', everyNDays: Math.max(1, Math.floor(draft.customEveryNDays || 1)) };
+  }
+  if (draft.cadenceKind === 'weekly-days') {
+    return { kind: 'weekly-days', daysOfWeek: draft.weeklyDays.length > 0 ? draft.weeklyDays : [1] };
   }
   return { kind: draft.cadenceKind };
 }
@@ -361,7 +377,7 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
             <span className="text-sm font-medium text-text-primary">Repeat cadence</span>
             <select
               value={draft.cadenceKind}
-              onChange={(e) => setDraft((prev) => ({ ...prev, cadenceKind: e.target.value as CleaningCadencePreset | 'custom' }))}
+              onChange={(e) => setDraft((prev) => ({ ...prev, cadenceKind: e.target.value as CadenceOption }))}
               className="w-full rounded-2xl border border-border-subtle bg-bg-elevated px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
             >
               {CADENCE_OPTIONS.map((option) => (
@@ -385,6 +401,41 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
                 className="w-full rounded-2xl border border-border-subtle bg-bg-elevated px-4 py-3 text-sm text-text-primary outline-none transition focus:border-primary/50"
               />
             </label>
+          )}
+
+          {/* Specific weekdays */}
+          {draft.cadenceKind === 'weekly-days' && (
+            <div className="space-y-2">
+              <span className="text-sm font-medium text-text-primary">Repeat on</span>
+              <div className="grid grid-cols-7 gap-1.5">
+                {WEEKDAY_OPTIONS.map((day) => {
+                  const isSelected = draft.weeklyDays.includes(day.value);
+                  return (
+                    <button
+                      key={day.value}
+                      type="button"
+                      onClick={() => {
+                        setDraft((prev) => {
+                          const hasDay = prev.weeklyDays.includes(day.value);
+                          const nextDays = hasDay
+                            ? prev.weeklyDays.filter((value) => value !== day.value)
+                            : [...prev.weeklyDays, day.value].sort((a, b) => a - b);
+                          return { ...prev, weeklyDays: nextDays.length > 0 ? nextDays : prev.weeklyDays };
+                        });
+                      }}
+                      className={`rounded-xl border py-2 text-xs font-semibold transition ${
+                        isSelected
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border-subtle bg-bg-elevated text-text-muted hover:text-text-secondary'
+                      }`}
+                    >
+                      {day.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-text-muted">Pick one or more days, like Monday and Thursday.</p>
+            </div>
           )}
 
           {/* Time estimate - ADHD friendly */}

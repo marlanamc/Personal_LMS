@@ -10,7 +10,8 @@ export type CleaningCadencePreset =
 
 export type CleaningCadence =
   | { kind: CleaningCadencePreset }
-  | { kind: 'custom'; everyNDays: number };
+  | { kind: 'custom'; everyNDays: number }
+  | { kind: 'weekly-days'; daysOfWeek: number[] };
 
 export type CleaningZone = {
   id: string;
@@ -78,6 +79,7 @@ export const EMPTY_CLEANING_PLANNER_STORE: CleaningPlannerStore = {
 
 const TASK_TYPE_SET = new Set<CleaningTaskType>(['clean', 'reset', 'replace']);
 const ZONE_ID_PATTERN = /^[a-z0-9-]+$/;
+const DAY_OF_WEEK_LABELS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
 
 function normalizeText(value: string): string {
   return value.trim().replace(/\s+/g, ' ');
@@ -130,6 +132,27 @@ function addDays(date: Date, days: number): Date {
   return next;
 }
 
+function normalizeDaysOfWeek(value: unknown): number[] {
+  if (!Array.isArray(value)) return [];
+  return Array.from(
+    new Set(
+      value
+        .map((day) => (typeof day === 'number' && Number.isFinite(day) ? Math.floor(day) : null))
+        .filter((day): day is number => day !== null && day >= 0 && day <= 6),
+    ),
+  ).sort((a, b) => a - b);
+}
+
+function nextSelectedWeekdayOnOrAfter(date: Date, daysOfWeek: number[]): Date | null {
+  if (daysOfWeek.length === 0) return null;
+  const base = startOfDay(date);
+  for (let offset = 0; offset <= 7; offset += 1) {
+    const candidate = addDays(base, offset);
+    if (daysOfWeek.includes(candidate.getDay())) return candidate;
+  }
+  return null;
+}
+
 function addMonthsClamped(date: Date, months: number): Date {
   const next = new Date(date);
   const day = next.getDate();
@@ -165,6 +188,10 @@ function normalizeCadence(raw: unknown): CleaningCadence {
         ? Math.max(1, Math.floor(raw.everyNDays))
         : 30;
     return { kind: 'custom', everyNDays };
+  }
+  if (kind === 'weekly-days') {
+    const daysOfWeek = normalizeDaysOfWeek(raw.daysOfWeek);
+    return daysOfWeek.length > 0 ? { kind, daysOfWeek } : { kind: 'weekly' };
   }
   return { kind: 'weekly' };
 }
@@ -285,7 +312,11 @@ export function getCleaningZoneLabel(store: CleaningPlannerStore, zoneId: string
 }
 
 export function formatCleaningCadence(cadence: CleaningCadence): string {
-  return cadence.kind === 'custom' ? `Every ${cadence.everyNDays} days` : CLEANING_CADENCE_LABELS[cadence.kind];
+  if (cadence.kind === 'custom') return `Every ${cadence.everyNDays} days`;
+  if (cadence.kind === 'weekly-days') {
+    return `Every ${cadence.daysOfWeek.map((day) => DAY_OF_WEEK_LABELS[day]).join(', ')}`;
+  }
+  return CLEANING_CADENCE_LABELS[cadence.kind];
 }
 
 export function formatEstimatedTime(minutes: number | undefined): string | null {
@@ -318,6 +349,8 @@ export function getNextDueDate(task: CleaningTask): Date | null {
     return addDays(completedDay, cadenceDays);
   }
   switch (task.cadence.kind) {
+    case 'weekly-days':
+      return nextSelectedWeekdayOnOrAfter(addDays(completedDay, 1), task.cadence.daysOfWeek);
     case 'monthly':
       return addMonthsClamped(completedDay, 1);
     case 'quarterly':
@@ -331,18 +364,33 @@ export function getNextDueDate(task: CleaningTask): Date | null {
   }
 }
 
-export function getScheduledCleaningTaskDate(task: CleaningTask, now = new Date()): Date {
-  const fallbackDate = startOfDay(now);
+function getLastCompletedDay(task: CleaningTask): Date | null {
+  if (!task.lastCompletedAt) return null;
+  const completedAt = new Date(task.lastCompletedAt);
+  if (Number.isNaN(completedAt.getTime())) return null;
+  return startOfDay(completedAt);
+}
+
+function getEffectiveCleaningDueDate(task: CleaningTask, now = new Date()): Date | null {
   const nextDueDate = getNextDueDate(task);
   const dueDate = nextDueDate ? startOfDay(nextDueDate) : null;
   const parsedStartDate = parseCleaningStartDate(task.startDate);
   const startDate = parsedStartDate ? startOfDay(parsedStartDate) : null;
+  const lastCompletedDay = getLastCompletedDay(task);
 
-  if (startDate && dueDate) {
-    return startDate.getTime() > dueDate.getTime() ? startDate : dueDate;
+  if (task.cadence.kind === 'weekly-days' && (!lastCompletedDay || (startDate && lastCompletedDay.getTime() < startDate.getTime()))) {
+    return nextSelectedWeekdayOnOrAfter(startDate ?? now, task.cadence.daysOfWeek);
   }
 
-  return startDate ?? dueDate ?? fallbackDate;
+  if (startDate && (!lastCompletedDay || lastCompletedDay.getTime() < startDate.getTime())) {
+    return startDate;
+  }
+
+  return dueDate ?? startDate;
+}
+
+export function getScheduledCleaningTaskDate(task: CleaningTask, now = new Date()): Date {
+  return getEffectiveCleaningDueDate(task, now) ?? startOfDay(now);
 }
 
 export function getCleaningTaskStatus(task: CleaningTask, now = new Date(), upcomingWindowDays = 7): CleaningTaskStatus {
@@ -357,7 +405,7 @@ export function getCleaningTaskStatus(task: CleaningTask, now = new Date(), upco
     }
   }
 
-  const nextDueDate = getNextDueDate(task);
+  const nextDueDate = getEffectiveCleaningDueDate(task, now);
   if (!nextDueDate) return 'due'; // Never completed = due now (if past start date)
 
   const due = startOfDay(nextDueDate);
@@ -459,6 +507,11 @@ export function createCleaningTask(input: {
     taskType: input.taskType,
     cadence: input.cadence.kind === 'custom'
       ? { kind: 'custom', everyNDays: Math.max(1, Math.floor(input.cadence.everyNDays)) }
+      : input.cadence.kind === 'weekly-days'
+        ? (() => {
+            const daysOfWeek = normalizeDaysOfWeek(input.cadence.daysOfWeek);
+            return daysOfWeek.length > 0 ? { kind: 'weekly-days', daysOfWeek } : { kind: 'weekly' };
+          })()
       : { kind: input.cadence.kind },
     notes: input.notes && normalizeText(input.notes) ? normalizeText(input.notes) : undefined,
     lastCompletedAt: normalizeDateString(input.lastCompletedAt),
