@@ -1145,7 +1145,7 @@ export const FocusTimer = () => {
 
         return (
             <div
-                className={`w-full max-w-[320px] rounded-2xl overflow-hidden transition-all duration-300 ${className}`.trim()}
+                className={`focus-session-panel w-full max-w-[320px] rounded-2xl overflow-hidden transition-all duration-300 ${className}`.trim()}
                 style={{
                     background: 'linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 98%, white 2%) 0%, color-mix(in srgb, var(--color-bg-elevated) 94%, var(--color-accent-sakura) 2%) 100%)',
                     boxShadow: 'var(--color-card-shadow)',
@@ -1314,13 +1314,13 @@ export const FocusTimer = () => {
     };
     
     return (
-        <div className="min-h-screen bg-bg-base light-ambient-surface focus-timer-ambient text-text font-display transition-colors duration-300 flex flex-col">
+        <div className="focus-timer-page min-h-screen bg-bg-base light-ambient-surface focus-timer-ambient text-text font-display transition-colors duration-300 flex flex-col">
             {/* Header / Top Nav area - Fixed at top */}
-            <header className="flex items-center justify-between px-6 py-4 sm:px-8 sm:py-5 shrink-0">
+            <header className="focus-timer-page-header flex items-center justify-between px-6 py-4 sm:px-8 sm:py-5 shrink-0">
                 <div className="relative" ref={menuRef}>
                     <button
                         onClick={() => setIsMusicMenuOpen(!isMusicMenuOpen)}
-                        className={`flex items-center gap-2 px-4 py-2 ${isMusicMenuOpen ? 'bg-bg-light border-primary/50 text-text' : 'bg-bg-secondary hover:bg-bg-light text-text/90'} rounded-full text-sm font-medium transition-colors border shadow-sm z-10`}
+                        className={`focus-timer-control-chip flex items-center gap-2 px-4 py-2 ${isMusicMenuOpen ? 'bg-bg-light border-primary/50 text-text' : 'bg-bg-secondary hover:bg-bg-light text-text/90'} rounded-full text-sm font-medium transition-colors border shadow-sm z-10`}
                         style={{ borderColor: isMusicMenuOpen ? 'var(--color-primary)' : 'var(--color-border)' }}
                     >
                         <Music className={`w-4 h-4 ${isMusicMenuOpen ? 'text-primary' : 'text-text/70'}`} />
@@ -1329,7 +1329,7 @@ export const FocusTimer = () => {
 
                     {/* Tiimo-Style Dropdown Menu */}
                     {isMusicMenuOpen && (
-                        <div className="absolute top-12 left-0 w-64 bg-bg-elevated backdrop-blur-md rounded-3xl p-2 shadow-xl z-50 border border-border/50 animate-fade-in-up">
+                        <div className="focus-timer-popover absolute top-12 left-0 w-64 bg-bg-elevated backdrop-blur-md rounded-3xl p-2 shadow-xl z-50 border border-border/50 animate-fade-in-up">
                             {!isLoadingSpotifyStatus && spotifyStatus.configured && !isSpotifyConnected && (
                                 <div className="px-3 py-2 mb-2 border-b border-border/30">
                                     <button
@@ -1427,7 +1427,7 @@ export const FocusTimer = () => {
                             setIsNotepadPanelOpen(true);
                             setIsTasksPanelOpen(false);
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-light rounded-full text-sm font-medium transition-colors border border-border/50 shadow-sm"
+                        className="focus-timer-control-chip flex items-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-light rounded-full text-sm font-medium transition-colors border border-border/50 shadow-sm"
                         aria-label="Open notepad"
                     >
                         <StickyNote className="w-4 h-4 text-text/70" />
@@ -1439,7 +1439,7 @@ export const FocusTimer = () => {
                             setIsTasksPanelOpen(true);
                             setIsNotepadPanelOpen(false);
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-light rounded-full text-sm font-medium transition-colors border border-border/50 shadow-sm"
+                        className="focus-timer-control-chip flex items-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-light rounded-full text-sm font-medium transition-colors border border-border/50 shadow-sm"
                         aria-label="Open tasks panel"
                     >
                         <CheckSquare className="w-4 h-4 text-text/70" />
@@ -1476,7 +1476,7 @@ export const FocusTimer = () => {
                     width="400"
                     height="400"
                     viewBox="0 0 320 320"
-                    className="transform -rotate-90 cursor-pointer"
+                    className="focus-timer-orbit transform -rotate-90 cursor-pointer"
                     onMouseDown={handleDragStart}
                     onTouchStart={handleDragStart}
                 >
@@ -1606,7 +1606,7 @@ export const FocusTimer = () => {
                                         setHasCustomSessionTitle(nextValue.trim() !== '' && nextValue.trim() !== suggestedSessionTitle);
                                     }}
                                     placeholder={suggestedSessionTitle}
-                                    className="w-full px-3 py-2 rounded-xl border border-border bg-bg-secondary text-sm text-text placeholder:text-text-muted outline-none focus:border-primary"
+                                    className="focus-timer-input w-full px-3 py-2 rounded-xl border border-border bg-bg-secondary text-sm text-text placeholder:text-text-muted outline-none focus:border-primary"
                                     maxLength={80}
                                 />
                             </div>
@@ -1757,13 +1757,13 @@ export const FocusTimer = () => {
                 <button
                     type="button"
                     onClick={() => setIsTasksPanelOpen(false)}
-                    className={`absolute inset-0 bg-black/45 transition-opacity duration-200 ${isTasksPanelOpen ? 'opacity-100' : 'opacity-0'}`}
+                    className={`focus-timer-panel-backdrop absolute inset-0 bg-black/45 transition-opacity duration-200 ${isTasksPanelOpen ? 'opacity-100' : 'opacity-0'}`}
                     tabIndex={isTasksPanelOpen ? 0 : -1}
                     aria-label="Close tasks panel"
                 />
 
                 <aside
-                    className={`absolute right-0 top-0 h-full w-full max-w-md bg-bg-elevated border-l border-border shadow-2xl transition-transform duration-300 ${isTasksPanelOpen ? 'translate-x-0' : 'translate-x-full'}`}
+                    className={`focus-timer-side-panel absolute right-0 top-0 h-full w-full max-w-md bg-bg-elevated border-l border-border shadow-2xl transition-transform duration-300 ${isTasksPanelOpen ? 'translate-x-0' : 'translate-x-full'}`}
                     role="dialog"
                     aria-modal="true"
                     aria-label="Focus tasks"
@@ -1957,12 +1957,12 @@ export const FocusTimer = () => {
                 <button
                     type="button"
                     onClick={() => setIsNotepadPanelOpen(false)}
-                    className={`absolute inset-0 bg-black/45 transition-opacity duration-200 ${isNotepadPanelOpen ? 'opacity-100' : 'opacity-0'}`}
+                    className={`focus-timer-panel-backdrop absolute inset-0 bg-black/45 transition-opacity duration-200 ${isNotepadPanelOpen ? 'opacity-100' : 'opacity-0'}`}
                     tabIndex={isNotepadPanelOpen ? 0 : -1}
                     aria-label="Close notepad"
                 />
                 <aside
-                    className={`absolute right-0 top-0 h-full w-full max-w-md bg-bg-elevated border-l border-border shadow-2xl transition-transform duration-300 ${isNotepadPanelOpen ? 'translate-x-0' : 'translate-x-full'}`}
+                    className={`focus-timer-side-panel absolute right-0 top-0 h-full w-full max-w-md bg-bg-elevated border-l border-border shadow-2xl transition-transform duration-300 ${isNotepadPanelOpen ? 'translate-x-0' : 'translate-x-full'}`}
                     role="dialog"
                     aria-modal="true"
                     aria-label="Session notepad"

@@ -76,7 +76,7 @@ export function AreaCard({
 
         <Link
           href={href}
-          className={`group/cta inline-flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.99] ${styles.button}`}
+          className={`area-card-cta area-card-cta-${color} group/cta inline-flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.99] ${styles.button}`}
         >
           <span className="min-w-0 pr-2">{primaryLabel ?? `Open ${title}`}</span>
           <ArrowRight className="h-4 w-4 shrink-0 opacity-75 transition-all duration-200 group-hover/cta:translate-x-0.5 group-hover/cta:opacity-100" />

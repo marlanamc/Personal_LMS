@@ -148,14 +148,14 @@ export function AnchorTimeWindowCard({
     <div
       className={`
         relative rounded-[1.5rem] border transition-all duration-300 overflow-hidden
-        backdrop-blur-md
+        backdrop-blur-sm
         ${isActive
-          ? 'border-accent-sakura/40 shadow-[0_0_24px_rgba(212,138,166,0.18)] bg-bg-surface/70'
+          ? 'border-accent-sakura/35 shadow-[0_0_14px_rgba(207,120,150,0.14)] bg-bg-surface/80'
           : isUpNext
-            ? 'border-accent-mint/35 shadow-[0_0_16px_rgba(120,191,165,0.12)] bg-bg-surface/65'
+            ? 'border-accent-mint/30 shadow-[0_0_10px_rgba(104,170,132,0.10)] bg-bg-surface/75'
             : isDone
-              ? 'border-border-subtle/30 bg-bg-surface/40 opacity-75'
-              : 'border-border-subtle/45 bg-bg-surface/55 hover:border-border-subtle/60'
+              ? 'border-border-subtle/45 bg-bg-surface/58 opacity-75'
+              : 'border-border-subtle/60 bg-bg-surface/72 hover:border-border-strong/60'
         }
       `}
     >

@@ -14,8 +14,8 @@ export function getAnchorRowChromeStyles(
         ? `color-mix(in srgb, ${palette.solid} 38%, transparent)`
         : `color-mix(in srgb, ${palette.solid} 50%, transparent)`,
       backgroundColor: isDone
-        ? `color-mix(in srgb, var(--color-bg-surface) 82%, color-mix(in srgb, ${palette.solid} 14%, var(--color-bg-base)) 18%)`
-        : `color-mix(in srgb, ${palette.solid} 9%, transparent)`,
+        ? `color-mix(in srgb, var(--color-bg-surface) 90%, color-mix(in srgb, ${palette.solid} 8%, var(--color-bg-base)) 10%)`
+        : `color-mix(in srgb, ${palette.solid} 5%, var(--color-bg-surface))`,
     };
   }
   return {
@@ -260,8 +260,8 @@ export function getSessionOverviewTimeChipStyles(muted: boolean): CSSProperties 
 export function getOverviewCurrentRowHighlightStyle(accent: string): CSSProperties {
   return {
     boxShadow: [
-      `inset 0 0 0 1px color-mix(in srgb, ${accent} 44%, transparent)`,
-      `0 0 26px color-mix(in srgb, ${accent} 17%, transparent)`,
+      `inset 0 0 0 1px color-mix(in srgb, ${accent} 34%, transparent)`,
+      `0 0 14px color-mix(in srgb, ${accent} 10%, transparent)`,
     ].join(', '),
   };
 }
@@ -270,11 +270,11 @@ export function getOverviewCurrentRowHighlightStyle(accent: string): CSSProperti
 export function getOverviewCurrentStatusBadgeStyle(accent: string): CSSProperties {
   return {
     color: `color-mix(in srgb, ${accent} 78%, var(--color-text-primary))`,
-    border: `1px solid color-mix(in srgb, ${accent} 48%, transparent)`,
-    backgroundColor: `color-mix(in srgb, ${accent} 15%, var(--color-bg-elevated))`,
+    border: `1px solid color-mix(in srgb, ${accent} 38%, transparent)`,
+    backgroundColor: `color-mix(in srgb, ${accent} 11%, var(--color-bg-elevated))`,
     boxShadow: [
-      `0 0 18px color-mix(in srgb, ${accent} 40%, transparent)`,
-      `0 0 5px color-mix(in srgb, ${accent} 22%, transparent)`,
+      `0 0 10px color-mix(in srgb, ${accent} 22%, transparent)`,
+      `0 0 4px color-mix(in srgb, ${accent} 12%, transparent)`,
     ].join(', '),
   };
 }
