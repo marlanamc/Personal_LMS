@@ -335,8 +335,12 @@ export function DayTimeline({
               left: '-12px',
             }}
           >
-            <div className="h-2.5 w-2.5 rounded-full bg-accent-sakura shadow-lg shadow-accent-sakura/40 ring-2 ring-bg-surface animate-pulse" />
-            <div className="flex-1 h-[2px] bg-gradient-to-r from-accent-sakura via-accent-sakura/60 to-transparent" />
+            <div className="relative flex items-center justify-center">
+              {/* Whimsical glow behind the marker */}
+              <div className="absolute h-8 w-8 rounded-full bg-accent-sakura/25 blur-md animate-pulse" />
+              <div className="relative h-2.5 w-2.5 rounded-full bg-accent-sakura shadow-sm ring-2 ring-bg-surface" />
+            </div>
+            <div className="flex-1 h-[1.5px] bg-gradient-to-r from-accent-sakura via-accent-sakura/40 to-transparent" />
           </div>
         )}
       </div>

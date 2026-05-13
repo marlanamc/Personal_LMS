@@ -108,7 +108,7 @@
   --color-bg-light: var(--color-bg-elevated);
   --color-bg-card: var(--color-bg-surface);
 
-  --color-primary: var(--color-accent-sakura);
+  --color-primary: #6cd1f0; /* Aquamarine primary */
   --color-primary-light: #e3a8bc;
   --color-primary-dark: #b8738d;
   --color-secondary: var(--color-accent-mint);
@@ -257,26 +257,26 @@
   --rail-width-collapsed: 56px;
   --rail-width-expanded: 240px;
 
-  /* Organize Lane Colors — dark defaults (mobile list prototype: softer NOW card) */
-  --color-lane-now: #d48aa6;
-  --color-lane-now-bg: rgba(212, 138, 166, 0.06);
-  --color-lane-now-border: rgba(212, 138, 166, 0.16);
-  --color-lane-now-glow: rgba(212, 138, 166, 0.3);
+  /* Organize Lane Colors — Greenhouse defaults */
+  --color-lane-now: #6cd1f0; /* Aquamarine */
+  --color-lane-now-bg: rgba(108, 209, 240, 0.08);
+  --color-lane-now-border: rgba(108, 209, 240, 0.22);
+  --color-lane-now-glow: rgba(108, 209, 240, 0.3);
 
-  --color-lane-next: #4f8c9e;
-  --color-lane-next-bg: rgba(79, 140, 158, 0.08);
-  --color-lane-next-border: rgba(79, 140, 158, 0.22);
-  --color-lane-next-glow: rgba(79, 140, 158, 0.3);
+  --color-lane-next: #a1a1f7; /* Grape Soda */
+  --color-lane-next-bg: rgba(161, 161, 247, 0.08);
+  --project-next-border: rgba(161, 161, 247, 0.22);
+  --color-lane-next-glow: rgba(161, 161, 247, 0.3);
 
-  --color-lane-later: #78bfa5;
-  --color-lane-later-bg: rgba(120, 191, 165, 0.08);
-  --color-lane-later-border: rgba(120, 191, 165, 0.22);
-  --color-lane-later-glow: rgba(120, 191, 165, 0.3);
+  --color-lane-later: #89d385; /* Botanist */
+  --color-lane-later-bg: rgba(137, 211, 133, 0.08);
+  --color-lane-later-border: rgba(137, 211, 133, 0.22);
+  --color-lane-later-glow: rgba(137, 211, 133, 0.3);
 
-  --color-lane-done: #5fba7d;
-  --color-lane-done-bg: rgba(95, 186, 125, 0.08);
-  --color-lane-done-border: rgba(95, 186, 125, 0.22);
-  --color-lane-done-glow: rgba(95, 186, 125, 0.3);
+  --color-lane-done: #d1efbd; /* Matcha */
+  --color-lane-done-bg: rgba(209, 239, 189, 0.08);
+  --color-lane-done-border: rgba(209, 239, 189, 0.22);
+  --color-lane-done-glow: rgba(209, 239, 189, 0.3);
 
   /* Live Now stage glow (dark) */
   --color-live-now-glow: rgba(212, 138, 166, 0.12);
@@ -297,65 +297,75 @@
 :root.light {
   color-scheme: light;
 
-  --color-bg-base: #edf1f7;
-  --color-bg-surface: #f1eef5;
-  --color-bg-elevated: #eceff6;
-  --color-bg-soft: #e6ebf4;
-  --color-surface-glass: rgba(241, 238, 245, 0.82);
-  --color-border-subtle: rgba(104, 116, 132, 0.18);
-  --color-border-strong: rgba(92, 104, 120, 0.24);
-  --color-border-glow: rgba(174, 148, 204, 0.24);
+  /* ── Day Theme: Warm Lychee-Cream ─────────────────────────────────────────
+     Base leans rose-cream (hue ~10°, sat ~14%) not orange/peach, so it reads
+     as morning parchment rather than bandaid. Surfaces lift toward near-white
+     so glassmorphism cards are clearly distinct from the backdrop.
+     Cool teal + botanist green in the aurora counterbalance the warmth.
+  ── */
 
-  --color-text-primary: #2a2a31;
-  --color-text-secondary: #4c5560;
-  --color-text-muted: #7d8693;
+  --color-bg-base: #faf8f2;
+  --color-bg-surface: #ffffff;
+  --color-bg-elevated: #fdfcf8;
+  --color-bg-soft: #e8e4d8;
+  --color-surface-glass: rgba(255, 255, 255, 0.82);
+  --color-border-subtle: rgba(120, 140, 110, 0.15);
+  --color-border-strong: rgba(110, 130, 100, 0.25);
+  --color-border-glow: rgba(239, 204, 234, 0.5);
 
-  --color-accent-sakura: #cf7896;
-  --color-accent-sakura-soft: rgba(207, 120, 150, 0.11);
-  --color-accent-teal: #6aaea5;
-  --color-accent-mint: #68aa84;
-  --color-accent-amethyst: #9079bd;
-  --color-accent-blue: #7ea3cf;
-  --color-accent-honey: #d9a84f;
-  --color-accent-coral: #cf735f;
-  --liquid-canvas-a: #e6f1f8;
-  --liquid-canvas-b: #eeeaf6;
-  --liquid-canvas-c: #f7eaf1;
-  --liquid-glass-fill: rgba(241, 238, 245, 0.74);
-  --liquid-glass-fill-strong: rgba(238, 236, 244, 0.86);
-  --liquid-glass-fill-soft: rgba(230, 235, 244, 0.54);
-  --liquid-glass-border: rgba(132, 143, 158, 0.24);
-  --liquid-glass-highlight: rgba(255, 255, 255, 0.48);
-  --liquid-glass-primary-fill: rgba(241, 238, 245, 0.84);
-  --liquid-glass-primary-border: rgba(124, 136, 152, 0.28);
-  --liquid-glass-secondary-fill: rgba(238, 236, 244, 0.78);
-  --liquid-glass-secondary-border: rgba(128, 140, 156, 0.22);
-  --liquid-glass-tertiary-fill: rgba(244, 239, 243, 0.8);
-  --liquid-glass-tertiary-border: rgba(132, 143, 158, 0.2);
+  --color-text-primary: #3c3a34;
+  --color-text-secondary: #5c5a52;
+  --color-text-muted: #8c8a80;
+
+  --color-accent-sakura: #ff9b7a; /* Warm Coral instead of Pink Diamond */
+  --color-accent-sakura-soft: rgba(255, 155, 122, 0.15);
+  --color-accent-teal: #6cd1f0;  /* Aquamarine */
+  --color-accent-mint: #89d385;  /* Botanist */
+  --color-accent-amethyst: #a1a1f7; /* Grape Soda */
+  --color-accent-blue: #6cd1f0;
+  --color-accent-honey: #f5c86a;
+  --color-accent-coral: #ff9b7a;
+  /* liquid canvas tinted to matcha / aquamarine / cream */
+  --liquid-canvas-a: #faf8f2;
+  --liquid-canvas-b: #d1efbd; /* Matcha */
+  --liquid-canvas-c: #6cd1f0; /* Aquamarine */
+  /* frosted white glass */
+  --liquid-glass-fill: rgba(255, 255, 255, 0.75);
+  --liquid-glass-fill-strong: rgba(255, 255, 255, 0.88);
+  --liquid-glass-fill-soft: rgba(255, 255, 255, 0.55);
+  --liquid-glass-border: rgba(180, 200, 170, 0.2);
+  --liquid-glass-highlight: rgba(255, 255, 255, 0.8);
+  --liquid-glass-primary-fill: rgba(255, 255, 255, 0.85);
+  --liquid-glass-primary-border: rgba(180, 200, 170, 0.25);
+  --liquid-glass-secondary-fill: rgba(255, 255, 255, 0.8);
+  --liquid-glass-secondary-border: rgba(180, 200, 170, 0.2);
+  --liquid-glass-tertiary-fill: rgba(255, 255, 255, 0.82);
+  --liquid-glass-tertiary-border: rgba(180, 200, 170, 0.18);
   --liquid-glass-shadow:
-    0 18px 46px rgba(92, 104, 128, 0.12),
+    0 12px 32px rgba(120, 140, 110, 0.1),
     inset 0 1px 0 var(--liquid-glass-highlight);
   --liquid-glass-shadow-soft:
-    0 10px 30px rgba(92, 104, 128, 0.1),
+    0 10px 30px rgba(100, 52, 36, 0.12),
     inset 0 1px 0 var(--liquid-glass-highlight);
   --liquid-glass-shadow-primary:
-    0 20px 52px rgba(92, 104, 128, 0.13),
-    0 0 0 1px rgba(132, 143, 158, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.56);
+    0 20px 52px rgba(100, 52, 36, 0.18),
+    0 0 0 1px rgba(160, 100, 80, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.68);
   --liquid-glass-shadow-secondary:
-    0 12px 32px rgba(92, 104, 128, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.44);
+    0 12px 32px rgba(100, 52, 36, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.56);
   --liquid-glass-shadow-tertiary:
-    0 6px 18px rgba(92, 104, 128, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.44);
-  --liquid-header-fill: rgba(241, 238, 245, 0.46);
-  --liquid-rail-fill: rgba(230, 235, 244, 0.6);
-  --liquid-ambient-primary: rgba(126, 184, 222, 0.34);
-  --liquid-ambient-secondary: rgba(226, 135, 174, 0.27);
-  --liquid-ambient-tertiary: rgba(154, 194, 206, 0.22);
-  --liquid-top-light: rgba(255, 255, 255, 0.18);
-  --liquid-edge-depth: rgba(86, 98, 116, 0.06);
-  --liquid-grain-opacity: 0.016;
+    0 6px 18px rgba(100, 52, 36, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.56);
+  --liquid-header-fill: rgba(250, 248, 242, 0.6);
+  --liquid-rail-fill: rgba(245, 242, 234, 0.7);
+  /* aurora ambient — matcha + aquamarine + pink diamond */
+  --liquid-ambient-primary: rgba(108, 209, 240, 0.4);
+  --liquid-ambient-secondary: rgba(239, 204, 234, 0.3);
+  --liquid-ambient-tertiary: rgba(209, 239, 189, 0.25);
+  --liquid-top-light: rgba(255, 255, 255, 0.4);
+  --liquid-edge-depth: rgba(120, 140, 110, 0.06);
+  --liquid-grain-opacity: 0.015;
   --app-bg: var(--color-bg-base);
   --app-surface: var(--color-bg-surface);
   --app-surface-soft: var(--color-bg-elevated);
@@ -369,35 +379,36 @@
   --accent-secondary: var(--color-accent-amethyst);
   --accent-tertiary: var(--color-accent-teal);
 
-  --color-bg-base-light: #edf1f7;
-  --color-bg-surface-light: #f1eef5;
-  --color-bg-elevated-light: #eceff6;
-  --color-text-primary-light: #2a2a31;
-  --color-text-secondary-light: #4c5560;
-  --color-text-muted-light: #7d8693;
-  --color-accent-sakura-light: #cf7896;
-  --color-accent-sakura-soft-light: rgba(207, 120, 150, 0.11);
-  --color-accent-teal-light: #6aaea5;
-  --color-accent-mint-light: #68aa84;
-  --color-accent-amethyst-light: #9079bd;
+  --color-bg-base-light: #d6bdb4;
+  --color-bg-surface-light: #fef9f7;
+  --color-bg-elevated-light: #f9f2ee;
+  --color-text-primary-light: #251a16;
+  --color-text-secondary-light: #4e3530;
+  --color-text-muted-light: #7d6058;
+  --color-accent-sakura-light: #c0366a;
+  --color-accent-sakura-soft-light: rgba(192, 54, 106, 0.13);
+  --color-accent-teal-light: #3d9e93;
+  --color-accent-mint-light: #38a868;
+  --color-accent-amethyst-light: #7050b4;
 
-  --color-light-nebula-start: #dfeff8;
-  --color-light-nebula-mid:   #ebe6f6;
-  --color-light-nebula-end:   #f6e8f0;
-  --color-light-hero-start:   #f2f0f6;
-  --color-light-hero-mid:     #ececf6;
-  --color-light-hero-end:     #edf1f7;
-  --color-light-card-top:     #f1eef5;
-  --color-light-card-bottom:  #eceff6;
-  --color-light-shadow-soft: 0 14px 34px rgba(92, 104, 128, 0.10);
-  --color-light-shadow-hover: 0 18px 42px rgba(92, 104, 128, 0.13);
-  --color-light-shadow-hero:  0 16px 44px rgba(92, 104, 128, 0.12);
-  --color-light-progress-track: #d9dde4;
-  --color-light-timeline-track: #d7dce4;
-  --color-light-timeline-complete: #b8d5dd;
-  --color-light-selected-anchor-fill: #e5edf4;
-  --color-light-calendar-event: #89aeca;
-  --color-light-calendar-vacation: #7aa69d;
+  /* nebula / hero gradient tones — matcha + aquamarine */
+  --color-light-nebula-start: #d1efbd;
+  --color-light-nebula-mid:   #fdfcf8;
+  --color-light-nebula-end:   #6cd1f0;
+  --color-light-hero-start:   #ffffff;
+  --color-light-hero-mid:     #faf8f2;
+  --color-light-hero-end:     #d1efbd;
+  --color-light-card-top:     #fef9f7;
+  --color-light-card-bottom:  #f9f2ee;
+  --color-light-shadow-soft: 0 14px 34px rgba(100, 52, 36, 0.14);
+  --color-light-shadow-hover: 0 18px 42px rgba(100, 52, 36, 0.18);
+  --color-light-shadow-hero:  0 16px 44px rgba(100, 52, 36, 0.16);
+  --color-light-progress-track: #e2e8e0;
+  --color-light-timeline-track: #e2e8e0;
+  --color-light-timeline-complete: #80c4bc;
+  --color-light-selected-anchor-fill: #e8d8d0;
+  --color-light-calendar-event: #4e8ec8;
+  --color-light-calendar-vacation: #3d9e93;
   --color-accent-sunrise-today: #f5c86a;
   --color-accent-terracotta: var(--color-accent-sakura);
   --color-accent-sage: var(--color-light-calendar-vacation);
@@ -416,31 +427,31 @@
     var(--color-text-muted) 16%
   );
   --color-card-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.72),
+    0 1px 0 rgba(255, 255, 255, 0.88),
     var(--color-light-shadow-soft);
   --color-card-shadow-hover:
-    0 1px 0 rgba(255, 255, 255, 0.80),
+    0 1px 0 rgba(255, 255, 255, 0.94),
     var(--color-light-shadow-hover);
 
-  /* Enhanced Shadow System for Organize Page (Light Mode) */
+  /* Enhanced Shadow System for Organize Page (Day Theme — richer) */
   --shadow-organize-card-light:
-    0 1px 0 rgba(255, 255, 255, 0.75),
-    0 2px 4px rgba(110, 90, 180, 0.08),
-    0 8px 16px rgba(110, 90, 180, 0.11);
+    0 1px 0 rgba(255, 255, 255, 0.88),
+    0 2px 4px rgba(100, 48, 32, 0.10),
+    0 8px 16px rgba(100, 48, 32, 0.14);
   --shadow-organize-card-light-hover:
-    0 1px 0 rgba(255, 255, 255, 0.85),
-    0 4px 8px rgba(110, 90, 180, 0.10),
-    0 12px 24px rgba(110, 90, 180, 0.14),
-    0 24px 48px rgba(110, 90, 180, 0.08);
+    0 1px 0 rgba(255, 255, 255, 0.94),
+    0 4px 8px rgba(100, 48, 32, 0.12),
+    0 12px 24px rgba(100, 48, 32, 0.16),
+    0 24px 48px rgba(100, 48, 32, 0.09);
   --shadow-organize-card: var(--shadow-organize-card-light);
   --shadow-organize-card-hover: var(--shadow-organize-card-light-hover);
 
-  /* Glow Effects (Light Mode - Softer) */
-  --glow-primary: 0 0 16px rgba(207, 120, 150, 0.22);
-  --glow-teal:    0 0 16px rgba(106, 174, 165, 0.22);
-  --glow-mint:    0 0 16px rgba(104, 170, 132, 0.20);
+  /* Glow Effects (Day Theme — vivid) */
+  --glow-primary: 0 0 22px rgba(192, 54, 106, 0.36);
+  --glow-teal:    0 0 22px rgba(61, 158, 147, 0.34);
+  --glow-mint:    0 0 22px rgba(56, 168, 104, 0.30);
 
-  --color-primary: var(--color-accent-sakura);
+  --color-primary: #6cd1f0; /* Aquamarine primary */
   --color-primary-light: #e5a4ba;
   --color-primary-dark: #bf637f;
   --color-secondary: var(--color-accent-mint);
@@ -468,71 +479,71 @@
   --color-bg-card: var(--color-bg-surface);
 
   --shadow-sm:
-    0 1px 0 rgba(255, 255, 255, 0.60),
-    0 8px 16px rgba(110, 90, 180, 0.12);
+    0 1px 0 rgba(255, 255, 255, 0.80),
+    0 8px 16px rgba(100, 48, 32, 0.14);
   --shadow-md: var(--color-card-shadow);
   --shadow-lg: var(--color-card-shadow-hover);
   --shadow-xl:
-    0 1px 0 rgba(255, 255, 255, 0.75),
-    0 18px 32px rgba(110, 90, 180, 0.16);
+    0 1px 0 rgba(255, 255, 255, 0.90),
+    0 18px 32px rgba(100, 48, 32, 0.18);
 
-  /* Organize lane headers — coral NOW / medium blue NEXT / muted green LATER */
-  --color-lane-now: #e0574a;
-  --color-lane-now-bg: rgba(224, 87, 74, 0.09);
-  --color-lane-now-border: rgba(224, 87, 74, 0.28);
-  --color-lane-now-glow: rgba(224, 87, 74, 0.22);
+  /* Organize lane headers — Aquamarine NOW / medium blue NEXT / botanist LATER */
+  --color-lane-now: #6cd1f0; /* Aquamarine */
+  --color-lane-now-bg: rgba(108, 209, 240, 0.12);
+  --color-lane-now-border: rgba(108, 209, 240, 0.35);
+  --color-lane-now-glow: rgba(108, 209, 240, 0.25);
 
-  --color-lane-next: #3f7fd9;
-  --color-lane-next-bg: rgba(63, 127, 217, 0.10);
-  --color-lane-next-border: rgba(63, 127, 217, 0.28);
-  --color-lane-next-glow: rgba(63, 127, 217, 0.20);
+  --color-lane-next: #6cd1f0; /* Aquamarine */
+  --color-lane-next-bg: rgba(108, 209, 240, 0.15);
+  --color-lane-next-border: rgba(108, 209, 240, 0.35);
+  --color-lane-next-glow: rgba(108, 209, 240, 0.25);
 
-  --color-lane-later: #569e6e;
-  --color-lane-later-bg: rgba(86, 158, 110, 0.10);
-  --color-lane-later-border: rgba(86, 158, 110, 0.28);
-  --color-lane-later-glow: rgba(86, 158, 110, 0.20);
+  --color-lane-later: #89d385; /* Botanist */
+  --color-lane-later-bg: rgba(137, 211, 133, 0.15);
+  --color-lane-later-border: rgba(137, 211, 133, 0.35);
+  --color-lane-later-glow: rgba(137, 211, 133, 0.25);
 
-  --color-lane-done: #5f977f;
-  --color-lane-done-bg: rgba(95, 151, 127, 0.10);
-  --color-lane-done-border: rgba(95, 151, 127, 0.26);
-  --color-lane-done-glow: rgba(95, 151, 127, 0.18);
+  --color-lane-done: #d1efbd; /* Matcha */
+  --color-lane-done-bg: rgba(209, 239, 189, 0.12);
+  --color-lane-done-border: rgba(209, 239, 189, 0.3);
+  --color-lane-done-glow: rgba(209, 239, 189, 0.2);
 
-  /* Project bullets: rails + sidebar dots (stronger hues on neutral canvas) */
-  --project-peach: #ea8f3f;
-  --project-sky: #4788dc;
-  --project-mint: #3eab88;
-  --project-periwinkle: #7669d9;
-  --project-lavender: #9b7dd4;
-  --project-rose: #d45f78;
-  --project-coral: #e27868;
-  --project-sage: #64a87a;
-  --project-blush: #e8a4b8;
-  --project-slate: #768090;
+  /* Project bullets: rails + sidebar dots (vibrant hues on warm cream) */
+  --project-peach: #ff9b7a;      /* Warm Coral */
+  --project-sky: #6cd1f0;        /* Aquamarine */
+  --project-mint: #89d385;       /* Botanist */
+  --project-periwinkle: #a1a1f7; /* Grape Soda */
+  --project-lavender: #d946ef;   /* Pink/Fuchsia */
+  --project-rose: #ff9b7a;       /* Warm Coral */
+  --project-coral: #ff7a7a;      /* Strong Coral */
+  --project-sage: #d1efbd;       /* Matcha */
+  --project-blush: #f5c86a;      /* Honey */
+  --project-slate: #768090;      /* Slate (keep neutral) */
 
-  --project-peach-wash: color-mix(in srgb, var(--project-peach) 14%, white);
-  --project-peach-border: color-mix(in srgb, var(--project-peach) 36%, transparent);
-  --project-sky-wash: color-mix(in srgb, var(--project-sky) 14%, white);
-  --project-sky-border: color-mix(in srgb, var(--project-sky) 36%, transparent);
-  --project-mint-wash: color-mix(in srgb, var(--project-mint) 14%, white);
-  --project-mint-border: color-mix(in srgb, var(--project-mint) 36%, transparent);
-  --project-periwinkle-wash: color-mix(in srgb, var(--project-periwinkle) 14%, white);
-  --project-periwinkle-border: color-mix(in srgb, var(--project-periwinkle) 36%, transparent);
-  --project-lavender-wash: color-mix(in srgb, var(--project-lavender) 14%, white);
-  --project-lavender-border: color-mix(in srgb, var(--project-lavender) 36%, transparent);
-  --project-rose-wash: color-mix(in srgb, var(--project-rose) 14%, white);
-  --project-rose-border: color-mix(in srgb, var(--project-rose) 36%, transparent);
-  --project-coral-wash: color-mix(in srgb, var(--project-coral) 14%, white);
-  --project-coral-border: color-mix(in srgb, var(--project-coral) 36%, transparent);
-  --project-sage-wash: color-mix(in srgb, var(--project-sage) 14%, white);
-  --project-sage-border: color-mix(in srgb, var(--project-sage) 36%, transparent);
-  --project-blush-wash: color-mix(in srgb, var(--project-blush) 14%, white);
-  --project-blush-border: color-mix(in srgb, var(--project-blush) 36%, transparent);
-  --project-slate-wash: color-mix(in srgb, var(--project-slate) 14%, white);
-  --project-slate-border: color-mix(in srgb, var(--project-slate) 36%, transparent);
+  --project-peach-wash: color-mix(in srgb, var(--project-peach) 12%, white);
+  --project-peach-border: color-mix(in srgb, var(--project-peach) 32%, transparent);
+  --project-sky-wash: color-mix(in srgb, var(--project-sky) 12%, white);
+  --project-sky-border: color-mix(in srgb, var(--project-sky) 32%, transparent);
+  --project-mint-wash: color-mix(in srgb, var(--project-mint) 12%, white);
+  --project-mint-border: color-mix(in srgb, var(--project-mint) 32%, transparent);
+  --project-periwinkle-wash: color-mix(in srgb, var(--project-periwinkle) 12%, white);
+  --project-periwinkle-border: color-mix(in srgb, var(--project-periwinkle) 32%, transparent);
+  --project-lavender-wash: color-mix(in srgb, var(--project-lavender) 12%, white);
+  --project-lavender-border: color-mix(in srgb, var(--project-lavender) 32%, transparent);
+  --project-rose-wash: color-mix(in srgb, var(--project-rose) 12%, white);
+  --project-rose-border: color-mix(in srgb, var(--project-rose) 32%, transparent);
+  --project-coral-wash: color-mix(in srgb, var(--project-coral) 12%, white);
+  --project-coral-border: color-mix(in srgb, var(--project-coral) 32%, transparent);
+  --project-sage-wash: color-mix(in srgb, var(--project-sage) 12%, white);
+  --project-sage-border: color-mix(in srgb, var(--project-sage) 32%, transparent);
+  --project-blush-wash: color-mix(in srgb, var(--project-blush) 12%, white);
+  --project-blush-border: color-mix(in srgb, var(--project-blush) 32%, transparent);
+  --project-slate-wash: color-mix(in srgb, var(--project-slate) 12%, white);
+  --project-slate-border: color-mix(in srgb, var(--project-slate) 32%, transparent);
 
-  /* Live Now stage glow (light — softer, terracotta-tinted) */
-  --color-live-now-glow: rgba(194, 114, 94, 0.08);
-  --color-live-now-shadow: 0 0 40px rgba(194, 114, 94, 0.10), 0 16px 40px rgba(158, 132, 112, 0.18);
+  /* Live Now stage glow (day — punchy rose) */
+  --color-live-now-glow: rgba(192, 54, 106, 0.14);
+  --color-live-now-shadow: 0 0 40px rgba(192, 54, 106, 0.18), 0 16px 40px rgba(140, 80, 60, 0.22);
 }
 
 /* PWA: Lock the viewport to prevent iOS elastic bounce in any direction */
@@ -553,10 +564,11 @@ html {
 }
 
 @keyframes aurora-light {
-  0%   { background: radial-gradient(ellipse 54% 38% at 4% -4%,  rgba(154, 198, 230, 0.34) 0%, transparent 72%), radial-gradient(ellipse 48% 36% at 98% 3%, rgba(226, 135, 174, 0.24) 0%, transparent 68%), radial-gradient(ellipse 42% 32% at 94% 94%, rgba(135, 190, 205, 0.18) 0%, transparent 62%), linear-gradient(160deg, #f0f3f8 0%, #ebeef7 50%, #f4ebf2 100%); }
-  33%  { background: radial-gradient(ellipse 54% 38% at 14% 8%,  rgba(154, 198, 230, 0.28) 0%, transparent 72%), radial-gradient(ellipse 48% 36% at 88% -4%, rgba(226, 135, 174, 0.22) 0%, transparent 68%), radial-gradient(ellipse 42% 32% at 78% 88%, rgba(135, 190, 205, 0.16) 0%, transparent 62%), linear-gradient(160deg, #f0f3f8 0%, #ebeef7 50%, #f4ebf2 100%); }
-  66%  { background: radial-gradient(ellipse 54% 38% at 0% 16%,  rgba(154, 198, 230, 0.30) 0%, transparent 72%), radial-gradient(ellipse 48% 36% at 100% 14%, rgba(226, 135, 174, 0.20) 0%, transparent 68%), radial-gradient(ellipse 42% 32% at 88% 98%, rgba(135, 190, 205, 0.20) 0%, transparent 62%), linear-gradient(160deg, #f0f3f8 0%, #ebeef7 50%, #f4ebf2 100%); }
-  100% { background: radial-gradient(ellipse 54% 38% at 4% -4%,  rgba(154, 198, 230, 0.34) 0%, transparent 72%), radial-gradient(ellipse 48% 36% at 98% 3%, rgba(226, 135, 174, 0.24) 0%, transparent 68%), radial-gradient(ellipse 42% 32% at 94% 94%, rgba(135, 190, 205, 0.18) 0%, transparent 62%), linear-gradient(160deg, #f0f3f8 0%, #ebeef7 50%, #f4ebf2 100%); }
+  /* Aquamarine top-left · Pink Diamond top-right · Matcha bottom — warm cream base */
+  0%   { background: radial-gradient(ellipse 64% 52% at 0% -8%,   rgba(108, 209, 240, 0.5) 0%, transparent 70%), radial-gradient(ellipse 54% 46% at 102% 2%,  rgba(239, 204, 234, 0.35) 0%, transparent 66%), radial-gradient(ellipse 48% 40% at 90% 98%, rgba(209, 239, 189, 0.25) 0%, transparent 62%), linear-gradient(155deg, #faf8f2 0%, #ffffff 52%, #fdfcf8 100%); }
+  33%  { background: radial-gradient(ellipse 64% 52% at 14% 10%,  rgba(108, 209, 240, 0.4) 0%, transparent 70%), radial-gradient(ellipse 54% 46% at 92% -4%,  rgba(239, 204, 234, 0.3) 0%, transparent 66%), radial-gradient(ellipse 48% 40% at 74% 92%, rgba(209, 239, 189, 0.2) 0%, transparent 62%), linear-gradient(155deg, #faf8f2 0%, #ffffff 52%, #fdfcf8 100%); }
+  66%  { background: radial-gradient(ellipse 64% 52% at -4% 20%,  rgba(108, 209, 240, 0.45) 0%, transparent 70%), radial-gradient(ellipse 54% 46% at 104% 16%, rgba(239, 204, 234, 0.28) 0%, transparent 66%), radial-gradient(ellipse 48% 40% at 84% 102%,rgba(209, 239, 189, 0.28) 0%, transparent 62%), linear-gradient(155deg, #faf8f2 0%, #ffffff 52%, #fdfcf8 100%); }
+  100% { background: radial-gradient(ellipse 64% 52% at 0% -8%,   rgba(108, 209, 240, 0.5) 0%, transparent 70%), radial-gradient(ellipse 54% 46% at 102% 2%,  rgba(239, 204, 234, 0.35) 0%, transparent 66%), radial-gradient(ellipse 48% 40% at 90% 98%, rgba(209, 239, 189, 0.25) 0%, transparent 62%), linear-gradient(155deg, #faf8f2 0%, #ffffff 52%, #fdfcf8 100%); }
 }
 
 body {
@@ -675,6 +687,45 @@ html {
   background-color: var(--color-bg-base);
 }
 
+/* ========== Whimsical Day Mode Utilities ========== */
+.whimsical-underline {
+  position: relative;
+  display: inline-block;
+}
+
+:where(:root[data-theme="light"], :root.light) .whimsical-underline::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  bottom: 0px;
+  height: 8px;
+  background: linear-gradient(90deg, var(--color-accent-sakura), var(--color-accent-teal));
+  opacity: 0.35;
+  border-radius: 4px;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.card-bloom {
+  position: relative;
+  overflow: hidden;
+}
+
+:where(:root[data-theme="light"], :root.light) .card-bloom::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, var(--bloom-color, var(--color-accent-sakura)) 0%, transparent 70%);
+  opacity: 0.4;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
 /* Spring-like easing curve for native feel */
 :root {
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -715,10 +766,10 @@ html {
 
 :where(:root[data-theme="light"], :root.light) body {
   background:
-    radial-gradient(ellipse 54% 38% at 4% -4%,  rgba(154, 198, 230, 0.34) 0%, transparent 72%),
-    radial-gradient(ellipse 48% 36% at 98% 3%, rgba(226, 135, 174, 0.24) 0%, transparent 68%),
-    radial-gradient(ellipse 42% 32% at 94% 94%, rgba(135, 190, 205, 0.18) 0%, transparent 62%),
-    linear-gradient(160deg, #f0f3f8 0%, #ebeef7 50%, #f4ebf2 100%);
+    radial-gradient(ellipse 64% 52% at 0% -8%,   rgba(108, 209, 240, 0.5) 0%, transparent 70%),
+    radial-gradient(ellipse 54% 46% at 102% 2%,  rgba(239, 204, 234, 0.35) 0%, transparent 66%),
+    radial-gradient(ellipse 48% 40% at 90% 98%, rgba(209, 239, 189, 0.25) 0%, transparent 62%),
+    linear-gradient(155deg, #faf8f2 0%, #ffffff 52%, #fdfcf8 100%);
   animation: aurora-light 24s ease-in-out infinite;
   color: var(--color-text);
   line-height: 1.55;
@@ -1883,9 +1934,12 @@ textarea {
 }
 
 :where(:root[data-theme="light"], :root.light) .focus-timer-main-button {
-  background: var(--color-accent-sakura-soft);
-  color: var(--color-accent-sakura);
-  border: 1px solid color-mix(in srgb, var(--color-accent-sakura) 24%, transparent);
+  background: linear-gradient(to right, var(--color-accent-mint), #d1efbd);
+  color: #2d4a2a;
+  border: 2px solid rgba(137, 211, 133, 0.25);
+  box-shadow: 0 8px 24px rgba(137, 211, 133, 0.2);
+  font-weight: 800;
+  border-radius: 9999px;
 }
 
 /* ========== Card Depth System ========== */
@@ -1914,13 +1968,13 @@ textarea {
   background:
     radial-gradient(
       circle at 50% -8%,
-      color-mix(in srgb, var(--color-light-nebula-end) 22%, transparent) 0%,
+      rgba(108, 209, 240, 0.22) 0%,
       transparent 54%
     ),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--color-light-nebula-end) 16%, white 84%) 0%,
-      color-mix(in srgb, var(--color-light-nebula-start) 26%, var(--color-bg-base) 74%) 62%,
+      #faf8f2 0%,
+      rgba(209, 239, 189, 0.12) 62%,
       var(--color-bg-base) 100%
     );
 }
@@ -1936,7 +1990,11 @@ textarea {
 }
 
 :where(:root[data-theme="light"], :root.light) .focus-timer-ambient {
-  box-shadow: inset 0 0 180px rgba(156, 126, 98, 0.08);
+  box-shadow: inset 0 0 180px rgba(108, 209, 240, 0.08);
+}
+
+:where(:root[data-theme="light"], :root.light) .focus-timer-orbit {
+  filter: drop-shadow(0 0 8px rgba(239, 204, 234, 0.4));
 }
 
 :where(:root[data-theme="light"], :root.light) .focus-timer-well {
@@ -8133,8 +8191,8 @@ kbd {
   width: 0.55rem;
   height: 0.55rem;
   border-radius: 999px;
-  background: var(--color-accent-sakura);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent-sakura) 14%, transparent);
+  background: var(--color-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 14%, transparent);
 }
 
 .organize-project-focus-summary-label {
@@ -11611,10 +11669,10 @@ kbd {
 /* Organize: aurora glass canvas */
 :where(:root[data-theme="light"], :root.light) .organize-clean-shell {
   background:
-    radial-gradient(circle at 10% -5%, rgba(154, 198, 230, 0.28), transparent 42%),
-    radial-gradient(circle at 92% 5%, rgba(226, 135, 174, 0.18), transparent 36%),
-    radial-gradient(circle at 84% 100%, rgba(135, 190, 205, 0.16), transparent 50%),
-    linear-gradient(180deg, #f0f3f8 0%, #ebeef7 100%);
+    radial-gradient(circle at 10% -5%, rgba(108, 209, 240, 0.2), transparent 42%),
+    radial-gradient(circle at 92% 5%, rgba(239, 204, 234, 0.18), transparent 36%),
+    radial-gradient(circle at 84% 100%, rgba(209, 239, 189, 0.16), transparent 50%),
+    linear-gradient(180deg, #faf8f2 0%, #ffffff 100%);
 }
 
 .organize-clean-shell {
@@ -13746,31 +13804,28 @@ kbd {
  * Organize toggle — light mode overrides
  * ============================================================ */
 :where(:root[data-theme="light"], :root.light) .organize-view-toggle {
-  background: rgba(241, 238, 245, 0.82);
-  border-color: rgba(132, 143, 158, 0.18);
+  background: rgba(255, 255, 255, 0.45);
+  border-color: rgba(180, 200, 170, 0.2);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.42),
-    0 4px 12px rgba(92, 104, 128, 0.10);
+    0 4px 12px rgba(120, 140, 110, 0.1);
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-view-toggle-active {
-  background: linear-gradient(
-    145deg,
-    color-mix(in srgb, var(--accent-primary) 16%, rgba(241, 238, 245, 0.92)) 0%,
-    color-mix(in srgb, var(--accent-secondary) 10%, rgba(230, 235, 244, 0.92)) 100%
-  );
-  border-color: color-mix(in srgb, var(--accent-primary) 34%, transparent);
+  background: linear-gradient(145deg, var(--color-accent-sakura), #f4dfee);
+  border-color: rgba(239, 204, 234, 0.45);
   box-shadow:
-    0 2px 10px color-mix(in srgb, var(--accent-primary) 12%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.44);
+    0 4px 16px rgba(239, 204, 234, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  color: var(--color-text-primary) !important;
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-view-toggle-mobile {
-  background: rgba(241, 238, 245, 0.8);
-  border-color: rgba(132, 143, 158, 0.18);
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(180, 200, 170, 0.2);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.42),
-    0 6px 18px rgba(92, 104, 128, 0.10);
+    0 6px 18px rgba(120, 140, 110, 0.12);
 }
 
 /* ============================================================

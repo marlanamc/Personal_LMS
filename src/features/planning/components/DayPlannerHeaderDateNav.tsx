@@ -84,7 +84,7 @@ export function DayPlannerHeaderDateNav({
               <SunMedium size={embedded ? 12 : 14} className="text-accent-sakura" />
             </span>
           )}
-          <span className={labelTextClass}>
+          <span className={`${labelTextClass} whimsical-underline`}>
             {dateLabel}
           </span>
         </span>

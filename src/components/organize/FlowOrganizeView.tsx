@@ -781,7 +781,7 @@ function DesktopChain({
             style={{
               background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-lane-now) 6%, var(--color-bg-elevated)) 0%, var(--color-bg-elevated) 70%, var(--color-bg-surface) 100%)',
               border: '1px solid color-mix(in srgb, var(--color-lane-now) 24%, var(--color-border-subtle))',
-              boxShadow: '0 1px 0 rgba(255,255,255,0.76) inset, 0 18px 46px rgba(194,114,94,0.13), 0 34px 80px rgba(158,132,112,0.15)',
+              boxShadow: '0 1px 0 rgba(255,255,255,0.76) inset, 0 18px 46px var(--color-lane-now-glow), 0 34px 80px rgba(120, 140, 110, 0.12)',
             }}
           >
             {/* Coral accent rail */}

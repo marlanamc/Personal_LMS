@@ -907,19 +907,68 @@ const SPEAKING_TEXTURES: Record<SpeakingFamily, ActivityTexture> = {
 // -----------------------------------------------------------------------------
 // PERSONAL LEARNING TEXTURES
 // -----------------------------------------------------------------------------
-type PersonalFamily = 'spanish' | 'coding' | 'personal-other';
+type PersonalFamily = 'planning' | 'thinking' | 'focus' | 'learning' | 'cleaning' | 'meals' | 'skincare' | 'spanish' | 'coding' | 'personal-other';
 
 const PERSONAL_TEXTURES: Record<PersonalFamily, ActivityTexture> = {
+    planning: {
+        id: 'planning',
+        color: '#6CD1F0',           // Aquamarine
+        bgColor: 'rgba(108, 209, 240, 0.04)',
+        pattern: 'grid',
+        icon: '🗓️',
+    },
+    thinking: {
+        id: 'thinking',
+        color: '#A1A1F7',           // Grape Soda
+        bgColor: 'rgba(161, 161, 247, 0.04)',
+        pattern: 'bubbles',
+        icon: '🧠',
+    },
+    focus: {
+        id: 'focus',
+        color: '#EFCCEA',           // Pink Diamond
+        bgColor: 'rgba(239, 204, 234, 0.04)',
+        pattern: 'pulse',
+        icon: '🎯',
+    },
+    learning: {
+        id: 'learning',
+        color: '#89D385',           // Botanist
+        bgColor: 'rgba(137, 211, 133, 0.04)',
+        pattern: 'diagonal',
+        icon: '🌱',
+    },
+    cleaning: {
+        id: 'cleaning',
+        color: '#D1EFBD',           // Matcha / Bright Green
+        bgColor: 'rgba(209, 239, 189, 0.04)',
+        pattern: 'solid',
+        icon: '✨',
+    },
+    meals: {
+        id: 'meals',
+        color: '#ff9b7a',           // Warm Pink/Coral
+        bgColor: 'rgba(255, 155, 122, 0.04)',
+        pattern: 'dots',
+        icon: '🍱',
+    },
+    skincare: {
+        id: 'skincare',
+        color: '#6CD1F0',           // Aquamarine
+        bgColor: 'rgba(108, 209, 240, 0.04)',
+        pattern: 'wave',
+        icon: '🫧',
+    },
     spanish: {
         id: 'spanish',
-        color: '#d946ef',           // Pink/Fuchsia - vibrant, culture
+        color: '#d946ef',           // Pink/Fuchsia
         bgColor: 'rgba(217, 70, 239, 0.04)',
         pattern: 'pulse',
         icon: '🇪🇸',
     },
     coding: {
         id: 'coding',
-        color: '#0ea5e9',           // Sky blue - tech, logic
+        color: '#0ea5e9',           // Sky blue
         bgColor: 'rgba(14, 165, 233, 0.04)',
         pattern: 'grid',
         icon: '💻',
@@ -1042,7 +1091,14 @@ const detectWritingType = (title: string): WritingFamily => {
 // Detect personal type
 const detectPersonalType = (title: string): PersonalFamily => {
     const t = title.toLowerCase();
-    if (t.includes('spanish')) return 'spanish';
+    if (t.includes('plan') || t.includes('schedule')) return 'planning';
+    if (t.includes('think') || t.includes('reflect') || t.includes('brain')) return 'thinking';
+    if (t.includes('focus') || t.includes('deep work') || t.includes('session')) return 'focus';
+    if (t.includes('learn') || t.includes('study') || t.includes('read')) return 'learning';
+    if (t.includes('clean') || t.includes('tidy') || t.includes('chore')) return 'cleaning';
+    if (t.includes('meal') || t.includes('eat') || t.includes('cook') || t.includes('dinner') || t.includes('lunch') || t.includes('breakfast')) return 'meals';
+    if (t.includes('skin') || t.includes('face') || t.includes('routine')) return 'skincare';
+    if (t.includes('spanish') || t.includes('español')) return 'spanish';
     if (t.includes('coding') || t.includes('js') || t.includes('ts') || t.includes('javascript') || t.includes('typescript')) return 'coding';
     return 'personal-other';
 };
@@ -1257,7 +1313,7 @@ const ActivityCard = React.memo(function ActivityCard({
 
     return (
         <div
-            className={`group relative block rounded-xl border p-4 transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 overflow-hidden
+            className={`group relative block rounded-xl border p-4 transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-2 overflow-hidden card-bloom
                 ${isCompleted
                     ? 'bg-bg-surface border-border-subtle shadow-sm'
                     : isGuide
@@ -1276,7 +1332,8 @@ const ActivityCard = React.memo(function ActivityCard({
                 backgroundColor: isGuide && !isCompleted
                     ? 'color-mix(in srgb, var(--color-bg-elevated) 64%, var(--color-bg-surface))'
                     : undefined,
-            }}
+                '--bloom-color': visualAccent,
+            } as React.CSSProperties}
         >
             {/* Keep accent treatment subtle and contained */}
             {!isCompleted && (

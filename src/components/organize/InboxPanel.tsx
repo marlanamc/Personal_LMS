@@ -11,16 +11,16 @@ type ProjectColor =
   | 'rose' | 'coral' | 'sage' | 'blush' | 'slate';
 
 const PROJECT_COLOR_DOT: Record<ProjectColor, string> = {
-  peach: '#f4a47a',
-  sky: '#7ab8d4',
-  mint: '#78bfa5',
-  periwinkle: '#9b9fd4',
-  lavender: '#c3a8d1',
-  rose: '#d48aa6',
-  coral: '#e07b6c',
-  sage: '#8fa987',
-  blush: '#e8b4b8',
-  slate: '#8498aa',
+  peach: '#ff9b7a',      /* Warm Coral */
+  sky: '#6cd1f0',        /* Aquamarine */
+  mint: '#89d385',       /* Botanist */
+  periwinkle: '#a1a1f7', /* Grape Soda */
+  lavender: '#d946ef',   /* Pink/Fuchsia */
+  rose: '#6cd1f0',       /* Aquamarine */
+  coral: '#ff7a7a',      /* Strong Coral */
+  sage: '#d1efbd',       /* Matcha */
+  blush: '#f5c86a',      /* Honey */
+  slate: '#8498aa',      /* Slate */
 };
 
 type InboxPanelProps = {

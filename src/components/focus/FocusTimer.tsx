@@ -1482,8 +1482,8 @@ export const FocusTimer = () => {
                 >
                     <defs>
                         <linearGradient id="nebula-orbit-gradient" x1="40" y1="40" x2="280" y2="280" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stopColor="var(--color-accent-amethyst)" />
-                            <stop offset="52%" stopColor="var(--color-accent-sakura)" />
+                            <stop offset="0%" stopColor="var(--color-accent-mint)" />
+                            <stop offset="52%" stopColor="#b4e5f0" />
                             <stop offset="100%" stopColor="var(--color-accent-teal)" />
                         </linearGradient>
                     </defs>
@@ -1861,7 +1861,8 @@ export const FocusTimer = () => {
                                     return (
                                         <div
                                             key={task.id}
-                                            className="relative overflow-hidden rounded-xl border border-border-subtle bg-bg-surface shadow-sm"
+                                            className="card-bloom relative overflow-hidden rounded-xl border border-border-subtle bg-bg-surface shadow-sm"
+                                            style={{ '--bloom-color': style.accent } as React.CSSProperties}
                                         >
                                             <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: style.accent }} />
 

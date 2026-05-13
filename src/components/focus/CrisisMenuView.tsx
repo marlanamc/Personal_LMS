@@ -15,7 +15,7 @@ const TABS: Array<{ id: CrisisMenuTab; label: string; emoji: string; description
   { id: 'food', label: 'Food & Snacks', emoji: '🍎', description: 'Quick bites that help', theme: 'from-orange-400/20 to-red-400/20 border-orange-200/50 dark:border-orange-500/30' },
   { id: 'regulation', label: 'Regulation', emoji: '🌊', description: 'Ground yourself', theme: 'from-cyan-400/20 to-blue-500/20 border-cyan-200/50 dark:border-cyan-500/30' },
   { id: 'task', label: 'Tiny Task', emoji: '⚡', description: 'Micro-wins', theme: 'from-amber-300/20 to-yellow-500/20 border-amber-200/50 dark:border-amber-500/30' },
-  { id: 'communication', label: 'Message', emoji: '💬', description: 'Reach out', theme: 'from-[#d48aa6]/20 to-purple-400/20 border-[#d48aa6]/50 dark:border-[#d48aa6]/30' },
+  { id: 'communication', label: 'Message', emoji: '💬', description: 'Reach out', theme: 'from-blue-400/20 to-indigo-400/20 border-blue-200/50 dark:border-blue-500/30' },
   { id: 'comfort', label: 'Comfort', emoji: '🧸', description: 'Make it softer', theme: 'from-pink-400/20 to-rose-400/20 border-pink-200/50 dark:border-pink-500/30' },
   { id: 'distraction', label: 'Distraction', emoji: '🎮', description: 'Brain break', theme: 'from-emerald-400/20 to-teal-500/20 border-emerald-200/50 dark:border-emerald-500/30' },
 ];
@@ -47,7 +47,7 @@ function SwipeableRow({ children, onDelete, disabled = false }: { children: Reac
   };
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-[#d48aa6]/80 flex">
+    <div className="relative overflow-hidden rounded-xl bg-cyan-500/80 flex">
       <div className="absolute inset-y-0 right-0 w-20 flex items-center justify-center pointer-events-none">
         <Trash2 className="w-5 h-5 text-white" />
       </div>
@@ -97,7 +97,7 @@ function CrisisItemEditSheet({
             <label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-[#a9b7c8] block mb-2">What you want to remember</label>
             <input
               autoFocus type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="e.g., 'Cold water on face'"
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-[#253150] rounded-xl focus:outline-none focus:border-[#d48aa6] focus:ring-2 focus:ring-[#d48aa6]/20 transition-all bg-white dark:bg-[#1e3046] text-gray-900 dark:text-[#e6edf6] text-sm sm:text-base"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-[#253150] rounded-xl focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all bg-white dark:bg-[#1e3046] text-gray-900 dark:text-[#e6edf6] text-sm sm:text-base"
               maxLength={100}
             />
           </div>
@@ -105,7 +105,7 @@ function CrisisItemEditSheet({
             <label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-[#a9b7c8] block mb-2">Emoji (optional)</label>
             <input
               type="text" value={emoji} onChange={(e) => setEmoji(e.target.value)} placeholder="🧊"
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-[#253150] rounded-xl focus:outline-none focus:border-[#d48aa6] focus:ring-2 focus:ring-[#d48aa6]/20 transition-all bg-white dark:bg-[#1e3046] text-gray-900 dark:text-[#e6edf6] text-sm sm:text-base"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-[#253150] rounded-xl focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all bg-white dark:bg-[#1e3046] text-gray-900 dark:text-[#e6edf6] text-sm sm:text-base"
               maxLength={2}
             />
           </div>
@@ -113,7 +113,7 @@ function CrisisItemEditSheet({
             <label className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-[#a9b7c8] block mb-2">Why it helps (optional)</label>
             <textarea
               value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g., 'Cold = sensory reset + wakes up nervous system'"
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-[#253150] rounded-xl focus:outline-none focus:border-[#d48aa6] focus:ring-2 focus:ring-[#d48aa6]/20 transition-all resize-none h-16 sm:h-20 bg-white dark:bg-[#1e3046] text-gray-900 dark:text-[#e6edf6] text-sm sm:text-base"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 dark:border-[#253150] rounded-xl focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all resize-none h-16 sm:h-20 bg-white dark:bg-[#1e3046] text-gray-900 dark:text-[#e6edf6] text-sm sm:text-base"
               maxLength={200}
             />
           </div>
@@ -123,7 +123,7 @@ function CrisisItemEditSheet({
           <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { onClear(); onClose(); }} className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-gray-700 dark:text-[#a9b7c8] border border-gray-300 dark:border-[#253150] rounded-xl hover:bg-gray-50 dark:hover:bg-[#1e3046] font-semibold transition-colors text-sm sm:text-base">
             Delete
           </motion.button>
-          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSave} className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-[#d48aa6] text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm sm:text-base">
+          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSave} className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-cyan-500 text-white rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm sm:text-base">
             Save
           </motion.button>
         </div>
@@ -322,7 +322,7 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
             <motion.button
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => enterFocusMode('all')}
-              className="w-full mb-6 sm:mb-8 relative overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-500 to-[#d48aa6] text-white rounded-3xl p-6 sm:p-10 shadow-lg shadow-purple-500/20 text-left group flex flex-col sm:flex-row items-start sm:items-center justify-between"
+              className="w-full mb-6 sm:mb-8 relative overflow-hidden bg-gradient-to-br from-indigo-500 via-cyan-500 to-blue-500 text-white rounded-3xl p-6 sm:p-10 shadow-lg shadow-blue-500/20 text-left group flex flex-col sm:flex-row items-start sm:items-center justify-between"
             >
               <div className="absolute top-0 right-0 p-8 opacity-20 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-700">
                 <Sparkles className="w-32 h-32" />
@@ -396,7 +396,7 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
                 </div>
               ) : (
                 <motion.div key={focusItem.id} initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} className="w-full">
-                  <p className="text-[#d48aa6] font-semibold tracking-wide uppercase text-sm mb-6 opacity-80">{CRISIS_MESSAGES[activeTab]}</p>
+                  <p className="text-cyan-500 font-semibold tracking-wide uppercase text-sm mb-6 opacity-80">{CRISIS_MESSAGES[activeTab]}</p>
                   
                   {needsBreathingPacer ? <BreathingPacer /> : (
                     <div className="text-8xl sm:text-9xl mb-8 drop-shadow-2xl">{focusItem.emoji || '✨'}</div>
@@ -550,7 +550,7 @@ export function CrisisMenuView({ storageScope }: CrisisMenuViewProps) {
                 <div className="relative sticky top-0 z-5 bg-white dark:bg-[#18273a] rounded-2xl border border-gray-200 dark:border-[#253150] p-4 sm:p-5 shadow-lg shadow-purple-500/5 backdrop-blur-sm mb-6">
                   <div className="flex gap-2 sm:gap-3">
                     <input type="text" value={captureDraft} onChange={(e) => setCaptureDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addItem()} placeholder="Add something new..." className="flex-1 focus:outline-none text-sm sm:text-base bg-transparent text-gray-900 dark:text-[#e6edf6] placeholder-gray-500 dark:placeholder-[#6e7e91]" />
-                    <motion.button animate={captureGlow ? { scale: 1.15 } : { scale: 1 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} onClick={addItem} className="p-3 bg-gray-900 dark:bg-[#d48aa6] hover:bg-black dark:hover:bg-[#c5778a] text-white rounded-xl transition-all shadow-md">
+                    <motion.button animate={captureGlow ? { scale: 1.15 } : { scale: 1 }} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} onClick={addItem} className="p-3 bg-gray-900 dark:bg-cyan-500 hover:bg-black dark:hover:bg-cyan-600 text-white rounded-xl transition-all shadow-md">
                       <Plus className="w-5 h-5" />
                     </motion.button>
                   </div>

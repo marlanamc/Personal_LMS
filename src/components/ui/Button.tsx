@@ -23,35 +23,36 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const prefersReducedMotion = usePrefersReducedMotion();
 
     // Base styles with glow transition and dark theme support
-    const baseStyles = 'inline-flex items-center justify-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 relative overflow-hidden';
+    // Base styles with glow transition and candy capsule look
+    const baseStyles = 'inline-flex items-center justify-center gap-2 font-bold disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 relative overflow-hidden transition-all duration-300 border-2 border-transparent light:border-black/5';
 
     const variantStyles: Record<ButtonVariant, string> = {
-      // Primary: Pastel Rose/Pink with glow
-      primary: 'bg-gradient-to-r from-primary to-primary-light text-white shadow-glow-pink hover:shadow-glow-pink-lg',
+      // Primary: Pink Diamond with glow
+      primary: 'bg-gradient-to-r from-accent-sakura to-[#f4dfee] text-text shadow-glow-pink hover:shadow-glow-pink-lg border-accent-sakura/20',
 
-      // Secondary: Pastel Mint with glow
-      secondary: 'bg-gradient-to-r from-secondary to-secondary-light text-white shadow-glow-mint hover:shadow-glow-mint-lg',
+      // Secondary: Botanist with glow
+      secondary: 'bg-gradient-to-r from-accent-mint to-[#aae6a6] text-text shadow-glow-mint hover:shadow-glow-mint-lg border-accent-mint/20',
 
-      // Accent: Pastel Lavender with glow
-      accent: 'bg-gradient-to-r from-accent to-accent-light text-white shadow-glow-lavender hover:shadow-glow-lavender-lg',
+      // Accent: Grape Soda with glow
+      accent: 'bg-gradient-to-r from-accent-amethyst to-[#bcbcfa] text-white shadow-glow-lavender hover:shadow-glow-lavender-lg border-accent-amethyst/20',
 
-      // Success: Pastel Aqua with glow
-      success: 'bg-gradient-to-r from-success to-success text-white shadow-[0_0_20px_rgba(149,225,211,0.5)] hover:shadow-[0_0_30px_rgba(149,225,211,0.7)]',
+      // Success: Botanist Green
+      success: 'bg-gradient-to-r from-accent-mint to-accent-mint text-text shadow-[0_0_20px_rgba(137,211,133,0.3)] hover:shadow-[0_0_30px_rgba(137,211,133,0.5)] border-accent-mint/20',
 
-      // Warning: Pastel Peach with glow
-      warning: 'bg-gradient-to-r from-warning to-warning text-white shadow-[0_0_20px_rgba(255,180,162,0.5)] hover:shadow-[0_0_30px_rgba(255,180,162,0.7)]',
+      // Warning: Warm Coral
+      warning: 'bg-gradient-to-r from-accent-coral to-[#ffb399] text-white shadow-[0_0_20px_rgba(255,155,122,0.3)] hover:shadow-[0_0_30px_rgba(255,155,122,0.5)] border-accent-coral/20',
 
       // Outline: Transparent with border glow
-      outline: 'bg-transparent border-2 border-primary text-primary hover:bg-primary/10 hover:shadow-glow-pink',
+      outline: 'bg-transparent border-2 border-accent-sakura text-accent-sakura hover:bg-accent-sakura/10 hover:shadow-glow-pink',
 
       // Ghost: Transparent background
       ghost: 'bg-transparent text-text hover:bg-white/10',
     };
 
     const sizeStyles: Record<ButtonSize, string> = {
-      sm: 'px-3 py-2 text-sm min-h-[40px] rounded-md',
-      md: 'px-5 py-3 text-base min-h-[48px] rounded-lg',
-      lg: 'px-6 py-4 text-lg min-h-[56px] rounded-lg',
+      sm: 'px-4 py-2 text-sm min-h-[40px] rounded-full',
+      md: 'px-6 py-3 text-base min-h-[48px] rounded-full',
+      lg: 'px-8 py-4 text-lg min-h-[56px] rounded-full',
     };
 
     const widthClass = fullWidth ? 'w-full' : '';
