@@ -63,7 +63,7 @@ export function AreaCard({
 
   return (
     <section
-      className={`group rounded-xl border border-transparent bg-gradient-to-br p-6 transition-all duration-200 hover:border-primary/20 ${styles.gradient}`}
+      className={`group relative overflow-hidden rounded-xl border border-transparent bg-gradient-to-br p-6 transition-all duration-200 hover:border-primary/20 ${styles.gradient}`}
     >
       <div className="flex flex-col gap-4">
         <div

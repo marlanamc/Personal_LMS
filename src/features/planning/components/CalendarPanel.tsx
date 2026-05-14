@@ -57,7 +57,7 @@ export function CalendarPanel({
   return (
     <div
       className={cn(
-        'rounded-2xl p-4 space-y-4 overflow-hidden relative elevation-2 border border-border-subtle/50',
+        'calendar-panel-glass rounded-2xl p-4 space-y-4 overflow-hidden relative elevation-2 border border-border-subtle/50',
         className,
       )}
       style={{

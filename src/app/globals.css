@@ -13588,6 +13588,274 @@ kbd {
   margin-bottom: 0.2rem;
 }
 
+/* Frosted Apple material pass for day-mode dashboard surfaces. */
+:where(:root[data-theme="light"], :root.light) {
+  --liquid-canvas-a: #f8fbff;
+  --liquid-canvas-b: #f2f8f7;
+  --liquid-canvas-c: #fbf4f8;
+  --liquid-glass-fill: rgba(255, 255, 255, 0.70);
+  --liquid-glass-fill-strong: rgba(255, 255, 255, 0.82);
+  --liquid-glass-fill-soft: rgba(255, 255, 255, 0.58);
+  --liquid-glass-border: rgba(255, 255, 255, 0.62);
+  --liquid-glass-highlight: rgba(255, 255, 255, 0.64);
+  --liquid-glass-primary-fill: rgba(255, 255, 255, 0.72);
+  --liquid-glass-primary-border: rgba(255, 255, 255, 0.68);
+  --liquid-glass-secondary-fill: rgba(255, 255, 255, 0.84);
+  --liquid-glass-secondary-border: rgba(255, 255, 255, 0.66);
+  --liquid-glass-tertiary-fill: rgba(255, 255, 255, 0.76);
+  --liquid-glass-tertiary-border: rgba(255, 255, 255, 0.64);
+  --liquid-header-fill: rgba(255, 255, 255, 0.60);
+  --liquid-rail-fill: rgba(255, 255, 255, 0.62);
+  --liquid-ambient-primary: rgba(130, 203, 232, 0.13);
+  --liquid-ambient-secondary: rgba(246, 176, 205, 0.10);
+  --liquid-ambient-tertiary: rgba(162, 216, 186, 0.10);
+  --liquid-top-light: rgba(255, 255, 255, 0.54);
+  --liquid-edge-depth: rgba(66, 78, 92, 0.09);
+  --liquid-glass-shadow-primary:
+    0 22px 54px rgba(78, 98, 122, 0.12),
+    0 5px 18px rgba(116, 136, 160, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    inset 0 -1px 0 rgba(68, 88, 108, 0.035);
+  --liquid-glass-shadow-secondary:
+    0 14px 34px rgba(78, 98, 122, 0.095),
+    0 3px 12px rgba(116, 136, 160, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.56),
+    inset 0 -1px 0 rgba(68, 88, 108, 0.03);
+  --liquid-glass-shadow-tertiary:
+    0 10px 22px rgba(78, 98, 122, 0.085),
+    0 2px 7px rgba(116, 136, 160, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.54),
+    inset 0 -1px 0 rgba(68, 88, 108, 0.028);
+}
+
+:where(:root[data-theme="light"], :root.light) body {
+  background:
+    radial-gradient(ellipse 58% 42% at 8% -8%, rgba(155, 218, 246, 0.20) 0%, transparent 66%),
+    radial-gradient(ellipse 44% 36% at 98% 0%, rgba(255, 188, 213, 0.13) 0%, transparent 66%),
+    radial-gradient(ellipse 52% 42% at 76% 96%, rgba(189, 232, 199, 0.16) 0%, transparent 64%),
+    linear-gradient(150deg, #f7fbff 0%, #fffdf9 46%, #f8fbff 100%);
+  animation: none;
+}
+
+:where(:root[data-theme="light"], :root.light) .dashboard-shell-frame,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell {
+  background:
+    radial-gradient(ellipse 50% 26% at 18% 0%, rgba(116, 205, 240, 0.11) 0%, transparent 70%),
+    radial-gradient(ellipse 44% 24% at 92% 8%, rgba(255, 172, 204, 0.08) 0%, transparent 68%),
+    linear-gradient(155deg, rgba(247, 251, 255, 0.94) 0%, rgba(255, 254, 251, 0.96) 52%, rgba(245, 250, 253, 0.94) 100%) !important;
+}
+
+:where(:root[data-theme="light"], :root.light) .dashboard-shell-frame::before,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell::before {
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.26), transparent 34%, rgba(255, 255, 255, 0.12) 68%, transparent),
+    radial-gradient(ellipse 36% 20% at 54% -4%, rgba(255, 255, 255, 0.34), transparent 72%);
+  opacity: 0.52;
+  mix-blend-mode: soft-light;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-shell-frame .desktop-nav-rail {
+    left: 0.5rem !important;
+    top: 0.5rem !important;
+    height: calc(100svh - 1rem) !important;
+    border-radius: 1.35rem !important;
+    border: 1px solid color-mix(in srgb, var(--liquid-glass-border) 76%, transparent) !important;
+  }
+}
+
+:where(:root[data-theme="light"], :root.light) .desktop-nav-rail {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.64) 0%, rgba(255, 255, 255, 0.48) 100%) !important;
+  box-shadow:
+    0 20px 52px rgba(78, 98, 122, 0.13),
+    0 6px 18px rgba(116, 136, 160, 0.08),
+    inset 1px 0 0 rgba(255, 255, 255, 0.58),
+    inset -1px 0 0 rgba(255, 255, 255, 0.24) !important;
+  backdrop-filter: blur(30px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(135%) !important;
+}
+
+:where(:root[data-theme="light"], :root.light) .desktop-nav-item {
+  border-radius: 999px;
+}
+
+:where(:root[data-theme="light"], :root.light) .desktop-nav-item.is-active {
+  background:
+    linear-gradient(135deg, rgba(255, 218, 231, 0.62) 0%, rgba(255, 192, 217, 0.42) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.64) !important;
+  color: #b72f69 !important;
+  box-shadow:
+    0 10px 22px rgba(238, 91, 151, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    inset 0 -1px 0 rgba(136, 49, 84, 0.045) !important;
+}
+
+:where(:root[data-theme="light"], :root.light) .focus-timer-chip,
+:where(:root[data-theme="light"], :root.light) .user-profile-trigger,
+:where(:root[data-theme="light"], :root.light) .cloud-surface,
+:where(:root[data-theme="light"], :root.light) .calendar-panel-glass button,
+:where(:root[data-theme="light"], :root.light) .calendar-panel-glass a {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.70) 0%, rgba(255, 255, 255, 0.52) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.62) !important;
+  box-shadow:
+    0 10px 22px rgba(78, 98, 122, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    inset 0 -1px 0 rgba(68, 88, 108, 0.035) !important;
+  backdrop-filter: blur(24px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(130%) !important;
+}
+
+:where(:root[data-theme="light"], :root.light) .calendar-panel-glass {
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.70) 0%, rgba(255, 255, 255, 0.56) 58%, rgba(255, 255, 255, 0.48) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.66) !important;
+  box-shadow:
+    0 20px 46px rgba(78, 98, 122, 0.12),
+    0 5px 16px rgba(116, 136, 160, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    inset 0 -1px 0 rgba(68, 88, 108, 0.035) !important;
+  backdrop-filter: blur(26px) saturate(132%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(132%) !important;
+}
+
+:where(:root[data-theme="light"], :root.light) .focus-hero,
+:where(:root[data-theme="light"], :root.light) .daily-anchors-panel {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.58) 60%, rgba(255, 255, 255, 0.50) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.68) !important;
+  box-shadow: var(--liquid-glass-shadow-primary) !important;
+  backdrop-filter: blur(24px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(130%) !important;
+}
+
+:where(:root[data-theme="light"], :root.light) .focus-hero::before,
+:where(:root[data-theme="light"], :root.light) .daily-anchors-panel::before,
+:where(:root[data-theme="light"], :root.light) .calendar-panel-glass::before,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-now::before,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-meals::before,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-skincare::before,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-cleaning::before,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-blue::before,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-purple::before,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-orange::before,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-green::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34) 0%, transparent 32%),
+    linear-gradient(315deg, rgba(68, 88, 108, 0.032) 0%, transparent 24%);
+  opacity: 0.58;
+  z-index: 0;
+}
+
+:where(:root[data-theme="light"], :root.light) .focus-hero > :not([aria-hidden]),
+:where(:root[data-theme="light"], :root.light) .daily-anchors-panel > *,
+:where(:root[data-theme="light"], :root.light) .calendar-panel-glass > *,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-now > *,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-meals > *,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-skincare > *,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-cleaning > *,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-blue > *,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-purple > *,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-orange > *,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-green > * {
+  position: relative;
+  z-index: 1;
+}
+
+:where(:root[data-theme="light"], :root.light) .focus-hero > [aria-hidden] {
+  position: absolute;
+  z-index: 0;
+}
+
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-now,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-meals,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-skincare,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-cleaning,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-blue,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-purple,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-orange,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-green {
+  background:
+    radial-gradient(ellipse 70% 52% at 100% 100%, var(--liquid-glass-fill-soft) 0%, transparent 72%),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.86) 0%, rgba(255, 255, 255, 0.76) 58%, rgba(255, 255, 255, 0.68) 100%) !important;
+  border-color: rgba(255, 255, 255, 0.64) !important;
+  box-shadow: var(--liquid-glass-shadow-secondary) !important;
+  backdrop-filter: blur(18px) saturate(124%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(124%) !important;
+}
+
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-now,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-meals,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-skincare,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-cleaning {
+  opacity: 0.94 !important;
+}
+
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-now:hover,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-meals:hover,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-skincare:hover,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-cleaning:hover,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-blue:hover,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-purple:hover,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-orange:hover,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-green:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.76) !important;
+  box-shadow:
+    0 18px 42px rgba(78, 98, 122, 0.12),
+    0 5px 16px color-mix(in srgb, var(--liquid-glass-fill-soft) 32%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    inset 0 -1px 0 rgba(68, 88, 108, 0.035) !important;
+}
+
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-now,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-purple {
+  --liquid-glass-fill-soft: rgba(161, 161, 247, 0.10);
+}
+
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-meals,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-orange {
+  --liquid-glass-fill-soft: rgba(255, 155, 122, 0.09);
+}
+
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-skincare,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-blue {
+  --liquid-glass-fill-soft: rgba(108, 209, 240, 0.10);
+}
+
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .bento-tile-cleaning,
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-green {
+  --liquid-glass-fill-soft: rgba(137, 211, 133, 0.10);
+}
+
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-cta {
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--area-cta-accent) 12%, rgba(255, 255, 255, 0.78)) 0%, color-mix(in srgb, var(--area-cta-accent-2, var(--area-cta-accent)) 9%, rgba(255, 255, 255, 0.66)) 100%) !important;
+  border-color: color-mix(in srgb, var(--area-cta-accent) 22%, rgba(255, 255, 255, 0.74)) !important;
+  box-shadow:
+    0 8px 18px color-mix(in srgb, var(--area-cta-accent) 9%, rgba(78, 98, 122, 0.07)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    inset 0 -1px 0 rgba(68, 88, 108, 0.03) !important;
+  backdrop-filter: blur(18px) saturate(128%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(128%) !important;
+}
+
+:where(:root[data-theme="light"], :root.light) .dashboard-home-shell .area-card-cta:hover {
+  box-shadow:
+    0 11px 24px color-mix(in srgb, var(--area-cta-accent) 12%, rgba(78, 98, 122, 0.07)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.66),
+    inset 0 -1px 0 rgba(68, 88, 108, 0.035) !important;
+}
+
 .text-page-title {
   color: var(--app-text);
 }
