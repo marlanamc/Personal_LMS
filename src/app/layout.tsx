@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Lora, DM_Sans, Caveat } from "next/font/google";
+import { Lato, DM_Sans, Caveat } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
@@ -12,10 +12,10 @@ import {
   LIGHT_DEFAULT_THEME_COLOR,
 } from "@/lib/pwa-theme-colors";
 
-const lora = Lora({
+const lato = Lato({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["300", "400", "700", "900"],
   display: "swap",
 });
 
@@ -121,7 +121,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body
-        className={`${lora.variable} ${dmSans.variable} ${caveat.variable} bg-bg-primary text-text antialiased`}
+        className={`${lato.variable} ${dmSans.variable} ${caveat.variable} bg-bg-primary text-text antialiased`}
       >
         <Providers>{children}</Providers>
         <ServiceWorkerRegistration />

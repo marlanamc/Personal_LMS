@@ -141,9 +141,9 @@
   --text-muted: var(--color-text-muted);
   --background-elevated: var(--color-bg-elevated);
 
-  /* ===== Typography - Modern & Geometric ===== */
+  /* ===== Typography - Clean & Geometric ===== */
   --font-display:
-    "Geist", Inter, ui-sans-serif, system-ui, -apple-system,
+    Lato, Inter, ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-body:
     "Geist", Inter, ui-sans-serif, system-ui, -apple-system,
@@ -297,20 +297,18 @@
 :root.light {
   color-scheme: light;
 
-  /* ── Day Theme: Warm Lychee-Cream ─────────────────────────────────────────
-     Base leans rose-cream (hue ~10°, sat ~14%) not orange/peach, so it reads
-     as morning parchment rather than bandaid. Surfaces lift toward near-white
-     so glassmorphism cards are clearly distinct from the backdrop.
-     Cool teal + botanist green in the aurora counterbalance the warmth.
+  /* ── Day Theme: Warm Parchment ────────────────────────────────────────────
+     Base leans soft linen beige, with warmer card surfaces and muted ambient
+     washes so light mode feels cleaner and less blue.
   ── */
 
-  --color-bg-base: #faf8f2;
-  --color-bg-surface: #ffffff;
-  --color-bg-elevated: #fdfcf8;
-  --color-bg-soft: #e8e4d8;
-  --color-surface-glass: rgba(255, 255, 255, 0.82);
-  --color-border-subtle: rgba(120, 140, 110, 0.15);
-  --color-border-strong: rgba(110, 130, 100, 0.25);
+  --color-bg-base: #ebe4d8;
+  --color-bg-surface: #f6f0e6;
+  --color-bg-elevated: #f1eadf;
+  --color-bg-soft: #ded4c5;
+  --color-surface-glass: rgba(246, 240, 230, 0.82);
+  --color-border-subtle: rgba(103, 88, 70, 0.14);
+  --color-border-strong: rgba(103, 88, 70, 0.24);
   --color-border-glow: rgba(239, 204, 234, 0.5);
 
   --color-text-primary: #3c3a34;
@@ -326,21 +324,21 @@
   --color-accent-honey: #f5c86a;
   --color-accent-coral: #ff9b7a;
   /* liquid canvas tinted to matcha / aquamarine / cream */
-  --liquid-canvas-a: #faf8f2;
-  --liquid-canvas-b: #d1efbd; /* Matcha */
-  --liquid-canvas-c: #6cd1f0; /* Aquamarine */
+  --liquid-canvas-a: #ebe4d8;
+  --liquid-canvas-b: #f2ebe0;
+  --liquid-canvas-c: #e6dccc;
   /* frosted white glass */
-  --liquid-glass-fill: rgba(255, 255, 255, 0.75);
-  --liquid-glass-fill-strong: rgba(255, 255, 255, 0.88);
-  --liquid-glass-fill-soft: rgba(255, 255, 255, 0.55);
-  --liquid-glass-border: rgba(180, 200, 170, 0.2);
+  --liquid-glass-fill: rgba(246, 240, 230, 0.76);
+  --liquid-glass-fill-strong: rgba(249, 244, 236, 0.9);
+  --liquid-glass-fill-soft: rgba(246, 240, 230, 0.56);
+  --liquid-glass-border: rgba(115, 96, 76, 0.16);
   --liquid-glass-highlight: rgba(255, 255, 255, 0.8);
-  --liquid-glass-primary-fill: rgba(255, 255, 255, 0.85);
-  --liquid-glass-primary-border: rgba(180, 200, 170, 0.25);
-  --liquid-glass-secondary-fill: rgba(255, 255, 255, 0.8);
-  --liquid-glass-secondary-border: rgba(180, 200, 170, 0.2);
-  --liquid-glass-tertiary-fill: rgba(255, 255, 255, 0.82);
-  --liquid-glass-tertiary-border: rgba(180, 200, 170, 0.18);
+  --liquid-glass-primary-fill: rgba(249, 244, 236, 0.84);
+  --liquid-glass-primary-border: rgba(115, 96, 76, 0.18);
+  --liquid-glass-secondary-fill: rgba(246, 240, 230, 0.8);
+  --liquid-glass-secondary-border: rgba(115, 96, 76, 0.15);
+  --liquid-glass-tertiary-fill: rgba(246, 240, 230, 0.82);
+  --liquid-glass-tertiary-border: rgba(115, 96, 76, 0.14);
   --liquid-glass-shadow:
     0 12px 32px rgba(120, 140, 110, 0.1),
     inset 0 1px 0 var(--liquid-glass-highlight);
@@ -357,12 +355,11 @@
   --liquid-glass-shadow-tertiary:
     0 6px 18px rgba(100, 52, 36, 0.10),
     inset 0 1px 0 rgba(255, 255, 255, 0.56);
-  --liquid-header-fill: rgba(250, 248, 242, 0.6);
-  --liquid-rail-fill: rgba(245, 242, 234, 0.7);
-  /* aurora ambient — matcha + aquamarine + pink diamond */
-  --liquid-ambient-primary: rgba(108, 209, 240, 0.4);
-  --liquid-ambient-secondary: rgba(239, 204, 234, 0.3);
-  --liquid-ambient-tertiary: rgba(209, 239, 189, 0.25);
+  --liquid-header-fill: rgba(235, 228, 216, 0.68);
+  --liquid-rail-fill: rgba(230, 220, 204, 0.72);
+  --liquid-ambient-primary: rgba(194, 153, 126, 0.13);
+  --liquid-ambient-secondary: rgba(192, 54, 106, 0.12);
+  --liquid-ambient-tertiary: rgba(226, 210, 188, 0.18);
   --liquid-top-light: rgba(255, 255, 255, 0.4);
   --liquid-edge-depth: rgba(120, 140, 110, 0.06);
   --liquid-grain-opacity: 0.015;
@@ -392,14 +389,14 @@
   --color-accent-amethyst-light: #7050b4;
 
   /* nebula / hero gradient tones — matcha + aquamarine */
-  --color-light-nebula-start: #d1efbd;
-  --color-light-nebula-mid:   #fdfcf8;
-  --color-light-nebula-end:   #6cd1f0;
-  --color-light-hero-start:   #ffffff;
-  --color-light-hero-mid:     #faf8f2;
-  --color-light-hero-end:     #d1efbd;
-  --color-light-card-top:     #fef9f7;
-  --color-light-card-bottom:  #f9f2ee;
+  --color-light-nebula-start: #eadccb;
+  --color-light-nebula-mid:   #f5eee4;
+  --color-light-nebula-end:   #e2d2bc;
+  --color-light-hero-start:   #f8f2e9;
+  --color-light-hero-mid:     #efe7db;
+  --color-light-hero-end:     #e5d8c8;
+  --color-light-card-top:     #f7f1e8;
+  --color-light-card-bottom:  #efe7dc;
   --color-light-shadow-soft: 0 14px 34px rgba(100, 52, 36, 0.14);
   --color-light-shadow-hover: 0 18px 42px rgba(100, 52, 36, 0.18);
   --color-light-shadow-hero:  0 16px 44px rgba(100, 52, 36, 0.16);
@@ -564,11 +561,10 @@ html {
 }
 
 @keyframes aurora-light {
-  /* Aquamarine top-left · Pink Diamond top-right · Matcha bottom — warm cream base */
-  0%   { background: radial-gradient(ellipse 64% 52% at 0% -8%,   rgba(108, 209, 240, 0.5) 0%, transparent 70%), radial-gradient(ellipse 54% 46% at 102% 2%,  rgba(239, 204, 234, 0.35) 0%, transparent 66%), radial-gradient(ellipse 48% 40% at 90% 98%, rgba(209, 239, 189, 0.25) 0%, transparent 62%), linear-gradient(155deg, #faf8f2 0%, #ffffff 52%, #fdfcf8 100%); }
-  33%  { background: radial-gradient(ellipse 64% 52% at 14% 10%,  rgba(108, 209, 240, 0.4) 0%, transparent 70%), radial-gradient(ellipse 54% 46% at 92% -4%,  rgba(239, 204, 234, 0.3) 0%, transparent 66%), radial-gradient(ellipse 48% 40% at 74% 92%, rgba(209, 239, 189, 0.2) 0%, transparent 62%), linear-gradient(155deg, #faf8f2 0%, #ffffff 52%, #fdfcf8 100%); }
-  66%  { background: radial-gradient(ellipse 64% 52% at -4% 20%,  rgba(108, 209, 240, 0.45) 0%, transparent 70%), radial-gradient(ellipse 54% 46% at 104% 16%, rgba(239, 204, 234, 0.28) 0%, transparent 66%), radial-gradient(ellipse 48% 40% at 84% 102%,rgba(209, 239, 189, 0.28) 0%, transparent 62%), linear-gradient(155deg, #faf8f2 0%, #ffffff 52%, #fdfcf8 100%); }
-  100% { background: radial-gradient(ellipse 64% 52% at 0% -8%,   rgba(108, 209, 240, 0.5) 0%, transparent 70%), radial-gradient(ellipse 54% 46% at 102% 2%,  rgba(239, 204, 234, 0.35) 0%, transparent 66%), radial-gradient(ellipse 48% 40% at 90% 98%, rgba(209, 239, 189, 0.25) 0%, transparent 62%), linear-gradient(155deg, #faf8f2 0%, #ffffff 52%, #fdfcf8 100%); }
+  0%   { background: radial-gradient(ellipse 64% 52% at 0% -8%,   rgba(217, 198, 171, 0.34) 0%, transparent 70%), radial-gradient(ellipse 54% 46% at 102% 2%,  rgba(192, 54, 106, 0.10) 0%, transparent 66%), radial-gradient(ellipse 48% 40% at 90% 98%, rgba(164, 139, 104, 0.13) 0%, transparent 62%), linear-gradient(155deg, #ebe4d8 0%, #f4ede3 52%, #e8dfd2 100%); }
+  33%  { background: radial-gradient(ellipse 64% 52% at 14% 10%,  rgba(217, 198, 171, 0.28) 0%, transparent 70%), radial-gradient(ellipse 54% 46% at 92% -4%,  rgba(192, 54, 106, 0.08) 0%, transparent 66%), radial-gradient(ellipse 48% 40% at 74% 92%, rgba(164, 139, 104, 0.10) 0%, transparent 62%), linear-gradient(155deg, #ebe4d8 0%, #f4ede3 52%, #e8dfd2 100%); }
+  66%  { background: radial-gradient(ellipse 64% 52% at -4% 20%,  rgba(217, 198, 171, 0.30) 0%, transparent 70%), radial-gradient(ellipse 54% 46% at 104% 16%, rgba(192, 54, 106, 0.09) 0%, transparent 66%), radial-gradient(ellipse 48% 40% at 84% 102%,rgba(164, 139, 104, 0.14) 0%, transparent 62%), linear-gradient(155deg, #ebe4d8 0%, #f4ede3 52%, #e8dfd2 100%); }
+  100% { background: radial-gradient(ellipse 64% 52% at 0% -8%,   rgba(217, 198, 171, 0.34) 0%, transparent 70%), radial-gradient(ellipse 54% 46% at 102% 2%,  rgba(192, 54, 106, 0.10) 0%, transparent 66%), radial-gradient(ellipse 48% 40% at 90% 98%, rgba(164, 139, 104, 0.13) 0%, transparent 62%), linear-gradient(155deg, #ebe4d8 0%, #f4ede3 52%, #e8dfd2 100%); }
 }
 
 body {
@@ -766,10 +762,10 @@ html {
 
 :where(:root[data-theme="light"], :root.light) body {
   background:
-    radial-gradient(ellipse 64% 52% at 0% -8%,   rgba(108, 209, 240, 0.5) 0%, transparent 70%),
-    radial-gradient(ellipse 54% 46% at 102% 2%,  rgba(239, 204, 234, 0.35) 0%, transparent 66%),
-    radial-gradient(ellipse 48% 40% at 90% 98%, rgba(209, 239, 189, 0.25) 0%, transparent 62%),
-    linear-gradient(155deg, #faf8f2 0%, #ffffff 52%, #fdfcf8 100%);
+    radial-gradient(ellipse 64% 52% at 0% -8%, rgba(217, 198, 171, 0.34) 0%, transparent 70%),
+    radial-gradient(ellipse 54% 46% at 102% 2%, rgba(192, 54, 106, 0.10) 0%, transparent 66%),
+    radial-gradient(ellipse 48% 40% at 90% 98%, rgba(164, 139, 104, 0.13) 0%, transparent 62%),
+    linear-gradient(155deg, #ebe4d8 0%, #f4ede3 52%, #e8dfd2 100%);
   animation: aurora-light 24s ease-in-out infinite;
   color: var(--color-text);
   line-height: 1.55;
@@ -13588,61 +13584,61 @@ kbd {
   margin-bottom: 0.2rem;
 }
 
-/* Frosted Apple material pass for day-mode dashboard surfaces. */
+/* Warm parchment material pass for day-mode dashboard surfaces. */
 :where(:root[data-theme="light"], :root.light) {
-  --liquid-canvas-a: #f8fbff;
-  --liquid-canvas-b: #f2f8f7;
-  --liquid-canvas-c: #fbf4f8;
-  --liquid-glass-fill: rgba(255, 255, 255, 0.70);
-  --liquid-glass-fill-strong: rgba(255, 255, 255, 0.82);
-  --liquid-glass-fill-soft: rgba(255, 255, 255, 0.58);
-  --liquid-glass-border: rgba(255, 255, 255, 0.62);
+  --liquid-canvas-a: #ebe4d8;
+  --liquid-canvas-b: #f1eadf;
+  --liquid-canvas-c: #e4d8c8;
+  --liquid-glass-fill: rgba(246, 240, 230, 0.72);
+  --liquid-glass-fill-strong: rgba(249, 244, 236, 0.84);
+  --liquid-glass-fill-soft: rgba(246, 240, 230, 0.58);
+  --liquid-glass-border: rgba(255, 255, 255, 0.48);
   --liquid-glass-highlight: rgba(255, 255, 255, 0.64);
-  --liquid-glass-primary-fill: rgba(255, 255, 255, 0.72);
-  --liquid-glass-primary-border: rgba(255, 255, 255, 0.68);
-  --liquid-glass-secondary-fill: rgba(255, 255, 255, 0.84);
-  --liquid-glass-secondary-border: rgba(255, 255, 255, 0.66);
-  --liquid-glass-tertiary-fill: rgba(255, 255, 255, 0.76);
-  --liquid-glass-tertiary-border: rgba(255, 255, 255, 0.64);
-  --liquid-header-fill: rgba(255, 255, 255, 0.60);
-  --liquid-rail-fill: rgba(255, 255, 255, 0.62);
-  --liquid-ambient-primary: rgba(130, 203, 232, 0.13);
-  --liquid-ambient-secondary: rgba(246, 176, 205, 0.10);
-  --liquid-ambient-tertiary: rgba(162, 216, 186, 0.10);
+  --liquid-glass-primary-fill: rgba(247, 241, 232, 0.74);
+  --liquid-glass-primary-border: rgba(255, 255, 255, 0.54);
+  --liquid-glass-secondary-fill: rgba(248, 242, 234, 0.84);
+  --liquid-glass-secondary-border: rgba(255, 255, 255, 0.52);
+  --liquid-glass-tertiary-fill: rgba(246, 240, 230, 0.76);
+  --liquid-glass-tertiary-border: rgba(255, 255, 255, 0.48);
+  --liquid-header-fill: rgba(246, 240, 230, 0.64);
+  --liquid-rail-fill: rgba(235, 228, 216, 0.66);
+  --liquid-ambient-primary: rgba(190, 156, 126, 0.12);
+  --liquid-ambient-secondary: rgba(192, 54, 106, 0.08);
+  --liquid-ambient-tertiary: rgba(224, 208, 184, 0.12);
   --liquid-top-light: rgba(255, 255, 255, 0.54);
   --liquid-edge-depth: rgba(66, 78, 92, 0.09);
   --liquid-glass-shadow-primary:
-    0 22px 54px rgba(78, 98, 122, 0.12),
-    0 5px 18px rgba(116, 136, 160, 0.07),
+    0 22px 54px rgba(92, 70, 48, 0.12),
+    0 5px 18px rgba(120, 94, 68, 0.07),
     inset 0 1px 0 rgba(255, 255, 255, 0.62),
     inset 0 -1px 0 rgba(68, 88, 108, 0.035);
   --liquid-glass-shadow-secondary:
-    0 14px 34px rgba(78, 98, 122, 0.095),
-    0 3px 12px rgba(116, 136, 160, 0.06),
+    0 14px 34px rgba(92, 70, 48, 0.095),
+    0 3px 12px rgba(120, 94, 68, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.56),
     inset 0 -1px 0 rgba(68, 88, 108, 0.03);
   --liquid-glass-shadow-tertiary:
-    0 10px 22px rgba(78, 98, 122, 0.085),
-    0 2px 7px rgba(116, 136, 160, 0.055),
+    0 10px 22px rgba(92, 70, 48, 0.085),
+    0 2px 7px rgba(120, 94, 68, 0.055),
     inset 0 1px 0 rgba(255, 255, 255, 0.54),
     inset 0 -1px 0 rgba(68, 88, 108, 0.028);
 }
 
 :where(:root[data-theme="light"], :root.light) body {
   background:
-    radial-gradient(ellipse 58% 42% at 8% -8%, rgba(155, 218, 246, 0.20) 0%, transparent 66%),
-    radial-gradient(ellipse 44% 36% at 98% 0%, rgba(255, 188, 213, 0.13) 0%, transparent 66%),
-    radial-gradient(ellipse 52% 42% at 76% 96%, rgba(189, 232, 199, 0.16) 0%, transparent 64%),
-    linear-gradient(150deg, #f7fbff 0%, #fffdf9 46%, #f8fbff 100%);
+    radial-gradient(ellipse 58% 42% at 8% -8%, rgba(221, 203, 178, 0.36) 0%, transparent 66%),
+    radial-gradient(ellipse 44% 36% at 98% 0%, rgba(192, 54, 106, 0.08) 0%, transparent 66%),
+    radial-gradient(ellipse 52% 42% at 76% 96%, rgba(164, 139, 104, 0.11) 0%, transparent 64%),
+    linear-gradient(150deg, #ebe4d8 0%, #f3ece2 46%, #e8dfd2 100%);
   animation: none;
 }
 
 :where(:root[data-theme="light"], :root.light) .dashboard-shell-frame,
 :where(:root[data-theme="light"], :root.light) .dashboard-home-shell {
   background:
-    radial-gradient(ellipse 50% 26% at 18% 0%, rgba(116, 205, 240, 0.11) 0%, transparent 70%),
-    radial-gradient(ellipse 44% 24% at 92% 8%, rgba(255, 172, 204, 0.08) 0%, transparent 68%),
-    linear-gradient(155deg, rgba(247, 251, 255, 0.94) 0%, rgba(255, 254, 251, 0.96) 52%, rgba(245, 250, 253, 0.94) 100%) !important;
+    radial-gradient(ellipse 50% 26% at 18% 0%, rgba(221, 203, 178, 0.28) 0%, transparent 70%),
+    radial-gradient(ellipse 44% 24% at 92% 8%, rgba(192, 54, 106, 0.07) 0%, transparent 68%),
+    linear-gradient(155deg, rgba(235, 228, 216, 0.96) 0%, rgba(244, 237, 227, 0.96) 52%, rgba(231, 222, 209, 0.94) 100%) !important;
 }
 
 :where(:root[data-theme="light"], :root.light) .dashboard-shell-frame::before,
@@ -14115,29 +14111,29 @@ kbd {
 }
 
 :where(:root[data-theme="light"], :root.light) .organize-clean-shell {
-  --app-bg: #edf1f7;
-  --app-surface: #f1eef5;
-  --app-surface-soft: #eceff6;
-  --app-surface-glass: rgba(241, 238, 245, 0.84);
-  --app-border: rgba(132, 143, 158, 0.2);
+  --app-bg: #ebe4d8;
+  --app-surface: #f6f0e6;
+  --app-surface-soft: #efe7dc;
+  --app-surface-glass: rgba(246, 240, 230, 0.84);
+  --app-border: rgba(111, 92, 70, 0.18);
   --app-text: #2a2a31;
   --app-text-soft: #4c5560;
   --app-text-muted: #7d8693;
-  --organize-pane: #f1eef5;
-  --organize-pane-soft: #eceff6;
-  --organize-border: rgba(132, 143, 158, 0.2);
-  --organize-row: #f1eef5;
-  --organize-row-hover: #edf1f7;
+  --organize-pane: #f6f0e6;
+  --organize-pane-soft: #efe7dc;
+  --organize-border: rgba(111, 92, 70, 0.18);
+  --organize-row: #f6f0e6;
+  --organize-row-hover: #ebe4d8;
   background:
-    radial-gradient(circle at 10% 0%, rgba(154, 198, 230, 0.22), transparent 34%),
-    radial-gradient(circle at 94% 6%, rgba(226, 135, 174, 0.16), transparent 30%),
-    linear-gradient(180deg, #f0f3f8 0%, #ebeef7 100%) !important;
+    radial-gradient(circle at 10% 0%, rgba(221, 203, 178, 0.30), transparent 34%),
+    radial-gradient(circle at 94% 6%, rgba(192, 54, 106, 0.08), transparent 30%),
+    linear-gradient(180deg, #eee7db 0%, #e7ddcf 100%) !important;
 }
 
 :where(:root[data-theme="light"], :root.light) .dashboard-shell-frame:has(.dashboard-content-organize) {
-  --organize-pane: #f1eef5;
-  --organize-pane-soft: #eceff6;
-  --organize-border: rgba(132, 143, 158, 0.2);
+  --organize-pane: #f6f0e6;
+  --organize-pane-soft: #efe7dc;
+  --organize-border: rgba(111, 92, 70, 0.18);
 }
 
 @media (min-width: 1024px) {
