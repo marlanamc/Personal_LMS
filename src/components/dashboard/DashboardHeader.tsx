@@ -59,6 +59,13 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
     }, []);
 
     const today = useMemo(() => new Date(nowMs), [nowMs]);
+    const headerTimeLabel = useMemo(
+        () => new Intl.DateTimeFormat("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+        }).format(today),
+        [today],
+    );
     const todayDateKey = useMemo(() => toDateKey(today), [today]);
     const nowMinuteOfDay = today.getHours() * 60 + today.getMinutes();
     const todayBlocks = plannerStore[todayDateKey]?.blocks;
@@ -118,6 +125,9 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
                     {displayTitle}
                 </h1>
             )}
+            <span className="dashboard-header-time hidden lg:inline-flex" aria-label={`Current time ${headerTimeLabel}`}>
+                {headerTimeLabel}
+            </span>
         </>
     );
 

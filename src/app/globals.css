@@ -13584,6 +13584,197 @@ kbd {
   margin-bottom: 0.2rem;
 }
 
+@media (min-width: 1024px) {
+  .dashboard-home-main {
+    padding-top: 0.95rem !important;
+  }
+
+  .dashboard-home-shell .grid.lg\:grid-cols-\[1fr_300px\] {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 1.75rem;
+  }
+
+  .dashboard-date-hero {
+    min-height: 0;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    border-color: transparent !important;
+    background:
+      radial-gradient(ellipse 34% 26% at 86% 2%, rgba(192, 54, 106, 0.08) 0%, transparent 72%),
+      linear-gradient(180deg, rgba(246, 240, 230, 0.18) 0%, rgba(246, 240, 230, 0.08) 100%) !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .dashboard-date-hero::before {
+    opacity: 0 !important;
+  }
+
+  .dashboard-date-hero .focus-hero-nebula,
+  .dashboard-date-hero .focus-hero-grain,
+  .focus-hero-outer-glow {
+    display: none !important;
+  }
+
+  .dashboard-date-hero .focus-hero {
+    min-height: 0;
+  }
+
+  .dashboard-date-hero-header {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, auto);
+    gap: 0.75rem 1.4rem !important;
+    align-items: end !important;
+    min-height: 8.6rem;
+    margin-bottom: 0.75rem !important;
+    padding-right: 0 !important;
+  }
+
+  .dashboard-date-hero h1 {
+    display: block !important;
+    min-width: 0;
+    margin: 0 !important;
+    font-family: var(--font-body);
+  }
+
+  .dashboard-date-hero-full {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    white-space: nowrap !important;
+  }
+
+  .dashboard-date-hero-title,
+  .dashboard-date-hero-subline {
+    display: block;
+  }
+
+  .dashboard-date-hero-title {
+    position: relative;
+    width: fit-content;
+    color: #24201f;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(4.15rem, 5.35vw, 6.6rem);
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+  }
+
+  .dashboard-date-hero-title::after {
+    content: "";
+    position: absolute;
+    left: 0.08em;
+    right: -0.18em;
+    bottom: -0.08em;
+    height: 0.12em;
+    border-bottom: 0.028em solid rgba(186, 79, 130, 0.78);
+    border-radius: 50%;
+    transform: rotate(-0.35deg);
+  }
+
+  .dashboard-date-hero-title span {
+    color: #ba4f82;
+  }
+
+  .dashboard-date-hero-subline {
+    margin-top: 1.05rem;
+    color: color-mix(in srgb, var(--app-text-muted) 88%, transparent);
+    font-size: clamp(0.88rem, 0.42vw + 0.74rem, 1.08rem);
+    font-weight: 700;
+  }
+
+  .dashboard-date-hero-subline strong {
+    margin-right: 0.75rem;
+    color: #3c3734;
+    font-family: Georgia, "Times New Roman", serif;
+    font-style: italic;
+    font-weight: 700;
+  }
+
+  .dashboard-date-hero-day-progress {
+    align-items: center;
+    justify-self: end;
+    gap: 0.65rem;
+    margin-bottom: 0.45rem;
+    color: color-mix(in srgb, var(--app-text-muted) 82%, transparent);
+    font-size: 0.78rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .dashboard-date-hero-day-progress div {
+    width: clamp(6.5rem, 10vw, 9.5rem);
+    height: 0.28rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(120, 105, 90, 0.12);
+  }
+
+  .dashboard-date-hero-day-progress div span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #c1598d;
+  }
+
+  .dashboard-date-hero-day-progress em {
+    color: #5f5550;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 0.82rem;
+    font-style: italic;
+  }
+
+  .dashboard-header-time {
+    align-items: baseline;
+    min-width: 4.15rem;
+    color: #2f2a27;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.18rem;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .dashboard-date-hero .daily-anchors-panel {
+    border-radius: 1rem !important;
+  }
+
+  .dashboard-date-hero .daily-anchors-panel::before {
+    opacity: 0.28;
+  }
+
+  :where(:root[data-theme="light"], :root.light) .focus-timer-chip {
+    min-height: 2.55rem;
+    padding: 0.58rem 1.05rem !important;
+    border-color: rgba(255, 255, 255, 0.58) !important;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 248, 244, 0.56) 100%) !important;
+    color: #ff8f72 !important;
+    box-shadow:
+      0 14px 34px rgba(118, 93, 76, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.76) !important;
+  }
+
+  :where(:root[data-theme="light"], :root.light) .focus-timer-chip .timer-icon,
+  :where(:root[data-theme="light"], :root.light) .focus-timer-chip svg {
+    color: #ff8f72 !important;
+  }
+
+  :where(:root[data-theme="light"], :root.light) .user-profile-trigger {
+    min-height: 3rem;
+    min-width: 3rem;
+    border-radius: 999px !important;
+    border-color: rgba(255, 255, 255, 0.62) !important;
+    background: rgba(255, 255, 255, 0.62) !important;
+  }
+}
+
 /* Warm parchment material pass for day-mode dashboard surfaces. */
 :where(:root[data-theme="light"], :root.light) {
   --liquid-canvas-a: #ebe4d8;
