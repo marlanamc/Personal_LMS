@@ -12,6 +12,13 @@ export type ProjectMeta = {
   color: ProjectColor;
 };
 
+export type ThoughtSubtask = {
+  id: string;
+  text: string;
+  done: boolean;
+  displayOrder: number;
+};
+
 /** Bento grid card width; persisted with thought organizer store */
 export type BentoProjectSize = 'small' | 'medium' | 'large' | 'xlarge';
 
@@ -44,6 +51,8 @@ export type ThoughtBullet = {
   triggerType?: TriggerType; // Type of trigger
   triggerTime?: string; // "HH:mm" format for time triggers (e.g., "16:00")
   restDuration?: number; // Duration in minutes for rest triggers
+  subtasks?: ThoughtSubtask[];
+  completedAt?: string;
 };
 
 export type ThoughtOrganization = {
@@ -113,6 +122,47 @@ function normalizeBulletMetadata(bullet: ThoughtBullet): ThoughtBullet {
     lane,
     priority,
   };
+}
+
+function normalizeSubtasks(raw: unknown): ThoughtSubtask[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+
+  const subtasks = raw
+    .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object' && !Array.isArray(item)))
+    .map((item, index) => {
+      const text = typeof item.text === 'string'
+        ? item.text.trim().replace(/\s+/g, ' ').slice(0, 180)
+        : '';
+      if (!text) return null;
+
+      const id = typeof item.id === 'string' && item.id.trim()
+        ? item.id.trim().slice(0, 80)
+        : nanoid();
+      const displayOrder = typeof item.displayOrder === 'number' && Number.isFinite(item.displayOrder)
+        ? item.displayOrder
+        : index;
+
+      return {
+        id,
+        text,
+        done: item.done === true,
+        displayOrder,
+      };
+    })
+    .filter((item): item is ThoughtSubtask => item !== null)
+    .sort((a, b) => a.displayOrder - b.displayOrder)
+    .slice(0, 50)
+    .map((item, index) => ({ ...item, displayOrder: index }));
+
+  return subtasks.length > 0 ? subtasks : undefined;
+}
+
+function normalizeCompletedAt(raw: unknown): string | undefined {
+  if (typeof raw !== 'string') return undefined;
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+  const parsed = new Date(trimmed);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
 }
 
 // Regex pattern to match markdown list items
@@ -464,23 +514,31 @@ export function normalizeOrganization(
   // Validate bullets
   const bullets = org.bullets
     .filter(b => b.id && b.text && typeof b.displayOrder === 'number')
-    .map((b) => normalizeBulletMetadata({
-      ...b,
-      priority: ['high', 'medium', 'low'].includes(b.priority || '')
-        ? (b.priority as Priority)
-        : undefined,
-      lane: ['now', 'next', 'later', 'done'].includes((b.lane || ''))
-        ? (b.lane as ThoughtLane)
-        : undefined,
-      project: b.project && b.project.length <= 50 ? b.project.trim() : undefined,
-      projectMeta: b.projectMeta && b.project && validColors.includes(b.projectMeta.color)
-        ? {
-            id: b.projectMeta.id,
-            label: b.projectMeta.label.slice(0, 50),
-            color: b.projectMeta.color,
+    .map((b) => {
+      const subtasks = normalizeSubtasks((b as { subtasks?: unknown }).subtasks);
+      const completedAt = normalizeCompletedAt((b as { completedAt?: unknown }).completedAt);
+      const { subtasks: _rawSubtasks, completedAt: _rawCompletedAt, ...rest } = b;
+
+      return normalizeBulletMetadata({
+        ...rest,
+        priority: ['high', 'medium', 'low'].includes(b.priority || '')
+          ? (b.priority as Priority)
+          : undefined,
+        lane: ['now', 'next', 'later', 'done'].includes((b.lane || ''))
+          ? (b.lane as ThoughtLane)
+          : undefined,
+        project: b.project && b.project.length <= 50 ? b.project.trim() : undefined,
+        projectMeta: b.projectMeta && b.project && validColors.includes(b.projectMeta.color)
+          ? {
+              id: b.projectMeta.id,
+              label: b.projectMeta.label.slice(0, 50),
+              color: b.projectMeta.color,
           }
-        : undefined,
-    }));
+          : undefined,
+        ...(subtasks ? { subtasks } : {}),
+        ...(completedAt ? { completedAt } : {}),
+      });
+    });
 
   const projects = Array.isArray(org.projects)
     ? org.projects

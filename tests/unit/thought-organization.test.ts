@@ -97,6 +97,94 @@ describe('thought organization', () => {
     ]);
   });
 
+  it('preserves and normalizes valid subtask checklists', () => {
+    const normalized = normalizeOrganization({
+      bullets: [
+        {
+          id: 'task',
+          text: 'Finish lesson',
+          lineNumber: 1,
+          displayOrder: 0,
+          subtasks: [
+            { id: 'two', text: '  Check examples  ', done: true, displayOrder: 2 },
+            { id: 'one', text: 'Draft intro', done: false, displayOrder: 1 },
+          ],
+        },
+      ],
+      projects: [],
+    } as ThoughtOrganization);
+
+    expect(normalized?.bullets[0].subtasks).toEqual([
+      { id: 'one', text: 'Draft intro', done: false, displayOrder: 0 },
+      { id: 'two', text: 'Check examples', done: true, displayOrder: 1 },
+    ]);
+  });
+
+  it('drops invalid and empty subtask rows during normalization', () => {
+    const normalized = normalizeOrganization({
+      bullets: [
+        {
+          id: 'task',
+          text: 'Finish lesson',
+          lineNumber: 1,
+          displayOrder: 0,
+          subtasks: [
+            { id: 'valid', text: 'Keep this', done: 'yes', displayOrder: 0 },
+            { id: 'blank', text: '   ', done: false, displayOrder: 1 },
+            null,
+          ],
+        },
+      ],
+      projects: [],
+    } as unknown as ThoughtOrganization);
+
+    expect(normalized?.bullets[0].subtasks).toEqual([
+      { id: 'valid', text: 'Keep this', done: false, displayOrder: 0 },
+    ]);
+  });
+
+  it('does not add subtasks to legacy tasks without them', () => {
+    const normalized = normalizeOrganization({
+      bullets: [
+        {
+          id: 'task',
+          text: 'Legacy task',
+          lineNumber: 1,
+          displayOrder: 0,
+        },
+      ],
+      projects: [],
+    });
+
+    expect(normalized?.bullets[0]).not.toHaveProperty('subtasks');
+  });
+
+  it('normalizes valid completion timestamps and drops invalid ones', () => {
+    const normalized = normalizeOrganization({
+      bullets: [
+        {
+          id: 'done',
+          text: 'Done task',
+          lineNumber: 1,
+          displayOrder: 0,
+          lane: 'done',
+          completedAt: '2026-05-18T15:30:00.000Z',
+        },
+        {
+          id: 'bad',
+          text: 'Bad date',
+          lineNumber: 2,
+          displayOrder: 1,
+          completedAt: 'not-a-date',
+        },
+      ],
+      projects: [],
+    } as ThoughtOrganization);
+
+    expect(normalized?.bullets[0].completedAt).toBe('2026-05-18T15:30:00.000Z');
+    expect(normalized?.bullets[1]).not.toHaveProperty('completedAt');
+  });
+
   it('inserts into the global NOW queue at an arbitrary index', () => {
     const projects = [{ id: 'p1', label: 'P1', color: 'lavender' as const }];
     const bullets: ThoughtBullet[] = [
@@ -159,7 +247,7 @@ describe('thought organization', () => {
     ]);
   });
 
-  it('normalizes flow layout metadata and appends missing ids', () => {
+  it('normalizes flow layout metadata and keeps only explicit chain ids', () => {
     const normalized = normalizeOrganization({
       bullets: [
         {
@@ -186,7 +274,7 @@ describe('thought organization', () => {
     });
 
     expect(normalized?.flow).toEqual({
-      globalOrder: ['b', 'a'],
+      globalOrder: ['b'],
     });
   });
 

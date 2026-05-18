@@ -37,6 +37,7 @@ import {
 import { FlowToast } from './FlowToast';
 import { TimeTriggerBuilder } from './TimeTriggerBuilder';
 import { OrganizeHeaderPortal } from './OrganizeHeaderSlot';
+import { TaskSubtasks } from './TaskSubtasks';
 import { useCompletionPulse } from './useCompletionPulse';
 import { notifyNextTrigger, requestNotificationPermission, showToast } from '@/lib/flow-notifications';
 import { OrganizableBullet } from '@/components/dashboard/OrganizableBullet';
@@ -807,9 +808,16 @@ function DesktopChain({
             </div>
 
             <div className="flex items-center justify-between gap-8">
-              <p className="organize-command-task-title flow-desktop-live-title min-w-0 flex-1">
-                {activeBullet.text}
-              </p>
+              <div className="min-w-0 flex-1">
+                <p className="organize-command-task-title flow-desktop-live-title">
+                  {activeBullet.text}
+                </p>
+                <TaskSubtasks
+                  bullet={activeBullet}
+                  onUpdate={(updates) => updateBullet(activeBullet.id, updates)}
+                  className="mt-4"
+                />
+              </div>
               <div className="flow-live-now-actions flex items-center gap-4 shrink-0">
                 <button
                   type="button"
@@ -886,9 +894,17 @@ function DesktopChain({
                         }}
                       >
                         <DragGrip attributes={attributes} listeners={listeners} label={`Drag ${bullet.text}`} />
-                        <p className="organize-command-task-title flex-1 min-w-0">
-                          {bullet.text}
-                        </p>
+                        <div className="min-w-0 flex-1">
+                          <p className="organize-command-task-title">
+                            {bullet.text}
+                          </p>
+                          <TaskSubtasks
+                            bullet={bullet}
+                            onUpdate={(updates) => updateBullet(bullet.id, updates)}
+                            compact
+                            className="mt-2"
+                          />
+                        </div>
                         {bullet.projectMeta && <ProjectPill bullet={bullet} emphasis="strong" />}
                       </div>
                     )}
@@ -1122,6 +1138,11 @@ function FlowMobileCockpit({
                 <p className="organize-command-task-title flow-mobile-live-title mb-5">
                   {activeBullet.text}
                 </p>
+                <TaskSubtasks
+                  bullet={activeBullet}
+                  onUpdate={(updates) => updateBullet(activeBullet.id, updates)}
+                  className="mb-5"
+                />
 
                 <div className="flow-live-now-actions grid grid-cols-2 gap-2">
                   <button
@@ -1199,6 +1220,12 @@ function FlowMobileCockpit({
                     <p className="organize-command-task-title flow-mobile-queue-title">
                       {bullet.text}
                     </p>
+                    <TaskSubtasks
+                      bullet={bullet}
+                      onUpdate={(updates) => updateBullet(bullet.id, updates)}
+                      compact
+                      className="mt-2"
+                    />
                     {bullet.projectMeta && (
                       <div className="mt-2">
                         <ProjectPill bullet={bullet} />

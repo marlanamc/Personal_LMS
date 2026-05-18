@@ -3,9 +3,12 @@
 import { useState, useCallback, useMemo, useEffect, type ReactNode } from 'react';
 import { DndContext, DragEndEvent, DragStartEvent, PointerSensor, TouchSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { ArrowRight, Check, ChevronDown, ChevronRight, Download, Eye, EyeOff, GripVertical, MoreHorizontal, Plus, Trash2, X } from 'lucide-react';
+import { ArrowRight, Check, CheckCircle2, ChevronDown, ChevronRight, Download, Eye, EyeOff, GripVertical, MoreHorizontal, Plus, RotateCcw, Sparkles, Trash2, Trophy, X } from 'lucide-react';
 import { ImportFromThoughtDownload } from './ImportFromThoughtDownload';
+import { FlowToast } from './FlowToast';
 import { OrganizeHeaderPortal } from './OrganizeHeaderSlot';
+import { TaskSubtasks } from './TaskSubtasks';
+import { showToast } from '@/lib/flow-notifications';
 import {
   addImportMetadata,
   laneToPriority,
@@ -68,6 +71,51 @@ const LANE_MOVE_COPY: Record<ActiveLane, string> = {
   later: 'Move to Harbor',
 };
 
+function isDoneToday(bullet: ThoughtBullet): boolean {
+  if (!bullet.completedAt) return false;
+  const completed = new Date(bullet.completedAt);
+  if (Number.isNaN(completed.getTime())) return false;
+  const today = new Date();
+  return (
+    completed.getFullYear() === today.getFullYear() &&
+    completed.getMonth() === today.getMonth() &&
+    completed.getDate() === today.getDate()
+  );
+}
+
+function completionAwareUpdate(
+  current: ThoughtBullet,
+  updates: Partial<ThoughtBullet>
+): Partial<ThoughtBullet> {
+  if (!Object.prototype.hasOwnProperty.call(updates, 'lane')) {
+    return updates;
+  }
+
+  if (updates.lane === 'done' && current.lane !== 'done') {
+    return {
+      ...updates,
+      completedAt: new Date().toISOString(),
+    };
+  }
+
+  if (updates.lane !== 'done' && current.lane === 'done') {
+    return {
+      ...updates,
+      completedAt: undefined,
+    };
+  }
+
+  return updates;
+}
+
+function sortDoneNewestFirst(items: ThoughtBullet[]): ThoughtBullet[] {
+  return [...items].sort((a, b) => {
+    const bTime = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+    const aTime = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+    return bTime - aTime || b.displayOrder - a.displayOrder;
+  });
+}
+
 function isActiveLane(value: string): value is ActiveLane {
   return value === 'now' || value === 'next' || value === 'later';
 }
@@ -127,6 +175,7 @@ function MobileTaskRow({
   onToggleMenu,
   onMoveToLane,
   onDelete,
+  onUpdate,
 }: {
   bullet: ThoughtBullet;
   lane: ActiveLane;
@@ -142,6 +191,7 @@ function MobileTaskRow({
   onToggleMenu: () => void;
   onMoveToLane: (lane: ActiveLane) => void;
   onDelete: () => void;
+  onUpdate: (updates: Partial<ThoughtBullet>) => void;
 }) {
   const meta = LANE_META[lane];
   const palette = getProjectPalette(project);
@@ -203,6 +253,7 @@ function MobileTaskRow({
             {project.label}
           </span>
         ) : null}
+        <TaskSubtasks bullet={bullet} onUpdate={onUpdate} compact className="mt-1.5" />
       </div>
       <button
         type="button"
@@ -299,9 +350,16 @@ function ListViewMobile({
     organization.bullets.filter(b => b.project === projectId && b.lane !== 'done').length;
 
   const updateMobileBullet = (bulletId: string, updates: Partial<ThoughtBullet>) => {
+    const current = organization.bullets.find(b => b.id === bulletId);
+    if (current && updates.lane === 'done' && current.lane !== 'done') {
+      showToast(`Done: ${current.text}`, 'success');
+    }
+
     onUpdateOrganization({
       ...organization,
-      bullets: organization.bullets.map(b => b.id === bulletId ? { ...b, ...updates } : b),
+      bullets: organization.bullets.map(b =>
+        b.id === bulletId ? { ...b, ...completionAwareUpdate(b, updates) } : b
+      ),
     });
   };
 
@@ -518,6 +576,7 @@ function ListViewMobile({
                         onToggleMenu={() => setMobileTaskMenuId(current => current === b.id ? null : b.id)}
                         onMoveToLane={targetLane => moveMobileBulletToLane(b, targetLane)}
                         onDelete={() => deleteMobileTask(b.id)}
+                        onUpdate={(updates) => updateMobileBullet(b.id, updates)}
                       />
                     ))}
                   </MobileLaneDropzone>
@@ -526,6 +585,15 @@ function ListViewMobile({
             );
           })}
         </DndContext>
+
+        <ListWinsPanel
+          bullets={organization.bullets}
+          projects={organization.projects}
+          showDone={false}
+          onToggleShowDone={() => undefined}
+          onReopen={(id) => updateMobileBullet(id, { lane: 'next', priority: laneToPriority('next') })}
+          showToggle={false}
+        />
       </div>
     </div>
   );
@@ -554,12 +622,16 @@ function DesktopTaskCard({
   selected,
   onSelect,
   onDone,
+  onUpdate,
+  celebrating = false,
 }: {
   bullet: ThoughtBullet;
   project?: ProjectMeta;
   selected: boolean;
   onSelect: () => void;
   onDone: () => void;
+  onUpdate: (updates: Partial<ThoughtBullet>) => void;
+  celebrating?: boolean;
 }) {
   const palette = getProjectPalette(project);
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -579,6 +651,7 @@ function DesktopTaskCard({
       className={[
         'organize-command-task group',
         selected ? 'is-selected' : '',
+        celebrating ? 'is-celebrating' : '',
       ].join(' ')}
       onClick={onSelect}
       onKeyDown={(event) => {
@@ -601,6 +674,11 @@ function DesktopTaskCard({
       >
         <span />
       </button>
+      {celebrating ? (
+        <span className="organize-task-sparkle-burst" aria-hidden>
+          <Sparkles className="h-4 w-4" />
+        </span>
+      ) : null}
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-start gap-2">
           <p className="organize-command-task-title">{bullet.text}</p>
@@ -613,6 +691,7 @@ function DesktopTaskCard({
             {project.label}
           </span>
         ) : null}
+        <TaskSubtasks bullet={bullet} onUpdate={onUpdate} compact className="mt-2" />
       </div>
       <button
         type="button"
@@ -635,6 +714,8 @@ function DesktopLaneColumn({
   selectedBulletId,
   onSelectBullet,
   onMarkDone,
+  onUpdateBullet,
+  completedBurstId,
   onAdd,
 }: {
   lane: ThoughtLane;
@@ -643,6 +724,8 @@ function DesktopLaneColumn({
   selectedBulletId: string | null;
   onSelectBullet: (id: string) => void;
   onMarkDone: (id: string) => void;
+  onUpdateBullet: (id: string, updates: Partial<ThoughtBullet>) => void;
+  completedBurstId: string | null;
   onAdd: (lane: ThoughtLane) => void;
 }) {
   const meta = LANE_META[lane];
@@ -688,6 +771,8 @@ function DesktopLaneColumn({
                 selected={selectedBulletId === bullet.id}
                 onSelect={() => onSelectBullet(bullet.id)}
                 onDone={() => onMarkDone(bullet.id)}
+                onUpdate={(updates) => onUpdateBullet(bullet.id, updates)}
+                celebrating={completedBurstId === bullet.id}
               />
             );
           })
@@ -698,6 +783,83 @@ function DesktopLaneColumn({
         <Plus className="h-3.5 w-3.5" aria-hidden />
         Add bullet
       </button>
+    </section>
+  );
+}
+
+function ListWinsPanel({
+  bullets,
+  projects,
+  showDone,
+  onToggleShowDone,
+  onReopen,
+  showToggle = true,
+}: {
+  bullets: ThoughtBullet[];
+  projects: ProjectMeta[];
+  showDone: boolean;
+  onToggleShowDone: () => void;
+  onReopen: (id: string) => void;
+  showToggle?: boolean;
+}) {
+  const activeCount = bullets.filter((bullet) => bullet.project && bullet.lane !== 'done').length;
+  const doneBullets = sortDoneNewestFirst(bullets.filter((bullet) => bullet.lane === 'done'));
+  const doneToday = doneBullets.filter(isDoneToday);
+  const recentDone = (showDone ? doneBullets : doneBullets.slice(0, 3));
+  const totalCount = activeCount + doneToday.length;
+  const progress = totalCount > 0 ? Math.round((doneToday.length / totalCount) * 100) : 0;
+  const projectById = new Map(projects.map((project) => [project.id, project]));
+
+  return (
+    <section className="organize-wins-panel" aria-label="Wins today">
+      <div className="organize-wins-summary">
+        <div className="organize-wins-icon" aria-hidden>
+          <Trophy className="h-4 w-4" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="organize-wins-kicker">Wins today</p>
+          <div className="organize-wins-line">
+            <strong>{doneToday.length}</strong>
+            <span>{doneToday.length === 1 ? 'task finished' : 'tasks finished'}</span>
+            {activeCount > 0 ? <em>{activeCount} active</em> : null}
+          </div>
+          <div className="organize-wins-progress" aria-hidden>
+            <span style={{ width: `${progress}%` }} />
+          </div>
+        </div>
+        {showToggle ? (
+          <button type="button" onClick={onToggleShowDone} className="organize-wins-toggle" aria-pressed={showDone}>
+            {showDone ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+            {showDone ? 'Hide done' : 'Done list'}
+          </button>
+        ) : null}
+      </div>
+
+      {recentDone.length > 0 ? (
+        <div className="organize-wins-list" data-expanded={showDone ? 'true' : 'false'}>
+          {recentDone.map((bullet) => {
+            const project = bullet.project ? projectById.get(bullet.project) ?? bullet.projectMeta : bullet.projectMeta;
+            return (
+              <div key={bullet.id} className="organize-wins-item">
+                <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden />
+                <span className="organize-wins-item-title">{bullet.text}</span>
+                {project ? (
+                  <span className="organize-wins-item-project" style={{ color: `var(--project-${project.color})` }}>
+                    {project.label}
+                  </span>
+                ) : null}
+                <button type="button" onClick={() => onReopen(bullet.id)} className="organize-wins-reopen" aria-label={`Reopen ${bullet.text}`}>
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="organize-wins-empty">
+          Finish something and it will land here.
+        </p>
+      )}
     </section>
   );
 }
@@ -892,6 +1054,11 @@ function FocusInspector({
         {project && onUpdateProject ? <ProjectEditorSection project={project} onUpdateProject={onUpdateProject} /> : null}
 
         <section className="organize-command-detail-block">
+          <h3>Sub-bullets</h3>
+          <TaskSubtasks bullet={bullet} onUpdate={onUpdate} editable />
+        </section>
+
+        <section className="organize-command-detail-block">
           <h3>Details</h3>
           <dl>
             {lane ? (
@@ -1035,6 +1202,7 @@ export function ListViewHub({
   const [selectedBulletId, setSelectedBulletId] = useState<string | null>(null);
   const [inspectorProjectId, setInspectorProjectId] = useState<string | null>(null);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const [completedBurstId, setCompletedBurstId] = useState<string | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 120, tolerance: 8 } })
@@ -1057,7 +1225,19 @@ export function ListViewHub({
 
   const handleBulletUpdate = useCallback(
     (id: string, updates: Partial<ThoughtBullet>) => {
-      onUpdateOrganization({ ...organization, bullets: organization.bullets.map(b => b.id === id ? { ...b, ...updates } : b) });
+      const current = organization.bullets.find(b => b.id === id);
+      if (current && updates.lane === 'done' && current.lane !== 'done') {
+        setCompletedBurstId(id);
+        showToast(`Done: ${current.text}`, 'success');
+        setTimeout(() => setCompletedBurstId((value) => value === id ? null : value), 900);
+      }
+
+      onUpdateOrganization({
+        ...organization,
+        bullets: organization.bullets.map(b =>
+          b.id === id ? { ...b, ...completionAwareUpdate(b, updates) } : b
+        ),
+      });
     },
     [organization, onUpdateOrganization]
   );
@@ -1116,6 +1296,10 @@ export function ListViewHub({
 
   const markDone = useCallback((id: string) => {
     handleBulletUpdate(id, { lane: 'done', priority: laneToPriority('done') });
+  }, [handleBulletUpdate]);
+
+  const reopenDone = useCallback((id: string) => {
+    handleBulletUpdate(id, { lane: 'next', priority: laneToPriority('next') });
   }, [handleBulletUpdate]);
 
   const moveBulletToLane = useCallback((id: string, lane: ThoughtLane) => {
@@ -1177,6 +1361,8 @@ export function ListViewHub({
 
   return (
     <div className="organize-list-view-root flex h-full overflow-hidden">
+      <FlowToast />
+
       {/* ── MOBILE: full replacement list view ── */}
       <ListViewMobile
         organization={organization}
@@ -1234,11 +1420,21 @@ export function ListViewHub({
                   selectedBulletId={selectedBulletId}
                   onSelectBullet={selectDesktopBullet}
                   onMarkDone={markDone}
+                  onUpdateBullet={handleBulletUpdate}
+                  completedBurstId={completedBurstId}
                   onAdd={addBulletToLane}
                 />
               ))}
             </div>
           </DndContext>
+
+          <ListWinsPanel
+            bullets={organization.bullets}
+            projects={organization.projects}
+            showDone={showDone}
+            onToggleShowDone={onToggleShowDone}
+            onReopen={reopenDone}
+          />
         </div>
       </div>
 

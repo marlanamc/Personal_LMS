@@ -7,6 +7,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Check, ChevronDown, ChevronUp, GripVertical, MoreHorizontal, Trash2 } from 'lucide-react';
 import type { ProjectMeta, ThoughtBullet, ThoughtLane } from '@/lib/thought-organization';
 import { laneToPriority } from '@/lib/thought-organization';
+import { TaskSubtasks } from '@/components/organize/TaskSubtasks';
 import { BulletInlineEditor } from './BulletInlineEditor';
 
 function triggerHaptic() {
@@ -399,6 +400,8 @@ function OrganizableBulletCard({
                         )}
                       </div>
                     )}
+
+                    <TaskSubtasks bullet={bullet} onUpdate={onUpdate} compact className="mt-2" />
                   </div>
 
                   {useMoveMenu && bullet.project && !isDone ? (
