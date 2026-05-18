@@ -7963,51 +7963,202 @@ kbd {
 .organize-subtasks {
   width: 100%;
   max-width: 100%;
-  margin-top: 0.55rem;
+  margin-top: 0.58rem;
   text-align: left;
 }
 
+.organize-subtask-toggle {
+  display: inline-flex;
+  width: fit-content;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 100%;
+  align-items: center;
+  gap: 0.34rem;
+  margin-bottom: 0.28rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 42%, transparent);
+  border-radius: 999px;
+  padding: 0.16rem 0.46rem 0.16rem 0.52rem;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-bg-elevated) 18%, transparent),
+      color-mix(in srgb, var(--color-bg-surface) 10%, transparent)
+    );
+  color: color-mix(in srgb, var(--color-text-muted) 88%, white 8%);
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 720;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.organize-subtask-toggle svg {
+  opacity: 0.82;
+  transition: transform 180ms ease;
+}
+
+.organize-subtask-toggle.is-collapsed {
+  margin-bottom: 0;
+  border-color: color-mix(in srgb, var(--color-accent-teal) 24%, transparent);
+  color: color-mix(in srgb, var(--color-accent-teal) 78%, white 8%);
+}
+
+.organize-subtask-toggle.is-collapsed svg {
+  transform: rotate(-90deg);
+}
+
+.organize-subtask-toggle:hover {
+  border-color: color-mix(in srgb, var(--color-accent-teal) 34%, transparent);
+  background: color-mix(in srgb, var(--color-accent-teal) 7%, transparent);
+  color: color-mix(in srgb, var(--color-accent-teal) 86%, white 8%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 6%, transparent),
+    0 0 14px color-mix(in srgb, var(--color-accent-teal) 8%, transparent);
+}
+
 .organize-subtask-list {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0.3rem;
+  gap: 0.04rem;
   max-width: 100%;
-  padding-left: 0.1rem;
+  padding: 0.36rem 0.44rem 0.36rem 1.12rem;
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 42%, transparent);
+  border-radius: 1rem;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-bg-elevated) 20%, transparent),
+      color-mix(in srgb, var(--color-bg-surface) 14%, transparent)
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 5%, transparent),
+    inset 0 0 18px color-mix(in srgb, var(--color-accent-blue) 5%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.organize-subtask-list::before {
+  content: "";
+  position: absolute;
+  top: 0.72rem;
+  bottom: 0.72rem;
+  left: 0.48rem;
+  width: 1px;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent-teal) 10%, transparent),
+    color-mix(in srgb, var(--color-text-muted) 36%, transparent) 24%,
+    color-mix(in srgb, var(--color-accent-amethyst) 25%, transparent) 72%,
+    transparent
+  );
 }
 
 .organize-subtask-row {
+  position: relative;
   display: flex;
   width: 100%;
   min-width: 0;
-  align-items: flex-start;
+  min-height: 1.78rem;
+  align-items: center;
   justify-content: flex-start;
-  gap: 0.45rem;
+  gap: 0.44rem;
+  padding: 0.18rem 0.16rem 0.18rem 0;
+  border-radius: 0.72rem;
+  color: var(--color-text-secondary);
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.organize-subtask-row::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -0.6rem;
+  width: 0.42rem;
+  height: 1px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-text-muted) 26%, transparent);
+}
+
+.organize-subtask-row:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0.22rem;
+  bottom: -0.04rem;
+  left: 1.68rem;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-border-subtle) 36%, transparent),
+    transparent
+  );
+}
+
+.organize-subtask-row.is-interactive {
+  cursor: pointer;
+}
+
+.organize-subtask-row.is-interactive:hover {
+  background: color-mix(in srgb, var(--color-accent-teal) 5%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-accent-teal) 10%, transparent),
+    0 8px 22px color-mix(in srgb, var(--color-accent-blue) 7%, transparent);
+}
+
+.organize-subtask-row.is-interactive:active {
+  transform: scale(0.992);
 }
 
 .organize-subtask-check {
   position: relative;
   display: inline-flex;
-  width: 0.9rem;
-  min-width: 0;
-  height: 0.9rem;
-  min-height: 0;
-  flex: 0 0 auto;
+  width: 1.02rem !important;
+  min-width: 1.02rem !important;
+  height: 1.02rem !important;
+  min-height: 1.02rem !important;
+  flex: 0 0 1.02rem !important;
   align-items: center;
   justify-content: center;
-  margin-top: 0.14rem;
   padding: 0;
-  border-radius: 0.22rem;
-  border: 1.25px solid color-mix(in srgb, var(--color-text-muted) 58%, transparent);
-  background: color-mix(in srgb, var(--color-bg-base) 36%, transparent);
-  color: var(--color-accent-mint);
+  border-radius: 999px;
+  border: 1.2px solid color-mix(in srgb, var(--color-text-muted) 62%, transparent);
+  background:
+    radial-gradient(circle at 35% 22%, color-mix(in srgb, white 10%, transparent), transparent 48%),
+    color-mix(in srgb, var(--color-bg-base) 34%, transparent);
+  color: white;
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 7%, transparent);
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-bg-base) 56%, transparent);
   transition:
-    background-color 140ms ease,
+    background 160ms ease,
     border-color 140ms ease,
     box-shadow 140ms ease,
-    color 140ms ease;
+    color 140ms ease,
+    transform 180ms cubic-bezier(0.2, 1.6, 0.28, 1);
+}
+
+.organize-subtask-check::after {
+  content: "";
+  position: absolute;
+  inset: -0.34rem;
+  border-radius: inherit;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-accent-mint) 24%, transparent), transparent 58%);
+  opacity: 0;
+  transform: scale(0.45);
+  pointer-events: none;
 }
 
 .organize-subtask-check:not(:disabled) {
@@ -8016,15 +8167,32 @@ kbd {
 
 .organize-subtask-check:hover:not(:disabled) {
   border-color: var(--color-accent-teal);
+  transform: scale(1.06);
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 7%, transparent),
-    0 0 0 3px color-mix(in srgb, var(--color-accent-teal) 12%, transparent);
+    inset 0 1px 0 color-mix(in srgb, white 12%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--color-accent-teal) 10%, transparent),
+    0 0 16px color-mix(in srgb, var(--color-accent-teal) 10%, transparent);
 }
 
 .organize-subtask-check.is-done {
   border-color: color-mix(in srgb, var(--color-accent-mint) 78%, transparent);
-  background: color-mix(in srgb, var(--color-accent-mint) 20%, var(--color-bg-surface));
-  color: var(--color-accent-mint);
+  background:
+    radial-gradient(circle at 32% 24%, color-mix(in srgb, white 42%, transparent), transparent 34%),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--color-accent-mint) 78%, white 6%),
+      color-mix(in srgb, var(--color-accent-teal) 58%, var(--color-bg-surface) 18%)
+    );
+  color: color-mix(in srgb, var(--color-bg-base) 84%, black 16%);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-accent-mint) 18%, transparent),
+    0 0 16px color-mix(in srgb, var(--color-accent-mint) 22%, transparent),
+    inset 0 1px 0 color-mix(in srgb, white 42%, transparent);
+  animation: organize-subtask-check-pop 360ms cubic-bezier(0.2, 1.65, 0.32, 1);
+}
+
+.organize-subtask-check.is-done::after {
+  animation: organize-subtask-check-ripple 520ms ease-out;
 }
 
 .organize-subtask-text {
@@ -8032,29 +8200,97 @@ kbd {
   min-width: 0;
   flex: 1;
   color: var(--color-text-secondary);
-  font-size: 0.8rem;
-  font-weight: 560;
-  line-height: 1.32;
+  font-size: 0.82rem;
+  font-weight: 540;
+  line-height: 1.25;
   overflow-wrap: anywhere;
+  text-wrap: pretty;
+  transition:
+    color 150ms ease,
+    opacity 150ms ease;
 }
 
 .organize-subtask-text.is-done,
 .organize-subtask-input.is-done {
-  color: color-mix(in srgb, var(--color-text-muted) 82%, transparent);
+  color: color-mix(in srgb, var(--color-text-muted) 76%, transparent);
   text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--color-accent-mint) 46%, transparent);
+}
+
+.organize-subtask-due {
+  display: inline-flex;
+  min-width: max-content;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  border: 1px solid color-mix(in srgb, var(--color-accent-teal) 34%, transparent);
+  border-radius: 999px;
+  padding: 0.12rem 0.42rem;
+  background: color-mix(in srgb, var(--color-accent-blue) 8%, transparent);
+  color: color-mix(in srgb, var(--color-accent-teal) 82%, white 8%);
+  font-family: var(--font-display);
+  font-size: 0.61rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 6%, transparent);
+}
+
+.organize-subtask-due.is-done {
+  border-color: color-mix(in srgb, var(--color-accent-mint) 28%, transparent);
+  background: color-mix(in srgb, var(--color-accent-mint) 9%, transparent);
+  color: color-mix(in srgb, var(--color-accent-mint) 76%, white 10%);
 }
 
 .organize-subtasks-compact .organize-subtask-row {
-  gap: 0.42rem;
+  min-height: 1.68rem;
+  gap: 0.4rem;
+  padding-top: 0.14rem;
+  padding-bottom: 0.14rem;
+}
+
+.organize-subtasks-compact .organize-subtask-toggle {
+  margin-bottom: 0.22rem;
+  padding: 0.14rem 0.4rem 0.14rem 0.46rem;
+  font-size: 0.58rem;
+}
+
+.organize-subtasks-compact .organize-subtask-toggle.is-collapsed {
+  margin-bottom: 0;
+}
+
+.organize-subtasks-compact .organize-subtask-list {
+  padding: 0.32rem 0.34rem 0.32rem 1rem;
+  border-radius: 0.82rem;
+}
+
+.organize-subtasks-compact .organize-subtask-list::before {
+  left: 0.42rem;
+}
+
+.organize-subtasks-compact .organize-subtask-row::before {
+  left: -0.54rem;
+  width: 0.36rem;
 }
 
 .organize-subtasks-compact .organize-subtask-text {
-  font-size: 0.79rem;
+  font-size: 0.76rem;
 }
 
 .organize-subtasks-compact .organize-subtask-check {
-  width: 0.88rem;
-  height: 0.88rem;
+  width: 0.92rem !important;
+  min-width: 0.92rem !important;
+  height: 0.92rem !important;
+  min-height: 0.92rem !important;
+  flex-basis: 0.92rem !important;
+}
+
+.organize-subtasks-compact .organize-subtask-due {
+  padding: 0.1rem 0.34rem;
+  font-size: 0.58rem;
 }
 
 .organize-subtask-input,
@@ -8065,9 +8301,9 @@ kbd {
   border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 62%, transparent);
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: 0.78rem;
-  font-weight: 560;
-  line-height: 1.35;
+  font-size: 0.86rem;
+  font-weight: 540;
+  line-height: 1.25;
   outline: none;
 }
 
@@ -8079,8 +8315,8 @@ kbd {
 .organize-subtask-delete,
 .organize-subtask-add-button {
   display: inline-flex;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.4rem;
+  height: 1.4rem;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
@@ -8097,7 +8333,7 @@ kbd {
 }
 
 .organize-subtask-add {
-  margin-top: 0.65rem;
+  margin-top: 0.5rem;
   display: flex;
   min-width: 0;
   align-items: center;
@@ -8118,6 +8354,29 @@ kbd {
 .organize-subtask-add-button:not(:disabled):hover {
   background: color-mix(in srgb, var(--color-primary) 12%, transparent);
   color: var(--color-primary);
+}
+
+@keyframes organize-subtask-check-pop {
+  0% {
+    transform: scale(0.78);
+  }
+  58% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes organize-subtask-check-ripple {
+  0% {
+    opacity: 0.65;
+    transform: scale(0.42);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.22);
+  }
 }
 
 .organize-card-meta {
