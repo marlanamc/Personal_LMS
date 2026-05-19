@@ -805,7 +805,7 @@ function ListWinsPanel({
   const activeCount = bullets.filter((bullet) => bullet.project && bullet.lane !== 'done').length;
   const doneBullets = sortDoneNewestFirst(bullets.filter((bullet) => bullet.lane === 'done'));
   const doneToday = doneBullets.filter(isDoneToday);
-  const recentDone = (showDone ? doneBullets : doneBullets.slice(0, 3));
+  const recentDone = (showDone ? doneToday : doneToday.slice(0, 3));
   const totalCount = activeCount + doneToday.length;
   const progress = totalCount > 0 ? Math.round((doneToday.length / totalCount) * 100) : 0;
   const projectById = new Map(projects.map((project) => [project.id, project]));

@@ -15,6 +15,15 @@ interface FocusHeroProps {
   dailyAnchors: DailyAnchorsApi;
 }
 
+function getSeason(date: Date): string {
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  if ((m === 12 && d >= 21) || m <= 2 || (m === 3 && d < 20)) return 'winter';
+  if ((m === 3 && d >= 20) || (m <= 5) || (m === 6 && d < 21)) return 'spring';
+  if ((m === 6 && d >= 21) || (m <= 8) || (m === 9 && d < 22)) return 'summer';
+  return 'autumn';
+}
+
 export function FocusHero({
   userName: _userName,
   isCalendarRestoreVisible,
@@ -44,42 +53,38 @@ export function FocusHero({
     day: 'numeric',
     year: 'numeric',
   }).format(today);
+  const season = getSeason(today);
 
   return (
     <div className="focus-hero-wrapper focus-hero-mobile-plain dashboard-date-hero relative">
       <div className="dashboard-date-hero-header hidden sm:grid">
-        <h1 className="hidden sm:block text-page-title font-display leading-tight mb-1">
+        <h1 className="hidden sm:block text-page-title font-body leading-tight mb-1">
           <span className="dashboard-date-hero-full text-text relative">
             {dateLabel}
-            {/* Hand-drawn underline effect */}
-            <svg
-              className="absolute -bottom-1 left-0 w-full h-2 text-primary/40"
-              viewBox="0 0 100 8"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M0 5 Q 25 2, 50 5 T 100 4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
+          </span>
+          <span className="dashboard-date-hero-today-label" aria-hidden>
+            TODAY · {dayProgress}% THROUGH
           </span>
           <span className="dashboard-date-hero-title" aria-hidden>
-            {monthLabel} {dayLabel}<span>.</span>
-          </span>
-          <span className="dashboard-date-hero-subline" aria-hidden>
-            <strong>{weekdayLabel}, {today.getFullYear()}</strong>
-            <span>day {dayOfYear} of {daysInYear} · {yearProgress}% of the year</span>
+            <span className="dashboard-date-hero-title-weekday">{weekdayLabel},</span>
+            <span className="dashboard-date-hero-title-date">{monthLabel} {dayLabel}</span>
           </span>
         </h1>
-        <div className="dashboard-date-hero-day-progress hidden sm:flex" aria-hidden>
-          <span>the day</span>
-          <div>
-            <span style={{ width: `${dayProgress}%` }} />
+        <div className="dashboard-date-hero-header-right hidden sm:flex min-w-0 flex-row flex-nowrap items-center justify-end justify-self-end gap-2 lg:gap-3">
+          <div className="dashboard-date-hero-day-progress hidden sm:flex" aria-hidden>
+            <span>THE YEAR · {yearProgress}%</span>
+            <div>
+              <span style={{ width: `${yearProgress}%` }} />
+            </div>
+            <em>
+              day {dayOfYear} of {daysInYear} · {season}
+            </em>
           </div>
-          <em>{dayProgress >= 50 ? 'half through' : 'warming up'}</em>
+          {isCalendarRestoreVisible ? (
+            <div className="hidden lg:flex shrink-0">
+              <CalendarPanelRestoreButton isVisible onRestore={onRestoreCalendar} />
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -87,10 +92,6 @@ export function FocusHero({
       <div aria-hidden className="hidden sm:block absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-primary/8 via-transparent to-accent/6 blur-xl pointer-events-none focus-hero-outer-glow" />
 
       <div className="focus-hero relative rounded-none sm:rounded-2xl overflow-visible sm:overflow-hidden">
-        <div className="hidden lg:block">
-          <CalendarPanelRestoreButton isVisible={isCalendarRestoreVisible} onRestore={onRestoreCalendar} />
-        </div>
-
         {/* Layered background effects */}
         <div aria-hidden className="hidden sm:block absolute inset-0 pointer-events-none focus-hero-nebula" />
         <div aria-hidden className="hidden sm:block absolute inset-0 pointer-events-none focus-hero-grain opacity-[0.03]" />

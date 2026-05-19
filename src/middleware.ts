@@ -38,7 +38,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
     // Permissions Policy - Restrict access to browser features
     response.headers.set(
         'Permissions-Policy',
-        'camera=(), microphone=(), geolocation=(), interest-cohort=()'
+        'camera=(), microphone=(), geolocation=(self), interest-cohort=()'
     );
 
     // Strict-Transport-Security - Force HTTPS (only in production)

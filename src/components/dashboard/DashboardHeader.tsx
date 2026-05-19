@@ -66,6 +66,16 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
         }).format(today),
         [today],
     );
+    const headerDayOfYear = useMemo(() => {
+        const yearStart = new Date(today.getFullYear(), 0, 1);
+        const dayMs = 24 * 60 * 60 * 1000;
+        return Math.floor((today.getTime() - yearStart.getTime()) / dayMs) + 1;
+    }, [today]);
+    const headerDaysInYear = useMemo(() => {
+        const yearStart = new Date(today.getFullYear(), 0, 1);
+        const nextYearStart = new Date(today.getFullYear() + 1, 0, 1);
+        return Math.round((nextYearStart.getTime() - yearStart.getTime()) / (24 * 60 * 60 * 1000));
+    }, [today]);
     const todayDateKey = useMemo(() => toDateKey(today), [today]);
     const nowMinuteOfDay = today.getHours() * 60 + today.getMinutes();
     const todayBlocks = plannerStore[todayDateKey]?.blocks;
@@ -125,8 +135,10 @@ export function DashboardHeader({ userName = "", title }: DashboardHeaderProps) 
                     {displayTitle}
                 </h1>
             )}
-            <span className="dashboard-header-time hidden lg:inline-flex" aria-label={`Current time ${headerTimeLabel}`}>
+            <span className="dashboard-header-time hidden lg:inline-flex" aria-label={`Current time ${headerTimeLabel}, day ${headerDayOfYear} of ${headerDaysInYear}`}>
                 {headerTimeLabel}
+                <span className="dashboard-header-time-sep" aria-hidden> | </span>
+                <span className="dashboard-header-time-day" aria-hidden>DAY {headerDayOfYear} / {headerDaysInYear}</span>
             </span>
         </>
     );

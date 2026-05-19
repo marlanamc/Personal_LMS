@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Lato, DM_Sans, Caveat } from "next/font/google";
+import { Lato, DM_Sans, Caveat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
@@ -30,6 +30,15 @@ const caveat = Caveat({
   variable: "--font-handwritten",
   subsets: ["latin"],
   weight: ["600", "700"],
+  display: "swap",
+});
+
+/** Editorial serif for FocusHero dateline only (paired roman + italic) */
+const playfairDisplay = Playfair_Display({
+  variable: "--font-editorial-serif",
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -121,7 +130,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body
-        className={`${lato.variable} ${dmSans.variable} ${caveat.variable} bg-bg-primary text-text antialiased`}
+        className={`${lato.variable} ${dmSans.variable} ${caveat.variable} ${playfairDisplay.variable} bg-bg-primary text-text antialiased`}
       >
         <Providers>{children}</Providers>
         <ServiceWorkerRegistration />

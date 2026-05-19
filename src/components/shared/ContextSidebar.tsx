@@ -2,6 +2,7 @@
 
 import { Calendar } from 'lucide-react';
 import { CalendarPanel } from '@/features/planning/components/CalendarPanel';
+import { cn } from '@/lib/utils';
 import type { CalendarEvent } from '@/features/planning/types';
 
 interface ContextSidebarProps {
@@ -25,13 +26,15 @@ export function ContextSidebar({ calendarEvents, isOpen, onToggle }: ContextSide
   );
 }
 
-/** Button to open calendar panel when it's closed - positioned in hero */
+/** Button to open calendar panel when it's closed (Zen mode) — parent controls layout */
 export function CalendarPanelRestoreButton({
   isVisible,
   onRestore,
+  className,
 }: {
   isVisible: boolean;
   onRestore: () => void;
+  className?: string;
 }) {
   if (!isVisible) return null;
 
@@ -39,7 +42,10 @@ export function CalendarPanelRestoreButton({
     <button
       type="button"
       onClick={onRestore}
-      className="cloud-surface absolute top-4 right-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-bg-elevated/90 backdrop-blur-sm border border-border-subtle shadow-md text-text-muted hover:text-text hover:border-accent-teal/45 transition-all hover:scale-105"
+      className={cn(
+        'cloud-surface z-10 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-bg-elevated/90 backdrop-blur-sm border border-border-subtle shadow-md text-text-muted hover:text-text hover:border-accent-teal/45 transition-all hover:scale-105',
+        className,
+      )}
       aria-label="Open calendar panel"
       title="Open calendar (Cmd+\\)"
     >

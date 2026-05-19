@@ -27,6 +27,7 @@ import {
   Flower2,
   GripVertical,
   Heart,
+  LocateFixed,
   Moon,
   Music,
   PenTool,
@@ -81,6 +82,7 @@ import { useTimeBlockPlanner } from '@/features/planning/hooks/useTimeBlockPlann
 import type { CalendarEvent } from '@/features/planning/types';
 import { getCalendarMarkerColor } from '@/components/planning/MiniCalendar';
 import { getBoundaryKindAccent } from '@/features/planning/components/daily-overview-styles';
+import { getSunTimelineTimes, type SunLocation } from '@/lib/bostonDaylight';
 
 interface DailyAnchorsTimelineProps {
   calendarEvents: CalendarEvent[];
@@ -126,6 +128,19 @@ function gradientByIcon(icon: AnchorIcon): string {
 const TIMELINE_START_HOUR = 6;
 const TIMELINE_END_HOUR = 24;
 const TIMELINE_TOTAL_MINUTES = (TIMELINE_END_HOUR - TIMELINE_START_HOUR) * 60;
+const SUN_LOCATION_STORAGE_KEY = 'daily-overview-sun-location';
+const DEFAULT_SUN_LOCATION: SunLocation = {
+  latitude: 42.3601,
+  longitude: -71.0589,
+  timeZone: 'America/New_York',
+};
+/** Light tinted bands — intentionally quiet so anchors + elapsed spine carry hierarchy */
+const TIMELINE_DAY_ZONES = [
+  { key: 'morning', label: 'Morning', start: 6 * 60, end: 12 * 60, className: 'bg-[#f6d5bd]/10' },
+  { key: 'midday', label: 'Midday', start: 12 * 60, end: 17 * 60, className: 'bg-[#b9e8e5]/08' },
+  { key: 'evening', label: 'Evening', start: 17 * 60, end: 21 * 60, className: 'bg-[#d8cdf3]/10' },
+  { key: 'night', label: 'Night', start: 21 * 60, end: 24 * 60, className: 'bg-[#c7d8f0]/09' },
+];
 
 function getTimePosition(timeStr: string): number {
   const minutes = parseHHMMToMinutes(timeStr);
@@ -165,6 +180,39 @@ function getDayProgressPercentFromMinutes(nowMinutes: number): number {
   if (nowMinutes < startMinutes) return 0;
   if (nowMinutes >= endMinutes) return 100;
   return ((nowMinutes - startMinutes) / TIMELINE_TOTAL_MINUTES) * 100;
+}
+
+function getTimePositionFromMinutes(minutes: number): number {
+  const startMinutes = TIMELINE_START_HOUR * 60;
+  const position = ((minutes - startMinutes) / TIMELINE_TOTAL_MINUTES) * 100;
+  return Math.max(0, Math.min(100, position));
+}
+
+function getTimelineSegmentBounds(startMinutes: number, endMinutes: number): { left: number; width: number } {
+  const left = getTimePositionFromMinutes(startMinutes);
+  const right = getTimePositionFromMinutes(endMinutes);
+  return { left, width: Math.max(0, right - left) };
+}
+
+function formatNowLabel(nowMinutes: number | null): string {
+  return nowMinutes === null ? 'NOW' : `NOW · ${formatShortTime(minutesToHHMM(nowMinutes)).toLowerCase()}`;
+}
+
+function normalizeSunLocation(raw: unknown): SunLocation | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const candidate = raw as { latitude?: unknown; longitude?: unknown; timeZone?: unknown };
+  if (typeof candidate.latitude !== 'number' || !Number.isFinite(candidate.latitude)) return null;
+  if (typeof candidate.longitude !== 'number' || !Number.isFinite(candidate.longitude)) return null;
+  if (candidate.latitude < -90 || candidate.latitude > 90) return null;
+  if (candidate.longitude < -180 || candidate.longitude > 180) return null;
+  const timeZone = typeof candidate.timeZone === 'string' && candidate.timeZone.trim()
+    ? candidate.timeZone
+    : Intl.DateTimeFormat().resolvedOptions().timeZone || DEFAULT_SUN_LOCATION.timeZone;
+  return {
+    latitude: candidate.latitude,
+    longitude: candidate.longitude,
+    timeZone,
+  };
 }
 
 function constraintKindIcon(kind: PlannerConstraintRuleKind) {
@@ -233,39 +281,41 @@ function RiverOverlayHoverCard({
   );
 }
 
-/** Shared NOW stack: glow + bright core; line stays vertically centered on the track, label sits above so it doesn’t collide with anchor titles. */
-/** z-[14]: below anchor orbs/labels (z-20) and range segments (z-[15]), above river overlays (z-[12]) + track. */
+/** Shared NOW stack: labeled vertical marker aligned to the center timeline. */
 function TimelineNowMarker({
   leftPercent,
   show,
   compact,
+  label,
 }: {
   leftPercent: number;
   show: boolean;
   compact?: boolean;
+  label?: string;
 }) {
   if (!show) return null;
-  /** Taller line reads over anchor orbs; mobile strip stays a bit shorter to reduce clipping. */
-  const lineH = compact ? 'h-14' : 'h-24';
-  const labelClass = compact ? 'text-[7px] mb-1' : 'text-[8px] mb-1.5';
+  /** Spine-first layout: slim mobile strip vs readable desktop needle. */
+  const lineH = compact ? 'h-14' : 'h-[6.125rem]';
+  const labelClass = compact ? 'text-[7px] mb-1' : 'text-[10px] mb-1.5 tabular-nums tracking-[0.12em]';
   return (
     <div
-      className="absolute top-1/2 z-[14] pointer-events-none -translate-x-1/2 -translate-y-1/2"
+      className="absolute top-1/2 z-[24] pointer-events-none -translate-x-1/2 -translate-y-1/2"
       style={{ left: `${leftPercent}%` }}
       role="img"
       aria-label="Current time"
     >
-      <div className={`relative flex w-5 shrink-0 items-center justify-center ${lineH}`}>
+      <div className={`relative flex w-[1.375rem] shrink-0 items-center justify-center ${lineH}`}>
         <span
-          className={`daily-anchors-now-label absolute bottom-full left-1/2 -translate-x-1/2 font-extrabold uppercase tracking-wider whitespace-nowrap ${labelClass}`}
+          className={`daily-anchors-now-label absolute bottom-full left-1/2 -translate-x-1/2 rounded-full border px-2.5 py-1 font-extrabold uppercase whitespace-nowrap backdrop-blur-md ${labelClass} border-[color-mix(in_srgb,var(--color-border-subtle)_70%,transparent)] bg-bg-elevated/92 text-[color-mix(in_srgb,var(--color-primary-dark)_88%,black_12%)] shadow-sm dark:border-white/38 dark:bg-black/[0.52] dark:text-[color-mix(in_srgb,#fefbff_93%,var(--color-accent-sakura)_7%)] dark:shadow-[0_0_20px_color-mix(in_srgb,var(--color-accent-sakura)_42%,transparent)]`}
         >
-          now
+          {label ?? 'NOW'}
         </span>
+        <div className="absolute inset-y-5 -inset-x-px rounded-full bg-[color-mix(in_srgb,white_72%,transparent)] blur-lg opacity-[0.45]" aria-hidden />
+        <div className={`daily-anchors-now-line relative z-[1] shrink-0 rounded-full ${lineH}`} />
         <div
-          className="absolute inset-y-0 -inset-x-1 rounded-full bg-primary/50 blur-md opacity-90"
+          className="absolute left-1/2 top-1/2 z-[2] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[3px] border border-white/80 bg-[linear-gradient(135deg,white_88%,color-mix(in_srgb,var(--accent-primary)_70%,transparent))] shadow-[0_0_0_6px_color-mix(in_srgb,var(--accent-primary)_28%,transparent),0_0_22px_color-mix(in_srgb,var(--accent-primary)_72%,transparent)]"
           aria-hidden
         />
-        <div className={`daily-anchors-now-line relative z-[1] w-[2px] shrink-0 rounded-full ${lineH}`} />
       </div>
     </div>
   );
@@ -297,14 +347,14 @@ function DesktopPlannerRiverOverlays({
             style={{ left: `${left}%` }}
           >
             <RiverOverlayHoverCard title={titleText} timeLabel={timeLine} inLabel={inLine}>
-              <div className="flex flex-col items-center">
+              <div className="daily-overview-river-tick flex flex-col items-center">
                 <div
-                  className="h-16 w-0 shrink-0 rounded-full border-l-2 border-dashed"
-                  style={{ borderColor: `color-mix(in srgb, ${accent} 62%, transparent)` }}
+                  className="h-14 w-0 shrink-0 rounded-full border-l border-dashed"
+                  style={{ borderColor: `color-mix(in srgb, ${accent} 44%, transparent)` }}
                   aria-hidden
                 />
                 <Icon
-                  className="relative -top-1.5 h-3 w-3 shrink-0 opacity-90"
+                  className="relative -top-1.5 h-3 w-3 shrink-0 opacity-[0.72]"
                   style={{ color: accent }}
                   strokeWidth={2}
                   aria-hidden
@@ -331,7 +381,7 @@ function DesktopPlannerRiverOverlays({
             style={{ left: `${left}%` }}
           >
             <RiverOverlayHoverCard title={subtitle} timeLabel={timeLine} inLabel={inLine}>
-              <Calendar className="h-5 w-5 opacity-90" strokeWidth={2.15} style={{ color: marker }} aria-hidden />
+              <Calendar className="h-5 w-5 opacity-[0.74]" strokeWidth={2} style={{ color: marker }} aria-hidden />
             </RiverOverlayHoverCard>
           </div>
         );
@@ -418,7 +468,7 @@ function MobileAnchorsTimelineStrip({
 
   return (
     <div
-      className="mb-3 rounded-2xl border border-border-subtle/60 bg-bg-surface/45 px-3 pt-2.5 pb-3"
+      className="daily-overview-mobile-timeline-shell mb-3 rounded-2xl border border-border-subtle/60 px-3 pt-2.5 pb-3"
       aria-label="Daily anchors timeline"
     >
       <div className="flex justify-between gap-1 mb-1.5 px-0.5">
@@ -440,12 +490,12 @@ function MobileAnchorsTimelineStrip({
         />
 
         {isPlannerLoaded && onAgainRhythm.segments.length > 0 && (
-          <div className="pointer-events-none absolute inset-0 z-[10] overflow-visible" aria-hidden>
+          <div className="daily-overview-oaoa-rhythm pointer-events-none absolute inset-0 z-[10] overflow-visible opacity-80" aria-hidden>
             {onAgainRhythm.segments.map((seg) => (
               <div
                 key={`oaoa-seg-mobile-${seg.id}`}
                 title={seg.label}
-                className={`absolute top-1/2 h-2.5 -translate-y-1/2 rounded-full border-2 ${
+                className={`absolute top-1/2 h-2 -translate-y-1/2 rounded-full border ${
                   seg.isActive ? 'z-[1] scale-[1.03]' : 'z-0'
                 }`}
                 style={{
@@ -638,6 +688,9 @@ export function DailyAnchorsTimeline({
 
   // Date navigation: default to today, allow browsing up to 7 days back
   const [viewDate, setViewDate] = useState<Date>(() => new Date());
+  const [sunLocation, setSunLocation] = useState<SunLocation>(DEFAULT_SUN_LOCATION);
+  const [isUsingLocalSun, setIsUsingLocalSun] = useState(false);
+  const [sunLocationStatus, setSunLocationStatus] = useState<string | null>(null);
   const isToday = useMemo(() => {
     const today = new Date();
     return toDateKey(viewDate) === toDateKey(today);
@@ -868,6 +921,45 @@ export function DailyAnchorsTimeline({
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(SUN_LOCATION_STORAGE_KEY);
+      if (!stored) return;
+      const normalized = normalizeSunLocation(JSON.parse(stored));
+      if (!normalized) return;
+      setSunLocation(normalized);
+      setIsUsingLocalSun(true);
+    } catch {
+      window.localStorage.removeItem(SUN_LOCATION_STORAGE_KEY);
+    }
+  }, []);
+
+  const handleUseCurrentSunLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setSunLocationStatus('Location is not available in this browser.');
+      return;
+    }
+
+    setSunLocationStatus('Requesting location...');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const nextLocation: SunLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || DEFAULT_SUN_LOCATION.timeZone,
+        };
+        setSunLocation(nextLocation);
+        setIsUsingLocalSun(true);
+        setSunLocationStatus('Using your local sun times.');
+        window.localStorage.setItem(SUN_LOCATION_STORAGE_KEY, JSON.stringify(nextLocation));
+      },
+      () => {
+        setSunLocationStatus('Location permission was not granted.');
+      },
+      { enableHighAccuracy: false, maximumAge: 86_400_000, timeout: 10_000 },
+    );
+  }, []);
+
   const handleDragStart = useCallback((anchorId: AnchorId, e: React.MouseEvent | React.TouchEvent) => {
     if (!isToday) return; // no drag-retime on past days
     e.preventDefault();
@@ -1007,16 +1099,25 @@ export function DailyAnchorsTimeline({
     return markers;
   }, []);
 
+  const sunTimeline = useMemo(() => getSunTimelineTimes(viewDate, sunLocation), [viewDate, sunLocation]);
+  const sunrisePercent = getTimePositionFromMinutes(sunTimeline.sunriseMinutes);
+  const sunsetPercent = getTimePositionFromMinutes(sunTimeline.sunsetMinutes);
+  const sunArcStartX = Math.round(sunrisePercent * 10);
+  const sunArcEndX = Math.round(sunsetPercent * 10);
+  const sunArcMidX = Math.round((sunArcStartX + sunArcEndX) / 2);
+  const sunArcPath = `M ${sunArcStartX} 128 C ${sunArcStartX + Math.max(60, (sunArcMidX - sunArcStartX) * 0.85)} 18, ${sunArcEndX - Math.max(60, (sunArcEndX - sunArcMidX) * 0.85)} 18, ${sunArcEndX} 128`;
+  const sunTimesLabel = `${formatShortTime(minutesToHHMM(sunTimeline.sunriseMinutes)).toLowerCase()}-${formatShortTime(minutesToHHMM(sunTimeline.sunsetMinutes)).toLowerCase()}`;
+
   if (!isLoaded) {
     return (
       <div className="daily-anchors-card mobile-anchors-plain relative overflow-hidden rounded-none lg:rounded-2xl">
         <div aria-hidden className="absolute inset-0 daily-anchors-nebula pointer-events-none" />
         <div className="relative z-10 p-0 lg:p-5">
-          <div className="hidden lg:flex items-center justify-between gap-3 mb-6">
+          <div className="hidden lg:flex items-center justify-between gap-3 mb-5">
             <div className="h-6 w-44 rounded-full bg-bg-surface/70 animate-pulse" />
             <div className="h-9 w-9 rounded-full bg-bg-surface/70 animate-pulse" />
           </div>
-          <div className="rounded-2xl border border-border-subtle/60 bg-bg-surface/45 px-3 py-4 lg:px-5 lg:py-8">
+          <div className="rounded-2xl border border-border-subtle/60 bg-bg-surface/45 px-3 py-4 lg:px-5 lg:py-[1.65rem]">
             <div className="flex justify-between gap-2">
               {hourMarkers.map(({ hour }) => (
                 <span key={hour} className="h-2 w-7 rounded-full bg-bg-elevated/70 animate-pulse" />
@@ -1041,7 +1142,7 @@ export function DailyAnchorsTimeline({
 
         <div className="relative p-0 lg:p-5 z-10">
           {/* Desktop header - side by side (mobile/tablet use card list) */}
-          <div className="hidden lg:flex items-center justify-between gap-3 mb-6">
+          <div className="hidden lg:flex items-center justify-between gap-3 mb-5">
             <div className="flex items-center gap-2 min-w-0">
               <h2 className="text-card font-display text-text tracking-wide truncate">Daily Overview</h2>
               <span
@@ -1119,6 +1220,31 @@ export function DailyAnchorsTimeline({
                 </div>
               )}
             </div>
+
+            <div className="flex min-w-0 items-center gap-2">
+              <div className="hidden xl:block min-w-0 text-right">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-text-muted/55">
+                  {isUsingLocalSun ? 'Local sun' : 'Boston sun'}
+                </div>
+                <div className="mt-0.5 text-[11px] font-medium text-text-muted/75 tabular-nums">
+                  {sunTimesLabel}
+                </div>
+                {sunLocationStatus && (
+                  <div className="mt-0.5 max-w-40 truncate text-[10px] text-text-muted/60">
+                    {sunLocationStatus}
+                  </div>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={handleUseCurrentSunLocation}
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-subtle/60 bg-bg-surface/70 text-text-muted transition-colors hover:border-[color-mix(in_srgb,var(--accent-primary)_42%,transparent)] hover:bg-bg-elevated/85 hover:text-text"
+                title="Use your current location for sunrise and sunset"
+                aria-label="Use your current location for sunrise and sunset"
+              >
+                <LocateFixed size={15} strokeWidth={2} />
+              </button>
+            </div>
           </div>
 
           {recentSkippedStreak >= 3 && !isSkipStreakNoticeAcknowledged && (
@@ -1176,44 +1302,83 @@ export function DailyAnchorsTimeline({
 
           <div className="hidden lg:block">
             <div className="relative" ref={timelineRef}>
-              <div className="flex justify-between mb-2 px-1">
+              <div className="daily-overview-hour-row flex justify-between mb-1.5 px-1">
                 {hourMarkers.map(({ hour, label }) => (
-                  <span key={hour} className="daily-anchors-hour-tick text-[9px] text-text-muted/40 font-medium tabular-nums">
+                  <span key={hour} className="daily-anchors-hour-tick text-[9px] text-text-muted/32 font-medium tabular-nums tracking-tight">
                     {label}
                   </span>
                 ))}
               </div>
 
-              <div className="relative h-20 py-2">
-              <div className="daily-anchors-track-base absolute top-1/2 left-0 right-0 h-1.5 -translate-y-1/2 rounded-full bg-gradient-to-r from-bg-surface/40 via-bg-surface/60 to-bg-surface/40 overflow-hidden">
-                {/* Subtle shimmer on track */}
-                <div className="desktop-track-shimmer absolute inset-0 pointer-events-none" aria-hidden />
+              <div className="daily-overview-timeline-strip relative h-[8rem] overflow-visible rounded-xl border border-border-subtle/22 px-0 py-2">
+              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl" aria-hidden>
+                {TIMELINE_DAY_ZONES.map((zone) => {
+                  const bounds = getTimelineSegmentBounds(zone.start, zone.end);
+                  return (
+                    <div
+                      key={zone.key}
+                      className={`daily-overview-zone absolute inset-y-0 ${zone.className}`}
+                      style={{ left: `${bounds.left}%`, width: `${bounds.width}%` }}
+                    />
+                  );
+                })}
+                <div className="daily-overview-strip-sheen pointer-events-none absolute inset-0" aria-hidden />
               </div>
 
+              <svg
+                className="daily-overview-sun-arc-svg pointer-events-none absolute left-6 right-6 top-[0.625rem] h-11 w-[calc(100%-3rem)] opacity-[0.38]"
+                viewBox="0 0 1000 160"
+                preserveAspectRatio="none"
+                aria-hidden
+              >
+                <path
+                  d={sunArcPath}
+                  fill="none"
+                  stroke="color-mix(in srgb, var(--accent-primary) 56%, #c98262 44%)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeDasharray="4 18"
+                />
+              </svg>
+
+              <div
+                className="daily-overview-sun-footnote pointer-events-none absolute top-[4.125rem] z-[8] -translate-x-1/2 text-[9px] font-semibold uppercase tracking-[0.12em] text-text-muted/45 tabular-nums"
+                style={{ left: `${sunrisePercent}%` }}
+                aria-hidden
+              >
+                {formatShortTime(minutesToHHMM(sunTimeline.sunriseMinutes)).toLowerCase()}
+              </div>
+              <div
+                className="daily-overview-sun-footnote pointer-events-none absolute top-[4.125rem] z-[8] -translate-x-1/2 text-[9px] font-semibold uppercase tracking-[0.12em] text-text-muted/45 tabular-nums"
+                style={{ left: `${sunsetPercent}%` }}
+                aria-hidden
+              >
+                {formatShortTime(minutesToHHMM(sunTimeline.sunsetMinutes)).toLowerCase()}
+              </div>
+
+              <div className="daily-anchors-track-base absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 overflow-hidden rounded-full" />
+
               <motion.div
-                className="daily-anchors-track-progress absolute top-1/2 left-0 h-1.5 -translate-y-1/2 rounded-full bg-gradient-to-r from-secondary via-primary to-accent-teal"
+                className="daily-anchors-track-progress absolute top-1/2 left-0 h-[3px] -translate-y-1/2 rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: `${dayProgressPercent}%` }}
                 transition={{ duration: 0.45, ease: 'easeOut' }}
               />
 
               {isPlannerLoaded && onAgainRhythm.segments.length > 0 && (
-                <div
-                  className="pointer-events-none absolute inset-0 z-[10] overflow-visible"
-                  aria-hidden
-                >
+                <div className="daily-overview-oaoa-rhythm pointer-events-none absolute inset-0 z-[10] overflow-visible opacity-[0.74]" aria-hidden>
                   {onAgainRhythm.segments.map((seg) => (
                     <div
                       key={`oaoa-seg-${seg.id}`}
                       title={seg.label}
-                      className={`absolute top-1/2 h-3 -translate-y-1/2 rounded-full border-2 ${
-                        seg.isActive ? 'z-[1] scale-[1.03]' : 'z-0'
+                      className={`absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full border ${
+                        seg.isActive ? 'z-[1] scale-[1.02]' : 'z-0'
                       }`}
                       style={{
                         ...oaoaRhythmSegmentStyle(seg.kind, seg.isActive),
                         left: `${seg.left}%`,
                         width: `${Math.max(seg.width, 0.35)}%`,
-                        minWidth: seg.isActive ? 12 : 8,
+                        minWidth: seg.isActive ? 8 : 5,
                       }}
                     />
                   ))}
@@ -1222,14 +1387,14 @@ export function DailyAnchorsTimeline({
                     return (
                       <div
                         key={gap.id}
-                        className="absolute top-1/2 z-[2] flex h-11 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+                        className="absolute top-1/2 z-[2] flex h-8 w-5 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
                         style={{ left: `${gap.left}%` }}
                       >
                         <div
-                          className="h-full w-[5px] rounded-full border-2 border-bg-elevated/90"
+                          className="h-full w-[2px] rounded-full bg-transparent"
                           style={{
-                            background: `linear-gradient(180deg, transparent 0%, ${c} 22%, ${c} 78%, transparent 100%)`,
-                            boxShadow: `0 0 14px color-mix(in srgb, ${c} 55%, transparent), inset 0 0 0 1px color-mix(in srgb, ${c} 40%, transparent)`,
+                            background: `linear-gradient(180deg, transparent 0%, ${c} 20%, ${c} 80%, transparent 100%)`,
+                            boxShadow: `0 0 10px color-mix(in srgb, ${c} 40%, transparent)`,
                           }}
                         />
                       </div>
@@ -1261,6 +1426,7 @@ export function DailyAnchorsTimeline({
                 const isRange = Boolean(anchor.endTime && parseHHMMToMinutes(anchor.endTime) > parseHHMMToMinutes(anchor.scheduledTime));
                 const isInProgress = isRangeAnchorInProgress(anchor, nowMinutes, isToday);
                 const isVisuallyMissed = isMissed && !isInProgress;
+                const isCurrentVisual = isActive || isInProgress;
 
                 const displayTime = isDragging && dragPreviewTime ? dragPreviewTime : anchor.scheduledTime;
                 const position = getTimePosition(displayTime);
@@ -1268,6 +1434,7 @@ export function DailyAnchorsTimeline({
                 const timeUntil = getTimeUntil(anchor.scheduledTime, nowMinutes);
                 const inLabel = timeUntil.startsWith('in ') ? timeUntil.slice(3) : timeUntil;
                 const isLightsOutAnchor = anchor.id === 'lightsOut' || anchor.icon === 'moon';
+                const isTimeMoved = Boolean(anchor.isTimeOverridden);
                 const nextScheduledAnchor = visibleSortedAnchors[index + 1];
                 const timeToNextEventLabel = nextScheduledAnchor
                   ? formatDuration(getMinutesBetweenEvents(anchor.scheduledTime, nextScheduledAnchor.scheduledTime))
@@ -1285,7 +1452,7 @@ export function DailyAnchorsTimeline({
                     : isSkipped
                       ? 'is-skipped'
                     : isActive || isInProgress
-                      ? 'is-active'
+                    ? 'is-active'
                       : 'is-future';
 
                 if (isRange && endPosition != null && endPosition > position) {
@@ -1295,17 +1462,22 @@ export function DailyAnchorsTimeline({
                   const segmentRight = displayEndTime ? getTimePosition(displayEndTime) : endPosition;
                   const segmentWidth = segmentRight - segmentLeft;
                   const orbBaseClass = `
-                    daily-anchors-dot w-12 h-12 rounded-2xl flex items-center justify-center
-                    border-2 shadow-md overflow-hidden transition-all duration-300
-                    backdrop-blur-sm
+                    editorial-anchor-node w-7 h-7 rounded-full flex items-center justify-center
+                    border shadow-sm overflow-hidden transition-all duration-300
+                    backdrop-blur-md
                     ${isDone
-                      ? 'bg-secondary/90 text-white border-secondary/50'
+                      ? 'bg-secondary/85 text-white border-secondary/55'
                       : isVisuallyMissed
                         ? 'bg-bg-surface/45 text-text-muted/40 border-border-subtle/50'
                         : isSkipped
-                          ? 'bg-bg-surface/35 text-text-muted/45 border-border-subtle/45 grayscale'
-                          : `bg-gradient-to-br ${gradientByIcon(anchor.icon)} border-border-subtle/80 text-text-muted`
+                          ? 'bg-bg-surface/35 text-text-muted/45 border-dashed border-border-subtle/55 grayscale'
+                          : isLightsOutAnchor
+                            ? 'bg-[#d8cdf3]/70 text-[#706193] border-[#b9aadf]/70'
+                            : isCurrentVisual
+                              ? 'bg-bg-elevated/85 text-[color-mix(in_srgb,var(--accent-primary)_82%,var(--color-text-primary)_18%)] border-[color-mix(in_srgb,var(--accent-primary)_72%,transparent)]'
+                              : 'bg-bg-elevated/70 text-text-muted border-border-subtle/70'
                     }
+                    ${isTimeMoved ? 'border-dashed' : ''}
                     ${stateClass}
                   `;
                   return (
@@ -1365,15 +1537,17 @@ export function DailyAnchorsTimeline({
                       {/* Bar background */}
                       <div
                         className={`
-                          absolute inset-0 rounded-full border-2
+                          absolute inset-y-[13px] rounded-full border
                           ${isDragging ? 'ring-2 ring-accent-teal/35 shadow-lg' : ''}
                           ${isDone
                             ? 'bg-secondary/20 border-secondary/40'
                             : isVisuallyMissed
                               ? 'bg-bg-surface/30 border-border-subtle/40'
-                              : isSkipped
-                                ? 'bg-bg-surface/25 border-border-subtle/40'
-                                : `bg-gradient-to-r ${getRiverFlowGradient(anchor.icon).from} ${getRiverFlowGradient(anchor.icon).to} border-primary/25 opacity-60`
+                            : isSkipped
+                              ? 'bg-bg-surface/25 border-border-subtle/40'
+                                : isCurrentVisual
+                                  ? 'bg-[color-mix(in_srgb,var(--accent-primary)_16%,transparent)] border-[color-mix(in_srgb,var(--accent-primary)_34%,transparent)]'
+                                  : 'bg-bg-elevated/30 border-border-subtle/40'
                           }
                         `}
                       />
@@ -1390,10 +1564,10 @@ export function DailyAnchorsTimeline({
                         disabled={!isLoaded || isDragging}
                         title={isSkipped ? 'Right-click to undo skip' : 'Right-click to skip today'}
                         className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 ${orbBaseClass}
-                          opacity-85 hover:opacity-100
+                          opacity-95 hover:opacity-100
                           hover:scale-105 active:scale-95
                           disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
-                          ${!isDone && !isVisuallyMissed && !isSkipped ? 'border-primary/30 text-text backdrop-blur-sm' : ''}
+                          ${!isDone && !isVisuallyMissed && !isSkipped ? 'backdrop-blur-sm' : ''}
                           ${isDragging ? 'scale-110 shadow-xl ring-2 ring-accent-teal/35' : ''}
                         `}
                         style={
@@ -1406,7 +1580,7 @@ export function DailyAnchorsTimeline({
                           <div className={`absolute inset-0 bg-gradient-to-br ${getRiverFlowGradient(anchor.icon).from} ${getRiverFlowGradient(anchor.icon).to} opacity-30`} aria-hidden />
                         )}
                         <span className="relative z-10">
-                          {isDone ? <Check size={20} strokeWidth={2.5} /> : <Icon size={20} strokeWidth={1.7} />}
+                          {isDone ? <Check size={14} strokeWidth={2.6} /> : <Icon size={14} strokeWidth={1.8} />}
                         </span>
                       </button>
                       <div
@@ -1417,12 +1591,17 @@ export function DailyAnchorsTimeline({
                           <div className={`absolute inset-0 bg-gradient-to-br ${getRiverFlowGradient(anchor.icon).from} ${getRiverFlowGradient(anchor.icon).to} opacity-30`} aria-hidden />
                         )}
                         <span className="relative z-10">
-                          <Icon size={20} strokeWidth={1.7} />
+                          <Icon size={14} strokeWidth={1.8} />
                         </span>
                       </div>
-                      <span className={`absolute left-1/2 -translate-x-1/2 top-full mt-1.5 text-[10px] font-semibold whitespace-nowrap ${isActive || isInProgress ? 'text-text' : 'text-text-muted/70'}`}>
-                        {anchor.label}
-                      </span>
+                      <div className="absolute left-1/2 top-full mt-4 -translate-x-1/2 text-center">
+                        <div className={`whitespace-nowrap text-[13px] font-semibold leading-tight ${isCurrentVisual ? 'text-text' : 'text-text/80'}`}>
+                          {anchor.label}
+                        </div>
+                        <div className="mt-0.5 whitespace-nowrap text-[10px] font-medium text-text-muted/65 tabular-nums">
+                          {formatShortTime(displayTime).toLowerCase()}
+                        </div>
+                      </div>
                     </div>
                   );
                 }
@@ -1505,21 +1684,24 @@ export function DailyAnchorsTimeline({
                         disabled={!isLoaded || isDragging}
                         title={isSkipped ? 'Right-click to undo skip' : 'Right-click to skip today'}
                         className={`
-                          daily-anchors-dot desktop-anchor-node group/node relative w-12 h-12 rounded-2xl flex items-center justify-center
-                          transition-all duration-300 shadow-md overflow-hidden
+                          editorial-anchor-node group/node relative flex h-8 w-8 items-center justify-center
+                          transition-all duration-300 overflow-hidden
                           ${
                             isDone
-                              ? 'bg-gradient-to-br from-secondary to-secondary/80 text-white border-2 border-secondary/50'
+                              ? 'rounded-full border bg-secondary/85 text-white border-secondary/55 shadow-sm'
                               : isMissed
-                                ? 'bg-bg-surface/50 text-text-muted/40 border-2 border-border-subtle/50'
+                                ? 'rounded-full border bg-bg-surface/50 text-text-muted/40 border-border-subtle/50'
                                 : isSkipped
-                                  ? 'bg-bg-surface/40 text-text-muted/45 border-2 border-border-subtle/45 grayscale'
-                                : isActive
-                                  ? `bg-gradient-to-br ${gradientByIcon(anchor.icon)} border-2 border-primary/30 text-text`
-                                  : `bg-gradient-to-br ${gradientByIcon(anchor.icon)} border-2 border-border-subtle text-text-muted`
+                                  ? 'rounded-full border border-dashed bg-bg-surface/40 text-text-muted/45 border-border-subtle/55 grayscale'
+                                  : isLightsOutAnchor
+                                    ? 'rounded-full border bg-[#d8cdf3]/70 text-[#706193] border-[#b9aadf]/70 shadow-sm'
+                                    : isCurrentVisual
+                                      ? 'rotate-45 rounded-[7px] border bg-bg-elevated/85 text-[color-mix(in_srgb,var(--accent-primary)_82%,var(--color-text-primary)_18%)] border-[color-mix(in_srgb,var(--accent-primary)_72%,transparent)] shadow-[0_0_0_5px_color-mix(in_srgb,var(--accent-primary)_10%,transparent)]'
+                                      : 'rounded-full border bg-bg-elevated/70 text-text-muted border-border-subtle/70 shadow-sm'
                           }
+                          ${isTimeMoved ? 'border-dashed' : ''}
                           ${stateClass}
-                          ${isActive && !isDone && !isMissed && !isSkipped ? 'ring-2 ring-accent-teal/25 animate-pulse-subtle' : ''}
+                          ${isCurrentVisual && !isDone && !isMissed && !isSkipped ? 'ring-0' : ''}
                           hover:scale-105 active:scale-95
                           ${!isLoaded ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                           ${isDragging ? 'is-dragging scale-110 shadow-xl ring-2 ring-accent-teal/35' : ''}
@@ -1531,7 +1713,7 @@ export function DailyAnchorsTimeline({
                         }
                       >
                         {/* Subtle gradient overlay */}
-                        {!isDone && !isMissed && !isSkipped && (
+                        {!isDone && !isMissed && !isSkipped && !isCurrentVisual && (
                           <div
                             className={`absolute inset-0 bg-gradient-to-br ${getRiverFlowGradient(anchor.icon).from} ${getRiverFlowGradient(anchor.icon).to} opacity-40 transition-opacity duration-300 group-hover/node:opacity-70`}
                             aria-hidden
@@ -1552,22 +1734,31 @@ export function DailyAnchorsTimeline({
                               animate={{ scale: 1, rotate: 0 }}
                               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
                             >
-                              <Check size={20} strokeWidth={2.5} />
+                              <Check size={15} strokeWidth={2.6} />
                             </motion.div>
                           ) : (
-                            <Icon size={20} strokeWidth={1.7} className={isActive ? 'text-text' : ''} />
+                            <Icon
+                              size={15}
+                              strokeWidth={1.8}
+                              className={`${isCurrentVisual ? '-rotate-45' : ''} ${isActive ? 'text-current' : ''}`}
+                            />
                           )}
                         </span>
                       </button>
-                      <span className={`absolute -bottom-5 text-[10px] font-semibold whitespace-nowrap ${isActive ? 'text-text' : 'text-text-muted/70'}`}>
-                        {anchor.label}
-                      </span>
+                      <div className="absolute top-full mt-5 text-center">
+                        <div className={`whitespace-nowrap text-[13px] font-semibold leading-tight ${isCurrentVisual ? 'text-text' : 'text-text/80'}`}>
+                          {anchor.label}
+                        </div>
+                        <div className="mt-0.5 whitespace-nowrap text-[10px] font-medium text-text-muted/65 tabular-nums">
+                          {formatShortTime(displayTime).toLowerCase()}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 );
               })}
 
-              <TimelineNowMarker leftPercent={dayProgressPercent} show={showNowMarker} />
+              <TimelineNowMarker leftPercent={dayProgressPercent} show={showNowMarker} label={formatNowLabel(nowMinutes)} />
               </div>
             </div>
           </div>

@@ -1,8 +1,25 @@
 const BOSTON_LATITUDE = 42.3601;
 const BOSTON_LONGITUDE = -71.0589;
+const BOSTON_TIME_ZONE = "America/New_York";
 const ZENITH_DEGREES = 90.833; // Official sunrise/sunset
 
 type SunEvent = "sunrise" | "sunset";
+
+export interface SunLocation {
+  latitude: number;
+  longitude: number;
+  timeZone: string;
+}
+
+export interface SunTimes {
+  sunrise: Date;
+  sunset: Date;
+}
+
+export interface SunTimelineTimes extends SunTimes {
+  sunriseMinutes: number;
+  sunsetMinutes: number;
+}
 
 interface DateParts {
   year: number;
@@ -37,9 +54,9 @@ function shiftDate(parts: DateParts, days: number): DateParts {
   };
 }
 
-function getBostonDateParts(date: Date): DateParts {
+function getZonedDateParts(date: Date, timeZone: string): DateParts {
   const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
+    timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -58,9 +75,26 @@ function getBostonDateParts(date: Date): DateParts {
   };
 }
 
-function calculateSunEventUtc(parts: DateParts, event: SunEvent): Date {
+function getZonedMinutes(date: Date, timeZone: string): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+
+  const values = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, Number.parseInt(part.value, 10)]),
+  ) as Record<string, number>;
+
+  return values.hour * 60 + values.minute;
+}
+
+function calculateSunEventUtc(parts: DateParts, event: SunEvent, location: SunLocation): Date {
   const dayNumber = dayOfYear(parts);
-  const lngHour = BOSTON_LONGITUDE / 15;
+  const lngHour = location.longitude / 15;
   const timeGuess =
     dayNumber + (event === "sunrise" ? (6 - lngHour) / 24 : (18 - lngHour) / 24);
 
@@ -85,8 +119,8 @@ function calculateSunEventUtc(parts: DateParts, event: SunEvent): Date {
 
   const cosLocalHourAngle =
     (Math.cos(toRadians(ZENITH_DEGREES)) -
-      sinDeclination * Math.sin(toRadians(BOSTON_LATITUDE))) /
-    (cosDeclination * Math.cos(toRadians(BOSTON_LATITUDE)));
+      sinDeclination * Math.sin(toRadians(location.latitude))) /
+    (cosDeclination * Math.cos(toRadians(location.latitude)));
 
   if (cosLocalHourAngle > 1 || cosLocalHourAngle < -1) {
     return new Date(Date.UTC(parts.year, parts.month - 1, parts.day, event === "sunrise" ? 6 : 18));
@@ -111,25 +145,47 @@ function calculateSunEventUtc(parts: DateParts, event: SunEvent): Date {
   );
 }
 
-function getSunTimes(date: Date): { sunrise: Date; sunset: Date } {
-  const parts = getBostonDateParts(date);
+export function getSunTimesForLocation(date: Date, location: SunLocation): SunTimes {
+  const parts = getZonedDateParts(date, location.timeZone);
 
   return {
-    sunrise: calculateSunEventUtc(parts, "sunrise"),
-    sunset: calculateSunEventUtc(parts, "sunset"),
+    sunrise: calculateSunEventUtc(parts, "sunrise", location),
+    sunset: calculateSunEventUtc(parts, "sunset", location),
   };
 }
 
+export function getSunTimelineTimes(date: Date, location: SunLocation): SunTimelineTimes {
+  const times = getSunTimesForLocation(date, location);
+  return {
+    ...times,
+    sunriseMinutes: getZonedMinutes(times.sunrise, location.timeZone),
+    sunsetMinutes: getZonedMinutes(times.sunset, location.timeZone),
+  };
+}
+
+function getBostonSunTimes(date: Date): SunTimes {
+  return getSunTimesForLocation(date, {
+    latitude: BOSTON_LATITUDE,
+    longitude: BOSTON_LONGITUDE,
+    timeZone: BOSTON_TIME_ZONE,
+  });
+}
+
 export function isBostonDaylight(date: Date = new Date()): boolean {
-  const { sunrise, sunset } = getSunTimes(date);
+  const { sunrise, sunset } = getBostonSunTimes(date);
   const timestamp = date.getTime();
 
   return timestamp >= sunrise.getTime() && timestamp < sunset.getTime();
 }
 
 export function getNextBostonDaylightTransition(date: Date = new Date()): Date {
-  const parts = getBostonDateParts(date);
-  const { sunrise, sunset } = getSunTimes(date);
+  const bostonLocation = {
+    latitude: BOSTON_LATITUDE,
+    longitude: BOSTON_LONGITUDE,
+    timeZone: BOSTON_TIME_ZONE,
+  };
+  const parts = getZonedDateParts(date, bostonLocation.timeZone);
+  const { sunrise, sunset } = getBostonSunTimes(date);
   const timestamp = date.getTime();
 
   if (timestamp < sunrise.getTime()) {
@@ -141,5 +197,5 @@ export function getNextBostonDaylightTransition(date: Date = new Date()): Date {
   }
 
   const tomorrow = shiftDate(parts, 1);
-  return calculateSunEventUtc(tomorrow, "sunrise");
+  return calculateSunEventUtc(tomorrow, "sunrise", bostonLocation);
 }
