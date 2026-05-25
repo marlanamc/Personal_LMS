@@ -26,9 +26,9 @@ function formatTriggerTime(time: string | undefined): string | null {
   return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(date);
 }
 
-function subtaskDueLabel(bullet: ThoughtBullet): string {
+function subtaskDueLabel(bullet: ThoughtBullet): string | null {
   if (bullet.lane === 'done' || bullet.completedAt) return 'Done';
-  return formatTriggerTime(bullet.triggerTime) ?? (bullet.lane === 'later' ? 'Later' : 'Today');
+  return formatTriggerTime(bullet.triggerTime) ?? (bullet.lane === 'later' ? 'Later' : null);
 }
 
 export function TaskSubtasks({
@@ -164,9 +164,11 @@ export function TaskSubtasks({
                     </span>
                   )}
 
-                  <span className={`organize-subtask-due ${subtask.done ? 'is-done' : ''}`}>
-                    {subtask.done ? 'Done' : dueLabel}
-                  </span>
+                  {(subtask.done || dueLabel) ? (
+                    <span className={`organize-subtask-due ${subtask.done ? 'is-done' : ''}`}>
+                      {subtask.done ? 'Done' : dueLabel}
+                    </span>
+                  ) : null}
 
                   {editable && onUpdate ? (
                     <button
