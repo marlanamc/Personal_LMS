@@ -14266,11 +14266,6 @@ kbd {
   color: color-mix(in srgb, var(--color-text-secondary) 74%, rgb(116 134 148) 26%) !important;
 }
 
-:where(:root[data-theme="light"], :root.light) .daily-overview-sun-footnote {
-  color: color-mix(in srgb, var(--color-text-muted) 94%, rgb(118 158 154) 6%) !important;
-  opacity: 0.9;
-}
-
 :where(:root[data-theme="dark"], :root.dark, :root:not([data-theme="light"]):not(.light))
   .daily-overview-mobile-timeline-shell {
   background: color-mix(in srgb, var(--color-bg-surface) 44%, rgb(22 62 148) 56%);

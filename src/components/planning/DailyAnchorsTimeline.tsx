@@ -121,6 +121,30 @@ export function DailyAnchorsTimeline({
     [sortedAnchors],
   );
 
+  /** Two-tier label layout: anchors too close together drop their label (and orb) to a lower row instead of overlapping. */
+  const anchorLabelTiers = useMemo(() => {
+    const MIN_LABEL_GAP_PERCENT = 5.5;
+    const entries = visibleSortedAnchors
+      .map((anchor) => {
+        const start = getTimePosition(anchor.scheduledTime);
+        const hasRange = Boolean(anchor.endTime && parseHHMMToMinutes(anchor.endTime) > parseHHMMToMinutes(anchor.scheduledTime));
+        const center = hasRange && anchor.endTime ? (start + getTimePosition(anchor.endTime)) / 2 : start;
+        return { id: anchor.id, center };
+      })
+      .sort((a, b) => a.center - b.center);
+    const tiers = new Map<AnchorId, 0 | 1>();
+    let lastTier0Center = -Infinity;
+    for (const entry of entries) {
+      if (entry.center - lastTier0Center >= MIN_LABEL_GAP_PERCENT) {
+        tiers.set(entry.id, 0);
+        lastTier0Center = entry.center;
+      } else {
+        tiers.set(entry.id, 1);
+      }
+    }
+    return tiers;
+  }, [visibleSortedAnchors]);
+
   /** Matches DailyOverviewList: anchors (done) + events/boundaries (acknowledged). */
   const overviewProgress = useMemo(() => {
     const ack = todayPlan?.acknowledgements ?? {
@@ -661,7 +685,7 @@ export function DailyAnchorsTimeline({
                 ))}
               </div>
 
-              <div className="daily-overview-timeline-strip relative h-[8rem] overflow-visible rounded-xl border border-border-subtle/22 px-0 py-2">
+              <div className="daily-overview-timeline-strip relative h-[9rem] overflow-visible rounded-xl border border-border-subtle/22 px-0 py-2">
               <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl" aria-hidden>
                 {TIMELINE_DAY_ZONES.map((zone) => {
                   const bounds = getTimelineSegmentBounds(zone.start, zone.end);
@@ -691,21 +715,6 @@ export function DailyAnchorsTimeline({
                   strokeDasharray="4 18"
                 />
               </svg>
-
-              <div
-                className="daily-overview-sun-footnote pointer-events-none absolute top-[4.125rem] z-[8] -translate-x-1/2 text-[9px] font-semibold uppercase tracking-[0.12em] text-text-muted/45 tabular-nums"
-                style={{ left: `${sunrisePercent}%` }}
-                aria-hidden
-              >
-                {formatShortTime(minutesToHHMM(sunTimeline.sunriseMinutes)).toLowerCase()}
-              </div>
-              <div
-                className="daily-overview-sun-footnote pointer-events-none absolute top-[4.125rem] z-[8] -translate-x-1/2 text-[9px] font-semibold uppercase tracking-[0.12em] text-text-muted/45 tabular-nums"
-                style={{ left: `${sunsetPercent}%` }}
-                aria-hidden
-              >
-                {formatShortTime(minutesToHHMM(sunTimeline.sunsetMinutes)).toLowerCase()}
-              </div>
 
               <div className="daily-anchors-track-base absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 overflow-hidden rounded-full" />
 
@@ -786,6 +795,7 @@ export function DailyAnchorsTimeline({
                 const inLabel = timeUntil.startsWith('in ') ? timeUntil.slice(3) : timeUntil;
                 const isLightsOutAnchor = anchor.id === 'lightsOut' || anchor.icon === 'moon';
                 const isTimeMoved = Boolean(anchor.isTimeOverridden);
+                const labelTier = anchorLabelTiers.get(anchor.id) ?? 0;
                 const nextScheduledAnchor = visibleSortedAnchors[index + 1];
                 const timeToNextEventLabel = nextScheduledAnchor
                   ? formatDuration(getMinutesBetweenEvents(anchor.scheduledTime, nextScheduledAnchor.scheduledTime))
@@ -874,7 +884,7 @@ export function DailyAnchorsTimeline({
                           bg-bg-elevated/90 px-1.5 py-1
                           cursor-grab active:cursor-grabbing backdrop-blur-sm
                           text-text-muted/55 shadow-sm transition-all
-                          ${isHovered ? 'opacity-100 scale-100 -translate-y-0.5' : 'opacity-80 scale-100'}
+                          ${isHovered || isDragging ? 'opacity-100 scale-100 -translate-y-0.5' : 'opacity-0 scale-90'}
                           hover:opacity-100 hover:text-text hover:border-accent-teal/40
                         `}
                         onMouseDown={(e) => handleDragStart(anchor.id, e)}
@@ -945,7 +955,8 @@ export function DailyAnchorsTimeline({
                           <Icon size={14} strokeWidth={1.8} />
                         </span>
                       </div>
-                      <div className="absolute left-1/2 top-full mt-4 -translate-x-1/2 text-center">
+                      <div className={`absolute left-1/2 top-full -translate-x-1/2 text-center ${labelTier === 1 ? 'mt-[2rem]' : 'mt-4'}`}>
+                        {labelTier === 1 && <div className="mx-auto mb-1 h-2.5 w-px bg-border-subtle/70" aria-hidden />}
                         <div className={`whitespace-nowrap text-[13px] font-semibold leading-tight ${isCurrentVisual ? 'text-text' : 'text-text/80'}`}>
                           {anchor.label}
                         </div>
@@ -960,8 +971,12 @@ export function DailyAnchorsTimeline({
                 return (
                   <div
                     key={anchor.id}
-                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20"
-                    style={{ left: `${position}%`, transition: isDragging ? 'none' : 'left 300ms ease' }}
+                    className="absolute -translate-y-1/2 -translate-x-1/2 z-20"
+                    style={{
+                      left: `${position}%`,
+                      top: labelTier === 1 ? 'calc(50% + 12px)' : '50%',
+                      transition: isDragging ? 'none' : 'left 300ms ease, top 300ms ease',
+                    }}
                     onMouseEnter={() => setHoveredAnchor(anchor.id)}
                     onMouseLeave={() => setHoveredAnchor(null)}
                   >
@@ -1012,7 +1027,7 @@ export function DailyAnchorsTimeline({
                           absolute -top-7 z-10 rounded-xl border border-border-subtle/50 bg-bg-elevated/90 px-1.5 py-1
                           cursor-grab active:cursor-grabbing backdrop-blur-sm
                           text-text-muted/55 shadow-sm transition-all
-                          ${isHovered ? 'opacity-100 scale-100 -translate-y-0.5' : 'opacity-80 scale-100'}
+                          ${isHovered || isDragging ? 'opacity-100 scale-100 -translate-y-0.5' : 'opacity-0 scale-90'}
                           hover:opacity-100 hover:text-text hover:border-accent-teal/40
                         `}
                         onMouseDown={(e) => handleDragStart(anchor.id, e)}
@@ -1096,7 +1111,7 @@ export function DailyAnchorsTimeline({
                           )}
                         </span>
                       </button>
-                      <div className="absolute top-full mt-5 text-center">
+                      <div className={`absolute top-full text-center ${labelTier === 1 ? 'mt-6' : 'mt-5'}`}>
                         <div className={`whitespace-nowrap text-[13px] font-semibold leading-tight ${isCurrentVisual ? 'text-text' : 'text-text/80'}`}>
                           {anchor.label}
                         </div>
