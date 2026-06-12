@@ -14131,6 +14131,10 @@ kbd {
 }
 
 /* Daily Overview desktop spine — toned canvas, stronger elapsed + NOW instrumentation */
+.daily-overview-timeline-strip .daily-overview-timeline-labels {
+  border-top: 1px solid color-mix(in srgb, var(--color-border-subtle) 20%, transparent);
+}
+
 .daily-overview-timeline-strip .daily-anchors-track-base {
   background: linear-gradient(
     90deg,

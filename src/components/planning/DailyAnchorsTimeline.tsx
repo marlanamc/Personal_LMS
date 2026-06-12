@@ -121,29 +121,48 @@ export function DailyAnchorsTimeline({
     [sortedAnchors],
   );
 
-  /** Two-tier label layout: anchors too close together drop their label (and orb) to a lower row instead of overlapping. */
-  const anchorLabelTiers = useMemo(() => {
-    const MIN_LABEL_GAP_PERCENT = 5.5;
+  /** Stagger labels below the track when they would overlap; always anchor at start time (not range midpoint). */
+  const { anchorLabelTiers, maxLabelTier } = useMemo(() => {
+    const LABEL_GAP_PERCENT = 1.2;
+    const rowIntervals: { left: number; right: number }[][] = [];
+    const tiers = new Map<AnchorId, number>();
+    const estimateHalfWidth = (label: string) => Math.max(3.8, label.length * 0.52 + 1.4);
+
     const entries = visibleSortedAnchors
-      .map((anchor) => {
-        const start = getTimePosition(anchor.scheduledTime);
-        const hasRange = Boolean(anchor.endTime && parseHHMMToMinutes(anchor.endTime) > parseHHMMToMinutes(anchor.scheduledTime));
-        const center = hasRange && anchor.endTime ? (start + getTimePosition(anchor.endTime)) / 2 : start;
-        return { id: anchor.id, center };
-      })
+      .map((anchor) => ({
+        id: anchor.id,
+        center: getTimePosition(anchor.scheduledTime),
+        halfWidth: estimateHalfWidth(anchor.label),
+      }))
       .sort((a, b) => a.center - b.center);
-    const tiers = new Map<AnchorId, 0 | 1>();
-    let lastTier0Center = -Infinity;
+
+    let maxTier = 0;
     for (const entry of entries) {
-      if (entry.center - lastTier0Center >= MIN_LABEL_GAP_PERCENT) {
-        tiers.set(entry.id, 0);
-        lastTier0Center = entry.center;
-      } else {
-        tiers.set(entry.id, 1);
+      const left = entry.center - entry.halfWidth;
+      const right = entry.center + entry.halfWidth;
+      let tier = 0;
+      for (;;) {
+        const intervals = rowIntervals[tier] ?? [];
+        const overlaps = intervals.some(
+          (interval) => !(right + LABEL_GAP_PERCENT < interval.left || left - LABEL_GAP_PERCENT > interval.right),
+        );
+        if (!overlaps) {
+          if (!rowIntervals[tier]) rowIntervals[tier] = [];
+          rowIntervals[tier].push({ left, right });
+          tiers.set(entry.id, tier);
+          maxTier = Math.max(maxTier, tier);
+          break;
+        }
+        tier += 1;
       }
     }
-    return tiers;
+    return { anchorLabelTiers: tiers, maxLabelTier: maxTier };
   }, [visibleSortedAnchors]);
+
+  const TIMELINE_TRACK_HEIGHT_REM = 3.75;
+  const TIMELINE_LABEL_ROW_HEIGHT_REM = 1.75;
+  const timelineLabelZoneHeightRem = (maxLabelTier + 1) * TIMELINE_LABEL_ROW_HEIGHT_REM;
+  const timelineStripHeightRem = TIMELINE_TRACK_HEIGHT_REM + timelineLabelZoneHeightRem + 1.25;
 
   /** Matches DailyOverviewList: anchors (done) + events/boundaries (acknowledged). */
   const overviewProgress = useMemo(() => {
@@ -685,7 +704,10 @@ export function DailyAnchorsTimeline({
                 ))}
               </div>
 
-              <div className="daily-overview-timeline-strip relative h-[9rem] overflow-visible rounded-xl border border-border-subtle/22 px-0 py-2">
+              <div
+                className="daily-overview-timeline-strip relative flex flex-col overflow-visible rounded-xl border border-border-subtle/22 px-0 pt-2 pb-3"
+                style={{ height: `${timelineStripHeightRem}rem` }}
+              >
               <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl" aria-hidden>
                 {TIMELINE_DAY_ZONES.map((zone) => {
                   const bounds = getTimelineSegmentBounds(zone.start, zone.end);
@@ -716,6 +738,10 @@ export function DailyAnchorsTimeline({
                 />
               </svg>
 
+              <div
+                className="daily-overview-timeline-track relative shrink-0"
+                style={{ height: `${TIMELINE_TRACK_HEIGHT_REM}rem` }}
+              >
               <div className="daily-anchors-track-base absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 overflow-hidden rounded-full" />
 
               <motion.div
@@ -795,7 +821,6 @@ export function DailyAnchorsTimeline({
                 const inLabel = timeUntil.startsWith('in ') ? timeUntil.slice(3) : timeUntil;
                 const isLightsOutAnchor = anchor.id === 'lightsOut' || anchor.icon === 'moon';
                 const isTimeMoved = Boolean(anchor.isTimeOverridden);
-                const labelTier = anchorLabelTiers.get(anchor.id) ?? 0;
                 const nextScheduledAnchor = visibleSortedAnchors[index + 1];
                 const timeToNextEventLabel = nextScheduledAnchor
                   ? formatDuration(getMinutesBetweenEvents(anchor.scheduledTime, nextScheduledAnchor.scheduledTime))
@@ -955,15 +980,6 @@ export function DailyAnchorsTimeline({
                           <Icon size={14} strokeWidth={1.8} />
                         </span>
                       </div>
-                      <div className={`absolute left-1/2 top-full -translate-x-1/2 text-center ${labelTier === 1 ? 'mt-[2rem]' : 'mt-4'}`}>
-                        {labelTier === 1 && <div className="mx-auto mb-1 h-2.5 w-px bg-border-subtle/70" aria-hidden />}
-                        <div className={`whitespace-nowrap text-[13px] font-semibold leading-tight ${isCurrentVisual ? 'text-text' : 'text-text/80'}`}>
-                          {anchor.label}
-                        </div>
-                        <div className="mt-0.5 whitespace-nowrap text-[10px] font-medium text-text-muted/65 tabular-nums">
-                          {formatShortTime(displayTime).toLowerCase()}
-                        </div>
-                      </div>
                     </div>
                   );
                 }
@@ -971,11 +987,10 @@ export function DailyAnchorsTimeline({
                 return (
                   <div
                     key={anchor.id}
-                    className="absolute -translate-y-1/2 -translate-x-1/2 z-20"
+                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20"
                     style={{
                       left: `${position}%`,
-                      top: labelTier === 1 ? 'calc(50% + 12px)' : '50%',
-                      transition: isDragging ? 'none' : 'left 300ms ease, top 300ms ease',
+                      transition: isDragging ? 'none' : 'left 300ms ease',
                     }}
                     onMouseEnter={() => setHoveredAnchor(anchor.id)}
                     onMouseLeave={() => setHoveredAnchor(null)}
@@ -1111,20 +1126,51 @@ export function DailyAnchorsTimeline({
                           )}
                         </span>
                       </button>
-                      <div className={`absolute top-full text-center ${labelTier === 1 ? 'mt-6' : 'mt-5'}`}>
-                        <div className={`whitespace-nowrap text-[13px] font-semibold leading-tight ${isCurrentVisual ? 'text-text' : 'text-text/80'}`}>
-                          {anchor.label}
-                        </div>
-                        <div className="mt-0.5 whitespace-nowrap text-[10px] font-medium text-text-muted/65 tabular-nums">
-                          {formatShortTime(displayTime).toLowerCase()}
-                        </div>
-                      </div>
                     </div>
                   </div>
                 );
               })}
 
               <TimelineNowMarker leftPercent={dayProgressPercent} show={showNowMarker} label={formatNowLabel(nowMinutes)} />
+              </div>
+
+              <div
+                className="daily-overview-timeline-labels relative shrink-0"
+                style={{ height: `${timelineLabelZoneHeightRem}rem` }}
+              >
+                {visibleSortedAnchors.map((anchor) => {
+                  const isDragging = anchor.id === draggingAnchor;
+                  const isActive = anchor.id === activeAnchor.id;
+                  const isInProgress = isRangeAnchorInProgress(anchor, nowMinutes, isToday);
+                  const isCurrentVisual = isActive || isInProgress;
+                  const displayTime = isDragging && dragPreviewTime ? dragPreviewTime : anchor.scheduledTime;
+                  const position = getTimePosition(displayTime);
+                  const labelTier = anchorLabelTiers.get(anchor.id) ?? 0;
+
+                  return (
+                    <div
+                      key={`${anchor.id}-label`}
+                      className="absolute -translate-x-1/2 text-center"
+                      style={{
+                        left: `${position}%`,
+                        top: `${labelTier * TIMELINE_LABEL_ROW_HEIGHT_REM}rem`,
+                      }}
+                    >
+                      {labelTier > 0 && (
+                        <div className="mx-auto mb-1 h-2.5 w-px bg-border-subtle/60" aria-hidden />
+                      )}
+                      <div className={`whitespace-nowrap text-[13px] font-semibold leading-tight ${isCurrentVisual ? 'text-text' : 'text-text/80'}`}>
+                        {anchor.label}
+                      </div>
+                      {isCurrentVisual && (
+                        <div className="mt-0.5 whitespace-nowrap text-[10px] font-medium text-text-muted/65 tabular-nums">
+                          {formatShortTime(displayTime).toLowerCase()}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
               </div>
             </div>
           </div>
