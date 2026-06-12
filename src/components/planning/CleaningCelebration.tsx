@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { Sparkles, Star, PartyPopper } from 'lucide-react';
 
 type CleaningCelebrationProps = {
@@ -40,6 +40,7 @@ type Particle = {
   velocityX: number;
   velocityY: number;
   delay: number;
+  round: boolean;
 };
 
 const COLORS = [
@@ -64,6 +65,7 @@ function generateParticles(count: number): Particle[] {
       velocityX: (Math.random() - 0.5) * 60,
       velocityY: -30 - Math.random() * 40,
       delay: Math.random() * 0.2,
+      round: Math.random() > 0.5,
     });
   }
   return particles;
@@ -111,7 +113,7 @@ export function CleaningCelebration({ isVisible, onComplete, message }: Cleaning
               width: particle.size,
               height: particle.size,
               backgroundColor: particle.color,
-              borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+              borderRadius: particle.round ? '50%' : '2px',
               transform: `rotate(${particle.rotation}deg)`,
               animationDelay: `${particle.delay}s`,
               '--velocity-x': `${particle.velocityX}px`,

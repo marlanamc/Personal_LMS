@@ -181,16 +181,6 @@ export default async function ActivityPage({ params, searchParams }: Props) {
         idLower.startsWith("spanish-") ||
         titleLower.includes("spanish");
     const spanishGuideIds = SPANISH_GUIDE_IDS as readonly string[];
-    const isCodingGuideLike =
-        activity.type === "guide" &&
-        (
-            categoryRaw === "coding" ||
-            idLower.startsWith("coding-") ||
-            titleLower.includes("coding") ||
-            titleLower.includes("javascript") ||
-            titleLower.includes("typescript") ||
-            titleLower.includes("js/ts")
-        );
     const isSpanishGuideForGrammarReader =
         activity.type === "guide" &&
         (

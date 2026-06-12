@@ -104,7 +104,7 @@ export function ThreadGrid({ threads, onReorder, onThreadClick, onAddClick }: Th
   const [activeId, setActiveId] = useState<string | null>(null);
   const [restingSectionExpanded, setRestingSectionExpanded] = useState(true);
 
-  const { active, resting, archived } = sortThreads(threads);
+  const { active, resting } = sortThreads(threads);
 
   // Configure drag sensors
   const sensors = useSensors(

@@ -49,8 +49,7 @@ export function handleApiError(error: unknown, context: string) {
 
   return NextResponse.json(
     {
-      error: error instanceof Error ? error.message : "Something went wrong",
-      stack: error instanceof Error ? error.stack : undefined,
+      error: "Something went wrong",
       code: "internal_error",
     },
     { status: 500 }

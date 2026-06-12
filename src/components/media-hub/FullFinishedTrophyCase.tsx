@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { ArrowLeft, Search, Trash2, Calendar, BookOpen, Headphones, Tv, Popcorn, FileText, Music, MoreVertical, Edit2, MessageSquareQuote, Undo2 } from 'lucide-react';
-import { ENERGY_LEVEL_CONFIG, type MediaType, type MediaItem, type MediaStatus } from '@/lib/media-hub';
+import { type MediaType, type MediaItem, type MediaStatus } from '@/lib/media-hub';
 import { EditMediaDialog } from './EditMediaDialog';
 import { ThoughtDownloadDrawer } from './ThoughtDownloadDrawer';
 

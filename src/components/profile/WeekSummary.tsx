@@ -41,7 +41,7 @@ export function WeekSummary({ data }: WeekSummaryProps) {
   const { events, activities, dayLabels } = data;
   const { weekOffset } = usePlanningWeek();
 
-  const { byDay, days } = useMemo(() => {
+  const { days } = useMemo(() => {
     const byDayMap = new Map<string, { events: WeekEvent[]; activities: WeekActivity[] }>();
 
     const now = new Date();

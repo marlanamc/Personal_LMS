@@ -27,7 +27,6 @@ export function CleaningListView({
   onTaskEdit,
 }: CleaningListViewProps) {
   const zones = useMemo(() => getAvailableCleaningZones(store), [store]);
-  const zoneMap = useMemo(() => new Map(zones.map((z) => [z.id, z])), [zones]);
   const [collapsedZones, setCollapsedZones] = useState<Set<string>>(new Set());
 
   // Group tasks by zone

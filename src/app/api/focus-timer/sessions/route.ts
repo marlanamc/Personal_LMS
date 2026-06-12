@@ -3,44 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { handleApiError } from "@/lib/api-error";
 
-const SOURCE = "focus_timer";
-const SESSION_REASON_VERSION = 1;
-
-type FocusSessionPayload = {
-  v: number;
-  sessionId: string;
-  title: string;
-  durationMinutes: number;
-  completedAt: string;
-};
-
-function parseSessionPayload(reason: string | null): FocusSessionPayload | null {
-  if (!reason) return null;
-
-  try {
-    const parsed = JSON.parse(reason) as Partial<FocusSessionPayload>;
-    if (
-      parsed.v !== SESSION_REASON_VERSION ||
-      typeof parsed.sessionId !== "string" ||
-      typeof parsed.title !== "string" ||
-      typeof parsed.durationMinutes !== "number" ||
-      typeof parsed.completedAt !== "string"
-    ) {
-      return null;
-    }
-
-    return {
-      v: SESSION_REASON_VERSION,
-      sessionId: parsed.sessionId,
-      title: parsed.title,
-      durationMinutes: parsed.durationMinutes,
-      completedAt: parsed.completedAt,
-    };
-  } catch {
-    return null;
-  }
-}
-
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);

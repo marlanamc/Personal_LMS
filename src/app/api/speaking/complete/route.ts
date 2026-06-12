@@ -38,14 +38,12 @@ export async function POST(request: NextRequest) {
 
         // Check if this is a warmup activity (parse content to verify)
         let isWarmup = false;
-        let participationPoints = 3; // Default
 
         if (activity?.content) {
             try {
                 const content = JSON.parse(activity.content);
                 if (content.type === 'speaking' && content.warmupMode) {
                     isWarmup = true;
-                    participationPoints = content.participationPoints || 3;
                 }
             } catch {
                 // Content parsing failed, assume not warmup

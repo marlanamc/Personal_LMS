@@ -9,15 +9,15 @@ const prismaMock = vi.hoisted(() => ({
 const pushNotificationsMock = vi.hoisted(() => ({
   getPushDeliveryLog: vi.fn(),
   hasWebPushConfig: vi.fn(),
-  normalizePushPreferences: vi.fn((raw: any) => ({
+  normalizePushPreferences: vi.fn((raw: Record<string, unknown> | null | undefined) => ({
     enabled: raw?.enabled === true,
     anchorsEnabled: raw?.anchorsEnabled !== false,
     eventsEnabled: raw?.eventsEnabled !== false,
-    anchorLeadMinutes: raw?.anchorLeadMinutes ?? 10,
-    eventLeadMinutes: raw?.eventLeadMinutes ?? 15,
-    timezone: raw?.timezone ?? "America/New_York",
+    anchorLeadMinutes: (raw?.anchorLeadMinutes as number | undefined) ?? 10,
+    eventLeadMinutes: (raw?.eventLeadMinutes as number | undefined) ?? 15,
+    timezone: (raw?.timezone as string | undefined) ?? "America/New_York",
   })),
-  normalizePushSubscriptions: vi.fn((raw: any) => (Array.isArray(raw) ? raw : [])),
+  normalizePushSubscriptions: vi.fn((raw: unknown) => (Array.isArray(raw) ? raw : [])),
   savePushDeliveryLog: vi.fn(),
   sendPushNotificationToUserSubscriptions: vi.fn(),
   PUSH_PREFERENCES_SUBJECT_KEY: "push-notification-preferences",

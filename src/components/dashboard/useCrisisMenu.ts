@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { normalizeCrisisMenuStore, DEFAULT_ITEMS, type CrisisMenuStore } from '@/lib/crisis-menu';
 
 export type { CrisisMenuTab, CrisisMenuItem, CrisisMenuStore } from '@/lib/crisis-menu';
@@ -14,7 +14,7 @@ async function persistToServer(store: CrisisMenuStore): Promise<void> {
   if (!res.ok) throw new Error('Failed to save crisis menu');
 }
 
-export function useCrisisMenu(storageScope: string) {
+export function useCrisisMenu(_storageScope: string) {
   const [store, setStore] = useState<CrisisMenuStore>(DEFAULT_ITEMS);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);

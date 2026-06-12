@@ -76,8 +76,6 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('[threads:GET] Fetching threads for user:', session.user.id);
-
     const threads = await prisma.thread.findMany({
       where: { userId: session.user.id },
       include: {
@@ -103,8 +101,6 @@ export async function GET() {
         { createdAt: 'desc' },
       ],
     });
-
-    console.log('[threads:GET] Found threads:', threads.length);
 
     return NextResponse.json({ threads });
   } catch (error) {

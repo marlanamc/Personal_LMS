@@ -81,7 +81,7 @@ self.addEventListener('push', (event) => {
   if (event.data) {
     try {
       payload = { ...fallback, ...(event.data.json() || {}) };
-    } catch (_error) {
+    } catch {
       const body = event.data.text();
       payload = { ...fallback, body: body || fallback.body };
     }

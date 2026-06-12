@@ -21,7 +21,6 @@ export default function ServiceWorkerRegistration() {
 
       const checkForUpdates = () => {
         if (registration) {
-          console.log('[SW] Checking for updates...');
           registration.update().catch((error) => {
             console.error('[SW] Error checking for updates:', error);
           });
@@ -32,11 +31,9 @@ export default function ServiceWorkerRegistration() {
         .register(`/sw.js?build=${encodeURIComponent((window as { __NEXT_DATA__?: { buildId?: string } }).__NEXT_DATA__?.buildId || 'dev')}`, { updateViaCache: 'none' })
         .then((reg) => {
           registration = reg;
-          console.log('[SW] Registered successfully:', reg.scope);
 
           // Check if there's already a waiting service worker
           if (reg.waiting && navigator.serviceWorker.controller) {
-            console.log('[SW] Update waiting on page load');
             window.dispatchEvent(
               new CustomEvent('swUpdateAvailable', {
                 detail: { waitingWorker: reg.waiting }
@@ -54,7 +51,6 @@ export default function ServiceWorkerRegistration() {
                   newWorker.state === 'installed' &&
                   navigator.serviceWorker.controller
                 ) {
-                  console.log('[SW] New version available!');
                   window.dispatchEvent(
                     new CustomEvent('swUpdateAvailable', {
                       detail: { waitingWorker: newWorker }

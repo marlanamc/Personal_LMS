@@ -11,7 +11,7 @@ import { prisma } from './prisma';
 export async function awardThreadXP(
   threadId: string,
   xp: number,
-  source: string
+  _source: string
 ): Promise<{ newXP: number; leveledUp: boolean; newLevel: number }> {
   const thread = await prisma.thread.findUnique({
     where: { id: threadId },
@@ -31,8 +31,6 @@ export async function awardThreadXP(
     where: { id: threadId },
     data: { xp: newXP },
   });
-
-  console.log(`[thread-gamification] Awarded ${xp} XP to thread ${threadId} from ${source}. New XP: ${newXP}`);
 
   return { newXP, leveledUp, newLevel };
 }
@@ -90,10 +88,6 @@ export async function updateThreadStreak(
     },
   });
 
-  console.log(
-    `[thread-gamification] Updated streak for thread ${threadId}. New streak: ${newStreak} (incremented: ${streakIncremented})`
-  );
-
   return { focusStreak: newStreak, streakIncremented };
 }
 
@@ -105,8 +99,6 @@ export async function resetThreadStreak(threadId: string): Promise<void> {
     where: { id: threadId },
     data: { focusStreak: 0 },
   });
-
-  console.log(`[thread-gamification] Reset streak for thread ${threadId}`);
 }
 
 /**

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Trash2, X, Clock, Calendar, Zap, Plus, GripVertical, Check } from 'lucide-react';
+import { Trash2, X, Clock, Calendar, Zap, Plus, Check } from 'lucide-react';
 import { triggerHaptic } from '@/lib/haptic';
 import {
   CLEANING_TASK_TYPE_LABELS,
@@ -14,7 +14,6 @@ import {
   type CleaningCadence,
   type CleaningCadencePreset,
   type CleaningPlannerStore,
-  type CleaningSubtask,
   type CleaningTask,
   type CleaningTaskType,
 } from '@/lib/cleaning-planner';
@@ -187,22 +186,6 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
     }
   }, [isOpen, task, store]);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      } else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-        handleSave();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, draft]);
-
   const handleSave = () => {
     const title = draft.title.trim();
     if (!title) return;
@@ -267,6 +250,22 @@ export function CleaningTaskEditSheet({ isOpen, task, store, onSave, onDelete, o
     onDelete(task.id);
     onClose();
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      } else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+        handleSave();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, draft]);
 
   if (!isOpen) return null;
 

@@ -6,7 +6,7 @@ type WorkspaceHubProps = {
   storageScope: string;
 };
 
-export function WorkspaceHub({ storageScope }: WorkspaceHubProps) {
+export function WorkspaceHub({ storageScope: _storageScope }: WorkspaceHubProps) {
   return (
     <div className="mx-auto max-w-6xl pb-24 pt-6 sm:px-2 md:pt-8">
       {/* Header */}

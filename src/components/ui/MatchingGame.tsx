@@ -936,7 +936,6 @@ function VocabMatchingUI({
     const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
     const [matchedTermIds, setMatchedTermIds] = useState<Set<number>>(new Set());
     const [wrongFlash, setWrongFlash] = useState<number | null>(null);
-    const [_pointsToast, setPointsToast] = useState<{ points: number; key: number } | null>(null);
 
     const progressPercent =
         pairs.length > 0 ? Math.round((matchedTermIds.size / pairs.length) * 100) : 0;

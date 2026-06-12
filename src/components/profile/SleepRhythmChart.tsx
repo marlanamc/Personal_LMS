@@ -62,7 +62,7 @@ interface SleepRhythmChartProps {
 export function SleepRhythmChart({ anchorStates }: SleepRhythmChartProps) {
   const { weekOffset } = usePlanningWeek();
 
-  const { chartData, weekLabel, hasAnyData } = useMemo(() => {
+  const { chartData, hasAnyData } = useMemo(() => {
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const now = new Date();
     const startOfWeek = new Date(now);

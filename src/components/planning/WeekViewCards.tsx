@@ -4,7 +4,6 @@ import { DayCellButton } from './DayCellButton';
 import {
   DAY_OF_WEEK_KEYS,
   DAY_LABELS,
-  SKINCARE_SLOT_KEYS,
   getItemsForDaySlot,
   type DayOfWeek,
   type SkincareItem,

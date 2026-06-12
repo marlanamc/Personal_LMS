@@ -140,7 +140,7 @@ export function HealthTrackerView({ storageScope }: HealthTrackerViewProps) {
       setEntries(dbEntries);
       
       const dbMomentReadings = await getMomentReadings(selectedDateKey);
-      setMomentReadings(dbMomentReadings as any); // Cast because include: {tracker: true}
+      setMomentReadings(dbMomentReadings);
     } catch (e) {
       console.error("Failed to fetch entries", e);
     }
@@ -454,13 +454,8 @@ export function HealthTrackerView({ storageScope }: HealthTrackerViewProps) {
     try {
       const reading = await logMomentReading({ trackerId, value });
       // Only add to current view if it matches the selected date
-      if (isToday(selectedDateKey)) {
-        setMomentReadings(prev => [...prev, reading as any]);
-      } else {
-        // If we are looking at another day, we might still want to see it but usually log is for "now"
-        // For simplicity, let's just re-fetch if it's not today or just add it
-        setMomentReadings(prev => [...prev, reading as any]);
-      }
+      // Shown regardless of selected date; a log is always "now"
+      setMomentReadings(prev => [...prev, reading]);
     } catch (e) {
       console.error("Error logging moment", e);
     }

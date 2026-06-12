@@ -178,7 +178,7 @@ export function splitThreadPathAtCrossings(
 
   let currentY = 0;
 
-  sortedCrossings.forEach((crossing, index) => {
+  sortedCrossings.forEach((crossing) => {
     const { y: crossingY } = crossing;
     const isUnder = crossing.threadAId === threadId ? !crossing.aOverB : crossing.aOverB;
 

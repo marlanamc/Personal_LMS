@@ -53,7 +53,7 @@ export default function FillInBlankGame({ contentStr, activityId, assignmentId, 
         const value = Math.round(progress);
 
         const saveProgress = async () => {
-            const result = await saveActivityProgress(
+            await saveActivityProgress(
                 activityId,
                 value,
                 value >= 100 ? "completed" : "in_progress",

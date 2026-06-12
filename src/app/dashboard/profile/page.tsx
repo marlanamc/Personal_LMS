@@ -2,21 +2,19 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getVocabTypeFromTitle, parseVocabTypeLabel, stripVocabTypeSuffix, VOCAB_CHIP_CONFIG } from "@/lib/vocab-display";
 import { completionKeyFromActivityTitle } from "@/utils/completionKey";
 import { SPANISH_GUIDE_IDS } from "@/content/spanish/registry";
 import { CODING_GUIDE_IDS } from "@/content/coding/registry";
 import Link from "next/link";
 import { BottomNav } from "@/components/ui";
-import { ActivityTimeline } from "@/components/ui/ActivityTimeline";
 import ClickableAvatarDisplay from "@/components/ui/ClickableAvatarDisplay";
 import { MiniCertificateCard, EmptyCertificateCard, NeedsImprovementCard } from "@/components/ui/MiniCertificateCard";
 import { qualifiesForMedal } from "@/lib/medal-utils";
-import { BookOpen, Calendar, Award, ChevronRight } from "lucide-react";
+import { BookOpen, Award, ChevronRight } from "lucide-react";
 import { HomeIcon, BookOpenIcon as BookIcon, UserIcon } from "@/components/icons/Icons";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { PlanningStats, type WeeklyPlanningData } from "@/components/profile/PlanningStats";
-import { WeekSummary, type WeekSummaryData } from "@/components/profile/WeekSummary";
+import { type WeekSummaryData } from "@/components/profile/WeekSummary";
 import { 
     normalizeDailyAnchorsStore, 
     toDateKey, 
@@ -224,37 +222,6 @@ const getScoreBadgeClasses = (score: number): string => {
     return "bg-rose-100 text-rose-800 border-rose-200";
 };
 
-const toReadableLabel = (value: string): string => {
-    return value
-        .replace(/[-_]+/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .replace(/\b\w/g, (char) => char.toUpperCase());
-};
-
-const parseGrammarExerciseReason = (
-    reason: string
-): { activityName: string; activityType: string } | null => {
-    if (!reason.startsWith("grammar-exercise:")) return null;
-
-    const parts = reason.split(":");
-    const slug = parts[1] || "";
-    const sectionId = parts[2] || "";
-    const exerciseId = parts.slice(3).join(":") || sectionId;
-
-    const guideTitle = toReadableLabel(slug);
-    const exerciseTitle = toReadableLabel(exerciseId);
-
-    if (!guideTitle && !exerciseTitle) return null;
-
-    return {
-        activityName: guideTitle && exerciseTitle
-            ? `${guideTitle}: ${exerciseTitle}`
-            : guideTitle || exerciseTitle,
-        activityType: "Grammar Exercise",
-    };
-};
-
 export default async function ProfilePage() {
     const session = await getServerSession(authOptions);
 
@@ -296,7 +263,6 @@ export default async function ProfilePage() {
     // Run all independent database queries in parallel to eliminate async waterfall
     const [
         activityProgress,
-        activityProgressDates,
         releasedMiniQuizGuideActivities,
         miniQuizSubmissions,
         anchorsRow,
@@ -308,13 +274,6 @@ export default async function ProfilePage() {
             include: {
                 activity: true,
             },
-        }),
-        // Get activity dates for streak calendar - ActivityProgress updates (for any activity)
-        prisma.activityProgress.findMany({
-            where: { userId },
-            select: { updatedAt: true },
-            orderBy: { updatedAt: 'desc' },
-            take: 365,
         }),
         prisma.activity.findMany({
             where: {
@@ -513,11 +472,6 @@ export default async function ProfilePage() {
         activities: [],
         dayLabels,
     };
-
-    // Combine both date sources
-    const activityDates = [
-        ...activityProgressDates.map(p => p.updatedAt),
-    ];
 
     // Calculate category progress
 

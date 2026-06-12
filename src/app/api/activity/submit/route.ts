@@ -4,7 +4,6 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { enforceRateLimit } from "@/lib/rate-limit";
 import { ApiError, handleApiError } from "@/lib/api-error";
-import { logger } from "@/lib/logger";
 
 type SubmissionRecord = {
     id: string;

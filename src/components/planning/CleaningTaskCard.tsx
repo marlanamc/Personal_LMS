@@ -1,8 +1,7 @@
 'use client';
 
-import { CheckCircle2, Pencil, MoreHorizontal, Check, Zap, Calendar } from 'lucide-react';
+import { Pencil, Check, Zap, Calendar } from 'lucide-react';
 import {
-  CLEANING_TASK_TYPE_LABELS,
   formatCleaningCadence,
   formatEstimatedTime,
   getCleaningTaskStatus,

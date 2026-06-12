@@ -268,7 +268,7 @@ function normalizeItemText(text: string): string {
   return text.trim().replace(/\s+/g, ' ');
 }
 
-function generateItemId(category: SkincareCategoryId, name: string): string {
+function generateItemId(category: SkincareCategoryId, _name: string): string {
   const timestamp = Date.now();
   const random = Math.random().toString(36).slice(2, 9);
   return `skin-${category}-${timestamp}-${random}`;

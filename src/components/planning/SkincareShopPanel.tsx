@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Check, Plus, Trash2 } from 'lucide-react';
+import { Check, Trash2 } from 'lucide-react';
 import {
   CATEGORY_LABELS,
   SKINCARE_CATEGORY_ORDER,

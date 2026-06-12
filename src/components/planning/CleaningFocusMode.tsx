@@ -38,7 +38,7 @@ export function CleaningFocusMode({
   const focusTasks = useMemo(() => sortTasksForFocus(tasks, now), [tasks, now]);
   const currentTask = focusTasks[0] ?? null;
   const remainingCount = Math.max(0, focusTasks.length - 1);
-  const [showSubtasks, setShowSubtasks] = useState(true);
+  const [showSubtasks] = useState(true);
 
   // All caught up state
   if (!currentTask) {

@@ -111,8 +111,8 @@ export function ItemEditSheet({ isOpen, day, slot, store, onUpdate, onClose }: I
 
   useEffect(() => {
     if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown as any);
-      return () => window.removeEventListener('keydown', handleKeyDown as any);
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
     }
   }, [isOpen, selectedItemIds]);
 

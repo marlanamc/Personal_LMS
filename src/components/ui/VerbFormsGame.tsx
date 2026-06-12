@@ -157,11 +157,8 @@ export default function VerbFormsGame({ contentStr, activityId }: Props) {
             csvUrl = contentStr.trim();
         }
         
-        console.log("Fetching CSV from:", csvUrl);
         const response = await fetch(csvUrl);
         const text = await response.text();
-        console.log("Raw CSV length:", text.length);
-        console.log("CSV Preview (first 100 chars):", text.substring(0, 100).replace(/\n/g, '\\n'));
 
         const verbs = parseCSV(text);
         
@@ -293,9 +290,6 @@ export default function VerbFormsGame({ contentStr, activityId }: Props) {
     if (activityId) {
       const accuracy = (state.score / state.verbs.length) * 100;
       
-      // Flat 4 points per round as requested
-      const totalPoints = 4;
-
       // Note: saveActivityProgress might award its own points based on the API, 
       // but we pass category and accuracy for the database.
       await saveActivityProgress(

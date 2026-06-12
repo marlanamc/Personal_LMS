@@ -92,7 +92,7 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
                                 : parsed.title;
                             }
                           }
-                        } catch (e) {
+                        } catch {
                           // Ignore parse error, fallback to raw name
                         }
                         return activity.activityName;

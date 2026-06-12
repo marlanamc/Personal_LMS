@@ -280,8 +280,8 @@ export function ItemManagementSheet({ isOpen, store, onUpdate, onClose }: ItemMa
 
   useEffect(() => {
     if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown as any);
-      return () => window.removeEventListener('keydown', handleKeyDown as any);
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
     }
   }, [isOpen]);
 

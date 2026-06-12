@@ -55,17 +55,6 @@ export function WeeklyAnchorProgress({ anchorStates }: WeeklyAnchorProgressProps
       weeklyTotalAnchors += total;
     }
 
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    const weekLabel =
-      weekOffset === 0
-        ? 'This week'
-        : weekOffset === -1
-          ? 'Last week'
-          : weekOffset === 1
-            ? 'Next week'
-            : `${startOfWeek.getMonth() + 1}/${startOfWeek.getDate()} – ${endOfWeek.getMonth() + 1}/${endOfWeek.getDate()}`;
-
     const weeklyAverage = weeklyTotalAnchors > 0 ? Math.round((weeklyTotalCompleted / weeklyTotalAnchors) * 100) : 0;
 
     return { days, weeklyAverage };
