@@ -25,95 +25,28 @@ import { ActivityPanelContent } from '@/components/dashboard/ActivityPanelConten
 import { getGameEmojiForActivity } from '@/lib/game-emoji';
 import { formatMinuteOfDay, normalizeTimeBlockPlannerStore } from '@/lib/time-block-planner';
 
-type SpotifyConnectionStatus = {
-    configured: boolean;
-    connected: boolean;
-    displayName: string | null;
-};
+import {
+    type SpotifyConnectionStatus,
+    type FocusTaskItem,
+    type FeaturedAssignmentTask,
+    FOCUS_TASKS_STORAGE_KEY,
+    FOCUS_NOTEPAD_STORAGE_KEY,
+    FOCUS_SESSION_HISTORY_STORAGE_KEY,
+    FOCUS_WEEK_WINDOW_STORAGE_KEY,
+    SPOTIFY_CONNECTED_STORAGE_KEY,
+    SPOTIFY_AUTO_TRACK_SELECTED_STORAGE_KEY,
+    PREFERENCES_API,
+    PREFERENCES_SAVE_DEBOUNCE_MS,
+    MAX_STORED_SESSIONS,
+    type WeekWindowMode,
+    type CompletedFocusSession,
+    type DragInputEvent,
+    getEventCoordinates,
+    createTaskId,
+    formatTime,
+    triggerHaptic,
+} from "./focus-timer-shared";
 
-type FocusTaskItem = {
-    id: string;
-    text: string;
-    done: boolean;
-    source: 'manual' | 'assignment';
-    sourceId?: string;
-    href?: string;
-    activityType?: string;
-};
-
-type FeaturedAssignmentTask = {
-    id: string;
-    title?: string | null;
-    activityId: string;
-    progress?: number;
-    progressStatus?: string;
-    submissions?: Array<{ completedAt?: string | null }>;
-    class?: { name?: string | null };
-    activity: {
-        title: string;
-        type: string;
-    };
-};
-
-const FOCUS_TASKS_STORAGE_KEY = 'focus-timer:tasks:v1';
-const FOCUS_NOTEPAD_STORAGE_KEY = 'focus-timer:notepad:v1';
-const FOCUS_SESSION_HISTORY_STORAGE_KEY = 'focus-timer:sessions:v1';
-const FOCUS_WEEK_WINDOW_STORAGE_KEY = 'focus-timer:week-window:v1';
-const SPOTIFY_CONNECTED_STORAGE_KEY = 'focus-timer:spotify-connected:v1';
-const SPOTIFY_AUTO_TRACK_SELECTED_STORAGE_KEY = 'focus-timer:spotify-auto-track-selected:v1';
-const PREFERENCES_API = '/api/focus-timer/preferences';
-const PREFERENCES_SAVE_DEBOUNCE_MS = 500;
-const MAX_STORED_SESSIONS = 20;
-type WeekWindowMode = 'calendar-week' | 'last-7-days';
-
-type CompletedFocusSession = {
-    id: string;
-    title: string;
-    durationMinutes: number;
-    completedAt: string;
-    pointsAwarded?: number;
-};
-
-type DragInputEvent =
-    | MouseEvent
-    | TouchEvent
-    | React.MouseEvent<SVGSVGElement>
-    | React.TouchEvent<SVGSVGElement>;
-
-const getEventCoordinates = (event: DragInputEvent): { x: number; y: number } | null => {
-    if ('touches' in event) {
-        const touch = event.touches[0] ?? event.changedTouches[0];
-        if (!touch) return null;
-        return { x: touch.clientX, y: touch.clientY };
-    }
-
-    return {
-        x: event.clientX,
-        y: event.clientY,
-    };
-};
-
-const createTaskId = () => {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-        return crypto.randomUUID();
-    }
-
-    return `task-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-};
-
-// Helper to format MM:SS
-const formatTime = (timeInSeconds: number) => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = timeInSeconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-};
-
-// Helper to trigger haptic feedback
-const triggerHaptic = (duration = 10) => {
-    if (typeof window !== 'undefined' && navigator.vibrate) {
-        navigator.vibrate(duration);
-    }
-};
 
 export const FocusTimer = () => {
     const {
@@ -2019,3 +1952,4 @@ export const FocusTimer = () => {
         </div>
     );
 };
+
