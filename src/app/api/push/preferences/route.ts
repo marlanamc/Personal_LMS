@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { handleApiError } from "@/lib/api-error";
+import { preferencesEnvelopeSchema } from "@/lib/validation/common";
 import {
   normalizePushPreferences,
   savePushNotificationPreferences,
@@ -14,8 +15,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = (await req.json()) as { preferences?: unknown };
-    const preferences = normalizePushPreferences(body.preferences);
+    const { preferences: rawPreferences } = preferencesEnvelopeSchema.parse(await req.json());
+    const preferences = normalizePushPreferences(rawPreferences);
     await savePushNotificationPreferences(session.user.id, preferences);
     return NextResponse.json({ ok: true, preferences });
   } catch (error) {

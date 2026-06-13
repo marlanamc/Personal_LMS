@@ -3,6 +3,21 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/api-error";
+import { z } from "zod";
+import { idString, boundedText } from "@/lib/validation/common";
+
+const assignmentCreateSchema = z.object({
+    classId: idString,
+    activityId: idString,
+    title: boundedText(300).nullish(),
+    instructions: boundedText(5000).nullish(),
+    dueDate: z.string().nullish(),
+});
+
+const assignmentPatchSchema = z.object({
+    assignmentId: idString,
+    isFeatured: z.boolean(),
+});
 
 async function userOwnsClass(userId: string, classId: string): Promise<boolean> {
     const classItem = await prisma.class.findUnique({
@@ -20,15 +35,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await request.json();
-        const { classId, activityId, title, instructions, dueDate } = body;
-
-        if (!classId || !activityId) {
-            return NextResponse.json(
-                { error: "Class ID and Activity ID are required" },
-                { status: 400 }
-            );
-        }
+        const { classId, activityId, title, instructions, dueDate } =
+            assignmentCreateSchema.parse(await request.json());
 
         const userId = session.user?.id;
         if (!userId) {
@@ -76,15 +84,7 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await request.json();
-        const { assignmentId, isFeatured } = body;
-
-        if (!assignmentId || typeof isFeatured !== 'boolean') {
-            return NextResponse.json(
-                { error: "Assignment ID and isFeatured boolean are required" },
-                { status: 400 }
-            );
-        }
+        const { assignmentId, isFeatured } = assignmentPatchSchema.parse(await request.json());
 
         const userId = session.user?.id;
         if (!userId) {

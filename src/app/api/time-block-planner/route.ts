@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api-error';
+import { storeEnvelopeSchema } from '@/lib/validation/common';
 import {
   TIME_BLOCK_PLANNER_SUBJECT_KEY,
   normalizeTimeBlockPlannerStore,
@@ -47,8 +48,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = (await req.json()) as { store?: unknown };
-    const normalizedStore = normalizeTimeBlockPlannerStore(body?.store);
+    const { store: rawStore } = storeEnvelopeSchema.parse(await req.json());
+    const normalizedStore = normalizeTimeBlockPlannerStore(rawStore);
 
     const state = await prisma.utilitySubjectState.upsert({
       where: {

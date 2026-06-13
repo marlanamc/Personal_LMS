@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { handleApiError } from "@/lib/api-error";
+import { z } from "zod";
+import { nonEmptyString } from "@/lib/validation/common";
+
+const focusSessionSchema = z.object({
+  sessionId: nonEmptyString,
+  title: nonEmptyString.max(80),
+  durationMinutes: z.coerce.number().min(5).max(120),
+  completedAt: z.string().optional(),
+});
 
 export async function GET() {
   try {
@@ -28,23 +37,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const sessionId = typeof body.sessionId === "string" ? body.sessionId.trim() : "";
-    const title = typeof body.title === "string" ? body.title.trim() : "";
-    const durationMinutes = Number(body.durationMinutes);
-    const completedAt = typeof body.completedAt === "string" ? body.completedAt : new Date().toISOString();
-
-    if (!sessionId) {
-      return NextResponse.json({ error: "sessionId is required" }, { status: 400 });
-    }
-
-    if (!title || title.length > 80) {
-      return NextResponse.json({ error: "title is required and must be <= 80 chars" }, { status: 400 });
-    }
-
-    if (!Number.isFinite(durationMinutes) || durationMinutes < 5 || durationMinutes > 120) {
-      return NextResponse.json({ error: "durationMinutes must be between 5 and 120" }, { status: 400 });
-    }
+    const { sessionId, title, durationMinutes, completedAt: completedAtInput } =
+      focusSessionSchema.parse(await request.json());
+    const completedAt = completedAtInput ?? new Date().toISOString();
 
     const normalizedMinutes = Math.round(durationMinutes / 5) * 5;
 

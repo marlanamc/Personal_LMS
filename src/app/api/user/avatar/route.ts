@@ -9,6 +9,12 @@ import {
   DEFAULT_AVATAR,
   DEFAULT_COLOR,
 } from '@/lib/avatar-constants';
+import { z } from 'zod';
+
+const avatarUpdateSchema = z.object({
+  avatar: z.string().refine(isValidAvatarId, 'Invalid avatar id').optional(),
+  avatarColor: z.string().refine(isValidColorId, 'Invalid avatarColor id').optional(),
+});
 
 /**
  * GET /api/user/avatar
@@ -56,28 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     const userId = (session.user as { id: string }).id;
-    const body = await req.json();
-    const { avatar, avatarColor } = body;
-
-    // Validate avatar
-    if (avatar !== undefined) {
-      if (typeof avatar !== 'string') {
-        return NextResponse.json({ error: 'Invalid avatar type' }, { status: 400 });
-      }
-      if (!isValidAvatarId(avatar)) {
-        return NextResponse.json({ error: 'Invalid avatar id' }, { status: 400 });
-      }
-    }
-
-    // Validate color
-    if (avatarColor !== undefined) {
-      if (typeof avatarColor !== 'string') {
-        return NextResponse.json({ error: 'Invalid avatarColor type' }, { status: 400 });
-      }
-      if (!isValidColorId(avatarColor)) {
-        return NextResponse.json({ error: 'Invalid avatarColor id' }, { status: 400 });
-      }
-    }
+    const { avatar, avatarColor } = avatarUpdateSchema.parse(await req.json());
 
     const updateData: { avatar?: string; avatarColor?: string } = {};
     if (avatar !== undefined) updateData.avatar = avatar;

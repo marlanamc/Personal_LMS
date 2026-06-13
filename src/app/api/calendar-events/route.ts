@@ -4,6 +4,28 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canManageClass } from "@/lib/class-access";
 import { handleApiError } from "@/lib/api-error";
+import { z } from "zod";
+
+const EVENT_TYPES = ["holiday", "event", "due", "reminder", "quiz", "appointment", "workout"] as const;
+
+// Validate types + the event-type enum at the boundary. Required-field and
+// date-format/range checks stay in the handlers below (they have bespoke
+// timezone-safe parsing and empty-string semantics we don't want to change).
+const calendarEventInputSchema = z.object({
+    classId: z.string().optional(),
+    id: z.string().optional(),
+    title: z.string().optional(),
+    date: z.string().optional(),
+    time: z.string().optional(),
+    endDate: z.string().optional(),
+    endTime: z.string().optional(),
+    startDateTime: z.string().optional(),
+    endDateTime: z.string().optional(),
+    type: z.enum(EVENT_TYPES).default("holiday"),
+    description: z.string().nullish(),
+});
+
+const calendarEventDeleteSchema = z.object({ id: z.string().min(1) });
 
 export async function POST(request: NextRequest) {
     try {
@@ -17,7 +39,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await request.json();
         const {
             classId,
             title,
@@ -27,17 +48,12 @@ export async function POST(request: NextRequest) {
             endTime,
             startDateTime,
             endDateTime,
-            type = "holiday",
+            type,
             description,
-        } = body;
+        } = calendarEventInputSchema.parse(await request.json());
 
         if (!classId || !title || !date) {
             return NextResponse.json({ error: "classId, title, and date are required" }, { status: 400 });
-        }
-
-        const allowedTypes = ["holiday", "event", "due", "reminder", "quiz", "appointment", "workout"];
-        if (!allowedTypes.includes(type)) {
-            return NextResponse.json({ error: "Invalid event type" }, { status: 400 });
         }
 
         // Parse YYYY-MM-DD strings into local dates to avoid TZ shifting back a day.
@@ -137,7 +153,6 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await request.json();
         const {
             id,
             title,
@@ -147,17 +162,12 @@ export async function PATCH(request: NextRequest) {
             endTime,
             startDateTime,
             endDateTime,
-            type = "holiday",
+            type,
             description,
-        } = body;
+        } = calendarEventInputSchema.parse(await request.json());
 
         if (!id || !title || !date) {
             return NextResponse.json({ error: "id, title, and date are required" }, { status: 400 });
-        }
-
-        const allowedTypes = ["holiday", "event", "due", "reminder", "quiz", "appointment", "workout"];
-        if (!allowedTypes.includes(type)) {
-            return NextResponse.json({ error: "Invalid event type" }, { status: 400 });
         }
 
         const parseTime = (value: string) => {
@@ -256,11 +266,7 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await request.json();
-        const { id } = body || {};
-        if (!id) {
-            return NextResponse.json({ error: "id is required" }, { status: 400 });
-        }
+        const { id } = calendarEventDeleteSchema.parse(await request.json());
 
         const event = await prisma.calendarEvent.findUnique({
             where: { id },

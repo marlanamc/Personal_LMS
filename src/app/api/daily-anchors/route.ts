@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { normalizeDailyAnchorsStore, type DailyAnchorsStore } from '@/lib/anchors';
 import { handleApiError } from '@/lib/api-error';
+import { storeEnvelopeSchema } from '@/lib/validation/common';
 
 const SUBJECT_KEY = 'daily-anchors';
 
@@ -50,8 +51,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = (await req.json()) as { store?: unknown };
-    const normalizedStore = normalizeStore(body?.store);
+    const { store: rawStore } = storeEnvelopeSchema.parse(await req.json());
+    const normalizedStore = normalizeStore(rawStore);
 
     const state = await prisma.utilitySubjectState.upsert({
       where: {

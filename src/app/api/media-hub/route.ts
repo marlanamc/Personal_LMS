@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api-error';
+import { storeEnvelopeSchema } from '@/lib/validation/common';
 import { normalizeMediaHubStore } from '@/lib/media-hub';
 
 const SUBJECT_KEY = 'media-hub';
@@ -46,8 +47,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = (await req.json()) as { store?: unknown };
-    const store = normalizeMediaHubStore(body?.store);
+    const { store: rawStore } = storeEnvelopeSchema.parse(await req.json());
+    const store = normalizeMediaHubStore(rawStore);
 
     const payload = store as unknown as Prisma.InputJsonValue;
 

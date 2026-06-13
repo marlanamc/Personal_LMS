@@ -1,10 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api-error';
+import { z } from 'zod';
+import { idString } from '@/lib/validation/common';
 
-const prisma = new PrismaClient();
+const speakingSubmissionSchema = z.object({
+    activityId: idString,
+    assignmentId: z.string().nullish(),
+    selectedPromptIds: z.array(z.string()),
+    solo: z.object({
+        sentences: z.array(z.string()),
+        followUpQuestions: z.array(z.string()),
+        completedStepIds: z.array(z.string()),
+    }),
+    speaking: z.object({
+        bestSentence: z.string(),
+        completedStepIds: z.array(z.string()),
+    }),
+});
 
 export async function POST(request: NextRequest) {
     try {
@@ -22,13 +37,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        const body = await request.json();
-        const { activityId, assignmentId, selectedPromptIds, solo, speaking } = body;
-
-        // Validate required fields
-        if (!activityId || !selectedPromptIds || !solo || !speaking) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-        }
+        const { activityId, assignmentId, selectedPromptIds, solo, speaking } =
+            speakingSubmissionSchema.parse(await request.json());
 
         // Create submission record
         const assignmentKey = typeof assignmentId === "string" ? assignmentId : null;
