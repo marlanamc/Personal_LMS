@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { enforceRateLimit } from "@/lib/rate-limit";
 import { ApiError, handleApiError } from "@/lib/api-error";
+import { activitySubmitSchema } from "@/lib/validation/activity";
 
 // Use Prisma's generated delegate type so schema drift is caught at compile time.
 type SubmissionDelegate = typeof prisma.submission;
@@ -84,18 +85,17 @@ export async function POST(request: Request) {
             return rateLimitResponse;
         }
 
-        // SECURITY: Never trust points from client - calculate server-side only
-        let body: { activityId?: string; content?: unknown; score?: number; assignmentId?: string | null };
+        // SECURITY: `score` is a client-reported completion percentage; there is
+        // no server-side answer key to recompute it generically, so we validate
+        // and bound it (integer 0–100) rather than trust the raw value. The
+        // legacy `points` field is ignored — there is no points system anymore.
+        let rawBody: unknown;
         try {
-            body = await request.json();
+            rawBody = await request.json();
         } catch {
             throw new ApiError(400, "invalid_json", "Invalid JSON in request body");
         }
-        const { activityId, content, score, assignmentId } = body;
-
-        if (!activityId || typeof activityId !== "string") {
-            throw new ApiError(400, "missing_activity_id", "activityId is required");
-        }
+        const { activityId, content, score, assignmentId } = activitySubmitSchema.parse(rawBody);
 
         const userId = session.user.id;
 
