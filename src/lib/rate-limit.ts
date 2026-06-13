@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-type LimiterName = "activity-submit" | "award-points";
+type LimiterName = "activity-submit" | "award-points" | "password-reset";
 
 type LimiterDefinition = {
   name: LimiterName;
@@ -13,6 +13,8 @@ type LimiterDefinition = {
 const LIMITER_DEFINITIONS: Record<LimiterName, LimiterDefinition> = {
   "activity-submit": { name: "activity-submit", limit: 10, window: "1 m" },
   "award-points": { name: "award-points", limit: 5, window: "1 m" },
+  // Password changes are rare; keep the window tight to bound abuse.
+  "password-reset": { name: "password-reset", limit: 5, window: "10 m" },
 };
 
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL;

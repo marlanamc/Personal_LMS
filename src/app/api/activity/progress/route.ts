@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ApiError, handleApiError } from "@/lib/api-error";
 import type { ActivityProgressStatus } from "@/lib/activityProgress";
 import { resolveActivityGameUi } from "@/lib/activity-ui";
 import { calculateNumbersGameCompletionPercentage, isNumbersGameCategoryName } from "@/data/numbersGameCategories";
@@ -300,13 +301,21 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
+    // Guard the parse so a malformed body returns a clean 400 instead of an
+    // unhandled 500 (mirrors api/activity/submit).
+    let body;
+    try {
+        body = await request.json();
+    } catch {
+        throw new ApiError(400, "invalid_json", "Invalid JSON in request body");
+    }
     const { activityId, progress = 100, status: statusInput, accuracy, category, assignmentId, guideState, vocabType } = body;
 
     // SECURITY: Input validation
@@ -535,4 +544,7 @@ export async function POST(request: Request) {
     // Points system removed - gamification disabled
 
     return NextResponse.json({ ok: true, progress: record.progress, status: record.status });
+  } catch (error) {
+    return handleApiError(error, "api/activity/progress");
+  }
 }

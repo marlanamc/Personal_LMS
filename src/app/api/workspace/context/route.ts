@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/api-error";
 import { z } from "zod";
 import { boundedJsonValue } from "@/lib/validation/common";
 import type { RecentCapture, WorkspaceToolType } from "@/types/workspace";
@@ -54,11 +55,7 @@ export async function GET() {
       { status: 200 }
     );
   } catch (error) {
-    console.error("[workspace/context] Error fetching context:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch workspace context" },
-      { status: 500 }
-    );
+    return handleApiError(error, "api/workspace/context");
   }
 }
 
@@ -139,10 +136,6 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("[workspace/context] Error updating context:", error);
-    return NextResponse.json(
-      { error: "Failed to update workspace context" },
-      { status: 500 }
-    );
+    return handleApiError(error, "api/workspace/context");
   }
 }
