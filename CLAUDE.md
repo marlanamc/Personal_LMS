@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Personal LMS is a personal learning platform with gamification features. Built with Next.js 16 (App Router), TypeScript, Prisma, and NextAuth. The app uses PostgreSQL and includes a comprehensive points/achievements/leaderboard system. It is single-user: one authenticated user with full edit power (no teacher/student roles).
+Personal LMS is a personal learning platform built with Next.js 16 (App Router), TypeScript, Prisma, and NextAuth on PostgreSQL. It is single-user: one authenticated user with full edit power (no teacher/student roles).
+
+> **Note:** The original user-level points/achievements/leaderboard system was removed (migration `20260331020037_remove_gamification`). `src/lib/gamification.ts`, the `PointsLedger`/`Achievement`/`UserAchievement` models, and the `User` points/streak fields no longer exist. A separate, still-active **thread-level** XP/leveling system lives in `src/lib/thread-gamification.ts` (see below). If you find docs or code referencing the old user-points system, treat them as stale.
 
 ## Common Development Commands
 
@@ -21,15 +23,12 @@ npm run lint                   # Run ESLint
 npx prisma migrate dev         # Create and apply new migration
 npx prisma migrate deploy      # Apply migrations (production)
 npx prisma studio              # Open Prisma Studio GUI
-npm run db:seed                # Seed database with initial data
-npx tsx prisma/seed-achievements.ts  # Seed gamification achievements
+npm run db:seed                # Seed database with base content (users + personal/spanish content & games)
+npm run db:seed:users          # Seed only the user account(s)
+npm run db:reset:clean         # Clean reset + reseed
 ```
 
-### Content Import Scripts
-```bash
-npm run import:verb-quizzes    # Import verb quiz activities
-npm run delete:verb-quizzes    # Delete verb quiz activities
-```
+Additional seed scripts live in `prisma/seed-*.ts` (run with `npx tsx`), e.g. `seed-personal-content.ts`, `seed-spanish-guides.ts`, `seed-spanish-games.ts`, `seed-ed-pronunciation.ts`, `seed-minimal-pairs.ts`. See the `db:seed*` entries in `package.json` for the wired-up combinations.
 
 ## Architecture Overview
 
@@ -37,55 +36,40 @@ npm run delete:verb-quizzes    # Delete verb quiz activities
 - **NextAuth.js** handles authentication with credentials provider (`src/lib/auth.ts`)
 - Single-user model: one authenticated user has full edit power; no teacher/student roles
 - Session strategy: JWT (30-day expiration)
-- Login automatically tracks user activity via `trackLogin()` in `src/lib/gamification.ts`
-- Custom session includes: `id`, `username`, `mustChangePassword`
+- Custom session includes: `id`, `username`, `mustChangePassword` — these are properly typed via `src/types/next-auth.d.ts` (no `as any` casts needed; use `session.user.id` directly)
 
 ### Database Schema (Prisma)
 The database uses PostgreSQL (not SQLite - the README is outdated). Key models:
 
 **Core Models:**
-- `User`: Single user with gamification fields (points, streaks, weeklyPoints, lastWeekRank)
+- `User`: Single user. No points/streak fields — those were removed with gamification.
 - `Class`: Classes owned by the user (legacy from ESOL LMS; personal LMS uses one owner)
-- `ClassEnrollment`: Many-to-many join table (legacy; personal LMS typically has one user)
-- `Activity`: Teaching activities with JSON `content` field storing typed activity data
+- `Activity`: Teaching activities with JSON `content` field (stored as a `String` column) holding typed activity data
 - `Assignment`: Links activities to classes with due dates and `isFeatured` flag
-- `Submission`: Activity submissions with scores and `pointsAwarded`
+- `Submission`: Activity submissions with `score`, `status`, `completedAt`. Unique on `(userId, activityId, assignmentId)`. (No `pointsAwarded` — removed with gamification.)
+- `ActivityProgress`: Tracks user progress through activities (0-100%, status, per-category JSON data). Unique on `(userId, activityId, assignmentId)`.
+- `QuizResponse`: Per-question quiz responses
+- `SpeakingSubmission`: Speaking-activity submissions
+- `CalendarEvent`: Calendar events (holidays, reminders)
 
-**Gamification Models:**
-- `Achievement`: Unlockable badges with requirements (types: streak, points, quiz, activity)
-- `UserAchievement`: Tracks which achievements users have earned
-- `PointsLedger`: Immutable audit log of all point transactions (source: activity, streak, achievement, login, manual)
-- `ActivityProgress`: Tracks user progress through activities (0-100%, status, per-category data)
+**Threads (active gamification surface):**
+- `Thread`: A learning/focus "thread" with its own `xp` and derived level (`Math.floor(xp / 100)`)
+- `ThreadActivity`: Activities attached to a thread
 
-**Other:**
-- `CalendarEvent`: Class calendar events (holidays, reminders)
+**Personal / utility models:**
+- `HealthTracker`, `HealthTrackerEntry`, `BloodPressureReading`, `MomentTracker`, `MomentReading` — health/mood tracking (time-series; indexed by `(userId, recordedAt/createdAt)`)
+- `DailyWin`, `WorkspaceContext`, `UtilitySubjectState`, `SpotifyConnection`
 
-### Gamification System (`src/lib/gamification.ts`)
-This is the core of user engagement:
+> `ClassEnrollment`, `PointsLedger`, `Achievement`, and `UserAchievement` no longer exist.
 
-**Points System:**
-- Activity completion: 2-10 points based on type/difficulty
-- Quiz completion: 10 points base, +20 for perfect score
-- Numbers Game: 3-17 points based on difficulty and accuracy
-- Daily streak: 3 points (requires a positive-point activity)
-- Weekly streak (7+ days): 25 bonus points
-- Achievement bonuses: 50 points
+### Thread Gamification (`src/lib/thread-gamification.ts`)
+The only gamification system still in the app is **thread-level** XP/leveling — there is no user-level points/streak/leaderboard system anymore.
 
-**Key Functions:**
-- `awardPoints(userId, points, reason)` - Awards points and logs to ledger
-- `updateStreak(userId, activityPoints)` - Updates daily streak only when activityPoints > 0 and awards streak points
-- `checkAndAwardAchievements(userId)` - Checks and awards unlocked achievements
-- `getTimeframedLeaderboard(range, limit, classId?)` - Gets leaderboard for day/week/month
-- `getWeeklyLeaderboard(limit, classId?)` - Gets weekly leaderboard using `weeklyPoints` field
-- `resetWeeklyPoints()` - Resets weekly points (saves ranks to `lastWeekRank`)
-- `trackLogin(userId)` - Creates 0-point ledger entry for activity calendar
+- XP is awarded to a `Thread` (not the `User`) via `awardThreadXP(threadId, xp, source)`
+- Level is derived from XP: `level = Math.floor(xp / 100)`; crossing a 100-XP boundary is a "level up"
+- See also `src/lib/thread-suggestions.ts` and `src/lib/medal-utils.ts` for related thread UX
 
-**Important Implementation Details:**
-- Test account username 'marlie' is excluded from leaderboards
-- Points are tracked in both `User.points` (lifetime) and `User.weeklyPoints` (reset weekly)
-- `PointsLedger` is the source of truth for all point transactions
-- Leaderboard uses ledger aggregation, not direct user fields
-- Same points = same rank (ties are handled correctly)
+Completing activities records a `Submission` and updates `ActivityProgress`; it no longer awards user points or touches a ledger.
 
 ### Activity Content System
 Activities store rich, typed content in the `Activity.content` JSON field:
@@ -120,16 +104,16 @@ const session = await getServerSession(authOptions);
 if (!session?.user) {
   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
-const userId = (session.user as any).id;
+const userId = session.user.id; // typed via src/types/next-auth.d.ts
 ```
 
+Use the shared `ApiError` / `handleApiError(error, context)` helpers (`src/lib/api-error.ts`) for consistent error responses. `handleApiError` returns a `400` with field details for `zod` validation failures. Rate-limit mutating routes with `enforceRateLimit` (`src/lib/rate-limit.ts`, Upstash-backed).
+
 **Key API Routes:**
-- `POST /api/grammar/complete` - Award points for completing grammar guide (idempotent via ledger check)
-- `POST /api/activity/submit` - Submit activity (awards points, updates streak, checks achievements)
-- `POST /api/activity/progress` - Update activity progress (tracks per-category completion)
-- `GET /api/gamification/leaderboard?range=week&classId=xxx` - Get leaderboard
-- `GET /api/gamification/stats` - Get user's gamification stats
-- `POST /api/cron/reset-weekly-points` - Weekly reset (cron job)
+- `POST /api/grammar/complete` - Records a graded `Submission` for a completed grammar guide (no points)
+- `POST /api/activity/submit` - Submit activity. Persists the `Submission` and marks `ActivityProgress` complete **in a single `$transaction`**. Server validates input; never trusts client-supplied points.
+- `POST /api/activity/progress` - Update activity progress (per-category completion); the per-assignment write and the global vocab sync run in one `$transaction`.
+- `POST /api/cron/push-reminders` - Push-notification reminders cron (bearer `CRON_SECRET`, production-gated)
 
 ### Component Organization
 - `src/components/ui/` - Reusable UI components (Button, Card, Badge, etc.)
@@ -157,27 +141,19 @@ Always use `@/` imports for internal modules.
 ## Important Development Notes
 
 ### When Working with Activities
-1. Activity content is stored as JSON in the database but typed in TypeScript
-2. Use type guards: `isInteractiveGuideContent()`, `isLegacyGuideContent()`
-3. Parse with `parseActivityContent(raw: string)`
-4. All activities should update streaks and check achievements on completion
-5. Points are calculated based on activity type - see `getActivityPoints()` in `src/lib/gamification.ts`
-
-### When Working with Gamification
-1. **Always** log points to `PointsLedger` via `awardPoints()` or `logPointsLedger()`
-2. Check for existing ledger entries to prevent duplicate awards
-3. Update both `points` (lifetime) and `weeklyPoints` fields
-4. Call `updateStreak()` on activity completion
-5. Call `checkAndAwardAchievements()` after awarding points
-6. Use ledger-based leaderboard queries, not direct user field sorting
-7. Exclude test account ('marlie') from leaderboard queries
+1. Activity content is stored as a JSON `String` in the database but typed in TypeScript
+2. Use type guards: `isInteractiveGuideContent()`, `isLegacyGuideContent()` (`src/types/activity.ts`)
+3. Parse with `parseActivityContent(raw: string)` — it returns `null` on malformed content rather than throwing, so reads degrade gracefully
+4. Validate write payloads with the shared `zod` schema (`src/lib/validation/activity.ts`) before persisting (shape, size cap, and that `content` is parseable JSON)
+5. Completion records a `Submission` + updates `ActivityProgress` — there are no points/streaks/achievements to update
 
 ### When Working with Database
 1. Database is PostgreSQL, accessed via `prisma` from `@/lib/prisma`
-2. Environment variable is `POSTGRES_URL` (not `DATABASE_URL`)
+2. Connection URL: Prisma reads `POSTGRES_PRISMA_URL` (pooled/pgbouncer) first, then falls back to `POSTGRES_URL`/`DATABASE_URL`/`STORAGE_*`. **Use a pooled URL in production** to avoid exhausting Postgres `max_connections` under serverless concurrency.
 3. Always use Prisma Client - don't write raw SQL
 4. Migrations are auto-applied on build via `npm run build`
-5. Use `@@unique` constraints for preventing duplicate enrollments/submissions
+5. Use `@@unique` constraints to prevent duplicate submissions/progress; prefer `upsert` over find-then-create on those constraints
+6. Wrap related multi-record writes in `prisma.$transaction(...)` so partial failures can't leave divergent state (see the submit and progress routes)
 
 ### When Working with Authentication
 1. Server components: Use `getServerSession(authOptions)`
@@ -186,18 +162,13 @@ Always use `@/` imports for internal modules.
 4. Single-user model: no role checks; authenticated user has full access
 5. User must change password if `mustChangePassword === true`
 
-### Weekly Points Reset
-The `/api/cron/reset-weekly-points` endpoint should be called weekly (e.g., Sunday night):
-1. Saves current ranks to `User.lastWeekRank`
-2. Resets `User.weeklyPoints` to 0
-3. Does NOT touch `PointsLedger` (immutable audit log)
-4. Does NOT reset `User.points` (lifetime total)
+### Cron Jobs
+The only cron endpoint is `POST /api/cron/push-reminders` (push-notification reminders). It is protected by a bearer `CRON_SECRET`, gated to production, and idempotent via a delivery-log dedupe. (The old `reset-weekly-points` endpoint was removed with gamification.)
 
-### Content Import Scripts
-Located in `scripts/import/`:
-- Use `tsx` to run TypeScript scripts directly
-- Scripts connect to database via Prisma
-- Always check for duplicates before importing
+### Seed / Content Scripts
+Located in `prisma/seed-*.ts`, run with `npx tsx` (or the wired-up `db:seed*` npm scripts):
+- Scripts connect to the database via Prisma
+- Always check for duplicates before inserting
 - Use descriptive activity IDs for games (e.g., `numbers-game`, `flashcard-colors`)
 
 ### PWA Support
@@ -207,9 +178,12 @@ Located in `scripts/import/`:
 - Icons in `public/icons/`
 
 ## Testing Accounts (After Seeding)
-- Username: `marlie` / Password: `password123` (excluded from leaderboards)
+- Username: `marlie` / Password: `password123`
 
 ## Environment Variables
-See `.env.example` for required variables:
-- `POSTGRES_URL` - PostgreSQL connection string
-- `NEXTAUTH_SECRET` or `AUTH_SECRET` - NextAuth secret key
+See `.env.example` for the full list. Key ones:
+- `POSTGRES_PRISMA_URL` - Pooled (pgbouncer) connection string, preferred in production
+- `POSTGRES_URL` - Direct PostgreSQL connection string (fine for local dev; used as fallback)
+- `NEXTAUTH_SECRET` or `AUTH_SECRET` - NextAuth secret key (validated at load; must be ≥32 chars)
+- `CRON_SECRET` - Bearer token required by the push-reminders cron
+- `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` - Optional, enables API rate limiting
