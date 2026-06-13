@@ -27,7 +27,7 @@ export function MobileCommandHeader({ upNextAnchor, minutesUntilNext }: MobileCo
   }).format(today);
 
   return (
-    <section className="md:hidden relative z-[1] pt-1 pb-1 px-1.5">
+    <section className="lg:hidden relative z-[1] pt-1 pb-1 px-1.5">
       <h1 className="text-[2.15rem] leading-none font-display font-bold text-text">{dateLabel}</h1>
       {upNextAnchor ? (
         <p className="mt-2 text-sm text-text-muted">

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { idString, boundedJsonValue } from "@/lib/validation/common";
 
 // Upper bound on a single activity's serialized content. Grammar guides and
 // slide decks are the largest payloads we store; 1 MB is comfortably above any
@@ -38,3 +39,21 @@ export const activityInputSchema = z.object({
 });
 
 export type ActivityInput = z.infer<typeof activityInputSchema>;
+
+/**
+ * Schema for the `POST /api/activity/submit` body.
+ *
+ * `score` is a client-reported completion percentage (0–100). There is no
+ * server-side answer key to recompute it generically across activity types, so
+ * we bound it server-side instead of trusting the raw value: it must be an
+ * integer in [0, 100] (matching `Submission.score Int?`). Any other shape is a
+ * 400. Unknown keys (e.g. the legacy `points` field) are stripped, not trusted.
+ */
+export const activitySubmitSchema = z.object({
+    activityId: idString,
+    assignmentId: idString.nullish(),
+    content: boundedJsonValue.optional(),
+    score: z.number().int().min(0).max(100).nullish(),
+});
+
+export type ActivitySubmitInput = z.infer<typeof activitySubmitSchema>;
