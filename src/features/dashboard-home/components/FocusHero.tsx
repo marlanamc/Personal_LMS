@@ -57,7 +57,7 @@ export function FocusHero({
 
   return (
     <div className="focus-hero-wrapper focus-hero-mobile-plain dashboard-date-hero relative">
-      <div className="dashboard-date-hero-header hidden sm:grid">
+      <div className="dashboard-date-hero-header hidden lg:grid">
         <h1 className="hidden sm:block text-page-title font-body leading-tight mb-1">
           <span className="dashboard-date-hero-full text-text relative">
             {dateLabel}
