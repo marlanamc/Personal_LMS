@@ -5,65 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { enforceRateLimit } from "@/lib/rate-limit";
 import { ApiError, handleApiError } from "@/lib/api-error";
 
-type SubmissionRecord = {
-    id: string;
-    score: number | null;
-};
-
-type SubmissionDelegate = {
-    upsert(args: {
-        where: {
-            userId_activityId_assignmentId: {
-                userId: string;
-                activityId: string;
-                assignmentId: string;
-            };
-        };
-        create: {
-            userId: string;
-            activityId: string;
-            assignmentId: string;
-            content: string;
-            score: number | null;
-            pointsAwarded: number;
-            status: "submitted";
-            completedAt: Date;
-        };
-        update: {
-            content: string;
-            score: number | null;
-            pointsAwarded: number;
-            status: "submitted";
-            completedAt: Date;
-        };
-    }): Promise<SubmissionRecord>;
-    findFirst(args: {
-        where: { userId: string; activityId: string; assignmentId: null };
-        orderBy: { updatedAt: "desc" };
-    }): Promise<{ id: string } | null>;
-    update(args: {
-        where: { id: string };
-        data: {
-            content: string;
-            score: number | null;
-            pointsAwarded: number;
-            status: "submitted";
-            completedAt: Date;
-        };
-    }): Promise<SubmissionRecord>;
-    create(args: {
-        data: {
-            userId: string;
-            activityId: string;
-            assignmentId: null;
-            content: string;
-            score: number | null;
-            pointsAwarded: number;
-            status: "submitted";
-            completedAt: Date;
-        };
-    }): Promise<SubmissionRecord>;
-};
+// Use Prisma's generated delegate type so schema drift is caught at compile time.
+type SubmissionDelegate = typeof prisma.submission;
 
 export async function saveActivitySubmission(params: {
     submission: SubmissionDelegate;
@@ -72,13 +15,11 @@ export async function saveActivitySubmission(params: {
     assignmentId: string | null;
     content: unknown;
     score: number | null;
-    pointsAwarded: number;
-}): Promise<SubmissionRecord> {
-    const { submission, userId, activityId, assignmentId, content, score, pointsAwarded } = params;
+}) {
+    const { submission, userId, activityId, assignmentId, content, score } = params;
     const submissionPayload = {
         content: JSON.stringify(content ?? null),
         score: typeof score === "number" ? score : null,
-        pointsAwarded,
         status: "submitted" as const,
         completedAt: new Date(),
     };
@@ -171,52 +112,46 @@ export async function POST(request: Request) {
             throw new ApiError(404, "activity_not_found", "Activity not found");
         }
 
-        // Points system removed - keeping calculatedPoints = 0 for backwards compatibility
-        const calculatedPoints = 0;
-
         const assignmentKey =
             typeof assignmentId === "string" && assignmentId.trim() !== "" && assignmentId !== "null"
                 ? assignmentId
                 : null;
-        const submission = await saveActivitySubmission({
-            submission: prisma.submission,
-            userId,
-            activityId,
-            assignmentId: assignmentKey,
-            content,
-            score: typeof score === "number" ? score : null,
-            pointsAwarded: calculatedPoints,
-        });
-
-        // Update activity progress to completed
-        const progressWhere = {
-            userId,
-            activityId,
-            assignmentId: assignmentKey,
-        };
-        const existingProgress = await prisma.activityProgress.findFirst({
-            where: progressWhere,
-        });
-
-        if (existingProgress) {
-            await prisma.activityProgress.update({
-                where: { id: existingProgress.id },
-                data: {
-                    progress: 100,
-                    status: 'completed',
-                },
+        // Persist the submission and mark progress complete atomically, so a
+        // failure mid-way can't leave a saved submission with no matching
+        // completed-progress record (or vice versa).
+        const submission = await prisma.$transaction(async (tx) => {
+            const saved = await saveActivitySubmission({
+                submission: tx.submission,
+                userId,
+                activityId,
+                assignmentId: assignmentKey,
+                content,
+                score: typeof score === "number" ? score : null,
             });
-        } else {
-            await prisma.activityProgress.create({
-                data: {
-                    userId,
-                    activityId,
-                    assignmentId: assignmentKey,
-                    progress: 100,
-                    status: 'completed',
-                },
+
+            const existingProgress = await tx.activityProgress.findFirst({
+                where: { userId, activityId, assignmentId: assignmentKey },
             });
-        }
+
+            if (existingProgress) {
+                await tx.activityProgress.update({
+                    where: { id: existingProgress.id },
+                    data: { progress: 100, status: "completed" },
+                });
+            } else {
+                await tx.activityProgress.create({
+                    data: {
+                        userId,
+                        activityId,
+                        assignmentId: assignmentKey,
+                        progress: 100,
+                        status: "completed",
+                    },
+                });
+            }
+
+            return saved;
+        });
 
 
         return NextResponse.json({

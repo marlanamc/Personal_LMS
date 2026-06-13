@@ -28,6 +28,21 @@ function parseCategoryData(value: string | null): Record<string, unknown> | null
     }
 }
 
+// Accepts already-parsed objects or JSON strings and never throws — legacy
+// rows may hold malformed categoryData, and a parse failure must not roll back
+// the surrounding progress transaction.
+function toCategoryRecord(value: unknown): Record<string, { completed?: boolean }> {
+    if (!value) return {};
+    if (typeof value === "object" && !Array.isArray(value)) {
+        return value as Record<string, { completed?: boolean }>;
+    }
+    if (typeof value === "string") {
+        const parsed = parseCategoryData(value);
+        return (parsed as Record<string, { completed?: boolean }>) ?? {};
+    }
+    return {};
+}
+
 function asObject(value: unknown): Record<string, unknown> | null {
     if (value && typeof value === "object" && !Array.isArray(value)) {
         return value as Record<string, unknown>;
@@ -455,51 +470,46 @@ export async function POST(request: Request) {
         Object.assign(progressData, { categoryData: updatedCategoryData });
     }
 
-    let record;
-    if (existing) {
-        record = await prisma.activityProgress.update({
-            where: { id: existing.id },
-            data: progressData,
-        });
-    } else {
-        record = await prisma.activityProgress.create({
-            data: {
-                userId,
-                activityId,
-                assignmentId: assignmentKey,
-                ...progressData,
-            },
-        });
-    }
-
-    // For vocabulary activities with assignmentId, also sync to a global progress record
-    if (vocabType && assignmentKey && updatedCategoryData) {
-        try {
-            // Find the global record (without assignmentId)
-            const globalRecord = await prisma.activityProgress.findFirst({
-                where: {
+    // The per-assignment progress write and the global vocabulary sync run in a
+    // single transaction so the two records can never silently diverge: either
+    // both commit or neither does. (Previously the sync was best-effort in a
+    // try/catch that swallowed errors, leaving the records out of sync on
+    // failure.) JSON parsing below is defensive so legacy/malformed data can't
+    // throw and roll back the primary write.
+    const record = await prisma.$transaction(async (tx) => {
+        const primary = existing
+            ? await tx.activityProgress.update({
+                where: { id: existing.id },
+                data: progressData,
+            })
+            : await tx.activityProgress.create({
+                data: {
                     userId,
                     activityId,
-                    assignmentId: null,
+                    assignmentId: assignmentKey,
+                    ...progressData,
                 },
             });
 
-            if (globalRecord) {
-                // Merge the categoryData - update this vocabType while preserving others
-                const existingGlobalData = globalRecord.categoryData ?
-                    (typeof globalRecord.categoryData === 'string' ? JSON.parse(globalRecord.categoryData) : globalRecord.categoryData) : {};
-                const newData = typeof updatedCategoryData === 'string' ? JSON.parse(updatedCategoryData) : updatedCategoryData;
+        // For vocabulary activities with assignmentId, also sync to a global
+        // progress record (the one without an assignmentId).
+        if (vocabType && assignmentKey && updatedCategoryData) {
+            const globalRecord = await tx.activityProgress.findFirst({
+                where: { userId, activityId, assignmentId: null },
+            });
 
-                // Merge: take the new data for this vocabType, keep existing for others
+            if (globalRecord) {
+                // Merge categoryData: take the new data for this vocabType,
+                // keep existing entries for the others.
+                const existingGlobalData = toCategoryRecord(globalRecord.categoryData);
+                const newData = toCategoryRecord(updatedCategoryData);
                 const mergedData = { ...existingGlobalData, ...newData };
 
-                // Calculate overall progress
-                const vocabTypes = ['word-list', 'flashcards', 'matching', 'fill-blank'];
-                const completedCount = vocabTypes.filter(vType => mergedData[vType]?.completed).length;
-                const globalProgress = (completedCount / vocabTypes.length) * 100;
+                const completedCount = VOCAB_TYPES.filter((vType) => mergedData[vType]?.completed).length;
+                const globalProgress = (completedCount / VOCAB_TYPES.length) * 100;
                 const globalStatus = globalProgress >= 100 ? 'completed' : 'in_progress';
 
-                await prisma.activityProgress.update({
+                await tx.activityProgress.update({
                     where: { id: globalRecord.id },
                     data: {
                         categoryData: JSON.stringify(mergedData),
@@ -508,8 +518,7 @@ export async function POST(request: Request) {
                     },
                 });
             } else {
-                // Create new global record
-                await prisma.activityProgress.create({
+                await tx.activityProgress.create({
                     data: {
                         userId,
                         activityId,
@@ -518,11 +527,10 @@ export async function POST(request: Request) {
                     },
                 });
             }
-        } catch (error) {
-            // Log error but don't fail the main operation
-            console.error('Failed to sync global vocabulary progress:', error);
         }
-    }
+
+        return primary;
+    });
 
     // Points system removed - gamification disabled
 
