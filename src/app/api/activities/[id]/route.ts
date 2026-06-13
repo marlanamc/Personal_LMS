@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/api-error";
+import { activityInputSchema } from "@/lib/validation/activity";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -16,15 +17,10 @@ export async function PUT(request: NextRequest, { params }: Props) {
         }
 
         const { id } = await params;
-        const body = await request.json();
-        const { title, description, type, category, level, content } = body;
-
-        if (!title || !type || !content) {
-            return NextResponse.json(
-                { error: "Title, type, and content are required" },
-                { status: 400 }
-            );
-        }
+        // Validate shape, size, and that `content` is parseable JSON before any
+        // DB write. handleApiError turns a ZodError into a 400 with details.
+        const { title, description, type, category, level, content } =
+            activityInputSchema.parse(await request.json());
 
         // Verify activity exists
         const existingActivity = await prisma.activity.findFirst({

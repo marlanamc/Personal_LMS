@@ -40,9 +40,19 @@ export default async function NewAssignmentPage({ params }: Props) {
         redirect("/dashboard");
     }
 
+    // Card-only fields; omit the heavy `content` blob (loaded on demand).
     const activities = await prisma.activity.findMany({
         where: { deletedAt: null },
         orderBy: { createdAt: "desc" },
+        select: {
+            id: true,
+            title: true,
+            description: true,
+            type: true,
+            category: true,
+            level: true,
+            ui: true,
+        },
     });
     const visibleActivities = collapseEdPronunciationActivities(activities);
 

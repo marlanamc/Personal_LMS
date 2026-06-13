@@ -196,9 +196,21 @@ export default async function SubjectsPage({ searchParams }: Props) {
 
     try {
         // Personal LMS uses a unified role experience on subjects.
+        // The category grid only renders card metadata; the heavy `content`
+        // blob is loaded on demand by the activity detail page. Selecting just
+        // these fields keeps this page fast as the activity library grows.
         const activities = await prisma.activity.findMany({
             where: { deletedAt: null },
             orderBy: { createdAt: "desc" },
+            select: {
+                id: true,
+                title: true,
+                description: true,
+                type: true,
+                category: true,
+                level: true,
+                ui: true,
+            },
         });
         const visibleActivities = collapseEdPronunciationActivities(activities);
 

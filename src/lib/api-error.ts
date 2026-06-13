@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { ZodError } from "zod";
 import { logger } from "@/lib/logger";
 
 export class ApiError extends Error {
@@ -24,6 +25,23 @@ function toErrorContext(error: ApiError) {
 }
 
 export function handleApiError(error: unknown, context: string) {
+  // Treat schema-validation failures as a clean 400 with field-level details.
+  if (error instanceof ZodError) {
+    const details = error.issues.map((issue) => ({
+      path: issue.path.join("."),
+      message: issue.message,
+    }));
+    logger.warn(context, { status: 400, code: "validation_error", details });
+    return NextResponse.json(
+      {
+        error: "Invalid request body",
+        code: "validation_error",
+        details,
+      },
+      { status: 400 }
+    );
+  }
+
   if (error instanceof ApiError) {
     if (error.status >= 500) {
       logger.error(context, error, toErrorContext(error));

@@ -169,41 +169,46 @@ export async function PATCH(req: NextRequest) {
       throw new ApiError(400, 'invalid_body', 'Request body must include threads array or a single update with id');
     }
 
-    const results = await Promise.all(
-      updates.map(async (update: { id?: string } & ThreadInput) => {
-        if (!update.id || typeof update.id !== 'string') {
-          throw new ApiError(400, 'missing_id', 'Each update must include an id');
-        }
-
-        // Verify thread belongs to user
-        const existing = await prisma.thread.findFirst({
-          where: { id: update.id, userId: session.user.id },
-        });
-
-        if (!existing) {
-          throw new ApiError(404, 'not_found', `Thread not found: ${update.id}`);
-        }
-
-        const validated = validateThreadInput(update);
-
-        // Track status transitions for lastFocused/lastRested
-        const statusUpdates: { lastFocused?: Date; lastRested?: Date } = {};
-        if (validated.status && validated.status !== existing.status) {
-          if (validated.status === 'active') {
-            statusUpdates.lastFocused = new Date();
-          } else if (validated.status === 'resting') {
-            statusUpdates.lastRested = new Date();
+    // Apply all updates atomically: a bad id (or a thread that doesn't belong
+    // to the user) anywhere in the batch rolls back the whole set, so the
+    // client never sees a partially-applied bulk update.
+    const results = await prisma.$transaction((tx) =>
+      Promise.all(
+        updates.map(async (update: { id?: string } & ThreadInput) => {
+          if (!update.id || typeof update.id !== 'string') {
+            throw new ApiError(400, 'missing_id', 'Each update must include an id');
           }
-        }
 
-        return prisma.thread.update({
-          where: { id: update.id },
-          data: {
-            ...validated,
-            ...statusUpdates,
-          },
-        });
-      })
+          // Verify thread belongs to user
+          const existing = await tx.thread.findFirst({
+            where: { id: update.id, userId: session.user.id },
+          });
+
+          if (!existing) {
+            throw new ApiError(404, 'not_found', `Thread not found: ${update.id}`);
+          }
+
+          const validated = validateThreadInput(update);
+
+          // Track status transitions for lastFocused/lastRested
+          const statusUpdates: { lastFocused?: Date; lastRested?: Date } = {};
+          if (validated.status && validated.status !== existing.status) {
+            if (validated.status === 'active') {
+              statusUpdates.lastFocused = new Date();
+            } else if (validated.status === 'resting') {
+              statusUpdates.lastRested = new Date();
+            }
+          }
+
+          return tx.thread.update({
+            where: { id: update.id },
+            data: {
+              ...validated,
+              ...statusUpdates,
+            },
+          });
+        })
+      )
     );
 
     return NextResponse.json({ threads: results });
