@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api-error';
+import { storeEnvelopeSchema } from '@/lib/validation/common';
 import { normalizeQuarterlyPlannerStore } from '@/lib/quarterly-planner';
 
 const SUBJECT_KEY = 'quarterly-planner';
@@ -44,8 +45,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = (await req.json()) as { store?: unknown };
-    const store = normalizeQuarterlyPlannerStore(body?.store);
+    const { store: rawStore } = storeEnvelopeSchema.parse(await req.json());
+    const store = normalizeQuarterlyPlannerStore(rawStore);
     const payload = store as unknown as Prisma.InputJsonValue;
 
     const state = await prisma.utilitySubjectState.upsert({

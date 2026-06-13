@@ -4,6 +4,14 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canManageClass } from "@/lib/class-access";
 import { handleApiError } from "@/lib/api-error";
+import { z } from "zod";
+import { idString, boundedText } from "@/lib/validation/common";
+
+const gradeSchema = z.object({
+    submissionId: idString,
+    score: z.number().min(0).max(100).nullish(),
+    feedback: boundedText(5000).nullish(),
+});
 
 export async function POST(request: NextRequest) {
     try {
@@ -12,12 +20,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await request.json();
-        const { submissionId, score, feedback } = body;
-
-        if (!submissionId) {
-            return NextResponse.json({ error: "Submission ID is required" }, { status: 400 });
-        }
+        const { submissionId, score, feedback } = gradeSchema.parse(await request.json());
 
         const userId = session.user?.id;
         if (!userId) {
@@ -50,16 +53,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
-        // Validate score if provided
-        if (score !== null && (score < 0 || score > 100)) {
-            return NextResponse.json({ error: "Score must be between 0 and 100" }, { status: 400 });
-        }
-
-        // Update submission
+        // Update submission (score range is validated by the schema)
         const updated = await prisma.submission.update({
             where: { id: submissionId },
             data: {
-                score: score !== null ? score : null,
+                // Preserve prior behavior: explicit null clears the score; an
+                // omitted score leaves the existing value unchanged.
+                score: score === undefined ? undefined : score,
                 feedback: feedback || null,
                 status: "graded",
             },

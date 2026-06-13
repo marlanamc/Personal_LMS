@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/api-error";
+import { preferencesEnvelopeSchema } from "@/lib/validation/common";
 
 const SUBJECT_KEY = "focus-timer-preferences";
 
@@ -99,8 +100,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = (await req.json()) as { preferences?: unknown };
-    const normalized = normalizePreferences(body.preferences);
+    const { preferences: rawPreferences } = preferencesEnvelopeSchema.parse(await req.json());
+    const normalized = normalizePreferences(rawPreferences);
 
     const payload = normalized as unknown as Prisma.InputJsonValue;
 

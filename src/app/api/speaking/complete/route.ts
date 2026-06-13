@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api-error';
+import { z } from 'zod';
+import { idString } from '@/lib/validation/common';
 
-const prisma = new PrismaClient();
+const speakingCompleteSchema = z.object({
+    activityId: idString,
+    assignmentId: z.string().nullish(),
+});
 
 export async function POST(request: NextRequest) {
     try {
@@ -22,13 +27,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        const body = await request.json();
-        const { activityId, assignmentId } = body;
-
-        // Validate required fields
-        if (!activityId) {
-            return NextResponse.json({ error: 'activityId is required' }, { status: 400 });
-        }
+        const { activityId, assignmentId } = speakingCompleteSchema.parse(await request.json());
 
         // Get activity content to check if it's a warmup (optional validation)
         const activity = await prisma.activity.findUnique({

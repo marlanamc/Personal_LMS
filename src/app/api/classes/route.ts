@@ -3,6 +3,13 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/api-error";
+import { z } from "zod";
+import { nonEmptyString, boundedText } from "@/lib/validation/common";
+
+const classCreateSchema = z.object({
+    name: nonEmptyString.max(200),
+    description: boundedText(2000).nullish(),
+});
 
 export async function GET() {
     try {
@@ -41,16 +48,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await request.json();
-        const { name, description } = body;
-
-        if (!name || typeof name !== 'string') {
-            return NextResponse.json({ error: "Class name is required" }, { status: 400 });
-        }
-
-        if (name.length > 200) {
-            return NextResponse.json({ error: "Class name too long" }, { status: 400 });
-        }
+        const { name, description } = classCreateSchema.parse(await request.json());
 
         const userId = session.user?.id;
         if (!userId) {

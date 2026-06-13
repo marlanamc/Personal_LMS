@@ -3,18 +3,15 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/api-error";
+import { z } from "zod";
+import { nonEmptyString } from "@/lib/validation/common";
 
-type CompletePayload = {
-  activityId?: string;
-  score?: number;
-  total?: number;
-  responses?: unknown;
-};
-
-const toIntOrNull = (value: unknown): number | null => {
-  if (typeof value !== "number" || !Number.isFinite(value)) return null;
-  return Math.round(value);
-};
+const grammarCompleteSchema = z.object({
+  activityId: nonEmptyString,
+  score: z.number().finite(),
+  total: z.number().finite().positive(),
+  responses: z.unknown().optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,18 +22,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = (await request.json()) as CompletePayload;
-    const activityId = typeof body.activityId === "string" ? body.activityId.trim() : "";
-    const scoreRaw = toIntOrNull(body.score);
-    const totalRaw = toIntOrNull(body.total);
-
-    if (!activityId) {
-      return NextResponse.json({ error: "activityId is required" }, { status: 400 });
-    }
-
-    if (scoreRaw === null || totalRaw === null || totalRaw <= 0) {
-      return NextResponse.json({ error: "score and total are required" }, { status: 400 });
-    }
+    const { activityId, score, total, responses } = grammarCompleteSchema.parse(await request.json());
+    const scoreRaw = Math.round(score);
+    const totalRaw = Math.round(total);
 
     const percentScore = Math.max(0, Math.min(100, Math.round((scoreRaw / totalRaw) * 100)));
     const now = new Date();
@@ -55,7 +43,7 @@ export async function POST(request: NextRequest) {
       score: scoreRaw,
       total: totalRaw,
       percent: percentScore,
-      responses: body.responses ?? null,
+      responses: responses ?? null,
       submittedAt: now.toISOString(),
     });
 

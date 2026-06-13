@@ -3,7 +3,15 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
 import { BCRYPT_ROUNDS, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } from "@/lib/auth-config";
+
+const passwordResetSchema = z.object({
+    newPassword: z
+        .string({ message: "Invalid password format." })
+        .min(MIN_PASSWORD_LENGTH, `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`)
+        .max(MAX_PASSWORD_LENGTH, `Password must not exceed ${MAX_PASSWORD_LENGTH} characters.`),
+});
 
 export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
@@ -11,20 +19,11 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { newPassword } = await request.json();
-
-    // SECURITY: Validate password length (min and max)
-    if (!newPassword || typeof newPassword !== "string") {
-        return NextResponse.json({ error: "Invalid password format." }, { status: 400 });
+    const parsed = passwordResetSchema.safeParse(await request.json());
+    if (!parsed.success) {
+        return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
     }
-
-    if (newPassword.length < MIN_PASSWORD_LENGTH) {
-        return NextResponse.json({ error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.` }, { status: 400 });
-    }
-
-    if (newPassword.length > MAX_PASSWORD_LENGTH) {
-        return NextResponse.json({ error: `Password must not exceed ${MAX_PASSWORD_LENGTH} characters.` }, { status: 400 });
-    }
+    const { newPassword } = parsed.data;
 
     // SECURITY: Use industry-standard bcrypt rounds (12 in 2025)
     const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);

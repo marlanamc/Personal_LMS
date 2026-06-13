@@ -3,7 +3,16 @@ import { getServerSession } from "next-auth";
 import { Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+import { boundedJsonValue } from "@/lib/validation/common";
 import type { RecentCapture, WorkspaceToolType } from "@/types/workspace";
+
+const workspaceContextSchema = z.object({
+  lastTool: z.string().nullish(),
+  lastDateKey: z.string().nullish(),
+  lastProjectId: z.string().nullish(),
+  newCapture: boundedJsonValue.optional(),
+});
 
 // GET: Fetch user's workspace context
 export async function GET() {
@@ -62,8 +71,18 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
-    const { lastTool, lastDateKey, lastProjectId, newCapture } = body;
+    const parsed = workspaceContextSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: "Invalid request body",
+          details: parsed.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })),
+        },
+        { status: 400 }
+      );
+    }
+    const lastTool = (parsed.data.lastTool ?? null) as WorkspaceToolType | null;
+    const { lastDateKey, lastProjectId, newCapture } = parsed.data;
 
     // Build the data object
     const updateData: {
@@ -98,7 +117,7 @@ export async function POST(request: NextRequest) {
         lastTool,
         lastDateKey: lastDateKey || null,
         lastProjectId: lastProjectId || null,
-        recentCaptures: newCapture ? [newCapture] : [],
+        recentCaptures: (newCapture ? [newCapture] : []) as unknown as Prisma.InputJsonValue,
       },
       update: updateData,
     });

@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/api-error";
+import { stateEnvelopeSchema } from "@/lib/validation/common";
 import type { TimeBlockEntry } from "@/lib/time-block-planner";
 
 const SUBJECT_KEY = "focus-timer-state";
@@ -139,8 +140,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = (await req.json()) as { state?: unknown };
-    const normalized = normalizeState(body.state) ?? {};
+    const { state: rawState } = stateEnvelopeSchema.parse(await req.json());
+    const normalized = normalizeState(rawState) ?? {};
 
     const payload = normalized as unknown as Prisma.InputJsonValue;
 

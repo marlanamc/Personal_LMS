@@ -3,6 +3,19 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/api-error";
+import { z } from "zod";
+import { idString, nonEmptyString } from "@/lib/validation/common";
+
+const submissionCreateSchema = z.object({
+    activityId: idString,
+    assignmentId: idString,
+    content: nonEmptyString.max(100_000),
+});
+
+const submissionUpdateSchema = z.object({
+    submissionId: idString,
+    content: nonEmptyString.max(100_000),
+});
 
 export async function POST(request: NextRequest) {
     try {
@@ -11,15 +24,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await request.json();
-        const { activityId, assignmentId, content } = body;
-
-        if (!activityId || !assignmentId || !content) {
-            return NextResponse.json(
-                { error: "Activity ID, Assignment ID, and content are required" },
-                { status: 400 }
-            );
-        }
+        const { activityId, assignmentId, content } =
+            submissionCreateSchema.parse(await request.json());
 
         const userId = session.user?.id;
         if (!userId) {
@@ -79,15 +85,7 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const body = await request.json();
-        const { submissionId, content } = body;
-
-        if (!submissionId || !content) {
-            return NextResponse.json(
-                { error: "Submission ID and content are required" },
-                { status: 400 }
-            );
-        }
+        const { submissionId, content } = submissionUpdateSchema.parse(await request.json());
 
         const userId = session.user?.id;
         if (!userId) {

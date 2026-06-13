@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api-error';
+import { storeEnvelopeSchema } from '@/lib/validation/common';
 import { normalizeOrganization, type ThoughtOrganization, type ThoughtOrganizerStore } from '@/lib/thought-organization';
 import { resolveOrganizerSubjectKey, resolveOrganizerWorkspaceId } from '@/lib/organize-workspaces';
 import type { RecentCapture } from '@/types/workspace';
@@ -69,8 +70,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = (await req.json()) as { store?: unknown };
-    const incomingStore = normalizeOrganizerStore(body.store);
+    const { store: rawStore } = storeEnvelopeSchema.parse(await req.json());
+    const incomingStore = normalizeOrganizerStore(rawStore);
     const workspaceId = resolveOrganizerWorkspaceId(req.nextUrl.searchParams.get('workspace'));
     const subjectKey = resolveOrganizerSubjectKey(workspaceId);
 

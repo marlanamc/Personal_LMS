@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/api-error';
+import { storeEnvelopeSchema } from '@/lib/validation/common';
 import { normalizeOrganization, type ThoughtOrganization } from '@/lib/thought-organization';
 import type { RecentCapture } from '@/types/workspace';
 
@@ -230,10 +231,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = (await req.json()) as { store?: unknown };
+    const { store: rawStore } = storeEnvelopeSchema.parse(await req.json());
     const incomingStore =
-      body?.store && typeof body.store === 'object' && !Array.isArray(body.store)
-        ? (body.store as Record<string, unknown>)
+      rawStore && typeof rawStore === 'object' && !Array.isArray(rawStore)
+        ? (rawStore as Record<string, unknown>)
         : {};
 
     const existingState = await prisma.utilitySubjectState.findUnique({

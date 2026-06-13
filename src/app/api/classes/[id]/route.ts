@@ -3,8 +3,15 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/api-error";
+import { z } from "zod";
 
 const MAX_ANNOUNCEMENT_LENGTH = 1000;
+
+// Validate the type at the boundary; trim + length handling stays below so the
+// length is measured against the trimmed value (matching prior behavior).
+const classPatchSchema = z.object({
+    announcement: z.string().nullish(),
+});
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -21,12 +28,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         }
 
         const { id } = await params;
-        const body = await request.json();
-        const rawAnnouncement = body?.announcement;
-
-        if (rawAnnouncement !== null && rawAnnouncement !== undefined && typeof rawAnnouncement !== "string") {
-            return NextResponse.json({ error: "Announcement must be a string or null" }, { status: 400 });
-        }
+        const { announcement: rawAnnouncement } = classPatchSchema.parse(await request.json());
 
         const cleanedAnnouncement =
             typeof rawAnnouncement === "string" ? rawAnnouncement.trim() : null;

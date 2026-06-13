@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { handleApiError, ApiError } from '@/lib/api-error';
+import { handleApiError } from '@/lib/api-error';
+import { z } from 'zod';
 
 const MAX_TEXT_LEN = 500;
+
+const dailyWinSchema = z.object({
+  text: z.string().trim().min(1, 'Text is required').max(MAX_TEXT_LEN, `Text must be at most ${MAX_TEXT_LEN} characters`),
+});
 
 export async function GET() {
   try {
@@ -40,19 +45,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = (await req.json()) as { text?: unknown };
-    const textRaw = typeof body.text === 'string' ? body.text.trim() : '';
-    if (!textRaw) {
-      throw new ApiError(400, 'validation_error', 'Text is required');
-    }
-    if (textRaw.length > MAX_TEXT_LEN) {
-      throw new ApiError(400, 'validation_error', `Text must be at most ${MAX_TEXT_LEN} characters`);
-    }
+    const { text } = dailyWinSchema.parse(await req.json());
 
     const win = await prisma.dailyWin.create({
       data: {
         userId: session.user.id,
-        text: textRaw,
+        text,
       },
       select: {
         id: true,
